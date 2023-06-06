@@ -16,5 +16,5 @@ def get_user_group(**kwargs) -> Optional[schemas.UserGroup]:
     return models.UserGroup.nodes.get_or_none(**kwargs)
 
 
-def remove_user_group(item: schemas.UserGroup) -> bool:
+def remove_user_group(item: models.UserGroup) -> bool:
     return item.delete()

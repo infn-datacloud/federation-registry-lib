@@ -16,7 +16,7 @@ class UserGroupBase(BaseModel):
 
     name: str
     description: str = ""
-    # projects: List[Project] = Field(default_factory=list)
+#    projects: List[Project] = Field(default_factory=list)
 
     class Config:
         validate_assignment = True

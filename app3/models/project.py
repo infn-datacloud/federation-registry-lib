@@ -2,16 +2,16 @@ from neomodel import (
     StructuredNode,
     UniqueIdProperty,
     StringProperty,
-    RelationshipTo,
-    ZeroOrMore,
+    RelationshipFrom,
+    One,
 )
 
 
-class UserGroup(StructuredNode):
+class Project(StructuredNode):
     uid = UniqueIdProperty()
     name = StringProperty(unique_index=True, required=True)
     description = StringProperty(default="")
 
-    projects = RelationshipTo(
-        ".Project", "HAS_ACCESS_TO", cardinality=ZeroOrMore
+    user_group = RelationshipFrom(
+        ".UserGroup", "HAS_ACCESS_TO", cardinality=One
     )

@@ -16,5 +16,5 @@ def get_provider(**kwargs) -> Optional[schemas.Provider]:
     return models.Provider.nodes.get_or_none(**kwargs)
 
 
-def remove_provider(item: schemas.Provider) -> bool:
+def remove_provider(item: models.Provider) -> bool:
     return item.delete()

@@ -21,13 +21,13 @@
 #    get_project_images,
 #    remove_image,
 #)
-#from .project import (
-#    create_project,
-#    get_project,
-#    get_project_by_name,
-#    get_projects,
-#    remove_project,
-#)
+from .project import (
+    create_project,
+    connect_project_user_group,
+    get_project,
+    get_projects,
+    remove_project,
+)
 from .provider import (
     create_provider,
     get_provider,
@@ -81,6 +81,7 @@ __all__ = [
     "get_project_images",
     "remove_image",
     "create_project",
+    "connect_project_user_group",
     "get_project",
     "get_project_by_name",
     "get_projects",
