@@ -52,9 +52,6 @@ class SLACreate(SLABase):
     It contains the SLA actors.
 
     Attributes:
-        project_id (int): ID of the target Project.
-        provider_id (int): ID of the target Provider.
-        service_id (int): ID of the target Resource.
     """
 
     pass
@@ -69,14 +66,9 @@ class SLA(SLABase):
     Attributes:
         id (str): SLA unique ID.
         name (str): SLA name.
-        project_id (int): ID of the target Project.
-        provider_id (int): ID of the target Provider.
-        service_id (int): ID of the target Resource.
     """
 
     id: UUID
-    project_id: UUID
-    provider_id: UUID
 
     class Config:
         orm_mode = True

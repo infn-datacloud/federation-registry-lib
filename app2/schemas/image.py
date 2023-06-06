@@ -74,11 +74,9 @@ class Image(ImageBase):
         cuda_support (bool): Enable support for CUDA.
         gpu_driver (bool): Enable support for GPU # TODO review comment/name.
         market_place (str): # TODO: What is it?
-        project_id (int): ID of the Project.
     """
 
     id: UUID
-    project_id: UUID
 
     class Config:
         orm_mode = True

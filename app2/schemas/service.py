@@ -93,6 +93,7 @@ class ServiceCreate(ServiceBase):
         values["resource_type"] = new_val
         return values
 
+
 class Service(ServiceBase):
     """Service Base class
 
@@ -107,11 +108,9 @@ class Service(ServiceBase):
         endpoint (str): Service endpoint.
         identity_provider_protocol (str): Identity Provider protocol.
         iam_enabled (str): Authentication through IAM enabled.
-        sla_id (int): ID of the Resource the Service manages.
     """
 
     id: UUID
-    sla_id: UUID
 
     class Config:
         orm_mode = True

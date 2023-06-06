@@ -11,8 +11,6 @@ class IdentityProviderBase(BaseModel):
         name (str): Identity provider name.
         url (str): Identity provider url.
         protocol (str): Identity provider protocol.
-        services (list of Services): List of services supporting
-            this IdentityProvider.
     """
 
     name: str
@@ -32,8 +30,6 @@ class IdentityProviderCreate(IdentityProviderBase):
         name (str): Identity provider name.
         url (str): Identity provider url.
         protocol (str): Identity provider protocol.
-        services (list of Services): List of services supporting
-            this IdentityProvider.
     """
 
     pass
@@ -50,8 +46,6 @@ class IdentityProvider(IdentityProviderBase):
         name (str): Identity provider name.
         url (str): Identity provider url.
         protocol (str): Identity provider protocol.
-        services (list of Services): List of services supporting
-            this IdentityProvider.
     """
 
     id: UUID

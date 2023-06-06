@@ -57,11 +57,9 @@ class Flavor(FlavorBase):
         ram (int): Reserved RAM (GB)
         disk (int): Reserved disk size (GB)
         infiniband_support (bool): #TODO: What is it?
-        project_id (int): ID of the project
     """
 
     id: UUID
-    project_id: UUID
 
     class Config:
         orm_mode = True

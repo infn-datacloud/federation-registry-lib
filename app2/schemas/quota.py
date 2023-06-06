@@ -12,7 +12,7 @@ class BandwidthQuota(Enum):
 
 class CountQuota(Enum):
     num_cpus: str = "Num CPUs"
-    public_ip: str = "Public IP"
+    public_ip: str = "Public IPs"
 
 
 class FrequencyQuota(Enum):
@@ -120,7 +120,6 @@ class Quota(QuotaBase):
     """
 
     id: UUID
-    sla_id: UUID
 
     class Config:
         orm_mode = True

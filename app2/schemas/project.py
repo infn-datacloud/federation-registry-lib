@@ -50,14 +50,11 @@ class Project(ProjectBase):
     Attributes:
         id (str): Project unique ID.
         name (str): Project name.
-        user_group_id (int): ID of the owner, which is a UserGroup.
-        sla_id (int): ID of the associated SLA.
         images (list of Image): List of the images belonged by the Project.
         flavors (list of Flavor): List of the flavors belonged by the Project.
     """
 
     id: UUID
-    user_group_id: UUID
 
     class Config:
         orm_mode = True
