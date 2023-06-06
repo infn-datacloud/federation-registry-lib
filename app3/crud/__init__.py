@@ -1,28 +1,26 @@
-#from .flavor import (
-#    create_flavor,
-#    get_flavor,
-#    get_flavor_by_name,
-#    get_flavors,
-#    get_project_flavors,
-#    remove_flavor,
-#)
+from .flavor import (
+    create_flavor,
+    connect_flavor_to_project,
+    get_flavor,
+    get_flavors,
+    remove_flavor,
+)
 from .identity_provider import (
     create_identity_provider,
     get_identity_provider,
     get_identity_providers,
     remove_identity_provider,
 )
-#from .image import (
-#    create_image,
-#    get_image,
-#    get_image_by_name,
-#    get_images,
-#    get_project_images,
-#    remove_image,
-#)
+from .image import (
+    create_image,
+    get_image,
+    connect_image_to_project,
+    get_images,
+    remove_image,
+)
 from .project import (
     create_project,
-    connect_project_user_group,
+    connect_project_to_user_group,
     get_project,
     get_projects,
     remove_project,
@@ -33,27 +31,28 @@ from .provider import (
     get_providers,
     remove_provider,
 )
-#from .quota import (
+
+# from .quota import (
 #    create_quota,
 #    get_quota,
 #    get_quota_by_name,
 #    get_quotas,
 #    remove_quota,
-#)
-#from .service import (
+# )
+# from .service import (
 #    create_service,
 #    get_service,
 #    get_service_by_name,
 #    get_services,
 #    remove_service,
-#)
-#from .sla import (
+# )
+# from .sla import (
 #    create_sla,
 #    get_sla,
 #    get_sla_by_name,
 #    get_slas,
 #    remove_sla,
-#)
+# )
 from .user_group import (
     create_user_group,
     get_user_group,
@@ -63,6 +62,7 @@ from .user_group import (
 
 __all__ = [
     "create_flavor",
+    "connect_flavor_to_project",
     "get_flavor",
     "get_flavor_by_name",
     "get_flavors",
@@ -74,13 +74,12 @@ __all__ = [
     "get_identity_providers",
     "remove_identity_provider",
     "create_image",
+    "connect_image_to_project",
     "get_image",
-    "get_image_by_name",
     "get_images",
-    "get_project_images",
     "remove_image",
     "create_project",
-    "connect_project_user_group",
+    "connect_project_to_user_group",
     "get_project",
     "get_project_by_name",
     "get_projects",

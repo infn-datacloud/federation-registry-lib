@@ -20,7 +20,7 @@ def remove_project(item: models.Project) -> bool:
     return item.delete()
 
 
-def connect_project_user_group(
+def connect_project_to_user_group(
     user_group: models.UserGroup, project: models.Project
 ) -> bool:
     return project.user_group.connect(user_group)

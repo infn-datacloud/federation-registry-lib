@@ -1,5 +1,6 @@
 from .flavor import Flavor
 from .identity_provider import IdentityProvider
+from .image import Image
 from .project import Project
 from .provider import Provider
 from .user_group import UserGroup
