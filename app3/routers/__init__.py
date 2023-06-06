@@ -6,7 +6,7 @@ from .provider import router as providers_router
 #from .quota import router as quotas_router
 #from .service import router as services_router
 #from .sla import router as slas_router
-#from .user_group import router as user_groups_router
+from .user_group import router as user_groups_router
 
 __all__ = [
     "flavors_router",

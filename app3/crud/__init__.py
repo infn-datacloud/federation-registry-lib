@@ -55,13 +55,12 @@ from .provider import (
 #    get_slas,
 #    remove_sla,
 #)
-#from .user_group import (
-#    create_user_group,
-#    get_user_group,
-#    get_user_group_by_name,
-#    get_user_groups,
-#    remove_user_group,
-#)
+from .user_group import (
+    create_user_group,
+    get_user_group,
+    get_user_groups,
+    remove_user_group,
+)
 
 __all__ = [
     "create_flavor",
