@@ -6,10 +6,10 @@ authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-neo4j = "^5.9.0"
 flaat = "^1.1.8"
 fastapi = "^0.95.2"
 uvicorn = "^0.22.0"
+neomodel = "^5.0.1"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
