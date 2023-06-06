@@ -14,7 +14,7 @@ def create_flavor(
     cypher = "MATCH (p:Project {id: $project_id}) "
     cypher += "MERGE (n:Flavor {id: apoc.create.uuid()}) "
     cypher += f"SET {s} "
-    cypher += "MERGE (n)-[r:BELONGS_TO]->(p)"
+    cypher += "MERGE (p)-[r:AVAILABLE_VM_SIZE]->(n)"
     cypher += "RETURN n"
     result = tx.run(cypher, project_id=str(project_id), *args, **kwargs)
     return result.single(strict=True).data().get("n")

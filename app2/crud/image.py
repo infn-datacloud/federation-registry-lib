@@ -17,7 +17,7 @@ def create_image(
     cypher = "MATCH (p:Project {id: $project_id}) "
     cypher += "MERGE (n:Image {id: apoc.create.uuid()}) "
     cypher += f"SET {s} "
-    cypher += "MERGE (n)-[r:BELONGS_TO]->(p)"
+    cypher += "MERGE (p)-[r:AVAILABLE_VM_IMAGE]->(n)"
     cypher += "RETURN n"
     result = tx.run(cypher, project_id=str(project_id), os=os, *args, **kwargs)
     return result.single(strict=True).data().get("n")

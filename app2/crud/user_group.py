@@ -16,7 +16,9 @@ def create_user_group(tx: ManagedTransaction, *args, **kwargs) -> UserGroup:
     return result.single(strict=True).data().get("n")
 
 
-def get_user_groups(tx: ManagedTransaction, *args, **kwargs) -> List[UserGroup]:
+def get_user_groups(
+    tx: ManagedTransaction, *args, **kwargs
+) -> List[UserGroup]:
     cypher = """
         MATCH (n:UserGroup)
         RETURN n
@@ -56,4 +58,3 @@ def remove_user_group(tx: ManagedTransaction, id: UUID) -> None:
     """
     result = tx.run(cypher, id=str(id))
     return result.single() is None
-

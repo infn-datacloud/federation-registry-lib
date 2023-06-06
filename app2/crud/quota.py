@@ -20,7 +20,7 @@ def create_quota(
     cypher = "MATCH (p:SLA {id: $sla_id}) "
     cypher += "MERGE (n:Quota {id: apoc.create.uuid()}) "
     cypher += f"SET {s} "
-    cypher += "MERGE (n)-[r:BELONGS_TO]->(p)"
+    cypher += "MERGE (p)-[r:HAS_RESOURCE_RESTRICTIONS]->(n)"
     cypher += "RETURN n"
     result = tx.run(
         cypher, sla_id=str(sla_id), name=name, unit=unit, *args, **kwargs

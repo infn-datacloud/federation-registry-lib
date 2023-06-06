@@ -14,7 +14,7 @@ def create_project(
     cypher = "MATCH (p:UserGroup {id: $user_group_id}) "
     cypher += "MERGE (n:Project {id: apoc.create.uuid()}) "
     cypher += f"SET {s} "
-    cypher += "MERGE (n)-[r:BELONGS_TO]->(p)"
+    cypher += "MERGE (p)-[r:HAS_ACCESS_TO]->(n)"
     cypher += "RETURN n"
     result = tx.run(cypher, user_group_id=str(user_group_id), *args, **kwargs)
     return result.single(strict=True).data().get("n")
@@ -60,4 +60,3 @@ def remove_project(tx: ManagedTransaction, id: UUID) -> None:
     """
     result = tx.run(cypher, id=str(id))
     return result.single() is None
-

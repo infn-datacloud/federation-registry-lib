@@ -6,14 +6,17 @@ from ..schemas import SLA
 
 
 def create_sla(
-    tx: ManagedTransaction, project_id: UUID, provider_id: UUID, *args, **kwargs
+    tx: ManagedTransaction,
+    project_id: UUID,
+    provider_id: UUID,
+    *args,
+    **kwargs,
 ) -> SLA:
     s = ", ".join([f"n.{k}=${k}" for k in SLA.__fields__.keys() if k != "id"])
     cypher = "MATCH (p1:Provider {id: $provider_id}), (p2:Project {id: $project_id}) "
     cypher += "MERGE (n:SLA {id: apoc.create.uuid()}) "
     cypher += f"SET {s} "
-    cypher += "MERGE (n)-[r1:BELONGS_TO]->(p1) "
-    cypher += "MERGE (n)-[r2:BELONGS_TO]->(p2) "
+    cypher += "MERGE (p2)-[r2:REQUIRES_RESOURCES]->(n)-[r1:CAN_ACCESS_TO]->(p1) "
     cypher += "RETURN n"
     result = tx.run(
         cypher,

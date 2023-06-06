@@ -20,7 +20,7 @@ def create_service(
     cypher = "MATCH (p:SLA {id: $sla_id}) "
     cypher += "MERGE (n:Service {id: apoc.create.uuid()}) "
     cypher += f"SET {s} "
-    cypher += "MERGE (n)-[r:BELONGS_TO]->(p)"
+    cypher += "MERGE (n)-[r:MANAGES_RES_ASSIGNED_TO]->(p)"
     cypher += "RETURN n"
     result = tx.run(
         cypher,
