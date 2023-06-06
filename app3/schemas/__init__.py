@@ -1,9 +1,9 @@
 #from .flavor import Flavor, FlavorBase, FlavorCreate
-#from .identity_provider import (
-#    IdentityProvider,
-#    IdentityProviderBase,
-#    IdentityProviderCreate,
-#)
+from .identity_provider import (
+    IdentityProvider,
+    IdentityProviderBase,
+    IdentityProviderCreate,
+)
 #from .image import Image, ImageBase, ImageCreate
 from .project import Project, ProjectBase, ProjectCreate
 from .provider import Provider, ProviderBase, ProviderCreate

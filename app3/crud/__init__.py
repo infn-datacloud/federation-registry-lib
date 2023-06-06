@@ -6,13 +6,12 @@
 #    get_project_flavors,
 #    remove_flavor,
 #)
-#from .identity_provider import (
-#    create_identity_provider,
-#    get_identity_provider,
-#    get_identity_provider_by_name,
-#    get_identity_providers,
-#    remove_identity_provider,
-#)
+from .identity_provider import (
+    create_identity_provider,
+    get_identity_provider,
+    get_identity_providers,
+    remove_identity_provider,
+)
 #from .image import (
 #    create_image,
 #    get_image,

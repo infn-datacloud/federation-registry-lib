@@ -1,5 +1,5 @@
 #from .flavor import router as flavors_router
-#from .identity_provider import router as identity_providers_router
+from .identity_provider import router as identity_providers_router
 #from .image import router as images_router
 from .project import router as projects_router
 from .provider import router as providers_router
