@@ -31,14 +31,13 @@ from .provider import (
     get_providers,
     remove_provider,
 )
-
-# from .quota import (
-#    create_quota,
-#    get_quota,
-#    get_quota_by_name,
-#    get_quotas,
-#    remove_quota,
-# )
+from .quota import (
+   create_quota,
+   connect_quota_to_sla,
+   get_quota,
+   get_quotas,
+   remove_quota,
+)
 # from .service import (
 #    create_service,
 #    get_service,
@@ -86,6 +85,7 @@ __all__ = [
     "get_providers",
     "remove_provider",
     "create_quota",
+    "connect_quota_to_sla",
     "get_quota",
     "get_quotas",
     "remove_quota",

@@ -51,3 +51,17 @@ def delete_slas(uid: str) -> bool:
     if db_item is None:
         raise HTTPException(status_code=404, detail="SLA not found")
     return crud.remove_sla(db_item)
+
+
+@db.write_transaction
+@router.post("/{uid}/quotas", response_model=schemas.Quota)
+def add_quota_to_sla(uid: str, item: schemas.QuotaCreate):
+    db_sla = crud.get_sla(uid=uid)
+    if db_sla is None:
+        raise HTTPException(status_code=404, detail="SLA not found")
+    db_quota = crud.create_quota(item=item)
+    if not crud.connect_quota_to_sla(sla=db_sla, quota=db_quota):
+        raise HTTPException(
+            status_code=500, detail="Relationship creation failed"
+        )
+    return db_quota

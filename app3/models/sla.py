@@ -6,6 +6,7 @@ from neomodel import (
     RelationshipFrom,
     RelationshipTo,
     One,
+    ZeroOrMore,
 )
 
 
@@ -34,6 +35,7 @@ class SLA(StructuredNode):
     project = RelationshipFrom(
         ".Project", "REQUIRES_RESOURCES", cardinality=One
     )
-    provider = RelationshipTo(
-        ".Provider", "CAN_ACCESS_TO", cardinality=One
+    provider = RelationshipTo(".Provider", "CAN_ACCESS_TO", cardinality=One)
+    quotas = RelationshipTo(
+        ".SLA", "HAS_RESOURCE_RESTRICTIONS", cardinality=ZeroOrMore
     )
