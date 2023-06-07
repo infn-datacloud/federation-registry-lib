@@ -32,19 +32,19 @@ from .provider import (
     remove_provider,
 )
 from .quota import (
-   create_quota,
-   connect_quota_to_sla,
-   get_quota,
-   get_quotas,
-   remove_quota,
+    create_quota,
+    connect_quota_to_sla,
+    get_quota,
+    get_quotas,
+    remove_quota,
 )
-# from .service import (
-#    create_service,
-#    get_service,
-#    get_service_by_name,
-#    get_services,
-#    remove_service,
-# )
+from .service import (
+    create_service,
+    connect_service_to_sla,
+    get_service,
+    get_services,
+    remove_service,
+)
 from .sla import (
     create_sla,
     connect_sla_to_project_and_provider,
@@ -90,6 +90,7 @@ __all__ = [
     "get_quotas",
     "remove_quota",
     "create_service",
+    "connect_service_to_sla",
     "get_service",
     "get_services",
     "remove_service",

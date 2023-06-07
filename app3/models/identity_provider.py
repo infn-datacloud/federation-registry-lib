@@ -3,6 +3,8 @@ from neomodel import (
     UniqueIdProperty,
     StringProperty,
     BooleanProperty,
+    RelationshipFrom,
+    ZeroOrMore,
 )
 
 
@@ -23,3 +25,7 @@ class IdentityProvider(StructuredNode):
     name = StringProperty(unique_index=True, required=True)
     url = StringProperty(required=True)
     protocol = BooleanProperty(required=True)
+
+    services = RelationshipFrom(
+        ".Service", "AUTHENTICATE_THROUGH", cardinality=ZeroOrMore
+    )

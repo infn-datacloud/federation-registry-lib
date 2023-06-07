@@ -65,3 +65,17 @@ def add_quota_to_sla(uid: str, item: schemas.QuotaCreate):
             status_code=500, detail="Relationship creation failed"
         )
     return db_quota
+
+
+@db.write_transaction
+@router.post("/{uid}/services", response_model=schemas.Service)
+def add_service_to_sla(uid: str, item: schemas.ServiceCreate):
+    db_sla = crud.get_sla(uid=uid)
+    if db_sla is None:
+        raise HTTPException(status_code=404, detail="SLA not found")
+    db_service = crud.create_service(item=item)
+    if not crud.connect_service_to_sla(sla=db_sla, service=db_service):
+        raise HTTPException(
+            status_code=500, detail="Relationship creation failed"
+        )
+    return db_service

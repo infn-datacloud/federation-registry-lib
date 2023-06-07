@@ -24,6 +24,7 @@ def read_provider(uid: str):
         raise HTTPException(status_code=404, detail="Provider not found")
     return db_item
 
+
 @db.read_transaction
 @router.get("/", response_model=List[schemas.Provider])
 def read_providers(skip: int = 0, limit: int = 100):

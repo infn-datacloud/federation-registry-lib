@@ -60,6 +60,7 @@ class QuotaBase(BaseModel):
         SizeQuota,
         TimeQuota,
     ]
+    description: str = ""
     tot_limit: float
     instance_limit: float
     user_limit: float

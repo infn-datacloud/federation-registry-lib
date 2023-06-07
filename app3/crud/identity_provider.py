@@ -2,7 +2,9 @@ from typing import List, Optional
 from .. import schemas, models
 
 
-def create_identity_provider(item: schemas.IdentityProviderCreate) -> schemas.IdentityProvider:
+def create_identity_provider(
+    item: schemas.IdentityProviderCreate,
+) -> schemas.IdentityProvider:
     return models.IdentityProvider(**item.dict()).save()
 
 

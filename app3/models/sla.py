@@ -37,5 +37,8 @@ class SLA(StructuredNode):
     )
     provider = RelationshipTo(".Provider", "CAN_ACCESS_TO", cardinality=One)
     quotas = RelationshipTo(
-        ".SLA", "HAS_RESOURCE_RESTRICTIONS", cardinality=ZeroOrMore
+        ".Quota", "HAS_RESOURCE_RESTRICTIONS", cardinality=ZeroOrMore
+    )
+    services = RelationshipFrom(
+        ".Service", "MANAGES_RES_ASSIGNED_TO", cardinality=ZeroOrMore
     )

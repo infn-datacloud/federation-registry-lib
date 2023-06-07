@@ -20,7 +20,5 @@ def remove_quota(item: models.Quota) -> bool:
     return item.delete()
 
 
-def connect_quota_to_sla(
-    sla: models.SLA, quota: models.Quota
-) -> bool:
+def connect_quota_to_sla(sla: models.SLA, quota: models.Quota) -> bool:
     return quota.sla.connect(sla)

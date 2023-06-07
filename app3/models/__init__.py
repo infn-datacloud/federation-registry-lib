@@ -4,6 +4,7 @@ from .image import Image
 from .project import Project
 from .provider import Provider
 from .quota import Quota
+from .service import Service
 from .sla import SLA
 from .user_group import UserGroup
 

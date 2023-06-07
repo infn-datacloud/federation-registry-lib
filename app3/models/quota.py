@@ -11,6 +11,7 @@ from neomodel import (
 class Quota(StructuredNode):
     uid = UniqueIdProperty()
     name = StringProperty(required=True)
+    description = StringProperty(default="")
     tot_limit = FloatProperty(required=True)
     instance_limit = FloatProperty(required=True)
     user_limit = FloatProperty(required=True)

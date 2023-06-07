@@ -47,6 +47,10 @@ def add_project_to_user_group(uid: str, item: schemas.ProjectCreate):
     if db_user_group is None:
         raise HTTPException(status_code=404, detail="UserGroup not found")
     db_project = crud.create_project(item=item)
-    if not crud.connect_project_to_user_group(user_group=db_user_group, project=db_project):
-        raise HTTPException(status_code=500, detail="Relationship creation failed")    
+    if not crud.connect_project_to_user_group(
+        user_group=db_user_group, project=db_project
+    ):
+        raise HTTPException(
+            status_code=500, detail="Relationship creation failed"
+        )
     return db_project

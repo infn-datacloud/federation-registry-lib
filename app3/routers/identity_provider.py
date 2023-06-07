@@ -21,8 +21,11 @@ def add_identity_provider(item: schemas.IdentityProviderCreate):
 def read_identity_provider(uid: str):
     db_item = crud.get_identity_provider(uid=uid)
     if db_item is None:
-        raise HTTPException(status_code=404, detail="IdentityProvider not found")
+        raise HTTPException(
+            status_code=404, detail="IdentityProvider not found"
+        )
     return db_item
+
 
 @db.read_transaction
 @router.get("/", response_model=List[schemas.IdentityProvider])
@@ -35,5 +38,7 @@ def read_identity_providers(skip: int = 0, limit: int = 100):
 def delete_identity_providers(uid: str) -> bool:
     db_item = crud.get_identity_provider(uid=uid)
     if db_item is None:
-        raise HTTPException(status_code=404, detail="IdentityProvider not found")
+        raise HTTPException(
+            status_code=404, detail="IdentityProvider not found"
+        )
     return crud.remove_identity_provider(db_item)

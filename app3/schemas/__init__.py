@@ -8,7 +8,7 @@ from .image import Image, ImageBase, ImageCreate
 from .project import Project, ProjectBase, ProjectCreate
 from .provider import Provider, ProviderBase, ProviderCreate
 from .quota import Quota, QuotaBase, QuotaCreate
-#from .service import Service, ServiceBase, ServiceCreate
+from .service import Service, ServiceBase, ServiceCreate
 from .sla import SLA, SLABase, SLACreate
 from .user_group import UserGroup, UserGroupBase, UserGroupCreate
 
