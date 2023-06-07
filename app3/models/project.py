@@ -23,3 +23,4 @@ class Project(StructuredNode):
     images = RelationshipTo(
         ".Image", "AVAILABLE_VM_IMAGE", cardinality=ZeroOrMore
     )
+    slas = RelationshipTo(".SLA", "REQUIRES_RESOURCES", cardinality=ZeroOrMore)

@@ -14,7 +14,7 @@ app.include_router(routers.projects_router)
 app.include_router(routers.providers_router)
 #app.include_router(routers.quotas_router)
 #app.include_router(routers.services_router)
-#app.include_router(routers.slas_router)
+app.include_router(routers.slas_router)
 app.include_router(routers.user_groups_router)
 
 if __name__ == "__main__":

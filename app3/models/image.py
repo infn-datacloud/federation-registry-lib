@@ -12,7 +12,7 @@ class Image(StructuredNode):
     uid = UniqueIdProperty()
     name = StringProperty(unique_index=True, required=True)
     description = StringProperty(default="")
-    os = StringProperty(required=True)
+    os = StringProperty(required=True) # TODO: add choices
     distribution = StringProperty(required=True)
     version = StringProperty(required=True)
     architecture = StringProperty(required=True)

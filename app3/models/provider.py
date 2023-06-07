@@ -4,6 +4,8 @@ from neomodel import (
     StringProperty,
     BooleanProperty,
     ArrayProperty,
+    RelationshipFrom,
+    ZeroOrMore,
 )
 
 
@@ -25,4 +27,5 @@ class Provider(StructuredNode):
     description = StringProperty(default="")
     is_public = BooleanProperty(default=False)
     support_email = ArrayProperty(StringProperty())
-    # slas: List[SLA] = Field(default_factory=list)
+
+    slas = RelationshipFrom(".SLA", "CAN_ACCESS_TO", cardinality=ZeroOrMore)
