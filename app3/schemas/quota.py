@@ -1,8 +1,7 @@
 from enum import Enum
-from typing import Dict, Optional, Union
-from uuid import UUID
-import warnings
 from pydantic import BaseModel, root_validator
+from typing import Dict, Optional, Union
+import warnings
 
 
 class BandwidthQuota(Enum):
@@ -45,11 +44,26 @@ class Unit(Enum):
 class QuotaBase(BaseModel):
     """Quota Base class
 
-    Class expected as input when performing a REST request.
-    It contains the Quota attributes
+    Class without id (which is populated by the database).
 
     Attributes:
-        name (str): Quota name.
+        name (str): Quota name (type).
+        description (str): Brief description.
+        unit (str | None): Measurement unit derived from the
+            quota name/type.
+        tot_limit (float | None): The max quantity of a resource to
+            be granted to the user group in total.
+        instance_limit (float | None): The max quantity of a resource
+            to be granted to each VM/Container instance.
+        user_limit (float | None): The max quantity of a resource to
+            be granted to user.
+        tot_guaranteed (float): The guaranteed quantity of a
+            resource to be granted to the user group in total.
+        instance_guaranteed (float): The guaranteed quantity
+            of a resource to be granted to each VM/Container
+            instance.
+        user_guaranteed (float): The guaranteed quantity
+            of a resource to be granted to user.
     """
 
     name: Union[
@@ -74,14 +88,30 @@ class QuotaBase(BaseModel):
 
 
 class QuotaCreate(QuotaBase):
-    """Quota Actors class
+    """Quota Create class
 
-    Class expected as input when performing a REST request.
-    It contains the Quota actors.
+    Class without id (which is populated by the database).
+    expected as input when performing a REST request.
+
 
     Attributes:
-        project_id (int): ID of the target Project.
-        provider_id (int): ID of the target Provider.
+        name (str): Quota name (type).
+        description (str): Brief description.
+        unit (str | None): Measurement unit derived from the
+            quota name/type.
+        tot_limit (float | None): The max quantity of a resource to
+            be granted to the user group in total.
+        instance_limit (float | None): The max quantity of a resource
+            to be granted to each VM/Container instance.
+        user_limit (float | None): The max quantity of a resource to
+            be granted to user.
+        tot_guaranteed (float): The guaranteed quantity of a
+            resource to be granted to the user group in total.
+        instance_guaranteed (float): The guaranteed quantity
+            of a resource to be granted to each VM/Container
+            instance.
+        user_guaranteed (float): The guaranteed quantity
+            of a resource to be granted to user.
     """
 
     @root_validator
@@ -112,11 +142,30 @@ class QuotaCreate(QuotaBase):
 class Quota(QuotaBase):
     """Quota Base class
 
-    Class expected as output when performing a REST request.
-    It contains all the non-sensible data written in the database.
+    Class retrieved from the database
+    expected as output when performing a REST request.
+    It contains all the non-sensible data written
+    in the database.
 
     Attributes:
-        id (str): Quota unique ID.
+        uid (uuid): Quota unique ID.
+        name (str): Quota name (type).
+        description (str): Brief description.
+        unit (str | None): Measurement unit derived from the
+            quota name/type.
+        tot_limit (float | None): The max quantity of a resource to
+            be granted to the user group in total.
+        instance_limit (float | None): The max quantity of a resource
+            to be granted to each VM/Container instance.
+        user_limit (float | None): The max quantity of a resource to
+            be granted to user.
+        tot_guaranteed (float): The guaranteed quantity of a
+            resource to be granted to the user group in total.
+        instance_guaranteed (float): The guaranteed quantity
+            of a resource to be granted to each VM/Container
+            instance.
+        user_guaranteed (float): The guaranteed quantity
+            of a resource to be granted to user.
     """
 
     uid: str

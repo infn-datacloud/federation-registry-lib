@@ -1,7 +1,7 @@
 from enum import Enum
-import warnings
 from pydantic import BaseModel, Field, root_validator
 from typing import Dict, List, Optional, Union
+import warnings
 
 
 class ComputeServiceType(Enum):
@@ -32,26 +32,28 @@ class ResourceType(Enum):
 class ServiceBase(BaseModel):
     """Service Base class
 
-    Class without id which is populated by the database.
+    Class without id (which is populated by the database).
 
     Attributes:
-        name (str): Service name.
-        site_name (str): Service site name.
-        hostname (str): Service hostname.
-        endpoint (str): Service endpoint.
-        identity_provider_protocol (str): Identity Provider protocol.
-        iam_enabled (str): Authentication through IAM enabled.
+        name (str): Service name (type).
+        description (str): Brief description.
+        resource_type (str): Resource type.
+        endpoint (str): URL pointing to this service
+        iam_enabled (bool): IAM enabled for this service.
+        is_public (bool): Public Service or not.
+        public_ip_assignable (bool): It is possible to
+            assign a public IP to this service.
+        volume_types (list of str): TODO
     """
 
     name: Union[ComputeServiceType, NetworkServiceType, StorageServiceType]
     description: str = ""
     resource_type: Optional[ResourceType]
-    site_name: str
-    hostname: str
     endpoint: str
-    identity_provider_protocol: str
-    iam_enabled: bool
-    # identity_providers: List[IdentityProvider] = Field(default_factory=list)
+    iam_enabled: bool = False
+    is_public: bool = False
+    public_ip_assignable: bool = False
+    volume_types: List[str] = Field(default_factory=list)
 
     class Config:
         validate_assignment = True
@@ -60,15 +62,19 @@ class ServiceBase(BaseModel):
 class ServiceCreate(ServiceBase):
     """Service Create class
 
-    Class expected as input when performing a REST request.
+    Class without id (which is populated by the database).
+    expected as input when performing a REST request.
 
     Attributes:
-        name (str): Service name.
-        site_name (str): Service site name.
-        hostname (str): Service hostname.
-        endpoint (str): Service endpoint.
-        identity_provider_protocol (str): Identity Provider protocol.
-        iam_enabled (str): Authentication through IAM enabled.
+        name (str): Service name (type).
+        description (str): Brief description.
+        resource_type (str): Resource type.
+        endpoint (str): URL pointing to this service
+        iam_enabled (bool): IAM enabled for this service.
+        is_public (bool): Public Service or not.
+        public_ip_assignable (bool): It is possible to
+            assign a public IP to this service.
+        volume_types (list of str): TODO
     """
 
     @root_validator
@@ -94,17 +100,22 @@ class ServiceCreate(ServiceBase):
 class Service(ServiceBase):
     """Service Base class
 
-    Class expected as output when performing a REST request.
-    It contains all the non-sensible data written in the database.
+    Class retrieved from the database
+    expected as output when performing a REST request.
+    It contains all the non-sensible data written
+    in the database.
 
     Attributes:
-        id (str): Service unique ID.
-        name (str): Service name.
-        site_name (str): Service site name.
-        hostname (str): Service hostname.
-        endpoint (str): Service endpoint.
-        identity_provider_protocol (str): Identity Provider protocol.
-        iam_enabled (str): Authentication through IAM enabled.
+        uid (uuid): Service unique ID.
+        name (str): Service name (type).
+        description (str): Brief description.
+        resource_type (str): Resource type.
+        endpoint (str): URL pointing to this service
+        iam_enabled (bool): IAM enabled for this service.
+        is_public (bool): Public Service or not.
+        public_ip_assignable (bool): It is possible to
+            assign a public IP to this service.
+        volume_types (list of str): TODO
     """
 
     uid: str

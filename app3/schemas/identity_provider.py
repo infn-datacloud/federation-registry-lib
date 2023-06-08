@@ -4,17 +4,15 @@ from pydantic import BaseModel
 class IdentityProviderBase(BaseModel):
     """IdentityProvider Base class.
 
-    Class without id which is populated by the database.
+    Class without id (which is populated by the database).
 
     Attributes:
-        name (str): Identity provider name.
-        url (str): Identity provider url.
-        protocol (str): Identity provider protocol.
+        description (str): Brief description.
+        endpoint (str): URL of the IdentityProvider.
     """
 
-    name: str
-    url: str
-    protocol: str
+    description: str = ""
+    endpoint: str
 
     class Config:
         validate_assignment = True
@@ -23,12 +21,12 @@ class IdentityProviderBase(BaseModel):
 class IdentityProviderCreate(IdentityProviderBase):
     """IdentityProvider Create class.
 
-    Class expected as input when performing a REST request.
+    Class without id (which is populated by the database).
+    expected as input when performing a REST request.
 
     Attributes:
-        name (str): Identity provider name.
-        url (str): Identity provider url.
-        protocol (str): Identity provider protocol.
+        description (str): Brief description.
+        endpoint (str): URL of the IdentityProvider.
     """
 
     pass
@@ -37,14 +35,15 @@ class IdentityProviderCreate(IdentityProviderBase):
 class IdentityProvider(IdentityProviderBase):
     """IdentityProvider class
 
-    Class expected as output when performing a REST request.
-    It contains all the non-sensible data written in the database.
+    Class retrieved from the database
+    expected as output when performing a REST request.
+    It contains all the non-sensible data written
+    in the database.
 
     Attributes:
-        id (str): Identity provider unique ID.
-        name (str): Identity provider name.
-        url (str): Identity provider url.
-        protocol (str): Identity provider protocol.
+        uid (uuid): Identity provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IdentityProvider.
     """
 
     uid: str

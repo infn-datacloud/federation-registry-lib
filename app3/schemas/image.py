@@ -1,5 +1,7 @@
+from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel
+from typing import Optional
 
 
 class ImageOS(Enum):
@@ -13,47 +15,47 @@ class ImageOS(Enum):
 class ImageBase(BaseModel):
     """Image Base class.
 
-    Class without id which is populated by the database.
+    Class without id (which is populated by the database).
 
     Attributes:
-        name (str): Image name.
-        os (str): Operating system type (Windows, Linux, Mac) # Ex type
-        distribution (str): Distribution type (Ubuntu, CentOS...)
-        version (str): Distribution version id
+        description (str): Brief description.
+        os (str): Image Operating System.
+        distribution (str): OS distribution.
+        version (str): Distribution version.
         architecture (str): OS architecture.
-        cuda_support (bool): Enable support for CUDA.
-        gpu_driver (bool): Enable support for GPU # TODO review comment/name.
-        market_place (str): # TODO: What is it?
+        cuda_support (str): Support for cuda enabled.
+        gpu_driver (str): Support for GPUs.
+        creation_time (datetime): Image creation time.
     """
 
-    name: str
+    description: str = ""
     os: ImageOS
     distribution: str
     version: str
     architecture: str
-    market_place: str = ""
-    description: str = ""
     cuda_support: bool = False
     gpu_driver: bool = False
+    creation_time: Optional[datetime] = None
 
     class Config:
         validate_assignment = True
 
 
 class ImageCreate(ImageBase):
-    """Image Base class.
+    """Image Create class.
 
-    Class without id which is populated by the database.
+    Class without id (which is populated by the database).
+    expected as input when performing a REST request.
 
     Attributes:
-        name (str): Image name.
-        os (str): Operating system type (Windows, Linux, Mac) # Ex type
-        distribution (str): Distribution type (Ubuntu, CentOS...)
-        version (str): Distribution version id
+        description (str): Brief description.
+        os (str): Image Operating System.
+        distribution (str): OS distribution.
+        version (str): Distribution version.
         architecture (str): OS architecture.
-        cuda_support (bool): Enable support for CUDA.
-        gpu_driver (bool): Enable support for GPU # TODO review comment/name.
-        market_place (str): # TODO: What is it?
+        cuda_support (str): Support for cuda enabled.
+        gpu_driver (str): Support for GPUs.
+        creation_time (datetime): Image creation time.
     """
 
     pass
@@ -62,18 +64,21 @@ class ImageCreate(ImageBase):
 class Image(ImageBase):
     """Image Base class.
 
-    Class without id which is populated by the database.
+    Class retrieved from the database
+    expected as output when performing a REST request.
+    It contains all the non-sensible data written
+    in the database.
 
     Attributes:
-        id (int): Image unique ID.
-        name (str): Image name.
-        os (str): Operating system type (Windows, Linux, Mac) # Ex type
-        distribution (str): Distribution type (Ubuntu, CentOS...)
-        version (str): Distribution version id
+        uid (uuid): Image unique ID.
+        description (str): Brief description.
+        os (str): Image Operating System.
+        distribution (str): OS distribution.
+        version (str): Distribution version.
         architecture (str): OS architecture.
-        cuda_support (bool): Enable support for CUDA.
-        gpu_driver (bool): Enable support for GPU # TODO review comment/name.
-        market_place (str): # TODO: What is it?
+        cuda_support (str): Support for cuda enabled.
+        gpu_driver (str): Support for GPUs.
+        creation_time (datetime): Image creation time.
     """
 
     uid: str

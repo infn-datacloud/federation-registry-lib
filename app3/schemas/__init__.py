@@ -5,7 +5,7 @@ from .identity_provider import (
     IdentityProviderCreate,
 )
 from .image import Image, ImageBase, ImageCreate
-from .project import Project, ProjectBase, ProjectCreate
+from .location import Location, LocationBase, LocationCreate
 from .provider import Provider, ProviderBase, ProviderCreate
 from .quota import Quota, QuotaBase, QuotaCreate
 from .service import Service, ServiceBase, ServiceCreate
@@ -25,9 +25,9 @@ __all__ = [
     "Metric",
     "MetricBase",
     "MetricCreate",
-    "Project",
-    "ProjectBase",
-    "ProjectCreate",
+    "Location",
+    "LocationBase",
+    "LocationCreate",
     "Provider",
     "ProviderBase",
     "ProviderCreate",

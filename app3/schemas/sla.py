@@ -1,9 +1,10 @@
 from datetime import datetime
-from pydantic import BaseModel, validator
 from neo4j.time import DateTime
+from pydantic import BaseModel, validator
 
 
 def cast_neo4j_datetime(v: DateTime) -> datetime:
+    """Convert neo4j datetime to datetime"""
     if type(v) is DateTime:
         return v.to_native()
     return v
@@ -12,28 +13,22 @@ def cast_neo4j_datetime(v: DateTime) -> datetime:
 class SLABase(BaseModel):
     """Service Level Agreement (SLA) Base class
 
-    Class expected as input when performing a REST request.
-    It contains the SLA attributes
+    Class without id (which is populated by the database).
 
     Attributes:
-        name (str): SLA name.
+        description (str): Brief description.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
     """
 
-    name: str
     description: str = ""
     start_date: datetime
     end_date: datetime
-    issue_date: datetime
-    # services: List[Service] = Field(default_factory=list)
-    # quotas: List[Quota] = Field(default_factory=list)
 
     _cast_start_date = validator("start_date", pre=True, allow_reuse=True)(
         cast_neo4j_datetime
     )
     _cast_end_date = validator("end_date", pre=True, allow_reuse=True)(
-        cast_neo4j_datetime
-    )
-    _cast_issue_date = validator("issue_date", pre=True, allow_reuse=True)(
         cast_neo4j_datetime
     )
 
@@ -44,10 +39,13 @@ class SLABase(BaseModel):
 class SLACreate(SLABase):
     """Service Level Agreement (SLA) Actors class
 
-    Class expected as input when performing a REST request.
-    It contains the SLA actors.
+    Class without id (which is populated by the database).
+    expected as input when performing a REST request.
 
     Attributes:
+        description (str): Brief description.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
     """
 
     pass
@@ -56,12 +54,16 @@ class SLACreate(SLABase):
 class SLA(SLABase):
     """Service Level Agreement (SLA) Base class
 
-    Class expected as output when performing a REST request.
-    It contains all the non-sensible data written in the database.
+    Class retrieved from the database
+    expected as output when performing a REST request.
+    It contains all the non-sensible data written
+    in the database.
 
     Attributes:
-        id (str): SLA unique ID.
-        name (str): SLA name.
+        uid (uuid): SLA unique ID.
+        description (str): Brief description.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
     """
 
     uid: str
