@@ -1,44 +1,40 @@
 from neomodel import (
-    StructuredNode,
-    StringProperty,
     DateTimeProperty,
-    UniqueIdProperty,
+    One,
     RelationshipFrom,
     RelationshipTo,
-    One,
+    StringProperty,
+    StructuredNode,
+    UniqueIdProperty,
     ZeroOrMore,
 )
 
 
 class SLA(StructuredNode):
-    """Flavor Base class.
+    """Service Level Agreement class.
 
-    Class without id which is populated by the database.
+    A SLA has a start and end date. It defines the
+    services a user group can use when accessing to
+    a specific provider resources.
 
     Attributes:
-        id (int): Flavor unique ID.
-        name (str): Flavor name.
-        num_vcpus (int): Number of Virtual CPUs.
-        num_gpus (int): Number of GPUs.
-        ram (int): Reserved RAM (GB)
-        disk (int): Reserved disk size (GB)
-        infiniband_support (bool): #TODO: What is it?
+        uid (int): SLA unique ID.
+        description (str): Brief description.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
     """
 
     uid = UniqueIdProperty()
-    name = StringProperty(required=True)
     description = StringProperty(default="")
-    issue_date = DateTimeProperty(required=True)
     start_date = DateTimeProperty(required=True)
     end_date = DateTimeProperty(required=True)
 
-    project = RelationshipFrom(
-        ".Project", "REQUIRES_RESOURCES", cardinality=One
+    user_group = RelationshipFrom(
+        ".UserGroup", "REQUIRES_RESOURCES", cardinality=One
     )
-    provider = RelationshipTo(".Provider", "CAN_ACCESS_TO", cardinality=One)
-    quotas = RelationshipTo(
-        ".Quota", "HAS_RESOURCE_RESTRICTIONS", cardinality=ZeroOrMore
+    provider = RelationshipFrom(
+        ".Provider", "RESOURCES_RETRIEVED_FROM", cardinality=One
     )
-    services = RelationshipFrom(
-        ".Service", "MANAGES_RES_ASSIGNED_TO", cardinality=ZeroOrMore
+    services = RelationshipTo(
+        ".Service", "RESOURCES_MANAGED_BY", cardinality=ZeroOrMore
     )

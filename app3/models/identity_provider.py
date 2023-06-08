@@ -1,31 +1,51 @@
 from neomodel import (
-    StructuredNode,
-    UniqueIdProperty,
-    StringProperty,
     BooleanProperty,
     RelationshipFrom,
+    StringProperty,
+    StructuredNode,
+    StructuredRel,
+    UniqueIdProperty,
     ZeroOrMore,
 )
 
 
-class IdentityProvider(StructuredNode):
-    """Provider Base class
+class AuthenticationMethod(StructuredRel):
+    """Authentication Method class.
 
-    Class without id which is populated by the database.
+    Relationship linking a service to an identity provider.
 
     Attributes:
-        name (str): Provider name.
-        is_public (bool): Public Provider.
-        slas (list of SLA): List of SLAs related to the Provider.
-        # TODO: Country name, code and location can be grouped in
-        a separate entity.
+        uid (uuid): AuthenticationMethod unique ID.
+        idp_name (str): Name given to the IDP by the
+            Provider hosting the service.
+        protocol (uuid): Authentication protocol.
     """
 
     uid = UniqueIdProperty()
-    name = StringProperty(unique_index=True, required=True)
-    url = StringProperty(required=True)
+    idp_name = StringProperty(required=True)
     protocol = BooleanProperty(required=True)
 
+
+class IdentityProvider(StructuredNode):
+    """Identity Provider class.
+
+    An identity provider is used to authenticate operations.
+    It is reachable at a specific endpoint and can be accessed
+    by a set of services.
+
+    Attributes:
+        uid (int): IdentityProvider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IdentityProvider.
+    """
+
+    uid = UniqueIdProperty()
+    description = StringProperty(default="")
+    endpoint = StringProperty(required=True)
+
     services = RelationshipFrom(
-        ".Service", "AUTHENTICATE_THROUGH", cardinality=ZeroOrMore
+        ".Service",
+        "AUTHENTICATES_THROUGH",
+        cardinality=ZeroOrMore,
+        model=AuthenticationMethod,
     )

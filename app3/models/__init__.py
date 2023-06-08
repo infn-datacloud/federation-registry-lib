@@ -1,7 +1,7 @@
 from .flavor import Flavor
 from .identity_provider import IdentityProvider
 from .image import Image
-from .project import Project
+from .location import Location
 from .provider import Provider
 from .quota import Quota
 from .service import Service
@@ -13,7 +13,7 @@ __all__ = [
     "Flavor",
     "IdentityProvider",
     "Image",
-    "Project",
+    "Location",
     "Provider",
     "Quota",
     "Service",
