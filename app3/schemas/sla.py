@@ -1,6 +1,7 @@
 from datetime import datetime
 from neo4j.time import DateTime
 from pydantic import BaseModel, validator
+from typing import Optional
 
 
 def cast_neo4j_datetime(v: DateTime) -> datetime:
@@ -14,6 +15,7 @@ class SLABase(BaseModel):
     """Service Level Agreement (SLA) Base class
 
     Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
 
     Attributes:
         description (str): Brief description.
@@ -22,15 +24,8 @@ class SLABase(BaseModel):
     """
 
     description: str = ""
-    start_date: datetime
-    end_date: datetime
-
-    _cast_start_date = validator("start_date", pre=True, allow_reuse=True)(
-        cast_neo4j_datetime
-    )
-    _cast_end_date = validator("end_date", pre=True, allow_reuse=True)(
-        cast_neo4j_datetime
-    )
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
 
     class Config:
         validate_assignment = True
@@ -40,7 +35,7 @@ class SLACreate(SLABase):
     """Service Level Agreement (SLA) Actors class
 
     Class without id (which is populated by the database).
-    expected as input when performing a REST request.
+    Expected as input when performing a POST REST request.
 
     Attributes:
         description (str): Brief description.
@@ -48,7 +43,8 @@ class SLACreate(SLABase):
         end_date (datetime): SLA validity end date.
     """
 
-    pass
+    start_date: datetime
+    end_date: datetime
 
 
 class SLA(SLABase):
@@ -67,6 +63,13 @@ class SLA(SLABase):
     """
 
     uid: str
+
+    _cast_start_date = validator("start_date", pre=True, allow_reuse=True)(
+        cast_neo4j_datetime
+    )
+    _cast_end_date = validator("end_date", pre=True, allow_reuse=True)(
+        cast_neo4j_datetime
+    )
 
     class Config:
         orm_mode = True

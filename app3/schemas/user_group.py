@@ -1,17 +1,19 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class UserGroupBase(BaseModel):
     """UserGroup Base class.
 
     Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
 
     Attributes:
         name (str): UserGroup name.
         description (str): Brief description.
     """
 
-    name: str
+    name: Optional[str] = None
     description: str = ""
 
     class Config:
@@ -22,14 +24,14 @@ class UserGroupCreate(UserGroupBase):
     """UserGroup Create class.
 
     Class without id (which is populated by the database).
-    expected as input when performing a REST request.
+    Expected as input when performing a POST REST request.
 
     Attributes:
         name (str): UserGroup name.
         description (str): Brief description.
     """
 
-    pass
+    name: str
 
 
 class UserGroup(UserGroupBase):

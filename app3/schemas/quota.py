@@ -45,6 +45,57 @@ class QuotaBase(BaseModel):
     """Quota Base class
 
     Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
+
+    Attributes:
+        name (str): Quota name (type).
+        description (str): Brief description.
+        unit (str | None): Measurement unit derived from the
+            quota name/type.
+        tot_limit (float | None): The max quantity of a resource to
+            be granted to the user group in total.
+        instance_limit (float | None): The max quantity of a resource
+            to be granted to each VM/Container instance.
+        user_limit (float | None): The max quantity of a resource to
+            be granted to user.
+        tot_guaranteed (float): The guaranteed quantity of a
+            resource to be granted to the user group in total.
+        instance_guaranteed (float): The guaranteed quantity
+            of a resource to be granted to each VM/Container
+            instance.
+        user_guaranteed (float): The guaranteed quantity
+            of a resource to be granted to user.
+    """
+
+    name: Optional[
+        Union[
+            BandwidthQuota,
+            CountQuota,
+            FrequencyQuota,
+            MoneyQuota,
+            SizeQuota,
+            TimeQuota,
+        ]
+    ] = None
+    description: str = ""
+    tot_limit: Optional[float] = None
+    instance_limit: Optional[float] = None
+    user_limit: Optional[float] = None
+    tot_guaranteed: float = 0
+    instance_guaranteed: float = 0
+    user_guaranteed: float = 0
+    unit: Optional[str] = None
+
+    class Config:
+        validate_assignment = True
+
+
+class QuotaCreate(QuotaBase):
+    """Quota Create class
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a POST REST request.
+
 
     Attributes:
         name (str): Quota name (type).
@@ -74,45 +125,9 @@ class QuotaBase(BaseModel):
         SizeQuota,
         TimeQuota,
     ]
-    description: str = ""
     tot_limit: float
     instance_limit: float
     user_limit: float
-    tot_guaranteed: float = 0
-    instance_guaranteed: float = 0
-    user_guaranteed: float = 0
-    unit: Optional[str] = None
-
-    class Config:
-        validate_assignment = True
-
-
-class QuotaCreate(QuotaBase):
-    """Quota Create class
-
-    Class without id (which is populated by the database).
-    expected as input when performing a REST request.
-
-
-    Attributes:
-        name (str): Quota name (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
-    """
 
     @root_validator
     def detect_unit(cls, values) -> Dict:

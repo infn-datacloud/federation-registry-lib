@@ -33,6 +33,40 @@ class ServiceBase(BaseModel):
     """Service Base class
 
     Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
+
+    Attributes:
+        name (str): Service name (type).
+        description (str): Brief description.
+        resource_type (str): Resource type.
+        endpoint (str): URL pointing to this service
+        iam_enabled (bool): IAM enabled for this service.
+        is_public (bool): Public Service or not.
+        public_ip_assignable (bool): It is possible to
+            assign a public IP to this service.
+        volume_types (list of str): TODO
+    """
+
+    name: Optional[
+        Union[ComputeServiceType, NetworkServiceType, StorageServiceType]
+    ] = None
+    description: str = ""
+    resource_type: Optional[ResourceType] = None
+    endpoint: Optional[str] = None
+    iam_enabled: bool = False
+    is_public: bool = False
+    public_ip_assignable: bool = False
+    volume_types: List[str] = Field(default_factory=list)
+
+    class Config:
+        validate_assignment = True
+
+
+class ServiceCreate(ServiceBase):
+    """Service Create class
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a POST REST request.
 
     Attributes:
         name (str): Service name (type).
@@ -47,35 +81,8 @@ class ServiceBase(BaseModel):
     """
 
     name: Union[ComputeServiceType, NetworkServiceType, StorageServiceType]
-    description: str = ""
-    resource_type: Optional[ResourceType]
+    resource_type: ResourceType
     endpoint: str
-    iam_enabled: bool = False
-    is_public: bool = False
-    public_ip_assignable: bool = False
-    volume_types: List[str] = Field(default_factory=list)
-
-    class Config:
-        validate_assignment = True
-
-
-class ServiceCreate(ServiceBase):
-    """Service Create class
-
-    Class without id (which is populated by the database).
-    expected as input when performing a REST request.
-
-    Attributes:
-        name (str): Service name (type).
-        description (str): Brief description.
-        resource_type (str): Resource type.
-        endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
-    """
 
     @root_validator
     def detect_resource_type(cls, values) -> Dict:

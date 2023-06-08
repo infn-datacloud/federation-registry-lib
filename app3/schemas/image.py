@@ -16,6 +16,7 @@ class ImageBase(BaseModel):
     """Image Base class.
 
     Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
 
     Attributes:
         description (str): Brief description.
@@ -29,10 +30,10 @@ class ImageBase(BaseModel):
     """
 
     description: str = ""
-    os: ImageOS
-    distribution: str
-    version: str
-    architecture: str
+    os: Optional[ImageOS] = None
+    distribution: Optional[str] = None
+    version: Optional[str] = None
+    architecture: Optional[str] = None
     cuda_support: bool = False
     gpu_driver: bool = False
     creation_time: Optional[datetime] = None
@@ -45,7 +46,7 @@ class ImageCreate(ImageBase):
     """Image Create class.
 
     Class without id (which is populated by the database).
-    expected as input when performing a REST request.
+    Expected as input when performing a POST REST request.
 
     Attributes:
         description (str): Brief description.
@@ -58,7 +59,10 @@ class ImageCreate(ImageBase):
         creation_time (datetime): Image creation time.
     """
 
-    pass
+    os: ImageOS
+    distribution: str
+    version: str
+    architecture: str
 
 
 class Image(ImageBase):

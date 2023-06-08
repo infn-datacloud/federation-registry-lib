@@ -6,6 +6,7 @@ class FlavorBase(BaseModel):
     """Flavor Base class.
 
     Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
 
     Attributes:
         description (str): Brief description.
@@ -35,7 +36,7 @@ class FlavorCreate(FlavorBase):
     """Flavor Create class.
 
     Class without id (which is populated by the database).
-    expected as input when performing a REST request.
+    Expected as input when performing a POST REST request.
 
     Attributes:
         description (str): Brief description.
