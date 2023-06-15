@@ -57,6 +57,7 @@ from .user_group import (
     get_user_group,
     get_user_groups,
     remove_user_group,
+    update_user_group,
 )
 
 __all__ = [
@@ -103,4 +104,5 @@ __all__ = [
     "get_user_group",
     "get_user_groups",
     "remove_user_group",
+    "update_user_group"
 ]
