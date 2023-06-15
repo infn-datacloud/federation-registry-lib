@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
 
 
 class IdentityProviderBase(BaseModel):
@@ -13,14 +14,28 @@ class IdentityProviderBase(BaseModel):
         endpoint (str): URL of the IdentityProvider.
     """
 
-    description: str = ""
+    description: Optional[str] = None
     endpoint: Optional[str] = None
 
     class Config:
         validate_assignment = True
 
 
-class IdentityProviderCreate(IdentityProviderBase):
+class IdentityProviderUpdate(IdentityProviderBase):
+    """IdentityProvider Base class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
+
+    Attributes:
+        description (str): Brief description.
+        endpoint (str): URL of the IdentityProvider.
+    """
+
+    description: str = ""
+
+
+class IdentityProviderCreate(IdentityProviderUpdate):
     """IdentityProvider Create class.
 
     Class without id (which is populated by the database).
@@ -34,7 +49,7 @@ class IdentityProviderCreate(IdentityProviderBase):
     endpoint: str
 
 
-class IdentityProvider(IdentityProviderBase):
+class IdentityProvider(IdentityProviderCreate):
     """IdentityProvider class
 
     Class retrieved from the database
@@ -48,7 +63,7 @@ class IdentityProvider(IdentityProviderBase):
         endpoint (str): URL of the IdentityProvider.
     """
 
-    uid: str
+    uid: UUID
 
     class Config:
         orm_mode = True

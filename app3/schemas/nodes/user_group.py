@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
 
 
 class UserGroupBase(BaseModel):
@@ -14,13 +15,27 @@ class UserGroupBase(BaseModel):
     """
 
     name: Optional[str] = None
-    description: str = ""
+    description: Optional[str] = None
 
     class Config:
         validate_assignment = True
 
 
-class UserGroupCreate(UserGroupBase):
+class UserGroupUpdate(UserGroupBase):
+    """UserGroup Base class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
+
+    Attributes:
+        name (str): UserGroup name.
+        description (str): Brief description.
+    """
+
+    description: str = ""
+
+
+class UserGroupCreate(UserGroupUpdate):
     """UserGroup Create class.
 
     Class without id (which is populated by the database).
@@ -34,7 +49,7 @@ class UserGroupCreate(UserGroupBase):
     name: str
 
 
-class UserGroup(UserGroupBase):
+class UserGroup(UserGroupCreate):
     """UserGroup class
 
     Class retrieved from the database
@@ -48,7 +63,7 @@ class UserGroup(UserGroupBase):
         description (str): Brief description.
     """
 
-    uid: str
+    uid: UUID
 
     class Config:
         orm_mode = True

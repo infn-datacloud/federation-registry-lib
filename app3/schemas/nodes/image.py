@@ -1,15 +1,9 @@
 from datetime import datetime
-from enum import Enum
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
 
-
-class ImageOS(Enum):
-    """Possible Operating system types"""
-
-    Linux: str = "Linux"
-    Windows: str = "Windows"
-    MacOS: str = "MacOS"
+from ..utils import ImageOS
 
 
 class ImageBase(BaseModel):
@@ -29,7 +23,7 @@ class ImageBase(BaseModel):
         creation_time (datetime): Image creation time.
     """
 
-    description: str = ""
+    description: Optional[str] = None
     os: Optional[ImageOS] = None
     distribution: Optional[str] = None
     version: Optional[str] = None
@@ -42,7 +36,27 @@ class ImageBase(BaseModel):
         validate_assignment = True
 
 
-class ImageCreate(ImageBase):
+class ImageUpdate(ImageBase):
+    """Image Base class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
+
+    Attributes:
+        description (str): Brief description.
+        os (str): Image Operating System.
+        distribution (str): OS distribution.
+        version (str): Distribution version.
+        architecture (str): OS architecture.
+        cuda_support (str): Support for cuda enabled.
+        gpu_driver (str): Support for GPUs.
+        creation_time (datetime): Image creation time.
+    """
+
+    description: str = ""
+
+
+class ImageCreate(ImageUpdate):
     """Image Create class.
 
     Class without id (which is populated by the database).
@@ -65,7 +79,7 @@ class ImageCreate(ImageBase):
     architecture: str
 
 
-class Image(ImageBase):
+class Image(ImageCreate):
     """Image Base class.
 
     Class retrieved from the database
@@ -85,7 +99,7 @@ class Image(ImageBase):
         creation_time (datetime): Image creation time.
     """
 
-    uid: str
+    uid: UUID
 
     class Config:
         orm_mode = True

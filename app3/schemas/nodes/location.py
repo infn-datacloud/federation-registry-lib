@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
 
 
 class LocationBase(BaseModel):
@@ -18,7 +19,7 @@ class LocationBase(BaseModel):
     """
 
     name: Optional[str] = None
-    description: str = ""
+    description: Optional[str] = None
     country: Optional[str] = None
     country_code: Optional[str] = None
     latitude: Optional[float] = None
@@ -28,7 +29,25 @@ class LocationBase(BaseModel):
         validate_assignment = True
 
 
-class LocationCreate(LocationBase):
+class LocationUpdate(LocationBase):
+    """Location Base class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH REST request.
+
+    Attributes:
+        name (str): Location unique name.
+        description (str): Brief description.
+        country (str): Country name.
+        country_code (str): Country code.
+        latitude (float): Latitude coordinate.
+        longitude (float): Longitude coordinate.
+    """
+
+    description: str = ""
+
+
+class LocationCreate(LocationUpdate):
     """Location Create class.
 
     Class without id (which is populated by the database).
@@ -50,7 +69,7 @@ class LocationCreate(LocationBase):
     longitude: float
 
 
-class Location(LocationBase):
+class Location(LocationCreate):
     """Location class
 
     Class retrieved from the database
@@ -68,7 +87,7 @@ class Location(LocationBase):
         longitude (float): Longitude coordinate.
     """
 
-    uid: str
+    uid: UUID
 
     class Config:
         orm_mode = True
