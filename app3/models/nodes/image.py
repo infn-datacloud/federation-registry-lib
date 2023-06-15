@@ -5,26 +5,9 @@ from neomodel import (
     RelationshipFrom,
     StringProperty,
     StructuredNode,
-    StructuredRel,
     UniqueIdProperty,
-    ZeroOrMore,
 )
-
-
-class SupportedImage(StructuredRel):
-    """Supported Image class.
-
-    Relationship linking a image to the provider supporting it.
-
-    Attributes:
-        uid (uuid): SupportedImage unique ID.
-        image_name (str): Name given to the Image by the Provider.
-        image_id (uuid): Image Unique ID in the Provider.
-    """
-
-    uid = UniqueIdProperty()
-    image_name = StringProperty(required=True)
-    image_id = StringProperty(required=True)
+from ..relationships import AvailableVMImage
 
 
 class Image(StructuredNode):
@@ -58,12 +41,9 @@ class Image(StructuredNode):
     gpu_driver: BooleanProperty(default=False)
     creation_time: DateTimeProperty()
 
-    provider = RelationshipFrom(
+    providers = RelationshipFrom(
         ".Provider",
-        "SUPPORTED_VM_IMAGE",
+        "AVAILABLE_VM_IMAGE",
         cardinality=OneOrMore,
-        model=SupportedImage,
-    )
-    user_group = RelationshipFrom(
-        ".UserGroup", "AVAILABLE_VM_IMAGE", cardinality=ZeroOrMore
+        model=AvailableVMImage,
     )

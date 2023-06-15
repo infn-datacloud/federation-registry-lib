@@ -1,32 +1,13 @@
 from neomodel import (
     StructuredNode,
-    StructuredRel,
     StringProperty,
     IntegerProperty,
     BooleanProperty,
     UniqueIdProperty,
     RelationshipFrom,
     OneOrMore,
-    ZeroOrMore,
 )
-
-
-class SupportedFlavor(StructuredRel):
-    """Supported Flavor class.
-
-    Relationship linking a flavor to the provider
-    supporting it.
-
-    Attributes:
-        uid (uuid): SupportedFlavor unique ID.
-        flavor_name (str): Name given to the Flavor
-            by the Provider.
-        flavor_id (uuid): Flavor Unique ID in the Provider.
-    """
-
-    uid = UniqueIdProperty()
-    flavor_name = StringProperty(required=True)
-    flavor_id = StringProperty(required=True)
+from ..relationships import AvailableVMFlavor
 
 
 class Flavor(StructuredNode):
@@ -59,12 +40,9 @@ class Flavor(StructuredNode):
     gpu_model = StringProperty()
     gpu_vendor = StringProperty()
 
-    provider = RelationshipFrom(
+    providers = RelationshipFrom(
         ".Provider",
-        "SUPPORTED_VM_SIZE",
+        "AVAILABLE_VM_FLAVOR",
         cardinality=OneOrMore,
-        model=SupportedFlavor,
-    )
-    user_group = RelationshipFrom(
-        ".UserGroup", "AVAILABLE_VM_SIZE", cardinality=ZeroOrMore
+        model=AvailableVMFlavor,
     )

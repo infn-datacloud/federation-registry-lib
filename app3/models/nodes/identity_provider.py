@@ -1,29 +1,11 @@
 from neomodel import (
-    BooleanProperty,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
-    StructuredRel,
     UniqueIdProperty,
     ZeroOrMore,
 )
-
-
-class AuthenticationMethod(StructuredRel):
-    """Authentication Method class.
-
-    Relationship linking a service to an identity provider.
-
-    Attributes:
-        uid (uuid): AuthenticationMethod unique ID.
-        idp_name (str): Name given to the IDP by the
-            Provider hosting the service.
-        protocol (uuid): Authentication protocol.
-    """
-
-    uid = UniqueIdProperty()
-    idp_name = StringProperty(required=True)
-    protocol = BooleanProperty(required=True)
+from ..relationships import AuthMethod
 
 
 class IdentityProvider(StructuredNode):
@@ -43,9 +25,9 @@ class IdentityProvider(StructuredNode):
     description = StringProperty(default="")
     endpoint = StringProperty(required=True)
 
-    services = RelationshipFrom(
-        ".Service",
-        "AUTHENTICATES_THROUGH",
+    providers = RelationshipFrom(
+        ".Provider",
+        "ALLOW_AUTH_THROUGH",
         cardinality=ZeroOrMore,
-        model=AuthenticationMethod,
+        model=AuthMethod,
     )

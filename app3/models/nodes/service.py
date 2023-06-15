@@ -1,7 +1,5 @@
 from neomodel import (
-    ArrayProperty,
-    BooleanProperty,
-    One,
+    OneOrMore,
     RelationshipFrom,
     RelationshipTo,
     StringProperty,
@@ -9,6 +7,7 @@ from neomodel import (
     UniqueIdProperty,
     ZeroOrMore,
 )
+from ..relationships import ProvideService
 
 
 class Service(StructuredNode):
@@ -36,17 +35,13 @@ class Service(StructuredNode):
     uid = UniqueIdProperty()
     name = StringProperty(required=True)  # TODO Add choices.
     description = StringProperty(default="")
-    resource_type = StringProperty(required=True)  # TODO Add choices.
-    endpoint = StringProperty(required=True)
-    iam_enabled = BooleanProperty(default=False)
-    is_public = BooleanProperty(default=False)
-    public_ip_assignable = BooleanProperty(default=False)
-    volume_types = ArrayProperty(StringProperty())
 
-    sla = RelationshipFrom(".SLA", "RESOURCES_MANAGED_BY", cardinality=One)
-    idps = RelationshipTo(
-        ".IdentityProvider", "AUTHENTICATES_THROUGH", cardinality=ZeroOrMore
+    slas = RelationshipFrom(
+        ".SLA", "USE_SERVICE_WITH_QUOTA", cardinality=ZeroOrMore
     )
-    quotas = RelationshipFrom(
-        ".Quota", "APPLIED_RESOURCE_RESTRICTION", cardinality=ZeroOrMore
+    providers = RelationshipTo(
+        ".Provider",
+        "PROVIDES_SERVICE",
+        cardinality=OneOrMore,
+        model=ProvideService,
     )

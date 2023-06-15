@@ -1,21 +1,13 @@
-from neomodel import (
-    FloatProperty,
-    One,
-    RelationshipTo,
-    StringProperty,
-    StructuredNode,
-    UniqueIdProperty,
-)
+from neomodel import FloatProperty, StringProperty, StructuredRel
 
 
-class Quota(StructuredNode):
-    """Quota class.
+class Quota(StructuredRel):
+    """Associated Project class.
 
-    A Quota defines the maximum quantity and the guaranteed
-    quantity of a resource for a specific service.
+    Relationship linking a user group to a provider.
+    This link correspond to a "project/tenant" entity.
 
     Attributes:
-        uid (int): Quota unique ID.
         name (str): Quota name (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
@@ -35,17 +27,11 @@ class Quota(StructuredNode):
             of a resource to be granted to user.
     """
 
-    uid = UniqueIdProperty()
-    name = StringProperty(required=True)  # TODO choices
-    description = StringProperty(default="")
+    type = StringProperty(required=True)
     unit = StringProperty()
     tot_limit = FloatProperty()
-    instance_limit = FloatProperty()
-    user_limit = FloatProperty()
     tot_guaranteed = FloatProperty(default=0)
-    instance_guaranteed = FloatProperty(default=0)
+    user_limit = FloatProperty()
     user_guaranteed = FloatProperty(default=0)
-
-    sla = RelationshipTo(
-        ".Service", "APPLIED_RESOURCE_RESTRICTION", cardinality=One
-    )
+    instance_limit = FloatProperty()
+    instance_guaranteed = FloatProperty(default=0)
