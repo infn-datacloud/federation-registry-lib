@@ -30,6 +30,7 @@ from .provider import (
     get_provider,
     get_providers,
     remove_provider,
+    update_provider,
 )
 from .quota import (
     create_quota,
@@ -85,6 +86,7 @@ __all__ = [
     "get_provider",
     "get_providers",
     "remove_provider",
+    "update_provider",
     "create_quota",
     "connect_quota_to_sla",
     "get_quota",
