@@ -37,9 +37,9 @@ class Image(StructuredNode):
     distribution = StringProperty(required=True)
     version = StringProperty(required=True)
     architecture = StringProperty(required=True)
-    cuda_support: BooleanProperty(default=False)
-    gpu_driver: BooleanProperty(default=False)
-    creation_time: DateTimeProperty()
+    cuda_support = BooleanProperty(default=False)
+    gpu_driver = BooleanProperty(default=False)
+    creation_time = DateTimeProperty()
 
     providers = RelationshipFrom(
         ".Provider",

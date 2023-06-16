@@ -2,17 +2,22 @@ from typing import List, Optional
 from .. import schemas, models
 
 
-def create_image(item: schemas.ImageCreate) -> schemas.Image:
+def create_image(item: schemas.ImageCreate) -> models.Image:
     return models.Image(**item.dict()).save()
 
 
-def get_images(**kwargs) -> List[schemas.Image]:
+def get_images(
+    skip: int = 0, limit: int = 100, sort: Optional[str] = None, **kwargs
+) -> List[models.Image]:
     if kwargs:
-        return models.Image.nodes.filter(**kwargs).all()
-    return models.Image.nodes.all()
+        items = models.Image.nodes.filter(**kwargs).order_by(sort).all()
+        print(kwargs)
+    else:
+        items = models.Image.nodes.order_by(sort).all()
+    return items[skip : skip + limit]
 
 
-def get_image(**kwargs) -> Optional[schemas.Image]:
+def get_image(**kwargs) -> Optional[models.Image]:
     return models.Image.nodes.get_or_none(**kwargs)
 
 
@@ -20,7 +25,10 @@ def remove_image(item: models.Image) -> bool:
     return item.delete()
 
 
-def connect_image_to_project(
-    project: models.Project, image: models.Image
-) -> bool:
-    return image.project.connect(project)
+def update_image(
+    old_item: models.Image, new_item: schemas.ImageUpdate
+) -> Optional[models.Image]:
+    for k, v in new_item.dict(exclude_unset=True).items():
+        old_item.__setattr__(k, v)
+    old_item.save()
+    return old_item

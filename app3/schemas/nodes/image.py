@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import Optional
 from uuid import UUID
 
@@ -28,8 +28,8 @@ class ImageBase(BaseModel):
     distribution: Optional[str] = None
     version: Optional[str] = None
     architecture: Optional[str] = None
-    cuda_support: bool = False
-    gpu_driver: bool = False
+    cuda_support: Optional[bool] = None
+    gpu_driver: Optional[bool] = None
     creation_time: Optional[datetime] = None
 
     class Config:
@@ -54,6 +54,8 @@ class ImageUpdate(ImageBase):
     """
 
     description: str = ""
+    cuda_support: bool = False
+    gpu_driver: bool = False
 
 
 class ImageCreate(ImageUpdate):
@@ -78,6 +80,10 @@ class ImageCreate(ImageUpdate):
     version: str
     architecture: str
 
+    @validator("os")
+    def get_enum_value(cls, v):
+        return v.value
+
 
 class Image(ImageCreate):
     """Image Base class.
@@ -100,6 +106,7 @@ class Image(ImageCreate):
     """
 
     uid: UUID
+    os: ImageOS
 
     class Config:
         orm_mode = True

@@ -16,6 +16,12 @@ from .available_vm_flavor import (
     AvailableVMFlavorCreate,
     AvailableVMFlavorUpdate,
 )
+from .available_vm_image import (
+    AvailableVMImage,
+    AvailableVMImageBase,
+    AvailableVMImageCreate,
+    AvailableVMImageUpdate,
+)
 from .project import Project, ProjectBase, ProjectCreate, ProjectUpdate
 from .provide_service import (
     ProvideService,
@@ -38,6 +44,10 @@ __all__ = [
     "AvailableVMFlavorBase",
     "AvailableVMFlavorCreate",
     "AvailableVMFlavorUpdate",
+    "AvailableVMImage",
+    "AvailableVMImageBase",
+    "AvailableVMImageCreate",
+    "AvailableVMImageUpdate",
     "Project",
     "ProjectBase",
     "ProjectCreate",

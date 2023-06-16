@@ -14,9 +14,9 @@ from .identity_provider import (
 from .image import (
     create_image,
     get_image,
-    connect_image_to_project,
     get_images,
     remove_image,
+    update_image,
 )
 from .location import (
     create_location,
@@ -73,10 +73,10 @@ __all__ = [
     "get_identity_providers",
     "remove_identity_provider",
     "create_image",
-    "connect_image_to_project",
     "get_image",
     "get_images",
     "remove_image",
+    "update_image",
     "create_location",
     "get_location",
     "get_locations",

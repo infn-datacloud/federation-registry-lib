@@ -2,13 +2,13 @@ from typing import List, Optional
 from .. import schemas, models
 
 
-def create_location(item: schemas.LocationCreate) -> schemas.Location:
+def create_location(item: schemas.LocationCreate) -> models.Location:
     return models.Location(**item.dict()).save()
 
 
 def get_locations(
     skip: int = 0, limit: int = 100, sort: Optional[str] = None, **kwargs
-) -> List[schemas.Location]:
+) -> List[models.Location]:
     if kwargs:
         items = models.Location.nodes.filter(**kwargs).order_by(sort).all()
     else:
@@ -16,7 +16,7 @@ def get_locations(
     return items[skip : skip + limit]
 
 
-def get_location(**kwargs) -> Optional[schemas.Location]:
+def get_location(**kwargs) -> Optional[models.Location]:
     return models.Location.nodes.get_or_none(**kwargs)
 
 

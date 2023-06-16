@@ -8,7 +8,14 @@ from .identity_provider import (
 )
 from .image import Image, ImageBase, ImageCreate, ImageUpdate
 from .location import Location, LocationBase, LocationCreate, LocationUpdate
-from .provider import Provider, ProviderBase, ProviderCreate, ProviderUpdate
+from .provider import (
+    Provider,
+    ProviderBase,
+    ProviderCreate,
+    ProviderImage,
+    ProviderImageCreate,
+    ProviderUpdate,
+)
 from .service import Service, ServiceBase, ServiceCreate, ServiceUpdate
 from .sla import SLA, SLABase, SLACreate, SLAUpdate
 from .user_group import (
@@ -42,6 +49,8 @@ __all__ = [
     "Provider",
     "ProviderBase",
     "ProviderCreate",
+    "ProviderImage",
+    "ProviderImageCreate",
     "ProviderUpdate",
     "Service",
     "ServiceBase",

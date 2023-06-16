@@ -2,7 +2,20 @@ from pydantic import BaseModel, Field, validator
 from typing import List, Optional
 from uuid import UUID
 
+from ..relationships.available_vm_image import (
+    AvailableVMImage,
+    AvailableVMImageCreate,
+)
+from .image import Image, ImageCreate
 from .location import Location, LocationCreate
+
+
+class ProviderImageCreate(ImageCreate):
+    relationship: AvailableVMImageCreate
+
+
+class ProviderImage(Image):
+    relationship: AvailableVMImage
 
 
 class ProviderBase(BaseModel):
@@ -44,6 +57,7 @@ class ProviderUpdate(ProviderBase):
     is_public: bool = False
     support_email: List[str] = Field(default_factory=list)
     location: Optional[LocationCreate] = None
+    images: List[ProviderImageCreate] = Field(default_factory=list)
 
 
 class ProviderCreate(ProviderUpdate):
@@ -80,10 +94,22 @@ class Provider(ProviderBase):
 
     uid: UUID
     location: Optional[Location] = None
+    images: List[ProviderImage] = Field(default_factory=list)
 
     @validator("location", pre=True)
-    def a(cls, v):
+    def get_single_location(cls, v):
         return v.single()
+
+    @validator("images", pre=True)
+    def get_all_images(cls, v):
+        images = []
+        for node in v.all():
+            images.append(
+                ProviderImage(
+                    **node.__dict__, relationship=v.relationship(node)
+                )
+            )
+        return images
 
     class Config:
         orm_mode = True
