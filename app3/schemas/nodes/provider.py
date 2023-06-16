@@ -4,9 +4,12 @@ from uuid import UUID
 
 from .cluster import Cluster, ClusterCreate
 from .flavor import Flavor, FlavorCreate
+from .identity_provider import IdentityProvider, IdentityProviderCreate
 from .image import Image, ImageCreate
 from .location import Location, LocationCreate
 from ..relationships import (
+    AuthMethod,
+    AuthMethodCreate,
     AvailableCluster,
     AvailableClusterCreate,
     AvailableVMFlavor,
@@ -14,6 +17,14 @@ from ..relationships import (
     AvailableVMImage,
     AvailableVMImageCreate,
 )
+
+
+class ProviderIDPCreate(IdentityProviderCreate):
+    relationship: AuthMethodCreate
+
+
+class ProviderIDP(IdentityProvider):
+    relationship: AuthMethod
 
 
 class ProviderClusterCreate(ClusterCreate):
@@ -81,6 +92,7 @@ class ProviderUpdate(ProviderBase):
     location: Optional[LocationCreate] = None
     clusters: List[ProviderClusterCreate] = Field(default_factory=list)
     flavors: List[ProviderFlavorCreate] = Field(default_factory=list)
+    identity_providers: List[ProviderIDPCreate] = Field(default_factory=list)
     images: List[ProviderImageCreate] = Field(default_factory=list)
 
 
@@ -120,6 +132,7 @@ class Provider(ProviderBase):
     location: Optional[Location] = None
     clusters: List[ProviderCluster] = Field(default_factory=list)
     flavors: List[ProviderFlavor] = Field(default_factory=list)
+    identity_providers: List[ProviderIDP] = Field(default_factory=list)
     images: List[ProviderImage] = Field(default_factory=list)
 
     @validator("location", pre=True)
@@ -147,6 +160,15 @@ class Provider(ProviderBase):
                 )
             )
         return flavors
+
+    @validator("identity_providers", pre=True)
+    def get_all_identity_providers(cls, v):
+        identity_providers = []
+        for node in v.all():
+            identity_providers.append(
+                ProviderIDP(**node.__dict__, relationship=v.relationship(node))
+            )
+        return identity_providers
 
     @validator("images", pre=True)
     def get_all_images(cls, v):

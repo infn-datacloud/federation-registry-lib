@@ -17,6 +17,7 @@ from .identity_provider import (
     get_identity_provider,
     get_identity_providers,
     remove_identity_provider,
+    update_identity_provider,
 )
 from .image import (
     create_image,
@@ -83,6 +84,7 @@ __all__ = [
     "get_identity_provider",
     "get_identity_providers",
     "remove_identity_provider",
+    "update_identity_provider",
     "create_image",
     "get_image",
     "get_images",

@@ -2,9 +2,32 @@ from typing import List, Optional
 
 from .cluster import create_cluster, get_cluster
 from .flavor import create_flavor, get_flavor
+from .identity_provider import create_identity_provider, get_identity_provider
 from .image import create_image, get_image
 from .location import create_location, get_location
 from .. import schemas, models
+
+
+def connect_provider_to_idps(
+    item: models.Provider,
+    identity_providers: List[schemas.ProviderClusterCreate],
+) -> None:
+    for identity_provider in identity_providers:
+        db_img = get_identity_provider(
+            **identity_provider.dict(
+                exclude={"relationship"}, exclude_none=True
+            )
+        )
+        if db_img is None:
+            db_img = create_identity_provider(identity_provider)
+        if item.identity_providers.is_connected(db_img):
+            item.identity_providers.replace(
+                db_img, identity_provider.relationship.dict()
+            )
+        else:
+            item.identity_providers.connect(
+                db_img, identity_provider.relationship.dict()
+            )
 
 
 def connect_provider_to_clusters(
@@ -67,7 +90,15 @@ def connect_provider_to_location(
 
 def create_provider(item: schemas.ProviderCreate) -> models.Provider:
     db_item = models.Provider(
-        **item.dict(exclude={"clusters", "flavors", "images", "location"})
+        **item.dict(
+            exclude={
+                "clusters",
+                "flavors",
+                "identity_providers",
+                "images",
+                "location",
+            }
+        )
     ).save()
     if item.location is not None:
         connect_provider_to_location(db_item, item.location)
@@ -75,6 +106,8 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
         connect_provider_to_clusters(db_item, item.clusters)
     if len(item.flavors) > 0:
         connect_provider_to_flavors(db_item, item.flavors)
+    if len(item.identity_providers) > 0:
+        connect_provider_to_idps(db_item, item.identity_providers)
     if len(item.images) > 0:
         connect_provider_to_images(db_item, item.images)
     return db_item
@@ -102,7 +135,13 @@ def update_provider(
     old_item: models.Provider, new_item: schemas.ProviderUpdate
 ) -> Optional[models.Provider]:
     for k, v in new_item.dict(
-        exclude={"clusters", "flavors", "images", "location"},
+        exclude={
+            "clusters",
+            "flavors",
+            "identity_providers",
+            "images",
+            "location",
+        },
         exclude_unset=True,
     ).items():
         old_item.__setattr__(k, v)
@@ -112,6 +151,8 @@ def update_provider(
         connect_provider_to_clusters(old_item, new_item.clusters)
     if len(new_item.flavors) > 0:
         connect_provider_to_flavors(old_item, new_item.flavors)
+    if len(new_item.identity_providers) > 0:
+        connect_provider_to_idps(old_item, new_item.identity_providers)
     if len(new_item.images) > 0:
         connect_provider_to_images(old_item, new_item.images)
     old_item.save()
