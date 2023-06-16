@@ -7,13 +7,14 @@ def create_cluster(item: schemas.ClusterCreate) -> models.Cluster:
 
 
 def get_clusters(
-    skip: int = 0, limit: int = 100, sort: Optional[str] = None, **kwargs
+    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
 ) -> List[models.Cluster]:
     if kwargs:
         items = models.Cluster.nodes.filter(**kwargs).order_by(sort).all()
-        print(kwargs)
     else:
         items = models.Cluster.nodes.order_by(sort).all()
+    if limit is None:
+        return items[skip:]
     return items[skip : skip + limit]
 
 

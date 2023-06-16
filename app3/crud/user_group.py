@@ -7,12 +7,14 @@ def create_user_group(item: schemas.UserGroupCreate) -> models.UserGroup:
 
 
 def get_user_groups(
-    skip: int = 0, limit: int = 100, sort: Optional[str] = None, **kwargs
+    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
 ) -> List[models.UserGroup]:
     if kwargs:
         items = models.UserGroup.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.UserGroup.nodes.order_by(sort).all()
+    if limit is None:
+        return items[skip:]
     return items[skip : skip + limit]
 
 

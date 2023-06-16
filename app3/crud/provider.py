@@ -114,12 +114,14 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
 
 
 def get_providers(
-    skip: int = 0, limit: int = 100, sort: Optional[str] = None, **kwargs
+    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
 ) -> List[models.Provider]:
     if kwargs:
         items = models.Provider.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.Provider.nodes.order_by(sort).all()
+    if limit is None:
+        return items[skip:]
     return items[skip : skip + limit]
 
 

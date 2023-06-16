@@ -9,15 +9,16 @@ def create_identity_provider(
 
 
 def get_identity_providers(
-    skip: int = 0, limit: int = 100, sort: Optional[str] = None, **kwargs
+    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
 ) -> List[models.IdentityProvider]:
     if kwargs:
         items = (
             models.IdentityProvider.nodes.filter(**kwargs).order_by(sort).all()
         )
-        print(kwargs)
     else:
         items = models.IdentityProvider.nodes.order_by(sort).all()
+    if limit is None:
+        return items[skip:]
     return items[skip : skip + limit]
 
 

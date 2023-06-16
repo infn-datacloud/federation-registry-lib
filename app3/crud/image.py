@@ -7,13 +7,14 @@ def create_image(item: schemas.ImageCreate) -> models.Image:
 
 
 def get_images(
-    skip: int = 0, limit: int = 100, sort: Optional[str] = None, **kwargs
+    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
 ) -> List[models.Image]:
     if kwargs:
         items = models.Image.nodes.filter(**kwargs).order_by(sort).all()
-        print(kwargs)
     else:
         items = models.Image.nodes.order_by(sort).all()
+    if limit is None:
+        return items[skip:]
     return items[skip : skip + limit]
 
 

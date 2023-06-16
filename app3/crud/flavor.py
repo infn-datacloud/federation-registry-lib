@@ -7,13 +7,14 @@ def create_flavor(item: schemas.FlavorCreate) -> models.Flavor:
 
 
 def get_flavors(
-    skip: int = 0, limit: int = 100, sort: Optional[str] = None, **kwargs
+    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
 ) -> List[models.Flavor]:
     if kwargs:
         items = models.Flavor.nodes.filter(**kwargs).order_by(sort).all()
-        print(kwargs)
     else:
         items = models.Flavor.nodes.order_by(sort).all()
+    if limit is None:
+        return items[skip:]
     return items[skip : skip + limit]
 
 
