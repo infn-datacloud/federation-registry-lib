@@ -1,3 +1,10 @@
+from .cluster import (
+    create_cluster,
+    get_cluster,
+    get_clusters,
+    remove_cluster,
+    update_cluster,
+)
 from .flavor import (
     create_flavor,
     get_flavor,
@@ -62,6 +69,11 @@ from .user_group import (
 )
 
 __all__ = [
+    "create_cluster",
+    "get_cluster",
+    "get_clusters",
+    "remove_cluster",
+    "update_cluster",
     "create_flavor",
     "get_flavor",
     "get_flavors",

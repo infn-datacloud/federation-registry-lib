@@ -1,3 +1,4 @@
+from .cluster import router as clusters_router
 from .flavor import router as flavors_router
 from .identity_provider import router as identity_providers_router
 from .image import router as images_router
@@ -9,6 +10,7 @@ from .sla import router as slas_router
 from .user_group import router as user_groups_router
 
 __all__ = [
+    "clusters_router",
     "flavors_router",
     "identity_providers_router",
     "images_router",

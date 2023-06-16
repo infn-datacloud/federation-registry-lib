@@ -2,15 +2,26 @@ from pydantic import BaseModel, Field, validator
 from typing import List, Optional
 from uuid import UUID
 
+from .cluster import Cluster, ClusterCreate
+from .flavor import Flavor, FlavorCreate
+from .image import Image, ImageCreate
+from .location import Location, LocationCreate
 from ..relationships import (
+    AvailableCluster,
+    AvailableClusterCreate,
     AvailableVMFlavor,
     AvailableVMFlavorCreate,
     AvailableVMImage,
     AvailableVMImageCreate,
 )
-from .flavor import Flavor, FlavorCreate
-from .image import Image, ImageCreate
-from .location import Location, LocationCreate
+
+
+class ProviderClusterCreate(ClusterCreate):
+    relationship: AvailableClusterCreate
+
+
+class ProviderCluster(Cluster):
+    relationship: AvailableCluster
 
 
 class ProviderFlavorCreate(FlavorCreate):
@@ -68,6 +79,7 @@ class ProviderUpdate(ProviderBase):
     is_public: bool = False
     support_email: List[str] = Field(default_factory=list)
     location: Optional[LocationCreate] = None
+    clusters: List[ProviderClusterCreate] = Field(default_factory=list)
     flavors: List[ProviderFlavorCreate] = Field(default_factory=list)
     images: List[ProviderImageCreate] = Field(default_factory=list)
 
@@ -106,12 +118,24 @@ class Provider(ProviderBase):
 
     uid: UUID
     location: Optional[Location] = None
+    clusters: List[ProviderCluster] = Field(default_factory=list)
     flavors: List[ProviderFlavor] = Field(default_factory=list)
     images: List[ProviderImage] = Field(default_factory=list)
 
     @validator("location", pre=True)
     def get_single_location(cls, v):
         return v.single()
+
+    @validator("clusters", pre=True)
+    def get_all_clusters(cls, v):
+        clusters = []
+        for node in v.all():
+            clusters.append(
+                ProviderCluster(
+                    **node.__dict__, relationship=v.relationship(node)
+                )
+            )
+        return clusters
 
     @validator("flavors", pre=True)
     def get_all_flavors(cls, v):

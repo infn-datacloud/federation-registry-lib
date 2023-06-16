@@ -1,9 +1,26 @@
 from typing import List, Optional
 
+from .cluster import create_cluster, get_cluster
 from .flavor import create_flavor, get_flavor
 from .image import create_image, get_image
 from .location import create_location, get_location
 from .. import schemas, models
+
+
+def connect_provider_to_clusters(
+    item: models.Provider,
+    clusters: List[schemas.ProviderClusterCreate],
+) -> None:
+    for cluster in clusters:
+        db_img = get_cluster(
+            **cluster.dict(exclude={"relationship"}, exclude_none=True)
+        )
+        if db_img is None:
+            db_img = create_cluster(cluster)
+        if item.clusters.is_connected(db_img):
+            item.clusters.replace(db_img, cluster.relationship.dict())
+        else:
+            item.clusters.connect(db_img, cluster.relationship.dict())
 
 
 def connect_provider_to_flavors(
@@ -50,10 +67,12 @@ def connect_provider_to_location(
 
 def create_provider(item: schemas.ProviderCreate) -> models.Provider:
     db_item = models.Provider(
-        **item.dict(exclude={"flavors", "images", "location"})
+        **item.dict(exclude={"clusters", "flavors", "images", "location"})
     ).save()
     if item.location is not None:
         connect_provider_to_location(db_item, item.location)
+    if len(item.clusters) > 0:
+        connect_provider_to_clusters(db_item, item.clusters)
     if len(item.flavors) > 0:
         connect_provider_to_flavors(db_item, item.flavors)
     if len(item.images) > 0:
@@ -83,11 +102,14 @@ def update_provider(
     old_item: models.Provider, new_item: schemas.ProviderUpdate
 ) -> Optional[models.Provider]:
     for k, v in new_item.dict(
-        exclude={"flavors", "images", "location"}, exclude_unset=True
+        exclude={"clusters", "flavors", "images", "location"},
+        exclude_unset=True,
     ).items():
         old_item.__setattr__(k, v)
     if new_item.location is not None:
         connect_provider_to_location(old_item, new_item.location)
+    if len(new_item.clusters) > 0:
+        connect_provider_to_clusters(old_item, new_item.clusters)
     if len(new_item.flavors) > 0:
         connect_provider_to_flavors(old_item, new_item.flavors)
     if len(new_item.images) > 0:
