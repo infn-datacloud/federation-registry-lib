@@ -7,6 +7,7 @@ from .flavor import Flavor, FlavorCreate
 from .identity_provider import IdentityProvider, IdentityProviderCreate
 from .image import Image, ImageCreate
 from .location import Location, LocationCreate
+from .service import Service, ServiceCreate
 from ..relationships import (
     AuthMethod,
     AuthMethodCreate,
@@ -16,6 +17,8 @@ from ..relationships import (
     AvailableVMFlavorCreate,
     AvailableVMImage,
     AvailableVMImageCreate,
+    ProvideService,
+    ProvideServiceCreate,
 )
 
 
@@ -49,6 +52,14 @@ class ProviderImageCreate(ImageCreate):
 
 class ProviderImage(Image):
     relationship: AvailableVMImage
+
+
+class ProviderServiceCreate(ServiceCreate):
+    relationship: ProvideServiceCreate
+
+
+class ProviderService(Service):
+    relationship: ProvideService
 
 
 class ProviderBase(BaseModel):
@@ -94,6 +105,7 @@ class ProviderUpdate(ProviderBase):
     flavors: List[ProviderFlavorCreate] = Field(default_factory=list)
     identity_providers: List[ProviderIDPCreate] = Field(default_factory=list)
     images: List[ProviderImageCreate] = Field(default_factory=list)
+    services: List[ProviderServiceCreate] = Field(default_factory=list)
 
 
 class ProviderCreate(ProviderUpdate):
@@ -134,6 +146,7 @@ class Provider(ProviderBase):
     flavors: List[ProviderFlavor] = Field(default_factory=list)
     identity_providers: List[ProviderIDP] = Field(default_factory=list)
     images: List[ProviderImage] = Field(default_factory=list)
+    services: List[ProviderService] = Field(default_factory=list)
 
     @validator("location", pre=True)
     def get_single_location(cls, v):
@@ -180,6 +193,17 @@ class Provider(ProviderBase):
                 )
             )
         return images
+
+    @validator("services", pre=True)
+    def get_all_services(cls, v):
+        services = []
+        for node in v.all():
+            services.append(
+                ProviderService(
+                    **node.__dict__, relationship=v.relationship(node)
+                )
+            )
+        return services
 
     class Config:
         orm_mode = True

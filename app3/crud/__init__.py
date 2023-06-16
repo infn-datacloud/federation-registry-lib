@@ -49,10 +49,10 @@ from .quota import (
 )
 from .service import (
     create_service,
-    connect_service_to_sla,
     get_service,
     get_services,
     remove_service,
+    update_service,
 )
 from .sla import (
     create_sla,
@@ -106,10 +106,10 @@ __all__ = [
     "get_quotas",
     "remove_quota",
     "create_service",
-    "connect_service_to_sla",
     "get_service",
     "get_services",
     "remove_service",
+    "update_service",
     "create_sla",
     "connect_sla_to_project_and_provider",
     "get_sla",

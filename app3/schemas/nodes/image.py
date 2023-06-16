@@ -32,6 +32,11 @@ class ImageBase(BaseModel):
     gpu_driver: Optional[bool] = None
     creation_time: Optional[datetime] = None
 
+    @validator("os")
+    def get_enum_value(cls, v):
+        if v is not None:
+            return v.value
+
     class Config:
         validate_assignment = True
 
@@ -79,10 +84,6 @@ class ImageCreate(ImageUpdate):
     distribution: str
     version: str
     architecture: str
-
-    @validator("os")
-    def get_enum_value(cls, v):
-        return v.value
 
 
 class Image(ImageCreate):

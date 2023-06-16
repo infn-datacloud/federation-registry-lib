@@ -5,6 +5,7 @@ from .flavor import create_flavor, get_flavor
 from .identity_provider import create_identity_provider, get_identity_provider
 from .image import create_image, get_image
 from .location import create_location, get_location
+from .service import create_service, get_service
 from .. import schemas, models
 
 
@@ -88,6 +89,22 @@ def connect_provider_to_location(
         item.location.connect(db_loc)
 
 
+def connect_provider_to_services(
+    item: models.Provider,
+    services: List[schemas.ProviderServiceCreate],
+) -> None:
+    for service in services:
+        db_img = get_service(
+            **service.dict(exclude={"relationship"}, exclude_none=True)
+        )
+        if db_img is None:
+            db_img = create_service(service)
+        if item.services.is_connected(db_img):
+            item.services.replace(db_img, service.relationship.dict())
+        else:
+            item.services.connect(db_img, service.relationship.dict())
+
+
 def create_provider(item: schemas.ProviderCreate) -> models.Provider:
     db_item = models.Provider(
         **item.dict(
@@ -97,6 +114,7 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
                 "identity_providers",
                 "images",
                 "location",
+                "services",
             }
         )
     ).save()
@@ -110,11 +128,16 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
         connect_provider_to_idps(db_item, item.identity_providers)
     if len(item.images) > 0:
         connect_provider_to_images(db_item, item.images)
+    if len(item.services) > 0:
+        connect_provider_to_services(db_item, item.services)
     return db_item
 
 
 def get_providers(
-    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
+    skip: int = 0,
+    limit: Optional[int] = None,
+    sort: Optional[str] = None,
+    **kwargs
 ) -> List[models.Provider]:
     if kwargs:
         items = models.Provider.nodes.filter(**kwargs).order_by(sort).all()
@@ -143,6 +166,7 @@ def update_provider(
             "identity_providers",
             "images",
             "location",
+            "services",
         },
         exclude_unset=True,
     ).items():
@@ -157,5 +181,7 @@ def update_provider(
         connect_provider_to_idps(old_item, new_item.identity_providers)
     if len(new_item.images) > 0:
         connect_provider_to_images(old_item, new_item.images)
+    if len(old_item.services) > 0:
+        connect_provider_to_services(old_item, new_item.services)
     old_item.save()
     return old_item

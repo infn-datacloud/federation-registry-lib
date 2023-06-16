@@ -20,6 +20,8 @@ from .provider import (
     ProviderIDPCreate,
     ProviderImage,
     ProviderImageCreate,
+    ProviderService,
+    ProviderServiceCreate,
     ProviderUpdate,
 )
 from .service import Service, ServiceBase, ServiceCreate, ServiceUpdate
@@ -63,6 +65,8 @@ __all__ = [
     "ProviderIDPCreate",
     "ProviderImage",
     "ProviderImageCreate",
+    "ProviderService",
+    "ProviderServiceCreate",
     "ProviderUpdate",
     "Service",
     "ServiceBase",

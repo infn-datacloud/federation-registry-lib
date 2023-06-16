@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import Optional
 from uuid import UUID
 
@@ -25,6 +25,11 @@ class ServiceBase(BaseModel):
 
     name: Optional[ServiceType] = None
     description: Optional[str] = None
+
+    @validator("name")
+    def get_enum_value(cls, v):
+        if v is not None:
+            return v.value
 
     class Config:
         validate_assignment = True
