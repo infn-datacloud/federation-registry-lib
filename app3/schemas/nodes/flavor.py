@@ -1,6 +1,6 @@
 from pydantic import BaseModel, root_validator
 from typing import Optional
-
+from uuid import UUID
 
 class FlavorBase(BaseModel):
     """Flavor Base class.
@@ -87,8 +87,9 @@ class FlavorCreate(FlavorUpdate):
 
     @root_validator(pre=True)
     def check_gpu_values(cls, values):
-        if values["num_gpus"] < 1 and (
-            values["gpu_model"] is not None or values["gpu_vendor"] is not None
+        if values.get("num_gpus", 0) < 1 and (
+            values.get("gpu_model") is not None
+            or values.get("gpu_vendor") is not None
         ):
             raise ValueError(
                 "GPU model and GPU vendor should be None if NUM GPUs is 0"
@@ -116,7 +117,7 @@ class Flavor(FlavorCreate):
         gpu_vendor (str | None): Name of the GPU vendor.
     """
 
-    uid: str
+    uid: UUID
 
     class Config:
         orm_mode = True

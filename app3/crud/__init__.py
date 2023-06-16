@@ -1,9 +1,9 @@
 from .flavor import (
     create_flavor,
-    connect_flavor_to_project,
     get_flavor,
     get_flavors,
     remove_flavor,
+    update_flavor,
 )
 from .identity_provider import (
     create_identity_provider,
@@ -63,11 +63,10 @@ from .user_group import (
 
 __all__ = [
     "create_flavor",
-    "connect_flavor_to_project",
     "get_flavor",
     "get_flavors",
-    "get_project_flavors",
     "remove_flavor",
+    "update_flavor",
     "create_identity_provider",
     "get_identity_provider",
     "get_identity_providers",

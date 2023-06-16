@@ -2,12 +2,23 @@ from pydantic import BaseModel, Field, validator
 from typing import List, Optional
 from uuid import UUID
 
-from ..relationships.available_vm_image import (
+from ..relationships import (
+    AvailableVMFlavor,
+    AvailableVMFlavorCreate,
     AvailableVMImage,
     AvailableVMImageCreate,
 )
+from .flavor import Flavor, FlavorCreate
 from .image import Image, ImageCreate
 from .location import Location, LocationCreate
+
+
+class ProviderFlavorCreate(FlavorCreate):
+    relationship: AvailableVMFlavorCreate
+
+
+class ProviderFlavor(Flavor):
+    relationship: AvailableVMFlavor
 
 
 class ProviderImageCreate(ImageCreate):
@@ -57,6 +68,7 @@ class ProviderUpdate(ProviderBase):
     is_public: bool = False
     support_email: List[str] = Field(default_factory=list)
     location: Optional[LocationCreate] = None
+    flavors: List[ProviderFlavorCreate] = Field(default_factory=list)
     images: List[ProviderImageCreate] = Field(default_factory=list)
 
 
@@ -94,11 +106,23 @@ class Provider(ProviderBase):
 
     uid: UUID
     location: Optional[Location] = None
+    flavors: List[ProviderFlavor] = Field(default_factory=list)
     images: List[ProviderImage] = Field(default_factory=list)
 
     @validator("location", pre=True)
     def get_single_location(cls, v):
         return v.single()
+
+    @validator("flavors", pre=True)
+    def get_all_flavors(cls, v):
+        flavors = []
+        for node in v.all():
+            flavors.append(
+                ProviderFlavor(
+                    **node.__dict__, relationship=v.relationship(node)
+                )
+            )
+        return flavors
 
     @validator("images", pre=True)
     def get_all_images(cls, v):

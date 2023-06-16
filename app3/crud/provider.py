@@ -1,8 +1,25 @@
 from typing import List, Optional
 
+from .flavor import create_flavor, get_flavor
 from .image import create_image, get_image
 from .location import create_location, get_location
 from .. import schemas, models
+
+
+def connect_provider_to_flavors(
+    item: models.Provider,
+    flavors: List[schemas.ProviderFlavorCreate],
+) -> None:
+    for flavor in flavors:
+        db_img = get_flavor(
+            **flavor.dict(exclude={"relationship"}, exclude_none=True)
+        )
+        if db_img is None:
+            db_img = create_flavor(flavor)
+        if item.flavors.is_connected(db_img):
+            item.flavors.replace(db_img, flavor.relationship.dict())
+        else:
+            item.flavors.connect(db_img, flavor.relationship.dict())
 
 
 def connect_provider_to_images(
@@ -33,10 +50,12 @@ def connect_provider_to_location(
 
 def create_provider(item: schemas.ProviderCreate) -> models.Provider:
     db_item = models.Provider(
-        **item.dict(exclude={"location", "images"})
+        **item.dict(exclude={"flavors", "images", "location"})
     ).save()
     if item.location is not None:
         connect_provider_to_location(db_item, item.location)
+    if len(item.flavors) > 0:
+        connect_provider_to_flavors(db_item, item.flavors)
     if len(item.images) > 0:
         connect_provider_to_images(db_item, item.images)
     return db_item
@@ -64,11 +83,13 @@ def update_provider(
     old_item: models.Provider, new_item: schemas.ProviderUpdate
 ) -> Optional[models.Provider]:
     for k, v in new_item.dict(
-        exclude={"location", "images"}, exclude_unset=True
+        exclude={"flavors", "images", "location"}, exclude_unset=True
     ).items():
         old_item.__setattr__(k, v)
     if new_item.location is not None:
         connect_provider_to_location(old_item, new_item.location)
+    if len(new_item.flavors) > 0:
+        connect_provider_to_flavors(old_item, new_item.flavors)
     if len(new_item.images) > 0:
         connect_provider_to_images(old_item, new_item.images)
     old_item.save()
