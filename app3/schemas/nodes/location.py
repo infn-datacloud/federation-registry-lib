@@ -65,8 +65,6 @@ class LocationCreate(LocationUpdate):
     name: str
     country: str
     country_code: str
-    latitude: float
-    longitude: float
 
 
 class Location(LocationCreate):

@@ -18,12 +18,12 @@ from .image import (
     get_images,
     remove_image,
 )
-from .project import (
-    create_project,
-    connect_project_to_user_group,
-    get_project,
-    get_projects,
-    remove_project,
+from .location import (
+    create_location,
+    get_location,
+    get_locations,
+    remove_location,
+    update_location,
 )
 from .provider import (
     create_provider,
@@ -77,11 +77,11 @@ __all__ = [
     "get_image",
     "get_images",
     "remove_image",
-    "create_project",
-    "connect_project_to_user_group",
-    "get_project",
-    "get_projects",
-    "remove_project",
+    "create_location",
+    "get_location",
+    "get_locations",
+    "remove_location",
+    "update_location",
     "create_provider",
     "get_provider",
     "get_providers",
@@ -106,5 +106,5 @@ __all__ = [
     "get_user_group",
     "get_user_groups",
     "remove_user_group",
-    "update_user_group"
+    "update_user_group",
 ]

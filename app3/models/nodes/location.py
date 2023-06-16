@@ -28,8 +28,8 @@ class Location(StructuredNode):
     description = StringProperty(default="")
     country = StringProperty(required=True)
     country_code = StringProperty(required=True)
-    latitude = FloatProperty(required=True)
-    longitude = FloatProperty(required=True)
+    latitude = FloatProperty()
+    longitude = FloatProperty()
 
     providers = RelationshipFrom(
         ".Provider", "LOCATED_AT", cardinality=OneOrMore

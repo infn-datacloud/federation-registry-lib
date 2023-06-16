@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import List, Optional
 from uuid import UUID
+
+from .location import Location, LocationCreate
 
 
 class ProviderBase(BaseModel):
@@ -41,6 +43,7 @@ class ProviderUpdate(ProviderBase):
     description: str = ""
     is_public: bool = False
     support_email: List[str] = Field(default_factory=list)
+    location: Optional[LocationCreate] = None
 
 
 class ProviderCreate(ProviderUpdate):
@@ -59,7 +62,7 @@ class ProviderCreate(ProviderUpdate):
     name: str
 
 
-class Provider(ProviderCreate):
+class Provider(ProviderBase):
     """Provider class
 
     Class retrieved from the database
@@ -76,6 +79,11 @@ class Provider(ProviderCreate):
     """
 
     uid: UUID
+    location: Optional[Location] = None
+
+    @validator("location", pre=True)
+    def a(cls, v):
+        return v.single()
 
     class Config:
         orm_mode = True

@@ -7,10 +7,7 @@ from . import routers
 config.DATABASE_URL = "bolt://neo4j:password@localhost:7687"
 
 app = FastAPI()
-app.include_router(routers.flavors_router)
-app.include_router(routers.identity_providers_router)
-app.include_router(routers.images_router)
-app.include_router(routers.projects_router)
+app.include_router(routers.locations_router)
 app.include_router(routers.providers_router)
 app.include_router(routers.quotas_router)
 app.include_router(routers.services_router)
