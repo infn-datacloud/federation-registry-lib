@@ -22,7 +22,12 @@ from .available_vm_image import (
     AvailableVMImageCreate,
     AvailableVMImageUpdate,
 )
-from .project import Project, ProjectBase, ProjectCreate, ProjectUpdate
+from .book_project import (
+    BookProject,
+    BookProjectBase,
+    BookProjectCreate,
+    BookProjectUpdate,
+)
 from .provide_service import (
     ProvideService,
     ProvideServiceBase,
@@ -48,10 +53,10 @@ __all__ = [
     "AvailableVMImageBase",
     "AvailableVMImageCreate",
     "AvailableVMImageUpdate",
-    "Project",
-    "ProjectBase",
-    "ProjectCreate",
-    "ProjectUpdate",
+    "BookProject",
+    "BookProjectBase",
+    "BookProjectCreate",
+    "BookProjectUpdate",
     "ProvideService",
     "ProvideServiceBase",
     "ProvideServiceCreate",
@@ -59,5 +64,5 @@ __all__ = [
     "Quota",
     "QuotaBase",
     "QuotaCreate",
-    "QuotaUpdate"
+    "QuotaUpdate",
 ]

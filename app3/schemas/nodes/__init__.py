@@ -8,6 +8,7 @@ from .identity_provider import (
 )
 from .image import Image, ImageBase, ImageCreate, ImageUpdate
 from .location import Location, LocationBase, LocationCreate, LocationUpdate
+from .project import Project, ProjectBase, ProjectCreate, ProjectUpdate
 from .provider import (
     Provider,
     ProviderBase,
@@ -20,6 +21,8 @@ from .provider import (
     ProviderIDPCreate,
     ProviderImage,
     ProviderImageCreate,
+    ProviderProject,
+    ProviderProjectCreate,
     ProviderService,
     ProviderServiceCreate,
     ProviderUpdate,
@@ -54,6 +57,10 @@ __all__ = [
     "LocationBase",
     "LocationCreate",
     "LocationUpdate",
+    "Project",
+    "ProjectBase",
+    "ProjectCreate",
+    "ProjectUpdate",
     "Provider",
     "ProviderBase",
     "ProviderCreate",
@@ -65,6 +72,8 @@ __all__ = [
     "ProviderIDPCreate",
     "ProviderImage",
     "ProviderImageCreate",
+    "ProviderProject",
+    "ProviderProjectCreate",
     "ProviderService",
     "ProviderServiceCreate",
     "ProviderUpdate",

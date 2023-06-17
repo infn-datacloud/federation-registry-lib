@@ -33,6 +33,13 @@ from .location import (
     remove_location,
     update_location,
 )
+from .project import (
+    create_project,
+    get_project,
+    get_projects,
+    remove_project,
+    update_project,
+)
 from .provider import (
     create_provider,
     get_provider,
@@ -95,6 +102,11 @@ __all__ = [
     "get_locations",
     "remove_location",
     "update_location",
+    "create_project",
+    "get_project",
+    "get_projects",
+    "remove_project",
+    "update_project",
     "create_provider",
     "get_provider",
     "get_providers",

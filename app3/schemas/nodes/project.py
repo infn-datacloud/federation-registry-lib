@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
 
 
 class ProjectBase(BaseModel):
@@ -28,8 +29,6 @@ class ProjectBase(BaseModel):
             of a resource to be granted to user.
     """
 
-    project_name: Optional[str] = None
-    project_uuid: Optional[str] = None
     public_network_name: Optional[str] = None
     private_network_name: Optional[str] = None
     private_network_proxy_host: Optional[str] = None
@@ -93,9 +92,6 @@ class ProjectCreate(ProjectUpdate):
             of a resource to be granted to user.
     """
 
-    project_name: str
-    project_uuid: str
-
 
 class Project(ProjectCreate):
     """Project class
@@ -125,6 +121,8 @@ class Project(ProjectCreate):
         user_guaranteed (float): The guaranteed quantity
             of a resource to be granted to user.
     """
+
+    uid: UUID
 
     class Config:
         orm_mode = True

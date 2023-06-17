@@ -7,6 +7,7 @@ from .flavor import Flavor, FlavorCreate
 from .identity_provider import IdentityProvider, IdentityProviderCreate
 from .image import Image, ImageCreate
 from .location import Location, LocationCreate
+from .project import Project, ProjectCreate
 from .service import Service, ServiceCreate
 from ..relationships import (
     AuthMethod,
@@ -17,6 +18,8 @@ from ..relationships import (
     AvailableVMFlavorCreate,
     AvailableVMImage,
     AvailableVMImageCreate,
+    BookProject,
+    BookProjectCreate,
     ProvideService,
     ProvideServiceCreate,
 )
@@ -52,6 +55,14 @@ class ProviderImageCreate(ImageCreate):
 
 class ProviderImage(Image):
     relationship: AvailableVMImage
+
+
+class ProviderProjectCreate(ProjectCreate):
+    relationship: BookProjectCreate
+
+
+class ProviderProject(Project):
+    relationship: BookProject
 
 
 class ProviderServiceCreate(ServiceCreate):
@@ -105,6 +116,7 @@ class ProviderUpdate(ProviderBase):
     flavors: List[ProviderFlavorCreate] = Field(default_factory=list)
     identity_providers: List[ProviderIDPCreate] = Field(default_factory=list)
     images: List[ProviderImageCreate] = Field(default_factory=list)
+    projects: List[ProviderProjectCreate] = Field(default_factory=list)
     services: List[ProviderServiceCreate] = Field(default_factory=list)
 
 
@@ -146,6 +158,7 @@ class Provider(ProviderBase):
     flavors: List[ProviderFlavor] = Field(default_factory=list)
     identity_providers: List[ProviderIDP] = Field(default_factory=list)
     images: List[ProviderImage] = Field(default_factory=list)
+    projects: List[ProviderProject] = Field(default_factory=list)
     services: List[ProviderService] = Field(default_factory=list)
 
     @validator("location", pre=True)
@@ -193,6 +206,18 @@ class Provider(ProviderBase):
                 )
             )
         return images
+    
+
+    @validator("projects", pre=True)
+    def get_all_projects(cls, v):
+        projects = []
+        for node in v.all():
+            projects.append(
+                ProviderProject(
+                    **node.__dict__, relationship=v.relationship(node)
+                )
+            )
+        return projects
 
     @validator("services", pre=True)
     def get_all_services(cls, v):

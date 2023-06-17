@@ -8,7 +8,7 @@ from neomodel import (
     UniqueIdProperty,
     OneOrMore,
 )
-from ..relationships import Project, Quota
+from ..relationships import Quota
 
 
 class SLA(StructuredNode):
@@ -31,11 +31,10 @@ class SLA(StructuredNode):
     end_date = DateTimeProperty(required=True)
 
     user_group = RelationshipFrom(".UserGroup", "HAS_SLA", cardinality=One)
-    provider = RelationshipTo(
-        ".Provider",
+    project = RelationshipTo(
+        ".Project",
         "ACCESS_PROVIDER_THROUGH_PROJECT",
         cardinality=One,
-        model=Project,
     )
     services = RelationshipTo(
         ".Service",

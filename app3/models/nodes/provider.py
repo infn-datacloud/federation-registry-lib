@@ -10,11 +10,11 @@ from neomodel import (
     ZeroOrOne,
 )
 from ..relationships import (
-    Project,
     AuthMethod,
     AvailableCluster,
     AvailableVMFlavor,
     AvailableVMImage,
+    BookProject,
     ProvideService,
 )
 
@@ -41,11 +41,11 @@ class Provider(StructuredNode):
     is_public = BooleanProperty(default=False)
     support_email = ArrayProperty(StringProperty())
 
-    slas = RelationshipFrom(
-        ".SLA",
-        "ACCESS_PROVIDER_THROUGH_PROJECT",
+    projects = RelationshipTo(
+        ".Project",
+        "BOOK_PROJECT_FOR_AN_SLA",
         cardinality=ZeroOrMore,
-        model=Project,
+        model=BookProject,
     )
     services = RelationshipFrom(
         ".Service",

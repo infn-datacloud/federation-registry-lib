@@ -1,4 +1,4 @@
-from .project import Project
+from .book_project import BookProject
 from .auth_method import AuthMethod
 from .available_cluster import AvailableCluster
 from .available_vm_flavor import AvailableVMFlavor
@@ -8,11 +8,11 @@ from .quota import Quota
 
 
 __all__ = [
-    "Project",
     "AuthMethod",
     "AvailableCluster",
     "AvailableVMFlavor",
     "AvailableVMImage",
+    "BookProject",
     "ProvideService",
     "Quota",
 ]

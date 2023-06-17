@@ -1,10 +1,7 @@
-from neomodel import (
-    StringProperty,
-    StructuredRel,
-)
+from neomodel import StringProperty, StructuredRel
 
 
-class Project(StructuredRel):
+class BookProject(StructuredRel):
     """Associated Project class.
 
     Relationship linking a user group to a provider.
@@ -21,9 +18,5 @@ class Project(StructuredRel):
         private_network_proxy_host (str): #TODO
     """
 
-    project_name = StringProperty(unique_index=True, required=True)
-    project_uuid = StringProperty(unique_index=True, required=True)
-    public_network_name = StringProperty()
-    private_network_name = StringProperty()
-    private_network_proxy_host = StringProperty()
-    private_network_proxy_user = StringProperty()
+    name = StringProperty(unique_index=True, required=True)
+    uuid = StringProperty(unique_index=True, required=True)

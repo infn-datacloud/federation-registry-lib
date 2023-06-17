@@ -5,6 +5,7 @@ from .flavor import create_flavor, get_flavor
 from .identity_provider import create_identity_provider, get_identity_provider
 from .image import create_image, get_image
 from .location import create_location, get_location
+from .project import create_project, get_project
 from .service import create_service, get_service
 from .. import schemas, models
 
@@ -14,20 +15,20 @@ def connect_provider_to_idps(
     identity_providers: List[schemas.ProviderClusterCreate],
 ) -> None:
     for identity_provider in identity_providers:
-        db_img = get_identity_provider(
+        db_idp = get_identity_provider(
             **identity_provider.dict(
                 exclude={"relationship"}, exclude_none=True
             )
         )
-        if db_img is None:
-            db_img = create_identity_provider(identity_provider)
-        if item.identity_providers.is_connected(db_img):
+        if db_idp is None:
+            db_idp = create_identity_provider(identity_provider)
+        if item.identity_providers.is_connected(db_idp):
             item.identity_providers.replace(
-                db_img, identity_provider.relationship.dict()
+                db_idp, identity_provider.relationship.dict()
             )
         else:
             item.identity_providers.connect(
-                db_img, identity_provider.relationship.dict()
+                db_idp, identity_provider.relationship.dict()
             )
 
 
@@ -36,15 +37,15 @@ def connect_provider_to_clusters(
     clusters: List[schemas.ProviderClusterCreate],
 ) -> None:
     for cluster in clusters:
-        db_img = get_cluster(
+        db_clu = get_cluster(
             **cluster.dict(exclude={"relationship"}, exclude_none=True)
         )
-        if db_img is None:
-            db_img = create_cluster(cluster)
-        if item.clusters.is_connected(db_img):
-            item.clusters.replace(db_img, cluster.relationship.dict())
+        if db_clu is None:
+            db_clu = create_cluster(cluster)
+        if item.clusters.is_connected(db_clu):
+            item.clusters.replace(db_clu, cluster.relationship.dict())
         else:
-            item.clusters.connect(db_img, cluster.relationship.dict())
+            item.clusters.connect(db_clu, cluster.relationship.dict())
 
 
 def connect_provider_to_flavors(
@@ -52,15 +53,15 @@ def connect_provider_to_flavors(
     flavors: List[schemas.ProviderFlavorCreate],
 ) -> None:
     for flavor in flavors:
-        db_img = get_flavor(
+        db_flv = get_flavor(
             **flavor.dict(exclude={"relationship"}, exclude_none=True)
         )
-        if db_img is None:
-            db_img = create_flavor(flavor)
-        if item.flavors.is_connected(db_img):
-            item.flavors.replace(db_img, flavor.relationship.dict())
+        if db_flv is None:
+            db_flv = create_flavor(flavor)
+        if item.flavors.is_connected(db_flv):
+            item.flavors.replace(db_flv, flavor.relationship.dict())
         else:
-            item.flavors.connect(db_img, flavor.relationship.dict())
+            item.flavors.connect(db_flv, flavor.relationship.dict())
 
 
 def connect_provider_to_images(
@@ -89,20 +90,35 @@ def connect_provider_to_location(
         item.location.connect(db_loc)
 
 
+def connect_provider_to_projects(
+    item: models.Provider,
+    projects: List[schemas.ProviderProjectCreate],
+) -> None:
+    for project in projects:
+        db_proj = get_project(
+            **project.dict(exclude={"relationship"}, exclude_none=True)
+        )
+        if db_proj is None:
+            db_proj = create_project(project)
+        if item.projects.is_connected(db_proj):
+            item.projects.replace(db_proj, project.relationship.dict())
+        else:
+            item.projects.connect(db_proj, project.relationship.dict())
+
 def connect_provider_to_services(
     item: models.Provider,
     services: List[schemas.ProviderServiceCreate],
 ) -> None:
     for service in services:
-        db_img = get_service(
+        db_srv = get_service(
             **service.dict(exclude={"relationship"}, exclude_none=True)
         )
-        if db_img is None:
-            db_img = create_service(service)
-        if item.services.is_connected(db_img):
-            item.services.replace(db_img, service.relationship.dict())
+        if db_srv is None:
+            db_srv = create_service(service)
+        if item.services.is_connected(db_srv):
+            item.services.replace(db_srv, service.relationship.dict())
         else:
-            item.services.connect(db_img, service.relationship.dict())
+            item.services.connect(db_srv, service.relationship.dict())
 
 
 def create_provider(item: schemas.ProviderCreate) -> models.Provider:
@@ -114,6 +130,7 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
                 "identity_providers",
                 "images",
                 "location",
+                "projects",
                 "services",
             }
         )
@@ -128,6 +145,8 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
         connect_provider_to_idps(db_item, item.identity_providers)
     if len(item.images) > 0:
         connect_provider_to_images(db_item, item.images)
+    if len(item.projects) > 0:
+        connect_provider_to_projects(db_item, item.projects)
     if len(item.services) > 0:
         connect_provider_to_services(db_item, item.services)
     return db_item
@@ -166,6 +185,7 @@ def update_provider(
             "identity_providers",
             "images",
             "location",
+            "projects",
             "services",
         },
         exclude_unset=True,
@@ -181,7 +201,9 @@ def update_provider(
         connect_provider_to_idps(old_item, new_item.identity_providers)
     if len(new_item.images) > 0:
         connect_provider_to_images(old_item, new_item.images)
-    if len(old_item.services) > 0:
+    if len(new_item.projects) > 0:
+        connect_provider_to_projects(old_item, new_item.projects)
+    if len(new_item.services) > 0:
         connect_provider_to_services(old_item, new_item.services)
     old_item.save()
     return old_item
