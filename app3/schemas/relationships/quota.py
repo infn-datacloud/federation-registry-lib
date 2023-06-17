@@ -1,4 +1,4 @@
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, root_validator, validator
 from typing import Dict, Optional, Union
 
 from ..utils import (
@@ -39,14 +39,14 @@ class QuotaBase(BaseModel):
     """
 
     type: Optional[
-        str#Union[
-        #    QuotaTypeBandwidth,
-        #    QuotaTypeCount,
-        #    QuotaTypeFrequency,
-        #    QuotaTypeMoney,
-        #    QuotaTypeSize,
-        #    QuotaTypeTime,
-        #] TODO
+        Union[
+            QuotaTypeBandwidth,
+            QuotaTypeCount,
+            QuotaTypeFrequency,
+            QuotaTypeMoney,
+            QuotaTypeSize,
+            QuotaTypeTime,
+        ]
     ] = None
     description: Optional[str] = None
     tot_limit: Optional[float] = None
@@ -55,6 +55,11 @@ class QuotaBase(BaseModel):
     tot_guaranteed: Optional[float] = None
     instance_guaranteed: Optional[float] = None
     user_guaranteed: Optional[float] = None
+
+    @validator("type")
+    def get_enum_value(cls, v):
+        if v is not None:
+            return v.value
 
     class Config:
         validate_assignment = True
@@ -119,38 +124,34 @@ class QuotaCreate(QuotaUpdate):
             of a resource to be granted to user.
     """
 
-    #TODO
-    type: str#Union[
-    #    QuotaTypeBandwidth,
-    #    QuotaTypeCount,
-    #    QuotaTypeFrequency,
-    #    QuotaTypeMoney,
-    #    QuotaTypeSize,
-    #    QuotaTypeTime,
-    #]
-    unit: Optional[str] = None
+    type: Union[
+        QuotaTypeBandwidth,
+        QuotaTypeCount,
+        QuotaTypeFrequency,
+        QuotaTypeMoney,
+        QuotaTypeSize,
+        QuotaTypeTime,
+    ]
 
-    # TODO
-    #@root_validator
-    #def detect_unit(cls, values) -> Dict:
-    #    quota_type = values["type"]
-    #    if type(quota_type) is QuotaTypeBandwidth:
-    #        new_val = QuotaUnit.bandwidth
-    #    elif type(quota_type) is QuotaTypeCount:
-    #        new_val = None
-    #    elif type(quota_type) is QuotaTypeFrequency:
-    #        new_val = QuotaUnit.freq
-    #    elif type(quota_type) is QuotaTypeMoney:
-    #        new_val = QuotaUnit.money
-    #    elif type(quota_type) is QuotaTypeSize:
-    #        new_val = QuotaUnit.size
-    #    elif type(quota_type) is QuotaTypeTime:
-    #        new_val = QuotaUnit.time
-    #    else:
-    #        raise TypeError(f"Unknown Quota type: {quota_type}")
-#
-    #    values["unit"] = new_val
-    #    return values
+    @root_validator
+    def detect_unit(cls, values) -> Dict:
+        quota_type = values["type"]
+        if quota_type in [i.value for i in QuotaTypeBandwidth]:
+            new_val = QuotaUnit.bandwidth.value
+        elif quota_type in [i.value for i in QuotaTypeCount]:
+            new_val = None
+        elif quota_type in [i.value for i in QuotaTypeFrequency]:
+            new_val = QuotaUnit.freq.value
+        elif quota_type in [i.value for i in QuotaTypeMoney]:
+            new_val = QuotaUnit.money.value
+        elif quota_type in [i.value for i in QuotaTypeSize]:
+            new_val = QuotaUnit.size.value
+        elif quota_type in [i.value for i in QuotaTypeTime]:
+            new_val = QuotaUnit.time.value
+        else:
+            raise TypeError(f"Unknown Quota type: {quota_type}")
+        values["unit"] = new_val
+        return values
 
 
 class Quota(QuotaCreate):
@@ -183,6 +184,7 @@ class Quota(QuotaCreate):
     """
 
     uid: str
+    unit: Optional[QuotaUnit] = None
 
     class Config:
         orm_mode = True
