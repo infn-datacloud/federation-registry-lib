@@ -47,13 +47,6 @@ from .provider import (
     remove_provider,
     update_provider,
 )
-from .quota import (
-    create_quota,
-    connect_quota_to_sla,
-    get_quota,
-    get_quotas,
-    remove_quota,
-)
 from .service import (
     create_service,
     get_service,
@@ -63,10 +56,10 @@ from .service import (
 )
 from .sla import (
     create_sla,
-    connect_sla_to_project_and_provider,
     get_sla,
     get_slas,
     remove_sla,
+    update_sla,
 )
 from .user_group import (
     create_user_group,
@@ -112,21 +105,16 @@ __all__ = [
     "get_providers",
     "remove_provider",
     "update_provider",
-    "create_quota",
-    "connect_quota_to_sla",
-    "get_quota",
-    "get_quotas",
-    "remove_quota",
     "create_service",
     "get_service",
     "get_services",
     "remove_service",
     "update_service",
     "create_sla",
-    "connect_sla_to_project_and_provider",
     "get_sla",
     "get_slas",
     "remove_sla",
+    "update_sla",
     "create_user_group",
     "get_user_group",
     "get_user_groups",

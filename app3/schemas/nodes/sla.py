@@ -1,9 +1,25 @@
 from datetime import datetime
-from pydantic import BaseModel, validator
-from typing import Optional
+from pydantic import BaseModel, Field, validator
+from typing import List, Optional
 from uuid import UUID
 
+from .project import Project
+from .service import Service
+from .user_group import UserGroup
+from ..relationships import Quota, QuotaCreate
 from ..utils import cast_neo4j_datetime
+
+
+class SLAServiceCreate(BaseModel):
+    uid: UUID
+    relationships: List[QuotaCreate]
+
+    class Config:
+        validate_assignment = True
+
+
+class SLAService(Service):
+    relationships: List[Quota]
 
 
 class SLABase(BaseModel):
@@ -39,6 +55,9 @@ class SLAUpdate(SLABase):
     """
 
     description: str = ""
+    project: Optional[UUID] = None
+    user_group: Optional[UUID] = None
+    services: List[SLAServiceCreate] = Field(default_factory=list)
 
 
 class SLACreate(SLAUpdate):
@@ -55,6 +74,9 @@ class SLACreate(SLAUpdate):
 
     start_date: datetime
     end_date: datetime
+    project: UUID
+    user_group: UUID
+    services: List[SLAServiceCreate]
 
 
 class SLA(SLACreate):
@@ -73,6 +95,9 @@ class SLA(SLACreate):
     """
 
     uid: UUID
+    project: Project
+    user_group: UserGroup
+    services: List[SLAService]
 
     _cast_start_date = validator("start_date", pre=True, allow_reuse=True)(
         cast_neo4j_datetime
@@ -80,6 +105,25 @@ class SLA(SLACreate):
     _cast_end_date = validator("end_date", pre=True, allow_reuse=True)(
         cast_neo4j_datetime
     )
+
+    @validator("project", pre=True)
+    def get_single_project(cls, v):
+        return v.single()
+
+    @validator("user_group", pre=True)
+    def get_single_user_group(cls, v):
+        return v.single()
+
+    @validator("services", pre=True)
+    def get_all_services(cls, v):
+        services = []
+        for node in v.all():
+            services.append(
+                SLAService(
+                    **node.__dict__, relationships=v.all_relationships(node)
+                )
+            )
+        return services
 
     class Config:
         orm_mode = True

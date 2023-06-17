@@ -1,4 +1,9 @@
-from neomodel import FloatProperty, StringProperty, StructuredRel
+from neomodel import (
+    FloatProperty,
+    StringProperty,
+    StructuredRel,
+    UniqueIdProperty,
+)
 
 
 class Quota(StructuredRel):
@@ -27,6 +32,7 @@ class Quota(StructuredRel):
             of a resource to be granted to user.
     """
 
+    uid = UniqueIdProperty()
     type = StringProperty(required=True)
     unit = StringProperty()
     tot_limit = FloatProperty()

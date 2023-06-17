@@ -19,10 +19,10 @@ class QuotaBase(BaseModel):
     Expected as input when performing a PATCH REST request.
 
     Attributes:
-        name (str): Quota name (type).
+        type (str): Quota type (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota name/type.
+            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -38,15 +38,15 @@ class QuotaBase(BaseModel):
             of a resource to be granted to user.
     """
 
-    name: Optional[
-        Union[
-            QuotaTypeBandwidth,
-            QuotaTypeCount,
-            QuotaTypeFrequency,
-            QuotaTypeMoney,
-            QuotaTypeSize,
-            QuotaTypeTime,
-        ]
+    type: Optional[
+        str#Union[
+        #    QuotaTypeBandwidth,
+        #    QuotaTypeCount,
+        #    QuotaTypeFrequency,
+        #    QuotaTypeMoney,
+        #    QuotaTypeSize,
+        #    QuotaTypeTime,
+        #] TODO
     ] = None
     description: Optional[str] = None
     tot_limit: Optional[float] = None
@@ -67,10 +67,10 @@ class QuotaUpdate(QuotaBase):
     Expected as input when performing a PATCH REST request.
 
     Attributes:
-        name (str): Quota name (type).
+        type (str): Quota type (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota name/type.
+            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -100,10 +100,10 @@ class QuotaCreate(QuotaUpdate):
 
 
     Attributes:
-        name (str): Quota name (type).
+        type (str): Quota type (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota name/type.
+            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -119,39 +119,38 @@ class QuotaCreate(QuotaUpdate):
             of a resource to be granted to user.
     """
 
-    name: Union[
-        QuotaTypeBandwidth,
-        QuotaTypeCount,
-        QuotaTypeFrequency,
-        QuotaTypeMoney,
-        QuotaTypeSize,
-        QuotaTypeTime,
-    ]
-    tot_limit: float
-    instance_limit: float
-    user_limit: float
+    #TODO
+    type: str#Union[
+    #    QuotaTypeBandwidth,
+    #    QuotaTypeCount,
+    #    QuotaTypeFrequency,
+    #    QuotaTypeMoney,
+    #    QuotaTypeSize,
+    #    QuotaTypeTime,
+    #]
     unit: Optional[str] = None
 
-    @root_validator
-    def detect_unit(cls, values) -> Dict:
-        quota_type = values["name"]
-        if type(quota_type) is QuotaTypeBandwidth:
-            new_val = QuotaUnit.bandwidth
-        elif type(quota_type) is QuotaTypeCount:
-            new_val = None
-        elif type(quota_type) is QuotaTypeFrequency:
-            new_val = QuotaUnit.freq
-        elif type(quota_type) is QuotaTypeMoney:
-            new_val = QuotaUnit.money
-        elif type(quota_type) is QuotaTypeSize:
-            new_val = QuotaUnit.size
-        elif type(quota_type) is QuotaTypeTime:
-            new_val = QuotaUnit.time
-        else:
-            raise TypeError(f"Unknown Quota type: {quota_type}")
-
-        values["unit"] = new_val
-        return values
+    # TODO
+    #@root_validator
+    #def detect_unit(cls, values) -> Dict:
+    #    quota_type = values["type"]
+    #    if type(quota_type) is QuotaTypeBandwidth:
+    #        new_val = QuotaUnit.bandwidth
+    #    elif type(quota_type) is QuotaTypeCount:
+    #        new_val = None
+    #    elif type(quota_type) is QuotaTypeFrequency:
+    #        new_val = QuotaUnit.freq
+    #    elif type(quota_type) is QuotaTypeMoney:
+    #        new_val = QuotaUnit.money
+    #    elif type(quota_type) is QuotaTypeSize:
+    #        new_val = QuotaUnit.size
+    #    elif type(quota_type) is QuotaTypeTime:
+    #        new_val = QuotaUnit.time
+    #    else:
+    #        raise TypeError(f"Unknown Quota type: {quota_type}")
+#
+    #    values["unit"] = new_val
+    #    return values
 
 
 class Quota(QuotaCreate):
@@ -164,10 +163,10 @@ class Quota(QuotaCreate):
 
     Attributes:
         uid (uuid): Quota unique ID.
-        name (str): Quota name (type).
+        type (str): Quota type (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota name/type.
+            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource

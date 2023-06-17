@@ -28,7 +28,14 @@ from .provider import (
     ProviderUpdate,
 )
 from .service import Service, ServiceBase, ServiceCreate, ServiceUpdate
-from .sla import SLA, SLABase, SLACreate, SLAUpdate
+from .sla import (
+    SLA,
+    SLABase,
+    SLACreate,
+    SLAService,
+    SLAServiceCreate,
+    SLAUpdate,
+)
 from .user_group import (
     UserGroup,
     UserGroupBase,
@@ -84,6 +91,8 @@ __all__ = [
     "SLA",
     "SLABase",
     "SLACreate",
+    "SLAService",
+    "SLAServiceCreate",
     "SLAUpdate",
     "UserGroup",
     "UserGroupBase",
