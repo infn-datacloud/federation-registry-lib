@@ -1,6 +1,10 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import List, Optional
 from uuid import UUID
+
+from .cluster import Cluster
+from .flavor import Flavor
+from .image import Image
 
 
 class UserGroupBase(BaseModel):
@@ -67,3 +71,22 @@ class UserGroup(UserGroupCreate):
 
     class Config:
         orm_mode = True
+
+
+class UserGroupExtended(UserGroup):
+    """UserGroup class
+
+    Class retrieved from the database
+    expected as output when performing a REST request.
+    It contains all the non-sensible data written
+    in the database.
+
+    Attributes:
+        uid (uuid): UserGroup unique ID.
+        name (str): UserGroup name.
+        description (str): Brief description.
+    """
+
+    clusters: List[Cluster] = Field(default_factory=list)
+    flavors: List[Flavor] = Field(default_factory=list)
+    images: List[Image] = Field(default_factory=list)

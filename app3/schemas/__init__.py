@@ -52,6 +52,7 @@ from .nodes import (
     UserGroup,
     UserGroupBase,
     UserGroupCreate,
+    UserGroupExtended,
     UserGroupUpdate,
 )
 from .relationships import (
@@ -167,5 +168,6 @@ __all__ = [
     "UserGroup",
     "UserGroupBase",
     "UserGroupCreate",
+    "UserGroupExtended",
     "UserGroupUpdate",
 ]

@@ -40,6 +40,7 @@ from .user_group import (
     UserGroup,
     UserGroupBase,
     UserGroupCreate,
+    UserGroupExtended,
     UserGroupUpdate,
 )
 
@@ -97,5 +98,6 @@ __all__ = [
     "UserGroup",
     "UserGroupBase",
     "UserGroupCreate",
+    "UserGroupExtended",
     "UserGroupUpdate",
 ]

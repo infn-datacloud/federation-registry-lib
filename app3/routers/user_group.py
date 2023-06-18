@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Optional
+from typing import List, Optional, Union
 from uuid import UUID
 
 from .utils import CommonGetQuery, Pagination, paginate
@@ -24,12 +24,22 @@ def add_user_group(item: schemas.UserGroupCreate):
 
 
 @db.read_transaction
-@router.get("/{uid}", response_model=schemas.UserGroup)
-def read_user_group(uid: UUID):
+@router.get(
+    "/{uid}",
+    response_model=Union[schemas.UserGroupExtended, schemas.UserGroup],
+)
+def read_user_group(uid: UUID, extended: bool = False):
     db_item = crud.get_user_group(uid=str(uid).replace("-", ""))
     if db_item is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="UserGroup not found"
+        )
+    if extended:
+        return schemas.UserGroupExtended(
+            **db_item.__dict__,
+            clusters=db_item.clusters(),
+            flavors=db_item.flavors(),
+            images=db_item.images()
         )
     return db_item
 
@@ -61,15 +71,29 @@ def delete_user_group(uid: UUID):
 
 
 @db.read_transaction
-@router.get("/", response_model=List[schemas.UserGroup])
+@router.get(
+    "/",
+    response_model=List[Union[schemas.UserGroupExtended, schemas.UserGroup]],
+)
 def read_user_groups(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: schemas.UserGroupBase = Depends(),
+    extended: bool = False,
 ):
     items = crud.get_user_groups(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
+    if extended:
+        items = [
+            schemas.UserGroupExtended(
+                **item.__dict__,
+                clusters=item.clusters(),
+                flavors=item.flavors(),
+                images=item.images()
+            )
+            for item in items
+        ]
     return paginate(items=items, page=page.page, size=page.size)
 
 
