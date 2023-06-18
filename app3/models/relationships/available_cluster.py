@@ -14,5 +14,5 @@ class AvailableCluster(StructuredRel):
         flavor_id (uuid): Cluster Unique ID in the Provider.
     """
 
-    name = StringProperty(unique_index=True, required=True)
-    uuid = StringProperty(unique_index=True, required=True)
+    name = StringProperty(required=True)
+    uuid = StringProperty(required=True)

@@ -24,7 +24,7 @@ class Location(StructuredNode):
     """
 
     uid = UniqueIdProperty()
-    name = StringProperty(required=True)
+    name = StringProperty(unique_index=True, required=True)
     description = StringProperty(default="")
     country = StringProperty(required=True)
     country_code = StringProperty(required=True)

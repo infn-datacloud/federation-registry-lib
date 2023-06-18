@@ -14,5 +14,5 @@ class AvailableVMImage(StructuredRel):
         flavor_id (uuid): Image Unique ID in the Provider.
     """
 
-    name = StringProperty(unique_index=True, required=True)
-    uuid = StringProperty(unique_index=True, required=True)
+    name = StringProperty(required=True)
+    uuid = StringProperty(required=True)

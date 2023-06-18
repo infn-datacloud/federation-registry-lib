@@ -23,7 +23,7 @@ class IdentityProvider(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
-    endpoint = StringProperty(required=True)
+    endpoint = StringProperty(unique_index=True, required=True)
 
     providers = RelationshipFrom(
         ".Provider",

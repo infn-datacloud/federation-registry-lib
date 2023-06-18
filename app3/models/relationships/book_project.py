@@ -18,5 +18,5 @@ class BookProject(StructuredRel):
         private_network_proxy_host (str): #TODO
     """
 
-    name = StringProperty(unique_index=True, required=True)
-    uuid = StringProperty(unique_index=True, required=True)
+    name = StringProperty(required=True)
+    uuid = StringProperty(required=True)
