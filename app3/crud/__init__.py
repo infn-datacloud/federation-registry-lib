@@ -47,12 +47,33 @@ from .provider import (
     remove_provider,
     update_provider,
 )
+from .quota import (
+    create_quota,
+    get_quota,
+    get_quotas,
+    remove_quota,
+    update_quota,
+)
+from .quota_type import (
+    create_quota_type,
+    get_quota_type,
+    get_quota_types,
+    remove_quota_type,
+    update_quota_type,
+)
 from .service import (
     create_service,
     get_service,
     get_services,
     remove_service,
     update_service,
+)
+from .service_type import (
+    create_service_type,
+    get_service_type,
+    get_service_types,
+    remove_service_type,
+    update_service_type,
 )
 from .sla import (
     create_sla,
@@ -105,11 +126,26 @@ __all__ = [
     "get_providers",
     "remove_provider",
     "update_provider",
+    "create_quota",
+    "get_quota",
+    "get_quotas",
+    "remove_quota",
+    "update_quota",
+    "create_quota_type",
+    "get_quota_type",
+    "get_quota_types",
+    "remove_quota_type",
+    "update_quota_type",
     "create_service",
     "get_service",
     "get_services",
     "remove_service",
     "update_service",
+    "create_service_type",
+    "get_service_type",
+    "get_service_types",
+    "remove_service_type",
+    "update_service_type",
     "create_sla",
     "get_sla",
     "get_slas",

@@ -1,11 +1,24 @@
 from typing import List, Optional
 
+from .service_type import create_service_type, get_service_type
 from .utils import truncate, update
 from .. import schemas, models
 
 
+def connect_service_type(
+    item: models.Service, type: schemas.ServiceTypeCreate
+) -> None:
+    db_loc = get_service_type(name=type.name)
+    if db_loc is None:
+        db_loc = create_service_type(type)
+    if not item.type.is_connected(db_loc):
+        item.type.connect(db_loc)
+
+
 def create_service(item: schemas.ServiceCreate) -> models.Service:
-    return models.Service(**item.dict()).save()
+    db_item = models.Service(**item.dict(exclude={"type"})).save()
+    connect_service_type(db_item, item.type)
+    return db_item
 
 
 def get_services(

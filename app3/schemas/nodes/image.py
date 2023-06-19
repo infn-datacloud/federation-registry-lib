@@ -3,7 +3,7 @@ from pydantic import BaseModel, validator
 from typing import Optional
 from uuid import UUID
 
-from ..utils import ImageOS
+from ..utils import ImageOS, get_enum_value
 
 
 class ImageBase(BaseModel):
@@ -32,10 +32,7 @@ class ImageBase(BaseModel):
     gpu_driver: Optional[bool] = None
     creation_time: Optional[datetime] = None
 
-    @validator("os")
-    def get_enum_value(cls, v):
-        if v is not None:
-            return v.value
+    _get_os = validator("os", allow_reuse=True)(get_enum_value)
 
     class Config:
         validate_assignment = True

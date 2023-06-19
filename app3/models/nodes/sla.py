@@ -8,7 +8,6 @@ from neomodel import (
     UniqueIdProperty,
     OneOrMore,
 )
-from ..relationships import Quota
 
 
 class SLA(StructuredNode):
@@ -36,9 +35,6 @@ class SLA(StructuredNode):
         "ACCESS_PROVIDER_THROUGH_PROJECT",
         cardinality=One,
     )
-    services = RelationshipTo(
-        ".Service",
-        "USE_SERVICE_WITH_QUOTA",
-        cardinality=OneOrMore,
-        model=Quota,
+    quotas = RelationshipTo(
+        ".Quota", "USE_SERVICE_WITH_QUOTA", cardinality=OneOrMore
     )

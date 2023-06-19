@@ -1,5 +1,4 @@
 from neomodel import (
-    One,
     OneOrMore,
     RelationshipFrom,
     RelationshipTo,
@@ -10,7 +9,7 @@ from neomodel import (
 )
 
 
-class Service(StructuredNode):
+class ServiceType(StructuredNode):
     """Service class.
 
     A Service manages a specific amount of resource types
@@ -34,10 +33,9 @@ class Service(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
-    endpoint = StringProperty(unique_index=True, required=True)
+    name = StringProperty(unique_index=True, required=True)
 
-    providers = RelationshipTo(
-        ".Provider", "PROVIDES_SERVICE", cardinality=OneOrMore
+    service = RelationshipFrom(".Service", "HAS_TYPE", cardinality=ZeroOrMore)
+    quota_types = RelationshipTo(
+        ".QuotaType", "AVAILABLE_QUOTA_TYPE", cardinality=OneOrMore
     )
-    type = RelationshipTo(".ServiceType", "HAS_TYPE", cardinality=One)
-    quotas = RelationshipFrom(".Quota", "APPLIES_TO", cardinality=ZeroOrMore)

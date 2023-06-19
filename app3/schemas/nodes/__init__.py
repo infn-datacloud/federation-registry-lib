@@ -23,18 +23,26 @@ from .provider import (
     ProviderImageCreate,
     ProviderProject,
     ProviderProjectCreate,
-    ProviderService,
-    ProviderServiceCreate,
     ProviderUpdate,
 )
+from .quota import Quota, QuotaBase, QuotaCreate, QuotaUpdate
+from .quota_type import (
+    QuotaType,
+    QuotaTypeBase,
+    QuotaTypeCreate,
+    QuotaTypeUpdate,
+)
 from .service import Service, ServiceBase, ServiceCreate, ServiceUpdate
-from .service_extended import ServiceExtended
+from .service_type import (
+    ServiceType,
+    ServiceTypeBase,
+    ServiceTypeCreate,
+    ServiceTypeUpdate,
+)
 from .sla import (
     SLA,
     SLABase,
     SLACreate,
-    SLAService,
-    SLAServiceCreate,
     SLAUpdate,
 )
 from .user_group import (
@@ -83,19 +91,26 @@ __all__ = [
     "ProviderImageCreate",
     "ProviderProject",
     "ProviderProjectCreate",
-    "ProviderService",
-    "ProviderServiceCreate",
     "ProviderUpdate",
+    "Quota",
+    "QuotaBase",
+    "QuotaCreate",
+    "QuotaType",
+    "QuotaTypeBase",
+    "QuotaTypeCreate",
+    "QuotaTypeUpdate",
+    "QuotaUpdate",
     "Service",
     "ServiceBase",
     "ServiceCreate",
-    "ServiceExtended",
+    "ServiceType",
+    "ServiceTypeBase",
+    "ServiceTypeCreate",
+    "ServiceTypeUpdate",
     "ServiceUpdate",
     "SLA",
     "SLABase",
     "SLACreate",
-    "SLAService",
-    "SLAServiceCreate",
     "SLAUpdate",
     "UserGroup",
     "UserGroupBase",

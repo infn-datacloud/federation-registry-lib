@@ -15,7 +15,6 @@ from ..relationships import (
     AvailableVMFlavor,
     AvailableVMImage,
     BookProject,
-    ProvideService,
 )
 
 
@@ -48,10 +47,7 @@ class Provider(StructuredNode):
         model=BookProject,
     )
     services = RelationshipFrom(
-        ".Service",
-        "PROVIDES_SERVICE",
-        cardinality=ZeroOrMore,
-        model=ProvideService,
+        ".Service", "PROVIDES_SERVICE", cardinality=ZeroOrMore
     )
     location = RelationshipTo(".Location", "LOCATED_AT", cardinality=ZeroOrOne)
     identity_providers = RelationshipTo(

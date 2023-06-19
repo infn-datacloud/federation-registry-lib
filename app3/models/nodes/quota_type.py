@@ -1,12 +1,14 @@
 from neomodel import (
-    FloatProperty,
+    OneOrMore,
+    RelationshipFrom,
     StringProperty,
-    StructuredRel,
+    StructuredNode,
     UniqueIdProperty,
+    ZeroOrMore,
 )
 
 
-class Quota(StructuredRel):
+class QuotaType(StructuredNode):
     """Associated Project class.
 
     Relationship linking a user group to a provider.
@@ -33,11 +35,11 @@ class Quota(StructuredRel):
     """
 
     uid = UniqueIdProperty()
-    type = StringProperty(required=True)
+    description = StringProperty(default="")
+    name = StringProperty(unique_index=True, required=True)
     unit = StringProperty()
-    tot_limit = FloatProperty()
-    tot_guaranteed = FloatProperty(default=0)
-    user_limit = FloatProperty()
-    user_guaranteed = FloatProperty(default=0)
-    instance_limit = FloatProperty()
-    instance_guaranteed = FloatProperty(default=0)
+
+    quota = RelationshipFrom(".Quota", "HAS_TYPE", cardinality=ZeroOrMore)
+    service_types = RelationshipFrom(
+        ".ServiceType", "AVAILABLE_QUOTA_TYPE", cardinality=OneOrMore
+    )

@@ -1,18 +1,22 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import Optional
 
+from .quota_type import QuotaType, QuotaTypeCreate
+from .service import Service, ServiceCreate
+from ..utils import get_single_node_from_rel
 
-class ProvideServiceBase(BaseModel):
-    """ProvideService Base class
+
+class QuotaBase(BaseModel):
+    """Quota Base class
 
     Class without id (which is populated by the database).
     Expected as input when performing a PATCH REST request.
 
     Attributes:
-        name (str): ProvideService name (type).
+        type (str): Quota type (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota name/type.
+            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -28,23 +32,29 @@ class ProvideServiceBase(BaseModel):
             of a resource to be granted to user.
     """
 
-    endpoint: Optional[str] = None
+    description: Optional[str] = None
+    tot_limit: Optional[float] = None
+    instance_limit: Optional[float] = None
+    user_limit: Optional[float] = None
+    tot_guaranteed: Optional[float] = None
+    instance_guaranteed: Optional[float] = None
+    user_guaranteed: Optional[float] = None
 
     class Config:
         validate_assignment = True
 
 
-class ProvideServiceUpdate(ProvideServiceBase):
-    """ProvideService Base class
+class QuotaUpdate(QuotaBase):
+    """Quota Base class
 
     Class without id (which is populated by the database).
     Expected as input when performing a PATCH REST request.
 
     Attributes:
-        name (str): ProvideService name (type).
+        type (str): Quota type (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota name/type.
+            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -60,19 +70,26 @@ class ProvideServiceUpdate(ProvideServiceBase):
             of a resource to be granted to user.
     """
 
+    description: str = ""
+    tot_guaranteed: float = 0
+    instance_guaranteed: float = 0
+    user_guaranteed: float = 0
+    type: Optional[QuotaTypeCreate] = None
+    service: Optional[ServiceCreate] = None
 
-class ProvideServiceCreate(ProvideServiceUpdate):
-    """ProvideService Create class
+
+class QuotaCreate(QuotaUpdate):
+    """Quota Create class
 
     Class without id (which is populated by the database).
     Expected as input when performing a POST REST request.
 
 
     Attributes:
-        name (str): ProvideService name (type).
+        type (str): Quota type (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota name/type.
+            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -88,11 +105,12 @@ class ProvideServiceCreate(ProvideServiceUpdate):
             of a resource to be granted to user.
     """
 
-    endpoint: str
+    type: QuotaTypeCreate
+    service: ServiceCreate
 
 
-class ProvideService(ProvideServiceCreate):
-    """ProvideService class
+class Quota(QuotaCreate):
+    """Quota class
 
     Class retrieved from the database
     expected as output when performing a REST request.
@@ -100,11 +118,11 @@ class ProvideService(ProvideServiceCreate):
     in the database.
 
     Attributes:
-        uid (uuid): ProvideService unique ID.
-        name (str): ProvideService name (type).
+        uid (uuid): Quota unique ID.
+        type (str): Quota type (type).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota name/type.
+            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -119,6 +137,17 @@ class ProvideService(ProvideServiceCreate):
         user_guaranteed (float): The guaranteed quantity
             of a resource to be granted to user.
     """
+
+    uid: str
+    type: QuotaType
+    service: Service
+
+    _get_single_type = validator("type", pre=True, allow_reuse=True)(
+        get_single_node_from_rel
+    )
+    _get_single_service = validator("service", pre=True, allow_reuse=True)(
+        get_single_node_from_rel
+    )
 
     class Config:
         orm_mode = True

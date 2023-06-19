@@ -18,27 +18,26 @@ def connect_sla_to_project(
         item.project.connect(project)
 
 
-def connect_sla_to_services(
+def connect_sla_to_quotas(
     sla: models.SLA,
-    services: List[Tuple[models.Service, List[schemas.QuotaCreate]]],
+    quotas: List[schemas.QuotaCreate],
 ) -> None:
-    for service, quotas in services:
-        for quota in quotas:
-            sla.services.connect(service, quota.dict())
+    for quota in quotas:
+        sla.quotas.connect(quota)
 
 
 def create_sla(
     item: schemas.SLACreate,
     project: models.Project,
     user_group: models.UserGroup,
-    services: List[Tuple[models.Service, List[schemas.QuotaCreate]]],
+    quotas: List[schemas.QuotaCreate],
 ) -> models.SLA:
     db_item = models.SLA(
-        **item.dict(exclude={"project", "services", "user_group"})
+        **item.dict(exclude={"project", "quotas", "user_group"})
     ).save()
     connect_sla_to_project(db_item, project)
     connect_sla_to_user_group(db_item, user_group)
-    connect_sla_to_services(db_item, services)
+    connect_sla_to_quotas(db_item, quotas)
     return db_item
 
 

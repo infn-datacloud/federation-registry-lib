@@ -2,6 +2,7 @@ from pydantic import BaseModel, root_validator, validator
 from typing import Dict, Optional, Union
 
 from ..utils import (
+    get_enum_value,
     QuotaTypeBandwidth,
     QuotaTypeCount,
     QuotaTypeFrequency,
@@ -12,7 +13,7 @@ from ..utils import (
 )
 
 
-class QuotaBase(BaseModel):
+class QuotaTypeBase(BaseModel):
     """Quota Base class
 
     Class without id (which is populated by the database).
@@ -38,7 +39,7 @@ class QuotaBase(BaseModel):
             of a resource to be granted to user.
     """
 
-    type: Optional[
+    name: Optional[
         Union[
             QuotaTypeBandwidth,
             QuotaTypeCount,
@@ -49,33 +50,24 @@ class QuotaBase(BaseModel):
         ]
     ] = None
     description: Optional[str] = None
-    tot_limit: Optional[float] = None
-    instance_limit: Optional[float] = None
-    user_limit: Optional[float] = None
-    tot_guaranteed: Optional[float] = None
-    instance_guaranteed: Optional[float] = None
-    user_guaranteed: Optional[float] = None
 
-    @validator("type")
-    def get_enum_value(cls, v):
-        if v is not None:
-            return v.value
+    _get_name = validator("name", allow_reuse=True)(get_enum_value)
 
     class Config:
         validate_assignment = True
 
 
-class QuotaUpdate(QuotaBase):
+class QuotaTypeUpdate(QuotaTypeBase):
     """Quota Base class
 
     Class without id (which is populated by the database).
     Expected as input when performing a PATCH REST request.
 
     Attributes:
-        type (str): Quota type (type).
+        name (str): Quota name (name).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota type/type.
+            quota name/name.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -92,12 +84,9 @@ class QuotaUpdate(QuotaBase):
     """
 
     description: str = ""
-    tot_guaranteed: float = 0
-    instance_guaranteed: float = 0
-    user_guaranteed: float = 0
 
 
-class QuotaCreate(QuotaUpdate):
+class QuotaTypeCreate(QuotaTypeUpdate):
     """Quota Create class
 
     Class without id (which is populated by the database).
@@ -105,10 +94,10 @@ class QuotaCreate(QuotaUpdate):
 
 
     Attributes:
-        type (str): Quota type (type).
+        name (str): Quota name (name).
         description (str): Brief description.
         unit (str | None): Measurement unit derived from the
-            quota type/type.
+            quota name/name.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -124,7 +113,7 @@ class QuotaCreate(QuotaUpdate):
             of a resource to be granted to user.
     """
 
-    type: Union[
+    name: Union[
         QuotaTypeBandwidth,
         QuotaTypeCount,
         QuotaTypeFrequency,
@@ -135,26 +124,26 @@ class QuotaCreate(QuotaUpdate):
 
     @root_validator
     def detect_unit(cls, values) -> Dict:
-        quota_type = values["type"]
-        if quota_type in [i.value for i in QuotaTypeBandwidth]:
+        quota_name = values["name"]
+        if quota_name in [i.value for i in QuotaTypeBandwidth]:
             new_val = QuotaUnit.bandwidth.value
-        elif quota_type in [i.value for i in QuotaTypeCount]:
+        elif quota_name in [i.value for i in QuotaTypeCount]:
             new_val = None
-        elif quota_type in [i.value for i in QuotaTypeFrequency]:
+        elif quota_name in [i.value for i in QuotaTypeFrequency]:
             new_val = QuotaUnit.freq.value
-        elif quota_type in [i.value for i in QuotaTypeMoney]:
+        elif quota_name in [i.value for i in QuotaTypeMoney]:
             new_val = QuotaUnit.money.value
-        elif quota_type in [i.value for i in QuotaTypeSize]:
+        elif quota_name in [i.value for i in QuotaTypeSize]:
             new_val = QuotaUnit.size.value
-        elif quota_type in [i.value for i in QuotaTypeTime]:
+        elif quota_name in [i.value for i in QuotaTypeTime]:
             new_val = QuotaUnit.time.value
         else:
-            raise TypeError(f"Unknown Quota type: {quota_type}")
+            raise TypeError(f"Unknown Quota type: {quota_name}")
         values["unit"] = new_val
         return values
 
 
-class Quota(QuotaCreate):
+class QuotaType(QuotaTypeCreate):
     """Quota class
 
     Class retrieved from the database

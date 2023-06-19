@@ -28,13 +28,6 @@ from .book_project import (
     BookProjectCreate,
     BookProjectUpdate,
 )
-from .provide_service import (
-    ProvideService,
-    ProvideServiceBase,
-    ProvideServiceCreate,
-    ProvideServiceUpdate,
-)
-from .quota import Quota, QuotaBase, QuotaCreate, QuotaUpdate
 
 __all__ = [
     "AuthMethod",
@@ -57,12 +50,4 @@ __all__ = [
     "BookProjectBase",
     "BookProjectCreate",
     "BookProjectUpdate",
-    "ProvideService",
-    "ProvideServiceBase",
-    "ProvideServiceCreate",
-    "ProvideServiceUpdate",
-    "Quota",
-    "QuotaBase",
-    "QuotaCreate",
-    "QuotaUpdate",
 ]

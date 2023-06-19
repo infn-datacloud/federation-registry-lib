@@ -108,19 +108,14 @@ def connect_provider_to_projects(
 
 
 def connect_provider_to_services(
-    item: models.Provider,
-    services: List[schemas.ProviderServiceCreate],
+    item: models.Provider, services: List[schemas.ServiceCreate]
 ) -> None:
     for service in services:
-        db_srv = get_service(
-            **service.dict(exclude={"relationship"}, exclude_none=True)
-        )
+        db_srv = get_service(endpoint=service.endpoint)
         if db_srv is None:
             db_srv = create_service(service)
-        if item.services.is_connected(db_srv):
-            item.services.replace(db_srv, service.relationship.dict())
-        else:
-            item.services.connect(db_srv, service.relationship.dict())
+        if not item.services.is_connected(db_srv):
+            item.services.connect(db_srv)
 
 
 def create_provider(item: schemas.ProviderCreate) -> models.Provider:

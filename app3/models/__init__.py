@@ -6,7 +6,10 @@ from .nodes import (
     Location,
     Project,
     Provider,
+    Quota,
+    QuotaType,
     Service,
+    ServiceType,
     SLA,
     UserGroup,
 )
@@ -16,8 +19,6 @@ from .relationships import (
     AvailableVMFlavor,
     AvailableVMImage,
     BookProject,
-    ProvideService,
-    Quota,
 )
 
 __all__ = [
@@ -34,8 +35,10 @@ __all__ = [
     "Project",
     "Provider",
     "ProvideService",
+    "Quota",
+    "QuotaType",
     "Service",
+    "ServiceType",
     "SLA",
     "UserGroup",
-    "Quota",
 ]

@@ -1,12 +1,12 @@
-from pydantic import BaseModel, validator
-from typing import Optional
+from pydantic import BaseModel, Field, validator
+from typing import List, Optional
 from uuid import UUID
 
-from .service_type import ServiceType, ServiceTypeUpdate
-from ..utils import get_single_node_from_rel
+from .quota_type import QuotaType, QuotaTypeCreate
+from ..utils import get_enum_value, ServiceType as SrvType
 
 
-class ServiceBase(BaseModel):
+class ServiceTypeBase(BaseModel):
     """Service Base class
 
     Class without id (which is populated by the database).
@@ -24,14 +24,16 @@ class ServiceBase(BaseModel):
         volume_types (list of str): TODO
     """
 
+    name: Optional[SrvType] = None
     description: Optional[str] = None
-    endpoint: Optional[str] = None
+
+    _get_name = validator("name", allow_reuse=True)(get_enum_value)
 
     class Config:
         validate_assignment = True
 
 
-class ServiceUpdate(ServiceBase):
+class ServiceTypeUpdate(ServiceTypeBase):
     """Service Base class
 
     Class without id (which is populated by the database).
@@ -50,10 +52,10 @@ class ServiceUpdate(ServiceBase):
     """
 
     description: str = ""
-    type: Optional[ServiceTypeUpdate] = None
+    quota_types: List[QuotaTypeCreate] = Field(default_factory=list)
 
 
-class ServiceCreate(ServiceUpdate):
+class ServiceTypeCreate(ServiceTypeUpdate):
     """Service Create class
 
     Class without id (which is populated by the database).
@@ -71,11 +73,11 @@ class ServiceCreate(ServiceUpdate):
         volume_types (list of str): TODO
     """
 
-    endpoint: str
-    type: ServiceTypeUpdate
+    name: SrvType
+    quota_types: List[QuotaTypeCreate]
 
 
-class Service(ServiceCreate):
+class ServiceType(ServiceTypeCreate):
     """Service Base class
 
     Class retrieved from the database
@@ -97,11 +99,11 @@ class Service(ServiceCreate):
     """
 
     uid: UUID
-    type: ServiceType
+    quota_types: List[QuotaType]
 
-    _get_single_service_type = validator("type", pre=True, allow_reuse=True)(
-        get_single_node_from_rel
-    )
+    @validator("quota_types", pre=True)
+    def get_allowed_quota_types(cls, v):
+        return v.all()
 
     class Config:
         orm_mode = True

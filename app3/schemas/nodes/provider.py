@@ -9,6 +9,7 @@ from .image import Image, ImageCreate
 from .location import Location, LocationCreate
 from .project import Project, ProjectCreate
 from .service import Service, ServiceCreate
+from ..utils import get_single_node_from_rel
 from ..relationships import (
     AuthMethod,
     AuthMethodCreate,
@@ -20,8 +21,6 @@ from ..relationships import (
     AvailableVMImageCreate,
     BookProject,
     BookProjectCreate,
-    ProvideService,
-    ProvideServiceCreate,
 )
 
 
@@ -63,14 +62,6 @@ class ProviderProjectCreate(ProjectCreate):
 
 class ProviderProject(Project):
     relationship: BookProject
-
-
-class ProviderServiceCreate(ServiceCreate):
-    relationship: ProvideServiceCreate
-
-
-class ProviderService(Service):
-    relationship: ProvideService
 
 
 class ProviderBase(BaseModel):
@@ -117,7 +108,7 @@ class ProviderUpdate(ProviderBase):
     identity_providers: List[ProviderIDPCreate] = Field(default_factory=list)
     images: List[ProviderImageCreate] = Field(default_factory=list)
     projects: List[ProviderProjectCreate] = Field(default_factory=list)
-    services: List[ProviderServiceCreate] = Field(default_factory=list)
+    services: List[ServiceCreate] = Field(default_factory=list)
 
 
 class ProviderCreate(ProviderUpdate):
@@ -159,11 +150,11 @@ class Provider(ProviderBase):
     identity_providers: List[ProviderIDP] = Field(default_factory=list)
     images: List[ProviderImage] = Field(default_factory=list)
     projects: List[ProviderProject] = Field(default_factory=list)
-    services: List[ProviderService] = Field(default_factory=list)
+    services: List[Service] = Field(default_factory=list)
 
-    @validator("location", pre=True)
-    def get_single_location(cls, v):
-        return v.single()
+    _get_single_location = validator("location", pre=True, allow_reuse=True)(
+        get_single_node_from_rel
+    )
 
     @validator("clusters", pre=True)
     def get_all_clusters(cls, v):
@@ -220,14 +211,7 @@ class Provider(ProviderBase):
 
     @validator("services", pre=True)
     def get_all_services(cls, v):
-        services = []
-        for node in v.all():
-            services.append(
-                ProviderService(
-                    **node.__dict__, relationship=v.relationship(node)
-                )
-            )
-        return services
+        return v.all()
 
     class Config:
         orm_mode = True

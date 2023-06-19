@@ -33,22 +33,13 @@ def add_sla(item: schemas.SLACreate):
             status_code=status.HTTP_404_NOT_FOUND, detail="Project not found"
         )
     db_provider = db_proj.provider.single()
-    services = []
-    for service in item.services:
-        db_srv = crud.get_service(uid=str(service.uid).replace("-", ""))
-        if db_srv is None:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Service {service.name} not found",
-            )
-        if len(db_srv.providers.all_relationships(db_provider)) == 0:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Service's provider does not match the project's one",
-            )
-        services.append((db_srv, service.relationships))
+    quotas = []
+    for quota in item.quotas:
+        # TODO Check srv provider match proj one
+        db_quota = crud.create_quota(quota)
+        quotas.append(db_quota)
     db_item = crud.create_sla(
-        item, project=db_proj, user_group=db_user_group, services=services
+        item, project=db_proj, user_group=db_user_group, quotas=quotas
     )
     return db_item
 
