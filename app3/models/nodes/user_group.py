@@ -81,7 +81,7 @@ class UserGroup(StructuredNode):
         results, columns = self.cypher(
             f"""
                 MATCH (p:UserGroup)-[:HAS_SLA]->(q)
-                WHERE p.uid="e49648ce4068463ca4d54ab2e8a8ecce"
+                WHERE (id(p)=$self)
                 MATCH (a)<-[b:BOOK_PROJECT_FOR_AN_SLA]->(c)
                     <-[d:ACCESS_PROVIDER_THROUGH_PROJECT]-(q)
                     -[r:USE_SERVICE_WITH_QUOTA]->(s)
