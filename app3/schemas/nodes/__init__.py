@@ -28,6 +28,7 @@ from .provider import (
     ProviderUpdate,
 )
 from .service import Service, ServiceBase, ServiceCreate, ServiceUpdate
+from .service_extended import ServiceExtended
 from .sla import (
     SLA,
     SLABase,
@@ -88,6 +89,7 @@ __all__ = [
     "Service",
     "ServiceBase",
     "ServiceCreate",
+    "ServiceExtended",
     "ServiceUpdate",
     "SLA",
     "SLABase",

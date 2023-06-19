@@ -97,61 +97,19 @@ def read_user_groups(
     return paginate(items=items, page=page.page, size=page.size)
 
 
-# @db.write_transaction
-# @router.post("/{uid}/projects", response_model=schemas.Project)
-# def add_project_to_user_group(uid: str, item: schemas.ProjectCreate):
-#    db_user_group = crud.get_user_group(uid=uid)
-#    if db_user_group is None:
-#        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="UserGroup not found")
-#    db_project = crud.create_project(item=item)
-#    if not crud.connect_project_to_user_group(
-#        user_group=db_user_group, project=db_project
-#    ):
-#        raise HTTPException(
-#            status_code=500, detail="Relationship creation failed"
-#        )
-#    return db_project
-
-
-# @db.write_transaction
-# @router.patch("/{uid}", response_model=schemas.UserGroup)
-# def add_project_to_user_group(uid: str, item: schemas.UserGroupCreate):
-#     db_user_group = crud.get_user_group(uid=uid)
-#     if db_user_group is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="UserGroup not found")
-#     update_data = item.dict(exclude_unset=True)
-#     db_user_group = db_user_group.copy(update=update_data)
-#     crud.replace_user_group()
-
-
-#     db_project = crud.get_project(uid=project_id)
-#     if db_project is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-#     if not crud.connect_project_to_user_group(
-#         user_group=db_user_group, project=db_project
-#     ):
-#         raise HTTPException(
-#             status_code=500, detail="Relationship creation failed"
-#         )
-#     db_user_group.refresh()
-#     return db_user_group
-
-
-# @db.write_transaction
-# @router.put("/{uid}", response_model=schemas.UserGroup)
-# def add_project_to_user_group(uid: UUID, project_id: str):
-#    db_user_group = crud.get_user_group(uid=uid)
-#    if db_user_group is None:
-#        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="UserGroup not found")
-#    db_project = crud.get_project(uid=project_id)
-#    if db_project is None:
-#        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-#    if not crud.connect_project_to_user_group(
-#        user_group=db_user_group, project=db_project
-#    ):
-#        raise HTTPException(
-#            status_code=500, detail="Relationship creation failed"
-#        )
-#    db_user_group.refresh()
-#    return db_user_group
-#
+@db.read_transaction
+@router.get("/{uid}/services", response_model=List[schemas.ServiceExtended])
+def read_user_group(uid: UUID):
+    db_item = crud.get_user_group(uid=str(uid).replace("-", ""))
+    if db_item is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="UserGroup not found"
+        )
+    services = []
+    for service, prov_details, quotas in db_item.services():
+        services.append(
+            schemas.ServiceExtended(
+                **service.__dict__, details=prov_details, quotas=quotas
+            )
+        )
+    return services
