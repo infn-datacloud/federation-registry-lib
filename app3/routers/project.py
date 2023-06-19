@@ -11,7 +11,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 
 @db.read_transaction
 @router.get("/{uid}", response_model=schemas.Project)
-def read_projects(uid: UUID):
+def read_project(uid: UUID):
     db_item = crud.get_project(uid=str(uid).replace("-", ""))
     if db_item is None:
         raise HTTPException(

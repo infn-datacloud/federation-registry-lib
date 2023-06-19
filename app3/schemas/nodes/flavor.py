@@ -2,6 +2,7 @@ from pydantic import BaseModel, root_validator
 from typing import Optional
 from uuid import UUID
 
+
 class FlavorBase(BaseModel):
     """Flavor Base class.
 

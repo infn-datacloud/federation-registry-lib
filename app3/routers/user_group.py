@@ -99,7 +99,7 @@ def read_user_groups(
 
 @db.read_transaction
 @router.get("/{uid}/services", response_model=List[schemas.ServiceExtended])
-def read_user_group(uid: UUID):
+def read_user_group_services(uid: UUID):
     db_item = crud.get_user_group(uid=str(uid).replace("-", ""))
     if db_item is None:
         raise HTTPException(

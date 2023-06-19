@@ -44,7 +44,7 @@ def add_sla(item: schemas.SLACreate):
         if len(db_srv.providers.all_relationships(db_provider)) == 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Service's provider does not match the project's provider",
+                detail="Service's provider does not match the project's one",
             )
         services.append((db_srv, service.relationships))
     db_item = crud.create_sla(

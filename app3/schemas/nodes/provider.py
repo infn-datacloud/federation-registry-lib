@@ -206,7 +206,6 @@ class Provider(ProviderBase):
                 )
             )
         return images
-    
 
     @validator("projects", pre=True)
     def get_all_projects(cls, v):

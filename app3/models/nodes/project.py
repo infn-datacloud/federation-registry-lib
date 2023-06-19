@@ -9,6 +9,7 @@ from neomodel import (
 
 from ..relationships import BookProject
 
+
 class Project(StructuredNode):
     """Associated Project class.
 

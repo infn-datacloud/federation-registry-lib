@@ -15,7 +15,8 @@ def read_identity_provider(uid: UUID):
     db_item = crud.get_identity_provider(uid=str(uid).replace("-", ""))
     if db_item is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="IdentityProvider not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="IdentityProvider not found",
         )
     return db_item
 
@@ -26,7 +27,8 @@ def update_identity_provider(uid: UUID, item: schemas.IdentityProviderUpdate):
     db_item = crud.get_identity_provider(uid=str(uid).replace("-", ""))
     if db_item is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="IdentityProvider not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="IdentityProvider not found",
         )
     return crud.update_identity_provider(old_item=db_item, new_item=item)
 
@@ -37,7 +39,8 @@ def delete_identity_providers(uid: UUID):
     db_item = crud.get_identity_provider(uid=str(uid).replace("-", ""))
     if db_item is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="IdentityProvider not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="IdentityProvider not found",
         )
     if not crud.remove_identity_provider(db_item):
         raise HTTPException(

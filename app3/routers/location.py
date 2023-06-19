@@ -11,7 +11,7 @@ router = APIRouter(prefix="/locations", tags=["locations"])
 
 @db.read_transaction
 @router.get("/{uid}", response_model=schemas.Location)
-def read_locations(uid: UUID):
+def read_location(uid: UUID):
     db_item = crud.get_location(uid=str(uid).replace("-", ""))
     if db_item is None:
         raise HTTPException(

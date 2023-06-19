@@ -33,7 +33,9 @@ class Service(StructuredNode):
     """
 
     uid = UniqueIdProperty()
-    name = StringProperty(unique_index=True, required=True)  # TODO Add choices.
+    name = StringProperty(
+        unique_index=True, required=True
+    )  # TODO Add choices.
     description = StringProperty(default="")
 
     slas = RelationshipFrom(
