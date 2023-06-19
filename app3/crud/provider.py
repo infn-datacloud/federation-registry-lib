@@ -7,6 +7,7 @@ from .image import create_image, get_image
 from .location import create_location, get_location
 from .project import create_project, get_project
 from .service import create_service, get_service
+from .utils import truncate
 from .. import schemas, models
 
 
@@ -105,6 +106,7 @@ def connect_provider_to_projects(
         else:
             item.projects.connect(db_proj, project.relationship.dict())
 
+
 def connect_provider_to_services(
     item: models.Provider,
     services: List[schemas.ProviderServiceCreate],
@@ -162,9 +164,7 @@ def get_providers(
         items = models.Provider.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.Provider.nodes.order_by(sort).all()
-    if limit is None:
-        return items[skip:]
-    return items[skip : skip + limit]
+    return truncate(items=items, skip=skip, limit=limit)
 
 
 def get_provider(**kwargs) -> Optional[models.Provider]:

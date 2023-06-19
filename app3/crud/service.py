@@ -1,4 +1,6 @@
 from typing import List, Optional
+
+from .utils import truncate
 from .. import schemas, models
 
 
@@ -16,9 +18,7 @@ def get_services(
         items = models.Service.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.Service.nodes.order_by(sort).all()
-    if limit is None:
-        return items[skip:]
-    return items[skip : skip + limit]
+    return truncate(items=items, skip=skip, limit=limit)
 
 
 def get_service(**kwargs) -> Optional[models.Service]:

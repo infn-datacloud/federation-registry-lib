@@ -1,4 +1,6 @@
 from typing import List, Optional
+
+from .utils import truncate
 from .. import schemas, models
 
 
@@ -7,15 +9,16 @@ def create_cluster(item: schemas.ClusterCreate) -> models.Cluster:
 
 
 def get_clusters(
-    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
+    skip: int = 0,
+    limit: Optional[int] = None,
+    sort: Optional[str] = None,
+    **kwargs
 ) -> List[models.Cluster]:
     if kwargs:
         items = models.Cluster.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.Cluster.nodes.order_by(sort).all()
-    if limit is None:
-        return items[skip:]
-    return items[skip : skip + limit]
+    return truncate(items=items, skip=skip, limit=limit)
 
 
 def get_cluster(**kwargs) -> Optional[models.Cluster]:

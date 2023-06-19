@@ -1,4 +1,6 @@
 from typing import List, Optional
+
+from .utils import truncate
 from .. import schemas, models
 
 
@@ -7,15 +9,16 @@ def create_location(item: schemas.LocationCreate) -> models.Location:
 
 
 def get_locations(
-    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
+    skip: int = 0,
+    limit: Optional[int] = None,
+    sort: Optional[str] = None,
+    **kwargs
 ) -> List[models.Location]:
     if kwargs:
         items = models.Location.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.Location.nodes.order_by(sort).all()
-    if limit is None:
-        return items[skip:]
-    return items[skip : skip + limit]
+    return truncate(items=items, skip=skip, limit=limit)
 
 
 def get_location(**kwargs) -> Optional[models.Location]:

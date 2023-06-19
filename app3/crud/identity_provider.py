@@ -1,4 +1,6 @@
 from typing import List, Optional
+
+from .utils import truncate
 from .. import schemas, models
 
 
@@ -9,7 +11,10 @@ def create_identity_provider(
 
 
 def get_identity_providers(
-    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
+    skip: int = 0,
+    limit: Optional[int] = None,
+    sort: Optional[str] = None,
+    **kwargs
 ) -> List[models.IdentityProvider]:
     if kwargs:
         items = (
@@ -17,9 +22,7 @@ def get_identity_providers(
         )
     else:
         items = models.IdentityProvider.nodes.order_by(sort).all()
-    if limit is None:
-        return items[skip:]
-    return items[skip : skip + limit]
+    return truncate(items=items, skip=skip, limit=limit)
 
 
 def get_identity_provider(**kwargs) -> Optional[models.IdentityProvider]:

@@ -1,4 +1,6 @@
 from typing import List, Optional
+
+from .utils import truncate
 from .. import schemas, models
 
 
@@ -7,15 +9,16 @@ def create_project(item: schemas.ProjectCreate) -> models.Project:
 
 
 def get_projects(
-    skip: int = 0, limit: Optional[int] = None, sort: Optional[str] = None, **kwargs
+    skip: int = 0,
+    limit: Optional[int] = None,
+    sort: Optional[str] = None,
+    **kwargs
 ) -> List[models.Project]:
     if kwargs:
         items = models.Project.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.Project.nodes.order_by(sort).all()
-    if limit is None:
-        return items[skip:]
-    return items[skip : skip + limit]
+    return truncate(items=items, skip=skip, limit=limit)
 
 
 def get_project(**kwargs) -> Optional[models.Project]:

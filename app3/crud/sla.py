@@ -1,5 +1,6 @@
 from typing import List, Optional, Tuple
 
+from .utils import truncate
 from .. import schemas, models
 
 
@@ -51,9 +52,7 @@ def get_slas(
         items = models.SLA.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.SLA.nodes.order_by(sort).all()
-    if limit is None:
-        return items[skip:]
-    return items[skip : skip + limit]
+    return truncate(items=items, skip=skip, limit=limit)
 
 
 def get_sla(**kwargs) -> Optional[models.SLA]:

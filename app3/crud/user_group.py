@@ -1,4 +1,6 @@
 from typing import List, Optional
+
+from .utils import truncate
 from .. import schemas, models
 
 
@@ -16,9 +18,7 @@ def get_user_groups(
         items = models.UserGroup.nodes.filter(**kwargs).order_by(sort).all()
     else:
         items = models.UserGroup.nodes.order_by(sort).all()
-    if limit is None:
-        return items[skip:]
-    return items[skip : skip + limit]
+    return truncate(items=items, skip=skip, limit=limit)
 
 
 def get_user_group(**kwargs) -> Optional[models.UserGroup]:
