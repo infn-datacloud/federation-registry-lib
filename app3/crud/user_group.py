@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from .utils import truncate
+from .utils import truncate, update
 from .. import schemas, models
 
 
@@ -32,7 +32,4 @@ def remove_user_group(item: models.UserGroup) -> bool:
 def update_user_group(
     old_item: models.UserGroup, new_item: schemas.UserGroupUpdate
 ) -> Optional[models.UserGroup]:
-    for k, v in new_item.dict(exclude_unset=True).items():
-        old_item.__setattr__(k, v)
-    old_item.save()
-    return old_item
+    return update(old_item=old_item, new_item=new_item)
