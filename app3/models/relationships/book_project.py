@@ -2,20 +2,11 @@ from neomodel import StringProperty, StructuredRel
 
 
 class BookProject(StructuredRel):
-    """Associated Project class.
-
-    Relationship linking a user group to a provider.
-    This link correspond to a "project/tenant" entity.
+    """Relationship linking a Project to a Provider.
 
     Attributes:
-        uid (uuid): AssociatedProject unique ID.
-        project_name (str): Name of the project in the
-            Provider to which this UserGroup has access.
-        project_id (uuid): Project Unique ID in the Provider.
-        public_network_name (str): #TODO
-        private_network_name (str): #TODO
-        private_network_proxy_name (str): #TODO
-        private_network_proxy_host (str): #TODO
+        name (str): Name of the Project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
     """
 
     name = StringProperty(required=True)

@@ -2,16 +2,11 @@ from neomodel import StringProperty, StructuredRel
 
 
 class AvailableCluster(StructuredRel):
-    """Supported Cluster class.
-
-    Relationship linking a flavor to the provider
-    supporting it.
+    """Relationship linking a VM Cluster to a Provider.
 
     Attributes:
-        uid (uuid): SupportedCluster unique ID.
-        flavor_name (str): Name given to the Cluster
-            by the Provider.
-        flavor_id (uuid): Cluster Unique ID in the Provider.
+        name (str): Name of the Cluster in the Provider.
+        uuid (uuid): Cluster Unique ID in the Provider.
     """
 
     name = StringProperty(required=True)
