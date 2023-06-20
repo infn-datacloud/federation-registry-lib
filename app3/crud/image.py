@@ -8,7 +8,7 @@ def create_image(item: schemas.ImageCreate) -> models.Image:
     return models.Image(**item.dict()).save()
 
 
-def get_images(
+def read_images(
     skip: int = 0,
     limit: Optional[int] = None,
     sort: Optional[str] = None,
@@ -21,7 +21,7 @@ def get_images(
     return truncate(items=items, skip=skip, limit=limit)
 
 
-def get_image(**kwargs) -> Optional[models.Image]:
+def read_image(**kwargs) -> Optional[models.Image]:
     return models.Image.nodes.get_or_none(**kwargs)
 
 
@@ -29,7 +29,7 @@ def remove_image(item: models.Image) -> bool:
     return item.delete()
 
 
-def update_image(
-    old_item: models.Image, new_item: schemas.ImageUpdate
+def edit_image(
+    old_item: models.Image, new_item: schemas.ImagePatch
 ) -> Optional[models.Image]:
     return update(old_item=old_item, new_item=new_item)

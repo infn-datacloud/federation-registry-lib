@@ -1,32 +1,17 @@
-from pydantic import BaseModel
 from typing import Optional
-from uuid import UUID
+
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
-class ProjectBase(BaseModel):
-    """Project Base class
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class ProjectQuery(BaseNodeQuery):
+    """Project Query Model class.
 
     Attributes:
-        name (str): Project name (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+        description (str | None): Brief description.
+        public_network_name (str | None): TODO
+        private_network_name (str | None): TODO
+        private_network_proxy_host (str | None): TODO
+        private_network_proxy_user (str | None): TODO
     """
 
     public_network_name: Optional[str] = None
@@ -34,95 +19,55 @@ class ProjectBase(BaseModel):
     private_network_proxy_host: Optional[str] = None
     private_network_proxy_user: Optional[str] = None
 
-    class Config:
-        validate_assignment = True
 
-
-class ProjectUpdate(ProjectBase):
-    """Project Base class
+class ProjectPatch(BaseNodeCreate):
+    """Project Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
-        name (str): Project name (type).
         description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+        public_network_name (str | None): TODO
+        private_network_name (str | None): TODO
+        private_network_proxy_host (str | None): TODO
+        private_network_proxy_user (str | None): TODO
+    """
+
+    public_network_name: Optional[str] = None
+    private_network_name: Optional[str] = None
+    private_network_proxy_host: Optional[str] = None
+    private_network_proxy_user: Optional[str] = None
+
+
+class ProjectCreate(ProjectPatch):
+    """Project Create Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PUT or POST request.
+
+    Attributes:
+        description (str): Brief description.
+        public_network_name (str | None): TODO
+        private_network_name (str | None): TODO
+        private_network_proxy_host (str | None): TODO
+        private_network_proxy_user (str | None): TODO
     """
 
 
-class ProjectCreate(ProjectUpdate):
-    """Project Create class
+class Project(ProjectCreate, BaseNodeRead):
+    """Project class.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
-
-
-    Attributes:
-        name (str): Project name (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
-    """
-
-
-class Project(ProjectCreate):
-    """Project class
-
-    Class retrieved from the database
-    expected as output when performing a REST request.
+    Class retrieved from the database.
+    Expected as output when performing a REST request.
     It contains all the non-sensible data written
     in the database.
 
     Attributes:
-        uid (uuid): Project unique ID.
-        name (str): Project name (type).
+        uid (uuid): Unique ID.
         description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+        public_network_name (str | None): TODO
+        private_network_name (str | None): TODO
+        private_network_proxy_host (str | None): TODO
+        private_network_proxy_user (str | None): TODO
     """
-
-    uid: UUID
-
-    class Config:
-        orm_mode = True

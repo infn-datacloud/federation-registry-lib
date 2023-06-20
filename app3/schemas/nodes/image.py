@@ -1,29 +1,24 @@
 from datetime import datetime
-from pydantic import BaseModel, validator
 from typing import Optional
-from uuid import UUID
 
-from ..utils import ImageOS, get_enum_value
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from ..utils.enum import ImageOS
 
 
-class ImageBase(BaseModel):
-    """Image Base class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class ImageQuery(BaseNodeQuery):
+    """Image Query Model class.
 
     Attributes:
-        description (str): Brief description.
-        os (str): Image Operating System.
-        distribution (str): OS distribution.
-        version (str): Distribution version.
-        architecture (str): OS architecture.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs.
-        creation_time (datetime): Image creation time.
+        description (str | None): Brief description.
+        os (str | None): Image Operating System.
+        distribution (str | None): OS distribution.
+        version (str | None): Distribution version.
+        architecture (str | None): OS architecture.
+        cuda_support (str | None): Support for cuda enabled.
+        gpu_driver (str | None): Support for GPUs.
+        creation_time (datetime | None): Image creation time.
     """
 
-    description: Optional[str] = None
     os: Optional[ImageOS] = None
     distribution: Optional[str] = None
     version: Optional[str] = None
@@ -32,39 +27,39 @@ class ImageBase(BaseModel):
     gpu_driver: Optional[bool] = None
     creation_time: Optional[datetime] = None
 
-    _get_os = validator("os", allow_reuse=True)(get_enum_value)
 
-    class Config:
-        validate_assignment = True
-
-
-class ImageUpdate(ImageBase):
-    """Image Base class.
+class ImagePatch(BaseNodeCreate):
+    """Image Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
         description (str): Brief description.
-        os (str): Image Operating System.
-        distribution (str): OS distribution.
-        version (str): Distribution version.
-        architecture (str): OS architecture.
+        os (str | None): Image Operating System.
+        distribution (str | None): OS distribution.
+        version (str | None): Distribution version.
+        architecture (str | None): OS architecture.
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs.
-        creation_time (datetime): Image creation time.
+        creation_time (datetime | None): Image creation time.
     """
 
     description: str = ""
+    os: Optional[ImageOS] = None
+    distribution: Optional[str] = None
+    version: Optional[str] = None
+    architecture: Optional[str] = None
     cuda_support: bool = False
     gpu_driver: bool = False
+    creation_time: Optional[datetime] = None
 
 
-class ImageCreate(ImageUpdate):
-    """Image Create class.
+class ImageCreate(ImagePatch):
+    """Image Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
         description (str): Brief description.
@@ -74,7 +69,7 @@ class ImageCreate(ImageUpdate):
         architecture (str): OS architecture.
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs.
-        creation_time (datetime): Image creation time.
+        creation_time (datetime | None): Image creation time.
     """
 
     os: ImageOS
@@ -83,16 +78,16 @@ class ImageCreate(ImageUpdate):
     architecture: str
 
 
-class Image(ImageCreate):
-    """Image Base class.
+class Image(ImageCreate, BaseNodeRead):
+    """Image class.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
+    Class retrieved from the database.
+    Expected as output when performing a REST request.
     It contains all the non-sensible data written
     in the database.
 
     Attributes:
-        uid (uuid): Image unique ID.
+        uid (uuid): Unique ID.
         description (str): Brief description.
         os (str): Image Operating System.
         distribution (str): OS distribution.
@@ -100,11 +95,5 @@ class Image(ImageCreate):
         architecture (str): OS architecture.
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs.
-        creation_time (datetime): Image creation time.
+        creation_time (datetime | None): Image creation time.
     """
-
-    uid: UUID
-    os: ImageOS
-
-    class Config:
-        orm_mode = True

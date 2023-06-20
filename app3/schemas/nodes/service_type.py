@@ -1,113 +1,75 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import Field, validator
 from typing import List, Optional
-from uuid import UUID
 
 from .quota_type import QuotaType, QuotaTypeCreate
-from ..utils import (
-    get_all_nodes_from_rel,
-    get_enum_value,
-    ServiceType as SrvType,
-)
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from ..utils.enum import ServiceType as SrvType
+from ..utils.validators import get_all_nodes_from_rel
 
 
-class ServiceTypeBase(BaseModel):
-    """Service Base class
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class ServiceTypeQuery(BaseNodeQuery):
+    """Service Query Model class.
 
     Attributes:
-        name (str): Service name (type).
-        description (str): Brief description.
-        resource_type (str): Resource type.
-        endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
+        description (str | None): Brief description.
+        name (str | None): type unique name.
     """
 
     name: Optional[SrvType] = None
-    description: Optional[str] = None
-
-    _get_name = validator("name", allow_reuse=True)(get_enum_value)
-
-    class Config:
-        validate_assignment = True
 
 
-class ServiceTypeUpdate(ServiceTypeBase):
-    """Service Base class
+class ServiceTypePatch(BaseNodeCreate):
+    """Service Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
-        name (str): Service name (type).
         description (str): Brief description.
-        resource_type (str): Resource type.
-        endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
+        name (str | None): type unique name.
+        quota_types (list of QuotaTypeCreate): supported quota types for
+            this kind of service.
     """
 
-    description: str = ""
+    name: Optional[SrvType] = None
     quota_types: List[QuotaTypeCreate] = Field(default_factory=list)
 
 
-class ServiceTypeCreate(ServiceTypeUpdate):
-    """Service Create class
+class ServiceTypeCreate(ServiceTypePatch):
+    """Service Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
-        name (str): Service name (type).
         description (str): Brief description.
-        resource_type (str): Resource type.
-        endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
+        name (str): type unique name.
+        quota_types (list of QuotaTypeCreate): supported quota types for
+            this kind of service.
     """
 
     name: SrvType
     quota_types: List[QuotaTypeCreate]
 
 
-class ServiceType(ServiceTypeCreate):
-    """Service Base class
+class ServiceType(ServiceTypeCreate, BaseNodeRead):
+    """Service class.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
+    Class retrieved from the database.
+    Expected as output when performing a REST request.
     It contains all the non-sensible data written
     in the database.
 
     Attributes:
-        uid (uuid): Service unique ID.
-        name (str): Service name (type).
+        uid (uuid): Unique ID.
         description (str): Brief description.
-        resource_type (str): Resource type.
-        endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
+        name (str): type unique name.
+        quota_types (list of QuotaType): supported quota types for
+            this kind of service.
     """
 
-    uid: UUID
     quota_types: List[QuotaType]
 
     _get_all_quota_types = validator(
         "quota_types", pre=True, allow_reuse=True
     )(get_all_nodes_from_rel)
-
-    class Config:
-        orm_mode = True

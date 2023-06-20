@@ -1,12 +1,12 @@
 from typing import List, Optional
 
-from .cluster import create_cluster, get_cluster
-from .flavor import create_flavor, get_flavor
-from .identity_provider import create_identity_provider, get_identity_provider
-from .image import create_image, get_image
-from .location import create_location, get_location
-from .project import create_project, get_project
-from .service import create_service, get_service
+from .cluster import create_cluster, read_cluster
+from .flavor import create_flavor, read_flavor
+from .identity_provider import create_identity_provider, read_identity_provider
+from .image import create_image, read_image
+from .location import create_location, read_location
+from .project import create_project, read_project
+from .service import create_service, read_service
 from .utils import truncate
 from .. import schemas, models
 
@@ -16,7 +16,7 @@ def connect_provider_to_idps(
     identity_providers: List[schemas.ProviderClusterCreate],
 ) -> None:
     for identity_provider in identity_providers:
-        db_idp = get_identity_provider(
+        db_idp = read_identity_provider(
             **identity_provider.dict(
                 exclude={"relationship"}, exclude_none=True
             )
@@ -38,7 +38,7 @@ def connect_provider_to_clusters(
     clusters: List[schemas.ProviderClusterCreate],
 ) -> None:
     for cluster in clusters:
-        db_clu = get_cluster(
+        db_clu = read_cluster(
             **cluster.dict(exclude={"relationship"}, exclude_none=True)
         )
         if db_clu is None:
@@ -54,7 +54,7 @@ def connect_provider_to_flavors(
     flavors: List[schemas.ProviderFlavorCreate],
 ) -> None:
     for flavor in flavors:
-        db_flv = get_flavor(
+        db_flv = read_flavor(
             **flavor.dict(exclude={"relationship"}, exclude_none=True)
         )
         if db_flv is None:
@@ -70,7 +70,7 @@ def connect_provider_to_images(
     images: List[schemas.ProviderImageCreate],
 ) -> None:
     for image in images:
-        db_img = get_image(
+        db_img = read_image(
             **image.dict(exclude={"relationship"}, exclude_none=True)
         )
         if db_img is None:
@@ -84,7 +84,7 @@ def connect_provider_to_images(
 def connect_provider_to_location(
     item: models.Provider, location: schemas.LocationCreate
 ) -> None:
-    db_loc = get_location(**location.dict(exclude_none=True))
+    db_loc = read_location(**location.dict(exclude_none=True))
     if db_loc is None:
         db_loc = create_location(location)
     if not item.location.is_connected(db_loc):
@@ -96,7 +96,7 @@ def connect_provider_to_projects(
     projects: List[schemas.ProviderProjectCreate],
 ) -> None:
     for project in projects:
-        db_proj = get_project(
+        db_proj = read_project(
             **project.dict(exclude={"relationship"}, exclude_none=True)
         )
         if db_proj is None:
@@ -111,7 +111,7 @@ def connect_provider_to_services(
     item: models.Provider, services: List[schemas.ServiceCreate]
 ) -> None:
     for service in services:
-        db_srv = get_service(endpoint=service.endpoint)
+        db_srv = read_service(endpoint=service.endpoint)
         if db_srv is None:
             db_srv = create_service(service)
         if not item.services.is_connected(db_srv):
@@ -149,7 +149,7 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
     return db_item
 
 
-def get_providers(
+def read_providers(
     skip: int = 0,
     limit: Optional[int] = None,
     sort: Optional[str] = None,
@@ -162,7 +162,7 @@ def get_providers(
     return truncate(items=items, skip=skip, limit=limit)
 
 
-def get_provider(**kwargs) -> Optional[models.Provider]:
+def read_provider(**kwargs) -> Optional[models.Provider]:
     return models.Provider.nodes.get_or_none(**kwargs)
 
 
@@ -170,8 +170,8 @@ def remove_provider(item: models.Provider) -> bool:
     return item.delete()
 
 
-def update_provider(
-    old_item: models.Provider, new_item: schemas.ProviderUpdate
+def edit_provider(
+    old_item: models.Provider, new_item: schemas.ProviderPatch
 ) -> Optional[models.Provider]:
     for k, v in new_item.dict(
         exclude={

@@ -10,7 +10,7 @@ def create_identity_provider(
     return models.IdentityProvider(**item.dict()).save()
 
 
-def get_identity_providers(
+def read_identity_providers(
     skip: int = 0,
     limit: Optional[int] = None,
     sort: Optional[str] = None,
@@ -25,7 +25,7 @@ def get_identity_providers(
     return truncate(items=items, skip=skip, limit=limit)
 
 
-def get_identity_provider(**kwargs) -> Optional[models.IdentityProvider]:
+def read_identity_provider(**kwargs) -> Optional[models.IdentityProvider]:
     return models.IdentityProvider.nodes.get_or_none(**kwargs)
 
 
@@ -33,7 +33,7 @@ def remove_identity_provider(item: models.IdentityProvider) -> bool:
     return item.delete()
 
 
-def update_identity_provider(
-    old_item: models.IdentityProvider, new_item: schemas.IdentityProviderUpdate
+def edit_identity_provider(
+    old_item: models.IdentityProvider, new_item: schemas.IdentityProviderPatch
 ) -> Optional[models.IdentityProvider]:
     return update(old_item=old_item, new_item=new_item)

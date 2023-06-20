@@ -1,45 +1,39 @@
-from pydantic import AnyUrl, BaseModel
+from pydantic import AnyUrl
 from typing import Optional
-from uuid import UUID
+
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
-class IdentityProviderBase(BaseModel):
-    """IdentityProvider Base class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class IdentityProviderQuery(BaseNodeQuery):
+    """IdentityProvider Query Model class.
 
     Attributes:
-        description (str): Brief description.
-        endpoint (str): URL of the IdentityProvider.
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IdentityProvider.
     """
 
-    description: Optional[str] = None
     endpoint: Optional[AnyUrl] = None
 
-    class Config:
-        validate_assignment = True
 
-
-class IdentityProviderUpdate(IdentityProviderBase):
-    """IdentityProvider Base class.
+class IdentityProviderPatch(BaseNodeCreate):
+    """IdentityProvider Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
         description (str): Brief description.
-        endpoint (str): URL of the IdentityProvider.
+        endpoint (str | None): URL of the IdentityProvider.
     """
 
-    description: str = ""
+    endpoint: Optional[AnyUrl] = None
 
 
-class IdentityProviderCreate(IdentityProviderUpdate):
-    """IdentityProvider Create class.
+class IdentityProviderCreate(IdentityProviderPatch):
+    """IdentityProvider Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
         description (str): Brief description.
@@ -49,21 +43,16 @@ class IdentityProviderCreate(IdentityProviderUpdate):
     endpoint: AnyUrl
 
 
-class IdentityProvider(IdentityProviderCreate):
-    """IdentityProvider class
+class IdentityProvider(IdentityProviderCreate, BaseNodeRead):
+    """IdentityProvider class.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
+    Class retrieved from the database.
+    Expected as output when performing a REST request.
     It contains all the non-sensible data written
     in the database.
 
     Attributes:
-        uid (uuid): Identity provider unique ID.
+        uid (uuid): Unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IdentityProvider.
     """
-
-    uid: UUID
-
-    class Config:
-        orm_mode = True

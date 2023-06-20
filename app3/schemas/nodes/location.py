@@ -1,65 +1,62 @@
-from pydantic import BaseModel
 from typing import Optional
-from uuid import UUID
+
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
-class LocationBase(BaseModel):
-    """Location Base class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class LocationQuery(BaseNodeQuery):
+    """Location BQuery Model class.
 
     Attributes:
-        name (str): Location unique name.
-        description (str): Brief description.
-        country (str): Country name.
-        country_code (str): Country code.
-        latitude (float): Latitude coordinate.
-        longitude (float): Longitude coordinate.
+        description (str | None): Brief description.
+        name (str | None): Location unique name.
+        country (str | None): Country name.
+        country_code (str | None): Country code.
+        latitude (float | None): Latitude coordinate.
+        longitude (float | None): Longitude coordinate.
     """
 
     name: Optional[str] = None
-    description: Optional[str] = None
     country: Optional[str] = None
     country_code: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
-    class Config:
-        validate_assignment = True
 
-
-class LocationUpdate(LocationBase):
-    """Location Base class.
+class LocationPatch(BaseNodeCreate):
+    """Location Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
-        name (str): Location unique name.
         description (str): Brief description.
-        country (str): Country name.
-        country_code (str): Country code.
-        latitude (float): Latitude coordinate.
-        longitude (float): Longitude coordinate.
+        name (str | None): Location unique name.
+        country (str | None): Country name.
+        country_code (str | None): Country code.
+        latitude (float | None): Latitude coordinate.
+        longitude (float | None): Longitude coordinate.
     """
 
-    description: str = ""
+    name: Optional[str] = None
+    country: Optional[str] = None
+    country_code: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
 
-class LocationCreate(LocationUpdate):
-    """Location Create class.
+class LocationCreate(LocationPatch):
+    """Location Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
-        name (str): Location unique name.
         description (str): Brief description.
+        name (str): Location unique name.
         country (str): Country name.
         country_code (str): Country code.
-        latitude (float): Latitude coordinate.
-        longitude (float): Longitude coordinate.
+        latitude (float | None): Latitude coordinate.
+        longitude (float | None): Longitude coordinate.
     """
 
     name: str
@@ -67,25 +64,20 @@ class LocationCreate(LocationUpdate):
     country_code: str
 
 
-class Location(LocationCreate):
-    """Location class
+class Location(LocationCreate, BaseNodeRead):
+    """Location class.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
+    Class retrieved from the database.
+    Expected as output when performing a REST request.
     It contains all the non-sensible data written
     in the database.
 
     Attributes:
-        uid (uuid): Location unique ID.
-        name (str): Location unique name.
+        uid (uuid): Unique ID.
+        description (str): Brief description.
         description (str): Brief description.
         country (str): Country name.
         country_code (str): Country code.
         latitude (float): Latitude coordinate.
         longitude (float): Longitude coordinate.
     """
-
-    uid: UUID
-
-    class Config:
-        orm_mode = True

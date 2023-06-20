@@ -1,92 +1,57 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional
-from uuid import UUID
+from typing import Optional
 
-from .cluster import Cluster
-from .flavor import Flavor
-from .image import Image
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
-class UserGroupBase(BaseModel):
-    """UserGroup Base class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class UserGroupQuery(BaseNodeQuery):
+    """UserGroup Query Model class.
 
     Attributes:
-        name (str): UserGroup name.
-        description (str): Brief description.
+        description (str | None): Brief description.
+        name (str | None): UserGroup name.
     """
 
     name: Optional[str] = None
-    description: Optional[str] = None
-
-    class Config:
-        validate_assignment = True
 
 
-class UserGroupUpdate(UserGroupBase):
-    """UserGroup Base class.
+class UserGroupPatch(BaseNodeCreate):
+    """UserGroup Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
-        name (str): UserGroup name.
         description (str): Brief description.
+        name (str | None): UserGroup name.
     """
 
-    description: str = ""
+    name: Optional[str] = None
 
 
-class UserGroupCreate(UserGroupUpdate):
-    """UserGroup Create class.
+class UserGroupCreate(UserGroupPatch):
+    """UserGroup Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
-        name (str): UserGroup name.
         description (str): Brief description.
+        name (str): UserGroup name.
     """
 
     name: str
 
 
-class UserGroup(UserGroupCreate):
-    """UserGroup class
+class UserGroup(UserGroupCreate, BaseNodeRead):
+    """UserGroup class.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
+    Class retrieved from the database.
+    Expected as output when performing a REST request.
     It contains all the non-sensible data written
     in the database.
 
     Attributes:
-        uid (uuid): UserGroup unique ID.
-        name (str): UserGroup name.
+        uid (uuid): Unique ID.
         description (str): Brief description.
-    """
-
-    uid: UUID
-
-    class Config:
-        orm_mode = True
-
-
-class UserGroupExtended(UserGroup):
-    """UserGroup class
-
-    Class retrieved from the database
-    expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
-
-    Attributes:
-        uid (uuid): UserGroup unique ID.
         name (str): UserGroup name.
-        description (str): Brief description.
     """
-
-    clusters: List[Cluster] = Field(default_factory=list)
-    flavors: List[Flavor] = Field(default_factory=list)
-    images: List[Image] = Field(default_factory=list)

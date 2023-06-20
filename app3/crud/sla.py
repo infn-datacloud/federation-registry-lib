@@ -41,7 +41,7 @@ def create_sla(
     return db_item
 
 
-def get_slas(
+def read_slas(
     skip: int = 0,
     limit: Optional[int] = None,
     sort: Optional[str] = None,
@@ -54,7 +54,7 @@ def get_slas(
     return truncate(items=items, skip=skip, limit=limit)
 
 
-def get_sla(**kwargs) -> Optional[models.SLA]:
+def read_sla(**kwargs) -> Optional[models.SLA]:
     return models.SLA.nodes.get_or_none(**kwargs)
 
 
@@ -63,8 +63,8 @@ def remove_sla(item: models.SLA) -> bool:
 
 
 # TODO
-def update_sla(
-    old_item: models.SLA, new_item: schemas.SLAUpdate
+def edit_sla(
+    old_item: models.SLA, new_item: schemas.SLAPatch
 ) -> Optional[models.SLA]:
     for k, v in new_item.dict(
         exclude={"project", "services", "user_group"},

@@ -8,7 +8,7 @@ def create_cluster(item: schemas.ClusterCreate) -> models.Cluster:
     return models.Cluster(**item.dict()).save()
 
 
-def get_clusters(
+def read_clusters(
     skip: int = 0,
     limit: Optional[int] = None,
     sort: Optional[str] = None,
@@ -21,7 +21,7 @@ def get_clusters(
     return truncate(items=items, skip=skip, limit=limit)
 
 
-def get_cluster(**kwargs) -> Optional[models.Cluster]:
+def read_cluster(**kwargs) -> Optional[models.Cluster]:
     return models.Cluster.nodes.get_or_none(**kwargs)
 
 
@@ -29,7 +29,7 @@ def remove_cluster(item: models.Cluster) -> bool:
     return item.delete()
 
 
-def update_cluster(
-    old_item: models.Cluster, new_item: schemas.ClusterUpdate
+def edit_cluster(
+    old_item: models.Cluster, new_item: schemas.ClusterPatch
 ) -> Optional[models.Cluster]:
     return update(old_item=old_item, new_item=new_item)

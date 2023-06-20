@@ -1,6 +1,5 @@
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import EmailStr, Field, validator
 from typing import List, Optional
-from uuid import UUID
 
 from .cluster import Cluster, ClusterCreate
 from .flavor import Flavor, FlavorCreate
@@ -22,6 +21,7 @@ from ..relationships import (
     BookProject,
     BookProjectCreate,
 )
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
 class ProviderIDPCreate(IdentityProviderCreate):
@@ -64,42 +64,42 @@ class ProviderProject(Project):
     relationship: BookProject
 
 
-class ProviderBase(BaseModel):
-    """Provider Base class
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class ProviderQuery(BaseNodeQuery):
+    """Provider Query Model class.
 
     Attributes:
-        name (str): Provider name (type).
-        description (str): Brief description.
-        support_email (list of str): List of maintainers emails.
-        is_public (bool): Public or private provider.
+        description (str | None): Brief description.
+        name (str | None): Provider name (type).
+        is_public (bool | None): Public or private provider.
+        support_email (list of str | None): List of maintainers emails.
     """
 
     name: Optional[str] = None
-    description: Optional[str] = None
     is_public: Optional[bool] = None
     support_email: Optional[List[EmailStr]] = None
 
-    class Config:
-        validate_assignment = True
 
-
-class ProviderUpdate(ProviderBase):
-    """Provider Base class
+class ProviderPatch(BaseNodeCreate):
+    """Provider Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
-        name (str): Provider name (type).
         description (str): Brief description.
-        support_email (list of str): List of maintainers emails.
-        is_public (bool): Public or private provider.
+        name (str | None): Provider name (type).
+        is_public (bool | None): Public or private provider.
+        support_email (list of str | None): List of maintainers emails.
+        location (LocationCreate | None): provider physical location
+        clusters TODO
+        flavors TODO
+        identity_providers TODO
+        images TODO
+        projects TODO 
+        services TODO 
     """
 
-    description: str = ""
+    name: Optional[str] = None
     is_public: bool = False
     support_email: List[EmailStr] = Field(default_factory=list)
     location: Optional[LocationCreate] = None
@@ -111,39 +111,52 @@ class ProviderUpdate(ProviderBase):
     services: List[ServiceCreate] = Field(default_factory=list)
 
 
-class ProviderCreate(ProviderUpdate):
-    """Provider Create class
+class ProviderCreate(ProviderPatch):
+    """Provider Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
-        name (str): Provider name (type).
         description (str): Brief description.
-        support_email (list of str): List of maintainers emails.
-        is_public (bool): Public or private provider.
+        name (str | None): Provider name (type).
+        is_public (bool | None): Public or private provider.
+        support_email (list of str | None): List of maintainers emails.
+        location (LocationCreate | None): provider physical location
+        clusters TODO
+        flavors TODO
+        identity_providers TODO
+        images TODO
+        projects TODO 
+        services TODO 
     """
 
     name: str
 
 
-class Provider(ProviderBase):
-    """Provider class
+class Provider(ProviderCreate, BaseNodeRead):
+    """Providerclass.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
+    Class retrieved from the database.
+    Expected as output when performing a REST request.
     It contains all the non-sensible data written
     in the database.
 
     Attributes:
-        uid (uuid): Provider unique ID.
-        name (str): Provider name (type).
+        uid (uuid): Unique ID.
         description (str): Brief description.
-        support_email (list of str): List of maintainers emails.
-        is_public (bool): Public or private provider.
+        name (str | None): Provider name (type).
+        is_public (bool | None): Public or private provider.
+        support_email (list of str | None): List of maintainers emails.
+        location (LocationCreate | None): provider physical location
+        clusters TODO
+        flavors TODO
+        identity_providers TODO
+        images TODO
+        projects TODO 
+        services TODO 
     """
 
-    uid: UUID
     location: Optional[Location] = None
     clusters: List[ProviderCluster] = Field(default_factory=list)
     flavors: List[ProviderFlavor] = Field(default_factory=list)
@@ -212,6 +225,3 @@ class Provider(ProviderBase):
     _get_all_services = validator("services", pre=True, allow_reuse=True)(
         get_all_nodes_from_rel
     )
-
-    class Config:
-        orm_mode = True

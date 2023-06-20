@@ -1,17 +1,16 @@
-from .cluster import Cluster, ClusterBase, ClusterCreate, ClusterUpdate
-from .flavor import Flavor, FlavorBase, FlavorCreate, FlavorUpdate
+from .cluster import Cluster, ClusterCreate, ClusterPatch, ClusterQuery
+from .flavor import Flavor, FlavorCreate, FlavorPatch, FlavorQuery
 from .identity_provider import (
     IdentityProvider,
-    IdentityProviderBase,
     IdentityProviderCreate,
-    IdentityProviderUpdate,
+    IdentityProviderPatch,
+    IdentityProviderQuery,
 )
-from .image import Image, ImageBase, ImageCreate, ImageUpdate
-from .location import Location, LocationBase, LocationCreate, LocationUpdate
-from .project import Project, ProjectBase, ProjectCreate, ProjectUpdate
+from .image import Image, ImageCreate, ImagePatch, ImageQuery
+from .location import Location, LocationCreate, LocationPatch, LocationQuery
+from .project import Project, ProjectCreate, ProjectPatch, ProjectQuery
 from .provider import (
     Provider,
-    ProviderBase,
     ProviderCreate,
     ProviderCluster,
     ProviderClusterCreate,
@@ -23,63 +22,56 @@ from .provider import (
     ProviderImageCreate,
     ProviderProject,
     ProviderProjectCreate,
-    ProviderUpdate,
+    ProviderPatch,
+    ProviderQuery,
 )
-from .quota import Quota, QuotaBase, QuotaCreate, QuotaUpdate
+from .quota import Quota, QuotaCreate, QuotaPatch, QuotaQuery
 from .quota_type import (
     QuotaType,
-    QuotaTypeBase,
     QuotaTypeCreate,
-    QuotaTypeUpdate,
+    QuotaTypePatch,
+    QuotaTypeQuery,
 )
-from .service import Service, ServiceBase, ServiceCreate, ServiceUpdate
+from .service import Service, ServiceCreate, ServicePatch, ServiceQuery
 from .service_type import (
     ServiceType,
-    ServiceTypeBase,
     ServiceTypeCreate,
-    ServiceTypeUpdate,
+    ServiceTypePatch,
+    ServiceTypeQuery,
 )
 from .sla import (
     SLA,
-    SLABase,
     SLACreate,
-    SLAUpdate,
+    SLAPatch,
+    SLAQuery,
 )
 from .user_group import (
     UserGroup,
-    UserGroupBase,
     UserGroupCreate,
-    UserGroupExtended,
-    UserGroupUpdate,
+    UserGroupPatch,
+    UserGroupQuery,
 )
 
 __all__ = [
     "Cluster",
-    "ClusterBase",
     "ClusterCreate",
-    "ClusterUpdate",
+    "ClusterQuery",
     "Flavor",
-    "FlavorBase",
     "FlavorCreate",
-    "FlavorUpdate",
+    "FlavorPatch",
     "IdentityProvider",
-    "IdentityProviderBase",
     "IdentityProviderCreate",
-    "IdentityProviderUpdate",
+    "IdentityProviderPatch",
     "Image",
-    "ImageBase",
     "ImageCreate",
-    "ImageUpdate",
+    "ImagePatch",
     "Location",
-    "LocationBase",
     "LocationCreate",
-    "LocationUpdate",
+    "LocationPatch",
     "Project",
-    "ProjectBase",
     "ProjectCreate",
-    "ProjectUpdate",
+    "ProjectPatch",
     "Provider",
-    "ProviderBase",
     "ProviderCreate",
     "ProviderCluster",
     "ProviderClusterCreate",
@@ -91,30 +83,24 @@ __all__ = [
     "ProviderImageCreate",
     "ProviderProject",
     "ProviderProjectCreate",
-    "ProviderUpdate",
+    "ProviderPatch",
+    "ProviderQuery",
     "Quota",
-    "QuotaBase",
     "QuotaCreate",
     "QuotaType",
-    "QuotaTypeBase",
     "QuotaTypeCreate",
-    "QuotaTypeUpdate",
-    "QuotaUpdate",
+    "QuotaTypePatch",
+    "QuotaPatch",
     "Service",
-    "ServiceBase",
     "ServiceCreate",
     "ServiceType",
-    "ServiceTypeBase",
     "ServiceTypeCreate",
-    "ServiceTypeUpdate",
-    "ServiceUpdate",
+    "ServiceTypePatch",
+    "ServicePatch",
     "SLA",
-    "SLABase",
     "SLACreate",
-    "SLAUpdate",
+    "SLAPatch",
     "UserGroup",
-    "UserGroupBase",
     "UserGroupCreate",
-    "UserGroupExtended",
-    "UserGroupUpdate",
+    "UserGroupPatch",
 ]

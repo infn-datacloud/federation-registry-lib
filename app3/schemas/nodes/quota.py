@@ -1,38 +1,32 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import Field, validator
 from typing import Optional
 
 from .quota_type import QuotaType, QuotaTypeCreate
 from .service import Service, ServiceCreate
-from ..utils import get_single_node_from_rel
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from ..utils.validators import get_single_node_from_rel
 
 
-class QuotaBase(BaseModel):
-    """Quota Base class
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class QuotaQuery(BaseNodeQuery):
+    """Quota Query Model class.
 
     Attributes:
-        type (str): Quota type (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota type/type.
+        description (str | None): Brief description.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
             to be granted to each VM/Container instance.
         user_limit (float | None): The max quantity of a resource to
             be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
+        tot_guaranteed (float| None): The guaranteed quantity of a
             resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
+        instance_guaranteed (float | None): The guaranteed quantity
             of a resource to be granted to each VM/Container
             instance.
-        user_guaranteed (float): The guaranteed quantity
+        user_guaranteed (float | None): The guaranteed quantity
             of a resource to be granted to user.
     """
 
-    description: Optional[str] = None
     tot_limit: Optional[float] = Field(ge=0, default=None)
     instance_limit: Optional[float] = Field(ge=0, default=None)
     user_limit: Optional[float] = Field(ge=0, default=None)
@@ -40,21 +34,15 @@ class QuotaBase(BaseModel):
     instance_guaranteed: Optional[float] = Field(ge=0, default=None)
     user_guaranteed: Optional[float] = Field(ge=0, default=None)
 
-    class Config:
-        validate_assignment = True
 
-
-class QuotaUpdate(QuotaBase):
-    """Quota Base class
+class QuotaPatch(BaseNodeCreate):
+    """Quota Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
-        type (str): Quota type (type).
         description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -68,9 +56,13 @@ class QuotaUpdate(QuotaBase):
             instance.
         user_guaranteed (float): The guaranteed quantity
             of a resource to be granted to user.
+        type (QuotaType | None): Quota type.
+        service (Service | None): Service where this quota applies.
     """
 
-    description: str = ""
+    tot_limit: Optional[float] = Field(ge=0, default=None)
+    instance_limit: Optional[float] = Field(ge=0, default=None)
+    user_limit: Optional[float] = Field(ge=0, default=None)
     tot_guaranteed: float = Field(ge=0, default=0)
     instance_guaranteed: float = Field(ge=0, default=0)
     user_guaranteed: float = Field(ge=0, default=0)
@@ -78,18 +70,14 @@ class QuotaUpdate(QuotaBase):
     service: Optional[ServiceCreate] = None
 
 
-class QuotaCreate(QuotaUpdate):
-    """Quota Create class
+class QuotaCreate(QuotaPatch):
+    """Quota Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
-
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
-        type (str): Quota type (type).
         description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota type/type.
         tot_limit (float | None): The max quantity of a resource to
             be granted to the user group in total.
         instance_limit (float | None): The max quantity of a resource
@@ -103,13 +91,15 @@ class QuotaCreate(QuotaUpdate):
             instance.
         user_guaranteed (float): The guaranteed quantity
             of a resource to be granted to user.
+        type (QuotaType): Quota type.
+        service (Service): Service where this quota applies.
     """
 
     type: QuotaTypeCreate
     service: ServiceCreate
 
 
-class Quota(QuotaCreate):
+class Quota(QuotaCreate, BaseNodeRead):
     """Quota class
 
     Class retrieved from the database
@@ -138,7 +128,6 @@ class Quota(QuotaCreate):
             of a resource to be granted to user.
     """
 
-    uid: str
     type: QuotaType
     service: Service
 
@@ -148,6 +137,3 @@ class Quota(QuotaCreate):
     _get_single_service = validator("service", pre=True, allow_reuse=True)(
         get_single_node_from_rel
     )
-
-    class Config:
-        orm_mode = True

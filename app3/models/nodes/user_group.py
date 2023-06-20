@@ -11,7 +11,8 @@ from .cluster import Cluster
 from .flavor import Flavor
 from .image import Image
 from .service import Service
-from ..relationships import Quota, ProvideService
+
+# from ..relationships import Quota, ProvideService
 from ...schemas.utils import ServiceType
 
 
@@ -77,24 +78,25 @@ class UserGroup(StructuredNode):
         )
         return [Image.inflate(row[0]) for row in results]
 
-    def services(self) -> List[Tuple[Service, ProvideService, List[Quota]]]:
-        results, columns = self.cypher(
-            """
-                MATCH (p:UserGroup)-[:HAS_SLA]->(q)
-                WHERE (id(p)=$self)
-                MATCH (a)<-[b:BOOK_PROJECT_FOR_AN_SLA]->(c)
-                    <-[d:ACCESS_PROVIDER_THROUGH_PROJECT]-(q)
-                    -[r:USE_SERVICE_WITH_QUOTA]->(s)
-                    -[t:PROVIDES_SERVICE]->(u)
-                WHERE a.uid = u.uid
-                RETURN s, t, r
-            """
-        )
-        services = []
-        for row in results:
-            service = Service.inflate(row[0])
-            prov_details = ProvideService.inflate(row[1])
-            quotas = []
-            quotas.append(Quota.inflate(row[2]))  # TODO multiple quotas?
-            services.append((service, prov_details, quotas))
-        return services
+    # def services(self) -> List[Tuple[Service, ProvideService, List[Quota]]]:
+    #    results, columns = self.cypher(
+    #        """
+    #            MATCH (p:UserGroup)-[:HAS_SLA]->(q)
+    #            WHERE (id(p)=$self)
+    #            MATCH (a)<-[b:BOOK_PROJECT_FOR_AN_SLA]->(c)
+    #                <-[d:ACCESS_PROVIDER_THROUGH_PROJECT]-(q)
+    #                -[r:USE_SERVICE_WITH_QUOTA]->(s)
+    #                -[h:APPLIES_TO]->(k)
+    #                -[t:PROVIDES_SERVICE]->(u)
+    #                WHERE a.uid = u.uid
+    #                RETURN s, k, u
+    #        """
+    #    )
+    #    services = []
+    #    for row in results:
+    #        service = Service.inflate(row[0])
+    #        prov_details = ProvideService.inflate(row[1])
+    #        quotas = []
+    #        quotas.append(Quota.inflate(row[2]))  # TODO multiple quotas?
+    #        services.append((service, prov_details, quotas))
+    #    return services

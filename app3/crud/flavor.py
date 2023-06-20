@@ -8,7 +8,7 @@ def create_flavor(item: schemas.FlavorCreate) -> models.Flavor:
     return models.Flavor(**item.dict()).save()
 
 
-def get_flavors(
+def read_flavors(
     skip: int = 0,
     limit: Optional[int] = None,
     sort: Optional[str] = None,
@@ -21,7 +21,7 @@ def get_flavors(
     return truncate(items=items, skip=skip, limit=limit)
 
 
-def get_flavor(**kwargs) -> Optional[models.Flavor]:
+def read_flavor(**kwargs) -> Optional[models.Flavor]:
     return models.Flavor.nodes.get_or_none(**kwargs)
 
 
@@ -29,7 +29,7 @@ def remove_flavor(item: models.Flavor) -> bool:
     return item.delete()
 
 
-def update_flavor(
-    old_item: models.Flavor, new_item: schemas.FlavorUpdate
+def edit_flavor(
+    old_item: models.Flavor, new_item: schemas.FlavorPatch
 ) -> Optional[models.Flavor]:
     return update(old_item=old_item, new_item=new_item)

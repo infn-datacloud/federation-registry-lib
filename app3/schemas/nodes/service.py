@@ -1,107 +1,70 @@
-from pydantic import AnyUrl, BaseModel, validator
+from pydantic import AnyUrl, validator
 from typing import Optional
-from uuid import UUID
 
-from .service_type import ServiceType, ServiceTypeUpdate
-from ..utils import get_single_node_from_rel
+from .service_type import ServiceType, ServiceTypePatch
+from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from ..utils.validators import get_single_node_from_rel
 
 
-class ServiceBase(BaseModel):
-    """Service Base class
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+class ServiceQuery(BaseNodeQuery):
+    """Service Query Model class.
 
     Attributes:
-        name (str): Service name (type).
-        description (str): Brief description.
-        resource_type (str): Resource type.
-        endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
+        description (str | None): Brief description.
+        endpoint (str | None): URL pointing to this service
     """
 
-    description: Optional[str] = None
     endpoint: Optional[AnyUrl] = None
 
-    class Config:
-        validate_assignment = True
 
-
-class ServiceUpdate(ServiceBase):
-    """Service Base class
+class ServicePatch(BaseNodeCreate):
+    """Service Patch Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PATCH, PUT or POST request.
 
     Attributes:
-        name (str): Service name (type).
         description (str): Brief description.
-        resource_type (str): Resource type.
-        endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
+        endpoint (str | None): URL pointing to this service
+        type (ServiceTypePatch | None): Service type.
     """
 
-    description: str = ""
-    type: Optional[ServiceTypeUpdate] = None
+    type: Optional[ServiceTypePatch] = None
 
 
-class ServiceCreate(ServiceUpdate):
-    """Service Create class
+class ServiceCreate(ServicePatch):
+    """Service Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
+    Expected as input when performing a PATCH, PUT or POST request.
 
     Attributes:
-        name (str): Service name (type).
         description (str): Brief description.
-        resource_type (str): Resource type.
         endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
+        type (ServiceTypePatch): Service type.
     """
 
     endpoint: AnyUrl
-    type: ServiceTypeUpdate
+    type: ServiceTypePatch
 
 
-class Service(ServiceCreate):
-    """Service Base class
+class Service(ServiceCreate, BaseNodeRead):
+    """Service class.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
+    Class retrieved from the database.
+    Expected as output when performing a REST request.
     It contains all the non-sensible data written
     in the database.
 
     Attributes:
-        uid (uuid): Service unique ID.
-        name (str): Service name (type).
+        uid (uuid): Unique ID.
         description (str): Brief description.
-        resource_type (str): Resource type.
         endpoint (str): URL pointing to this service
-        iam_enabled (bool): IAM enabled for this service.
-        is_public (bool): Public Service or not.
-        public_ip_assignable (bool): It is possible to
-            assign a public IP to this service.
-        volume_types (list of str): TODO
+        type (ServiceType): Service type.
     """
 
-    uid: UUID
     type: ServiceType
 
     _get_single_service_type = validator("type", pre=True, allow_reuse=True)(
         get_single_node_from_rel
     )
-
-    class Config:
-        orm_mode = True
