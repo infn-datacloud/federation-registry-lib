@@ -1,12 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List
-from uuid import UUID
+from typing import List, Mapping
 
 from .utils import CommonGetQuery, Pagination, paginate
+from .utils.validation import valid_sla_id
 from .. import crud, schemas
 
 router = APIRouter(prefix="/slas", tags=["slas"])
+
+
+@db.read_transaction
+@router.get("/", response_model=List[schemas.SLA])
+def read_slas(
+    comm: CommonGetQuery = Depends(),
+    page: Pagination = Depends(),
+    item: schemas.UserGroupBase = Depends(),
+):
+    items = crud.get_slas(
+        **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
+    )
+    return paginate(items=items, page=page.page, size=page.size)
 
 
 @db.write_transaction
@@ -46,24 +59,16 @@ def add_sla(item: schemas.SLACreate):
 
 @db.read_transaction
 @router.get("/{uid}", response_model=schemas.SLA)
-def read_sla(uid: UUID):
-    db_item = crud.get_sla(uid=str(uid).replace("-", ""))
-    if db_item is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="SLA not found"
-        )
-    return db_item
+def read_sla(item: Mapping = Depends(valid_sla_id)):
+    return item
 
 
 # TODO
 @db.write_transaction
 @router.patch("/{uid}", response_model=schemas.SLA)
-def update_sla(uid: UUID, item: schemas.SLAUpdate):
-    db_item = crud.get_sla(uid=str(uid).replace("-", ""))
-    if db_item is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="SLA not found"
-        )
+def update_sla(
+    update_data: schemas.SLAUpdate, item: Mapping = Depends(valid_sla_id)
+):
     # for service in item.services:
     #    db_srv = crud.get_service(name=service.name)
     #    if db_srv is None:
@@ -71,32 +76,14 @@ def update_sla(uid: UUID, item: schemas.SLAUpdate):
     #            status_code=status.HTTP_404_NOT_FOUND,
     #            detail=f"Service {service.name} not found",
     #        )
-    return crud.update_sla(old_item=db_item, new_item=item)
+    return crud.update_sla(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_slas(uid: UUID):
-    db_item = crud.get_sla(uid=str(uid).replace("-", ""))
-    if db_item is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="SLA not found"
-        )
-    if not crud.remove_sla(db_item):
+def delete_slas(item: Mapping = Depends(valid_sla_id)):
+    if not crud.remove_sla(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
-
-
-@db.read_transaction
-@router.get("/", response_model=List[schemas.SLA])
-def read_slas(
-    comm: CommonGetQuery = Depends(),
-    page: Pagination = Depends(),
-    item: schemas.UserGroupBase = Depends(),
-):
-    items = crud.get_slas(
-        **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
-    )
-    return paginate(items=items, page=page.page, size=page.size)
