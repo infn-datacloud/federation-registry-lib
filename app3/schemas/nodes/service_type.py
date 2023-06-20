@@ -3,7 +3,11 @@ from typing import List, Optional
 from uuid import UUID
 
 from .quota_type import QuotaType, QuotaTypeCreate
-from ..utils import get_enum_value, ServiceType as SrvType
+from ..utils import (
+    get_all_nodes_from_rel,
+    get_enum_value,
+    ServiceType as SrvType,
+)
 
 
 class ServiceTypeBase(BaseModel):
@@ -101,9 +105,9 @@ class ServiceType(ServiceTypeCreate):
     uid: UUID
     quota_types: List[QuotaType]
 
-    @validator("quota_types", pre=True)
-    def get_allowed_quota_types(cls, v):
-        return v.all()
+    _get_all_quota_types = validator(
+        "quota_types", pre=True, allow_reuse=True
+    )(get_all_nodes_from_rel)
 
     class Config:
         orm_mode = True

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import AnyUrl, BaseModel
 from typing import Optional
 from uuid import UUID
 
@@ -15,7 +15,7 @@ class IdentityProviderBase(BaseModel):
     """
 
     description: Optional[str] = None
-    endpoint: Optional[str] = None
+    endpoint: Optional[AnyUrl] = None
 
     class Config:
         validate_assignment = True
@@ -46,7 +46,7 @@ class IdentityProviderCreate(IdentityProviderUpdate):
         endpoint (str): URL of the IdentityProvider.
     """
 
-    endpoint: str
+    endpoint: AnyUrl
 
 
 class IdentityProvider(IdentityProviderCreate):

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, Field, validator
 from typing import Optional
 
 from .quota_type import QuotaType, QuotaTypeCreate
@@ -33,12 +33,12 @@ class QuotaBase(BaseModel):
     """
 
     description: Optional[str] = None
-    tot_limit: Optional[float] = None
-    instance_limit: Optional[float] = None
-    user_limit: Optional[float] = None
-    tot_guaranteed: Optional[float] = None
-    instance_guaranteed: Optional[float] = None
-    user_guaranteed: Optional[float] = None
+    tot_limit: Optional[float] = Field(ge=0, default=None)
+    instance_limit: Optional[float] = Field(ge=0, default=None)
+    user_limit: Optional[float] = Field(ge=0, default=None)
+    tot_guaranteed: Optional[float] = Field(ge=0, default=None)
+    instance_guaranteed: Optional[float] = Field(ge=0, default=None)
+    user_guaranteed: Optional[float] = Field(ge=0, default=None)
 
     class Config:
         validate_assignment = True
@@ -71,9 +71,9 @@ class QuotaUpdate(QuotaBase):
     """
 
     description: str = ""
-    tot_guaranteed: float = 0
-    instance_guaranteed: float = 0
-    user_guaranteed: float = 0
+    tot_guaranteed: float = Field(ge=0, default=0)
+    instance_guaranteed: float = Field(ge=0, default=0)
+    user_guaranteed: float = Field(ge=0, default=0)
     type: Optional[QuotaTypeCreate] = None
     service: Optional[ServiceCreate] = None
 

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-
+from uuid import UUID
 
 class AvailableVMFlavorBase(BaseModel):
     """AvailableVMFlavor Base class
@@ -29,7 +29,7 @@ class AvailableVMFlavorBase(BaseModel):
     """
 
     name: Optional[str] = None
-    uuid: Optional[str] = None
+    uuid: Optional[UUID] = None
 
     class Config:
         validate_assignment = True
@@ -90,7 +90,7 @@ class AvailableVMFlavorCreate(AvailableVMFlavorUpdate):
     """
 
     name: str
-    uuid: str
+    uuid: UUID
 
 
 class AvailableVMFlavor(AvailableVMFlavorCreate):

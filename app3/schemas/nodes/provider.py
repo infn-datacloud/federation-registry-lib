@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, EmailStr, Field, validator
 from typing import List, Optional
 from uuid import UUID
 
@@ -9,7 +9,7 @@ from .image import Image, ImageCreate
 from .location import Location, LocationCreate
 from .project import Project, ProjectCreate
 from .service import Service, ServiceCreate
-from ..utils import get_single_node_from_rel
+from ..utils import get_all_nodes_from_rel, get_single_node_from_rel
 from ..relationships import (
     AuthMethod,
     AuthMethodCreate,
@@ -80,7 +80,7 @@ class ProviderBase(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     is_public: Optional[bool] = None
-    support_email: Optional[List[str]] = None
+    support_email: Optional[List[EmailStr]] = None
 
     class Config:
         validate_assignment = True
@@ -101,7 +101,7 @@ class ProviderUpdate(ProviderBase):
 
     description: str = ""
     is_public: bool = False
-    support_email: List[str] = Field(default_factory=list)
+    support_email: List[EmailStr] = Field(default_factory=list)
     location: Optional[LocationCreate] = None
     clusters: List[ProviderClusterCreate] = Field(default_factory=list)
     flavors: List[ProviderFlavorCreate] = Field(default_factory=list)
@@ -209,9 +209,9 @@ class Provider(ProviderBase):
             )
         return projects
 
-    @validator("services", pre=True)
-    def get_all_services(cls, v):
-        return v.all()
+    _get_all_services = validator("services", pre=True, allow_reuse=True)(
+        get_all_nodes_from_rel
+    )
 
     class Config:
         orm_mode = True

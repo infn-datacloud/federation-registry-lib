@@ -1,4 +1,4 @@
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, Field, root_validator
 from typing import Optional
 from uuid import UUID
 
@@ -21,10 +21,10 @@ class FlavorBase(BaseModel):
     """
 
     description: Optional[str] = None
-    num_vcpus: Optional[int] = None
-    num_gpus: Optional[int] = None
-    ram: Optional[int] = None
-    disk: Optional[int] = None
+    num_vcpus: Optional[int] = Field(ge=0, default=None)
+    num_gpus: Optional[int] = Field(ge=0, default=None)
+    ram: Optional[int] = Field(ge=0, default=None)
+    disk: Optional[int] = Field(ge=0, default=None)
     infiniband_support: Optional[bool] = None
     gpu_model: Optional[str] = None
     gpu_vendor: Optional[str] = None
@@ -51,19 +51,11 @@ class FlavorUpdate(FlavorBase):
     """
 
     description: str = ""
-    num_vcpus: int = 0
-    num_gpus: int = 0
-    ram: int = 0
-    disk: int = 0
+    num_vcpus: int = Field(ge=0, default=0)
+    num_gpus: int = Field(ge=0, default=0)
+    ram: int = Field(ge=0, default=0)
+    disk: int = Field(ge=0, default=0)
     infiniband_support: bool = False
-
-    @root_validator
-    def check_non_negative(cls, values):
-        assert values["num_vcpus"] >= 0, "num_vcpus should be non negative"
-        assert values["num_gpus"] >= 0, "num_gpus should be non negative"
-        assert values["ram"] >= 0, "ram should be non negative"
-        assert values["disk"] >= 0, "disk should be non negative"
-        return values
 
     class Config:
         validate_assignment = True

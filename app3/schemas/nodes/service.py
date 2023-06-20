@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import AnyUrl, BaseModel, validator
 from typing import Optional
 from uuid import UUID
 
@@ -25,7 +25,7 @@ class ServiceBase(BaseModel):
     """
 
     description: Optional[str] = None
-    endpoint: Optional[str] = None
+    endpoint: Optional[AnyUrl] = None
 
     class Config:
         validate_assignment = True
@@ -71,7 +71,7 @@ class ServiceCreate(ServiceUpdate):
         volume_types (list of str): TODO
     """
 
-    endpoint: str
+    endpoint: AnyUrl
     type: ServiceTypeUpdate
 
 

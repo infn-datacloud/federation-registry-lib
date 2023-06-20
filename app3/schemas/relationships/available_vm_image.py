@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from uuid import UUID
 
 
 class AvailableVMImageBase(BaseModel):
@@ -29,7 +30,7 @@ class AvailableVMImageBase(BaseModel):
     """
 
     name: Optional[str] = None
-    uuid: Optional[str] = None
+    uuid: Optional[UUID] = None
 
     class Config:
         validate_assignment = True
@@ -90,7 +91,7 @@ class AvailableVMImageCreate(AvailableVMImageUpdate):
     """
 
     name: str
-    uuid: str
+    uuid: UUID
 
 
 class AvailableVMImage(AvailableVMImageCreate):

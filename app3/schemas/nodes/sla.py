@@ -6,7 +6,11 @@ from uuid import UUID
 from .project import Project
 from .quota import Quota, QuotaCreate
 from .user_group import UserGroup
-from ..utils import cast_neo4j_datetime, get_single_node_from_rel
+from ..utils import (
+    cast_neo4j_datetime,
+    get_all_nodes_from_rel,
+    get_single_node_from_rel,
+)
 
 
 class SLABase(BaseModel):
@@ -99,9 +103,9 @@ class SLA(SLACreate):
         "user_group", pre=True, allow_reuse=True
     )(get_single_node_from_rel)
 
-    @validator("quotas", pre=True)
-    def get_all_quotas(cls, v):
-        return v.all()
+    _get_all_quotas = validator("quotas", pre=True, allow_reuse=True)(
+        get_all_nodes_from_rel
+    )
 
     class Config:
         orm_mode = True
