@@ -35,7 +35,7 @@ class AuthMethodBase(BaseModel):
         validate_assignment = True
 
 
-class AuthMethodUpdate(AuthMethodBase):
+class AuthMethodPatch(AuthMethodBase):
     """AuthMethod Base class
 
     Class without id (which is populated by the database).
@@ -62,7 +62,7 @@ class AuthMethodUpdate(AuthMethodBase):
     """
 
 
-class AuthMethodCreate(AuthMethodUpdate):
+class AuthMethodCreate(AuthMethodPatch):
     """AuthMethod Create class
 
     Class without id (which is populated by the database).

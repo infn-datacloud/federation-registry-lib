@@ -1,4 +1,11 @@
 from .extended.cluster import ClusterCreateExtended, ClusterExtended
+from .extended.flavor import FlavorCreateExtended, FlavorExtended
+from .extended.identity_provider import (
+    IdentityProviderCreateExtended,
+    IdentityProviderExtended,
+)
+from .extended.image import ImageCreateExtended, ImageExtended
+from .extended.project import ProjectCreateExtended, ProjectExtended
 from .extended.user_group import UserGroupExtended
 from .nodes.cluster import Cluster, ClusterCreate, ClusterPatch, ClusterQuery
 from .nodes.flavor import Flavor, FlavorCreate, FlavorPatch, FlavorQuery
@@ -19,14 +26,6 @@ from .nodes.project import Project, ProjectCreate, ProjectPatch, ProjectQuery
 from .nodes.provider import (
     Provider,
     ProviderCreate,
-    ProviderFlavor,
-    ProviderFlavorCreate,
-    ProviderIDP,
-    ProviderIDPCreate,
-    ProviderImage,
-    ProviderImageCreate,
-    ProviderProject,
-    ProviderProjectCreate,
     ProviderPatch,
     ProviderQuery,
 )
@@ -60,7 +59,7 @@ from .relationships.auth_method import (
     AuthMethod,
     AuthMethodBase,
     AuthMethodCreate,
-    AuthMethodUpdate,
+    AuthMethodPatch,
 )
 from .relationships.available_cluster import (
     AvailableCluster,

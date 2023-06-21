@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from .cluster import create_cluster, read_cluster
 from .flavor import create_flavor, read_flavor
@@ -13,7 +13,7 @@ from .. import schemas, models
 
 def connect_provider_to_idps(
     item: models.Provider,
-    identity_providers: List[Any],
+    identity_providers: List[schemas.IdentityProviderCreateExtended],
 ) -> None:
     for identity_provider in identity_providers:
         db_idp = read_identity_provider(
@@ -34,8 +34,7 @@ def connect_provider_to_idps(
 
 
 def connect_provider_to_clusters(
-    item: models.Provider,
-    clusters: List[schemas.ClusterCreateExtended],
+    item: models.Provider, clusters: List[schemas.ClusterCreateExtended]
 ) -> None:
     for cluster in clusters:
         match_name = item.clusters.match(name=cluster.relationship.name).all()
@@ -78,8 +77,7 @@ def connect_provider_to_clusters(
 
 
 def connect_provider_to_flavors(
-    item: models.Provider,
-    flavors: List[schemas.ProviderFlavorCreate],
+    item: models.Provider, flavors: List[schemas.FlavorCreateExtended]
 ) -> None:
     for flavor in flavors:
         db_flv = read_flavor(
@@ -94,8 +92,7 @@ def connect_provider_to_flavors(
 
 
 def connect_provider_to_images(
-    item: models.Provider,
-    images: List[schemas.ProviderImageCreate],
+    item: models.Provider, images: List[schemas.ImageCreateExtended]
 ) -> None:
     for image in images:
         db_img = read_image(
@@ -120,8 +117,7 @@ def connect_provider_to_location(
 
 
 def connect_provider_to_projects(
-    item: models.Provider,
-    projects: List[schemas.ProviderProjectCreate],
+    item: models.Provider, projects: List[schemas.ProjectCreateExtended]
 ) -> None:
     for project in projects:
         db_proj = read_project(

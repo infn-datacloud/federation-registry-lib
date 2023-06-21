@@ -1,57 +1,18 @@
 from pydantic import EmailStr, Field, validator
 from typing import List, Optional
 
-from .flavor import Flavor, FlavorCreate
-from .identity_provider import IdentityProvider, IdentityProviderCreate
-from .image import Image, ImageCreate
 from .location import Location, LocationCreate
-from .project import Project, ProjectCreate
 from .service import Service, ServiceCreate
 from ..extended.cluster import ClusterCreateExtended, ClusterExtended
-from ..relationships.auth_method import AuthMethod, AuthMethodCreate
-from ..relationships.available_vm_flavor import (
-    AvailableVMFlavor,
-    AvailableVMFlavorCreate,
+from ..extended.flavor import FlavorCreateExtended, FlavorExtended
+from ..extended.identity_provider import (
+    IdentityProviderCreateExtended,
+    IdentityProviderExtended,
 )
-from ..relationships.available_vm_image import (
-    AvailableVMImage,
-    AvailableVMImageCreate,
-)
-from ..relationships.book_project import BookProject, BookProjectCreate
+from ..extended.image import ImageCreateExtended, ImageExtended
+from ..extended.project import ProjectCreateExtended, ProjectExtended
 from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from ..utils.validators import get_all_nodes_from_rel, get_single_node_from_rel
-
-
-class ProviderIDPCreate(IdentityProviderCreate):
-    relationship: AuthMethodCreate
-
-
-class ProviderIDP(IdentityProvider):
-    relationship: AuthMethod
-
-
-class ProviderFlavorCreate(FlavorCreate):
-    relationship: AvailableVMFlavorCreate
-
-
-class ProviderFlavor(Flavor):
-    relationship: AvailableVMFlavor
-
-
-class ProviderImageCreate(ImageCreate):
-    relationship: AvailableVMImageCreate
-
-
-class ProviderImage(Image):
-    relationship: AvailableVMImage
-
-
-class ProviderProjectCreate(ProjectCreate):
-    relationship: BookProjectCreate
-
-
-class ProviderProject(Project):
-    relationship: BookProject
 
 
 class ProviderQuery(BaseNodeQuery):
@@ -85,8 +46,8 @@ class ProviderPatch(BaseNodeCreate):
         flavors TODO
         identity_providers TODO
         images TODO
-        projects TODO 
-        services TODO 
+        projects TODO
+        services TODO
     """
 
     name: Optional[str] = None
@@ -94,10 +55,12 @@ class ProviderPatch(BaseNodeCreate):
     support_email: List[EmailStr] = Field(default_factory=list)
     location: Optional[LocationCreate] = None
     clusters: List[ClusterCreateExtended] = Field(default_factory=list)
-    flavors: List[ProviderFlavorCreate] = Field(default_factory=list)
-    identity_providers: List[ProviderIDPCreate] = Field(default_factory=list)
-    images: List[ProviderImageCreate] = Field(default_factory=list)
-    projects: List[ProviderProjectCreate] = Field(default_factory=list)
+    flavors: List[FlavorCreateExtended] = Field(default_factory=list)
+    identity_providers: List[IdentityProviderCreateExtended] = Field(
+        default_factory=list
+    )
+    images: List[ImageCreateExtended] = Field(default_factory=list)
+    projects: List[ProjectCreateExtended] = Field(default_factory=list)
     services: List[ServiceCreate] = Field(default_factory=list)
 
 
@@ -117,8 +80,8 @@ class ProviderCreate(ProviderPatch):
         flavors TODO
         identity_providers TODO
         images TODO
-        projects TODO 
-        services TODO 
+        projects TODO
+        services TODO
     """
 
     name: str
@@ -143,20 +106,26 @@ class Provider(ProviderCreate, BaseNodeRead):
         flavors TODO
         identity_providers TODO
         images TODO
-        projects TODO 
-        services TODO 
+        projects TODO
+        services TODO
     """
 
     location: Optional[Location] = None
     clusters: List[ClusterExtended] = Field(default_factory=list)
-    flavors: List[ProviderFlavor] = Field(default_factory=list)
-    identity_providers: List[ProviderIDP] = Field(default_factory=list)
-    images: List[ProviderImage] = Field(default_factory=list)
-    projects: List[ProviderProject] = Field(default_factory=list)
+    flavors: List[FlavorExtended] = Field(default_factory=list)
+    identity_providers: List[IdentityProviderExtended] = Field(
+        default_factory=list
+    )
+    images: List[ImageExtended] = Field(default_factory=list)
+    projects: List[ProjectExtended] = Field(default_factory=list)
     services: List[Service] = Field(default_factory=list)
 
     _get_single_location = validator("location", pre=True, allow_reuse=True)(
         get_single_node_from_rel
+    )
+
+    _get_all_services = validator("services", pre=True, allow_reuse=True)(
+        get_all_nodes_from_rel
     )
 
     @validator("clusters", pre=True)
@@ -175,7 +144,7 @@ class Provider(ProviderCreate, BaseNodeRead):
         flavors = []
         for node in v.all():
             flavors.append(
-                ProviderFlavor(
+                FlavorExtended(
                     **node.__dict__, relationship=v.relationship(node)
                 )
             )
@@ -186,7 +155,9 @@ class Provider(ProviderCreate, BaseNodeRead):
         identity_providers = []
         for node in v.all():
             identity_providers.append(
-                ProviderIDP(**node.__dict__, relationship=v.relationship(node))
+                IdentityProviderExtended(
+                    **node.__dict__, relationship=v.relationship(node)
+                )
             )
         return identity_providers
 
@@ -195,7 +166,7 @@ class Provider(ProviderCreate, BaseNodeRead):
         images = []
         for node in v.all():
             images.append(
-                ProviderImage(
+                ImageExtended(
                     **node.__dict__, relationship=v.relationship(node)
                 )
             )
@@ -206,12 +177,8 @@ class Provider(ProviderCreate, BaseNodeRead):
         projects = []
         for node in v.all():
             projects.append(
-                ProviderProject(
+                ProjectExtended(
                     **node.__dict__, relationship=v.relationship(node)
                 )
             )
         return projects
-
-    _get_all_services = validator("services", pre=True, allow_reuse=True)(
-        get_all_nodes_from_rel
-    )
