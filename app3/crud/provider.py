@@ -7,8 +7,69 @@ from .image import create_image, read_image
 from .location import create_location, read_location
 from .project import create_project, read_project
 from .service import create_service, read_service
-from .utils import truncate
+from .utils import (
+    check_rel_name_uuid_consist_connection,
+    create_and_connect,
+    create_and_replace,
+    truncate,
+)
 from .. import schemas, models
+
+
+def connect_provider_to_clusters(
+    item: models.Provider, clusters: List[schemas.ClusterCreateExtended]
+) -> None:
+    for cluster in clusters:
+        db_cluster = check_rel_name_uuid_consist_connection(
+            item.clusters, cluster
+        )
+        if db_cluster is not None:
+            new_cluster = schemas.ClusterCreate(
+                **cluster.dict(exclude={"relationship"})
+            )
+            old_cluster = schemas.ClusterCreate(**db_cluster.__dict__)
+            if old_cluster != new_cluster:
+                create_and_replace(
+                    rel_manager=item.clusters,
+                    new_end_node=cluster,
+                    read_func=read_cluster,
+                    create_func=create_cluster,
+                )
+        else:
+            create_and_connect(
+                rel_manager=item.clusters,
+                new_end_node=cluster,
+                read_func=read_cluster,
+                create_func=create_cluster,
+            )
+
+
+def connect_provider_to_flavors(
+    item: models.Provider, flavors: List[schemas.FlavorCreateExtended]
+) -> None:
+    for flavor in flavors:
+        db_flavor = check_rel_name_uuid_consist_connection(
+            item.flavors, flavor
+        )
+        if db_flavor is not None:
+            new_flavor = schemas.ClusterCreate(
+                **flavor.dict(exclude={"relationship"})
+            )
+            old_flavor = schemas.ClusterCreate(**db_flavor.__dict__)
+            if old_flavor != new_flavor:
+                create_and_replace(
+                    rel_manager=item.flavors,
+                    new_end_node=flavor,
+                    read_func=read_flavor,
+                    create_func=create_flavor,
+                )
+        else:
+            create_and_connect(
+                rel_manager=item.flavors,
+                new_end_node=flavor,
+                read_func=read_flavor,
+                create_func=create_flavor,
+            )
 
 
 def connect_provider_to_idps(
@@ -33,77 +94,30 @@ def connect_provider_to_idps(
             )
 
 
-def connect_provider_to_clusters(
-    item: models.Provider, clusters: List[schemas.ClusterCreateExtended]
-) -> None:
-    for cluster in clusters:
-        match_name = item.clusters.match(name=cluster.relationship.name).all()
-        match_uuid = item.clusters.match(uuid=cluster.relationship.uuid).all()
-
-        if len(match_name) > 1:
-            raise
-        elif len(match_name) == 1:
-            match_name = match_name[0]
-        else:
-            match_name = None
-        if len(match_uuid) > 1:
-            raise
-        elif len(match_uuid) == 1:
-            match_uuid = match_uuid[0]
-        else:
-            match_uuid = None
-
-        if match_name != match_uuid:
-            if match_name is not None:
-                item.clusters.disconnect(match_name)
-            if match_uuid is not None:
-                item.clusters.disconnect(match_uuid)
-
-        replace = False
-        new_cluster = schemas.ClusterCreate(**cluster.dict())
-        if match_name is not None:
-            db_cluster = schemas.ClusterCreate(**match_name.__dict__)
-            if db_cluster == new_cluster:
-                return db_cluster
-            replace = True
-
-        db_clu = read_cluster(**new_cluster.dict())
-        if db_clu is None:
-            db_clu = create_cluster(new_cluster)
-        if item.clusters.is_connected(db_clu) or replace:
-            item.clusters.replace(db_clu, cluster.relationship.dict())
-        else:
-            item.clusters.connect(db_clu, cluster.relationship.dict())
-
-
-def connect_provider_to_flavors(
-    item: models.Provider, flavors: List[schemas.FlavorCreateExtended]
-) -> None:
-    for flavor in flavors:
-        db_flv = read_flavor(
-            **flavor.dict(exclude={"relationship"}, exclude_none=True)
-        )
-        if db_flv is None:
-            db_flv = create_flavor(flavor)
-        if item.flavors.is_connected(db_flv):
-            item.flavors.replace(db_flv, flavor.relationship.dict())
-        else:
-            item.flavors.connect(db_flv, flavor.relationship.dict())
-
-
 def connect_provider_to_images(
     item: models.Provider, images: List[schemas.ImageCreateExtended]
 ) -> None:
     for image in images:
-        db_img = read_image(
-            **image.dict(exclude={"relationship"}, exclude_none=True)
-        )
-        if db_img is None:
-            db_img = create_image(image)
-        if item.images.is_connected(db_img):
-            item.images.replace(db_img, image.relationship.dict())
+        db_image = check_rel_name_uuid_consist_connection(item.images, image)
+        if db_image is not None:
+            new_image = schemas.ClusterCreate(
+                **image.dict(exclude={"relationship"})
+            )
+            old_image = schemas.ClusterCreate(**db_image.__dict__)
+            if old_image != new_image:
+                create_and_replace(
+                    rel_manager=item.images,
+                    new_end_node=image,
+                    read_func=read_image,
+                    create_func=create_image,
+                )
         else:
-            item.images.connect(db_img, image.relationship.dict())
+            create_and_connect(
+                rel_manager=item.images,
+                new_end_node=image,
+                read_func=read_image,
+                create_func=create_image,
+            )
 
 
 def connect_provider_to_location(
@@ -120,15 +134,28 @@ def connect_provider_to_projects(
     item: models.Provider, projects: List[schemas.ProjectCreateExtended]
 ) -> None:
     for project in projects:
-        db_proj = read_project(
-            **project.dict(exclude={"relationship"}, exclude_none=True)
+        db_project = check_rel_name_uuid_consist_connection(
+            item.projects, project
         )
-        if db_proj is None:
-            db_proj = create_project(project)
-        if item.projects.is_connected(db_proj):
-            item.projects.replace(db_proj, project.relationship.dict())
+        if db_project is not None:
+            new_project = schemas.ClusterCreate(
+                **project.dict(exclude={"relationship"})
+            )
+            old_project = schemas.ClusterCreate(**db_project.__dict__)
+            if old_project != new_project:
+                create_and_replace(
+                    rel_manager=item.projects,
+                    new_end_node=project,
+                    read_func=read_project,
+                    create_func=create_project,
+                )
         else:
-            item.projects.connect(db_proj, project.relationship.dict())
+            create_and_connect(
+                rel_manager=item.projects,
+                new_end_node=project,
+                read_func=read_project,
+                create_func=create_project,
+            )
 
 
 def connect_provider_to_services(

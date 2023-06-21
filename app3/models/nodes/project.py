@@ -28,6 +28,7 @@ class Project(StructuredNode):
     """
 
     uid = UniqueIdProperty()
+    description = StringProperty(default="")
     public_network_name = StringProperty()
     private_network_name = StringProperty()
     private_network_proxy_host = StringProperty()

@@ -1,6 +1,79 @@
-from typing import Any, List, Optional
-from neomodel import StructuredNode
+from typing import Any, Callable, List, Optional
+from neomodel import StructuredNode, RelationshipManager
 from pydantic import BaseModel
+
+
+def check_rel_name_uuid_consist_connection(
+    rel_manager: RelationshipManager, new_end_node: BaseModel
+):
+    end_node_matching_name = rel_manager.match(
+        name=new_end_node.relationship.name
+    ).all()
+    end_node_matching_uuid = rel_manager.match(
+        uuid=new_end_node.relationship.uuid
+    ).all()
+
+    if len(end_node_matching_name) > 1:
+        raise  # TODO
+    elif len(end_node_matching_name) == 1:
+        end_node_matching_name = end_node_matching_name[0]
+    else:
+        end_node_matching_name = None
+    if len(end_node_matching_uuid) > 1:
+        raise  # TODO
+    elif len(end_node_matching_uuid) == 1:
+        end_node_matching_uuid = end_node_matching_uuid[0]
+    else:
+        end_node_matching_uuid = None
+
+    if end_node_matching_name != end_node_matching_uuid or (
+        end_node_matching_name is not None
+        and (
+            rel_manager.relationship(end_node_matching_name).uuid
+            != rel_manager.relationship(end_node_matching_uuid).uuid
+            or rel_manager.relationship(end_node_matching_uuid).name
+            != rel_manager.relationship(end_node_matching_name).name
+        )
+    ):
+        if end_node_matching_name is not None:
+            rel_manager.disconnect(end_node_matching_name)
+        if end_node_matching_uuid is not None:
+            rel_manager.disconnect(end_node_matching_uuid)
+        return None
+
+    return end_node_matching_name
+
+
+def create_and_connect(
+    rel_manager: RelationshipManager,
+    new_end_node: BaseModel,
+    read_func: Callable,
+    create_func: Callable,
+):
+    db_clu = read_func(
+        **new_end_node.dict(exclude={"relationship"}, exclude_none=True)
+    )
+    if db_clu is None:
+        db_clu = create_func(new_end_node)
+        rel_manager.connect(db_clu, new_end_node.relationship.dict())
+    else:
+        rel_manager.replace(db_clu, new_end_node.relationship.dict())
+
+
+def create_and_replace(
+    rel_manager: RelationshipManager,
+    new_end_node: BaseModel,
+    read_func: Callable,
+    create_func: Callable,
+):
+    db_clu = read_func(
+        **new_end_node.dict(exclude={"relationship"}, exclude_none=True)
+    )
+    if db_clu is None:
+        db_clu = create_func(new_end_node)
+        rel_manager.replace(db_clu, new_end_node.relationship.dict())
+    else:
+        rel_manager.connect(db_clu, new_end_node.relationship.dict())
 
 
 def truncate(
