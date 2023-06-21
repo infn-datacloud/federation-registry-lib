@@ -1,7 +1,13 @@
+from neomodel import ZeroOrMore
 from pydantic import EmailStr, Field, validator
 from typing import List, Optional
 
+from .cluster import Cluster
+from .flavor import Flavor
+from .identity_provider import IdentityProvider
+from .image import Image
 from .location import Location, LocationCreate
+from .project import Project
 from .service import Service, ServiceCreate
 from ..extended.cluster import ClusterCreateExtended, ClusterExtended
 from ..extended.flavor import FlavorCreateExtended, FlavorExtended
@@ -12,7 +18,11 @@ from ..extended.identity_provider import (
 from ..extended.image import ImageCreateExtended, ImageExtended
 from ..extended.project import ProjectCreateExtended, ProjectExtended
 from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from ..utils.validators import get_all_nodes_from_rel, get_single_node_from_rel
+from ..utils.validators import (
+    get_all_nodes_from_rel,
+    get_all_nodes_with_rel_data,
+    get_single_node_from_rel,
+)
 
 
 class ProviderQuery(BaseNodeQuery):
@@ -129,56 +139,21 @@ class Provider(ProviderCreate, BaseNodeRead):
     )
 
     @validator("clusters", pre=True)
-    def get_all_clusters(cls, v):
-        clusters = []
-        for node in v.all():
-            clusters.append(
-                ClusterExtended(
-                    **node.__dict__, relationship=v.relationship(node)
-                )
-            )
-        return clusters
+    def get_all_clusters(cls, v: ZeroOrMore):
+        return get_all_nodes_with_rel_data(Cluster, v)
 
     @validator("flavors", pre=True)
-    def get_all_flavors(cls, v):
-        flavors = []
-        for node in v.all():
-            flavors.append(
-                FlavorExtended(
-                    **node.__dict__, relationship=v.relationship(node)
-                )
-            )
-        return flavors
+    def get_all_flavors(cls, v: ZeroOrMore):
+        return get_all_nodes_with_rel_data(Flavor, v)
 
     @validator("identity_providers", pre=True)
-    def get_all_identity_providers(cls, v):
-        identity_providers = []
-        for node in v.all():
-            identity_providers.append(
-                IdentityProviderExtended(
-                    **node.__dict__, relationship=v.relationship(node)
-                )
-            )
-        return identity_providers
+    def get_all_identity_providers(cls, v: ZeroOrMore):
+        return get_all_nodes_with_rel_data(IdentityProvider, v)
 
     @validator("images", pre=True)
-    def get_all_images(cls, v):
-        images = []
-        for node in v.all():
-            images.append(
-                ImageExtended(
-                    **node.__dict__, relationship=v.relationship(node)
-                )
-            )
-        return images
+    def get_all_images(cls, v: ZeroOrMore):
+        return get_all_nodes_with_rel_data(Image, v)
 
     @validator("projects", pre=True)
-    def get_all_projects(cls, v):
-        projects = []
-        for node in v.all():
-            projects.append(
-                ProjectExtended(
-                    **node.__dict__, relationship=v.relationship(node)
-                )
-            )
-        return projects
+    def get_all_projects(cls, v: ZeroOrMore):
+        return get_all_nodes_with_rel_data(Project, v)
