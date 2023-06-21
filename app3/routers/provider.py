@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Mapping
 
@@ -8,6 +8,7 @@ from ..schemas import Provider, ProviderCreate, ProviderPatch, ProviderQuery
 from ..crud.provider import (
     create_provider,
     edit_provider,
+    read_provider,
     read_providers,
     remove_provider,
 )
@@ -30,13 +31,11 @@ def get_providers(
 
 @db.write_transaction
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=Provider)
-def post_provider(item: ProviderCreate):
+def post_provider(item: ProviderCreate, response: Response):
     db_item = read_provider(name=item.name)
     if db_item is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Provider already registered",
-        )
+        response.status_code = status.HTTP_200_OK
+        return edit_provider(db_item, item)
     return create_provider(item)
 
 

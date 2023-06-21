@@ -1,27 +1,25 @@
 from pydantic import EmailStr, Field, validator
 from typing import List, Optional
 
-from .cluster import Cluster, ClusterCreate
 from .flavor import Flavor, FlavorCreate
 from .identity_provider import IdentityProvider, IdentityProviderCreate
 from .image import Image, ImageCreate
 from .location import Location, LocationCreate
 from .project import Project, ProjectCreate
 from .service import Service, ServiceCreate
-from ..utils import get_all_nodes_from_rel, get_single_node_from_rel
-from ..relationships import (
-    AuthMethod,
-    AuthMethodCreate,
-    AvailableCluster,
-    AvailableClusterCreate,
+from ..extended.cluster import ClusterCreateExtended, ClusterExtended
+from ..relationships.auth_method import AuthMethod, AuthMethodCreate
+from ..relationships.available_vm_flavor import (
     AvailableVMFlavor,
     AvailableVMFlavorCreate,
+)
+from ..relationships.available_vm_image import (
     AvailableVMImage,
     AvailableVMImageCreate,
-    BookProject,
-    BookProjectCreate,
 )
+from ..relationships.book_project import BookProject, BookProjectCreate
 from ..utils.base_model import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from ..utils.validators import get_all_nodes_from_rel, get_single_node_from_rel
 
 
 class ProviderIDPCreate(IdentityProviderCreate):
@@ -30,14 +28,6 @@ class ProviderIDPCreate(IdentityProviderCreate):
 
 class ProviderIDP(IdentityProvider):
     relationship: AuthMethod
-
-
-class ProviderClusterCreate(ClusterCreate):
-    relationship: AvailableClusterCreate
-
-
-class ProviderCluster(Cluster):
-    relationship: AvailableCluster
 
 
 class ProviderFlavorCreate(FlavorCreate):
@@ -103,7 +93,7 @@ class ProviderPatch(BaseNodeCreate):
     is_public: bool = False
     support_email: List[EmailStr] = Field(default_factory=list)
     location: Optional[LocationCreate] = None
-    clusters: List[ProviderClusterCreate] = Field(default_factory=list)
+    clusters: List[ClusterCreateExtended] = Field(default_factory=list)
     flavors: List[ProviderFlavorCreate] = Field(default_factory=list)
     identity_providers: List[ProviderIDPCreate] = Field(default_factory=list)
     images: List[ProviderImageCreate] = Field(default_factory=list)
@@ -158,7 +148,7 @@ class Provider(ProviderCreate, BaseNodeRead):
     """
 
     location: Optional[Location] = None
-    clusters: List[ProviderCluster] = Field(default_factory=list)
+    clusters: List[ClusterExtended] = Field(default_factory=list)
     flavors: List[ProviderFlavor] = Field(default_factory=list)
     identity_providers: List[ProviderIDP] = Field(default_factory=list)
     images: List[ProviderImage] = Field(default_factory=list)
@@ -174,7 +164,7 @@ class Provider(ProviderCreate, BaseNodeRead):
         clusters = []
         for node in v.all():
             clusters.append(
-                ProviderCluster(
+                ClusterExtended(
                     **node.__dict__, relationship=v.relationship(node)
                 )
             )

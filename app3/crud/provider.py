@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from .cluster import create_cluster, read_cluster
 from .flavor import create_flavor, read_flavor
@@ -13,7 +13,7 @@ from .. import schemas, models
 
 def connect_provider_to_idps(
     item: models.Provider,
-    identity_providers: List[schemas.ProviderClusterCreate],
+    identity_providers: List[Any],
 ) -> None:
     for identity_provider in identity_providers:
         db_idp = read_identity_provider(
@@ -35,15 +35,43 @@ def connect_provider_to_idps(
 
 def connect_provider_to_clusters(
     item: models.Provider,
-    clusters: List[schemas.ProviderClusterCreate],
+    clusters: List[schemas.ClusterCreateExtended],
 ) -> None:
     for cluster in clusters:
-        db_clu = read_cluster(
-            **cluster.dict(exclude={"relationship"}, exclude_none=True)
-        )
+        match_name = item.clusters.match(name=cluster.relationship.name).all()
+        match_uuid = item.clusters.match(uuid=cluster.relationship.uuid).all()
+
+        if len(match_name) > 1:
+            raise
+        elif len(match_name) == 1:
+            match_name = match_name[0]
+        else:
+            match_name = None
+        if len(match_uuid) > 1:
+            raise
+        elif len(match_uuid) == 1:
+            match_uuid = match_uuid[0]
+        else:
+            match_uuid = None
+
+        if match_name != match_uuid:
+            if match_name is not None:
+                item.clusters.disconnect(match_name)
+            if match_uuid is not None:
+                item.clusters.disconnect(match_uuid)
+
+        replace = False
+        new_cluster = schemas.ClusterCreate(**cluster.dict())
+        if match_name is not None:
+            db_cluster = schemas.ClusterCreate(**match_name.__dict__)
+            if db_cluster == new_cluster:
+                return db_cluster
+            replace = True
+
+        db_clu = read_cluster(**new_cluster.dict())
         if db_clu is None:
-            db_clu = create_cluster(cluster)
-        if item.clusters.is_connected(db_clu):
+            db_clu = create_cluster(new_cluster)
+        if item.clusters.is_connected(db_clu) or replace:
             item.clusters.replace(db_clu, cluster.relationship.dict())
         else:
             item.clusters.connect(db_clu, cluster.relationship.dict())

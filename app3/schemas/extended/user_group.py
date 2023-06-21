@@ -1,7 +1,10 @@
 from pydantic import Field
 from typing import List
 
-from ..nodes import Cluster, Flavor, Image, UserGroup
+from ..nodes.cluster import Cluster
+from ..nodes.flavor import Flavor
+from ..nodes.image import Image
+from ..nodes.user_group import UserGroup
 
 
 class UserGroupExtended(UserGroup):

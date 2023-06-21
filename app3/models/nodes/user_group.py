@@ -13,7 +13,7 @@ from .image import Image
 from .service import Service
 
 # from ..relationships import Quota, ProvideService
-from ...schemas.utils import ServiceType
+from ...schemas.utils.enum import ServiceType
 
 
 class UserGroup(StructuredNode):
