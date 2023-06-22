@@ -9,7 +9,7 @@ class AvailableClusterQuery(BaseProviderRelQuery):
     """AvailableCluster Query Model class.
 
     Attributes:
-        uuid (UUID | None): unique identifier of this item
+        uuid (UUID4 | None): unique identifier of this item
             given by the provider.
         name (str | None): unique name of this item
             given by the provider.
@@ -23,7 +23,7 @@ class AvailableClusterPatch(BaseProviderRelQuery):
     Expected as input when performing a PATCH request.
 
     Attributes:
-        uuid (UUID | None): unique identifier of this item
+        uuid (UUID4 | None): unique identifier of this item
             given by the provider.
         name (str | None): unique name of this item
             given by the provider.
@@ -37,7 +37,7 @@ class AvailableClusterCreate(BaseProviderRelCreate):
     Expected as input when performing a PUT or POST request.
 
     Attributes:
-        uuid (UUID): unique identifier of this item
+        uuid (UUID4): unique identifier of this item
             given by the provider.
         name (str): unique name of this item
             given by the provider.
@@ -53,7 +53,7 @@ class AvailableCluster(AvailableClusterCreate, BaseProviderRelRead):
     in the database.
 
     Attributes:
-        uuid (UUID): unique identifier of this item
+        uuid (UUID4): unique identifier of this item
             given by the provider.
         name (str): unique name of this item
             given by the provider.

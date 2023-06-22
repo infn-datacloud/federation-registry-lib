@@ -32,8 +32,8 @@ class SLAPatch(BaseNodeCreate):
         description (str): Brief description.
         start_date (datetime | None): SLA validity start date.
         end_date (datetime | None): SLA validity end date.
-        project (UUID4 | None): UUID of the target Project.
-        user_group (UUID4 | None): UUID of the target UserGroup.
+        project (UUID4 | None): UUID4 of the target Project.
+        user_group (UUID4 | None): UUID4 of the target UserGroup.
         quotas (list of QuotaCreate): List of quotas defined by the SLA.
     """
 
@@ -54,8 +54,8 @@ class SLACreate(SLAPatch):
         description (str): Brief description.
         start_date (datetime): SLA validity start date.
         end_date (datetime): SLA validity end date.
-        project (UUID4): UUID of the target Project.
-        user_group (UUID4): UUID of the target UserGroup.
+        project (UUID4): UUID4 of the target Project.
+        user_group (UUID4): UUID4 of the target UserGroup.
         quotas (list of QuotaCreate): List of quotas defined by the SLA.
     """
 
@@ -79,8 +79,8 @@ class SLA(SLACreate, BaseNodeRead):
         description (str): Brief description.
         start_date (datetime): SLA validity start date.
         end_date (datetime): SLA validity end date.
-        project (Project): UUID of the target Project.
-        user_group (UserGroup): UUID of the target UserGroup.
+        project (Project): UUID4 of the target Project.
+        user_group (UserGroup): UUID4 of the target UserGroup.
         quotas (list of Quota): List of quotas defined by the SLA.
     """
 

@@ -31,7 +31,7 @@ class BaseNodeRead(BaseModel):
     Use ORM mode to read data from DB models.
 
     Attributes:
-        uid (UUID): unique identifier.
+        uid (UUID4): unique identifier.
         description (str): Brief description.
     """
 
@@ -73,7 +73,7 @@ class BaseProviderRelCreate(BaseModel):
     Always validate assignments.
 
     Attributes:
-        uuid (UUID): unique identifier of this item
+        uuid (UUID4): unique identifier of this item
             given by the provider.
         name (str): unique name of this item
             given by the provider.
@@ -91,7 +91,7 @@ class BaseProviderRelRead(BaseModel):
     Use ORM mode to read data from DB models.
 
     Attributes:
-        uuid (UUID): unique identifier of this item
+        uuid (UUID4): unique identifier of this item
             given by the provider.
         name (str): unique name of this item
             given by the provider.
@@ -111,7 +111,7 @@ class BaseProviderRelQuery(BaseModel):
     Always validate assignments.
 
     Attributes:
-        uuid (UUID | None): unique identifier of this item
+        uuid (UUID4 | None): unique identifier of this item
             given by the provider.
         name (str | None): unique name of this item
             given by the provider.
