@@ -3,7 +3,7 @@ from neomodel import db
 from typing import List, Mapping
 
 from .utils import CommonGetQuery, Pagination, paginate
-from .utils.validation import valid_provider_id, is_unique_provider
+from .utils.validation import valid_provider_id, check_rel_consistency
 from ..schemas import Provider, ProviderCreate, ProviderPatch, ProviderQuery
 from ..crud.provider import (
     create_provider,
@@ -30,7 +30,7 @@ def get_providers(
 
 @db.write_transaction
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=Provider)
-def post_provider(item: ProviderCreate = Depends(is_unique_provider)):
+def post_provider(item: ProviderCreate = Depends(check_rel_consistency)):
     return create_provider(item)
 
 

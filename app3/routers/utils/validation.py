@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 from typing import Callable, Mapping
 
@@ -54,6 +54,25 @@ def is_unique_provider(item: ProviderCreate) -> ProviderCreate:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Provider with name '{item.name}' already registered",
         )
+    return item
+
+
+def check_rel_consistency(
+    item: ProviderCreate = Depends(is_unique_provider),
+) -> ProviderCreate:
+    for l in [item.clusters, item.flavors, item.images, item.projects]:
+        names = [i.relationship.name for i in l]
+        if len(names) != len(set(names)):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"There are multiple items with the same relationship name",
+            )
+        uuids = [i.relationship.uuid for i in l]
+        if len(uuids) != len(set(uuids)):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"There are multiple items with the same relationship uuid",
+            )
     return item
 
 
