@@ -7,7 +7,7 @@ from .. import schemas, models
 def create_identity_provider(
     item: schemas.IdentityProviderCreate,
 ) -> models.IdentityProvider:
-    return models.IdentityProvider(**item.dict()).save()
+    return models.IdentityProvider.get_or_create(item.dict())[0]
 
 
 def read_identity_providers(

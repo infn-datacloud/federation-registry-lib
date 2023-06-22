@@ -5,7 +5,7 @@ from .. import schemas, models
 
 
 def create_cluster(item: schemas.ClusterCreate) -> models.Cluster:
-    return models.Cluster(**item.dict()).save()
+    return models.Cluster.get_or_create(item.dict())[0]
 
 
 def read_clusters(

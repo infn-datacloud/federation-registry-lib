@@ -5,7 +5,7 @@ from .. import schemas, models
 
 
 def create_location(item: schemas.LocationCreate) -> models.Location:
-    return models.Location(**item.dict()).save()
+    return models.Location.get_or_create(item.dict())[0]
 
 
 def read_locations(

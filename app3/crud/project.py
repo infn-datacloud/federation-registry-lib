@@ -5,7 +5,7 @@ from .. import schemas, models
 
 
 def create_project(item: schemas.ProjectCreate) -> models.Project:
-    return models.Project(**item.dict()).save()
+    return models.Project.get_or_create(item.dict())[0]
 
 
 def read_projects(

@@ -5,7 +5,7 @@ from .. import schemas, models
 
 
 def create_flavor(item: schemas.FlavorCreate) -> models.Flavor:
-    return models.Flavor(**item.dict()).save()
+    return models.Flavor.get_or_create(item.dict())[0]
 
 
 def read_flavors(

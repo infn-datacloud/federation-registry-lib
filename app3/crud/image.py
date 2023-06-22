@@ -5,7 +5,7 @@ from .. import schemas, models
 
 
 def create_image(item: schemas.ImageCreate) -> models.Image:
-    return models.Image(**item.dict()).save()
+    return models.Image.get_or_create(item.dict())[0]
 
 
 def read_images(

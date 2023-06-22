@@ -184,20 +184,77 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
         )
     ).save()
     if item.location is not None:
-        connect_provider_to_location(db_item, item.location)
-    if len(item.clusters) > 0:
-        connect_provider_to_clusters(db_item, item.clusters)
-    if len(item.flavors) > 0:
-        connect_provider_to_flavors(db_item, item.flavors)
-    if len(item.identity_providers) > 0:
-        connect_provider_to_idps(db_item, item.identity_providers)
-    if len(item.images) > 0:
-        connect_provider_to_images(db_item, item.images)
-    if len(item.projects) > 0:
-        connect_provider_to_projects(db_item, item.projects)
-    if len(item.services) > 0:
-        connect_provider_to_services(db_item, item.services)
+        get_or_create_and_connect_location(db_item, item.location)
+    get_or_create_and_connect_clusters(db_item, item.clusters)
+    get_or_create_and_connect_flavors(db_item, item.flavors)
+    get_or_create_and_connect_identity_providers(
+        db_item, item.identity_providers
+    )
+    get_or_create_and_connect_images(db_item, item.images)
+    get_or_create_and_connect_projects(db_item, item.projects)
+    get_or_create_and_connect_services(db_item, item.services)
     return db_item
+
+
+def get_or_create_and_connect_clusters(
+    item: models.Provider, new_clusters: List[schemas.ClusterCreateExtended]
+) -> None:
+    for cluster in new_clusters:
+        db_cluster = create_cluster(cluster)
+        item.clusters.connect(db_cluster, cluster.relationship.dict())
+
+
+def get_or_create_and_connect_flavors(
+    item: models.Provider, new_flavors: List[schemas.FlavorCreateExtended]
+) -> None:
+    for flavor in new_flavors:
+        db_flavor = create_flavor(flavor)
+        item.flavors.connect(db_flavor, flavor.relationship.dict())
+
+
+def get_or_create_and_connect_identity_providers(
+    item: models.Provider,
+    new_identity_providers: List[schemas.IdentityProviderCreateExtended],
+) -> None:
+    for identity_provider in new_identity_providers:
+        db_identity_provider = create_identity_provider(identity_provider)
+        item.identity_providers.connect(
+            db_identity_provider, identity_provider.relationship.dict()
+        )
+
+
+def get_or_create_and_connect_images(
+    item: models.Provider, new_images: List[schemas.ImageCreateExtended]
+) -> None:
+    for image in new_images:
+        db_image = create_image(image)
+        item.images.connect(db_image, image.relationship.dict())
+
+
+def get_or_create_and_connect_location(
+    item: models.Provider, location: schemas.LocationCreate
+) -> None:
+    db_location = create_location(location)
+    item.location.connect(db_location)
+
+
+def get_or_create_and_connect_projects(
+    item: models.Provider, new_projects: List[schemas.ProjectCreateExtended]
+) -> None:
+    for project in new_projects:
+        db_project = create_project(project)
+        item.projects.connect(db_project, project.relationship.dict())
+
+
+def get_or_create_and_connect_services(
+    item: models.Provider, new_services: List[schemas.ServiceCreate]
+) -> None:
+    for service in new_services:
+        db_srv = read_service(endpoint=service.endpoint)
+        if db_srv is None:
+            db_srv = create_service(service)
+        if not item.services.is_connected(db_srv):
+            item.services.connect(db_srv)
 
 
 def read_providers(
