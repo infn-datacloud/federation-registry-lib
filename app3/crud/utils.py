@@ -6,42 +6,42 @@ from pydantic import BaseModel
 def check_rel_name_uuid_consist_connection(
     rel_manager: RelationshipManager, new_end_node: BaseModel
 ):
-    end_node_matching_name = rel_manager.match(
+    end_node_rel_match_name = rel_manager.match(
         name=new_end_node.relationship.name
     ).all()
-    end_node_matching_uuid = rel_manager.match(
+    end_node_rel_match_uuid = rel_manager.match(
         uuid=new_end_node.relationship.uuid
     ).all()
 
-    if len(end_node_matching_name) > 1:
+    if len(end_node_rel_match_name) > 1:
         raise  # TODO
-    elif len(end_node_matching_name) == 1:
-        end_node_matching_name = end_node_matching_name[0]
+    elif len(end_node_rel_match_name) == 1:
+        end_node_rel_match_name = end_node_rel_match_name[0]
     else:
-        end_node_matching_name = None
-    if len(end_node_matching_uuid) > 1:
+        end_node_rel_match_name = None
+    if len(end_node_rel_match_uuid) > 1:
         raise  # TODO
-    elif len(end_node_matching_uuid) == 1:
-        end_node_matching_uuid = end_node_matching_uuid[0]
+    elif len(end_node_rel_match_uuid) == 1:
+        end_node_rel_match_uuid = end_node_rel_match_uuid[0]
     else:
-        end_node_matching_uuid = None
+        end_node_rel_match_uuid = None
 
-    if end_node_matching_name != end_node_matching_uuid or (
-        end_node_matching_name is not None
+    if end_node_rel_match_name != end_node_rel_match_uuid or (
+        end_node_rel_match_name is not None
         and (
-            rel_manager.relationship(end_node_matching_name).uuid
-            != rel_manager.relationship(end_node_matching_uuid).uuid
-            or rel_manager.relationship(end_node_matching_uuid).name
-            != rel_manager.relationship(end_node_matching_name).name
+            rel_manager.relationship(end_node_rel_match_name).uuid
+            != rel_manager.relationship(end_node_rel_match_uuid).uuid
+            or rel_manager.relationship(end_node_rel_match_uuid).name
+            != rel_manager.relationship(end_node_rel_match_name).name
         )
     ):
-        if end_node_matching_name is not None:
-            rel_manager.disconnect(end_node_matching_name)
-        if end_node_matching_uuid is not None:
-            rel_manager.disconnect(end_node_matching_uuid)
+        if end_node_rel_match_name is not None:
+            rel_manager.disconnect(end_node_rel_match_name)
+        if end_node_rel_match_uuid is not None:
+            rel_manager.disconnect(end_node_rel_match_uuid)
         return None
 
-    return end_node_matching_name
+    return end_node_rel_match_name
 
 
 def create_and_connect(
