@@ -3,30 +3,32 @@ from neomodel import db
 from typing import List, Mapping, Optional
 
 from .utils import CommonGetQuery, Pagination, paginate
-from .utils.validation import valid_service_type_id
-from ..schemas import ServiceType, ServiceTypeCreate, ServiceTypePatch, ServiceTypeQuery
+from .utils.validation import valid_service_type_id, is_unique_service_type
+from ..schemas import (
+    ServiceType,
+    ServiceTypeCreate,
+    ServiceTypePatch,
+    ServiceTypeQuery,
+)
 from ..crud.service_type import (
     create_service_type,
     edit_service_type,
-    read_service_type,
     read_service_types,
     remove_service_type,
 )
 
 router = APIRouter(prefix="/service_types", tags=["service_types"])
 
+
 @db.write_transaction
 @router.post(
     "/", status_code=status.HTTP_201_CREATED, response_model=ServiceType
 )
-def post_service_type(item: ServiceTypeCreate):
-    db_item = read_service_type(name=item.name)
-    if db_item is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="ServiceType already registered",
-        )
+def post_service_type(
+    item: ServiceTypeCreate = Depends(is_unique_service_type),
+):
     return create_service_type(item)
+
 
 @db.read_transaction
 @router.get("/", response_model=List[ServiceType])

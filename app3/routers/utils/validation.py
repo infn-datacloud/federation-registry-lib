@@ -46,11 +46,40 @@ valid_user_group_id = CheckItemExist(
 from ...schemas.nodes.provider import ProviderCreate
 from ...crud.provider import read_provider
 
+
 def is_unique_provider(item: ProviderCreate) -> ProviderCreate:
     db_item = read_provider(name=item.name)
     if db_item is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Provider with name '{item.name}' already registered",
+        )
+    return item
+
+
+from ...schemas.nodes.user_group import UserGroupCreate
+from ...crud.user_group import read_user_group
+
+
+def is_unique_user_group(item: UserGroupCreate) -> UserGroupCreate:
+    db_item = read_user_group(name=item.name)
+    if db_item is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"User Group with name '{item.name}' already registered",
+        )
+    return item
+
+
+from ...schemas.nodes.service_type import ServiceTypeCreate
+from ...crud.service_type import read_service_type
+
+
+def is_unique_service_type(item: ServiceTypeCreate) -> ServiceTypeCreate:
+    db_item = read_service_type(name=item.name)
+    if db_item is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Service Type with name '{item.name}' already registered",
         )
     return item

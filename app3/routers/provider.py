@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Mapping
 
@@ -8,7 +8,6 @@ from ..schemas import Provider, ProviderCreate, ProviderPatch, ProviderQuery
 from ..crud.provider import (
     create_provider,
     edit_provider,
-    read_provider,
     read_providers,
     remove_provider,
 )

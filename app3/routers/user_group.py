@@ -3,7 +3,7 @@ from neomodel import db
 from typing import List, Mapping, Optional, Union
 
 from .utils import CommonGetQuery, Pagination, paginate
-from .utils.validation import valid_user_group_id
+from .utils.validation import valid_user_group_id, is_unique_user_group
 from ..schemas import (
     UserGroup,
     UserGroupCreate,
@@ -14,7 +14,6 @@ from ..schemas import (
 from ..crud.user_group import (
     create_user_group,
     edit_user_group,
-    read_user_group,
     read_user_groups,
     remove_user_group,
 )
@@ -53,13 +52,7 @@ def get_user_groups(
 @router.post(
     "/", status_code=status.HTTP_201_CREATED, response_model=UserGroup
 )
-def post_user_group(item: UserGroupCreate):
-    db_item = read_user_group(name=item.name)
-    if db_item is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="UserGroup already registered",
-        )
+def post_user_group(item: UserGroupCreate = Depends(is_unique_user_group)):
     return create_user_group(item)
 
 
