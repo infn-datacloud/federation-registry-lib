@@ -2,24 +2,37 @@ import uvicorn
 from fastapi import FastAPI
 from neomodel import config
 
-from . import routers
+from .cluster.router import router as cluster_router
+from .flavor.router import router as flavor_router
+from .identity_provider.router import router as identity_provider_router
+from .image.router import router as image_router
+from .location.router import router as location_router
+from .project.router import router as project_router
+from .provider.router import router as provider_router
+from .quota.router import router as quota_router
+from .quota_type.router import router as quota_type_router
+from .service.router import router as service_router
+from .service_type.router import router as service_type_router
+from .sla.router import router as sla_router
+from .user_group.router import router as user_group_router
+
 
 config.DATABASE_URL = "bolt://neo4j:password@localhost:7687"
 
 app = FastAPI()
-app.include_router(routers.clusters_router)
-app.include_router(routers.flavors_router)
-app.include_router(routers.identity_providers_router)
-app.include_router(routers.images_router)
-app.include_router(routers.locations_router)
-app.include_router(routers.projects_router)
-app.include_router(routers.providers_router)
-app.include_router(routers.quotas_router)
-app.include_router(routers.quota_types_router)
-app.include_router(routers.services_router)
-app.include_router(routers.service_types_router)
-app.include_router(routers.slas_router)
-app.include_router(routers.user_groups_router)
+app.include_router(cluster_router)
+app.include_router(flavor_router)
+app.include_router(identity_provider_router)
+app.include_router(image_router)
+app.include_router(location_router)
+app.include_router(project_router)
+app.include_router(provider_router)
+app.include_router(quota_router)
+app.include_router(quota_type_router)
+app.include_router(service_router)
+app.include_router(service_type_router)
+app.include_router(sla_router)
+app.include_router(user_group_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0")
