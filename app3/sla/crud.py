@@ -4,6 +4,8 @@ from . import schemas, models
 from ..crud import truncate
 from ..project.models import Project
 from ..provider.models import Provider
+from ..quota.crud import create_quota
+from ..quota.schemas import QuotaCreateExtended
 from ..user_group.models import UserGroup
 
 
@@ -25,18 +27,26 @@ def connect_sla_to_quotas(
         sla.quotas.connect(quota)
 
 
+def create_and_connect_quotas(
+    item: models.SLA, quotas: List[QuotaCreateExtended]
+) -> None:
+    for quota in quotas:
+        db_quota = create_quota(quota)
+        item.quotas.connect(db_quota)
+
+
 def create_sla(
     item: schemas.SLACreate,
     project: Project,
     user_group: UserGroup,
-    quotas: List[schemas.QuotaCreate],
+    quotas: List[QuotaCreateExtended],
 ) -> models.SLA:
     db_item = models.SLA(
         **item.dict(exclude={"project", "quotas", "user_group"})
     ).save()
-    connect_sla_to_project(db_item, project)
-    connect_sla_to_user_group(db_item, user_group)
-    connect_sla_to_quotas(db_item, quotas)
+    db_item.project.connect(project)
+    db_item.user_group.connect(user_group)
+    create_and_connect_quotas(db_item, quotas)
     return db_item
 
 

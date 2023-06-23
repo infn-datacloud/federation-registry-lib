@@ -1,7 +1,7 @@
 from pydantic import Field, validator
 from typing import List, Optional
 
-from .enum import ServiceType as SrvType
+from .enum import ServiceType as ServiceTypeEnum
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from ..quota_type.schemas import QuotaType, QuotaTypeCreate
 from ..validators import get_all_nodes_from_rel
@@ -15,7 +15,7 @@ class ServiceTypeQuery(BaseNodeQuery):
         name (str | None): type unique name.
     """
 
-    name: Optional[SrvType] = None
+    name: Optional[ServiceTypeEnum] = None
 
 
 class ServiceTypePatch(BaseNodeCreate):
@@ -31,7 +31,7 @@ class ServiceTypePatch(BaseNodeCreate):
             this kind of service.
     """
 
-    name: Optional[SrvType] = None
+    name: Optional[ServiceTypeEnum] = None
     quota_types: List[QuotaTypeCreate] = Field(default_factory=list)
 
 
@@ -48,7 +48,7 @@ class ServiceTypeCreate(ServiceTypePatch):
             this kind of service.
     """
 
-    name: SrvType
+    name: ServiceTypeEnum
     quota_types: List[QuotaTypeCreate]
 
 

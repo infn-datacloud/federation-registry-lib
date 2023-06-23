@@ -1,4 +1,4 @@
-from pydantic import Field, validator
+from pydantic import UUID4, Field, validator
 from typing import Optional
 
 from ..quota_type.schemas import QuotaType, QuotaTypeCreate
@@ -67,7 +67,6 @@ class QuotaPatch(BaseNodeCreate):
     instance_guaranteed: float = Field(ge=0, default=0)
     user_guaranteed: float = Field(ge=0, default=0)
     type: Optional[QuotaTypeCreate] = None
-    service: Optional[ServiceCreate] = None
 
 
 class QuotaCreate(QuotaPatch):
@@ -96,7 +95,6 @@ class QuotaCreate(QuotaPatch):
     """
 
     type: QuotaTypeCreate
-    service: ServiceCreate
 
 
 class Quota(QuotaCreate, BaseNodeRead):
@@ -137,3 +135,10 @@ class Quota(QuotaCreate, BaseNodeRead):
     _get_single_service = validator("service", pre=True, allow_reuse=True)(
         get_single_node_from_rel
     )
+
+class QuotaCreatePost(QuotaCreate):
+    service_uid: UUID4
+
+
+class QuotaCreateExtended(QuotaCreate):
+    service: Service

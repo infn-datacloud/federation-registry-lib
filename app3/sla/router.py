@@ -2,19 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Mapping
 
-from pydantic import UUID4
-
 from .crud import create_sla, edit_sla, read_slas, remove_sla
-from .dependencies import valid_sla_id, validate_sla_entities
-from .schemas import SLACreate, SLAPatch, SLAQuery, SLA
+from .dependencies import valid_sla_id
+from .schemas import SLACreateExtended, SLAPatch, SLAQuery, SLA
 from ..pagination import Pagination, paginate
-from ..query import CommonGetQuery
-
-
 from ..project.dependencies import valid_project_id
-from ..project.models import Project
+from ..quota.dependencies import validate_quota
+from ..quota.schemas import QuotaCreateExtended
+from ..query import CommonGetQuery
+from ..service.dependencies import valid_service_id
 from ..user_group.dependencies import valid_user_group_id
-from ..user_group.models import UserGroup
 
 
 router = APIRouter(prefix="/slas", tags=["slas"])
@@ -35,19 +32,29 @@ def get_slas(
 
 @db.write_transaction
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=SLA)
-def post_sla(item: SLACreate = Depends(validate_sla_entities)):
+def post_sla(item: SLACreateExtended):
+    project = valid_project_id(item.project_uid)
+    user_group = valid_user_group_id(item.user_group_uid)
+    if project.sla.single():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Project {item.project_uid} already has an associated SLA",
+        )
+    provider = project.provider.single()
+    quotas = []
+    for quota in item.quotas:
+        service = valid_service_id(quota.service_uid)
+        quota = validate_quota(quota, service)
+        if service.provider.single().name != provider.name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Quota '{quota.type.name}' refers to a service belonging to a provider different from the project's one",
+            )
+        quotas.append(QuotaCreateExtended(**quota.dict(), service=service))
+    return create_sla(
+        item=item, project=project, user_group=user_group, quotas=quotas
+    )
 
-#    db_provider = db_proj.provider.single()
-#    quotas = []
-#    for quota in item.quotas:
-#        # TODO Check srv provider match proj one
-#        db_quota = create_quota(quota)
-#        quotas.append(db_quota)
-#    db_item = create_sla(
-#        item, project=db_proj, user_group=db_user_group, quotas=quotas
-#    )
-#   return db_item
-    pass
 
 @db.read_transaction
 @router.get("/{sla_uid}", response_model=SLA)

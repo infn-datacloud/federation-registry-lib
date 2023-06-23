@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Dict, Optional
-from pydantic import UUID4, BaseModel, root_validator
+from pydantic import UUID4, BaseModel, Extra, root_validator
 from neo4j.data import DateTime
 
 
@@ -16,6 +16,7 @@ class BaseNodeCreate(BaseModel):
 
     class Config:
         validate_assignment = True
+        extra = Extra.ignore
 
     @root_validator()
     def get_value_from_enums(cls, data: Dict) -> Dict:

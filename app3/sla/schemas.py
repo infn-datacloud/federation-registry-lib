@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from ..project.schemas import Project
-from ..quota.schemas import Quota, QuotaCreate
+from ..quota.schemas import Quota, QuotaCreate, QuotaCreatePost
 from ..user_group.schemas import UserGroup
 from ..validators import get_all_nodes_from_rel, get_single_node_from_rel
 
@@ -39,8 +39,6 @@ class SLAPatch(BaseNodeCreate):
 
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    #project: Optional[UUID4] = None
-    #user_group: Optional[UUID4] = None
     quotas: List[QuotaCreate] = Field(default_factory=list)
 
 
@@ -61,8 +59,6 @@ class SLACreate(SLAPatch):
 
     start_date: datetime
     end_date: datetime
-    project_uid: UUID4
-    user_group_uid: UUID4
     quotas: List[QuotaCreate]
 
 
@@ -98,3 +94,23 @@ class SLA(SLACreate, BaseNodeRead):
     _get_all_quotas = validator("quotas", pre=True, allow_reuse=True)(
         get_all_nodes_from_rel
     )
+
+
+class SLACreateExtended(SLACreate):
+    """Service Level Agreement (SLA) Create Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH, PUT or POST request.
+
+    Attributes:
+        description (str): Brief description.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
+        project (UUID4): UUID4 of the target Project.
+        user_group (UUID4): UUID4 of the target UserGroup.
+        quotas (list of QuotaCreate): List of quotas defined by the SLA.
+    """
+
+    project_uid: UUID4
+    user_group_uid: UUID4
+    quotas: List[QuotaCreatePost]
