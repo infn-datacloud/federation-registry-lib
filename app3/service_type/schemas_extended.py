@@ -4,18 +4,8 @@ from typing import List, Optional
 from .enum import ServiceType as ServiceTypeEnum
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from ..quota_type.schemas import QuotaType, QuotaTypeCreate
+from ..service_type.schemas import ServiceType
 from ..validators import get_all_nodes_from_rel
-
-
-class ServiceTypeQuery(BaseNodeQuery):
-    """Service Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        name (str | None): type unique name.
-    """
-
-    name: Optional[ServiceTypeEnum] = None
 
 
 class ServiceTypePatch(BaseNodeCreate):
@@ -52,7 +42,7 @@ class ServiceTypeCreate(ServiceTypePatch):
     quota_types: List[QuotaTypeCreate]
 
 
-class ServiceType(BaseNodeRead):
+class ServiceTypeExtended(ServiceType, BaseNodeRead):
     """Service class.
 
     Class retrieved from the database.
@@ -68,4 +58,8 @@ class ServiceType(BaseNodeRead):
             this kind of service.
     """
 
-    name: ServiceTypeEnum
+    quota_types: List[QuotaType]
+
+    _get_all_quota_types = validator(
+        "quota_types", pre=True, allow_reuse=True
+    )(get_all_nodes_from_rel)

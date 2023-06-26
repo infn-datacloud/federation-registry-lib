@@ -9,7 +9,8 @@ from .crud import (
     remove_provider,
 )
 from .dependencies import valid_provider_id, check_rel_consistency
-from .schemas import Provider, ProviderCreate, ProviderPatch, ProviderQuery
+from .schemas import ProviderPatch, ProviderQuery
+from .schemas_extended import ProviderCreate, ProviderExtended
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
 
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/providers", tags=["providers"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[Provider])
+@router.get("/", response_model=List[ProviderExtended])
 def get_providers(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -30,19 +31,19 @@ def get_providers(
 
 
 @db.write_transaction
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=Provider)
+@router.post("/", status_code=status.HTTP_201_CREATED, response_model=ProviderExtended)
 def post_provider(item: ProviderCreate = Depends(check_rel_consistency)):
     return create_provider(item)
 
 
 @db.read_transaction
-@router.get("/{provider_uid}", response_model=Provider)
+@router.get("/{provider_uid}", response_model=ProviderExtended)
 def get_provider(item: Mapping = Depends(valid_provider_id)):
     return item
 
 
 @db.write_transaction
-@router.patch("/{provider_uid}", response_model=Provider)
+@router.patch("/{provider_uid}", response_model=ProviderExtended)
 def patch_provider(
     update_data: ProviderPatch, item: Mapping = Depends(valid_provider_id)
 ):

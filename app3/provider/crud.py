@@ -1,9 +1,12 @@
 from typing import List, Optional
 
-from . import schemas, models
+from . import schemas, models, schemas_extended
 from ..cluster.crud import create_cluster, read_cluster
 from ..flavor.crud import create_flavor, read_flavor
-from ..identity_provider.crud import create_identity_provider, read_identity_provider
+from ..identity_provider.crud import (
+    create_identity_provider,
+    read_identity_provider,
+)
 from ..image.crud import create_image, read_image
 from ..location.crud import create_location, read_location
 from ..project.crud import create_project, read_project
@@ -17,17 +20,18 @@ from ..crud import (
 
 
 def connect_provider_to_clusters(
-    item: models.Provider, clusters: List[schemas.ClusterCreateExtended]
+    item: models.Provider,
+    clusters: List[schemas_extended.ClusterCreateExtended],
 ) -> None:
     for cluster in clusters:
         db_cluster = check_rel_name_uuid_consist_connection(
             item.clusters, cluster
         )
         if db_cluster is not None:
-            new_cluster = schemas.ClusterCreate(
+            new_cluster = schemas_extended.ClusterCreate(
                 **cluster.dict(exclude={"relationship"})
             )
-            old_cluster = schemas.ClusterCreate(**db_cluster.__dict__)
+            old_cluster = schemas_extended.ClusterCreate(**db_cluster.__dict__)
             if old_cluster != new_cluster:
                 create_and_replace(
                     rel_manager=item.clusters,
@@ -45,17 +49,17 @@ def connect_provider_to_clusters(
 
 
 def connect_provider_to_flavors(
-    item: models.Provider, flavors: List[schemas.FlavorCreateExtended]
+    item: models.Provider, flavors: List[schemas_extended.FlavorCreateExtended]
 ) -> None:
     for flavor in flavors:
         db_flavor = check_rel_name_uuid_consist_connection(
             item.flavors, flavor
         )
         if db_flavor is not None:
-            new_flavor = schemas.ClusterCreate(
+            new_flavor = schemas_extended.ClusterCreate(
                 **flavor.dict(exclude={"relationship"})
             )
-            old_flavor = schemas.ClusterCreate(**db_flavor.__dict__)
+            old_flavor = schemas_extended.ClusterCreate(**db_flavor.__dict__)
             if old_flavor != new_flavor:
                 create_and_replace(
                     rel_manager=item.flavors,
@@ -74,7 +78,7 @@ def connect_provider_to_flavors(
 
 def connect_provider_to_idps(
     item: models.Provider,
-    identity_providers: List[schemas.IdentityProviderCreateExtended],
+    identity_providers: List[schemas_extended.IdentityProviderCreateExtended],
 ) -> None:
     for identity_provider in identity_providers:
         db_idp = read_identity_provider(
@@ -95,15 +99,15 @@ def connect_provider_to_idps(
 
 
 def connect_provider_to_images(
-    item: models.Provider, images: List[schemas.ImageCreateExtended]
+    item: models.Provider, images: List[schemas_extended.ImageCreateExtended]
 ) -> None:
     for image in images:
         db_image = check_rel_name_uuid_consist_connection(item.images, image)
         if db_image is not None:
-            new_image = schemas.ClusterCreate(
+            new_image = schemas_extended.ClusterCreate(
                 **image.dict(exclude={"relationship"})
             )
-            old_image = schemas.ClusterCreate(**db_image.__dict__)
+            old_image = schemas_extended.ClusterCreate(**db_image.__dict__)
             if old_image != new_image:
                 create_and_replace(
                     rel_manager=item.images,
@@ -121,7 +125,7 @@ def connect_provider_to_images(
 
 
 def connect_provider_to_location(
-    item: models.Provider, location: schemas.LocationCreate
+    item: models.Provider, location: schemas_extended.LocationCreate
 ) -> None:
     db_loc = read_location(**location.dict(exclude_none=True))
     if db_loc is None:
@@ -131,17 +135,18 @@ def connect_provider_to_location(
 
 
 def connect_provider_to_projects(
-    item: models.Provider, projects: List[schemas.ProjectCreateExtended]
+    item: models.Provider,
+    projects: List[schemas_extended.ProjectCreateExtended],
 ) -> None:
     for project in projects:
         db_project = check_rel_name_uuid_consist_connection(
             item.projects, project
         )
         if db_project is not None:
-            new_project = schemas.ClusterCreate(
+            new_project = schemas_extended.ClusterCreate(
                 **project.dict(exclude={"relationship"})
             )
-            old_project = schemas.ClusterCreate(**db_project.__dict__)
+            old_project = schemas_extended.ClusterCreate(**db_project.__dict__)
             if old_project != new_project:
                 create_and_replace(
                     rel_manager=item.projects,
@@ -159,7 +164,7 @@ def connect_provider_to_projects(
 
 
 def connect_provider_to_services(
-    item: models.Provider, services: List[schemas.ServiceCreate]
+    item: models.Provider, services: List[schemas_extended.ServiceCreate]
 ) -> None:
     for service in services:
         db_srv = read_service(endpoint=service.endpoint)
@@ -169,7 +174,7 @@ def connect_provider_to_services(
             item.services.connect(db_srv)
 
 
-def create_provider(item: schemas.ProviderCreate) -> models.Provider:
+def create_provider(item: schemas_extended.ProviderCreate) -> models.Provider:
     db_item = models.Provider(
         **item.dict(
             exclude={
@@ -197,7 +202,8 @@ def create_provider(item: schemas.ProviderCreate) -> models.Provider:
 
 
 def get_or_create_and_connect_clusters(
-    item: models.Provider, new_clusters: List[schemas.ClusterCreateExtended]
+    item: models.Provider,
+    new_clusters: List[schemas_extended.ClusterCreateExtended],
 ) -> None:
     for cluster in new_clusters:
         db_cluster = create_cluster(cluster)
@@ -205,7 +211,8 @@ def get_or_create_and_connect_clusters(
 
 
 def get_or_create_and_connect_flavors(
-    item: models.Provider, new_flavors: List[schemas.FlavorCreateExtended]
+    item: models.Provider,
+    new_flavors: List[schemas_extended.FlavorCreateExtended],
 ) -> None:
     for flavor in new_flavors:
         db_flavor = create_flavor(flavor)
@@ -214,7 +221,9 @@ def get_or_create_and_connect_flavors(
 
 def get_or_create_and_connect_identity_providers(
     item: models.Provider,
-    new_identity_providers: List[schemas.IdentityProviderCreateExtended],
+    new_identity_providers: List[
+        schemas_extended.IdentityProviderCreateExtended
+    ],
 ) -> None:
     for identity_provider in new_identity_providers:
         db_identity_provider = create_identity_provider(identity_provider)
@@ -224,7 +233,8 @@ def get_or_create_and_connect_identity_providers(
 
 
 def get_or_create_and_connect_images(
-    item: models.Provider, new_images: List[schemas.ImageCreateExtended]
+    item: models.Provider,
+    new_images: List[schemas_extended.ImageCreateExtended],
 ) -> None:
     for image in new_images:
         db_image = create_image(image)
@@ -232,14 +242,15 @@ def get_or_create_and_connect_images(
 
 
 def get_or_create_and_connect_location(
-    item: models.Provider, location: schemas.LocationCreate
+    item: models.Provider, location: schemas_extended.LocationCreate
 ) -> None:
     db_location = create_location(location)
     item.location.connect(db_location)
 
 
 def get_or_create_and_connect_projects(
-    item: models.Provider, new_projects: List[schemas.ProjectCreateExtended]
+    item: models.Provider,
+    new_projects: List[schemas_extended.ProjectCreateExtended],
 ) -> None:
     for project in new_projects:
         db_project = create_project(project)
@@ -247,7 +258,7 @@ def get_or_create_and_connect_projects(
 
 
 def get_or_create_and_connect_services(
-    item: models.Provider, new_services: List[schemas.ServiceCreate]
+    item: models.Provider, new_services: List[schemas_extended.ServiceCreate]
 ) -> None:
     for service in new_services:
         db_srv = read_service(endpoint=service.endpoint)

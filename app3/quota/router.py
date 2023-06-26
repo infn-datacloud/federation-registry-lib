@@ -4,7 +4,8 @@ from typing import List, Mapping, Optional
 
 from .crud import edit_quota, read_quotas, remove_quota
 from .dependencies import valid_quota_id
-from .schemas import Quota, QuotaPatch, QuotaQuery
+from .schemas import QuotaPatch, QuotaQuery
+from .schemas_extended import QuotaExtended
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
 
@@ -12,7 +13,7 @@ router = APIRouter(prefix="/quotas", tags=["quotas"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[Quota])
+@router.get("/", response_model=List[QuotaExtended])
 def get_quotas(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -25,13 +26,13 @@ def get_quotas(
 
 
 @db.read_transaction
-@router.get("/{quota_uid}", response_model=Quota)
+@router.get("/{quota_uid}", response_model=QuotaExtended)
 def get_quota(item: Mapping = Depends(valid_quota_id)):
     return item
 
 
 @db.write_transaction
-@router.patch("/{quota_uid}", response_model=Optional[Quota])
+@router.patch("/{quota_uid}", response_model=Optional[QuotaExtended])
 def patch_quota(
     update_data: QuotaPatch,
     item: Mapping = Depends(valid_quota_id),

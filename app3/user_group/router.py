@@ -18,6 +18,7 @@ from .schemas import (
 )
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
+from ..service.schemas_extended import ServiceExtended
 
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
@@ -95,20 +96,7 @@ def delete_user_group(item: Mapping = Depends(valid_user_group_id)):
         )
 
 
-# @db.read_transaction
-# @router.get("/{user_group_uid}/services", response_model=List[ServiceExtended])
-# def read_user_group_services(user_group_uid: UUID4):
-#    db_item = crud.get_user_group(uid=str(user_group_uid).replace("-", ""))
-#    if db_item is None:
-#        raise HTTPException(
-#            status_code=status.HTTP_404_NOT_FOUND, detail="UserGroup not found"
-#        )
-#    services = []
-#    for service, prov_details, quotas in db_item.services():
-#        services.append(
-#            ServiceExtended(
-#                **service.__dict__, details=prov_details, quotas=quotas
-#            )
-#        )
-#    return services
-#
+@db.read_transaction
+@router.get("/{user_group_uid}/services", response_model=List[ServiceExtended])
+def read_user_group_services(item: Mapping = Depends(valid_user_group_id)):
+    return item.services()

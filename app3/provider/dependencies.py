@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
-from .schemas import ProviderCreate
+from .schemas_extended import ProviderCreate
 from .models import Provider
 from .crud import read_provider
 
