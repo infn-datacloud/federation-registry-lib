@@ -2,19 +2,19 @@ import uvicorn
 from fastapi import FastAPI
 from neomodel import config
 
-from .cluster.router import router as cluster_router
-from .flavor.router import router as flavor_router
-from .identity_provider.router import router as identity_provider_router
-from .image.router import router as image_router
-from .location.router import router as location_router
-from .project.router import router as project_router
-from .provider.router import router as provider_router
-from .quota.router import router as quota_router
-from .quota_type.router import router as quota_type_router
-from .service.router import router as service_router
-from .service_type.router import router as service_type_router
-from .sla.router import router as sla_router
-from .user_group.router import router as user_group_router
+from .cluster.api.router import router as cluster_router
+from .flavor.api.router import router as flavor_router
+from .identity_provider.api.router import router as identity_provider_router
+from .image.api.router import router as image_router
+from .location.api.router import router as location_router
+from .project.api.router import router as project_router
+from .provider.api.router import router as provider_router
+from .quota.api.router import router as quota_router
+from .quota_type.api.router import router as quota_type_router
+from .service.api.router import router as service_router
+from .service_type.api.router import router as service_type_router
+from .sla.api.router import router as sla_router
+from .user_group.api.router import router as user_group_router
 
 
 config.DATABASE_URL = "bolt://neo4j:password@localhost:7687"
