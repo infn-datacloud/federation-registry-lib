@@ -1,9 +1,5 @@
-from pydantic import Field
-from typing import Optional, List
+from typing import Optional
 
-from ..cluster.schemas import Cluster
-from ..flavor.schemas import Flavor
-from ..image.schemas import Image
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
@@ -59,22 +55,3 @@ class UserGroup(UserGroupCreate, BaseNodeRead):
         description (str): Brief description.
         name (str): UserGroup name.
     """
-
-
-class UserGroupExtended(UserGroup):
-    """UserGroup class
-
-    Class retrieved from the database
-    expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
-
-    Attributes:
-        uid (uuid): UserGroup unique ID.
-        name (str): UserGroup name.
-        description (str): Brief description.
-    """
-
-    clusters: List[Cluster] = Field(default_factory=list)
-    flavors: List[Flavor] = Field(default_factory=list)
-    images: List[Image] = Field(default_factory=list)

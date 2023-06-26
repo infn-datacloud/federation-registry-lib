@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from .crud import (
     create_user_group,
@@ -13,10 +13,12 @@ from .models import UserGroup as UserGroupModel
 from .schemas import (
     UserGroup,
     UserGroupCreate,
-    UserGroupExtended,
     UserGroupPatch,
     UserGroupQuery,
 )
+from ..cluster.schemas import Cluster
+from ..flavor.schemas import Flavor
+from ..image.schemas import Image
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
 from ..service.schemas_extended import ServiceExtended
@@ -28,27 +30,16 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[Union[UserGroupExtended, UserGroup]],
+    response_model=List[UserGroup],
 )
 def get_user_groups(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: UserGroupQuery = Depends(),
-    extended: bool = False,
 ):
     items = read_user_groups(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    if extended:
-        items = [
-            UserGroupExtended(
-                **item.__dict__,
-                clusters=item.clusters(),
-                flavors=item.flavors(),
-                images=item.images()
-            )
-            for item in items
-        ]
     return paginate(items=items, page=page.page, size=page.size)
 
 
@@ -61,20 +52,8 @@ def post_user_group(item: UserGroupCreate = Depends(is_unique_user_group)):
 
 
 @db.read_transaction
-@router.get(
-    "/{user_group_uid}",
-    response_model=Union[UserGroupExtended, UserGroup],
-)
-def get_user_group(
-    extended: bool = False, item: UserGroupModel = Depends(valid_user_group_id)
-):
-    if extended:
-        return UserGroupExtended(
-            **item.__dict__,
-            clusters=item.clusters(),
-            flavors=item.flavors(),
-            images=item.images()
-        )
+@router.get("/{user_group_uid}", response_model=UserGroup)
+def get_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
     return item
 
 
@@ -95,6 +74,30 @@ def delete_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
+
+
+@db.read_transaction
+@router.get("/{user_group_uid}/clusters", response_model=List[Cluster])
+def read_user_group_services(
+    item: UserGroupModel = Depends(valid_user_group_id),
+):
+    return item.clusters()
+
+
+@db.read_transaction
+@router.get("/{user_group_uid}/flavors", response_model=List[Flavor])
+def read_user_group_services(
+    item: UserGroupModel = Depends(valid_user_group_id),
+):
+    return item.flavors()
+
+
+@db.read_transaction
+@router.get("/{user_group_uid}/images", response_model=List[Image])
+def read_user_group_services(
+    item: UserGroupModel = Depends(valid_user_group_id),
+):
+    return item.images()
 
 
 @db.read_transaction
