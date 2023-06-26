@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
-from .schemas_extended import ProviderCreate
+from .schemas_extended import ProviderCreateExtended
 from .models import Provider
 from .crud import read_provider
 
@@ -16,7 +16,7 @@ def valid_provider_id(provider_uid: UUID4) -> Provider:
     return item
 
 
-def is_unique_provider(item: ProviderCreate) -> ProviderCreate:
+def is_unique_provider(item: ProviderCreateExtended) -> ProviderCreateExtended:
     db_item = read_provider(name=item.name)
     if db_item is not None:
         raise HTTPException(
@@ -27,8 +27,8 @@ def is_unique_provider(item: ProviderCreate) -> ProviderCreate:
 
 
 def check_rel_consistency(
-    item: ProviderCreate = Depends(is_unique_provider),
-) -> ProviderCreate:
+    item: ProviderCreateExtended = Depends(is_unique_provider),
+) -> ProviderCreateExtended:
     for l in [item.clusters, item.flavors, item.images, item.projects]:
         names = [i.relationship.name for i in l]
         if len(names) != len(set(names)):
@@ -45,7 +45,7 @@ def check_rel_consistency(
     return item
 
 
-def check_rel_uniqueness(item: ProviderCreate) -> ProviderCreate:
+def check_rel_uniqueness(item: ProviderCreateExtended) -> ProviderCreateExtended:
     for l in [item.clusters, item.flavors, item.images, item.projects]:
         for i in l:
             end_node_rel_match_name = l.match(name=i.relationship.name).all()

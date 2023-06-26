@@ -1,32 +1,22 @@
 from neomodel import ZeroOrMore
-from pydantic import EmailStr, Field, validator
+from pydantic import Field, validator
 from typing import List, Optional
 
-from .schemas import Provider
-from ..auth_method.schemas import AuthMethod, AuthMethodCreate
-from ..available_cluster.schemas import (
-    AvailableCluster,
-    AvailableClusterCreate,
+from .schemas import Provider, ProviderCreate, ProviderPatch
+from ..cluster.schemas import Cluster
+from ..cluster.schemas_extended import ClusterExtended, ClusterCreateExtended
+from ..flavor.schemas import Flavor
+from ..flavor.schemas_extended import FlavorExtended, FlavorCreateExtended
+from ..identity_provider.schemas import IdentityProvider
+from ..identity_provider.schemas_extended import (
+    IdentityProviderExtended,
+    IdentityProviderCreateExtended,
 )
-from ..available_vm_flavor.schemas import (
-    AvailableVMFlavor,
-    AvailableVMFlavorCreate,
-)
-from ..available_vm_image.schemas import (
-    AvailableVMImage,
-    AvailableVMImageCreate,
-)
-from ..book_project.schemas import BookProject, BookProjectCreate
-from ..cluster.schemas import Cluster, ClusterCreate
-from ..flavor.schemas import Flavor, FlavorCreate
-from ..identity_provider.schemas import (
-    IdentityProvider,
-    IdentityProviderCreate,
-)
-from ..image.schemas import Image, ImageCreate
+from ..image.schemas import Image
+from ..image.schemas_extended import ImageExtended, ImageCreateExtended
 from ..location.schemas import Location, LocationCreate
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from ..project.schemas import Project, ProjectCreate
+from ..project.schemas import Project
+from ..project.schemas_extended import ProjectExtended, ProjectCreateExtended
 from ..service.schemas import Service, ServiceCreate
 from ..validators import (
     get_all_nodes_from_rel,
@@ -35,48 +25,38 @@ from ..validators import (
 )
 
 
-class ClusterCreateExtended(ClusterCreate):
-    relationship: AvailableClusterCreate
+class ProviderPatchExtended(ProviderPatch):
+    """Provider Patch Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        description (str | None): Brief description.
+        name (str | None): Provider name (type).
+        is_public (bool | None): Public or private provider.
+        support_email (list of str | None): List of maintainers emails.
+        location (LocationCreate | None): provider physical location
+        clusters TODO
+        flavors TODO
+        identity_providers TODO
+        images TODO
+        projects TODO
+        services TODO
+    """
+
+    location: Optional[LocationCreate] = None
+    clusters: List[ClusterCreateExtended] = Field(default_factory=list)
+    flavors: List[FlavorCreateExtended] = Field(default_factory=list)
+    identity_providers: List[IdentityProviderCreateExtended] = Field(
+        default_factory=list
+    )
+    images: List[ImageCreateExtended] = Field(default_factory=list)
+    projects: List[ProjectCreateExtended] = Field(default_factory=list)
+    services: List[ServiceCreate] = Field(default_factory=list)
 
 
-class ClusterExtended(Cluster):
-    relationship: AvailableCluster
-
-
-class FlavorCreateExtended(FlavorCreate):
-    relationship: AvailableVMFlavorCreate
-
-
-class FlavorExtended(Flavor):
-    relationship: AvailableVMFlavor
-
-
-class IdentityProviderCreateExtended(IdentityProviderCreate):
-    relationship: AuthMethodCreate
-
-
-class IdentityProviderExtended(IdentityProvider):
-    relationship: AuthMethod
-
-
-class ImageCreateExtended(ImageCreate):
-    relationship: AvailableVMImageCreate
-
-
-class ImageExtended(Image):
-    relationship: AvailableVMImage
-
-
-class ProjectCreateExtended(ProjectCreate):
-    relationship: BookProjectCreate
-
-
-class ProjectExtended(Project):
-    relationship: BookProject
-
-
-
-class ProviderCreate(BaseNodeCreate):
+class ProviderCreateExtended(ProviderCreate):
     """Provider Create Model class.
 
     Class without id (which is populated by the database).
@@ -96,9 +76,6 @@ class ProviderCreate(BaseNodeCreate):
         services TODO
     """
 
-    name: str
-    is_public: bool = False
-    support_email: List[EmailStr] = Field(default_factory=list)
     location: Optional[LocationCreate] = None
     clusters: List[ClusterCreateExtended] = Field(default_factory=list)
     flavors: List[FlavorCreateExtended] = Field(default_factory=list)

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from . import schemas, models, schemas_extended
+from . import models, schemas_extended
 from ..cluster.crud import create_cluster, read_cluster
 from ..flavor.crud import create_flavor, read_flavor
 from ..identity_provider.crud import (
@@ -290,7 +290,7 @@ def remove_provider(item: models.Provider) -> bool:
 
 
 def edit_provider(
-    old_item: models.Provider, new_item: schemas.ProviderPatch
+    old_item: models.Provider, new_item: schemas_extended.ProviderPatch
 ) -> Optional[models.Provider]:
     for k, v in new_item.dict(
         exclude={

@@ -1,7 +1,7 @@
 from pydantic import EmailStr, Field
 from typing import List, Optional
 
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from ..models import BaseNodeQuery, BaseNodeCreate, BaseNodeRead
 
 
 class ProviderQuery(BaseNodeQuery):
@@ -26,7 +26,7 @@ class ProviderPatch(BaseNodeCreate):
     Expected as input when performing a PATCH request.
 
     Attributes:
-        description (str): Brief description.
+        description (str | None): Brief description.
         name (str | None): Provider name (type).
         is_public (bool | None): Public or private provider.
         support_email (list of str | None): List of maintainers emails.
@@ -42,19 +42,35 @@ class ProviderPatch(BaseNodeCreate):
     name: Optional[str] = None
     is_public: bool = False
     support_email: List[EmailStr] = Field(default_factory=list)
-    # location: Optional[LocationCreate] = None
-    # clusters: List[ClusterCreateExtended] = Field(default_factory=list)
-    # flavors: List[FlavorCreateExtended] = Field(default_factory=list)
-    # identity_providers: List[IdentityProviderCreateExtended] = Field(
-    #    default_factory=list
-    # )
-    # images: List[ImageCreateExtended] = Field(default_factory=list)
-    # projects: List[ProjectCreateExtended] = Field(default_factory=list)
-    # services: List[ServiceCreate] = Field(default_factory=list)
+
+
+class ProviderCreate(BaseNodeCreate):
+    """Provider Create Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PUT or POST request.
+
+    Attributes:
+        description (str): Brief description.
+        name (str | None): Provider name (type).
+        is_public (bool | None): Public or private provider.
+        support_email (list of str | None): List of maintainers emails.
+        location (LocationCreate | None): provider physical location
+        clusters TODO
+        flavors TODO
+        identity_providers TODO
+        images TODO
+        projects TODO
+        services TODO
+    """
+
+    name: str
+    is_public: bool = False
+    support_email: List[EmailStr] = Field(default_factory=list)
 
 
 class Provider(BaseNodeRead):
-    """Providerclass.
+    """Provider class.
 
     Class retrieved from the database.
     Expected as output when performing a REST request.

@@ -10,8 +10,8 @@ from .crud import (
 )
 from .dependencies import valid_provider_id, check_rel_consistency
 from .models import Provider as ProviderModel
-from .schemas import ProviderPatch, ProviderQuery
-from .schemas_extended import ProviderCreate, ProviderExtended
+from .schemas import ProviderQuery
+from .schemas_extended import ProviderCreateExtended, ProviderExtended, ProviderPatch
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
 
@@ -33,7 +33,7 @@ def get_providers(
 
 @db.write_transaction
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=ProviderExtended)
-def post_provider(item: ProviderCreate = Depends(check_rel_consistency)):
+def post_provider(item: ProviderCreateExtended = Depends(check_rel_consistency)):
     return create_provider(item)
 
 
