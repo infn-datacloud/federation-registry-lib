@@ -6,6 +6,7 @@ from .crud import edit_service, read_services, remove_service
 from .dependencies import valid_service_id
 from .models import Service as ServiceModel
 from .schemas import Service, ServicePatch, ServiceQuery
+from ..identity_provider.schemas import IdentityProvider
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
 
@@ -48,3 +49,13 @@ def delete_services(item: ServiceModel = Depends(valid_service_id)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
+
+
+@db.read_transaction
+@router.get(
+    "/{service_uid}/identity_providers", response_model=List[IdentityProvider]
+)
+def read_user_group_services(
+    item: ServiceModel = Depends(valid_service_id),
+):
+    return item.provider.single().identity_providers.all()

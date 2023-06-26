@@ -39,5 +39,9 @@ class Service(StructuredNode):
     provider = RelationshipTo(
         "..provider.models.Provider", "PROVIDES_SERVICE", cardinality=OneOrMore
     )
-    type = RelationshipTo("..service_type.models.ServiceType", "HAS_TYPE", cardinality=One)
-    quotas = RelationshipFrom("..quota.models.Quota", "APPLIES_TO", cardinality=ZeroOrMore)
+    type = RelationshipTo(
+        "..service_type.models.ServiceType", "HAS_TYPE", cardinality=One
+    )
+    quotas = RelationshipFrom(
+        "..quota.models.Quota", "APPLIES_TO", cardinality=ZeroOrMore
+    )
