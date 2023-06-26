@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping, Optional
+from typing import List, Optional
 
 from .crud import edit_quota, read_quotas, remove_quota
 from .dependencies import valid_quota_id
+from .models import Quota as QuotaModel
 from .schemas import QuotaPatch, QuotaQuery
 from .schemas_extended import QuotaExtended
 from ..pagination import Pagination, paginate
@@ -27,7 +28,7 @@ def get_quotas(
 
 @db.read_transaction
 @router.get("/{quota_uid}", response_model=QuotaExtended)
-def get_quota(item: Mapping = Depends(valid_quota_id)):
+def get_quota(item: QuotaModel = Depends(valid_quota_id)):
     return item
 
 
@@ -35,14 +36,14 @@ def get_quota(item: Mapping = Depends(valid_quota_id)):
 @router.patch("/{quota_uid}", response_model=Optional[QuotaExtended])
 def patch_quota(
     update_data: QuotaPatch,
-    item: Mapping = Depends(valid_quota_id),
+    item: QuotaModel = Depends(valid_quota_id),
 ):
     return edit_quota(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{quota_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_quotas(item: Mapping = Depends(valid_quota_id)):
+def delete_quotas(item: QuotaModel = Depends(valid_quota_id)):
     if not remove_quota(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping
+from typing import List
 
 from .crud import (
     create_provider,
@@ -9,6 +9,7 @@ from .crud import (
     remove_provider,
 )
 from .dependencies import valid_provider_id, check_rel_consistency
+from .models import Provider as ProviderModel
 from .schemas import ProviderPatch, ProviderQuery
 from .schemas_extended import ProviderCreate, ProviderExtended
 from ..pagination import Pagination, paginate
@@ -38,21 +39,21 @@ def post_provider(item: ProviderCreate = Depends(check_rel_consistency)):
 
 @db.read_transaction
 @router.get("/{provider_uid}", response_model=ProviderExtended)
-def get_provider(item: Mapping = Depends(valid_provider_id)):
+def get_provider(item: ProviderModel = Depends(valid_provider_id)):
     return item
 
 
 @db.write_transaction
 @router.patch("/{provider_uid}", response_model=ProviderExtended)
 def patch_provider(
-    update_data: ProviderPatch, item: Mapping = Depends(valid_provider_id)
+    update_data: ProviderPatch, item: ProviderModel = Depends(valid_provider_id)
 ):
     return edit_provider(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{provider_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_providers(item: Mapping = Depends(valid_provider_id)):
+def delete_providers(item: ProviderModel = Depends(valid_provider_id)):
     if not remove_provider(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

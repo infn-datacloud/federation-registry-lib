@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping, Optional
+from typing import List, Optional
 
 from .crud import edit_image, read_images, remove_image
 from .dependencies import valid_image_id
+from .models import Image as ImageModel
 from .schemas import Image, ImagePatch, ImageQuery
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
@@ -26,21 +27,21 @@ def get_images(
 
 @db.read_transaction
 @router.get("/{image_uid}", response_model=Image)
-def get_image(item: Mapping = Depends(valid_image_id)):
+def get_image(item: ImageModel = Depends(valid_image_id)):
     return item
 
 
 @db.write_transaction
 @router.patch("/{image_uid}", response_model=Optional[Image])
 def patch_image(
-    update_data: ImagePatch, item: Mapping = Depends(valid_image_id)
+    update_data: ImagePatch, item: ImageModel = Depends(valid_image_id)
 ):
     return edit_image(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{image_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_images(item: Mapping = Depends(valid_image_id)):
+def delete_images(item: ImageModel = Depends(valid_image_id)):
     if not remove_image(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

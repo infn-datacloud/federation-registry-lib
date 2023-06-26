@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping, Optional
+from typing import List, Optional
 
 from .crud import edit_project, read_projects, remove_project
 from .dependencies import valid_project_id
+from .models import Project as ProjectModel
 from .schemas import Project, ProjectCreate, ProjectQuery
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
@@ -26,21 +27,21 @@ def get_projects(
 
 @db.read_transaction
 @router.get("/{project_uid}", response_model=Project)
-def get_project(item: Mapping = Depends(valid_project_id)):
+def get_project(item: ProjectModel = Depends(valid_project_id)):
     return item
 
 
 @db.write_transaction
 @router.patch("/{project_uid}", response_model=Optional[Project])
 def patch_project(
-    update_data: ProjectCreate, item: Mapping = Depends(valid_project_id)
+    update_data: ProjectCreate, item: ProjectModel = Depends(valid_project_id)
 ):
     return edit_project(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{project_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_project(item: Mapping = Depends(valid_project_id)):
+def delete_project(item: ProjectModel = Depends(valid_project_id)):
     if not remove_project(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

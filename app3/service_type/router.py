@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping, Optional
+from typing import List, Optional
 
 from .crud import (
     create_service_type,
@@ -9,6 +9,7 @@ from .crud import (
     remove_service_type,
 )
 from .dependenecies import valid_service_type_id, is_unique_service_type
+from .models import ServiceType as ServiceTypeModel
 from .schemas import (
     ServiceType,
     ServiceTypeCreate,
@@ -46,7 +47,7 @@ def get_service_types(
 
 @db.read_transaction
 @router.get("/{service_type_uid}", response_model=ServiceType)
-def get_service_type(item: Mapping = Depends(valid_service_type_id)):
+def get_service_type(item: ServiceTypeModel = Depends(valid_service_type_id)):
     return item
 
 
@@ -54,14 +55,16 @@ def get_service_type(item: Mapping = Depends(valid_service_type_id)):
 @router.patch("/{service_type_uid}", response_model=Optional[ServiceType])
 def patch_service_type(
     update_data: ServiceTypePatch,
-    item: Mapping = Depends(valid_service_type_id),
+    item: ServiceTypeModel = Depends(valid_service_type_id),
 ):
     return edit_service_type(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{service_type_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_service_types(item: Mapping = Depends(valid_service_type_id)):
+def delete_service_types(
+    item: ServiceTypeModel = Depends(valid_service_type_id),
+):
     if not remove_service_type(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

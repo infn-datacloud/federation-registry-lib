@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping, Optional
+from typing import List, Optional
 
 from .crud import (
     edit_identity_provider,
@@ -8,6 +8,7 @@ from .crud import (
     remove_identity_provider,
 )
 from .dependencies import valid_identity_provider_id
+from .models import IdentityProvider as IdentityProviderModel
 from .schemas import (
     IdentityProvider,
     IdentityProviderPatch,
@@ -35,24 +36,28 @@ def get_identity_providers(
 @db.read_transaction
 @router.get("/{identity_provider_uid}", response_model=IdentityProvider)
 def get_identity_provider(
-    item: Mapping = Depends(valid_identity_provider_id),
+    item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
     return item
 
 
 @db.write_transaction
-@router.patch("/{identity_provider_uid}", response_model=Optional[IdentityProvider])
+@router.patch(
+    "/{identity_provider_uid}", response_model=Optional[IdentityProvider]
+)
 def patch_identity_provider(
     update_data: IdentityProviderPatch,
-    item: Mapping = Depends(valid_identity_provider_id),
+    item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
     return edit_identity_provider(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
-@router.delete("/{identity_provider_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{identity_provider_uid}", status_code=status.HTTP_204_NO_CONTENT
+)
 def delete_identity_providers(
-    item: Mapping = Depends(valid_identity_provider_id),
+    item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
     if not remove_identity_provider(item):
         raise HTTPException(

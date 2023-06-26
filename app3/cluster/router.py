@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping, Optional
+from typing import List, Optional
 
 from .crud import edit_cluster, read_clusters, remove_cluster
 from .dependencies import valid_cluster_id
+from .models import Cluster as ClusterModel
 from .schemas import Cluster, ClusterPatch, ClusterQuery
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
@@ -26,7 +27,7 @@ def get_clusters(
 
 @db.read_transaction
 @router.get("/{cluster_uid}", response_model=Cluster)
-def get_cluster(item: Mapping = Depends(valid_cluster_id)):
+def get_cluster(item: ClusterModel = Depends(valid_cluster_id)):
     return item
 
 
@@ -34,14 +35,14 @@ def get_cluster(item: Mapping = Depends(valid_cluster_id)):
 @router.patch("/{cluster_uid}", response_model=Optional[Cluster])
 def patch_cluster(
     update_data: ClusterPatch,
-    item: Mapping = Depends(valid_cluster_id),
+    item: ClusterModel = Depends(valid_cluster_id),
 ):
     return edit_cluster(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{cluster_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_clusters(item: Mapping = Depends(valid_cluster_id)):
+def delete_clusters(item: ClusterModel = Depends(valid_cluster_id)):
     if not remove_cluster(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

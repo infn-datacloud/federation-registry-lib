@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping, Optional
+from typing import List, Optional
 
 from .crud import edit_flavor, read_flavors, remove_flavor
 from .dependencies import valid_flavor_id
+from .models import Flavor as FlavorModel
 from .schemas import Flavor, FlavorPatch, FlavorQuery
 from ..pagination import Pagination, paginate
 from ..query import CommonGetQuery
@@ -26,21 +27,21 @@ def get_flavors(
 
 @db.read_transaction
 @router.get("/{flavor_uid}", response_model=Flavor)
-def get_flavor(item: Mapping = Depends(valid_flavor_id)):
+def get_flavor(item: FlavorModel = Depends(valid_flavor_id)):
     return item
 
 
 @db.write_transaction
 @router.patch("/{flavor_uid}", response_model=Optional[Flavor])
 def patch_flavor(
-    update_data: FlavorPatch, item: Mapping = Depends(valid_flavor_id)
+    update_data: FlavorPatch, item: FlavorModel = Depends(valid_flavor_id)
 ):
     return edit_flavor(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{flavor_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_flavors(item: Mapping = Depends(valid_flavor_id)):
+def delete_flavors(item: FlavorModel = Depends(valid_flavor_id)):
     if not remove_flavor(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

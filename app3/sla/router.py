@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Mapping
+from typing import List
 
 from .crud import create_sla, edit_sla, read_slas, remove_sla
 from .dependencies import valid_sla_id
+from .models import SLA as SLAModel
 from .schemas import SLACreateExtended, SLAPatch, SLAQuery, SLA
 from ..pagination import Pagination, paginate
 from ..project.dependencies import valid_project_id
@@ -58,14 +59,14 @@ def post_sla(item: SLACreateExtended):
 
 @db.read_transaction
 @router.get("/{sla_uid}", response_model=SLA)
-def get_sla(item: Mapping = Depends(valid_sla_id)):
+def get_sla(item: SLAModel = Depends(valid_sla_id)):
     return item
 
 
 # TODO
 @db.write_transaction
 @router.patch("/{sla_uid}", response_model=SLA)
-def patch_sla(update_data: SLAPatch, item: Mapping = Depends(valid_sla_id)):
+def patch_sla(update_data: SLAPatch, item: SLAModel = Depends(valid_sla_id)):
     # for service in item.services:
     #    db_srv = get_service(name=service.name)
     #    if db_srv is None:
@@ -78,7 +79,7 @@ def patch_sla(update_data: SLAPatch, item: Mapping = Depends(valid_sla_id)):
 
 @db.write_transaction
 @router.delete("/{sla_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_slas(item: Mapping = Depends(valid_sla_id)):
+def delete_slas(item: SLAModel = Depends(valid_sla_id)):
     if not remove_sla(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
