@@ -2,12 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import (
-    edit_identity_provider,
-    read_identity_providers,
-    remove_identity_provider,
-)
 from ..dependencies import valid_identity_provider_id
+from ...crud import identity_provider
 from ...models import IdentityProvider as IdentityProviderModel
 from ...schemas import (
     IdentityProvider,
@@ -27,7 +23,7 @@ def get_identity_providers(
     page: Pagination = Depends(),
     item: IdentityProviderQuery = Depends(),
 ):
-    items = read_identity_providers(
+    items = identity_provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -49,7 +45,7 @@ def patch_identity_provider(
     update_data: IdentityProviderPatch,
     item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
-    return edit_identity_provider(old_item=item, new_item=update_data)
+    return identity_provider.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
@@ -59,7 +55,7 @@ def patch_identity_provider(
 def delete_identity_providers(
     item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
-    if not remove_identity_provider(item):
+    if not identity_provider.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

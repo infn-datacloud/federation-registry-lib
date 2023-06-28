@@ -1,35 +1,10 @@
-from typing import List, Optional
-
-from . import schemas, models
-from ..crud import truncate, update
-
-
-def create_cluster(item: schemas.ClusterCreate) -> models.Cluster:
-    return models.Cluster.get_or_create(item.dict())[0]
+from .models import Cluster as ClusterModel
+from .schemas import ClusterCreate, ClusterPatch
+from ..crud import CRUDBase
 
 
-def read_clusters(
-    skip: int = 0,
-    limit: Optional[int] = None,
-    sort: Optional[str] = None,
-    **kwargs
-) -> List[models.Cluster]:
-    if kwargs:
-        items = models.Cluster.nodes.filter(**kwargs).order_by(sort).all()
-    else:
-        items = models.Cluster.nodes.order_by(sort).all()
-    return truncate(items=items, skip=skip, limit=limit)
+class CRUDCluster(CRUDBase[ClusterModel, ClusterCreate, ClusterPatch]):
+    """"""
 
 
-def read_cluster(**kwargs) -> Optional[models.Cluster]:
-    return models.Cluster.nodes.get_or_none(**kwargs)
-
-
-def remove_cluster(item: models.Cluster) -> bool:
-    return item.delete()
-
-
-def edit_cluster(
-    old_item: models.Cluster, new_item: schemas.ClusterPatch
-) -> Optional[models.Cluster]:
-    return update(old_item=old_item, new_item=new_item)
+cluster = CRUDCluster(ClusterModel, ClusterCreate)

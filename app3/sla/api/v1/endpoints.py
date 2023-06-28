@@ -1,21 +1,80 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from neomodel import db
-from typing import List
+from typing import List, Tuple
 
-from ...crud import create_sla, edit_sla, read_slas, remove_sla
+from ...crud import sla
 from ..dependencies import valid_sla_id
 from ...models import SLA as SLAModel
-from ...schemas import SLACreateExtended, SLAPatch, SLAQuery, SLA
+from ...schemas import SLAPatch, SLAQuery, SLA
+from ...schemas_extended import SLACreateExtended
 from ....pagination import Pagination, paginate
+from ....project.models import Project as ProjectModel
 from ....project.api.dependencies import valid_project_id
-from ....quota.api.dependencies import validate_quota
-from ....quota.schemas import QuotaCreateExtended
 from ....query import CommonGetQuery
-from ....service.api.dependencies import valid_service_id
+from ....user_group.models import UserGroup as UserGroupModel
 from ....user_group.api.dependencies import valid_user_group_id
 
+from ....provider.models import Provider as ProviderModel
+from ....quota_type.crud import quota_type
+from ....quota_type.models import QuotaType as QuotaTypeModel
+from ....quota_type.schemas import QuotaTypeCreate
+from ....service.crud import service
+from ....service.models import Service as ServiceModel
+from ....service.schemas import ServiceCreate
+from ....service_type.models import ServiceType as ServiceTypeModel
 
 router = APIRouter(prefix="/slas", tags=["slas"])
+
+
+def valid_service_endpoint(srv: ServiceCreate) -> ServiceModel:
+    item = service.get(endpoint=srv.endpoint)
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Service {srv.endpoint} not found",
+        )
+    return item
+
+
+def valid_quota_type_name(qt: QuotaTypeCreate) -> QuotaTypeModel:
+    item = quota_type.get(name=qt.name)
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Quota Type {qt.name} not found",
+        )
+    return item
+
+
+def is_allowed_quota_type(
+    quota_type: QuotaTypeModel, service_type: ServiceTypeModel
+) -> None:
+    allowed_quota_types = [t.name for t in service_type.quota_types.all()]
+    if quota_type.name not in allowed_quota_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Quota '{quota_type.name}' can't be applied on services of type '{service_type}'",
+        )
+
+
+def providers_match(
+    quota_type: QuotaTypeModel, service: ServiceModel, provider: ProviderModel
+) -> None:
+    if service.provider.single().name != provider.name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Quota '{quota_type.name}' refers to a service belonging to a provider different from the project's one",
+        )
+
+
+def validate_quota(
+    quota_type: QuotaTypeCreate,
+    service: ServiceCreate,
+) -> Tuple[QuotaTypeModel, ServiceModel]:
+    qt = valid_quota_type_name(quota_type)
+    srv = valid_service_endpoint(service)
+    is_allowed_quota_type(qt, srv.type.single())
+    return qt, srv
 
 
 @db.read_transaction
@@ -25,7 +84,7 @@ def get_slas(
     page: Pagination = Depends(),
     item: SLAQuery = Depends(),
 ):
-    items = read_slas(
+    items = sla.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -33,27 +92,19 @@ def get_slas(
 
 @db.write_transaction
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=SLA)
-def post_sla(item: SLACreateExtended):
-    project = valid_project_id(item.project_uid)
-    user_group = valid_user_group_id(item.user_group_uid)
-    if project.sla.single():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Project {item.project_uid} already has an associated SLA",
-        )
+def post_sla(
+    project: ProjectModel = Depends(valid_project_id),
+    user_group: UserGroupModel = Depends(valid_user_group_id),
+    item: SLACreateExtended = Body(),
+):
     provider = project.provider.single()
-    quotas = []
+    l = []
     for quota in item.quotas:
-        service = valid_service_id(quota.service_uid)
-        quota = validate_quota(quota, service)
-        if service.provider.single().name != provider.name:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Quota '{quota.type.name}' refers to a service belonging to a provider different from the project's one",
-            )
-        quotas.append(QuotaCreateExtended(**quota.dict(), service=service))
-    return create_sla(
-        item=item, project=project, user_group=user_group, quotas=quotas
+        (quota_type, service) = validate_quota(quota.type, quota.service)
+        providers_match(quota_type, service, provider)
+        l.append((quota, quota_type, service))
+    return sla.create_with_all(
+        sla=item, project=project, user_group=user_group, quotas=l
     )
 
 
@@ -74,13 +125,13 @@ def patch_sla(update_data: SLAPatch, item: SLAModel = Depends(valid_sla_id)):
     #            status_code=status.HTTP_404_NOT_FOUND,
     #            detail=f"Service {service.name} not found",
     #        )
-    return edit_sla(old_item=item, new_item=update_data)
+    return sla.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{sla_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_slas(item: SLAModel = Depends(valid_sla_id)):
-    if not remove_sla(item):
+    if not sla.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

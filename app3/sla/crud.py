@@ -1,90 +1,48 @@
-from typing import List, Optional, Tuple
+from typing import List, Tuple
 
-from . import schemas, models
-from ..crud import truncate
-from ..project.models import Project
-from ..provider.models import Provider
-from ..quota.crud import create_quota
-from ..quota.schemas import QuotaCreateExtended
-from ..user_group.models import UserGroup
-
-
-def connect_sla_to_user_group(item: Provider, user_group: UserGroup) -> None:
-    if not item.user_group.is_connected(user_group):
-        item.user_group.connect(user_group)
+from .models import SLA as SLAModel
+from .schemas import SLACreate
+from .schemas_extended import SLACreateExtended
+from ..crud import CRUDBase
+from ..project.models import Project as ProjectModel
+from ..quota.schemas_extended import QuotaCreateExtended
+from ..quota.crud import quota
+from ..quota_type.models import QuotaType as QuotaTypeModel
+from ..service.models import Service as ServiceModel
+from ..user_group.models import UserGroup as UserGroupModel
 
 
-def connect_sla_to_project(item: Provider, project: Project) -> None:
-    if not item.project.is_connected(project):
-        item.project.connect(project)
+class CRUDSLA(CRUDBase[SLAModel, SLACreate, SLACreate]):
+    """"""
+
+    def create_and_connect_quotas(
+        self,
+        *,
+        db_obj: SLAModel,
+        new_items: List[
+            Tuple[QuotaCreateExtended, QuotaTypeModel, ServiceModel]
+        ]
+    ) -> None:
+        for q, qt, srv in new_items:
+            db_quota = quota.create(obj_in=q)
+            db_quota.type.connect(qt)
+            db_quota.service.connect(srv)
+            if not db_obj.quotas.is_connected(db_quota):
+                db_obj.quotas.connect(db_quota)
+
+    def create_with_all(
+        self,
+        *,
+        sla: SLACreateExtended,
+        project: ProjectModel,
+        user_group: UserGroupModel,
+        quotas: List[Tuple[QuotaCreateExtended, QuotaTypeModel, ServiceModel]]
+    ) -> SLAModel:
+        db_obj = self.create(obj_in=sla)
+        db_obj.project.connect(project)
+        db_obj.user_group.connect(user_group)
+        self.create_and_connect_quotas(db_obj=db_obj, new_items=quotas)
+        return db_obj
 
 
-def connect_sla_to_quotas(
-    sla: models.SLA,
-    quotas: List[schemas.QuotaCreate],
-) -> None:
-    for quota in quotas:
-        sla.quotas.connect(quota)
-
-
-def create_and_connect_quotas(
-    item: models.SLA, quotas: List[QuotaCreateExtended]
-) -> None:
-    for quota in quotas:
-        db_quota = create_quota(quota)
-        item.quotas.connect(db_quota)
-
-
-def create_sla(
-    item: schemas.SLACreate,
-    project: Project,
-    user_group: UserGroup,
-    quotas: List[QuotaCreateExtended],
-) -> models.SLA:
-    db_item = models.SLA(
-        **item.dict(exclude={"project", "quotas", "user_group"})
-    ).save()
-    db_item.project.connect(project)
-    db_item.user_group.connect(user_group)
-    create_and_connect_quotas(db_item, quotas)
-    return db_item
-
-
-def read_slas(
-    skip: int = 0,
-    limit: Optional[int] = None,
-    sort: Optional[str] = None,
-    **kwargs,
-) -> List[models.SLA]:
-    if kwargs:
-        items = models.SLA.nodes.filter(**kwargs).order_by(sort).all()
-    else:
-        items = models.SLA.nodes.order_by(sort).all()
-    return truncate(items=items, skip=skip, limit=limit)
-
-
-def read_sla(**kwargs) -> Optional[models.SLA]:
-    return models.SLA.nodes.get_or_none(**kwargs)
-
-
-def remove_sla(item: models.SLA) -> bool:
-    return item.delete()
-
-
-# TODO
-def edit_sla(
-    old_item: models.SLA, new_item: schemas.SLAPatch
-) -> Optional[models.SLA]:
-    for k, v in new_item.dict(
-        exclude={"project", "services", "user_group"},
-        exclude_unset=True,
-    ).items():
-        old_item.__setattr__(k, v)
-    if new_item.project is not None:
-        connect_sla_to_project(old_item, new_item.project)
-    if new_item.user_group is not None:
-        connect_sla_to_user_group(old_item, new_item.user_group)
-    if len(new_item.services) > 0:
-        connect_sla_to_services(old_item, new_item.services)
-    old_item.save()
-    return old_item
+sla = CRUDSLA(SLAModel, SLACreate)

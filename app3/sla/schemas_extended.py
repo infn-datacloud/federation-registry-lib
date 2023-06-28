@@ -1,23 +1,15 @@
-from datetime import datetime
-from typing import Optional
+from pydantic import Field, validator
+from typing import List
 
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-
-
-class SLAQuery(BaseNodeQuery):
-    """Service Level Agreement (SLA) Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        start_date (datetime | None): SLA validity start date.
-        end_date (datetime | None): SLA validity end date.
-    """
-
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+from .schemas import SLACreate, SLA, SLAPatch
+from ..project.schemas import Project
+from ..quota.schemas import QuotaCreate
+from ..quota.schemas_extended import QuotaCreateExtended, QuotaExtended
+from ..user_group.schemas import UserGroup
+from ..validators import get_all_nodes_from_rel, get_single_node_from_rel
 
 
-class SLAPatch(BaseNodeCreate):
+class SLAPatchExtended(SLAPatch):
     """Service Level Agreement (SLA) Patch Model class.
 
     Class without id (which is populated by the database).
@@ -32,11 +24,10 @@ class SLAPatch(BaseNodeCreate):
         quotas (list of QuotaCreate): List of quotas defined by the SLA.
     """
 
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
+    quotas: List[QuotaCreate] = Field(default_factory=list)
 
 
-class SLACreate(SLAPatch):
+class SLACreateExtended(SLACreate):
     """Service Level Agreement (SLA) Create Model class.
 
     Class without id (which is populated by the database).
@@ -51,11 +42,10 @@ class SLACreate(SLAPatch):
         quotas (list of QuotaCreate): List of quotas defined by the SLA.
     """
 
-    start_date: datetime
-    end_date: datetime
+    quotas: List[QuotaCreateExtended]
 
 
-class SLA(SLACreate, BaseNodeRead):
+class SLAExtended(SLA):
     """Service Level Agreement (SLA) class.
 
     Class retrieved from the database.
@@ -72,3 +62,18 @@ class SLA(SLACreate, BaseNodeRead):
         user_group (UserGroup): UUID4 of the target UserGroup.
         quotas (list of Quota): List of quotas defined by the SLA.
     """
+
+    project: Project
+    user_group: UserGroup
+    quotas: List[QuotaExtended]
+
+    _get_single_project = validator("project", pre=True, allow_reuse=True)(
+        get_single_node_from_rel
+    )
+    _get_single_user_group = validator(
+        "user_group", pre=True, allow_reuse=True
+    )(get_single_node_from_rel)
+
+    _get_all_quotas = validator("quotas", pre=True, allow_reuse=True)(
+        get_all_nodes_from_rel
+    )

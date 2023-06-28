@@ -1,50 +1,34 @@
-from typing import List, Optional
+from typing import List
 
-from . import schemas, models
-from ..crud import truncate, update
-from ..quota_type.crud import create_quota_type, read_quota_type
+from .models import ServiceType as ServiceTypeModel
+from .schemas import ServiceTypeCreate
+from .schemas_extended import ServiceTypeCreateExtended
+from ..crud import CRUDBase
+from ..quota_type.crud import quota_type
 from ..quota_type.schemas import QuotaTypeCreate
 
 
-def connect_service_type_to_quota_types(
-    item: models.ServiceType, types: List[QuotaTypeCreate]
-) -> None:
-    for type in types:
-        db_qt = read_quota_type(name=type.name)
-        if db_qt is None:
-            db_qt = create_quota_type(type)
-        if not item.quota_types.is_connected(db_qt):
-            item.quota_types.connect(db_qt)
+class CRUDServiceType(
+    CRUDBase[ServiceTypeModel, ServiceTypeCreate, ServiceTypeCreate]
+):
+    """"""
+
+    def create_and_connect_service_type_to_quota_types(
+        self, *, db_obj: ServiceTypeModel, qtypes: List[QuotaTypeCreate]
+    ) -> None:
+        for qtype in qtypes:
+            db_qt = quota_type.create(obj_in=qtype)
+            if not db_obj.quota_types.is_connected(db_qt):
+                db_obj.quota_types.connect(db_qt)
+
+    def create_with_quotas(
+        self, *, obj_in: ServiceTypeCreateExtended
+    ) -> ServiceTypeModel:
+        db_obj = self.create(obj_in=obj_in)
+        self.create_and_connect_service_type_to_quota_types(
+            db_obj=db_obj, qtypes=obj_in.quota_types
+        )
+        return db_obj
 
 
-def create_service_type(item: schemas.ServiceTypeCreate) -> models.ServiceType:
-    db_item = models.ServiceType(**item.dict(exclude={"quota_types"})).save()
-    connect_service_type_to_quota_types(db_item, item.quota_types)
-    return db_item
-
-
-def read_service_types(
-    skip: int = 0,
-    limit: Optional[int] = None,
-    sort: Optional[str] = None,
-    **kwargs
-) -> List[models.ServiceType]:
-    if kwargs:
-        items = models.ServiceType.nodes.filter(**kwargs).order_by(sort).all()
-    else:
-        items = models.ServiceType.nodes.order_by(sort).all()
-    return truncate(items=items, skip=skip, limit=limit)
-
-
-def read_service_type(**kwargs) -> Optional[models.ServiceType]:
-    return models.ServiceType.nodes.get_or_none(**kwargs)
-
-
-def remove_service_type(item: models.ServiceType) -> bool:
-    return item.delete()
-
-
-def edit_service_type(
-    old_item: models.ServiceType, new_item: schemas.ServiceTypePatch
-) -> Optional[models.ServiceType]:
-    return update(old_item=old_item, new_item=new_item)
+service_type = CRUDServiceType(ServiceTypeModel, ServiceTypeCreate)

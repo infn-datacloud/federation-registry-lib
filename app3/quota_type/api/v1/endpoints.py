@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import edit_quota_type, read_quota_types, remove_quota_type
 from ..dependencies import valid_quota_type_id
+from ...crud import quota_type
 from ...models import QuotaType as QuotaTypeModel
 from ...schemas import QuotaType, QuotaTypePatch, QuotaTypeQuery
 from ....pagination import Pagination, paginate
@@ -19,7 +19,7 @@ def get_quota_types(
     page: Pagination = Depends(),
     item: QuotaTypeQuery = Depends(),
 ):
-    items = read_quota_types(
+    items = quota_type.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -37,13 +37,13 @@ def patch_quota_type(
     update_data: QuotaTypePatch,
     item: QuotaTypeModel = Depends(valid_quota_type_id),
 ):
-    return edit_quota_type(old_item=item, new_item=update_data)
+    return quota_type.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{quota_type_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_quota_types(item: QuotaTypeModel = Depends(valid_quota_type_id)):
-    if not remove_quota_type(item):
+    if not quota_type.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

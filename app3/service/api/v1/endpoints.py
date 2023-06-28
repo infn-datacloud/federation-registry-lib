@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import edit_service, read_services, remove_service
 from ..dependencies import valid_service_id
+from ...crud import service
 from ...models import Service as ServiceModel
-from ...schemas import Service, ServicePatch, ServiceQuery
+from ...schemas import Service, ServiceCreate, ServiceQuery
 from ....identity_provider.schemas import IdentityProvider
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
@@ -20,7 +20,7 @@ def get_services(
     page: Pagination = Depends(),
     item: ServiceQuery = Depends(),
 ):
-    items = read_services(
+    items = service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -35,16 +35,16 @@ def get_service(item: ServiceModel = Depends(valid_service_id)):
 @db.write_transaction
 @router.patch("/{service_uid}", response_model=Optional[Service])
 def patch_service(
-    update_data: ServicePatch,
+    update_data: ServiceCreate,
     item: ServiceModel = Depends(valid_service_id),
 ):
-    return edit_service(old_item=item, new_item=update_data)
+    return service.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{service_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_services(item: ServiceModel = Depends(valid_service_id)):
-    if not remove_service(item):
+    if not service.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

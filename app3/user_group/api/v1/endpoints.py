@@ -2,13 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import (
-    create_user_group,
-    edit_user_group,
-    read_user_groups,
-    remove_user_group,
-)
 from ..dependencies import valid_user_group_id, is_unique_user_group
+from ...crud import user_group
 from ...models import UserGroup as UserGroupModel
 from ...schemas import (
     UserGroup,
@@ -37,7 +32,7 @@ def get_user_groups(
     page: Pagination = Depends(),
     item: UserGroupQuery = Depends(),
 ):
-    items = read_user_groups(
+    items = user_group.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -48,7 +43,7 @@ def get_user_groups(
     "/", status_code=status.HTTP_201_CREATED, response_model=UserGroup
 )
 def post_user_group(item: UserGroupCreate = Depends(is_unique_user_group)):
-    return create_user_group(item)
+    return user_group.create(obj_in=item)
 
 
 @db.read_transaction
@@ -63,13 +58,13 @@ def patch_user_group(
     update_data: UserGroupPatch,
     item: UserGroupModel = Depends(valid_user_group_id),
 ):
-    return edit_user_group(old_item=item, new_item=update_data)
+    return user_group.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{user_group_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
-    if not remove_user_group(item):
+    if not user_group.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

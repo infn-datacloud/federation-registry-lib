@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import edit_location, read_locations, remove_location
 from ..dependencies import valid_location_id
+from ...crud import location
 from ...models import Location as LocationModel
 from ...schemas import Location, LocationPatch, LocationQuery
 from ....pagination import Pagination, paginate
@@ -19,7 +19,7 @@ def get_locations(
     page: Pagination = Depends(),
     item: LocationQuery = Depends(),
 ):
-    items = read_locations(
+    items = location.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -36,13 +36,13 @@ def get_location(item: LocationModel = Depends(valid_location_id)):
 def patch_location(
     update_data: LocationPatch, item: LocationModel = Depends(valid_location_id)
 ):
-    return edit_location(old_item=item, new_item=update_data)
+    return location.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{location_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_location(item: LocationModel = Depends(valid_location_id)):
-    if not remove_location(item):
+    if not location.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

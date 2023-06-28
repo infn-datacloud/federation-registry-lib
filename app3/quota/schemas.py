@@ -66,7 +66,6 @@ class QuotaPatch(BaseNodeCreate):
     tot_guaranteed: float = Field(ge=0, default=0)
     instance_guaranteed: float = Field(ge=0, default=0)
     user_guaranteed: float = Field(ge=0, default=0)
-    type: Optional[QuotaTypeCreate] = None
 
 
 class QuotaCreate(QuotaPatch):
@@ -93,8 +92,6 @@ class QuotaCreate(QuotaPatch):
         type (QuotaType): Quota type.
         service (Service): Service where this quota applies.
     """
-
-    type: QuotaTypeCreate
 
 
 class Quota(BaseNodeRead):
@@ -132,11 +129,3 @@ class Quota(BaseNodeRead):
     tot_guaranteed: float = Field(ge=0, default=0)
     instance_guaranteed: float = Field(ge=0, default=0)
     user_guaranteed: float = Field(ge=0, default=0)
-
-
-class QuotaCreatePost(QuotaCreate):
-    service_uid: UUID4
-
-
-class QuotaCreateExtended(QuotaCreate):
-    service: Service

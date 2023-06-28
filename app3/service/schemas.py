@@ -1,9 +1,7 @@
-from pydantic import AnyUrl, validator
+from pydantic import AnyUrl
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from ..service_type.schemas import ServiceType, ServiceTypePatch
-from ..validators import get_single_node_from_rel
 
 
 class ServiceQuery(BaseNodeQuery):
@@ -17,22 +15,7 @@ class ServiceQuery(BaseNodeQuery):
     endpoint: Optional[AnyUrl] = None
 
 
-class ServicePatch(BaseNodeCreate):
-    """Service Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH, PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        endpoint (str | None): URL pointing to this service
-        type (ServiceTypePatch | None): Service type.
-    """
-
-    type: Optional[ServiceTypePatch] = None
-
-
-class ServiceCreate(ServicePatch):
+class ServiceCreate(BaseNodeCreate):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
@@ -45,7 +28,6 @@ class ServiceCreate(ServicePatch):
     """
 
     endpoint: AnyUrl
-    type: ServiceTypePatch
 
 
 class Service(ServiceCreate, BaseNodeRead):
@@ -62,9 +44,3 @@ class Service(ServiceCreate, BaseNodeRead):
         endpoint (str): URL pointing to this service
         type (ServiceType): Service type.
     """
-
-    type: ServiceType
-
-    _get_single_service_type = validator("type", pre=True, allow_reuse=True)(
-        get_single_node_from_rel
-    )

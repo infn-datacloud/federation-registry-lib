@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import edit_project, read_projects, remove_project
 from ..dependencies import valid_project_id
+from ...crud import project
 from ...models import Project as ProjectModel
 from ...schemas import Project, ProjectCreate, ProjectQuery
 from ....pagination import Pagination, paginate
@@ -19,7 +19,7 @@ def get_projects(
     page: Pagination = Depends(),
     item: ProjectQuery = Depends(),
 ):
-    items = read_projects(
+    items = project.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -36,13 +36,13 @@ def get_project(item: ProjectModel = Depends(valid_project_id)):
 def patch_project(
     update_data: ProjectCreate, item: ProjectModel = Depends(valid_project_id)
 ):
-    return edit_project(old_item=item, new_item=update_data)
+    return project.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{project_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_project(item: ProjectModel = Depends(valid_project_id)):
-    if not remove_project(item):
+    if not project.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

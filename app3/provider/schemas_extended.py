@@ -17,7 +17,8 @@ from ..image.schemas_extended import ImageExtended, ImageCreateExtended
 from ..location.schemas import Location, LocationCreate
 from ..project.schemas import Project
 from ..project.schemas_extended import ProjectExtended, ProjectCreateExtended
-from ..service.schemas import Service, ServiceCreate
+from ..service.schemas import ServiceCreate
+from ..service.schemas_extended import ServiceExtended, ServiceCreateExtended
 from ..validators import (
     get_all_nodes_from_rel,
     get_all_nodes_with_rel_data,
@@ -84,7 +85,7 @@ class ProviderCreateExtended(ProviderCreate):
     )
     images: List[ImageCreateExtended] = Field(default_factory=list)
     projects: List[ProjectCreateExtended] = Field(default_factory=list)
-    services: List[ServiceCreate] = Field(default_factory=list)
+    services: List[ServiceCreateExtended] = Field(default_factory=list)
 
 
 class ProviderExtended(Provider):
@@ -118,7 +119,7 @@ class ProviderExtended(Provider):
     )
     images: List[ImageExtended] = Field(default_factory=list)
     projects: List[ProjectExtended] = Field(default_factory=list)
-    services: List[Service] = Field(default_factory=list)
+    services: List[ServiceExtended] = Field(default_factory=list)
 
     _get_single_location = validator("location", pre=True, allow_reuse=True)(
         get_single_node_from_rel

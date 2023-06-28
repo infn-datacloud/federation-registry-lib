@@ -2,20 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import (
-    create_service_type,
-    edit_service_type,
-    read_service_types,
-    remove_service_type,
-)
-from ..dependenecies import valid_service_type_id, is_unique_service_type
+from ..dependencies import valid_service_type_id, is_unique_service_type
+from ...crud import service_type
 from ...models import ServiceType as ServiceTypeModel
-from ...schemas import (
-    ServiceType,
-    ServiceTypeCreate,
-    ServiceTypePatch,
-    ServiceTypeQuery,
-)
+from ...schemas import ServiceTypeCreate, ServiceTypeQuery
+from ...schemas_extended import ServiceTypeCreateExtended, ServiceTypeExtended
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -24,40 +15,44 @@ router = APIRouter(prefix="/service_types", tags=["service_types"])
 
 @db.write_transaction
 @router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=ServiceType
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ServiceTypeExtended,
 )
 def post_service_type(
-    item: ServiceTypeCreate = Depends(is_unique_service_type),
+    item: ServiceTypeCreateExtended = Depends(is_unique_service_type),
 ):
-    return create_service_type(item)
+    return service_type.create_with_quotas(obj_in=item)
 
 
 @db.read_transaction
-@router.get("/", response_model=List[ServiceType])
+@router.get("/", response_model=List[ServiceTypeExtended])
 def get_service_types(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: ServiceTypeQuery = Depends(),
 ):
-    items = read_service_types(
+    items = service_type.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
 
 
 @db.read_transaction
-@router.get("/{service_type_uid}", response_model=ServiceType)
+@router.get("/{service_type_uid}", response_model=ServiceTypeExtended)
 def get_service_type(item: ServiceTypeModel = Depends(valid_service_type_id)):
     return item
 
 
 @db.write_transaction
-@router.patch("/{service_type_uid}", response_model=Optional[ServiceType])
+@router.patch(
+    "/{service_type_uid}", response_model=Optional[ServiceTypeExtended]
+)
 def patch_service_type(
-    update_data: ServiceTypePatch,
+    update_data: ServiceTypeCreate,
     item: ServiceTypeModel = Depends(valid_service_type_id),
 ):
-    return edit_service_type(old_item=item, new_item=update_data)
+    return service_type.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
@@ -65,7 +60,7 @@ def patch_service_type(
 def delete_service_types(
     item: ServiceTypeModel = Depends(valid_service_type_id),
 ):
-    if not remove_service_type(item):
+    if not service_type.update(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

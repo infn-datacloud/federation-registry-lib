@@ -18,24 +18,7 @@ class ServiceTypeQuery(BaseNodeQuery):
     name: Optional[ServiceTypeEnum] = None
 
 
-class ServiceTypePatch(BaseNodeCreate):
-    """Service Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        description (str): Brief description.
-        name (str | None): type unique name.
-        quota_types (list of QuotaTypeCreate): supported quota types for
-            this kind of service.
-    """
-
-    name: Optional[ServiceTypeEnum] = None
-    quota_types: List[QuotaTypeCreate] = Field(default_factory=list)
-
-
-class ServiceTypeCreate(ServiceTypePatch):
+class ServiceTypeCreate(BaseNodeCreate):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
@@ -49,7 +32,6 @@ class ServiceTypeCreate(ServiceTypePatch):
     """
 
     name: ServiceTypeEnum
-    quota_types: List[QuotaTypeCreate]
 
 
 class ServiceType(BaseNodeRead):

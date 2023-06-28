@@ -2,16 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List
 
-from ...crud import (
-    create_provider,
-    edit_provider,
-    read_providers,
-    remove_provider,
-)
-from ..dependencies import valid_provider_id, check_rel_consistency
+from ..dependencies import valid_provider_id, check_valid_services
+from ...crud import provider
 from ...models import Provider as ProviderModel
 from ...schemas import ProviderQuery
-from ...schemas_extended import ProviderCreateExtended, ProviderExtended, ProviderPatch
+from ...schemas_extended import (
+    ProviderCreateExtended,
+    ProviderExtended,
+    ProviderPatch,
+)
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -25,16 +24,20 @@ def get_providers(
     page: Pagination = Depends(),
     item: ProviderQuery = Depends(),
 ):
-    items = read_providers(
+    items = provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
 
 
 @db.write_transaction
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=ProviderExtended)
-def post_provider(item: ProviderCreateExtended = Depends(check_rel_consistency)):
-    return create_provider(item)
+@router.post(
+    "/", status_code=status.HTTP_201_CREATED, response_model=ProviderExtended
+)
+def post_provider(
+    item: ProviderCreateExtended = Depends(check_valid_services),
+):
+    return provider.create_with_all(obj_in=item)
 
 
 @db.read_transaction
@@ -46,15 +49,16 @@ def get_provider(item: ProviderModel = Depends(valid_provider_id)):
 @db.write_transaction
 @router.patch("/{provider_uid}", response_model=ProviderExtended)
 def patch_provider(
-    update_data: ProviderPatch, item: ProviderModel = Depends(valid_provider_id)
+    update_data: ProviderPatch,
+    item: ProviderModel = Depends(valid_provider_id),
 ):
-    return edit_provider(old_item=item, new_item=update_data)
+    return provider.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{provider_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_providers(item: ProviderModel = Depends(valid_provider_id)):
-    if not remove_provider(item):
+    if not provider.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

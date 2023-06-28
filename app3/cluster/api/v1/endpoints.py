@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import edit_cluster, read_clusters, remove_cluster
 from ..dependencies import valid_cluster_id
+from ...crud import cluster
 from ...models import Cluster as ClusterModel
 from ...schemas import Cluster, ClusterPatch, ClusterQuery
 from ....pagination import Pagination, paginate
@@ -19,7 +19,7 @@ def get_clusters(
     page: Pagination = Depends(),
     item: ClusterQuery = Depends(),
 ):
-    items = read_clusters(
+    items = cluster.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -37,13 +37,13 @@ def patch_cluster(
     update_data: ClusterPatch,
     item: ClusterModel = Depends(valid_cluster_id),
 ):
-    return edit_cluster(old_item=item, new_item=update_data)
+    return cluster.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{cluster_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_clusters(item: ClusterModel = Depends(valid_cluster_id)):
-    if not remove_cluster(item):
+    if not cluster.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

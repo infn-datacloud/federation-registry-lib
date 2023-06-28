@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ...crud import edit_flavor, read_flavors, remove_flavor
 from ..dependencies import valid_flavor_id
+from ...crud import flavor
 from ...models import Flavor as FlavorModel
 from ...schemas import Flavor, FlavorPatch, FlavorQuery
 from ....pagination import Pagination, paginate
@@ -19,7 +19,7 @@ def get_flavors(
     page: Pagination = Depends(),
     item: FlavorQuery = Depends(),
 ):
-    items = read_flavors(
+    items = flavor.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
@@ -36,13 +36,13 @@ def get_flavor(item: FlavorModel = Depends(valid_flavor_id)):
 def patch_flavor(
     update_data: FlavorPatch, item: FlavorModel = Depends(valid_flavor_id)
 ):
-    return edit_flavor(old_item=item, new_item=update_data)
+    return flavor.update(old_item=item, new_item=update_data)
 
 
 @db.write_transaction
 @router.delete("/{flavor_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_flavors(item: FlavorModel = Depends(valid_flavor_id)):
-    if not remove_flavor(item):
+    if not flavor.remove(item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
