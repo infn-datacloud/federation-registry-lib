@@ -9,7 +9,7 @@ from ...schemas import SLA, SLAQuery, SLAUpdate
 from ...schemas_extended import SLAExtended, SLACreateExtended
 from ....pagination import Pagination, paginate
 from ....project.models import Project as ProjectModel
-from ....project.api.dependencies import valid_project_id
+from ....project.api.dependencies import project_has_no_sla
 from ....query import CommonGetQuery
 from ....user_group.models import UserGroup as UserGroupModel
 from ....user_group.api.dependencies import valid_user_group_id
@@ -95,7 +95,7 @@ def get_slas(
     "/", status_code=status.HTTP_201_CREATED, response_model=SLAExtended
 )
 def post_sla(
-    project: ProjectModel = Depends(valid_project_id),
+    project: ProjectModel = Depends(project_has_no_sla),
     user_group: UserGroupModel = Depends(valid_user_group_id),
     item: SLACreateExtended = Body(),
 ):

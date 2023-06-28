@@ -1,11 +1,12 @@
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
 from ..crud import project
-from ..models import Project
+from ..models import Project as ProjectModel
+from ..schemas import Project
 
 
-def valid_project_id(project_uid: UUID4) -> Project:
+def valid_project_id(project_uid: UUID4) -> ProjectModel:
     item = project.get(uid=str(project_uid).replace("-", ""))
     if not item:
         raise HTTPException(
@@ -15,7 +16,9 @@ def valid_project_id(project_uid: UUID4) -> Project:
     return item
 
 
-def project_has_no_sla(project: Project) -> Project:
+def project_has_no_sla(
+    project: Project = Depends(valid_project_id),
+) -> ProjectModel:
     if project.sla.single():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
