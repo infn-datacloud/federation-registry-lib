@@ -24,7 +24,7 @@ class CRUDSLA(CRUDBase[SLAModel, SLACreate, SLAUpdate]):
         ]
     ) -> None:
         for q, qt, srv in new_items:
-            db_quota = quota.create(obj_in=q)
+            db_quota = quota.create(obj_in=q, force=True)
             db_quota.type.connect(qt)
             db_quota.service.connect(srv)
             db_obj.quotas.connect(db_quota)
@@ -37,7 +37,7 @@ class CRUDSLA(CRUDBase[SLAModel, SLACreate, SLAUpdate]):
         user_group: UserGroupModel,
         quotas: List[Tuple[QuotaCreateExtended, QuotaTypeModel, ServiceModel]]
     ) -> SLAModel:
-        db_obj = self.create(obj_in=sla)
+        db_obj = self.create(obj_in=sla, force=True)
         db_obj.project.connect(project)
         db_obj.user_group.connect(user_group)
         self.create_and_connect_quotas(db_obj=db_obj, new_items=quotas)
