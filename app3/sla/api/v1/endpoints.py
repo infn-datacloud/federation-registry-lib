@@ -6,7 +6,7 @@ from ...crud import sla
 from ..dependencies import valid_sla_id
 from ...models import SLA as SLAModel
 from ...schemas import SLA, SLAQuery, SLAUpdate
-from ...schemas_extended import SLACreateExtended
+from ...schemas_extended import SLAExtended, SLACreateExtended
 from ....pagination import Pagination, paginate
 from ....project.models import Project as ProjectModel
 from ....project.api.dependencies import valid_project_id
@@ -78,7 +78,7 @@ def validate_quota(
 
 
 @db.read_transaction
-@router.get("/", response_model=List[SLA])
+@router.get("/", response_model=List[SLAExtended])
 def get_slas(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -91,7 +91,9 @@ def get_slas(
 
 
 @db.write_transaction
-@router.post("/", status_code=status.HTTP_201_CREATED, response_model=SLA)
+@router.post(
+    "/", status_code=status.HTTP_201_CREATED, response_model=SLAExtended
+)
 def post_sla(
     project: ProjectModel = Depends(valid_project_id),
     user_group: UserGroupModel = Depends(valid_user_group_id),
@@ -109,14 +111,14 @@ def post_sla(
 
 
 @db.read_transaction
-@router.get("/{sla_uid}", response_model=SLA)
+@router.get("/{sla_uid}", response_model=SLAExtended)
 def get_sla(item: SLAModel = Depends(valid_sla_id)):
     return item
 
 
 # TODO
 @db.write_transaction
-@router.put("/{sla_uid}", response_model=SLA)
+@router.put("/{sla_uid}", response_model=SLAExtended)
 def put_sla(update_data: SLAUpdate, item: SLAModel = Depends(valid_sla_id)):
     # for service in item.services:
     #    db_srv = get_service(name=service.name)
