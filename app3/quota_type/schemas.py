@@ -101,17 +101,17 @@ class QuotaType(BaseNodeRead, QuotaTypeCreate):
         if quota_name is None:
             return values
 
-        if quota_name in [i for i in QuotaTypeBandwidth]:
+        if quota_name in [i.value for i in QuotaTypeBandwidth]:
             new_val = QuotaUnit.bandwidth.value
-        elif quota_name in [i for i in QuotaTypeCount]:
+        elif quota_name in [i.value for i in QuotaTypeCount]:
             new_val = None
-        elif quota_name in [i for i in QuotaTypeFrequency]:
+        elif quota_name in [i.value for i in QuotaTypeFrequency]:
             new_val = QuotaUnit.freq.value
-        elif quota_name in [i for i in QuotaTypeMoney]:
+        elif quota_name in [i.value for i in QuotaTypeMoney]:
             new_val = QuotaUnit.money.value
-        elif quota_name in [i for i in QuotaTypeSize]:
+        elif quota_name in [i.value for i in QuotaTypeSize]:
             new_val = QuotaUnit.size.value
-        elif quota_name in [i for i in QuotaTypeTime]:
+        elif quota_name in [i.value for i in QuotaTypeTime]:
             new_val = QuotaUnit.time.value
         else:
             raise TypeError(f"Unknown Quota type: {quota_name}")
