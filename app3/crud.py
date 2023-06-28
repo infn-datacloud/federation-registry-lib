@@ -62,7 +62,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         db_obj: ModelType,
         obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> ModelType:
-        obj_data = jsonable_encoder(db_obj)
+        obj_data = db_obj.__dict__
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
@@ -70,7 +70,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         for field in obj_data:
             if field in update_data:
                 setattr(db_obj, field, update_data[field])
-        return db_obj
+        return db_obj.save()
 
     def remove(self, *, db_obj: ModelType) -> bool:
         return db_obj.delete()

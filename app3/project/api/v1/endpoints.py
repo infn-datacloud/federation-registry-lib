@@ -36,7 +36,7 @@ def get_project(item: ProjectModel = Depends(valid_project_id)):
 def put_project(
     update_data: ProjectUpdate, item: ProjectModel = Depends(valid_project_id)
 ):
-    return project.update(old_item=item, new_item=update_data)
+    return project.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

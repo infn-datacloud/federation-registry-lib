@@ -37,7 +37,7 @@ def put_cluster(
     update_data: ClusterUpdate,
     item: ClusterModel = Depends(valid_cluster_id),
 ):
-    return cluster.update(old_item=item, new_item=update_data)
+    return cluster.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

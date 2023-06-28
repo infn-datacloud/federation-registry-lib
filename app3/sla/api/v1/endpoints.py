@@ -146,7 +146,7 @@ def put_sla(update_data: SLAUpdate, item: SLAModel = Depends(valid_sla_id)):
     #            status_code=status.HTTP_404_NOT_FOUND,
     #            detail=f"Service {service.name} not found",
     #        )
-    return sla.update(old_item=item, new_item=update_data)
+    return sla.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

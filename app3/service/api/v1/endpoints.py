@@ -38,7 +38,7 @@ def put_service(
     update_data: ServiceUpdate,
     item: ServiceModel = Depends(valid_service_id),
 ):
-    return service.update(old_item=item, new_item=update_data)
+    return service.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

@@ -52,7 +52,7 @@ def put_service_type(
     update_data: ServiceTypeUpdate,
     item: ServiceTypeModel = Depends(valid_service_type_id),
 ):
-    return service_type.update(old_item=item, new_item=update_data)
+    return service_type.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

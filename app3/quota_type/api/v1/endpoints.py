@@ -37,7 +37,7 @@ def put_quota_type(
     update_data: QuotaTypeUpdate,
     item: QuotaTypeModel = Depends(valid_quota_type_id),
 ):
-    return quota_type.update(old_item=item, new_item=update_data)
+    return quota_type.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

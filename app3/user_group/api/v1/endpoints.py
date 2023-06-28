@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
@@ -55,10 +55,12 @@ def get_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
 @db.write_transaction
 @router.put("/{user_group_uid}", response_model=Optional[UserGroup])
 def put_user_group(
-    update_data: UserGroupUpdate,
     item: UserGroupModel = Depends(valid_user_group_id),
+    update_data: UserGroupUpdate = Body(),
 ):
-    return user_group.update(old_item=item, new_item=update_data)
+    if item.name != update_data.name:
+        is_unique_user_group(update_data)
+    return user_group.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

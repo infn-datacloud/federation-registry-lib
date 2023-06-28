@@ -45,7 +45,7 @@ def put_identity_provider(
     update_data: IdentityProviderUpdate,
     item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
-    return identity_provider.update(old_item=item, new_item=update_data)
+    return identity_provider.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

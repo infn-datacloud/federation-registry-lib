@@ -36,7 +36,7 @@ def get_image(item: ImageModel = Depends(valid_image_id)):
 def put_image(
     update_data: ImageUpdate, item: ImageModel = Depends(valid_image_id)
 ):
-    return image.update(old_item=item, new_item=update_data)
+    return image.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

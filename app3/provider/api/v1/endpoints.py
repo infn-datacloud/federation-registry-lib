@@ -52,7 +52,7 @@ def put_provider(
     update_data: ProviderUpdate,
     item: ProviderModel = Depends(valid_provider_id),
 ):
-    return provider.update(old_item=item, new_item=update_data)
+    return provider.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

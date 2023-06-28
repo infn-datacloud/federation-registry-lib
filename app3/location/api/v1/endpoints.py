@@ -37,7 +37,7 @@ def put_location(
     update_data: LocationUpdate,
     item: LocationModel = Depends(valid_location_id),
 ):
-    return location.update(old_item=item, new_item=update_data)
+    return location.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction

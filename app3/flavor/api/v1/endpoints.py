@@ -36,7 +36,7 @@ def get_flavor(item: FlavorModel = Depends(valid_flavor_id)):
 def put_flavor(
     update_data: FlavorUpdate, item: FlavorModel = Depends(valid_flavor_id)
 ):
-    return flavor.update(old_item=item, new_item=update_data)
+    return flavor.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction
