@@ -14,17 +14,17 @@ class BaseNodeCreate(BaseModel):
 
     description: str = ""
 
-    class Config:
-        validate_assignment = True
-        extra = Extra.ignore
-
-    @root_validator()
+    @root_validator
     def get_value_from_enums(cls, data: Dict) -> Dict:
         """Get value from all the enumeration field values."""
         enumeration_fields = {
             k: v.value for k, v in data.items() if isinstance(v, Enum)
         }
         return {**data, **enumeration_fields}
+
+    class Config:
+        validate_assignment = True
+        extra = Extra.ignore
 
 
 class BaseNodeRead(BaseModel):
@@ -39,7 +39,7 @@ class BaseNodeRead(BaseModel):
     uid: UUID4
     description: str = ""
 
-    @root_validator()
+    @root_validator
     def cast_neo4j_datetime(cls, data: Dict) -> Dict:
         """Get value from all the enumeration field values."""
         datetime_fields = {
@@ -50,6 +50,8 @@ class BaseNodeRead(BaseModel):
         return {**data, **datetime_fields}
 
     class Config:
+        validate_assignment = True
+        extra = Extra.ignore
         orm_mode = True
 
 
@@ -67,6 +69,7 @@ class BaseNodeQuery(BaseModel):
 
     class Config:
         validate_assignment = True
+        extra = Extra.ignore
 
 
 class BaseProviderRelCreate(BaseModel):
@@ -85,6 +88,7 @@ class BaseProviderRelCreate(BaseModel):
 
     class Config:
         validate_assignment = True
+        extra = Extra.ignore
 
 
 class BaseProviderRelRead(BaseModel):
@@ -102,6 +106,8 @@ class BaseProviderRelRead(BaseModel):
     uuid: UUID4
 
     class Config:
+        validate_assignment = True
+        extra = Extra.ignore
         orm_mode = True
 
 
@@ -123,3 +129,4 @@ class BaseProviderRelQuery(BaseModel):
 
     class Config:
         validate_assignment = True
+        extra = Extra.ignore

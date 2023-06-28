@@ -5,7 +5,7 @@ from typing import List, Tuple
 from ...crud import sla
 from ..dependencies import valid_sla_id
 from ...models import SLA as SLAModel
-from ...schemas import SLAPatch, SLAQuery, SLA
+from ...schemas import SLA, SLAQuery, SLAUpdate
 from ...schemas_extended import SLACreateExtended
 from ....pagination import Pagination, paginate
 from ....project.models import Project as ProjectModel
@@ -116,8 +116,8 @@ def get_sla(item: SLAModel = Depends(valid_sla_id)):
 
 # TODO
 @db.write_transaction
-@router.patch("/{sla_uid}", response_model=SLA)
-def patch_sla(update_data: SLAPatch, item: SLAModel = Depends(valid_sla_id)):
+@router.put("/{sla_uid}", response_model=SLA)
+def put_sla(update_data: SLAUpdate, item: SLAModel = Depends(valid_sla_id)):
     # for service in item.services:
     #    db_srv = get_service(name=service.name)
     #    if db_srv is None:

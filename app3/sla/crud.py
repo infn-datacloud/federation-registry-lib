@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from .models import SLA as SLAModel
-from .schemas import SLACreate
+from .schemas import SLACreate, SLAUpdate
 from .schemas_extended import SLACreateExtended
 from ..crud import CRUDBase
 from ..project.models import Project as ProjectModel
@@ -12,7 +12,7 @@ from ..service.models import Service as ServiceModel
 from ..user_group.models import UserGroup as UserGroupModel
 
 
-class CRUDSLA(CRUDBase[SLAModel, SLACreate, SLACreate]):
+class CRUDSLA(CRUDBase[SLAModel, SLACreate, SLAUpdate]):
     """"""
 
     def create_and_connect_quotas(

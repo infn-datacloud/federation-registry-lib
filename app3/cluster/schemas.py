@@ -9,18 +9,7 @@ class ClusterQuery(BaseNodeQuery):
     """
 
 
-class ClusterPatch(BaseNodeCreate):
-    """Cluster Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        description (str): Brief description.
-    """
-
-
-class ClusterCreate(ClusterPatch):
+class ClusterCreate(BaseNodeCreate):
     """Cluster Create Model class.
 
     Class without id (which is populated by the database).
@@ -31,7 +20,18 @@ class ClusterCreate(ClusterPatch):
     """
 
 
-class Cluster(ClusterCreate, BaseNodeRead):
+class ClusterUpdate(ClusterCreate):
+    """Cluster Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        description (str): Brief description.
+    """
+
+
+class Cluster(BaseNodeRead, ClusterCreate):
     """Cluster class.
 
     Class retrieved from the database.

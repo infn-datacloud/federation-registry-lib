@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_location_id
 from ...crud import location
 from ...models import Location as LocationModel
-from ...schemas import Location, LocationPatch, LocationQuery
+from ...schemas import Location, LocationQuery, LocationUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -32,9 +32,9 @@ def get_location(item: LocationModel = Depends(valid_location_id)):
 
 
 @db.write_transaction
-@router.patch("/{location_uid}", response_model=Optional[Location])
-def patch_location(
-    update_data: LocationPatch, item: LocationModel = Depends(valid_location_id)
+@router.put("/{location_uid}", response_model=Optional[Location])
+def put_location(
+    update_data: LocationUpdate, item: LocationModel = Depends(valid_location_id)
 ):
     return location.update(old_item=item, new_item=update_data)
 

@@ -1,11 +1,11 @@
 from .models import Service as ServiceModel
-from .schemas import ServiceCreate
+from .schemas import ServiceCreate, ServiceUpdate
 from .schemas_extended import ServiceCreateExtended
 from ..crud import CRUDBase
 from ..service_type.crud import service_type
 
 
-class CRUDService(CRUDBase[ServiceModel, ServiceCreate, ServiceCreate]):
+class CRUDService(CRUDBase[ServiceModel, ServiceCreate, ServiceUpdate]):
     """"""
 
     def create_with_type(

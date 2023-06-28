@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, root_validator
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
@@ -27,11 +27,11 @@ class FlavorQuery(BaseNodeQuery):
     gpu_vendor: Optional[str] = None
 
 
-class FlavorPatch(BaseNodeCreate):
-    """Flavor Patch Model class.
+class FlavorCreate(BaseNodeCreate):
+    """Flavor Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
         description (str): Brief description.
@@ -52,12 +52,23 @@ class FlavorPatch(BaseNodeCreate):
     gpu_model: Optional[str] = None
     gpu_vendor: Optional[str] = None
 
+    @root_validator
+    def check_gpu_values(cls, values):
+        if values.get("num_gpus") == 0:
+            if values.get("gpu_model") is not None:
+                raise ValueError("'GPU model' must be None if 'Num GPUs' is 0")
+            if values.get("gpu_vendor") is not None:
+                raise ValueError(
+                    "'GPU vendor' must be None if 'Num GPUs' is 0"
+                )
+        return values
 
-class FlavorCreate(FlavorPatch):
-    """Flavor Create Model class.
+
+class FlavorUpdate(FlavorCreate):
+    """Flavor Update Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
         description (str): Brief description.
@@ -70,19 +81,8 @@ class FlavorCreate(FlavorPatch):
         gpu_vendor (str | None): Name of the GPU vendor.
     """
 
-    # @root_validator(pre=True) TODO
-    # def check_gpu_values(cls, values):
-    #    if values.get("num_gpus", 0) < 1 and (
-    #        values.get("gpu_model") is not None
-    #        or values.get("gpu_vendor") is not None
-    #    ):
-    #        raise ValueError(
-    #            "GPU model and GPU vendor should be None if NUM GPUs is 0"
-    #        )
-    #    return values
 
-
-class Flavor(FlavorCreate, BaseNodeRead):
+class Flavor(BaseNodeRead, FlavorCreate):
     """Flavor class.
 
     Class retrieved from the database.

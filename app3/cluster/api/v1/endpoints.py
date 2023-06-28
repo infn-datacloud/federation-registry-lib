@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_cluster_id
 from ...crud import cluster
 from ...models import Cluster as ClusterModel
-from ...schemas import Cluster, ClusterPatch, ClusterQuery
+from ...schemas import Cluster, ClusterQuery, ClusterUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -32,9 +32,9 @@ def get_cluster(item: ClusterModel = Depends(valid_cluster_id)):
 
 
 @db.write_transaction
-@router.patch("/{cluster_uid}", response_model=Optional[Cluster])
-def patch_cluster(
-    update_data: ClusterPatch,
+@router.put("/{cluster_uid}", response_model=Optional[Cluster])
+def put_cluster(
+    update_data: ClusterUpdate,
     item: ClusterModel = Depends(valid_cluster_id),
 ):
     return cluster.update(old_item=item, new_item=update_data)

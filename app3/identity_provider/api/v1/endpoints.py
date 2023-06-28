@@ -7,8 +7,8 @@ from ...crud import identity_provider
 from ...models import IdentityProvider as IdentityProviderModel
 from ...schemas import (
     IdentityProvider,
-    IdentityProviderPatch,
     IdentityProviderQuery,
+    IdentityProviderUpdate,
 )
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
@@ -38,11 +38,11 @@ def get_identity_provider(
 
 
 @db.write_transaction
-@router.patch(
+@router.put(
     "/{identity_provider_uid}", response_model=Optional[IdentityProvider]
 )
-def patch_identity_provider(
-    update_data: IdentityProviderPatch,
+def put_identity_provider(
+    update_data: IdentityProviderUpdate,
     item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
     return identity_provider.update(old_item=item, new_item=update_data)

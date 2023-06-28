@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_project_id
 from ...crud import project
 from ...models import Project as ProjectModel
-from ...schemas import Project, ProjectCreate, ProjectQuery
+from ...schemas import Project, ProjectQuery,  ProjectUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -32,9 +32,9 @@ def get_project(item: ProjectModel = Depends(valid_project_id)):
 
 
 @db.write_transaction
-@router.patch("/{project_uid}", response_model=Optional[Project])
-def patch_project(
-    update_data: ProjectCreate, item: ProjectModel = Depends(valid_project_id)
+@router.put("/{project_uid}", response_model=Optional[Project])
+def put_project(
+    update_data: ProjectUpdate, item: ProjectModel = Depends(valid_project_id)
 ):
     return project.update(old_item=item, new_item=update_data)
 

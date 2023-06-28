@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_flavor_id
 from ...crud import flavor
 from ...models import Flavor as FlavorModel
-from ...schemas import Flavor, FlavorPatch, FlavorQuery
+from ...schemas import Flavor, FlavorQuery, FlavorUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -32,9 +32,9 @@ def get_flavor(item: FlavorModel = Depends(valid_flavor_id)):
 
 
 @db.write_transaction
-@router.patch("/{flavor_uid}", response_model=Optional[Flavor])
-def patch_flavor(
-    update_data: FlavorPatch, item: FlavorModel = Depends(valid_flavor_id)
+@router.put("/{flavor_uid}", response_model=Optional[Flavor])
+def put_flavor(
+    update_data: FlavorUpdate, item: FlavorModel = Depends(valid_flavor_id)
 ):
     return flavor.update(old_item=item, new_item=update_data)
 

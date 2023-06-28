@@ -1,9 +1,9 @@
 from .models import Project as ProjectModel
-from .schemas import ProjectCreate, ProjectPatch
+from .schemas import ProjectCreate, ProjectUpdate
 from ..crud import CRUDBase
 
 
-class CRUDProject(CRUDBase[ProjectModel, ProjectCreate, ProjectPatch]):
+class CRUDProject(CRUDBase[ProjectModel, ProjectCreate, ProjectUpdate]):
     """"""
 
 

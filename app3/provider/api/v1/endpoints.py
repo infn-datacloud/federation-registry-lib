@@ -9,7 +9,7 @@ from ...schemas import ProviderQuery
 from ...schemas_extended import (
     ProviderCreateExtended,
     ProviderExtended,
-    ProviderPatch,
+    ProviderUpdate,
 )
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
@@ -47,9 +47,9 @@ def get_provider(item: ProviderModel = Depends(valid_provider_id)):
 
 
 @db.write_transaction
-@router.patch("/{provider_uid}", response_model=ProviderExtended)
-def patch_provider(
-    update_data: ProviderPatch,
+@router.put("/{provider_uid}", response_model=ProviderExtended)
+def put_provider(
+    update_data: ProviderUpdate,
     item: ProviderModel = Depends(valid_provider_id),
 ):
     return provider.update(old_item=item, new_item=update_data)

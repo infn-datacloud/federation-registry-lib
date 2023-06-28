@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_image_id
 from ...crud import image
 from ...models import Image as ImageModel
-from ...schemas import Image, ImagePatch, ImageQuery
+from ...schemas import Image, ImageQuery, ImageUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -32,9 +32,9 @@ def get_image(item: ImageModel = Depends(valid_image_id)):
 
 
 @db.write_transaction
-@router.patch("/{image_uid}", response_model=Optional[Image])
-def patch_image(
-    update_data: ImagePatch, item: ImageModel = Depends(valid_image_id)
+@router.put("/{image_uid}", response_model=Optional[Image])
+def put_image(
+    update_data: ImageUpdate, item: ImageModel = Depends(valid_image_id)
 ):
     return image.update(old_item=item, new_item=update_data)
 

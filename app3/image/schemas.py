@@ -28,34 +28,7 @@ class ImageQuery(BaseNodeQuery):
     creation_time: Optional[datetime] = None
 
 
-class ImagePatch(BaseNodeCreate):
-    """Image Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        description (str): Brief description.
-        os (str | None): Image Operating System.
-        distribution (str | None): OS distribution.
-        version (str | None): Distribution version.
-        architecture (str | None): OS architecture.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs.
-        creation_time (datetime | None): Image creation time.
-    """
-
-    description: str = ""
-    os: Optional[ImageOS] = None
-    distribution: Optional[str] = None
-    version: Optional[str] = None
-    architecture: Optional[str] = None
-    cuda_support: bool = False
-    gpu_driver: bool = False
-    creation_time: Optional[datetime] = None
-
-
-class ImageCreate(ImagePatch):
+class ImageCreate(BaseNodeCreate):
     """Image Create Model class.
 
     Class without id (which is populated by the database).
@@ -76,9 +49,30 @@ class ImageCreate(ImagePatch):
     distribution: str
     version: str
     architecture: str
+    cuda_support: bool = False
+    gpu_driver: bool = False
+    creation_time: Optional[datetime] = None
 
 
-class Image(ImageCreate, BaseNodeRead):
+class ImageUpdate(ImageCreate):
+    """Image Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        description (str): Brief description.
+        os (str | None): Image Operating System.
+        distribution (str | None): OS distribution.
+        version (str | None): Distribution version.
+        architecture (str | None): OS architecture.
+        cuda_support (str): Support for cuda enabled.
+        gpu_driver (str): Support for GPUs.
+        creation_time (datetime | None): Image creation time.
+    """
+
+
+class Image(BaseNodeRead, ImageCreate):
     """Image class.
 
     Class retrieved from the database.

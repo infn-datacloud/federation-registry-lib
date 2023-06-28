@@ -24,13 +24,26 @@ class ServiceCreate(BaseNodeCreate):
     Attributes:
         description (str): Brief description.
         endpoint (str): URL pointing to this service
-        type (ServiceTypePatch): Service type.
+        type (ServiceTypeUpdate): Service type.
     """
 
     endpoint: AnyUrl
 
 
-class Service(ServiceCreate, BaseNodeRead):
+class ServiceUpdate(ServiceCreate):
+    """Service Create Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH, PUT or POST request.
+
+    Attributes:
+        description (str): Brief description.
+        endpoint (str): URL pointing to this service
+        type (ServiceTypeUpdate): Service type.
+    """
+
+
+class Service(BaseNodeRead, ServiceCreate):
     """Service class.
 
     Class retrieved from the database.

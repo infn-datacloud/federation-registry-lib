@@ -15,21 +15,7 @@ class IdentityProviderQuery(BaseNodeQuery):
     endpoint: Optional[AnyUrl] = None
 
 
-class IdentityProviderPatch(BaseNodeCreate):
-    """IdentityProvider Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        description (str): Brief description.
-        endpoint (str | None): URL of the IdentityProvider.
-    """
-
-    endpoint: Optional[AnyUrl] = None
-
-
-class IdentityProviderCreate(IdentityProviderPatch):
+class IdentityProviderCreate(BaseNodeCreate):
     """IdentityProvider Create Model class.
 
     Class without id (which is populated by the database).
@@ -43,7 +29,19 @@ class IdentityProviderCreate(IdentityProviderPatch):
     endpoint: AnyUrl
 
 
-class IdentityProvider(IdentityProviderCreate, BaseNodeRead):
+class IdentityProviderUpdate(IdentityProviderCreate):
+    """IdentityProvider Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        description (str): Brief description.
+        endpoint (str | None): URL of the IdentityProvider.
+    """
+
+
+class IdentityProvider(BaseNodeRead, IdentityProviderCreate):
     """IdentityProvider class.
 
     Class retrieved from the database.

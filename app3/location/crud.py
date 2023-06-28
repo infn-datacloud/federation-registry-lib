@@ -1,9 +1,9 @@
 from .models import Location as LocationModel
-from .schemas import LocationCreate, LocationPatch
+from .schemas import LocationCreate, LocationUpdate
 from ..crud import CRUDBase
 
 
-class CRUDLocation(CRUDBase[LocationModel, LocationCreate, LocationPatch]):
+class CRUDLocation(CRUDBase[LocationModel, LocationCreate, LocationUpdate]):
     """"""
 
 

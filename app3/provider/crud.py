@@ -1,7 +1,7 @@
 from typing import List
 
 from .models import Provider as ProviderModel
-from .schemas import ProviderCreate
+from .schemas import ProviderCreate, ProviderUpdate
 from .schemas_extended import ProviderCreateExtended
 from ..cluster.crud import cluster
 from ..cluster.schemas_extended import ClusterCreateExtended
@@ -20,7 +20,7 @@ from ..service.crud import service
 from ..service.schemas_extended import ServiceCreateExtended
 
 
-class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderCreate]):
+class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
     """"""
 
     def create_and_connect_clusters(
@@ -373,7 +373,7 @@ provider = CRUDProvider(ProviderModel, ProviderCreate)
 #
 #
 # def edit_provider(
-#    old_item: models.Provider, new_item: schemas_extended.ProviderPatch
+#    old_item: models.Provider, new_item: schemas_extended.ProviderUpdate
 # ) -> Optional[models.Provider]:
 #    for k, v in new_item.dict(
 #        exclude={

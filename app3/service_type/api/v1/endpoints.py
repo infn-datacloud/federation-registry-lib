@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_service_type_id, is_unique_service_type
 from ...crud import service_type
 from ...models import ServiceType as ServiceTypeModel
-from ...schemas import ServiceTypeCreate, ServiceTypeQuery
+from ...schemas import ServiceTypeQuery, ServiceTypeUpdate
 from ...schemas_extended import ServiceTypeCreateExtended, ServiceTypeExtended
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
@@ -45,11 +45,11 @@ def get_service_type(item: ServiceTypeModel = Depends(valid_service_type_id)):
 
 
 @db.write_transaction
-@router.patch(
+@router.put(
     "/{service_type_uid}", response_model=Optional[ServiceTypeExtended]
 )
-def patch_service_type(
-    update_data: ServiceTypeCreate,
+def put_service_type(
+    update_data: ServiceTypeUpdate,
     item: ServiceTypeModel = Depends(valid_service_type_id),
 ):
     return service_type.update(old_item=item, new_item=update_data)

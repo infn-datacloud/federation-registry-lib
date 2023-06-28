@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_quota_id
 from ...crud import quota
 from ...models import Quota as QuotaModel
-from ...schemas import QuotaPatch, QuotaQuery
+from ...schemas import QuotaQuery, QuotaUpdate
 from ...schemas_extended import QuotaExtended
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
@@ -33,9 +33,9 @@ def get_quota(item: QuotaModel = Depends(valid_quota_id)):
 
 
 @db.write_transaction
-@router.patch("/{quota_uid}", response_model=Optional[QuotaExtended])
-def patch_quota(
-    update_data: QuotaPatch,
+@router.put("/{quota_uid}", response_model=Optional[QuotaExtended])
+def put_quota(
+    update_data: QuotaUpdate,
     item: QuotaModel = Depends(valid_quota_id),
 ):
     return quota.update(old_item=item, new_item=update_data)

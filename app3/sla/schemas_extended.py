@@ -1,30 +1,13 @@
+from neomodel import One, OneOrMore
 from pydantic import Field, validator
 from typing import List
 
-from .schemas import SLACreate, SLA, SLAPatch
+from .schemas import SLA, SLACreate, SLAUpdate
 from ..project.schemas import Project
-from ..quota.schemas import QuotaCreate
+from ..quota.schemas import QuotaUpdate
 from ..quota.schemas_extended import QuotaCreateExtended, QuotaExtended
 from ..user_group.schemas import UserGroup
 from ..validators import get_all_nodes_from_rel, get_single_node_from_rel
-
-
-class SLAPatchExtended(SLAPatch):
-    """Service Level Agreement (SLA) Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        description (str): Brief description.
-        start_date (datetime | None): SLA validity start date.
-        end_date (datetime | None): SLA validity end date.
-        project (UUID4 | None): UUID4 of the target Project.
-        user_group (UUID4 | None): UUID4 of the target UserGroup.
-        quotas (list of QuotaCreate): List of quotas defined by the SLA.
-    """
-
-    quotas: List[QuotaCreate] = Field(default_factory=list)
 
 
 class SLACreateExtended(SLACreate):
@@ -43,6 +26,24 @@ class SLACreateExtended(SLACreate):
     """
 
     quotas: List[QuotaCreateExtended]
+
+
+class SLAUpdateExtended(SLAUpdate):
+    """Service Level Agreement (SLA) Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        description (str): Brief description.
+        start_date (datetime | None): SLA validity start date.
+        end_date (datetime | None): SLA validity end date.
+        project (UUID4 | None): UUID4 of the target Project.
+        user_group (UUID4 | None): UUID4 of the target UserGroup.
+        quotas (list of QuotaCreate): List of quotas defined by the SLA.
+    """
+
+    quotas: List[QuotaUpdate] = Field(default_factory=list)
 
 
 class SLAExtended(SLA):
@@ -67,13 +68,14 @@ class SLAExtended(SLA):
     user_group: UserGroup
     quotas: List[QuotaExtended]
 
-    _get_single_project = validator("project", pre=True, allow_reuse=True)(
-        get_single_node_from_rel
-    )
-    _get_single_user_group = validator(
-        "user_group", pre=True, allow_reuse=True
-    )(get_single_node_from_rel)
+    @validator("project", pre=True)
+    def get_single_project(cls, v: One) -> Project:
+        return get_single_node_from_rel(v)
 
-    _get_all_quotas = validator("quotas", pre=True, allow_reuse=True)(
-        get_all_nodes_from_rel
-    )
+    @validator("user_group", pre=True)
+    def get_single_user_group(cls, v: One) -> UserGroup:
+        return get_single_node_from_rel(v)
+
+    @validator("quotas", pre=True)
+    def get_all_quotas(cls, v: OneOrMore) -> List[QuotaExtended]:
+        return get_all_nodes_from_rel(v)

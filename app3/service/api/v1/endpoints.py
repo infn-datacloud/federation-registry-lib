@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_service_id
 from ...crud import service
 from ...models import Service as ServiceModel
-from ...schemas import Service, ServiceCreate, ServiceQuery
+from ...schemas import Service, ServiceQuery, ServiceUpdate
 from ....identity_provider.schemas import IdentityProvider
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
@@ -33,9 +33,9 @@ def get_service(item: ServiceModel = Depends(valid_service_id)):
 
 
 @db.write_transaction
-@router.patch("/{service_uid}", response_model=Optional[Service])
-def patch_service(
-    update_data: ServiceCreate,
+@router.put("/{service_uid}", response_model=Optional[Service])
+def put_service(
+    update_data: ServiceUpdate,
     item: ServiceModel = Depends(valid_service_id),
 ):
     return service.update(old_item=item, new_item=update_data)

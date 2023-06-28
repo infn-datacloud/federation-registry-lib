@@ -16,20 +16,6 @@ class AvailableVMImageQuery(BaseProviderRelQuery):
     """
 
 
-class AvailableVMImagePatch(BaseProviderRelQuery):
-    """AvailableVMImage Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        uuid (UUID4 | None): unique identifier of this item
-            given by the provider.
-        name (str | None): unique name of this item
-            given by the provider.
-    """
-
-
 class AvailableVMImageCreate(BaseProviderRelCreate):
     """AvailableVMImage Create Model class.
 
@@ -40,6 +26,20 @@ class AvailableVMImageCreate(BaseProviderRelCreate):
         uuid (UUID4): unique identifier of this item
             given by the provider.
         name (str): unique name of this item
+            given by the provider.
+    """
+
+
+class AvailableVMImageUpdate(BaseProviderRelCreate):
+    """AvailableVMImage Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        uuid (UUID4 | None): unique identifier of this item
+            given by the provider.
+        name (str | None): unique name of this item
             given by the provider.
     """
 

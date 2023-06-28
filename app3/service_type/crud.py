@@ -1,7 +1,7 @@
 from typing import List
 
 from .models import ServiceType as ServiceTypeModel
-from .schemas import ServiceTypeCreate
+from .schemas import ServiceTypeCreate, ServiceTypeUpdate
 from .schemas_extended import ServiceTypeCreateExtended
 from ..crud import CRUDBase
 from ..quota_type.crud import quota_type
@@ -9,7 +9,7 @@ from ..quota_type.schemas import QuotaTypeCreate
 
 
 class CRUDServiceType(
-    CRUDBase[ServiceTypeModel, ServiceTypeCreate, ServiceTypeCreate]
+    CRUDBase[ServiceTypeModel, ServiceTypeCreate, ServiceTypeUpdate]
 ):
     """"""
 

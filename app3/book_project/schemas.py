@@ -16,20 +16,6 @@ class BookProjectQuery(BaseProviderRelQuery):
     """
 
 
-class BookProjectPatch(BaseProviderRelQuery):
-    """BookProject Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        uuid (UUID4 | None): unique identifier of this item
-            given by the provider.
-        name (str | None): unique name of this item
-            given by the provider.
-    """
-
-
 class BookProjectCreate(BaseProviderRelCreate):
     """BookProject Create Model class.
 
@@ -40,6 +26,20 @@ class BookProjectCreate(BaseProviderRelCreate):
         uuid (UUID4): unique identifier of this item
             given by the provider.
         name (str): unique name of this item
+            given by the provider.
+    """
+
+
+class BookProjectUpdate(BaseProviderRelCreate):
+    """BookProject Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        uuid (UUID4 | None): unique identifier of this item
+            given by the provider.
+        name (str | None): unique name of this item
             given by the provider.
     """
 

@@ -34,7 +34,21 @@ class ServiceTypeCreate(BaseNodeCreate):
     name: ServiceTypeEnum
 
 
-class ServiceType(BaseNodeRead):
+class ServiceTypeUpdate(ServiceTypeCreate):
+    """Service Create Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PUT or POST request.
+
+    Attributes:
+        description (str): Brief description.
+        name (str): type unique name.
+        quota_types (list of QuotaTypeCreate): supported quota types for
+            this kind of service.
+    """
+
+
+class ServiceType(BaseNodeRead, ServiceTypeCreate):
     """Service class.
 
     Class retrieved from the database.
@@ -50,4 +64,3 @@ class ServiceType(BaseNodeRead):
             this kind of service.
     """
 
-    name: ServiceTypeEnum

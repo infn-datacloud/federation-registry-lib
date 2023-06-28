@@ -20,11 +20,11 @@ class ProjectQuery(BaseNodeQuery):
     private_network_proxy_user: Optional[str] = None
 
 
-class ProjectPatch(BaseNodeCreate):
-    """Project Patch Model class.
+class ProjectCreate(BaseNodeCreate):
+    """Project Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
+    Expected as input when performing a PUT or POST request.
 
     Attributes:
         description (str): Brief description.
@@ -40,11 +40,11 @@ class ProjectPatch(BaseNodeCreate):
     private_network_proxy_user: Optional[str] = None
 
 
-class ProjectCreate(ProjectPatch):
-    """Project Create Model class.
+class ProjectUpdate(ProjectCreate):
+    """Project Update Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
+    Expected as input when performing a PATCH request.
 
     Attributes:
         description (str): Brief description.
@@ -55,7 +55,7 @@ class ProjectCreate(ProjectPatch):
     """
 
 
-class Project(ProjectCreate, BaseNodeRead):
+class Project(BaseNodeRead, ProjectCreate):
     """Project class.
 
     Class retrieved from the database.

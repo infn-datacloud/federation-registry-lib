@@ -19,31 +19,6 @@ class ProviderQuery(BaseNodeQuery):
     support_email: Optional[List[EmailStr]] = None
 
 
-class ProviderPatch(BaseNodeCreate):
-    """Provider Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        description (str | None): Brief description.
-        name (str | None): Provider name (type).
-        is_public (bool | None): Public or private provider.
-        support_email (list of str | None): List of maintainers emails.
-        location (LocationCreate | None): provider physical location
-        clusters TODO
-        flavors TODO
-        identity_providers TODO
-        images TODO
-        projects TODO
-        services TODO
-    """
-
-    name: Optional[str] = None
-    is_public: bool = False
-    support_email: List[EmailStr] = Field(default_factory=list)
-
-
 class ProviderCreate(BaseNodeCreate):
     """Provider Create Model class.
 
@@ -69,7 +44,28 @@ class ProviderCreate(BaseNodeCreate):
     support_email: List[EmailStr] = Field(default_factory=list)
 
 
-class Provider(BaseNodeRead):
+class ProviderUpdate(ProviderCreate):
+    """Provider Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        description (str | None): Brief description.
+        name (str | None): Provider name (type).
+        is_public (bool | None): Public or private provider.
+        support_email (list of str | None): List of maintainers emails.
+        location (LocationCreate | None): provider physical location
+        clusters TODO
+        flavors TODO
+        identity_providers TODO
+        images TODO
+        projects TODO
+        services TODO
+    """
+
+
+class Provider(BaseNodeRead, ProviderCreate):
     """Provider class.
 
     Class retrieved from the database.
@@ -91,7 +87,3 @@ class Provider(BaseNodeRead):
         projects TODO
         services TODO
     """
-
-    name: str
-    is_public: bool = False
-    support_email: List[EmailStr] = Field(default_factory=list)

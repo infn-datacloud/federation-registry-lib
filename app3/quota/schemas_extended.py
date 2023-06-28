@@ -1,14 +1,19 @@
-from pydantic import UUID4, Field, validator
-from typing import Optional
+from neomodel import One
+from pydantic import validator
 
-from .schemas import Quota, QuotaCreate, QuotaPatch
+from .schemas import Quota, QuotaCreate, QuotaUpdate
 from ..quota_type.schemas import QuotaType, QuotaTypeCreate
 from ..service.schemas import Service, ServiceCreate
 from ..validators import get_single_node_from_rel
 
 
-class QuotaPatchExtended(QuotaPatch):
-    """Quota Patch Model class.
+class QuotaCreateExtended(QuotaCreate):
+    type: QuotaTypeCreate
+    service: ServiceCreate
+
+
+class QuotaUpdateExtended(QuotaUpdate):
+    """Quota Update Model class.
 
     Class without id (which is populated by the database).
     Expected as input when performing a PATCH request.
@@ -32,12 +37,8 @@ class QuotaPatchExtended(QuotaPatch):
         service (Service | None): Service where this quota applies.
     """
 
-    type: Optional[QuotaTypeCreate] = None
-
-
-class QuotaCreateExtended(QuotaCreate):
-    type: QuotaTypeCreate
-    service: ServiceCreate
+    type: QuotaType
+    service: Service
 
 
 class QuotaExtended(Quota):
@@ -72,9 +73,10 @@ class QuotaExtended(Quota):
     type: QuotaType
     service: Service
 
-    _get_single_type = validator("type", pre=True, allow_reuse=True)(
-        get_single_node_from_rel
-    )
-    _get_single_service = validator("service", pre=True, allow_reuse=True)(
-        get_single_node_from_rel
-    )
+    @validator("type", pre=True)
+    def get_single_type(cls, v: One) -> QuotaType:
+        return get_single_node_from_rel(v)
+
+    @validator("service", pre=True)
+    def get_single_srv(cls, v: One) -> Service:
+        return get_single_node_from_rel(v)

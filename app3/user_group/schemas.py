@@ -14,21 +14,7 @@ class UserGroupQuery(BaseNodeQuery):
     name: Optional[str] = None
 
 
-class UserGroupPatch(BaseNodeCreate):
-    """UserGroup Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        description (str): Brief description.
-        name (str | None): UserGroup name.
-    """
-
-    name: Optional[str] = None
-
-
-class UserGroupCreate(UserGroupPatch):
+class UserGroupCreate(BaseNodeCreate):
     """UserGroup Create Model class.
 
     Class without id (which is populated by the database).
@@ -42,7 +28,19 @@ class UserGroupCreate(UserGroupPatch):
     name: str
 
 
-class UserGroup(UserGroupCreate, BaseNodeRead):
+class UserGroupUpdate(UserGroupCreate):
+    """UserGroup Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        description (str): Brief description.
+        name (str | None): UserGroup name.
+    """
+
+
+class UserGroup(BaseNodeRead, UserGroupCreate):
     """UserGroup class.
 
     Class retrieved from the database.

@@ -8,8 +8,8 @@ from ...models import UserGroup as UserGroupModel
 from ...schemas import (
     UserGroup,
     UserGroupCreate,
-    UserGroupPatch,
     UserGroupQuery,
+    UserGroupUpdate,
 )
 from ....cluster.schemas import Cluster
 from ....flavor.schemas import Flavor
@@ -53,9 +53,9 @@ def get_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
 
 
 @db.write_transaction
-@router.patch("/{user_group_uid}", response_model=Optional[UserGroup])
-def patch_user_group(
-    update_data: UserGroupPatch,
+@router.put("/{user_group_uid}", response_model=Optional[UserGroup])
+def put_user_group(
+    update_data: UserGroupUpdate,
     item: UserGroupModel = Depends(valid_user_group_id),
 ):
     return user_group.update(old_item=item, new_item=update_data)

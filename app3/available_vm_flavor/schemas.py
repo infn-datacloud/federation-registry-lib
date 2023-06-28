@@ -16,20 +16,6 @@ class AvailableVMFlavorQuery(BaseProviderRelQuery):
     """
 
 
-class AvailableVMFlavorPatch(BaseProviderRelQuery):
-    """AvailableVMFlavor Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        uuid (UUID4 | None): unique identifier of this item
-            given by the provider.
-        name (str | None): unique name of this item
-            given by the provider.
-    """
-
-
 class AvailableVMFlavorCreate(BaseProviderRelCreate):
     """AvailableVMFlavor Create Model class.
 
@@ -44,7 +30,21 @@ class AvailableVMFlavorCreate(BaseProviderRelCreate):
     """
 
 
-class AvailableVMFlavor(AvailableVMFlavorCreate, BaseProviderRelRead):
+class AvailableVMFlavorUpdate(BaseProviderRelCreate):
+    """AvailableVMFlavor Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        uuid (UUID4 | None): unique identifier of this item
+            given by the provider.
+        name (str | None): unique name of this item
+            given by the provider.
+    """
+
+
+class AvailableVMFlavor(BaseProviderRelRead):
     """AvailableVMFlavor class.
 
     Class retrieved from the database.

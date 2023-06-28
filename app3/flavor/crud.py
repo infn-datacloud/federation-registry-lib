@@ -1,9 +1,9 @@
 from .models import Flavor as FlavorModel
-from .schemas import FlavorCreate, FlavorPatch
+from .schemas import FlavorCreate, FlavorUpdate
 from ..crud import CRUDBase
 
 
-class CRUDFlavor(CRUDBase[FlavorModel, FlavorCreate, FlavorPatch]):
+class CRUDFlavor(CRUDBase[FlavorModel, FlavorCreate, FlavorUpdate]):
     """"""
 
 

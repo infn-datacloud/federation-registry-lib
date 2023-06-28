@@ -1,9 +1,9 @@
 from .models import Image as ImageModel
-from .schemas import ImageCreate, ImagePatch
+from .schemas import ImageCreate, ImageUpdate
 from ..crud import CRUDBase
 
 
-class CRUDImage(CRUDBase[ImageModel, ImageCreate, ImagePatch]):
+class CRUDImage(CRUDBase[ImageModel, ImageCreate, ImageUpdate]):
     """"""
 
 

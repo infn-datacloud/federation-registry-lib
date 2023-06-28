@@ -1,11 +1,11 @@
 from .models import IdentityProvider as IdentityProviderModel
-from .schemas import IdentityProviderCreate, IdentityProviderPatch
+from .schemas import IdentityProviderCreate, IdentityProviderUpdate
 from ..crud import CRUDBase
 
 
 class CRUDIdentityProvider(
     CRUDBase[
-        IdentityProviderModel, IdentityProviderCreate, IdentityProviderPatch
+        IdentityProviderModel, IdentityProviderCreate, IdentityProviderUpdate
     ]
 ):
     """"""

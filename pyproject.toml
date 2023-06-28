@@ -11,6 +11,7 @@ fastapi = "^0.95.2"
 uvicorn = "^0.22.0"
 neomodel = "^5.0.1"
 pydantic = {extras = ["email"], version = "^1.10.9"}
+pycountry = "^22.3.5"
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"

@@ -17,26 +17,7 @@ class SLAQuery(BaseNodeQuery):
     end_date: Optional[datetime] = None
 
 
-class SLAPatch(BaseNodeCreate):
-    """Service Level Agreement (SLA) Patch Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
-
-    Attributes:
-        description (str): Brief description.
-        start_date (datetime | None): SLA validity start date.
-        end_date (datetime | None): SLA validity end date.
-        project (UUID4 | None): UUID4 of the target Project.
-        user_group (UUID4 | None): UUID4 of the target UserGroup.
-        quotas (list of QuotaCreate): List of quotas defined by the SLA.
-    """
-
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-
-
-class SLACreate(SLAPatch):
+class SLACreate(BaseNodeCreate):
     """Service Level Agreement (SLA) Create Model class.
 
     Class without id (which is populated by the database).
@@ -55,7 +36,23 @@ class SLACreate(SLAPatch):
     end_date: datetime
 
 
-class SLA(SLACreate, BaseNodeRead):
+class SLAUpdate(SLACreate):
+    """Service Level Agreement (SLA) Update Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH request.
+
+    Attributes:
+        description (str): Brief description.
+        start_date (datetime | None): SLA validity start date.
+        end_date (datetime | None): SLA validity end date.
+        project (UUID4 | None): UUID4 of the target Project.
+        user_group (UUID4 | None): UUID4 of the target UserGroup.
+        quotas (list of QuotaCreate): List of quotas defined by the SLA.
+    """
+
+
+class SLA(BaseNodeRead, SLACreate):
     """Service Level Agreement (SLA) class.
 
     Class retrieved from the database.
