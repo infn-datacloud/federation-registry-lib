@@ -27,8 +27,7 @@ class CRUDSLA(CRUDBase[SLAModel, SLACreate, SLAUpdate]):
             db_quota = quota.create(obj_in=q)
             db_quota.type.connect(qt)
             db_quota.service.connect(srv)
-            if not db_obj.quotas.is_connected(db_quota):
-                db_obj.quotas.connect(db_quota)
+            db_obj.quotas.connect(db_quota)
 
     def create_with_all(
         self,

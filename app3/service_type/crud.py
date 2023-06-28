@@ -18,8 +18,7 @@ class CRUDServiceType(
     ) -> None:
         for qtype in qtypes:
             db_qt = quota_type.create(obj_in=qtype)
-            if not db_obj.quota_types.is_connected(db_qt):
-                db_obj.quota_types.connect(db_qt)
+            db_obj.quota_types.connect(db_qt)
 
     def create_with_quotas(
         self, *, obj_in: ServiceTypeCreateExtended
