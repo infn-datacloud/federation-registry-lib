@@ -1,10 +1,6 @@
-from neomodel import One
-from pydantic import validator
-
 from .schemas import Quota, QuotaCreate, QuotaUpdate
 from ..quota_type.schemas import QuotaType, QuotaTypeCreate
 from ..service.schemas import Service, ServiceCreate
-from ..validators import get_single_node_from_rel
 
 
 class QuotaCreateExtended(QuotaCreate):
@@ -72,11 +68,3 @@ class QuotaExtended(Quota):
 
     type: QuotaType
     service: Service
-
-    @validator("type", pre=True)
-    def get_single_type(cls, v: One) -> QuotaType:
-        return get_single_node_from_rel(v)
-
-    @validator("service", pre=True)
-    def get_single_srv(cls, v: One) -> Service:
-        return get_single_node_from_rel(v)

@@ -1,7 +1,8 @@
 from enum import Enum
-from typing import Dict, Optional
-from pydantic import UUID4, BaseModel, Extra, root_validator
 from neo4j.data import DateTime
+from neomodel import StructuredNode, One, OneOrMore, ZeroOrOne, ZeroOrMore
+from pydantic import UUID4, BaseModel, Extra, root_validator
+from typing import Dict, Optional
 
 
 class BaseNodeCreate(BaseModel):
@@ -39,9 +40,33 @@ class BaseNodeRead(BaseModel):
     uid: UUID4
     description: str = ""
 
+    @root_validator(pre=True)
+    def get_relations(cls, data: Dict) -> Dict:
+        """
+        From One or ZeroOrOne relationships get that single relationship.
+        From OneOrMore or ZeroOrMore relationships get all relationships;
+        if that relationships has a model return a dict with the data stored
+        in the relationship.
+        """
+        relations = {}
+        for k, v in data.items():
+            if isinstance(v, One) or isinstance(v, ZeroOrOne):
+                relations[k] = v.single()
+            elif isinstance(v, OneOrMore) or isinstance(v, ZeroOrMore):
+                if v.definition.get("model") is None:
+                    relations[k] = v.all()
+                else:
+                    items = []
+                    for node in v.all():
+                        item = node.__dict__
+                        item["relationship"] = v.relationship(node)
+                        items.append(item)
+                    relations[k] = items
+        return {**data, **relations}
+
     @root_validator
     def cast_neo4j_datetime(cls, data: Dict) -> Dict:
-        """Get value from all the enumeration field values."""
+        """Cast neo4j datetime to python datetime."""
         datetime_fields = {
             k: v.to_native()
             for k, v in data.items()

@@ -42,7 +42,7 @@ class Flavor(StructuredNode):
 
     providers = RelationshipFrom(
         "..provider.models.Provider",
-        "AVAILABLE_VM_FLAVOR",
+        "AVAILABLE_VM_SIZE",
         cardinality=OneOrMore,
         model=AvailableVMFlavor,
     )

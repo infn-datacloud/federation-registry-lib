@@ -1,34 +1,28 @@
-from neomodel import ZeroOrMore
-from pydantic import Field, validator
+from pydantic import Field
 from typing import List, Optional
 
 from .schemas import Provider, ProviderCreate, ProviderUpdate
-from ..cluster.schemas import Cluster
 from ..cluster.schemas_extended import (
     ClusterExtended,
     ClusterCreateExtended,
     ClusterUpdateExtended,
 )
-from ..flavor.schemas import Flavor
 from ..flavor.schemas_extended import (
     FlavorExtended,
     FlavorCreateExtended,
     FlavorUpdateExtended,
 )
-from ..identity_provider.schemas import IdentityProvider
 from ..identity_provider.schemas_extended import (
     IdentityProviderExtended,
     IdentityProviderCreateExtended,
     IdentityProviderUpdateExtended,
 )
-from ..image.schemas import Image
 from ..image.schemas_extended import (
     ImageExtended,
     ImageCreateExtended,
     ImageUpdateExtended,
 )
 from ..location.schemas import Location, LocationCreate, LocationUpdate
-from ..project.schemas import Project
 from ..project.schemas_extended import (
     ProjectExtended,
     ProjectCreateExtended,
@@ -38,11 +32,6 @@ from ..service.schemas_extended import (
     ServiceExtended,
     ServiceCreateExtended,
     ServiceUpdateExtended,
-)
-from ..validators import (
-    get_all_nodes_from_rel,
-    get_all_nodes_with_rel_data,
-    get_single_node_from_rel,
 )
 
 
@@ -140,33 +129,3 @@ class ProviderExtended(Provider):
     images: List[ImageExtended] = Field(default_factory=list)
     projects: List[ProjectExtended] = Field(default_factory=list)
     services: List[ServiceExtended] = Field(default_factory=list)
-
-    @validator("location", pre=True)
-    def get_single_loc(cls, v: ZeroOrMore) -> Location:
-        return get_single_node_from_rel(v)
-
-    @validator("services", pre=True)
-    def get_all_services(cls, v: ZeroOrMore) -> List[ServiceExtended]:
-        return get_all_nodes_from_rel(v)
-
-    @validator("clusters", pre=True)
-    def get_all_clusters(cls, v: ZeroOrMore) -> List[ClusterExtended]:
-        return get_all_nodes_with_rel_data(Cluster, v)
-
-    @validator("flavors", pre=True)
-    def get_all_flavors(cls, v: ZeroOrMore) -> List[FlavorExtended]:
-        return get_all_nodes_with_rel_data(Flavor, v)
-
-    @validator("identity_providers", pre=True)
-    def get_all_identity_providers(
-        cls, v: ZeroOrMore
-    ) -> List[IdentityProviderExtended]:
-        return get_all_nodes_with_rel_data(IdentityProvider, v)
-
-    @validator("images", pre=True)
-    def get_all_images(cls, v: ZeroOrMore) -> List[ImageExtended]:
-        return get_all_nodes_with_rel_data(Image, v)
-
-    @validator("projects", pre=True)
-    def get_all_projects(cls, v: ZeroOrMore):
-        return get_all_nodes_with_rel_data(Project, v)

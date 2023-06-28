@@ -1,5 +1,4 @@
-from neomodel import One, OneOrMore
-from pydantic import Field, validator
+from pydantic import Field
 from typing import List
 
 from .schemas import SLA, SLACreate, SLAUpdate
@@ -7,7 +6,6 @@ from ..project.schemas import Project
 from ..quota.schemas import QuotaUpdate
 from ..quota.schemas_extended import QuotaCreateExtended, QuotaExtended
 from ..user_group.schemas import UserGroup
-from ..validators import get_all_nodes_from_rel, get_single_node_from_rel
 
 
 class SLACreateExtended(SLACreate):
@@ -68,14 +66,3 @@ class SLAExtended(SLA):
     user_group: UserGroup
     quotas: List[QuotaExtended]
 
-    @validator("project", pre=True)
-    def get_single_project(cls, v: One) -> Project:
-        return get_single_node_from_rel(v)
-
-    @validator("user_group", pre=True)
-    def get_single_user_group(cls, v: One) -> UserGroup:
-        return get_single_node_from_rel(v)
-
-    @validator("quotas", pre=True)
-    def get_all_quotas(cls, v: OneOrMore) -> List[QuotaExtended]:
-        return get_all_nodes_from_rel(v)

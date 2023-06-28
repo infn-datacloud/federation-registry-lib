@@ -1,10 +1,7 @@
-from pydantic import Field, validator
-from typing import List, Optional
+from typing import Optional
 
 from .enum import ServiceType as ServiceTypeEnum
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from ..quota_type.schemas import QuotaType, QuotaTypeCreate
-from ..validators import get_all_nodes_from_rel
 
 
 class ServiceTypeQuery(BaseNodeQuery):

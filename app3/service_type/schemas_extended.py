@@ -1,5 +1,3 @@
-from neomodel import OneOrMore
-from pydantic import validator
 from typing import List
 
 from ..quota_type.schemas import QuotaType, QuotaTypeCreate, QuotaTypeUpdate
@@ -8,7 +6,6 @@ from ..service_type.schemas import (
     ServiceTypeCreate,
     ServiceTypeUpdate,
 )
-from ..validators import get_all_nodes_from_rel
 
 
 class ServiceTypeCreateExtended(ServiceTypeCreate):
@@ -60,7 +57,3 @@ class ServiceTypeExtended(ServiceType):
     """
 
     quota_types: List[QuotaType]
-
-    @validator("quota_types", pre=True)
-    def get_all_quota_types(cls, v: OneOrMore) -> List[QuotaType]:
-        return get_all_nodes_from_rel(v)
