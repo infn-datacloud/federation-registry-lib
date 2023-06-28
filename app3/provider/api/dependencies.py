@@ -54,7 +54,7 @@ def check_rel_consistency(
             )
         seen = set()
         uuids = [j.relationship.uuid for j in i]
-        dupes = [x for x in uuids if x in seen or seen.add(x)]
+        dupes = [str(x) for x in uuids if x in seen or seen.add(x)]
         duplicates = ",".join(dupes)
         if len(dupes) > 0:
             msg = "There are multiple items with the same relationship uuid: "

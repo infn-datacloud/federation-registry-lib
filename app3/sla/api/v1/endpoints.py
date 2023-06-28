@@ -81,6 +81,20 @@ def validate_quota(
     return qt, srv
 
 
+def user_group_not_linked_to_provider(
+    user_group: UserGroupModel, provider: ProviderModel
+) -> None:
+    for sla in user_group.slas.all():
+        project = sla.project.single()
+        if project.provider.single() == provider:
+            msg = "User Group already has a dedicated project "
+            msg += f"on provider '{provider.name}'"
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=msg,
+            )
+
+
 @db.read_transaction
 @router.get("/", response_model=List[SLAExtended])
 def get_slas(
@@ -104,6 +118,7 @@ def post_sla(
     item: SLACreateExtended = Body(),
 ):
     provider = project.provider.single()
+    user_group_not_linked_to_provider(user_group, provider)
     quotas = []
     for quota in item.quotas:
         (quota_type, service) = validate_quota(quota.type, quota.service)
