@@ -115,6 +115,6 @@ class QuotaType(BaseNodeRead, QuotaTypeCreate):
             new_val = QuotaUnit.time.value
         else:
             raise TypeError(f"Unknown Quota type: {quota_name}")
-        
+
         values["unit"] = new_val
         return values

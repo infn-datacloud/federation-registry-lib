@@ -11,4 +11,6 @@ class CRUDIdentityProvider(
     """"""
 
 
-identity_provider = CRUDIdentityProvider(IdentityProviderModel, IdentityProviderCreate)
+identity_provider = CRUDIdentityProvider(
+    IdentityProviderModel, IdentityProviderCreate
+)

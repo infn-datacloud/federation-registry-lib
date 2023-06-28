@@ -1,5 +1,4 @@
-from neomodel import One, ZeroOrMore
-from pydantic import Field, validator
+from pydantic import Field
 from typing import List
 
 from .schemas import Service, ServiceCreate, ServiceUpdate

@@ -28,27 +28,8 @@ def is_unique_provider(item: ProviderCreateExtended) -> ProviderCreateExtended:
     return item
 
 
-def check_rel_consistency(
-    item: ProviderCreateExtended = Depends(is_unique_provider),
-) -> ProviderCreateExtended:
-    for l in [item.clusters, item.flavors, item.images, item.projects]:
-        names = [i.relationship.name for i in l]
-        if len(names) != len(set(names)):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"There are multiple items with the same relationship name",
-            )
-        uuids = [i.relationship.uuid for i in l]
-        if len(uuids) != len(set(uuids)):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"There are multiple items with the same relationship uuid",
-            )
-    return item
-
-
 def check_valid_services(
-    item: ProviderCreateExtended = Depends(check_rel_consistency),
+    item: ProviderCreateExtended = Depends(is_unique_provider),
 ) -> ProviderCreateExtended:
     for s in item.services:
         is_unique_service(s)
@@ -56,31 +37,30 @@ def check_valid_services(
     return item
 
 
-# def check_rel_uniqueness(
-#    item: ProviderCreateExtended,
-# ) -> ProviderCreateExtended:
-#    for l in [item.clusters, item.flavors, item.images, item.projects]:
-#        for i in l:
-#            end_node_rel_match_name = l.match(name=i.relationship.name).all()
-#            if len(end_node_rel_match_name) > 1:
-#                raise HTTPException(
-#                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#                    detail=f"There are multiple items with relationship matching name '{i.relationship.name}'",
-#                )
-#            elif len(end_node_rel_match_name) == 1:
-#                end_node_rel_match_name = end_node_rel_match_name[0]
-#            else:
-#                end_node_rel_match_name = None
-#
-#            end_node_rel_match_uuid = l.match(uuid=i.relationship.uuid).all()
-#            if len(end_node_rel_match_uuid) > 1:
-#                raise HTTPException(
-#                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#                    detail=f"There are multiple items with relationship matching uuid '{i.relationship.uuid}'",
-#                )
-#            elif len(end_node_rel_match_uuid) == 1:
-#                end_node_rel_match_uuid = end_node_rel_match_uuid[0]
-#            else:
-#                end_node_rel_match_uuid = None
-#    return item
-#
+def check_rel_consistency(
+    item: ProviderCreateExtended = Depends(check_valid_services),
+) -> ProviderCreateExtended:
+    for i in [item.clusters, item.flavors, item.images, item.projects]:
+        seen = set()
+        names = [j.relationship.name for j in i]
+        dupes = [x for x in names if x in seen or seen.add(x)]
+        duplicates = ",".join(dupes)
+        if len(dupes) > 0:
+            msg = "There are multiple items with the same relationship name: "
+            msg += f"{duplicates}"
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=msg,
+            )
+        seen = set()
+        uuids = [j.relationship.uuid for j in i]
+        dupes = [x for x in uuids if x in seen or seen.add(x)]
+        duplicates = ",".join(dupes)
+        if len(dupes) > 0:
+            msg = "There are multiple items with the same relationship uuid: "
+            msg += f"{duplicates}"
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=msg,
+            )
+    return item

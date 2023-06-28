@@ -65,4 +65,3 @@ class SLAExtended(SLA):
     project: Project
     user_group: UserGroup
     quotas: List[QuotaExtended]
-

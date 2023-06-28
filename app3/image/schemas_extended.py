@@ -13,5 +13,6 @@ class ImageCreateExtended(ImageCreate):
 class ImageUpdateExtended(ImageUpdate):
     relationship: AvailableVMImageUpdate
 
+
 class ImageExtended(Image):
     relationship: AvailableVMImage

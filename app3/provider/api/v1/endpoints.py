@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List
 
-from ..dependencies import valid_provider_id, check_valid_services
+from ..dependencies import valid_provider_id, check_rel_consistency
 from ...crud import provider
 from ...models import Provider as ProviderModel
 from ...schemas import ProviderQuery
@@ -35,7 +35,7 @@ def get_providers(
     "/", status_code=status.HTTP_201_CREATED, response_model=ProviderExtended
 )
 def post_provider(
-    item: ProviderCreateExtended = Depends(check_valid_services),
+    item: ProviderCreateExtended = Depends(check_rel_consistency),
 ):
     return provider.create_with_all(obj_in=item)
 

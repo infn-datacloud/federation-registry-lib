@@ -3,7 +3,9 @@ from .schemas import QuotaTypeCreate, QuotaTypeUpdate
 from ..crud import CRUDBase
 
 
-class CRUDQuotaType(CRUDBase[QuotaTypeModel, QuotaTypeCreate, QuotaTypeUpdate]):
+class CRUDQuotaType(
+    CRUDBase[QuotaTypeModel, QuotaTypeCreate, QuotaTypeUpdate]
+):
     """"""
 
 

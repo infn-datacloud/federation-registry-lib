@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_project_id
 from ...crud import project
 from ...models import Project as ProjectModel
-from ...schemas import Project, ProjectQuery,  ProjectUpdate
+from ...schemas import Project, ProjectQuery, ProjectUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 

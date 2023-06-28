@@ -34,7 +34,8 @@ def get_location(item: LocationModel = Depends(valid_location_id)):
 @db.write_transaction
 @router.put("/{location_uid}", response_model=Optional[Location])
 def put_location(
-    update_data: LocationUpdate, item: LocationModel = Depends(valid_location_id)
+    update_data: LocationUpdate,
+    item: LocationModel = Depends(valid_location_id),
 ):
     return location.update(old_item=item, new_item=update_data)
 

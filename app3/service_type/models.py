@@ -35,7 +35,11 @@ class ServiceType(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(unique_index=True, required=True)
 
-    service = RelationshipFrom("..service.models.Service", "HAS_TYPE", cardinality=ZeroOrMore)
+    service = RelationshipFrom(
+        "..service.models.Service", "HAS_TYPE", cardinality=ZeroOrMore
+    )
     quota_types = RelationshipTo(
-        "..quota_type.models.QuotaType", "AVAILABLE_QUOTA_TYPE", cardinality=OneOrMore
+        "..quota_type.models.QuotaType",
+        "AVAILABLE_QUOTA_TYPE",
+        cardinality=OneOrMore,
     )

@@ -39,7 +39,11 @@ class QuotaType(StructuredNode):
     name = StringProperty(unique_index=True, required=True)
     unit = StringProperty()
 
-    quota = RelationshipFrom("..quota.models.Quota", "HAS_TYPE", cardinality=ZeroOrMore)
+    quota = RelationshipFrom(
+        "..quota.models.Quota", "HAS_TYPE", cardinality=ZeroOrMore
+    )
     service_types = RelationshipFrom(
-        "..service_type.models.ServiceType", "AVAILABLE_QUOTA_TYPE", cardinality=OneOrMore
+        "..service_type.models.ServiceType",
+        "AVAILABLE_QUOTA_TYPE",
+        cardinality=OneOrMore,
     )

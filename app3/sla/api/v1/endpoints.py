@@ -5,7 +5,7 @@ from typing import List, Tuple
 from ...crud import sla
 from ..dependencies import valid_sla_id
 from ...models import SLA as SLAModel
-from ...schemas import SLA, SLAQuery, SLAUpdate
+from ...schemas import SLAQuery, SLAUpdate
 from ...schemas_extended import SLAExtended, SLACreateExtended
 from ....pagination import Pagination, paginate
 from ....project.models import Project as ProjectModel
@@ -51,9 +51,11 @@ def is_allowed_quota_type(
 ) -> None:
     allowed_quota_types = [t.name for t in service_type.quota_types.all()]
     if quota_type.name not in allowed_quota_types:
+        msg = f"Quota '{quota_type.name}' can't be applied "
+        msg += f"on services of type '{service_type}'"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Quota '{quota_type.name}' can't be applied on services of type '{service_type}'",
+            detail=msg,
         )
 
 
@@ -61,9 +63,11 @@ def providers_match(
     quota_type: QuotaTypeModel, service: ServiceModel, provider: ProviderModel
 ) -> None:
     if service.provider.single().name != provider.name:
+        msg = f"Quota '{quota_type.name}' refers to a service belonging to "
+        msg += "a provider different from the project's one"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Quota '{quota_type.name}' refers to a service belonging to a provider different from the project's one",
+            detail=msg,
         )
 
 
@@ -100,13 +104,13 @@ def post_sla(
     item: SLACreateExtended = Body(),
 ):
     provider = project.provider.single()
-    l = []
+    quotas = []
     for quota in item.quotas:
         (quota_type, service) = validate_quota(quota.type, quota.service)
         providers_match(quota_type, service, provider)
-        l.append((quota, quota_type, service))
+        quotas.append((quota, quota_type, service))
     return sla.create_with_all(
-        sla=item, project=project, user_group=user_group, quotas=l
+        sla=item, project=project, user_group=user_group, quotas=quotas
     )
 
 

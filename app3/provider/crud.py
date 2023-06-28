@@ -114,14 +114,6 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
 
 provider = CRUDProvider(ProviderModel, ProviderCreate)
 
-
-#
-# from . import models, schemas_extended
-#
-# from typing import Any, Callable, List, Optional
-# from neomodel import StructuredNode, RelationshipManager
-# from pydantic import BaseModel
-#
 #
 # def check_rel_name_uuid_consist_connection(
 #    rel_manager: RelationshipManager, new_end_node: BaseModel
@@ -208,7 +200,8 @@ provider = CRUDProvider(ProviderModel, ProviderCreate)
 #            new_cluster = schemas_extended.ClusterCreate(
 #                **cluster.dict(exclude={"relationship"})
 #            )
-#            old_cluster = schemas_extended.ClusterCreate(**db_cluster.__dict__)
+#            old_cluster = schemas_extended.
+#                  ClusterCreate(**db_cluster.__dict__)
 #            if old_cluster != new_cluster:
 #                create_and_replace(
 #                    rel_manager=item.clusters,

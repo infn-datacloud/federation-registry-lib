@@ -44,6 +44,12 @@ class Quota(StructuredNode):
     instance_limit = FloatProperty()
     instance_guaranteed = FloatProperty(default=0)
 
-    sla = RelationshipFrom("..sla.models.SLA", "USE_SERVICE_WITH_QUOTA", cardinality=One)
-    type = RelationshipTo("..quota_type.models.QuotaType", "HAS_TYPE", cardinality=One)
-    service = RelationshipTo("..service.models.Service", "APPLIES_TO", cardinality=One)
+    sla = RelationshipFrom(
+        "..sla.models.SLA", "USE_SERVICE_WITH_QUOTA", cardinality=One
+    )
+    type = RelationshipTo(
+        "..quota_type.models.QuotaType", "HAS_TYPE", cardinality=One
+    )
+    service = RelationshipTo(
+        "..service.models.Service", "APPLIES_TO", cardinality=One
+    )

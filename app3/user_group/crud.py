@@ -3,7 +3,9 @@ from .schemas import UserGroupCreate, UserGroupUpdate
 from ..crud import CRUDBase
 
 
-class CRUDUserGroup(CRUDBase[UserGroupModel, UserGroupCreate, UserGroupUpdate]):
+class CRUDUserGroup(
+    CRUDBase[UserGroupModel, UserGroupCreate, UserGroupUpdate]
+):
     """"""
 
 

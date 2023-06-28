@@ -35,7 +35,9 @@ class Project(StructuredNode):
     private_network_proxy_user = StringProperty()
 
     sla = RelationshipFrom(
-        "..sla.models.SLA", "ACCESS_PROVIDER_THROUGH_PROJECT", cardinality=ZeroOrOne
+        "..sla.models.SLA",
+        "ACCESS_PROVIDER_THROUGH_PROJECT",
+        cardinality=ZeroOrOne,
     )
     provider = RelationshipFrom(
         "..provider.models.Provider",

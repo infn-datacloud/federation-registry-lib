@@ -1,6 +1,6 @@
 from enum import Enum
 from neo4j.data import DateTime
-from neomodel import StructuredNode, One, OneOrMore, ZeroOrOne, ZeroOrMore
+from neomodel import One, OneOrMore, ZeroOrOne, ZeroOrMore
 from pydantic import UUID4, BaseModel, Extra, root_validator
 from typing import Dict, Optional
 

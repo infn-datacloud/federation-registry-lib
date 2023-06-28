@@ -60,4 +60,3 @@ class ServiceType(BaseNodeRead, ServiceTypeCreate):
         quota_types (list of QuotaType): supported quota types for
             this kind of service.
     """
-

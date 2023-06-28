@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List
 from neomodel import (
     RelationshipTo,
     StringProperty,
@@ -93,7 +93,7 @@ class UserGroup(StructuredNode):
         results, columns = self.cypher(
             f"""
             {self.query_srv_prefix}
-            RETURN s 
+            RETURN s
         """
         )
 
