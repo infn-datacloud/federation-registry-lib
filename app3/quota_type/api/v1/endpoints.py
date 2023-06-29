@@ -43,7 +43,7 @@ def put_quota_type(
 @db.write_transaction
 @router.delete("/{quota_type_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_quota_types(item: QuotaTypeModel = Depends(valid_quota_type_id)):
-    if not quota_type.remove(item):
+    if not quota_type.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

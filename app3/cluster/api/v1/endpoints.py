@@ -43,7 +43,7 @@ def put_cluster(
 @db.write_transaction
 @router.delete("/{cluster_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_clusters(item: ClusterModel = Depends(valid_cluster_id)):
-    if not cluster.remove(item):
+    if not cluster.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

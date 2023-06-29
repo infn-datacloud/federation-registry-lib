@@ -43,7 +43,7 @@ def put_location(
 @db.write_transaction
 @router.delete("/{location_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_location(item: LocationModel = Depends(valid_location_id)):
-    if not location.remove(item):
+    if not location.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

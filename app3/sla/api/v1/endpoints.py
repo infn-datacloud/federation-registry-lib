@@ -152,7 +152,7 @@ def put_sla(update_data: SLAUpdate, item: SLAModel = Depends(valid_sla_id)):
 @db.write_transaction
 @router.delete("/{sla_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_slas(item: SLAModel = Depends(valid_sla_id)):
-    if not sla.remove(item):
+    if not sla.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

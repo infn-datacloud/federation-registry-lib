@@ -42,7 +42,7 @@ def put_image(
 @db.write_transaction
 @router.delete("/{image_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_images(item: ImageModel = Depends(valid_image_id)):
-    if not image.remove(item):
+    if not image.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

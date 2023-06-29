@@ -60,7 +60,7 @@ def put_service_type(
 def delete_service_types(
     item: ServiceTypeModel = Depends(valid_service_type_id),
 ):
-    if not service_type.update(item):
+    if not service_type.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

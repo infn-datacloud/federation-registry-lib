@@ -42,7 +42,7 @@ def put_flavor(
 @db.write_transaction
 @router.delete("/{flavor_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_flavors(item: FlavorModel = Depends(valid_flavor_id)):
-    if not flavor.remove(item):
+    if not flavor.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

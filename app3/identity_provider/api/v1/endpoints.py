@@ -55,7 +55,7 @@ def put_identity_provider(
 def delete_identity_providers(
     item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
-    if not identity_provider.remove(item):
+    if not identity_provider.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

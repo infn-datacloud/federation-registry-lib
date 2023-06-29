@@ -44,7 +44,7 @@ def put_service(
 @db.write_transaction
 @router.delete("/{service_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_services(item: ServiceModel = Depends(valid_service_id)):
-    if not service.remove(item):
+    if not service.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

@@ -66,7 +66,7 @@ def put_user_group(
 @db.write_transaction
 @router.delete("/{user_group_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
-    if not user_group.remove(item):
+    if not user_group.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

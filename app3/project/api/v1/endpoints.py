@@ -42,7 +42,7 @@ def put_project(
 @db.write_transaction
 @router.delete("/{project_uid}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_project(item: ProjectModel = Depends(valid_project_id)):
-    if not project.remove(item):
+    if not project.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
