@@ -82,7 +82,7 @@ class Location(BaseNodeRead, LocationCreate):
 
     country_code: str
 
-    @root_validator
+    @root_validator(pre=True)
     def get_country_code(cls, values: Dict) -> Dict:
         matches = countries.search_fuzzy(values["country"])
         values["country_code"] = matches[0].alpha_3
