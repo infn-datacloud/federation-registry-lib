@@ -37,7 +37,6 @@ class QuotaType(StructuredNode):
     uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(unique_index=True, required=True)
-    unit = StringProperty()
 
     quota = RelationshipFrom(
         "..quota.models.Quota", "HAS_TYPE", cardinality=ZeroOrMore
