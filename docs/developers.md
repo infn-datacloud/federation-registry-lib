@@ -30,13 +30,13 @@ To run the python program in containers you need [docker](https://www.docker.com
 If for some reason the on-line image is not available, you can build your local image issuing, from the top folder, the command:
 
 ```
-docker build -t indigo-dc/poetry-fastapi -f docker/Dockerfile .
+docker build -t indigo-dc/change-management-database -f docker/Dockerfile .
 ```
 
 If you want to run a single instance of this application, and automatically remove it at the end, you can use the following command:
 
 ```
-docker run --rm -it indigo-dc/poetry-fastapi
+docker run --rm -it indigo-dc/change-management-database
 ```
 
 To run the app using `compose` see [Run the Change Management Database](getting_started.md).
