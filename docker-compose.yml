@@ -3,12 +3,30 @@ version: "3"
 services:
   db:
     image: neo4j:5.8.0
-    ports:
-      - 7474:7474
-      - 7687:7687
     volumes:
-      - ./data:/data
-      - ./logs:/logs
+      - app-db-data:/data
+      - app-db-logs:/logs
     environment:
-      - NEO4J_AUTH=none
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
       - NEO4J_PLUGINS=["apoc"]
+    healthcheck:
+      test: wget http://localhost:7474 || exit 1
+      start_period: 10s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: indigo-dc/change-management-database
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ".env"
+    environment:
+      - SERVER_NAME=${DOMAIN?Variable not set}
+      - SERVER_HOST=https://${DOMAIN?Variable not set}
+        
+volumes:
+  app-db-data:
+  app-db-logs:
