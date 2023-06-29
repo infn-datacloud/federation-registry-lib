@@ -28,7 +28,7 @@ class UserGroupCreate(BaseNodeCreate):
     name: str
 
 
-class UserGroupUpdate(UserGroupCreate):
+class UserGroupUpdate(BaseNodeCreate, UserGroupQuery):
     """UserGroup Update Model class.
 
     Class without id (which is populated by the database).
