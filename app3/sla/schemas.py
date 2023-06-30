@@ -33,7 +33,7 @@ class SLACreate(BaseNodeCreate):
     """
 
     start_date: datetime
-    end_date: datetime
+    end_date: Optional[datetime] = None
 
 
 class SLAUpdate(SLACreate):

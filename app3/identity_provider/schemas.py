@@ -1,4 +1,4 @@
-from pydantic import AnyUrl
+from pydantic import AnyHttpUrl
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
@@ -12,7 +12,7 @@ class IdentityProviderQuery(BaseNodeQuery):
         endpoint (str | None): URL of the IdentityProvider.
     """
 
-    endpoint: Optional[AnyUrl] = None
+    endpoint: Optional[AnyHttpUrl] = None
 
 
 class IdentityProviderCreate(BaseNodeCreate):
@@ -26,7 +26,7 @@ class IdentityProviderCreate(BaseNodeCreate):
         endpoint (str): URL of the IdentityProvider.
     """
 
-    endpoint: AnyUrl
+    endpoint: AnyHttpUrl
 
 
 class IdentityProviderUpdate(IdentityProviderCreate):

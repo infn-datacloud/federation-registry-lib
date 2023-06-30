@@ -1,4 +1,4 @@
-from pydantic import AnyUrl
+from pydantic import AnyHttpUrl
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
@@ -12,7 +12,7 @@ class ServiceQuery(BaseNodeQuery):
         endpoint (str | None): URL pointing to this service
     """
 
-    endpoint: Optional[AnyUrl] = None
+    endpoint: Optional[AnyHttpUrl] = None
 
 
 class ServiceCreate(BaseNodeCreate):
@@ -27,7 +27,7 @@ class ServiceCreate(BaseNodeCreate):
         type (ServiceTypeUpdate): Service type.
     """
 
-    endpoint: AnyUrl
+    endpoint: AnyHttpUrl
 
 
 class ServiceUpdate(ServiceCreate):

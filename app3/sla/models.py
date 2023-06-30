@@ -27,7 +27,7 @@ class SLA(StructuredNode):
     uid = UniqueIdProperty()
     description = StringProperty(default="")
     start_date = DateTimeProperty(required=True)
-    end_date = DateTimeProperty(required=True)
+    end_date = DateTimeProperty()
 
     user_group = RelationshipFrom(
         "..user_group.models.UserGroup", "HAS_SLA", cardinality=One

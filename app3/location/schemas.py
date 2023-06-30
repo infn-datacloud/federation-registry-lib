@@ -1,5 +1,5 @@
 from pycountry import countries
-from pydantic import root_validator
+from pydantic import Field, root_validator
 from typing import Dict, Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
@@ -20,8 +20,8 @@ class LocationQuery(BaseNodeQuery):
     name: Optional[str] = None
     country: Optional[str] = None
     country_code: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+    latitude: Optional[float] = Field(ge=-180, le=180, default=None)
+    longitude: Optional[float] = Field(ge=-90, le=90, default=None)
 
 
 class LocationCreate(BaseNodeCreate):
@@ -41,6 +41,8 @@ class LocationCreate(BaseNodeCreate):
 
     name: str
     country: str
+    latitude: Optional[float] = Field(ge=-180, le=180, default=None)
+    longitude: Optional[float] = Field(ge=-90, le=90, default=None)
 
 
 class LocationUpdate(LocationCreate):
@@ -57,9 +59,6 @@ class LocationUpdate(LocationCreate):
         latitude (float | None): Latitude coordinate.
         longitude (float | None): Longitude coordinate.
     """
-
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
 
 
 class Location(BaseNodeRead, LocationCreate):
