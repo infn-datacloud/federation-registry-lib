@@ -2,13 +2,15 @@ import uuid
 from fastapi import status
 from fastapi.testclient import TestClient
 
-from ....config import settings
 from ...utils.user_group import create_random_user_group
 from ...utils.utils import random_lower_string
+from ....user_group.schemas import UserGroup
+from ....config import settings
 
 
 def test_create_user_group(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     data = {
         "name": random_lower_string(),
@@ -16,7 +18,8 @@ def test_create_user_group(
     }
     response = client.post(
         f"{settings.API_V1_STR}/user_groups/",
-        json=data,  # headers=superuser_token_headers,
+        json=data,
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_201_CREATED
     content = response.json()
@@ -26,11 +29,14 @@ def test_create_user_group(
 
 
 def test_read_user_group(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item = create_random_user_group()
+    item = UserGroup.from_orm(item)
     response = client.get(
-        f"{settings.API_V1_STR}/user_groups/{item.uid}",  # headers=superuser_token_headers,
+        f"{settings.API_V1_STR}/user_groups/{item.uid}",
+        # headers=superuser_token_headers,
     )
     assert response.status_code == 200
     content = response.json()
@@ -40,12 +46,16 @@ def test_read_user_group(
 
 
 def test_read_user_groups(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item = create_random_user_group()
+    item = UserGroup.from_orm(item)
     item2 = create_random_user_group()
+    item2 = UserGroup.from_orm(item2)
     response = client.get(
-        f"{settings.API_V1_STR}/user_groups/",  # headers=superuser_token_headers,
+        f"{settings.API_V1_STR}/user_groups/",
+        # headers=superuser_token_headers,
     )
     assert response.status_code == 200
     content = response.json()
@@ -59,13 +69,16 @@ def test_read_user_groups(
 
 
 def test_update_user_group(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item = create_random_user_group()
+    item = UserGroup.from_orm(item)
     data = {"name": random_lower_string()}
     response = client.put(
         f"{settings.API_V1_STR}/user_groups/{item.uid}",
-        json=data,  # headers=superuser_token_headers,
+        json=data,
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -76,7 +89,8 @@ def test_update_user_group(
     data2 = {"description": random_lower_string()}
     response = client.put(
         f"{settings.API_V1_STR}/user_groups/{item.uid}",
-        json=data2,  # headers=superuser_token_headers,
+        json=data2,
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -86,23 +100,29 @@ def test_update_user_group(
 
 
 def test_delete_user_group(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item = create_random_user_group()
+    item = UserGroup.from_orm(item)
     response = client.delete(
-        f"{settings.API_V1_STR}/user_groups/{item.uid}",  # headers=superuser_token_headers,
+        f"{settings.API_V1_STR}/user_groups/{item.uid}",
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
 def test_create_user_group_with_existing_name(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item = create_random_user_group()
+    item = UserGroup.from_orm(item)
     data = {"name": item.name}
     response = client.post(
         f"{settings.API_V1_STR}/user_groups/",
-        json=data,  # headers=superuser_token_headers,
+        json=data,
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
     content = response.json()
@@ -113,14 +133,18 @@ def test_create_user_group_with_existing_name(
 
 
 def test_update_user_group_with_existing_name(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item = create_random_user_group()
+    item = UserGroup.from_orm(item)
     item2 = create_random_user_group()
+    item2 = UserGroup.from_orm(item2)
     data = {"name": item.name}
     response = client.put(
         f"{settings.API_V1_STR}/user_groups/{item2.uid}",
-        json=data,  # headers=superuser_token_headers,
+        json=data,
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
     content = response.json()
@@ -131,11 +155,13 @@ def test_update_user_group_with_existing_name(
 
 
 def test_read_user_group_not_existing(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item_uuid = uuid.uuid4()
     response = client.get(
-        f"{settings.API_V1_STR}/user_groups/{item_uuid}",  # headers=superuser_token_headers,
+        f"{settings.API_V1_STR}/user_groups/{item_uuid}",
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()
@@ -143,7 +169,8 @@ def test_read_user_group_not_existing(
 
 
 def test_update_user_group_not_existing(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item_uuid = uuid.uuid4()
     data = {
@@ -152,7 +179,8 @@ def test_update_user_group_not_existing(
     }
     response = client.put(
         f"{settings.API_V1_STR}/user_groups/{item_uuid}",
-        json=data,  # headers=superuser_token_headers,
+        json=data,
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()
@@ -160,11 +188,13 @@ def test_update_user_group_not_existing(
 
 
 def test_delete_user_group_not_existing(
-    client: TestClient,  # superuser_token_headers: dict,
+    client: TestClient,
+    # superuser_token_headers: dict,
 ) -> None:
     item_uuid = uuid.uuid4()
     response = client.delete(
-        f"{settings.API_V1_STR}/user_groups/{item_uuid}",  # headers=superuser_token_headers,
+        f"{settings.API_V1_STR}/user_groups/{item_uuid}",
+        # headers=superuser_token_headers,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()
