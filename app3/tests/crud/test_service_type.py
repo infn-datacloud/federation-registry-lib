@@ -38,6 +38,30 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     assert item.name == stored_item.name
 
 
+def test_get_items(setup_and_teardown_db: Generator) -> None:
+    item = create_random_service_type()
+    item2 = create_random_service_type()
+    stored_items = service_type.get_multi()
+    assert len(stored_items) == 2
+
+    stored_items = service_type.get_multi(limit=1)
+    assert len(stored_items) == 1
+
+    stored_items = service_type.get_multi(uid=item.uid)
+    assert len(stored_items) == 1
+    assert stored_items[0].uid == item.uid
+    assert stored_items[0].description == item.description
+    assert stored_items[0].name == item.name
+
+    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    stored_items = service_type.get_multi(sort="uid")
+    assert stored_items[0].uid == sorted_items[0].uid
+    assert stored_items[1].uid == sorted_items[1].uid
+    stored_items = service_type.get_multi(sort="-uid")
+    assert stored_items[0].uid == sorted_items[1].uid
+    assert stored_items[1].uid == sorted_items[0].uid
+
+
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_service_type()
     description2 = random_lower_string()

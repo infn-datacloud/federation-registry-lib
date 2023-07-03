@@ -58,6 +58,39 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     )
 
 
+def test_get_items(setup_and_teardown_db: Generator) -> None:
+    item = create_random_project()
+    item2 = create_random_project()
+    stored_items = project.get_multi()
+    assert len(stored_items) == 2
+
+    stored_items = project.get_multi(limit=1)
+    assert len(stored_items) == 1
+
+    stored_items = project.get_multi(uid=item.uid)
+    assert len(stored_items) == 1
+    assert stored_items[0].uid == item.uid
+    assert stored_items[0].description == item.description
+    assert stored_items[0].public_network_name == item.public_network_name
+    assert stored_items[0].private_network_name == item.private_network_name
+    assert (
+        stored_items[0].private_network_proxy_host
+        == item.private_network_proxy_host
+    )
+    assert (
+        stored_items[0].private_network_proxy_user
+        == item.private_network_proxy_user
+    )
+
+    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    stored_items = project.get_multi(sort="uid")
+    assert stored_items[0].uid == sorted_items[0].uid
+    assert stored_items[1].uid == sorted_items[1].uid
+    stored_items = project.get_multi(sort="-uid")
+    assert stored_items[0].uid == sorted_items[1].uid
+    assert stored_items[1].uid == sorted_items[0].uid
+
+
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_project()
     description2 = random_lower_string()

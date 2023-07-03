@@ -73,6 +73,36 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     assert item.creation_time == stored_item.creation_time
 
 
+def test_get_items(setup_and_teardown_db: Generator) -> None:
+    item = create_random_image()
+    item2 = create_random_image()
+    stored_items = image.get_multi()
+    assert len(stored_items) == 2
+
+    stored_items = image.get_multi(limit=1)
+    assert len(stored_items) == 1
+
+    stored_items = image.get_multi(uid=item.uid)
+    assert len(stored_items) == 1
+    assert stored_items[0].uid == item.uid
+    assert stored_items[0].description == item.description
+    assert stored_items[0].os == item.os
+    assert stored_items[0].distribution == item.distribution
+    assert stored_items[0].version == item.version
+    assert stored_items[0].architecture == item.architecture
+    assert stored_items[0].cuda_support == item.cuda_support
+    assert stored_items[0].gpu_driver == item.gpu_driver
+    assert stored_items[0].creation_time == item.creation_time
+
+    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    stored_items = image.get_multi(sort="uid")
+    assert stored_items[0].uid == sorted_items[0].uid
+    assert stored_items[1].uid == sorted_items[1].uid
+    stored_items = image.get_multi(sort="-uid")
+    assert stored_items[0].uid == sorted_items[1].uid
+    assert stored_items[1].uid == sorted_items[0].uid
+
+
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_image()
     description2 = random_lower_string()
