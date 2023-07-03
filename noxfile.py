@@ -5,7 +5,7 @@ import nox
     python=["3.8", "3.9", "3.10"], venv_backend="conda", reuse_venv=True
 )
 def backend_tests(session: nox.Session) -> None:
-    session.install("pytest-cov", "fastapi", "uvicorn", "httpx")
+    session.install("-r", "requirements.dev.txt")
     session.run(
         "pytest",
         "--cov",
