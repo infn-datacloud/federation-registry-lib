@@ -1,6 +1,9 @@
 from typing import Generator
 
-from ..utils.provider import create_random_provider
+from ..utils.provider import (
+    create_random_provider,
+    create_random_update_provider_data,
+)
 from ..utils.utils import random_bool, random_email, random_lower_string
 from ...provider.crud import provider
 from ...provider.schemas import ProviderCreate, ProviderUpdate
@@ -73,22 +76,21 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_provider()
-    description2 = random_lower_string()
-    name2 = random_lower_string()
-    is_public2 = not item.is_public
-    support_email2 = [random_email()]
-    item_update = ProviderUpdate(
-        description=description2,
-        name=name2,
-        is_public=is_public2,
-        support_email=support_email2,
-    )
+    item_update = create_random_update_provider_data()
     item2 = provider.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item.description == description2
-    assert item.name == name2
-    assert item.is_public == is_public2
-    assert item.support_email == support_email2
+    assert item.description == item_update.description
+    assert item.name == item_update.name
+    assert item.is_public == item_update.is_public
+    assert item.support_email == item_update.support_email
+
+    item_update = create_random_update_provider_data()
+    item2 = provider.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item.description == item_update.description
+    assert item.name == item_update.name
+    assert item.is_public == item_update.is_public
+    assert item.support_email == item_update.support_email
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

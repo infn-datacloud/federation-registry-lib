@@ -1,6 +1,6 @@
 from typing import Generator
 
-from ..utils.sla import create_random_sla
+from ..utils.sla import create_random_sla, create_random_update_sla_data
 from ..utils.utils import random_lower_string, random_datetime
 from ...sla.crud import sla
 from ...sla.schemas import SLACreate, SLAUpdate
@@ -65,17 +65,19 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_sla()
-    description2 = random_lower_string()
-    start_date2 = random_datetime()
-    end_date2 = random_datetime()
-    item_update = SLAUpdate(
-        description=description2, start_date=start_date2, end_date=end_date2
-    )
+    item_update = create_random_update_sla_data()
     item2 = sla.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
-    assert item2.start_date == start_date2
-    assert item2.end_date == end_date2
+    assert item2.description == item_update.description
+    assert item2.start_date == item_update.start_date
+    assert item2.end_date == item_update.end_date
+
+    item_update = create_random_update_sla_data()
+    item2 = sla.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
+    assert item2.start_date == item_update.start_date
+    assert item2.end_date == item_update.end_date
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

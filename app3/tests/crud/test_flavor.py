@@ -1,6 +1,9 @@
 from typing import Generator
 
-from ..utils.flavor import create_random_flavor
+from ..utils.flavor import (
+    create_random_flavor,
+    create_random_update_flavor_data,
+)
 from ..utils.utils import (
     random_lower_string,
     random_non_negative_int,
@@ -101,34 +104,29 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_flavor()
-    description2 = random_lower_string()
-    num_vcpus2 = random_non_negative_int()
-    num_gpus2 = random_non_negative_int()
-    ram2 = random_non_negative_int()
-    disk2 = random_non_negative_int()
-    infiniband_support2 = not item.infiniband_support
-    gpu_model2 = random_lower_string()
-    gpu_vendor2 = random_lower_string()
-    item_update = FlavorUpdate(
-        description=description2,
-        num_vcpus=num_vcpus2,
-        num_gpus=num_gpus2,
-        ram=ram2,
-        disk=disk2,
-        infiniband_support=infiniband_support2,
-        gpu_model=gpu_model2,
-        gpu_vendor=gpu_vendor2,
-    )
+    item_update = create_random_update_flavor_data()
     item2 = flavor.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
-    assert item2.num_vcpus == num_vcpus2
-    assert item2.num_gpus == num_gpus2
-    assert item2.ram == ram2
-    assert item2.disk == disk2
-    assert item2.infiniband_support == infiniband_support2
-    assert item2.gpu_model == gpu_model2
-    assert item2.gpu_vendor == gpu_vendor2
+    assert item2.description == item_update.description
+    assert item2.num_vcpus == item_update.num_vcpus
+    assert item2.num_gpus == item_update.num_gpus
+    assert item2.ram == item_update.ram
+    assert item2.disk == item_update.disk
+    assert item2.infiniband_support == item_update.infiniband_support
+    assert item2.gpu_model == item_update.gpu_model
+    assert item2.gpu_vendor == item_update.gpu_vendor
+
+    item_update = create_random_update_flavor_data()
+    item2 = flavor.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
+    assert item2.num_vcpus == item_update.num_vcpus
+    assert item2.num_gpus == item_update.num_gpus
+    assert item2.ram == item_update.ram
+    assert item2.disk == item_update.disk
+    assert item2.infiniband_support == item_update.infiniband_support
+    assert item2.gpu_model == item_update.gpu_model
+    assert item2.gpu_vendor == item_update.gpu_vendor
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

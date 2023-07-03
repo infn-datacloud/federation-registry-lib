@@ -2,6 +2,7 @@ from typing import Generator
 
 from ..utils.location import (
     create_random_location,
+    create_random_update_location_data,
     random_country,
     random_latitude,
     random_longitude,
@@ -85,25 +86,23 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_location()
-    description2 = random_lower_string()
-    name2 = random_lower_string()
-    country2 = random_country()
-    latitude2 = random_latitude()
-    longitude2 = random_longitude()
-    item_update = LocationUpdate(
-        description=description2,
-        name=name2,
-        country=country2,
-        latitude=latitude2,
-        longitude=longitude2,
-    )
+    item_update = create_random_update_location_data()
     item2 = location.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
-    assert item2.name == name2
-    assert item2.country == country2
-    assert item2.latitude == latitude2
-    assert item2.longitude == longitude2
+    assert item2.description == item_update.description
+    assert item2.name == item_update.name
+    assert item2.country == item_update.country
+    assert item2.latitude == item_update.latitude
+    assert item2.longitude == item_update.longitude
+
+    item_update = create_random_update_location_data()
+    item2 = location.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
+    assert item2.name == item_update.name
+    assert item2.country == item_update.country
+    assert item2.latitude == item_update.latitude
+    assert item2.longitude == item_update.longitude
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

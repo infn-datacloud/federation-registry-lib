@@ -1,6 +1,10 @@
 from typing import Generator
 
-from ..utils.quota_type import create_random_quota_type, random_name
+from ..utils.quota_type import (
+    create_random_quota_type,
+    create_random_update_quota_type_data,
+    random_name,
+)
 from ..utils.utils import random_lower_string
 from ...quota_type.crud import quota_type
 from ...quota_type.schemas import QuotaTypeCreate, QuotaTypeUpdate
@@ -64,13 +68,17 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_quota_type()
-    description2 = random_lower_string()
-    name2 = random_name()
-    item_update = QuotaTypeUpdate(name=name2, description=description2)
+    item_update = create_random_update_quota_type_data()
     item2 = quota_type.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
-    assert item2.name == name2
+    assert item2.description == item_update.description
+    assert item2.name == item_update.name
+
+    item_update = create_random_update_quota_type_data()
+    item2 = quota_type.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
+    assert item2.name == item_update.name
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

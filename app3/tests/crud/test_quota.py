@@ -1,6 +1,6 @@
 from typing import Generator
 
-from ..utils.quota import create_random_quota
+from ..utils.quota import create_random_quota, create_random_update_quota_data
 from ..utils.utils import random_lower_string, random_non_negative_float
 from ...quota.crud import quota
 from ...quota.schemas import QuotaCreate, QuotaUpdate
@@ -90,31 +90,27 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_quota()
-    description2 = random_lower_string()
-    tot_limit2 = random_non_negative_float()
-    instance_limit2 = random_non_negative_float()
-    user_limit2 = random_non_negative_float()
-    tot_guaranteed2 = random_non_negative_float()
-    instance_guaranteed2 = random_non_negative_float()
-    user_guaranteed2 = random_non_negative_float()
-    item_update = QuotaUpdate(
-        description=description2,
-        tot_limit=tot_limit2,
-        instance_limit=instance_limit2,
-        user_limit=user_limit2,
-        tot_guaranteed=tot_guaranteed2,
-        instance_guaranteed=instance_guaranteed2,
-        user_guaranteed=user_guaranteed2,
-    )
+    item_update = create_random_update_quota_data()
     item2 = quota.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
-    assert item2.tot_limit == tot_limit2
-    assert item2.instance_limit == instance_limit2
-    assert item2.user_limit == user_limit2
-    assert item2.tot_guaranteed == tot_guaranteed2
-    assert item2.instance_guaranteed == instance_guaranteed2
-    assert item2.user_guaranteed == user_guaranteed2
+    assert item2.description == item_update.description
+    assert item2.tot_limit == item_update.tot_limit
+    assert item2.instance_limit == item_update.instance_limit
+    assert item2.user_limit == item_update.user_limit
+    assert item2.tot_guaranteed == item_update.tot_guaranteed
+    assert item2.instance_guaranteed == item_update.instance_guaranteed
+    assert item2.user_guaranteed == item_update.user_guaranteed
+
+    item_update = create_random_update_quota_data()
+    item2 = quota.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
+    assert item2.tot_limit == item_update.tot_limit
+    assert item2.instance_limit == item_update.instance_limit
+    assert item2.user_limit == item_update.user_limit
+    assert item2.tot_guaranteed == item_update.tot_guaranteed
+    assert item2.instance_guaranteed == item_update.instance_guaranteed
+    assert item2.user_guaranteed == item_update.user_guaranteed
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

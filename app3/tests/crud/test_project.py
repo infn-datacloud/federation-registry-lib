@@ -1,6 +1,9 @@
 from typing import Generator
 
-from ..utils.project import create_random_project
+from ..utils.project import (
+    create_random_project,
+    create_random_update_project_data,
+)
 from ..utils.utils import random_lower_string
 from ...project.crud import project
 from ...project.schemas import (
@@ -93,25 +96,35 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_project()
-    description2 = random_lower_string()
-    public_network_name2 = random_lower_string()
-    private_network_name2 = random_lower_string()
-    private_network_proxy_host2 = random_lower_string()
-    private_network_proxy_user2 = random_lower_string()
-    item_update = ProjectUpdate(
-        description=description2,
-        public_network_name=public_network_name2,
-        private_network_name=private_network_name2,
-        private_network_proxy_host=private_network_proxy_host2,
-        private_network_proxy_user=private_network_proxy_user2,
-    )
+    item_update = create_random_update_project_data()
     item2 = project.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
-    assert item.public_network_name == public_network_name2
-    assert item.private_network_name == private_network_name2
-    assert item.private_network_proxy_host == private_network_proxy_host2
-    assert item.private_network_proxy_user == private_network_proxy_user2
+    assert item2.description == item_update.description
+    assert item.public_network_name == item_update.public_network_name
+    assert item.private_network_name == item_update.private_network_name
+    assert (
+        item.private_network_proxy_host
+        == item_update.private_network_proxy_host
+    )
+    assert (
+        item.private_network_proxy_user
+        == item_update.private_network_proxy_user
+    )
+
+    item_update = create_random_update_project_data()
+    item2 = project.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
+    assert item.public_network_name == item_update.public_network_name
+    assert item.private_network_name == item_update.private_network_name
+    assert (
+        item.private_network_proxy_host
+        == item_update.private_network_proxy_host
+    )
+    assert (
+        item.private_network_proxy_user
+        == item_update.private_network_proxy_user
+    )
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

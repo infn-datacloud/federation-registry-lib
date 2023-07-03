@@ -1,6 +1,9 @@
 from typing import Generator
 
-from ..utils.cluster import create_random_cluster
+from ..utils.cluster import (
+    create_random_cluster,
+    create_random_update_cluster_data,
+)
 from ..utils.utils import random_lower_string
 from ...cluster.crud import cluster
 from ...cluster.schemas import ClusterCreate, ClusterUpdate
@@ -52,11 +55,15 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_cluster()
-    description2 = random_lower_string()
-    item_update = ClusterUpdate(description=description2)
+    item_update = create_random_update_cluster_data()
     item2 = cluster.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
+    assert item2.description == item_update.description
+
+    item_update = create_random_update_cluster_data()
+    item2 = cluster.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

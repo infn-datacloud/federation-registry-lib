@@ -1,6 +1,9 @@
 from typing import Generator
 
-from ..utils.user_group import create_random_user_group
+from ..utils.user_group import (
+    create_random_update_user_group_data,
+    create_random_user_group,
+)
 from ..utils.utils import random_lower_string
 from ...user_group.crud import user_group
 from ...user_group.schemas import UserGroupCreate, UserGroupUpdate
@@ -58,13 +61,17 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_user_group()
-    name2 = random_lower_string()
-    description2 = random_lower_string()
-    item_update = UserGroupUpdate(name=name2, description=description2)
+    item_update = create_random_update_user_group_data()
     item2 = user_group.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.name == name2
-    assert item2.description == description2
+    assert item2.name == item_update.name
+    assert item2.description == item_update.description
+
+    item_update = create_random_update_user_group_data()
+    item2 = user_group.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.name == item_update.name
+    assert item2.description == item_update.description
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

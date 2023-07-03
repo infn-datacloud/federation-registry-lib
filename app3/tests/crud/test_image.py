@@ -1,6 +1,10 @@
 from typing import Generator
 
-from ..utils.image import create_random_image, random_os
+from ..utils.image import (
+    create_random_image,
+    create_random_update_image_data,
+    random_os,
+)
 from ..utils.utils import random_lower_string, random_bool, random_datetime
 from ...image.crud import image
 from ...image.schemas import ImageCreate, ImageUpdate
@@ -105,35 +109,29 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_image()
-    description2 = random_lower_string()
-    os2 = random_os()
-    distribution2 = random_lower_string()
-    version2 = random_lower_string()
-    architecture2 = random_lower_string()
-    cuda_support2 = not item.cuda_support
-    gpu_driver2 = not item.gpu_driver
-    creation_time2 = random_datetime()
-
-    item_update = ImageUpdate(
-        description=description2,
-        os=os2,
-        distribution=distribution2,
-        version=version2,
-        architecture=architecture2,
-        cuda_support=cuda_support2,
-        gpu_driver=gpu_driver2,
-        creation_time=creation_time2,
-    )
+    item_update = create_random_update_image_data()
     item2 = image.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
-    assert item2.os == os2
-    assert item2.distribution == distribution2
-    assert item2.version == version2
-    assert item2.architecture == architecture2
-    assert item2.cuda_support == cuda_support2
-    assert item2.gpu_driver == gpu_driver2
-    assert item2.creation_time == creation_time2
+    assert item2.description == item_update.description
+    assert item2.os == item_update.os
+    assert item2.distribution == item_update.distribution
+    assert item2.version == item_update.version
+    assert item2.architecture == item_update.architecture
+    assert item2.cuda_support == item_update.cuda_support
+    assert item2.gpu_driver == item_update.gpu_driver
+    assert item2.creation_time == item_update.creation_time
+
+    item_update = create_random_update_image_data()
+    item2 = image.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
+    assert item2.os == item_update.os
+    assert item2.distribution == item_update.distribution
+    assert item2.version == item_update.version
+    assert item2.architecture == item_update.architecture
+    assert item2.cuda_support == item_update.cuda_support
+    assert item2.gpu_driver == item_update.gpu_driver
+    assert item2.creation_time == item_update.creation_time
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

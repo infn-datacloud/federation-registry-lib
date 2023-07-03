@@ -1,6 +1,9 @@
 from typing import Generator
 
-from ..utils.service import create_random_service
+from ..utils.service import (
+    create_random_service,
+    create_random_update_service_data,
+)
 from ..utils.utils import random_lower_string, random_url
 from ...service.crud import service
 from ...service.schemas import ServiceCreate, ServiceUpdate
@@ -64,13 +67,17 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 def test_update_item(setup_and_teardown_db: Generator) -> None:
     item = create_random_service()
-    description2 = random_lower_string()
-    endpoint2 = random_url()
-    item_update = ServiceUpdate(endpoint=endpoint2, description=description2)
+    item_update = create_random_update_service_data()
     item2 = service.update(db_obj=item, obj_in=item_update)
     assert item2.uid == item.uid
-    assert item2.description == description2
-    assert item2.endpoint == endpoint2
+    assert item2.description == item_update.description
+    assert item2.endpoint == item_update.endpoint
+
+    item_update = create_random_update_service_data()
+    item2 = service.update(db_obj=item, obj_in=item_update.dict())
+    assert item2.uid == item.uid
+    assert item2.description == item_update.description
+    assert item2.endpoint == item_update.endpoint
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:
