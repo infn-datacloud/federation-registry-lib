@@ -15,7 +15,7 @@ class CommonGetQuery(BaseModel):
 
         if sort_rule.endswith("_asc"):
             new_val = sort_rule[: -len("_asc")]
-        if sort_rule.endswith("_desc"):
+        elif sort_rule.endswith("_desc"):
             new_val = sort_rule[: -len("_desc")]
             new_val = f"-{new_val}"
         else:

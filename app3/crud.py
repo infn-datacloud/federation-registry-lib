@@ -1,4 +1,3 @@
-from fastapi.encoders import jsonable_encoder
 from neomodel import StructuredNode
 from pydantic import BaseModel
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union

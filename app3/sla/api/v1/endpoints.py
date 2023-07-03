@@ -84,8 +84,8 @@ def validate_quota(
 def user_group_not_linked_to_provider(
     user_group: UserGroupModel, provider: ProviderModel
 ) -> None:
-    for sla in user_group.slas.all():
-        project = sla.project.single()
+    for single_sla in user_group.slas.all():
+        project = single_sla.project.single()
         if project.provider.single() == provider:
             msg = "User Group already has a dedicated project "
             msg += f"on provider '{provider.name}'"
