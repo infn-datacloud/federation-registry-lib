@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 from fastapi import Depends, Request
 from fastapi.security import HTTPBasicCredentials
-from app.auth import flaat, security
-from app import main
-from app.dao.services import ServiceDAO, Service
+from oldapp.auth import flaat, security
+from oldapp import main
+from oldapp.dao.services import ServiceDAO, Service
 
 router = APIRouter(
     prefix="/services",
