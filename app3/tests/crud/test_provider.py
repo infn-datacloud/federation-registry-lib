@@ -6,7 +6,7 @@ from ..utils.provider import (
 )
 from ..utils.utils import random_bool, random_email, random_lower_string
 from ...provider.crud import provider
-from ...provider.schemas import ProviderCreate, ProviderUpdate
+from ...provider.schemas import ProviderCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

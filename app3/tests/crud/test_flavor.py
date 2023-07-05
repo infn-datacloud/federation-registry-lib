@@ -10,7 +10,7 @@ from ..utils.utils import (
     random_bool,
 )
 from ...flavor.crud import flavor
-from ...flavor.schemas import FlavorCreate, FlavorUpdate
+from ...flavor.schemas import FlavorCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

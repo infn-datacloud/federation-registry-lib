@@ -6,10 +6,7 @@ from ..utils.identity_provider import (
 )
 from ..utils.utils import random_lower_string, random_url
 from ...identity_provider.crud import identity_provider
-from ...identity_provider.schemas import (
-    IdentityProviderCreate,
-    IdentityProviderUpdate,
-)
+from ...identity_provider.schemas import IdentityProviderCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

@@ -1,13 +1,7 @@
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
-from pydantic import (
-    AnyHttpUrl,
-    BaseSettings,
-    EmailStr,
-    HttpUrl,
-    validator,
-)
+from pydantic import BaseSettings, validator
 
 
 class Neo4jUriScheme(Enum):
@@ -19,6 +13,7 @@ class Neo4jUriScheme(Enum):
 
 class Settings(BaseSettings):
     API_V1_STR: str = "/v1"
+
     NEO4J_SERVER: str = "localhost:7687"
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "password"

@@ -6,7 +6,7 @@ from ..utils.service import (
 )
 from ..utils.utils import random_lower_string, random_url
 from ...service.crud import service
-from ...service.schemas import ServiceCreate, ServiceUpdate
+from ...service.schemas import ServiceCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

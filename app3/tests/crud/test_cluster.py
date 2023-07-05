@@ -6,7 +6,7 @@ from ..utils.cluster import (
 )
 from ..utils.utils import random_lower_string
 from ...cluster.crud import cluster
-from ...cluster.schemas import ClusterCreate, ClusterUpdate
+from ...cluster.schemas import ClusterCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

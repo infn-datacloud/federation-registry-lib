@@ -7,7 +7,7 @@ from ..utils.image import (
 )
 from ..utils.utils import random_lower_string, random_bool, random_datetime
 from ...image.crud import image
-from ...image.schemas import ImageCreate, ImageUpdate
+from ...image.schemas import ImageCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

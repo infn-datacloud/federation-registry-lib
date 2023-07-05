@@ -7,7 +7,7 @@ from ..utils.quota_type import (
 )
 from ..utils.utils import random_lower_string
 from ...quota_type.crud import quota_type
-from ...quota_type.schemas import QuotaTypeCreate, QuotaTypeUpdate
+from ...quota_type.schemas import QuotaTypeCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

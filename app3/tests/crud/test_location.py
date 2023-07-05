@@ -9,7 +9,7 @@ from ..utils.location import (
 )
 from ..utils.utils import random_lower_string
 from ...location.crud import location
-from ...location.schemas import LocationCreate, LocationUpdate
+from ...location.schemas import LocationCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

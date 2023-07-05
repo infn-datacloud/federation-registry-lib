@@ -1,7 +1,6 @@
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
-    RelationshipFrom,
     RelationshipTo,
     StringProperty,
     StructuredNode,

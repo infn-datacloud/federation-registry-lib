@@ -6,10 +6,7 @@ from ..utils.project import (
 )
 from ..utils.utils import random_lower_string
 from ...project.crud import project
-from ...project.schemas import (
-    ProjectCreate,
-    ProjectUpdate,
-)
+from ...project.schemas import ProjectCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

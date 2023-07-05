@@ -7,7 +7,7 @@ from ..utils.service_type import (
 )
 from ..utils.utils import random_lower_string
 from ...service_type.crud import service_type
-from ...service_type.schemas import ServiceTypeCreate, ServiceTypeUpdate
+from ...service_type.schemas import ServiceTypeCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

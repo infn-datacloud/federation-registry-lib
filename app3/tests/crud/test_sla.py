@@ -3,7 +3,7 @@ from typing import Generator
 from ..utils.sla import create_random_sla, create_random_update_sla_data
 from ..utils.utils import random_lower_string, random_datetime
 from ...sla.crud import sla
-from ...sla.schemas import SLACreate, SLAUpdate
+from ...sla.schemas import SLACreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

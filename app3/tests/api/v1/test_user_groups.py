@@ -53,8 +53,8 @@ def test_read_user_groups(
     client: TestClient,
     # superuser_token_headers: dict,
 ) -> None:
-    item = UserGroup.from_orm(create_random_user_group())
-    item2 = UserGroup.from_orm(create_random_user_group())
+    create_random_user_group()
+    create_random_user_group()
     response = client.get(
         f"{settings.API_V1_STR}/user_groups/",
         # headers=superuser_token_headers,
@@ -101,8 +101,8 @@ def test_read_user_groups_with_limit(
     client: TestClient,
     # superuser_token_headers: dict,
 ) -> None:
-    item = UserGroup.from_orm(create_random_user_group())
-    item2 = UserGroup.from_orm(create_random_user_group())
+    create_random_user_group()
+    create_random_user_group()
     response = client.get(
         f"{settings.API_V1_STR}/user_groups/?limit=1",
         # headers=superuser_token_headers,
@@ -116,8 +116,8 @@ def test_read_user_groups_with_params(
     client: TestClient,
     # superuser_token_headers: dict,
 ) -> None:
+    create_random_user_group()
     item = UserGroup.from_orm(create_random_user_group())
-    item2 = UserGroup.from_orm(create_random_user_group())
     response = client.get(
         f"{settings.API_V1_STR}/user_groups/?description={item.description}",
         # headers=superuser_token_headers,
