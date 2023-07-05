@@ -3,6 +3,7 @@ version: "3"
 services:
   db:
     image: neo4j:5.8.0
+    restart: unless-stopped
     volumes:
       - app-db-data:/data
       - app-db-logs:/logs
@@ -18,6 +19,7 @@ services:
 
   app:
     image: indigo-dc/change-management-database
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
