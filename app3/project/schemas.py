@@ -1,3 +1,4 @@
+from pydantic import UUID4
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
@@ -14,6 +15,8 @@ class ProjectQuery(BaseNodeQuery):
         private_network_proxy_user (str | None): TODO
     """
 
+    name: Optional[str] = None
+    uuid: Optional[UUID4] = None
     public_network_name: Optional[str] = None
     private_network_name: Optional[str] = None
     private_network_proxy_host: Optional[str] = None
@@ -34,6 +37,8 @@ class ProjectCreate(BaseNodeCreate):
         private_network_proxy_user (str | None): TODO
     """
 
+    name: str
+    uuid: UUID4
     public_network_name: Optional[str] = None
     private_network_name: Optional[str] = None
     private_network_proxy_host: Optional[str] = None

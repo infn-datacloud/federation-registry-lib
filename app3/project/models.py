@@ -1,13 +1,13 @@
 from neomodel import (
     One,
     RelationshipFrom,
+    RelationshipTo,
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
+    ZeroOrMore,
     ZeroOrOne,
 )
-
-from ..book_project.models import BookProject
 
 
 class Project(StructuredNode):
@@ -29,6 +29,8 @@ class Project(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
+    name = StringProperty(required=True)
+    uuid = StringProperty(required=True)
     public_network_name = StringProperty()
     private_network_name = StringProperty()
     private_network_proxy_host = StringProperty()
@@ -43,5 +45,14 @@ class Project(StructuredNode):
         "..provider.models.Provider",
         "BOOK_PROJECT_FOR_AN_SLA",
         cardinality=One,
-        model=BookProject,
+    )
+    flavors = RelationshipTo(
+        "..flavor.models.Flavor",
+        "CAN_USE_FLAVOR",
+        cardinality=ZeroOrMore,
+    )
+    images = RelationshipTo(
+        "..image.models.Image",
+        "CAN_USE_IMAGE",
+        cardinality=ZeroOrMore,
     )

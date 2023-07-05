@@ -1,4 +1,4 @@
-from pydantic import Field, root_validator
+from pydantic import UUID4, Field, root_validator
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
@@ -18,6 +18,8 @@ class FlavorQuery(BaseNodeQuery):
         gpu_vendor (str | None): Name of the GPU vendor.
     """
 
+    name: Optional[str] = None
+    uuid: Optional[UUID4] = None
     num_vcpus: Optional[int] = Field(ge=0, default=None)
     num_gpus: Optional[int] = Field(ge=0, default=None)
     ram: Optional[int] = Field(ge=0, default=None)
@@ -44,6 +46,8 @@ class FlavorCreate(BaseNodeCreate):
         gpu_vendor (str | None): Name of the GPU vendor.
     """
 
+    name: str
+    uuid: UUID4
     num_vcpus: int = Field(ge=0, default=0)
     num_gpus: int = Field(ge=0, default=0)
     ram: int = Field(ge=0, default=0)

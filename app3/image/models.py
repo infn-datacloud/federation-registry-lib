@@ -6,8 +6,8 @@ from neomodel import (
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
+    ZeroOrMore,
 )
-from ..available_vm_image.models import AvailableVMImage
 
 
 class Image(StructuredNode):
@@ -33,7 +33,9 @@ class Image(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
-    os = StringProperty(required=True)  # TODO: add choices
+    name = StringProperty(required=True)
+    uuid = StringProperty(required=True)
+    os = StringProperty(required=True)
     distribution = StringProperty(required=True)
     version = StringProperty(required=True)
     architecture = StringProperty(required=True)
@@ -45,5 +47,9 @@ class Image(StructuredNode):
         "..provider.models.Provider",
         "AVAILABLE_VM_IMAGE",
         cardinality=OneOrMore,
-        model=AvailableVMImage,
+    )
+    images = RelationshipFrom(
+        "..image.models.Image",
+        "CAN_USE_IMAGE",
+        cardinality=ZeroOrMore,
     )

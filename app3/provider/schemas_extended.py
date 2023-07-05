@@ -2,32 +2,16 @@ from pydantic import Field
 from typing import List, Optional
 
 from .schemas import Provider, ProviderCreate, ProviderUpdate
-from ..cluster.schemas_extended import (
-    ClusterExtended,
-    ClusterCreateExtended,
-    ClusterUpdateExtended,
-)
-from ..flavor.schemas_extended import (
-    FlavorExtended,
-    FlavorCreateExtended,
-    FlavorUpdateExtended,
-)
+from ..cluster.schemas import Cluster, ClusterCreate, ClusterUpdate
+from ..flavor.schemas import Flavor, FlavorCreate, FlavorUpdate
 from ..identity_provider.schemas_extended import (
     IdentityProviderExtended,
     IdentityProviderCreateExtended,
     IdentityProviderUpdateExtended,
 )
-from ..image.schemas_extended import (
-    ImageExtended,
-    ImageCreateExtended,
-    ImageUpdateExtended,
-)
+from ..image.schemas import Image, ImageCreate, ImageUpdate
 from ..location.schemas import Location, LocationCreate, LocationUpdate
-from ..project.schemas_extended import (
-    ProjectExtended,
-    ProjectCreateExtended,
-    ProjectUpdateExtended,
-)
+from ..project.schemas import Project, ProjectCreate, ProjectUpdate
 from ..service.schemas_extended import (
     ServiceExtended,
     ServiceCreateExtended,
@@ -56,13 +40,13 @@ class ProviderCreateExtended(ProviderCreate):
     """
 
     location: Optional[LocationCreate] = None
-    clusters: List[ClusterCreateExtended] = Field(default_factory=list)
-    flavors: List[FlavorCreateExtended] = Field(default_factory=list)
+    clusters: List[ClusterCreate] = Field(default_factory=list)
+    flavors: List[FlavorCreate] = Field(default_factory=list)
     identity_providers: List[IdentityProviderCreateExtended] = Field(
         default_factory=list
     )
-    images: List[ImageCreateExtended] = Field(default_factory=list)
-    projects: List[ProjectCreateExtended] = Field(default_factory=list)
+    images: List[ImageCreate] = Field(default_factory=list)
+    projects: List[ProjectCreate] = Field(default_factory=list)
     services: List[ServiceCreateExtended] = Field(default_factory=list)
 
 
@@ -87,13 +71,13 @@ class ProviderUpdateExtended(ProviderUpdate):
     """
 
     location: Optional[LocationUpdate] = None
-    clusters: List[ClusterUpdateExtended] = Field(default_factory=list)
-    flavors: List[FlavorUpdateExtended] = Field(default_factory=list)
+    clusters: List[ClusterUpdate] = Field(default_factory=list)
+    flavors: List[FlavorUpdate] = Field(default_factory=list)
     identity_providers: List[IdentityProviderUpdateExtended] = Field(
         default_factory=list
     )
-    images: List[ImageUpdateExtended] = Field(default_factory=list)
-    projects: List[ProjectUpdateExtended] = Field(default_factory=list)
+    images: List[ImageUpdate] = Field(default_factory=list)
+    projects: List[ProjectUpdate] = Field(default_factory=list)
     services: List[ServiceUpdateExtended] = Field(default_factory=list)
 
 
@@ -121,11 +105,11 @@ class ProviderExtended(Provider):
     """
 
     location: Optional[Location] = None
-    clusters: List[ClusterExtended] = Field(default_factory=list)
-    flavors: List[FlavorExtended] = Field(default_factory=list)
+    clusters: List[Cluster] = Field(default_factory=list)
+    flavors: List[Flavor] = Field(default_factory=list)
     identity_providers: List[IdentityProviderExtended] = Field(
         default_factory=list
     )
-    images: List[ImageExtended] = Field(default_factory=list)
-    projects: List[ProjectExtended] = Field(default_factory=list)
+    images: List[Image] = Field(default_factory=list)
+    projects: List[Project] = Field(default_factory=list)
     services: List[ServiceExtended] = Field(default_factory=list)

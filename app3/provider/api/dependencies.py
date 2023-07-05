@@ -42,22 +42,22 @@ def check_rel_consistency(
 ) -> ProviderCreateExtended:
     for i in [item.clusters, item.flavors, item.images, item.projects]:
         seen = set()
-        names = [j.relationship.name for j in i]
+        names = [j.name for j in i]
         dupes = [x for x in names if x in seen or seen.add(x)]
         duplicates = ",".join(dupes)
         if len(dupes) > 0:
-            msg = "There are multiple items with the same relationship name: "
+            msg = "There are multiple items with identical name: "
             msg += f"{duplicates}"
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=msg,
             )
         seen = set()
-        uuids = [j.relationship.uuid for j in i]
+        uuids = [j.uuid for j in i]
         dupes = [str(x) for x in uuids if x in seen or seen.add(x)]
         duplicates = ",".join(dupes)
         if len(dupes) > 0:
-            msg = "There are multiple items with the same relationship uuid: "
+            msg = "There are multiple items with identical uuid: "
             msg += f"{duplicates}"
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

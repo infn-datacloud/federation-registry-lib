@@ -36,7 +36,7 @@ class Service(StructuredNode):
     description = StringProperty(default="")
     endpoint = StringProperty(unique_index=True, required=True)
 
-    provider = RelationshipTo(
+    provider = RelationshipFrom(
         "..provider.models.Provider", "PROVIDES_SERVICE", cardinality=OneOrMore
     )
     type = RelationshipTo(

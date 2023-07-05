@@ -10,10 +10,6 @@ from neomodel import (
     ZeroOrOne,
 )
 from ..auth_method.models import AuthMethod
-from ..available_cluster.models import AvailableCluster
-from ..available_vm_flavor.models import AvailableVMFlavor
-from ..available_vm_image.models import AvailableVMImage
-from ..book_project.models import BookProject
 
 
 class Provider(StructuredNode):
@@ -42,9 +38,8 @@ class Provider(StructuredNode):
         "..project.models.Project",
         "BOOK_PROJECT_FOR_AN_SLA",
         cardinality=ZeroOrMore,
-        model=BookProject,
     )
-    services = RelationshipFrom(
+    services = RelationshipTo(
         "..service.models.Service", "PROVIDES_SERVICE", cardinality=ZeroOrMore
     )
     location = RelationshipTo(
@@ -60,17 +55,14 @@ class Provider(StructuredNode):
         "..cluster.models.Cluster",
         "AVAILABLE_CLUSTER",
         cardinality=ZeroOrMore,
-        model=AvailableCluster,
     )
     flavors = RelationshipTo(
         "..flavor.models.Flavor",
-        "AVAILABLE_VM_SIZE",
+        "AVAILABLE_VM_FLAVOR",
         cardinality=ZeroOrMore,
-        model=AvailableVMFlavor,
     )
     images = RelationshipTo(
         "..image.models.Image",
         "AVAILABLE_VM_IMAGE",
         cardinality=ZeroOrMore,
-        model=AvailableVMImage,
     )

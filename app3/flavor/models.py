@@ -6,8 +6,8 @@ from neomodel import (
     UniqueIdProperty,
     RelationshipFrom,
     OneOrMore,
+    ZeroOrMore,
 )
-from ..available_vm_flavor.models import AvailableVMFlavor
 
 
 class Flavor(StructuredNode):
@@ -32,6 +32,8 @@ class Flavor(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
+    name = StringProperty(required=True)
+    uuid = StringProperty(required=True)
     num_vcpus = IntegerProperty(default=0)
     num_gpus = IntegerProperty(default=0)
     ram = IntegerProperty(default=0)
@@ -42,7 +44,11 @@ class Flavor(StructuredNode):
 
     providers = RelationshipFrom(
         "..provider.models.Provider",
-        "AVAILABLE_VM_SIZE",
+        "AVAILABLE_VM_FLAVOR",
         cardinality=OneOrMore,
-        model=AvailableVMFlavor,
+    )
+    flavors = RelationshipFrom(
+        "..flavor.models.Flavor",
+        "CAN_USE_FLAVOR",
+        cardinality=ZeroOrMore,
     )

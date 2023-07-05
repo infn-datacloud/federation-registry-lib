@@ -1,4 +1,5 @@
 from datetime import datetime
+from pydantic import UUID4
 from typing import Optional
 
 from .enum import ImageOS
@@ -19,6 +20,8 @@ class ImageQuery(BaseNodeQuery):
         creation_time (datetime | None): Image creation time.
     """
 
+    name: Optional[str] = None
+    uuid: Optional[UUID4] = None
     os: Optional[ImageOS] = None
     distribution: Optional[str] = None
     version: Optional[str] = None
@@ -45,6 +48,8 @@ class ImageCreate(BaseNodeCreate):
         creation_time (datetime | None): Image creation time.
     """
 
+    name: str
+    uuid: UUID4
     os: ImageOS
     distribution: str
     version: str

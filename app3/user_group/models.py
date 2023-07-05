@@ -1,5 +1,6 @@
 from typing import List
 from neomodel import (
+    One,
     RelationshipTo,
     StringProperty,
     StructuredNode,
@@ -13,8 +14,6 @@ from ..image.models import Image
 from ..service.models import Service
 from ..service.schemas_extended import ServiceExtended
 from ..service_type.enum import ServiceType as ServiceTypeEnum
-
-# from ..relationships import Quota, ProvideService
 
 
 class UserGroup(StructuredNode):
@@ -32,11 +31,16 @@ class UserGroup(StructuredNode):
     """
 
     uid = UniqueIdProperty()
-    name = StringProperty(unique_index=True, required=True)
+    name = StringProperty(required=True)
     description = StringProperty(default="")
 
     slas = RelationshipTo(
         "..sla.models.SLA", "HAS_SLA", cardinality=ZeroOrMore
+    )
+    identity_provider = RelationshipTo(
+        "..identity_provider.models.IdentityProvider",
+        "BELONGS_TO",
+        cardinality=One,
     )
 
     query_srv_prefix = """
@@ -49,7 +53,7 @@ class UserGroup(StructuredNode):
     query_srv_body = """
         MATCH (s)-[:HAS_TYPE]->(st)
         WHERE (st.name=$service)
-        MATCH (s)-[:PROVIDES_SERVICE]->(p)
+        MATCH (s)<-[:PROVIDES_SERVICE]-(p)
     """
 
     def clusters(self) -> List[Cluster]:
@@ -69,7 +73,7 @@ class UserGroup(StructuredNode):
             f"""
                 {self.query_srv_prefix}
                 {self.query_srv_body}
-                MATCH (p)-[:AVAILABLE_VM_SIZE]->(u)
+                MATCH (p)-[:AVAILABLE_VM_FLAVOR]->(u)
                 RETURN s
             """,
             {"service": ServiceTypeEnum.open_stack_nova.value},

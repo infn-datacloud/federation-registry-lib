@@ -13,6 +13,7 @@ class IdentityProviderQuery(BaseNodeQuery):
     """
 
     endpoint: Optional[AnyHttpUrl] = None
+    group_claim: Optional[str] = None
 
 
 class IdentityProviderCreate(BaseNodeCreate):
@@ -27,6 +28,7 @@ class IdentityProviderCreate(BaseNodeCreate):
     """
 
     endpoint: AnyHttpUrl
+    group_claim: str
 
 
 class IdentityProviderUpdate(IdentityProviderCreate):

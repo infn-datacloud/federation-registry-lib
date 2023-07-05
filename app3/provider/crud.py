@@ -4,18 +4,18 @@ from .models import Provider as ProviderModel
 from .schemas import ProviderCreate, ProviderUpdate
 from .schemas_extended import ProviderCreateExtended
 from ..cluster.crud import cluster
-from ..cluster.schemas_extended import ClusterCreateExtended
+from ..cluster.schemas import ClusterCreate
 from ..crud import CRUDBase
 from ..flavor.crud import flavor
-from ..flavor.schemas_extended import FlavorCreateExtended
+from ..flavor.schemas import FlavorCreate
 from ..identity_provider.crud import identity_provider
 from ..identity_provider.schemas_extended import IdentityProviderCreateExtended
 from ..image.crud import image
-from ..image.schemas_extended import ImageCreateExtended
+from ..image.schemas import ImageCreate
 from ..location.crud import location
 from ..location.schemas import LocationCreate
 from ..project.crud import project
-from ..project.schemas_extended import ProjectCreateExtended
+from ..project.schemas import ProjectCreate
 from ..service.crud import service
 from ..service.schemas_extended import ServiceCreateExtended
 
@@ -24,21 +24,21 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
     """"""
 
     def create_and_connect_clusters(
-        self, *, db_obj: ProviderModel, new_items: List[ClusterCreateExtended]
+        self, *, db_obj: ProviderModel, new_items: List[ClusterCreate]
     ) -> None:
         for clu in new_items:
-            db_cluster = cluster.create(obj_in=clu)
-            db_obj.clusters.connect(db_cluster, clu.relationship.dict())
+            db_cluster = cluster.create(obj_in=clu, force=True)
+            db_obj.clusters.connect(db_cluster)
 
     def create_and_connect_flavors(
         self,
         *,
         db_obj: ProviderModel,
-        new_items: List[FlavorCreateExtended],
+        new_items: List[FlavorCreate],
     ) -> None:
         for flv in new_items:
-            db_flavor = flavor.create(obj_in=flv)
-            db_obj.flavors.connect(db_flavor, flv.relationship.dict())
+            db_flavor = flavor.create(obj_in=flv, force=True)
+            db_obj.flavors.connect(db_flavor)
 
     def create_and_connect_identity_providers(
         self,
@@ -56,11 +56,11 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
         self,
         *,
         db_obj: ProviderModel,
-        new_items: List[ImageCreateExtended],
+        new_items: List[ImageCreate],
     ) -> None:
         for img in new_items:
-            db_image = image.create(obj_in=img)
-            db_obj.images.connect(db_image, img.relationship.dict())
+            db_image = image.create(obj_in=img, force=True)
+            db_obj.images.connect(db_image)
 
     def create_and_connect_location(
         self, *, db_obj: ProviderModel, loc: LocationCreate
@@ -72,11 +72,11 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
         self,
         *,
         db_obj: ProviderModel,
-        new_items: List[ProjectCreateExtended],
+        new_items: List[ProjectCreate],
     ) -> None:
         for proj in new_items:
             db_project = project.create(obj_in=proj, force=True)
-            db_obj.projects.connect(db_project, proj.relationship.dict())
+            db_obj.projects.connect(db_project)
 
     def create_and_connect_services(
         self, *, db_obj: ProviderModel, new_items: List[ServiceCreateExtended]

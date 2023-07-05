@@ -5,7 +5,6 @@ from neomodel import (
     RelationshipFrom,
     OneOrMore,
 )
-from ..available_cluster.models import AvailableCluster
 
 
 class Cluster(StructuredNode):
@@ -35,5 +34,4 @@ class Cluster(StructuredNode):
         "..provider.models.Provider",
         "AVAILABLE_CLUSTER",
         cardinality=OneOrMore,
-        model=AvailableCluster,
     )

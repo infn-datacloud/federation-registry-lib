@@ -24,10 +24,16 @@ class IdentityProvider(StructuredNode):
     uid = UniqueIdProperty()
     description = StringProperty(default="")
     endpoint = StringProperty(unique_index=True, required=True)
+    group_claim = StringProperty(required=True)
 
     providers = RelationshipFrom(
         "..provider.models.Provider",
         "ALLOW_AUTH_THROUGH",
         cardinality=ZeroOrMore,
         model=AuthMethod,
+    )
+    user_groups = RelationshipFrom(
+        "..user_group.models.UserGroup",
+        "BELONGS_TO",
+        cardinality=ZeroOrMore,
     )
