@@ -47,9 +47,50 @@ class Quota(StructuredNode):
     sla = RelationshipFrom(
         "..sla.models.SLA", "USE_SERVICE_WITH_QUOTA", cardinality=One
     )
-    type = RelationshipTo(
-        "..quota_type.models.QuotaType", "HAS_TYPE", cardinality=One
-    )
     service = RelationshipTo(
         "..service.models.Service", "APPLIES_TO", cardinality=One
     )
+
+
+class UploadBandwidthQuota(Quota):
+    pass
+
+
+class DownloadBandwidthQuota(Quota):
+    pass
+
+
+class NumCPUQuota(Quota):
+    pass
+
+
+class PublicIPQuota(Quota):
+    pass
+
+
+class CPUFrequencyQuota(Quota):
+    pass
+
+
+class MoneyQuota(Quota):
+    pass
+
+
+class RAMQuota(Quota):
+    pass
+
+
+class DiskQuota(Quota):
+    pass
+
+
+class UploadAggregatedQuota(Quota):
+    pass
+
+
+class DownloadAggregatedQuota(Quota):
+    pass
+
+
+class ComputeTimeQuota(Quota):
+    pass

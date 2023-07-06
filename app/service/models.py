@@ -1,8 +1,6 @@
 from neomodel import (
-    One,
     OneOrMore,
     RelationshipFrom,
-    RelationshipTo,
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
@@ -39,9 +37,33 @@ class Service(StructuredNode):
     provider = RelationshipFrom(
         "..provider.models.Provider", "PROVIDES_SERVICE", cardinality=OneOrMore
     )
-    type = RelationshipTo(
-        "..service_type.models.ServiceType", "HAS_TYPE", cardinality=One
+
+
+class NovaService(Service):
+    compute_time_quotas = RelationshipFrom(
+        "..quota.models.ComputeTimeQuota", "APPLIES_TO", cardinality=ZeroOrMore
     )
-    quotas = RelationshipFrom(
-        "..quota.models.Quota", "APPLIES_TO", cardinality=ZeroOrMore
-    )
+
+
+class MesosService(Service):
+    pass
+
+
+class ChronosService(Service):
+    pass
+
+
+class MarathonService(Service):
+    pass
+
+
+class KubernetesService(Service):
+    pass
+
+
+class RucioService(Service):
+    pass
+
+
+class OnedataService(Service):
+    pass
