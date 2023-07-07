@@ -1,10 +1,8 @@
 from .schemas import Quota, QuotaCreate, QuotaUpdate
-from ..quota_type.schemas import QuotaType, QuotaTypeCreate
 from ..service.schemas import Service, ServiceCreate
 
 
 class QuotaCreateExtended(QuotaCreate):
-    type: QuotaTypeCreate
     service: ServiceCreate
 
 
@@ -33,7 +31,6 @@ class QuotaUpdateExtended(QuotaUpdate):
         service (Service | None): Service where this quota applies.
     """
 
-    type: QuotaType
     service: Service
 
 
@@ -66,5 +63,4 @@ class QuotaExtended(Quota):
             of a resource to be granted to user.
     """
 
-    type: QuotaType
     service: Service

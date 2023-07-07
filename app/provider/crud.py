@@ -1,7 +1,5 @@
 from typing import List
 
-from app.service.enum import ServiceType
-
 from .models import Provider as ProviderModel
 from .schemas import ProviderCreate, ProviderUpdate
 from .schemas_extended import ProviderCreateExtended
@@ -27,6 +25,7 @@ from ..service.crud import (
     rucio_service,
     onedata_service,
 )
+from ..service.enum import ServiceType
 from ..service.schemas import ServiceCreate
 
 

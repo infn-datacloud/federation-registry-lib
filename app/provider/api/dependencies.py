@@ -5,7 +5,6 @@ from ..schemas_extended import ProviderCreateExtended
 from ..models import Provider
 from ..crud import provider
 from ...service.api.dependencies import is_unique_service
-from ...service_type.api.dependencies import valid_service_type_name
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
@@ -33,7 +32,6 @@ def check_valid_services(
 ) -> ProviderCreateExtended:
     for s in item.services:
         is_unique_service(s)
-        valid_service_type_name(s.type)
     return item
 
 
