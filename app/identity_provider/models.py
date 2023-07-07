@@ -34,6 +34,6 @@ class IdentityProvider(StructuredNode):
     )
     user_groups = RelationshipFrom(
         "..user_group.models.UserGroup",
-        "BELONGS_TO",
+        "BELONG_TO",
         cardinality=ZeroOrMore,
     )

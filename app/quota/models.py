@@ -42,8 +42,51 @@ class Quota(StructuredNode):
         "..project.models.Project", "USE_SERVICE_WITH_QUOTA", cardinality=One
     )
     service = RelationshipTo(
-        "..service.models.Service", "APPLIES_TO", cardinality=One
+        "..service.models.Service", "APPLY_TO", cardinality=One
     )
+
+
+class NumCPUQuota(Quota):
+    tot_limit = FloatProperty(default=0)
+    tot_request = FloatProperty(default=0)
+    tot_guaranteed = FloatProperty(default=0)
+
+
+class InstanceQuota(Quota):
+    tot_limit = FloatProperty(default=0)
+    tot_guaranteed = FloatProperty(default=0)
+
+
+class KeyPairQuota(Quota):
+    user_limit = FloatProperty(default=0)
+    user_guaranteed = FloatProperty(default=0)
+
+
+class MetadataItemsQuota(Quota):
+    instance_limit = FloatProperty(default=0)
+    instance_guaranteed = FloatProperty(default=0)
+
+
+class RAMQuota(Quota):
+    tot_limit = FloatProperty()
+    tot_request = FloatProperty()
+    tot_guaranteed = FloatProperty(default=0)
+
+
+class ServerGroupQuota(Quota):
+    tot_limit = FloatProperty(default=0)
+    tot_guaranteed = FloatProperty(default=0)
+
+
+class ServerGroupMemberQuota(Quota):
+    group_limit = FloatProperty(default=0)
+    group_guaranteed = FloatProperty(default=0)
+
+
+class NumGPUQuota(Quota):
+    tot_limit = FloatProperty(default=0)
+    tot_request = FloatProperty(default=0)
+    tot_guaranteed = FloatProperty(default=0)
 
 
 class UploadBandwidthQuota(Quota):
@@ -51,10 +94,6 @@ class UploadBandwidthQuota(Quota):
 
 
 class DownloadBandwidthQuota(Quota):
-    pass
-
-
-class NumCPUQuota(Quota):
     pass
 
 
@@ -67,10 +106,6 @@ class CPUFrequencyQuota(Quota):
 
 
 class MoneyQuota(Quota):
-    pass
-
-
-class RAMQuota(Quota):
     pass
 
 

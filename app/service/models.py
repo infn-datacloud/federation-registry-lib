@@ -35,13 +35,35 @@ class Service(StructuredNode):
     endpoint = StringProperty(unique_index=True, required=True)
 
     provider = RelationshipFrom(
-        "..provider.models.Provider", "PROVIDES_SERVICE", cardinality=OneOrMore
+        "..provider.models.Provider", "PROVIDE_SERVICE", cardinality=OneOrMore
     )
 
 
 class NovaService(Service):
-    compute_time_quotas = RelationshipFrom(
-        "..quota.models.ComputeTimeQuota", "APPLIES_TO", cardinality=ZeroOrMore
+    num_cpus_quotas = RelationshipFrom(
+        "..quota.models.NumCPUQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
+    instances_quotas = RelationshipFrom(
+        "..quota.models.InstanceQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
+    key_pairs_quotas = RelationshipFrom(
+        "..quota.models.KeyPairQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
+    metadata_quotas = RelationshipFrom(
+        "..quota.models.MetadataItemsQuota",
+        "APPLY_TO",
+        cardinality=ZeroOrMore,
+    )
+    ram_quotas = RelationshipFrom(
+        "..quota.models.RAMQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
+    server_group_quotas = RelationshipFrom(
+        "..quota.models.ServerGroupQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
+    server_group_members_quotas = RelationshipFrom(
+        "..quota.models.ServerGroupMemberQuota",
+        "APPLY_TO",
+        cardinality=ZeroOrMore,
     )
 
 
@@ -58,7 +80,12 @@ class MarathonService(Service):
 
 
 class KubernetesService(Service):
-    pass
+    num_cpus_quotas = RelationshipFrom(
+        "..quota.models.NumCPUQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
+    ram_quotas = RelationshipFrom(
+        "..quota.models.RAMQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
 
 
 class RucioService(Service):

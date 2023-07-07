@@ -12,8 +12,7 @@ from ..cluster.models import Cluster
 from ..flavor.models import Flavor
 from ..image.models import Image
 from ..service.models import Service
-from ..service.schemas_extended import ServiceExtended
-from ..service_type.enum import ServiceType as ServiceTypeEnum
+from ..service.enum import ServiceType
 
 
 class UserGroup(StructuredNode):
@@ -35,48 +34,38 @@ class UserGroup(StructuredNode):
     description = StringProperty(default="")
 
     projects = RelationshipTo(
-        "..project.models.PROJECT", "MATCH_PROJECT", cardinality=ZeroOrMore
+        "..project.models.Project", "MATCH_PROJECT", cardinality=ZeroOrMore
     )
     identity_provider = RelationshipTo(
         "..identity_provider.models.IdentityProvider",
-        "BELONGS_TO",
+        "BELONG_TO",
         cardinality=One,
     )
 
-    query_srv_prefix = """
+    query_prefix = """
         MATCH (g:UserGroup)
         WHERE (id(g)=$self)
-        MATCH (g)-[:HAS_SLA]->(x)-[:USE_SERVICE_WITH_QUOTA]->(q)
-        MATCH (q)-[:APPLIES_TO]->(s)
+        MATCH (g)-[:MATCH_PROJECT]->(p)
         """
-
-    query_srv_body = """
-        MATCH (s)-[:HAS_TYPE]->(st)
-        WHERE (st.name=$service)
-        MATCH (s)<-[:PROVIDES_SERVICE]-(p)
-    """
 
     def clusters(self) -> List[Cluster]:
         results, columns = self.cypher(
             f"""
-                {self.query_srv_prefix}
-                {self.query_srv_body}
+                {self.query_prefix}
                 MATCH (p)-[:AVAILABLE_CLUSTER]->(u)
                 RETURN u
             """,
-            {"service": ServiceTypeEnum.kubernetes.value},
+            {"service": ServiceType.kubernetes.value},
         )
         return [Cluster.inflate(row[0]) for row in results]
 
     def flavors(self) -> List[Flavor]:
         results, columns = self.cypher(
             f"""
-                {self.query_srv_prefix}
-                {self.query_srv_body}
-                MATCH (p)-[:AVAILABLE_VM_FLAVOR]->(u)
-                RETURN s
-            """,
-            {"service": ServiceTypeEnum.open_stack_nova.value},
+                {self.query_prefix}
+                MATCH (p)-[:CAN_USE_FLAVOR]->(u)
+                RETURN u
+            """
         )
         print(results)
         return [Flavor.inflate(row[0]) for row in results]
@@ -84,26 +73,25 @@ class UserGroup(StructuredNode):
     def images(self) -> List[Image]:
         results, columns = self.cypher(
             f"""
-                {self.query_srv_prefix}
-                {self.query_srv_body}
-                MATCH (p)-[:AVAILABLE_VM_IMAGE]->(u)
+                {self.query_prefix}
+                MATCH (p)-[:CAN_USE_IMAGE]->(u)
                 RETURN u
-            """,
-            {"service": ServiceTypeEnum.open_stack_nova.value},
+            """
         )
         return [Image.inflate(row[0]) for row in results]
 
-    def services(self) -> List[ServiceExtended]:
+    def services(self) -> List[Service]:
         results, columns = self.cypher(
             f"""
-            {self.query_srv_prefix}
-            RETURN s
-        """
+                {self.query_prefix}
+                MATCH (p)-[:USE_SERVICE_WITH_QUOTA]->(q)-[:APPLIES_TO]->(s)
+                RETURN s
+            """
         )
-
-        services = {}
-        for row in results:
-            service = Service.inflate(row[0])
-            if service.uid not in services.keys():
-                services[service.uid] = service
-        return list(services.values())
+        return [Service.inflate(row[0]) for row in results]
+#        services = {}
+#        for row in results:
+#            service = Service.inflate(row[0])
+#            if service.uid not in services.keys():
+#                services[service.uid] = service
+#        return list(services.values())

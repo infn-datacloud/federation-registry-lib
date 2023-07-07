@@ -39,7 +39,7 @@ class Provider(StructuredNode):
         cardinality=ZeroOrMore,
     )
     services = RelationshipTo(
-        "..service.models.Service", "PROVIDES_SERVICE", cardinality=ZeroOrMore
+        "..service.models.Service", "PROVIDE_SERVICE", cardinality=ZeroOrMore
     )
     location = RelationshipTo(
         "..location.models.Location", "LOCATED_AT", cardinality=ZeroOrOne
