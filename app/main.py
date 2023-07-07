@@ -11,9 +11,7 @@ from .location.api.router import router as location_router
 from .project.api.router import router as project_router
 from .provider.api.router import router as provider_router
 from .quota.api.router import router as quota_router
-from .quota_type.api.router import router as quota_type_router
 from .service.api.router import router as service_router
-from .service_type.api.router import router as service_type_router
 from .sla.api.router import router as sla_router
 from .user_group.api.router import router as user_group_router
 
@@ -29,9 +27,7 @@ app.include_router(location_router)
 app.include_router(project_router)
 app.include_router(provider_router)
 app.include_router(quota_router)
-app.include_router(quota_type_router)
 app.include_router(service_router)
-app.include_router(service_type_router)
 app.include_router(sla_router)
 app.include_router(user_group_router)
 

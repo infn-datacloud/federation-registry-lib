@@ -2,16 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ..dependencies import valid_identity_provider_id
-from ...crud import identity_provider
-from ...models import IdentityProvider as IdentityProviderModel
-from ...schemas import (
+from app.identity_provider.api.dependencies import valid_identity_provider_id
+from app.identity_provider.crud import identity_provider
+from app.identity_provider.models import (
+    IdentityProvider as IdentityProviderModel,
+)
+from app.identity_provider.schemas import (
     IdentityProvider,
     IdentityProviderQuery,
     IdentityProviderUpdate,
 )
-from ....pagination import Pagination, paginate
-from ....query import CommonGetQuery
+from app.pagination import Pagination, paginate
+from app.query import CommonGetQuery
+from app.user_group.schemas import UserGroup, UserGroupCreate
+from app.user_group.api.dependencies import is_unique_user_group
+from app.user_group.crud import user_group
 
 router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 
@@ -60,3 +65,18 @@ def delete_identity_providers(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
+
+
+@db.write_transaction
+@router.post(
+    "/{identity_provider_uid}/user_groups",
+    status_code=status.HTTP_201_CREATED,
+    response_model=UserGroup,
+)
+def post_user_group(
+    db_item: IdentityProviderModel = Depends(valid_identity_provider_id),
+    item: UserGroupCreate = Depends(is_unique_user_group),
+):
+    db_obj = user_group.create(obj_in=item)
+    db_item.user_groups.connect(db_obj)
+    return db_obj

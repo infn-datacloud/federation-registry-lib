@@ -2,22 +2,21 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ..dependencies import valid_user_group_id, is_unique_user_group
-from ...crud import user_group
-from ...models import UserGroup as UserGroupModel
-from ...schemas import (
-    UserGroup,
-    UserGroupCreate,
-    UserGroupQuery,
-    UserGroupUpdate,
+from app.cluster.schemas import Cluster
+from app.flavor.schemas import Flavor
+from app.image.schemas import Image
+from app.project.models import Project as ProjectModel
+from app.project.api.dependencies import valid_project_id
+from app.pagination import Pagination, paginate
+from app.query import CommonGetQuery
+from app.service.schemas import Service
+from app.user_group.api.dependencies import (
+    valid_user_group_id,
+    is_unique_user_group,
 )
-from ....cluster.schemas import Cluster
-from ....flavor.schemas import Flavor
-from ....image.schemas import Image
-from ....pagination import Pagination, paginate
-from ....query import CommonGetQuery
-from ....service.schemas_extended import ServiceExtended
-
+from app.user_group.crud import user_group
+from app.user_group.models import UserGroup as UserGroupModel
+from app.user_group.schemas import UserGroup, UserGroupQuery, UserGroupUpdate
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 
@@ -36,14 +35,6 @@ def get_user_groups(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
-
-
-@db.write_transaction
-@router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=UserGroup
-)
-def post_user_group(item: UserGroupCreate = Depends(is_unique_user_group)):
-    return user_group.create(obj_in=item)
 
 
 @db.read_transaction
@@ -98,8 +89,28 @@ def read_user_group_images(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}/services", response_model=List[ServiceExtended])
+@router.get("/{user_group_uid}/services", response_model=List[Service])
 def read_user_group_services(
     item: UserGroupModel = Depends(valid_user_group_id),
 ):
     return item.services()
+
+
+@db.read_transaction
+@router.put("/{user_group_uid}/projects", response_model=UserGroup)
+def connect_user_group_project(
+    item: UserGroupModel = Depends(valid_user_group_id),
+    project: ProjectModel = Depends(valid_project_id),
+):
+    item.projects.connect(project)
+    return item
+
+
+@db.read_transaction
+@router.delete("/{user_group_uid}/projects", response_model=UserGroup)
+def disconnect_user_group_project(
+    item: UserGroupModel = Depends(valid_user_group_id),
+    project: ProjectModel = Depends(valid_project_id),
+):
+    item.projects.disconnect(project)
+    return item

@@ -2,12 +2,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ..dependencies import valid_project_id
-from ...crud import project
-from ...models import Project as ProjectModel
-from ...schemas import Project, ProjectQuery, ProjectUpdate
-from ....pagination import Pagination, paginate
-from ....query import CommonGetQuery
+from app.cluster.api.dependencies import valid_cluster_id
+from app.cluster.models import Cluster as ClusterModel
+from app.flavor.api.dependencies import valid_flavor_id
+from app.flavor.models import Flavor as FlavorModel
+from app.image.api.dependencies import valid_image_id
+from app.image.models import Image as ImageModel
+from app.project.api.dependencies import valid_project_id
+from app.project.crud import project
+from app.project.models import Project as ProjectModel
+from app.project.schemas import Project, ProjectQuery, ProjectUpdate
+from app.pagination import Pagination, paginate
+from app.query import CommonGetQuery
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -47,3 +53,63 @@ def delete_project(item: ProjectModel = Depends(valid_project_id)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
+
+
+@db.read_transaction
+@router.put("/{user_group_uid}/clusters", response_model=Project)
+def connect_user_group_cluster(
+    item: ProjectModel = Depends(valid_project_id),
+    cluster: ClusterModel = Depends(valid_cluster_id),
+):
+    item.clusters.connect(cluster)
+    return item
+
+
+@db.read_transaction
+@router.delete("/{user_group_uid}/clusters", response_model=Project)
+def disconnect_user_group_cluster(
+    item: ProjectModel = Depends(valid_project_id),
+    cluster: ClusterModel = Depends(valid_cluster_id),
+):
+    item.clusters.disconnect(cluster)
+    return item
+
+
+@db.read_transaction
+@router.put("/{user_group_uid}/flavors", response_model=Project)
+def connect_user_group_flavor(
+    item: ProjectModel = Depends(valid_project_id),
+    flavor: FlavorModel = Depends(valid_flavor_id),
+):
+    item.flavors.connect(flavor)
+    return item
+
+
+@db.read_transaction
+@router.delete("/{user_group_uid}/flavors", response_model=Project)
+def disconnect_user_group_flavor(
+    item: ProjectModel = Depends(valid_project_id),
+    flavor: FlavorModel = Depends(valid_flavor_id),
+):
+    item.flavors.disconnect(flavor)
+    return item
+
+
+@db.read_transaction
+@router.put("/{project_uid}/images", response_model=Project)
+def connect_user_group_images_link(
+    item: ProjectModel = Depends(valid_project_id),
+    image: ImageModel = Depends(valid_image_id),
+):
+    item.images.connect(image)
+    return item
+
+
+@db.read_transaction
+@router.delete("/{project_uid}/images", response_model=Project)
+def disconnect_user_group_images_link(
+    item: ProjectModel = Depends(valid_project_id),
+    image: ImageModel = Depends(valid_image_id),
+):
+    item.images.disconnect(image)
+    return item
