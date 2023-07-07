@@ -65,5 +65,5 @@ class RucioService(Service):
     pass
 
 
-class OnedataService(Service):
+class OneDataService(Service):
     pass

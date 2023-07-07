@@ -37,15 +37,9 @@ class Quota(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
-    tot_limit = FloatProperty()
-    tot_guaranteed = FloatProperty(default=0)
-    user_limit = FloatProperty()
-    user_guaranteed = FloatProperty(default=0)
-    instance_limit = FloatProperty()
-    instance_guaranteed = FloatProperty(default=0)
 
-    sla = RelationshipFrom(
-        "..sla.models.SLA", "USE_SERVICE_WITH_QUOTA", cardinality=One
+    project = RelationshipFrom(
+        "..project.models.Project", "USE_SERVICE_WITH_QUOTA", cardinality=One
     )
     service = RelationshipTo(
         "..service.models.Service", "APPLIES_TO", cardinality=One

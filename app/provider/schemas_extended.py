@@ -12,11 +12,7 @@ from ..identity_provider.schemas_extended import (
 from ..image.schemas import Image, ImageCreate, ImageUpdate
 from ..location.schemas import Location, LocationCreate, LocationUpdate
 from ..project.schemas import Project, ProjectCreate, ProjectUpdate
-from ..service.schemas_extended import (
-    ServiceExtended,
-    ServiceCreateExtended,
-    ServiceUpdateExtended,
-)
+from ..service.schemas import Service, ServiceCreate
 
 
 class ProviderCreateExtended(ProviderCreate):
@@ -47,7 +43,7 @@ class ProviderCreateExtended(ProviderCreate):
     )
     images: List[ImageCreate] = Field(default_factory=list)
     projects: List[ProjectCreate] = Field(default_factory=list)
-    services: List[ServiceCreateExtended] = Field(default_factory=list)
+    services: List[ServiceCreate] = Field(default_factory=list)
 
 
 class ProviderUpdateExtended(ProviderUpdate):
@@ -78,7 +74,7 @@ class ProviderUpdateExtended(ProviderUpdate):
     )
     images: List[ImageUpdate] = Field(default_factory=list)
     projects: List[ProjectUpdate] = Field(default_factory=list)
-    services: List[ServiceUpdateExtended] = Field(default_factory=list)
+    # services: List[ServiceUpdate] = Field(default_factory=list)
 
 
 class ProviderExtended(Provider):
@@ -112,4 +108,4 @@ class ProviderExtended(Provider):
     )
     images: List[Image] = Field(default_factory=list)
     projects: List[Project] = Field(default_factory=list)
-    services: List[ServiceExtended] = Field(default_factory=list)
+    services: List[Service] = Field(default_factory=list)

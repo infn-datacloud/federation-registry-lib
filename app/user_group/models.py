@@ -34,8 +34,8 @@ class UserGroup(StructuredNode):
     name = StringProperty(required=True)
     description = StringProperty(default="")
 
-    slas = RelationshipTo(
-        "..sla.models.SLA", "HAS_SLA", cardinality=ZeroOrMore
+    projects = RelationshipTo(
+        "..project.models.PROJECT", "MATCH_PROJECT", cardinality=ZeroOrMore
     )
     identity_provider = RelationshipTo(
         "..identity_provider.models.IdentityProvider",

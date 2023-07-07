@@ -29,14 +29,8 @@ class SLA(StructuredNode):
     start_date = DateTimeProperty(required=True)
     end_date = DateTimeProperty()
 
-    user_group = RelationshipFrom(
-        "..user_group.models.UserGroup", "HAS_SLA", cardinality=One
-    )
     project = RelationshipTo(
         "..project.models.Project",
-        "ACCESS_PROVIDER_THROUGH_PROJECT",
+        "REFER_TO_PROJECT",
         cardinality=One,
-    )
-    quotas = RelationshipTo(
-        "..quota.models.Quota", "USE_SERVICE_WITH_QUOTA", cardinality=OneOrMore
     )

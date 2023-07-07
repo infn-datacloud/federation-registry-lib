@@ -1,5 +1,7 @@
 from typing import List
 
+from app.service.enum import ServiceType
+
 from .models import Provider as ProviderModel
 from .schemas import ProviderCreate, ProviderUpdate
 from .schemas_extended import ProviderCreateExtended
@@ -16,8 +18,16 @@ from ..location.crud import location
 from ..location.schemas import LocationCreate
 from ..project.crud import project
 from ..project.schemas import ProjectCreate
-from ..service.crud import service
-from ..service.schemas_extended import ServiceCreateExtended
+from ..service.crud import (
+    nova_service,
+    mesos_service,
+    chronos_service,
+    marathon_service,
+    kubernetes_service,
+    rucio_service,
+    onedata_service,
+)
+from ..service.schemas import ServiceCreate
 
 
 class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
@@ -79,10 +89,23 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
             db_obj.projects.connect(db_project)
 
     def create_and_connect_services(
-        self, *, db_obj: ProviderModel, new_items: List[ServiceCreateExtended]
+        self, *, db_obj: ProviderModel, new_items: List[ServiceCreate]
     ) -> None:
         for srv in new_items:
-            db_srv = service.create_with_type(obj_in=srv)
+            if srv.type == ServiceType.openstack_nova.value:
+                db_srv = nova_service.create(obj_in=srv)
+            elif srv.type == ServiceType.mesos.value:
+                db_srv = mesos_service.create(obj_in=srv)
+            elif srv.type == ServiceType.chronos.value:
+                db_srv = chronos_service.create(obj_in=srv)
+            elif srv.type == ServiceType.marathon.value:
+                db_srv = marathon_service.create(obj_in=srv)
+            elif srv.type == ServiceType.kubernetes.value:
+                db_srv = kubernetes_service.create(obj_in=srv)
+            elif srv.type == ServiceType.rucio.value:
+                db_srv = rucio_service.create(obj_in=srv)
+            elif srv.type == ServiceType.onedata.value:
+                db_srv = onedata_service.create(obj_in=srv)
             db_obj.services.connect(db_srv)
 
     def create_with_all(

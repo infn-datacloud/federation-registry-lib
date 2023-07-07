@@ -36,10 +36,18 @@ class Project(StructuredNode):
     private_network_proxy_host = StringProperty()
     private_network_proxy_user = StringProperty()
 
+    user_group = RelationshipFrom(
+        "..user_group.models.UserGroup", "MATCH_PROJECT", cardinality=One
+    )
     sla = RelationshipFrom(
         "..sla.models.SLA",
-        "ACCESS_PROVIDER_THROUGH_PROJECT",
+        "REFER_TO_PROJECT",
         cardinality=ZeroOrOne,
+    )
+    quotas = RelationshipTo(
+        "..quota.models.Quota",
+        "USE_SERVICE_WITH_QUOTA",
+        cardinality=ZeroOrMore,
     )
     provider = RelationshipFrom(
         "..provider.models.Provider",

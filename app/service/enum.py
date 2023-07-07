@@ -4,7 +4,7 @@ from enum import Enum
 class ServiceType(Enum):
     """Possible IaaS services types"""
 
-    open_stack_nova: str = "org.openstack.nova"
+    openstack_nova: str = "org.openstack.nova"
     mesos: str = "eu.indigo-datacloud.mesos"
     chronos: str = "eu.indigo-datacloud.chronos"
     marathon: str = "eu.indigo-datacloud.marathon"

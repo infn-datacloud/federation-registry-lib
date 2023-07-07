@@ -1,20 +1,33 @@
 from pydantic import Field
 from typing import List
 
-from .schemas import Service, ServiceCreate, ServiceUpdate
-from ..quota.schemas import Quota
-from ..service_type.schemas import ServiceType, ServiceTypeCreate
+from .schemas import Service
+from ..quota.schemas import ComputeTimeQuota
 
 
-class ServiceCreateExtended(ServiceCreate):
-    type: ServiceTypeCreate
+class NovaService(Service):
+    compute_time_quotas: List[ComputeTimeQuota] = Field(default_factory=list)
 
 
-class ServiceUpdateExtended(ServiceUpdate):
-    type: ServiceType
-    quotas: List[Quota] = Field(default_factory=list)
+class MesosService(Service):
+    pass
 
 
-class ServiceExtended(Service):
-    type: ServiceType
-    quotas: List[Quota] = Field(default_factory=list)
+class ChronosService(Service):
+    pass
+
+
+class MarathonService(Service):
+    pass
+
+
+class KubernetesService(Service):
+    pass
+
+
+class RucioService(Service):
+    pass
+
+
+class OneDataService(Service):
+    pass

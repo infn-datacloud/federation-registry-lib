@@ -21,7 +21,6 @@ from ....quota_type.schemas import QuotaTypeCreate
 from ....service.crud import service
 from ....service.models import Service as ServiceModel
 from ....service.schemas import ServiceCreate
-from ....service_type.models import ServiceType as ServiceTypeModel
 
 router = APIRouter(prefix="/slas", tags=["slas"])
 
@@ -46,19 +45,6 @@ def valid_quota_type_name(qt: QuotaTypeCreate) -> QuotaTypeModel:
     return item
 
 
-def is_allowed_quota_type(
-    quota_type: QuotaTypeModel, service_type: ServiceTypeModel
-) -> None:
-    allowed_quota_types = [t.name for t in service_type.quota_types.all()]
-    if quota_type.name not in allowed_quota_types:
-        msg = f"Quota '{quota_type.name}' can't be applied "
-        msg += f"on services of type '{service_type}'"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=msg,
-        )
-
-
 def providers_match(
     quota_type: QuotaTypeModel, service: ServiceModel, provider: ProviderModel
 ) -> None:
@@ -77,7 +63,6 @@ def validate_quota(
 ) -> Tuple[QuotaTypeModel, ServiceModel]:
     qt = valid_quota_type_name(quota_type)
     srv = valid_service_endpoint(service)
-    is_allowed_quota_type(qt, srv.type.single())
     return qt, srv
 
 

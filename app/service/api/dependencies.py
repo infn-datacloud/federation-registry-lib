@@ -3,7 +3,7 @@ from pydantic import UUID4
 
 from ..crud import service
 from ..models import Service
-from ..schemas_extended import ServiceCreateExtended
+from ..schemas import ServiceCreate
 
 
 def valid_service_id(service_uid: UUID4) -> Service:
@@ -16,7 +16,7 @@ def valid_service_id(service_uid: UUID4) -> Service:
     return item
 
 
-def is_unique_service(item: ServiceCreateExtended) -> ServiceCreateExtended:
+def is_unique_service(item: ServiceCreate) -> ServiceCreate:
     db_item = service.get(endpoint=item.endpoint)
     if db_item is not None:
         raise HTTPException(
