@@ -47,8 +47,8 @@ class Flavor(StructuredNode):
         "AVAILABLE_VM_FLAVOR",
         cardinality=OneOrMore,
     )
-    flavors = RelationshipFrom(
-        "..user_group.models.UserGroup",
+    projects = RelationshipFrom(
+        "..project.models.Project",
         "CAN_USE_FLAVOR",
         cardinality=ZeroOrMore,
     )

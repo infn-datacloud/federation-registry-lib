@@ -48,8 +48,8 @@ class Image(StructuredNode):
         "AVAILABLE_VM_IMAGE",
         cardinality=OneOrMore,
     )
-    images = RelationshipFrom(
-        "..user_group.models.UserGroup",
+    projects = RelationshipFrom(
+        "..project.models.Project",
         "CAN_USE_IMAGE",
         cardinality=ZeroOrMore,
     )

@@ -8,6 +8,8 @@ from neomodel import (
     ZeroOrMore,
 )
 
+from ..flavor.models import Flavor
+from ..image.models import Image
 from ..service.models import Service
 
 
@@ -32,12 +34,6 @@ class UserGroup(StructuredNode):
     projects = RelationshipTo(
         "..project.models.Project", "MATCH_PROJECT", cardinality=ZeroOrMore
     )
-    flavors = RelationshipTo(
-        "..flavor.models.Flavor", "CAN_USE_FLAVOR", cardinality=ZeroOrMore
-    )
-    images = RelationshipTo(
-        "..image.models.Image", "CAN_USE_IMAGE", cardinality=ZeroOrMore
-    )
     identity_provider = RelationshipTo(
         "..identity_provider.models.IdentityProvider",
         "BELONG_TO",
@@ -50,6 +46,27 @@ class UserGroup(StructuredNode):
         MATCH (g)-[:MATCH_PROJECT]->(p)
         """
 
+    def flavors(self) -> List[Flavor]:
+        results, columns = self.cypher(
+            f"""
+                {self.query_prefix}
+                MATCH (p)-[:CAN_USE_FLAVOR]->(u)
+                RETURN u
+            """
+        )
+        print(results)
+        return [Flavor.inflate(row[0]) for row in results]
+
+    def images(self) -> List[Image]:
+        results, columns = self.cypher(
+            f"""
+                {self.query_prefix}
+                MATCH (p)-[:CAN_USE_IMAGE]->(u)
+                RETURN u
+            """
+        )
+        return [Image.inflate(row[0]) for row in results]
+
     def services(self) -> List[Service]:
         results, columns = self.cypher(
             f"""
@@ -59,6 +76,8 @@ class UserGroup(StructuredNode):
             """
         )
         return [Service.inflate(row[0]) for row in results]
+
+
 #        services = {}
 #        for row in results:
 #            service = Service.inflate(row[0])

@@ -64,6 +64,22 @@ def delete_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
 
 
 @db.read_transaction
+@router.get("/{user_group_uid}/flavors", response_model=List[Service])
+def read_user_group_flavors(
+    item: UserGroupModel = Depends(valid_user_group_id),
+):
+    return item.flavors()
+
+
+@db.read_transaction
+@router.get("/{user_group_uid}/images", response_model=List[Service])
+def read_user_group_images(
+    item: UserGroupModel = Depends(valid_user_group_id),
+):
+    return item.images()
+
+
+@db.read_transaction
 @router.get("/{user_group_uid}/services", response_model=List[Service])
 def read_user_group_services(
     item: UserGroupModel = Depends(valid_user_group_id),
