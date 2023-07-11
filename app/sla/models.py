@@ -1,12 +1,10 @@
 from neomodel import (
     DateTimeProperty,
     One,
-    RelationshipFrom,
     RelationshipTo,
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
-    OneOrMore,
 )
 
 
@@ -22,12 +20,15 @@ class SLA(StructuredNode):
         description (str): Brief description.
         start_date (datetime): SLA validity start date.
         end_date (datetime): SLA validity end date.
+        document_uuid (UUID): UUID of the document with
+            the SLA details
     """
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
     start_date = DateTimeProperty(required=True)
     end_date = DateTimeProperty()
+    document_uuid = StringProperty()
 
     project = RelationshipTo(
         "..project.models.Project",
