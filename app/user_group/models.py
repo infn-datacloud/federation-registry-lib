@@ -8,8 +8,6 @@ from neomodel import (
     ZeroOrMore,
 )
 
-from ..cluster.models import Cluster
-
 from ..service.models import Service
 
 
@@ -52,16 +50,6 @@ class UserGroup(StructuredNode):
         MATCH (g)-[:MATCH_PROJECT]->(p)
         """
 
-    def clusters(self) -> List[Cluster]:
-        results, columns = self.cypher(
-            f"""
-                {self.query_prefix}
-                MATCH (p)-[:AVAILABLE_CLUSTER]->(u)
-                RETURN u
-            """,
-            {"service": ServiceType.kubernetes.value},
-        )
-        return [Cluster.inflate(row[0]) for row in results]
     def services(self) -> List[Service]:
         results, columns = self.cypher(
             f"""

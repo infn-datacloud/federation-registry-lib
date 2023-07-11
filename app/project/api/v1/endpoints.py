@@ -2,8 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from app.cluster.api.dependencies import valid_cluster_id
-from app.cluster.models import Cluster as ClusterModel
 from app.flavor.api.dependencies import valid_flavor_id
 from app.flavor.models import Flavor as FlavorModel
 from app.image.api.dependencies import valid_image_id
@@ -53,26 +51,6 @@ def delete_project(item: ProjectModel = Depends(valid_project_id)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
-
-
-@db.read_transaction
-@router.put("/{user_group_uid}/clusters", response_model=Project)
-def connect_user_group_cluster(
-    item: ProjectModel = Depends(valid_project_id),
-    cluster: ClusterModel = Depends(valid_cluster_id),
-):
-    item.clusters.connect(cluster)
-    return item
-
-
-@db.read_transaction
-@router.delete("/{user_group_uid}/clusters", response_model=Project)
-def disconnect_user_group_cluster(
-    item: ProjectModel = Depends(valid_project_id),
-    cluster: ClusterModel = Depends(valid_cluster_id),
-):
-    item.clusters.disconnect(cluster)
-    return item
 
 
 @db.read_transaction

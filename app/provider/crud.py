@@ -3,8 +3,6 @@ from typing import List
 from .models import Provider as ProviderModel
 from .schemas import ProviderCreate, ProviderUpdate
 from .schemas_extended import ProviderCreateExtended
-from ..cluster.crud import cluster
-from ..cluster.schemas import ClusterCreate
 from ..crud import CRUDBase
 from ..flavor.crud import flavor
 from ..flavor.schemas import FlavorCreate
@@ -31,13 +29,6 @@ from ..service.schemas import ServiceCreate
 
 class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
     """"""
-
-    def create_and_connect_clusters(
-        self, *, db_obj: ProviderModel, new_items: List[ClusterCreate]
-    ) -> None:
-        for clu in new_items:
-            db_cluster = cluster.create(obj_in=clu, force=True)
-            db_obj.clusters.connect(db_cluster)
 
     def create_and_connect_flavors(
         self,
@@ -115,9 +106,6 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
             self.create_and_connect_location(
                 db_obj=db_obj, loc=obj_in.location
             )
-        self.create_and_connect_clusters(
-            db_obj=db_obj, new_items=obj_in.clusters
-        )
         self.create_and_connect_flavors(
             db_obj=db_obj, new_items=obj_in.flavors
         )

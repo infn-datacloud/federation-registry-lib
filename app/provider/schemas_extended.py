@@ -2,7 +2,6 @@ from pydantic import Field
 from typing import List, Optional
 
 from .schemas import Provider, ProviderCreate, ProviderUpdate
-from ..cluster.schemas import Cluster, ClusterCreate, ClusterUpdate
 from ..flavor.schemas import Flavor, FlavorCreate, FlavorUpdate
 from ..identity_provider.schemas_extended import (
     IdentityProviderExtended,
@@ -36,7 +35,6 @@ class ProviderCreateExtended(ProviderCreate):
     """
 
     location: Optional[LocationCreate] = None
-    clusters: List[ClusterCreate] = Field(default_factory=list)
     flavors: List[FlavorCreate] = Field(default_factory=list)
     identity_providers: List[IdentityProviderCreateExtended] = Field(
         default_factory=list
@@ -67,7 +65,6 @@ class ProviderUpdateExtended(ProviderUpdate):
     """
 
     location: Optional[LocationUpdate] = None
-    clusters: List[ClusterUpdate] = Field(default_factory=list)
     flavors: List[FlavorUpdate] = Field(default_factory=list)
     identity_providers: List[IdentityProviderUpdateExtended] = Field(
         default_factory=list
@@ -101,7 +98,6 @@ class ProviderExtended(Provider):
     """
 
     location: Optional[Location] = None
-    clusters: List[Cluster] = Field(default_factory=list)
     flavors: List[Flavor] = Field(default_factory=list)
     identity_providers: List[IdentityProviderExtended] = Field(
         default_factory=list

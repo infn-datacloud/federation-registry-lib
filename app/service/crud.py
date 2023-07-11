@@ -28,9 +28,8 @@ from .schemas import (
 )
 from ..crud import CRUDBase
 
-class CRUDService(
-    CRUDBase[ServiceModel, ServiceCreate, ServiceUpdate]
-):
+
+class CRUDService(CRUDBase[ServiceModel, ServiceCreate, ServiceUpdate]):
     """"""
 
 

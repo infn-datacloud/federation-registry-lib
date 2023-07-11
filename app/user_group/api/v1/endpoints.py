@@ -2,7 +2,6 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from app.cluster.schemas import Cluster
 from app.flavor.schemas import Flavor
 from app.image.schemas import Image
 from app.project.models import Project as ProjectModel
@@ -62,30 +61,6 @@ def delete_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
-
-
-@db.read_transaction
-@router.get("/{user_group_uid}/clusters", response_model=List[Cluster])
-def read_user_group_clusters(
-    item: UserGroupModel = Depends(valid_user_group_id),
-):
-    return item.clusters()
-
-
-@db.read_transaction
-@router.get("/{user_group_uid}/flavors", response_model=List[Flavor])
-def read_user_group_flavors(
-    item: UserGroupModel = Depends(valid_user_group_id),
-):
-    return item.flavors()
-
-
-@db.read_transaction
-@router.get("/{user_group_uid}/images", response_model=List[Image])
-def read_user_group_images(
-    item: UserGroupModel = Depends(valid_user_group_id),
-):
-    return item.images()
 
 
 @db.read_transaction
