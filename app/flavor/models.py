@@ -48,7 +48,7 @@ class Flavor(StructuredNode):
         cardinality=OneOrMore,
     )
     flavors = RelationshipFrom(
-        "..flavor.models.Flavor",
+        "..user_group.models.UserGroup",
         "CAN_USE_FLAVOR",
         cardinality=ZeroOrMore,
     )

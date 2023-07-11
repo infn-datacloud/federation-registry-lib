@@ -49,7 +49,7 @@ class Image(StructuredNode):
         cardinality=OneOrMore,
     )
     images = RelationshipFrom(
-        "..image.models.Image",
+        "..user_group.models.UserGroup",
         "CAN_USE_IMAGE",
         cardinality=ZeroOrMore,
     )
