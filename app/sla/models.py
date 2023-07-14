@@ -32,6 +32,6 @@ class SLA(StructuredNode):
 
     project = RelationshipTo(
         "..project.models.Project",
-        "REFER_TO_PROJECT",
+        "REFER_TO",
         cardinality=One,
     )

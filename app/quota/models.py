@@ -18,28 +18,27 @@ class Quota(StructuredNode):
     Attributes:
         name (str): Quota name (type).
         description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
         tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
+            be granted to the user group in total. TODO
         instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
+            to be granted to each VM/Container instance. TODO
         user_limit (float | None): The max quantity of a resource to
-            be granted to user.
+            be granted to user. TODO
         tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
+            resource to be granted to the user group in total. TODO
         instance_guaranteed (float): The guaranteed quantity
             of a resource to be granted to each VM/Container
-            instance.
+            instance. TODO
         user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+            of a resource to be granted to user. TODO
     """
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
+    type = StringProperty(required=True)
 
     project = RelationshipFrom(
-        "..project.models.Project", "USE_SERVICE_WITH_QUOTA", cardinality=One
+        "..project.models.Project", "USE_SERVICE_WITH", cardinality=One
     )
     service = RelationshipTo(
         "..service.models.Service", "APPLY_TO", cardinality=One

@@ -18,13 +18,13 @@ class Project(StructuredNode):
 
     Attributes:
         uid (uuid): AssociatedProject unique ID.
-        project_name (str): Name of the project in the
-            Provider to which this UserGroup has access.
-        project_id (uuid): Project Unique ID in the Provider.
-        public_network_name (str): #TODO
-        private_network_name (str): #TODO
-        private_network_proxy_name (str): #TODO
-        private_network_proxy_host (str): #TODO
+        description (str): Brief description.
+        name (str): Name of the project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
+        public_network_name (str): TODO
+        private_network_name (str): TODO
+        private_network_proxy_host (str): TODO
+        private_network_proxy_user (str): TODO
     """
 
     uid = UniqueIdProperty()
@@ -37,30 +37,30 @@ class Project(StructuredNode):
     private_network_proxy_user = StringProperty()
 
     user_group = RelationshipFrom(
-        "..user_group.models.UserGroup", "MATCH_PROJECT", cardinality=ZeroOrOne
+        "..user_group.models.UserGroup", "COUPLED_WITH", cardinality=ZeroOrOne
     )
     sla = RelationshipFrom(
         "..sla.models.SLA",
-        "REFER_TO_PROJECT",
+        "REFER_TO",
         cardinality=ZeroOrOne,
     )
     quotas = RelationshipTo(
         "..quota.models.Quota",
-        "USE_SERVICE_WITH_QUOTA",
+        "USE_SERVICE_WITH",
         cardinality=ZeroOrMore,
     )
     provider = RelationshipFrom(
         "..provider.models.Provider",
-        "BOOK_PROJECT_FOR_AN_SLA",
+        "BOOK_PROJECT_FOR_SLA",
         cardinality=One,
     )
     flavors = RelationshipTo(
         "..flavor.models.Flavor",
-        "CAN_USE_FLAVOR",
+        "CAN_USE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )
     images = RelationshipTo(
         "..image.models.Image",
-        "CAN_USE_IMAGE",
+        "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )

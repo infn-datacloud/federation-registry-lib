@@ -21,25 +21,25 @@ class Provider(StructuredNode):
 
     Attributes:
         uid (int): Provider unique ID.
-        name (str): Provider name (type).
         description (str): Brief description.
-        support_email (list of str): List of maintainers emails.
+        name (str): Provider name (type).
         is_public (bool): Public or private provider.
+        support_email (list of str): List of maintainers emails.
     """
 
     uid = UniqueIdProperty()
-    name = StringProperty(unique_index=True, required=True)
     description = StringProperty(default="")
+    name = StringProperty(unique_index=True, required=True)
     is_public = BooleanProperty(default=False)
-    support_email = ArrayProperty(StringProperty())
+    support_emails = ArrayProperty(StringProperty())
 
     projects = RelationshipTo(
         "..project.models.Project",
-        "BOOK_PROJECT_FOR_AN_SLA",
+        "BOOK_PROJECT_FOR_SLA",
         cardinality=ZeroOrMore,
     )
     services = RelationshipTo(
-        "..service.models.Service", "PROVIDE_SERVICE", cardinality=ZeroOrMore
+        "..service.models.Service", "SUPPLY", cardinality=ZeroOrMore
     )
     location = RelationshipTo(
         "..location.models.Location", "LOCATED_AT", cardinality=ZeroOrOne
@@ -49,11 +49,6 @@ class Provider(StructuredNode):
         "ALLOW_AUTH_THROUGH",
         cardinality=ZeroOrMore,
         model=AuthMethod,
-    )
-    clusters = RelationshipTo(
-        "..cluster.models.Cluster",
-        "AVAILABLE_CLUSTER",
-        cardinality=ZeroOrMore,
     )
     flavors = RelationshipTo(
         "..flavor.models.Flavor",

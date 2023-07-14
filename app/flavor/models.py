@@ -5,7 +5,7 @@ from neomodel import (
     BooleanProperty,
     UniqueIdProperty,
     RelationshipFrom,
-    OneOrMore,
+    One,
     ZeroOrMore,
 )
 
@@ -45,10 +45,10 @@ class Flavor(StructuredNode):
     providers = RelationshipFrom(
         "..provider.models.Provider",
         "AVAILABLE_VM_FLAVOR",
-        cardinality=OneOrMore,
+        cardinality=One,
     )
     projects = RelationshipFrom(
         "..project.models.Project",
-        "CAN_USE_FLAVOR",
+        "CAN_USE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )

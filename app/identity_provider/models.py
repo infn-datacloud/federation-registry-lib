@@ -19,6 +19,8 @@ class IdentityProvider(StructuredNode):
         uid (int): IdentityProvider unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IdentityProvider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from a authentication token.
     """
 
     uid = UniqueIdProperty()

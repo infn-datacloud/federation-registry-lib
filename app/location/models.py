@@ -1,6 +1,6 @@
 from neomodel import (
     FloatProperty,
-    OneOrMore,
+    ZeroOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -15,21 +15,20 @@ class Location(StructuredNode):
 
     Attributes:
         uid (int): Location unique ID.
-        name (str): Location unique name.
         description (str): Brief description.
+        name (str): Location unique name.
         country (str): Country name.
-        country_code (str): Country code.
         latitude (float): Latitude coordinate.
         longitude (float): Longitude coordinate.
     """
 
     uid = UniqueIdProperty()
-    name = StringProperty(unique_index=True, required=True)
     description = StringProperty(default="")
+    name = StringProperty(unique_index=True, required=True)
     country = StringProperty(required=True)
     latitude = FloatProperty()
     longitude = FloatProperty()
 
     providers = RelationshipFrom(
-        "..provider.models.Provider", "LOCATED_AT", cardinality=OneOrMore
+        "..provider.models.Provider", "LOCATED_AT", cardinality=ZeroOrMore
     )

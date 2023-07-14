@@ -1,7 +1,7 @@
 from neomodel import (
     BooleanProperty,
     DateTimeProperty,
-    OneOrMore,
+    One,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -46,10 +46,10 @@ class Image(StructuredNode):
     providers = RelationshipFrom(
         "..provider.models.Provider",
         "AVAILABLE_VM_IMAGE",
-        cardinality=OneOrMore,
+        cardinality=One,
     )
     projects = RelationshipFrom(
         "..project.models.Project",
-        "CAN_USE_IMAGE",
+        "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )

@@ -23,16 +23,17 @@ class UserGroup(StructuredNode):
     resources it can access.
 
     Attributes:
-        name (str): UserGroup name.
+        uid (int): UserGroup unique ID.
         description (str): Brief description.
+        name (str): UserGroup name.
     """
 
     uid = UniqueIdProperty()
-    name = StringProperty(required=True)
     description = StringProperty(default="")
+    name = StringProperty(required=True)
 
     projects = RelationshipTo(
-        "..project.models.Project", "MATCH_PROJECT", cardinality=ZeroOrMore
+        "..project.models.Project", "COUPLED_WITH", cardinality=ZeroOrMore
     )
     identity_provider = RelationshipTo(
         "..identity_provider.models.IdentityProvider",
