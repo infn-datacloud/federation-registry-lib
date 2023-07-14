@@ -38,7 +38,7 @@ def check_valid_services(
 def check_rel_consistency(
     item: ProviderCreateExtended = Depends(check_valid_services),
 ) -> ProviderCreateExtended:
-    for i in [item.clusters, item.flavors, item.images, item.projects]:
+    for i in [item.flavors, item.images, item.projects]:
         seen = set()
         names = [j.name for j in i]
         dupes = [x for x in names if x in seen or seen.add(x)]
