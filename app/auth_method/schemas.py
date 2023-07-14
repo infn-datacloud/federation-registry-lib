@@ -1,6 +1,13 @@
 from pydantic import BaseModel, Extra
 from typing import Optional
 
+class AuthMethodBase(BaseModel):
+    idp_name: str
+    protocol: str
+
+    class Config:
+        validate_assignment = True
+        extra = Extra.ignore
 
 class AuthMethodQuery(BaseModel):
     """AuthMethod Create class
@@ -10,23 +17,9 @@ class AuthMethodQuery(BaseModel):
 
 
     Attributes:
-        name (str): AuthMethod name (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+        idp_name (str): Identity Provider name saved in the Provider.
+        protocol (str): Protocol to use when authenticating on this
+            identity provider.
     """
 
     idp_name: Optional[str] = None
@@ -36,7 +29,7 @@ class AuthMethodQuery(BaseModel):
         validate_assignment = True
 
 
-class AuthMethodCreate(BaseModel):
+class AuthMethodCreate(AuthMethodBase):
     """AuthMethod Create class
 
     Class without id (which is populated by the database).
@@ -44,31 +37,12 @@ class AuthMethodCreate(BaseModel):
 
 
     Attributes:
-        name (str): AuthMethod name (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+        idp_name (str): Identity Provider name saved in the Provider.
+        protocol (str): Protocol to use when authenticating on this
+            identity provider.
     """
 
-    idp_name: str
-    protocol: str
-
-    class Config:
-        validate_assignment = True
-        extra = Extra.ignore
+    
 
 
 class AuthMethodUpdate(AuthMethodCreate):
@@ -78,27 +52,13 @@ class AuthMethodUpdate(AuthMethodCreate):
     Expected as input when performing a PATCH REST request.
 
     Attributes:
-        name (str): AuthMethod name (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+        idp_name (str): Identity Provider name saved in the Provider.
+        protocol (str): Protocol to use when authenticating on this
+            identity provider.
     """
 
 
-class AuthMethod(AuthMethodCreate):
+class AuthMethodRead(AuthMethodBase):
     """AuthMethod class
 
     Class retrieved from the database
@@ -107,24 +67,9 @@ class AuthMethod(AuthMethodCreate):
     in the database.
 
     Attributes:
-        uid (uuid): AuthMethod unique ID.
-        name (str): AuthMethod name (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota name/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+        idp_name (str): Identity Provider name saved in the Provider.
+        protocol (str): Protocol to use when authenticating on this
+            identity provider.
     """
 
     class Config:

@@ -1,7 +1,13 @@
-from pydantic import EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 
 from ..models import BaseNodeQuery, BaseNodeCreate, BaseNodeRead
+
+
+class ProviderBase(BaseModel):
+    name: str
+    is_public: bool = False
+    support_emails: List[EmailStr] = Field(default_factory=list)
 
 
 class ProviderQuery(BaseNodeQuery):
@@ -11,15 +17,15 @@ class ProviderQuery(BaseNodeQuery):
         description (str | None): Brief description.
         name (str | None): Provider name (type).
         is_public (bool | None): Public or private provider.
-        support_email (list of str | None): List of maintainers emails.
+        support_emails (list of str | None): List of maintainers emails.
     """
 
     name: Optional[str] = None
     is_public: Optional[bool] = None
-    support_email: Optional[List[EmailStr]] = None
+    support_emails: Optional[List[EmailStr]] = None
 
 
-class ProviderCreate(BaseNodeCreate):
+class ProviderCreate(BaseNodeCreate, ProviderBase):
     """Provider Create Model class.
 
     Class without id (which is populated by the database).
@@ -27,21 +33,10 @@ class ProviderCreate(BaseNodeCreate):
 
     Attributes:
         description (str): Brief description.
-        name (str | None): Provider name (type).
-        is_public (bool | None): Public or private provider.
-        support_email (list of str | None): List of maintainers emails.
-        location (LocationCreate | None): provider physical location
-        clusters TODO
-        flavors TODO
-        identity_providers TODO
-        images TODO
-        projects TODO
-        services TODO
+        name (str): Provider name (type).
+        is_public (bool): Public or private provider.
+        support_emails (list of str): List of maintainers emails.
     """
-
-    name: str
-    is_public: bool = False
-    support_email: List[EmailStr] = Field(default_factory=list)
 
 
 class ProviderUpdate(ProviderCreate):
@@ -65,7 +60,7 @@ class ProviderUpdate(ProviderCreate):
     """
 
 
-class Provider(BaseNodeRead, ProviderCreate):
+class ProviderRead(BaseNodeRead, ProviderBase):
     """Provider class.
 
     Class retrieved from the database.
@@ -76,14 +71,7 @@ class Provider(BaseNodeRead, ProviderCreate):
     Attributes:
         uid (uuid): Unique ID.
         description (str): Brief description.
-        name (str | None): Provider name (type).
-        is_public (bool | None): Public or private provider.
-        support_email (list of str | None): List of maintainers emails.
-        location (LocationCreate | None): provider physical location
-        clusters TODO
-        flavors TODO
-        identity_providers TODO
-        images TODO
-        projects TODO
-        services TODO
+        name (str): Provider name (type).
+        is_public (bool): Public or private provider.
+        support_emails (list of str): List of maintainers emails.
     """

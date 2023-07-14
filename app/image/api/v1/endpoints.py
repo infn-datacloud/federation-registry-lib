@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_image_id
 from ...crud import image
 from ...models import Image as ImageModel
-from ...schemas import Image, ImageQuery, ImageUpdate
+from ...schemas import ImageQuery, ImageRead, ImageUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/images", tags=["images"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[Image])
+@router.get("/", response_model=List[ImageRead])
 def get_images(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -26,13 +26,13 @@ def get_images(
 
 
 @db.read_transaction
-@router.get("/{image_uid}", response_model=Image)
+@router.get("/{image_uid}", response_model=ImageRead)
 def get_image(item: ImageModel = Depends(valid_image_id)):
     return item
 
 
 @db.write_transaction
-@router.put("/{image_uid}", response_model=Optional[Image])
+@router.put("/{image_uid}", response_model=Optional[ImageRead])
 def put_image(
     update_data: ImageUpdate, item: ImageModel = Depends(valid_image_id)
 ):

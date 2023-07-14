@@ -1,11 +1,11 @@
 from ..auth_method.schemas import (
-    AuthMethod,
     AuthMethodCreate,
+    AuthMethodRead,
     AuthMethodUpdate,
 )
 from ..identity_provider.schemas import (
-    IdentityProvider,
     IdentityProviderCreate,
+    IdentityProviderRead,
     IdentityProviderUpdate,
 )
 
@@ -18,5 +18,5 @@ class IdentityProviderUpdateExtended(IdentityProviderUpdate):
     relationship: AuthMethodUpdate
 
 
-class IdentityProviderExtended(IdentityProvider):
-    relationship: AuthMethod
+class IdentityProviderReadExtended(IdentityProviderRead):
+    relationship: AuthMethodRead

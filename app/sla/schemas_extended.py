@@ -1,11 +1,11 @@
 from pydantic import Field
 from typing import List
 
-from .schemas import SLA, SLACreate, SLAUpdate
-from ..project.schemas import Project
+from .schemas import SLACreate, SLARead, SLAUpdate
+from ..project.schemas import ProjectRead
 from ..quota.schemas import QuotaUpdate
 from ..quota.schemas_extended import QuotaCreateExtended, QuotaExtended
-from ..user_group.schemas import UserGroup
+from ..user_group.schemas import UserGroupRead
 
 
 class SLACreateExtended(SLACreate):
@@ -44,7 +44,7 @@ class SLAUpdateExtended(SLAUpdate):
     quotas: List[QuotaUpdate] = Field(default_factory=list)
 
 
-class SLAExtended(SLA):
+class SLAExtended(SLARead):
     """Service Level Agreement (SLA) class.
 
     Class retrieved from the database.
@@ -62,6 +62,6 @@ class SLAExtended(SLA):
         quotas (list of Quota): List of quotas defined by the SLA.
     """
 
-    project: Project
-    user_group: UserGroup
+    project: ProjectRead
+    user_group: UserGroupRead
     quotas: List[QuotaExtended]

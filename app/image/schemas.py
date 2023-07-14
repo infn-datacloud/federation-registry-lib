@@ -1,9 +1,21 @@
 from datetime import datetime
-from pydantic import UUID4
+from pydantic import UUID4, BaseModel
 from typing import Optional
 
 from .enum import ImageOS
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+
+
+class ImageBase(BaseModel):
+    name: str
+    uuid: UUID4
+    os: ImageOS
+    distribution: str
+    version: str
+    architecture: str
+    cuda_support: bool = False
+    gpu_driver: bool = False
+    creation_time: Optional[datetime] = None
 
 
 class ImageQuery(BaseNodeQuery):
@@ -31,7 +43,7 @@ class ImageQuery(BaseNodeQuery):
     creation_time: Optional[datetime] = None
 
 
-class ImageCreate(BaseNodeCreate):
+class ImageCreate(BaseNodeCreate, ImageBase):
     """Image Create Model class.
 
     Class without id (which is populated by the database).
@@ -47,16 +59,6 @@ class ImageCreate(BaseNodeCreate):
         gpu_driver (str): Support for GPUs.
         creation_time (datetime | None): Image creation time.
     """
-
-    name: str
-    uuid: UUID4
-    os: ImageOS
-    distribution: str
-    version: str
-    architecture: str
-    cuda_support: bool = False
-    gpu_driver: bool = False
-    creation_time: Optional[datetime] = None
 
 
 class ImageUpdate(ImageCreate):
@@ -77,7 +79,7 @@ class ImageUpdate(ImageCreate):
     """
 
 
-class Image(BaseNodeRead, ImageCreate):
+class ImageRead(BaseNodeRead, ImageBase):
     """Image class.
 
     Class retrieved from the database.

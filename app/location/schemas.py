@@ -1,8 +1,15 @@
 from pycountry import countries
-from pydantic import Field, root_validator
+from pydantic import BaseModel, Field, root_validator
 from typing import Dict, Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+
+
+class LocationBase(BaseModel):
+    name: str
+    country: str
+    latitude: Optional[float] = Field(ge=-180, le=180, default=None)
+    longitude: Optional[float] = Field(ge=-90, le=90, default=None)
 
 
 class LocationQuery(BaseNodeQuery):
@@ -24,7 +31,7 @@ class LocationQuery(BaseNodeQuery):
     longitude: Optional[float] = Field(ge=-90, le=90, default=None)
 
 
-class LocationCreate(BaseNodeCreate):
+class LocationCreate(BaseNodeCreate, LocationBase):
     """Location Create Model class.
 
     Class without id (which is populated by the database).
@@ -38,11 +45,6 @@ class LocationCreate(BaseNodeCreate):
         latitude (float | None): Latitude coordinate.
         longitude (float | None): Longitude coordinate.
     """
-
-    name: str
-    country: str
-    latitude: Optional[float] = Field(ge=-180, le=180, default=None)
-    longitude: Optional[float] = Field(ge=-90, le=90, default=None)
 
 
 class LocationUpdate(LocationCreate):
@@ -61,7 +63,7 @@ class LocationUpdate(LocationCreate):
     """
 
 
-class Location(BaseNodeRead, LocationCreate):
+class LocationRead(BaseNodeRead, LocationBase):
     """Location class.
 
     Class retrieved from the database.

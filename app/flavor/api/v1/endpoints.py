@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_flavor_id
 from ...crud import flavor
 from ...models import Flavor as FlavorModel
-from ...schemas import Flavor, FlavorQuery, FlavorUpdate
+from ...schemas import FlavorQuery, FlavorRead, FlavorUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[Flavor])
+@router.get("/", response_model=List[FlavorRead])
 def get_flavors(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -26,13 +26,13 @@ def get_flavors(
 
 
 @db.read_transaction
-@router.get("/{flavor_uid}", response_model=Flavor)
+@router.get("/{flavor_uid}", response_model=FlavorRead)
 def get_flavor(item: FlavorModel = Depends(valid_flavor_id)):
     return item
 
 
 @db.write_transaction
-@router.put("/{flavor_uid}", response_model=Optional[Flavor])
+@router.put("/{flavor_uid}", response_model=Optional[FlavorRead])
 def put_flavor(
     update_data: FlavorUpdate, item: FlavorModel = Depends(valid_flavor_id)
 ):

@@ -1,6 +1,11 @@
+from pydantic import BaseModel
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+
+
+class UserGroupBase(BaseModel):
+    name: str
 
 
 class UserGroupQuery(BaseNodeQuery):
@@ -14,7 +19,7 @@ class UserGroupQuery(BaseNodeQuery):
     name: Optional[str] = None
 
 
-class UserGroupCreate(BaseNodeCreate):
+class UserGroupCreate(BaseNodeCreate, UserGroupBase):
     """UserGroup Create Model class.
 
     Class without id (which is populated by the database).
@@ -24,8 +29,6 @@ class UserGroupCreate(BaseNodeCreate):
         description (str): Brief description.
         name (str): UserGroup name.
     """
-
-    name: str
 
 
 class UserGroupUpdate(BaseNodeCreate, UserGroupQuery):
@@ -40,7 +43,7 @@ class UserGroupUpdate(BaseNodeCreate, UserGroupQuery):
     """
 
 
-class UserGroup(BaseNodeRead, UserGroupCreate):
+class UserGroupRead(BaseNodeRead, UserGroupBase):
     """UserGroup class.
 
     Class retrieved from the database.

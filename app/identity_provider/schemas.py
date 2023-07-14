@@ -1,7 +1,12 @@
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, BaseModel
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+
+
+class IdentityProviderBase(BaseModel):
+    endpoint: AnyHttpUrl
+    group_claim: str
 
 
 class IdentityProviderQuery(BaseNodeQuery):
@@ -16,7 +21,7 @@ class IdentityProviderQuery(BaseNodeQuery):
     group_claim: Optional[str] = None
 
 
-class IdentityProviderCreate(BaseNodeCreate):
+class IdentityProviderCreate(BaseNodeCreate, IdentityProviderBase):
     """IdentityProvider Create Model class.
 
     Class without id (which is populated by the database).
@@ -26,9 +31,6 @@ class IdentityProviderCreate(BaseNodeCreate):
         description (str): Brief description.
         endpoint (str): URL of the IdentityProvider.
     """
-
-    endpoint: AnyHttpUrl
-    group_claim: str
 
 
 class IdentityProviderUpdate(IdentityProviderCreate):
@@ -43,7 +45,7 @@ class IdentityProviderUpdate(IdentityProviderCreate):
     """
 
 
-class IdentityProvider(BaseNodeRead, IdentityProviderCreate):
+class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
     """IdentityProvider class.
 
     Class retrieved from the database.

@@ -1,7 +1,14 @@
 from datetime import datetime
+from pydantic import UUID4, BaseModel
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+
+
+class SLABase(BaseModel):
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    document_uuid: Optional[UUID4] = None
 
 
 class SLAQuery(BaseNodeQuery):
@@ -13,11 +20,12 @@ class SLAQuery(BaseNodeQuery):
         end_date (datetime | None): SLA validity end date.
     """
 
+    document_uuid: Optional[UUID4] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
 
 
-class SLACreate(BaseNodeCreate):
+class SLACreate(BaseNodeCreate, SLABase):
     """Service Level Agreement (SLA) Create Model class.
 
     Class without id (which is populated by the database).
@@ -31,9 +39,6 @@ class SLACreate(BaseNodeCreate):
         user_group (UUID4): UUID4 of the target UserGroup.
         quotas (list of QuotaCreate): List of quotas defined by the SLA.
     """
-
-    start_date: datetime
-    end_date: Optional[datetime] = None
 
 
 class SLAUpdate(SLACreate):
@@ -52,7 +57,7 @@ class SLAUpdate(SLACreate):
     """
 
 
-class SLA(BaseNodeRead, SLACreate):
+class SLARead(BaseNodeRead, SLABase):
     """Service Level Agreement (SLA) class.
 
     Class retrieved from the database.

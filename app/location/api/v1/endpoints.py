@@ -5,7 +5,7 @@ from typing import List, Optional
 from ..dependencies import valid_location_id
 from ...crud import location
 from ...models import Location as LocationModel
-from ...schemas import Location, LocationQuery, LocationUpdate
+from ...schemas import LocationQuery, LocationRead, LocationUpdate
 from ....pagination import Pagination, paginate
 from ....query import CommonGetQuery
 
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/locations", tags=["locations"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[Location])
+@router.get("/", response_model=List[LocationRead])
 def get_locations(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -26,13 +26,13 @@ def get_locations(
 
 
 @db.read_transaction
-@router.get("/{location_uid}", response_model=Location)
+@router.get("/{location_uid}", response_model=LocationRead)
 def get_location(item: LocationModel = Depends(valid_location_id)):
     return item
 
 
 @db.write_transaction
-@router.put("/{location_uid}", response_model=Optional[Location])
+@router.put("/{location_uid}", response_model=Optional[LocationRead])
 def put_location(
     update_data: LocationUpdate,
     item: LocationModel = Depends(valid_location_id),

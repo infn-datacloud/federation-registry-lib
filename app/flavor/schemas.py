@@ -1,7 +1,19 @@
-from pydantic import UUID4, Field, root_validator
+from pydantic import UUID4, BaseModel, Field, root_validator
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+
+
+class FlavorBase(BaseModel):
+    name: str
+    uuid: UUID4
+    num_vcpus: int = Field(ge=0, default=0)
+    num_gpus: int = Field(ge=0, default=0)
+    ram: int = Field(ge=0, default=0)
+    disk: int = Field(ge=0, default=0)
+    infiniband_support: bool = False
+    gpu_model: Optional[str] = None
+    gpu_vendor: Optional[str] = None
 
 
 class FlavorQuery(BaseNodeQuery):
@@ -29,7 +41,7 @@ class FlavorQuery(BaseNodeQuery):
     gpu_vendor: Optional[str] = None
 
 
-class FlavorCreate(BaseNodeCreate):
+class FlavorCreate(BaseNodeCreate, FlavorBase):
     """Flavor Create Model class.
 
     Class without id (which is populated by the database).
@@ -45,16 +57,6 @@ class FlavorCreate(BaseNodeCreate):
         gpu_model (str | None): GPU model name.
         gpu_vendor (str | None): Name of the GPU vendor.
     """
-
-    name: str
-    uuid: UUID4
-    num_vcpus: int = Field(ge=0, default=0)
-    num_gpus: int = Field(ge=0, default=0)
-    ram: int = Field(ge=0, default=0)
-    disk: int = Field(ge=0, default=0)
-    infiniband_support: bool = False
-    gpu_model: Optional[str] = None
-    gpu_vendor: Optional[str] = None
 
     @root_validator
     def check_gpu_values(cls, values):
@@ -86,7 +88,7 @@ class FlavorUpdate(FlavorCreate):
     """
 
 
-class Flavor(BaseNodeRead, FlavorCreate):
+class FlavorRead(BaseNodeRead, FlavorBase):
     """Flavor class.
 
     Class retrieved from the database.

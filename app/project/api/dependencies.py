@@ -3,7 +3,7 @@ from pydantic import UUID4
 
 from ..crud import project
 from ..models import Project as ProjectModel
-from ..schemas import Project
+from ..schemas import ProjectRead
 
 
 def valid_project_id(project_uid: UUID4) -> ProjectModel:
@@ -17,7 +17,7 @@ def valid_project_id(project_uid: UUID4) -> ProjectModel:
 
 
 def project_has_no_sla(
-    project: Project = Depends(valid_project_id),
+    project: ProjectRead = Depends(valid_project_id),
 ) -> ProjectModel:
     if project.sla.single():
         raise HTTPException(

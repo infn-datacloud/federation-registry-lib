@@ -1,22 +1,11 @@
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, BaseModel
 from typing import Optional
 
 from .enum import ServiceType
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
-class ServiceQuery(BaseNodeQuery):
-    """Service Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        endpoint (str | None): URL pointing to this service
-    """
-
-    endpoint: Optional[AnyHttpUrl] = None
-
-
-class BaseService(BaseNodeCreate):
+class ServiceBase(BaseModel):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
@@ -29,24 +18,22 @@ class BaseService(BaseNodeCreate):
     """
 
     endpoint: AnyHttpUrl
-
-
-class ServiceCreate(BaseService):
-    """Service Create Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PATCH, PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        endpoint (str): URL pointing to this service
-        type (ServiceTypeUpdate): Service type.
-    """
-
     type: ServiceType
 
 
-class ServiceUpdate(BaseService):
+class ServiceQuery(BaseNodeQuery):
+    """Service Query Model class.
+
+    Attributes:
+        description (str | None): Brief description.
+        endpoint (str | None): URL pointing to this service
+    """
+
+    endpoint: Optional[AnyHttpUrl] = None
+    type: Optional[ServiceType] = None
+
+
+class ServiceCreate(BaseNodeCreate, ServiceBase):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
@@ -59,7 +46,20 @@ class ServiceUpdate(BaseService):
     """
 
 
-class Service(BaseNodeRead, BaseService):
+class ServiceUpdate(ServiceBase):
+    """Service Create Model class.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PATCH, PUT or POST request.
+
+    Attributes:
+        description (str): Brief description.
+        endpoint (str): URL pointing to this service
+        type (ServiceTypeUpdate): Service type.
+    """
+
+
+class ServiceRead(BaseNodeRead, ServiceBase):
     """Service class.
 
     Class retrieved from the database.
@@ -79,7 +79,7 @@ class NovaServiceQuery(ServiceQuery):
     pass
 
 
-class NovaServiceCreate(BaseService):
+class NovaServiceCreate(ServiceCreate):
     pass
 
 
@@ -87,7 +87,7 @@ class NovaServiceUpdate(ServiceUpdate):
     pass
 
 
-class NovaService(Service):
+class NovaService(ServiceRead):
     pass
 
 
@@ -95,7 +95,7 @@ class MesosServiceQuery(ServiceQuery):
     pass
 
 
-class MesosServiceCreate(BaseService):
+class MesosServiceCreate(ServiceCreate):
     pass
 
 
@@ -103,7 +103,7 @@ class MesosServiceUpdate(ServiceUpdate):
     pass
 
 
-class MesosService(Service):
+class MesosService(ServiceRead):
     pass
 
 
@@ -111,7 +111,7 @@ class ChronosServiceQuery(ServiceQuery):
     pass
 
 
-class ChronosServiceCreate(BaseService):
+class ChronosServiceCreate(ServiceCreate):
     pass
 
 
@@ -119,7 +119,7 @@ class ChronosServiceUpdate(ServiceUpdate):
     pass
 
 
-class ChronosService(Service):
+class ChronosService(ServiceRead):
     pass
 
 
@@ -127,7 +127,7 @@ class MarathonServiceQuery(ServiceQuery):
     pass
 
 
-class MarathonServiceCreate(BaseService):
+class MarathonServiceCreate(ServiceCreate):
     pass
 
 
@@ -135,7 +135,7 @@ class MarathonServiceUpdate(ServiceUpdate):
     pass
 
 
-class MarathonService(Service):
+class MarathonService(ServiceRead):
     pass
 
 
@@ -143,7 +143,7 @@ class KubernetesServiceQuery(ServiceQuery):
     pass
 
 
-class KubernetesServiceCreate(BaseService):
+class KubernetesServiceCreate(ServiceCreate):
     pass
 
 
@@ -151,7 +151,7 @@ class KubernetesServiceUpdate(ServiceUpdate):
     pass
 
 
-class KubernetesService(Service):
+class KubernetesService(ServiceRead):
     pass
 
 
@@ -159,7 +159,7 @@ class RucioServiceQuery(ServiceQuery):
     pass
 
 
-class RucioServiceCreate(BaseService):
+class RucioServiceCreate(ServiceCreate):
     pass
 
 
@@ -167,7 +167,7 @@ class RucioServiceUpdate(ServiceUpdate):
     pass
 
 
-class RucioService(Service):
+class RucioService(ServiceRead):
     pass
 
 
@@ -175,7 +175,7 @@ class OneDataServiceQuery(ServiceQuery):
     pass
 
 
-class OneDataServiceCreate(BaseService):
+class OneDataServiceCreate(ServiceCreate):
     pass
 
 
@@ -183,5 +183,5 @@ class OneDataServiceUpdate(ServiceUpdate):
     pass
 
 
-class OneDataService(Service):
+class OneDataService(ServiceRead):
     pass

@@ -1,17 +1,17 @@
 from pydantic import Field
 from typing import List, Optional
 
-from .schemas import Provider, ProviderCreate, ProviderUpdate
-from ..flavor.schemas import Flavor, FlavorCreate, FlavorUpdate
+from .schemas import ProviderCreate, ProviderRead, ProviderUpdate
+from ..flavor.schemas import FlavorCreate, FlavorRead, FlavorUpdate
 from ..identity_provider.schemas_extended import (
-    IdentityProviderExtended,
     IdentityProviderCreateExtended,
+    IdentityProviderReadExtended,
     IdentityProviderUpdateExtended,
 )
-from ..image.schemas import Image, ImageCreate, ImageUpdate
-from ..location.schemas import Location, LocationCreate, LocationUpdate
-from ..project.schemas import Project, ProjectCreate, ProjectUpdate
-from ..service.schemas import Service, ServiceCreate
+from ..image.schemas import ImageCreate, ImageRead, ImageUpdate
+from ..location.schemas import LocationCreate, LocationRead, LocationUpdate
+from ..project.schemas import ProjectCreate, ProjectRead, ProjectUpdate
+from ..service.schemas import ServiceCreate, ServiceRead
 
 
 class ProviderCreateExtended(ProviderCreate):
@@ -74,7 +74,7 @@ class ProviderUpdateExtended(ProviderUpdate):
     # services: List[ServiceUpdate] = Field(default_factory=list)
 
 
-class ProviderExtended(Provider):
+class ProviderExtended(ProviderRead):
     """Provider class.
 
     Class retrieved from the database.
@@ -97,11 +97,11 @@ class ProviderExtended(Provider):
         services TODO
     """
 
-    location: Optional[Location] = None
-    flavors: List[Flavor] = Field(default_factory=list)
-    identity_providers: List[IdentityProviderExtended] = Field(
+    location: Optional[LocationRead] = None
+    flavors: List[FlavorRead] = Field(default_factory=list)
+    identity_providers: List[IdentityProviderReadExtended] = Field(
         default_factory=list
     )
-    images: List[Image] = Field(default_factory=list)
-    projects: List[Project] = Field(default_factory=list)
-    services: List[Service] = Field(default_factory=list)
+    images: List[ImageRead] = Field(default_factory=list)
+    projects: List[ProjectRead] = Field(default_factory=list)
+    services: List[ServiceRead] = Field(default_factory=list)

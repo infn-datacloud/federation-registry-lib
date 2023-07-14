@@ -1,7 +1,16 @@
-from pydantic import UUID4
+from pydantic import UUID4, BaseModel
 from typing import Optional
 
 from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+
+
+class ProjectBase(BaseModel):
+    name: str
+    uuid: UUID4
+    public_network_name: Optional[str] = None
+    private_network_name: Optional[str] = None
+    private_network_proxy_host: Optional[str] = None
+    private_network_proxy_user: Optional[str] = None
 
 
 class ProjectQuery(BaseNodeQuery):
@@ -23,7 +32,7 @@ class ProjectQuery(BaseNodeQuery):
     private_network_proxy_user: Optional[str] = None
 
 
-class ProjectCreate(BaseNodeCreate):
+class ProjectCreate(BaseNodeCreate, ProjectBase):
     """Project Create Model class.
 
     Class without id (which is populated by the database).
@@ -36,13 +45,6 @@ class ProjectCreate(BaseNodeCreate):
         private_network_proxy_host (str | None): TODO
         private_network_proxy_user (str | None): TODO
     """
-
-    name: str
-    uuid: UUID4
-    public_network_name: Optional[str] = None
-    private_network_name: Optional[str] = None
-    private_network_proxy_host: Optional[str] = None
-    private_network_proxy_user: Optional[str] = None
 
 
 class ProjectUpdate(ProjectCreate):
@@ -60,7 +62,7 @@ class ProjectUpdate(ProjectCreate):
     """
 
 
-class Project(BaseNodeRead, ProjectCreate):
+class ProjectRead(BaseNodeRead, ProjectBase):
     """Project class.
 
     Class retrieved from the database.

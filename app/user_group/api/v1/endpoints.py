@@ -2,20 +2,20 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from app.flavor.schemas import Flavor
-from app.image.schemas import Image
+from app.flavor.schemas import FlavorRead
+from app.image.schemas import ImageRead
 from app.project.models import Project as ProjectModel
 from app.project.api.dependencies import valid_project_id
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
-from app.service.schemas import Service
+from app.service.schemas import ServiceRead
 from app.user_group.api.dependencies import (
     valid_user_group_id,
     is_unique_user_group,
 )
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup as UserGroupModel
-from app.user_group.schemas import UserGroup, UserGroupQuery, UserGroupUpdate
+from app.user_group.schemas import UserGroupRead, UserGroupQuery, UserGroupUpdate
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 
@@ -23,7 +23,7 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[UserGroup],
+    response_model=List[UserGroupRead],
 )
 def get_user_groups(
     comm: CommonGetQuery = Depends(),
@@ -37,13 +37,13 @@ def get_user_groups(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}", response_model=UserGroup)
+@router.get("/{user_group_uid}", response_model=UserGroupRead)
 def get_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
     return item
 
 
 @db.write_transaction
-@router.put("/{user_group_uid}", response_model=Optional[UserGroup])
+@router.put("/{user_group_uid}", response_model=Optional[UserGroupRead])
 def put_user_group(
     item: UserGroupModel = Depends(valid_user_group_id),
     update_data: UserGroupUpdate = Body(),
@@ -64,7 +64,7 @@ def delete_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}/flavors", response_model=List[Service])
+@router.get("/{user_group_uid}/flavors", response_model=List[FlavorRead])
 def read_user_group_flavors(
     item: UserGroupModel = Depends(valid_user_group_id),
 ):
@@ -72,7 +72,7 @@ def read_user_group_flavors(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}/images", response_model=List[Service])
+@router.get("/{user_group_uid}/images", response_model=List[ImageRead])
 def read_user_group_images(
     item: UserGroupModel = Depends(valid_user_group_id),
 ):
@@ -80,15 +80,15 @@ def read_user_group_images(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}/services", response_model=List[Service])
+@router.get("/{user_group_uid}/services", response_model=List[ServiceRead])
 def read_user_group_services(
     item: UserGroupModel = Depends(valid_user_group_id),
 ):
     return item.services()
 
 
-@db.read_transaction
-@router.put("/{user_group_uid}/projects", response_model=UserGroup)
+@db.write_transaction
+@router.put("/{user_group_uid}/projects", response_model=UserGroupRead)
 def connect_user_group_project(
     item: UserGroupModel = Depends(valid_user_group_id),
     project: ProjectModel = Depends(valid_project_id),
@@ -98,7 +98,7 @@ def connect_user_group_project(
 
 
 @db.read_transaction
-@router.delete("/{user_group_uid}/projects", response_model=UserGroup)
+@router.delete("/{user_group_uid}/projects", response_model=UserGroupRead)
 def disconnect_user_group_project(
     item: UserGroupModel = Depends(valid_user_group_id),
     project: ProjectModel = Depends(valid_project_id),
