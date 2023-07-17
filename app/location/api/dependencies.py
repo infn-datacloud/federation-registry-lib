@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from ..crud import location
-from ..models import Location
+from app.location.crud import location
+from app.location.models import Location
 
 
 def valid_location_id(location_uid: UUID4) -> Location:

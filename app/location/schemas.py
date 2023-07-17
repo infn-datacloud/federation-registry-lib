@@ -2,7 +2,7 @@ from pycountry import countries
 from pydantic import BaseModel, Field, root_validator
 from typing import Dict, Optional
 
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
 class LocationBase(BaseModel):

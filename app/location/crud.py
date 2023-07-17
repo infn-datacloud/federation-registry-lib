@@ -1,6 +1,6 @@
-from .models import Location as LocationModel
-from .schemas import LocationCreate, LocationUpdate
-from ..crud import CRUDBase
+from app.location.models import Location as LocationModel
+from app.location.schemas import LocationCreate, LocationUpdate
+from app.crud import CRUDBase
 
 
 class CRUDLocation(CRUDBase[LocationModel, LocationCreate, LocationUpdate]):
