@@ -2,17 +2,20 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List
 
-from ..dependencies import valid_provider_id, check_rel_consistency
-from ...crud import provider
-from ...models import Provider as ProviderModel
-from ...schemas import ProviderQuery
-from ...schemas_extended import (
+from app.provider.api.dependencies import (
+    valid_provider_id,
+    check_rel_consistency,
+)
+from app.provider.crud import provider
+from app.provider.models import Provider as ProviderModel
+from app.provider.schemas import ProviderQuery
+from app.provider.schemas_extended import (
     ProviderCreateExtended,
     ProviderExtended,
     ProviderUpdate,
 )
-from ....pagination import Pagination, paginate
-from ....query import CommonGetQuery
+from app.pagination import Pagination, paginate
+from app.query import CommonGetQuery
 
 router = APIRouter(prefix="/providers", tags=["providers"])
 

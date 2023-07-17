@@ -1,22 +1,22 @@
 from typing import List
 
-from .models import Provider as ProviderModel
-from .schemas import ProviderCreate, ProviderUpdate
-from .schemas_extended import (
+from app.provider.models import Provider as ProviderModel
+from app.provider.schemas import ProviderCreate, ProviderUpdate
+from app.provider.schemas_extended import (
     ProviderCreateExtended,
     IdentityProviderCreateExtended,
 )
-from ..crud import CRUDBase
-from ..flavor.crud import flavor
-from ..flavor.schemas import FlavorCreate
-from ..identity_provider.crud import identity_provider
-from ..image.crud import image
-from ..image.schemas import ImageCreate
-from ..location.crud import location
-from ..location.schemas import LocationCreate
-from ..project.crud import project
-from ..project.schemas import ProjectCreate
-from ..service.crud import (
+from app.crud import CRUDBase
+from app.flavor.crud import flavor
+from app.flavor.schemas import FlavorCreate
+from app.identity_provider.crud import identity_provider
+from app.image.crud import image
+from app.image.schemas import ImageCreate
+from app.location.crud import location
+from app.location.schemas import LocationCreate
+from app.project.crud import project
+from app.project.schemas import ProjectCreate
+from app.service.crud import (
     nova_service,
     mesos_service,
     chronos_service,
@@ -25,8 +25,8 @@ from ..service.crud import (
     rucio_service,
     onedata_service,
 )
-from ..service.enum import ServiceType
-from ..service.schemas import ServiceCreate
+from app.service.enum import ServiceType
+from app.service.schemas import ServiceCreate
 
 
 class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):

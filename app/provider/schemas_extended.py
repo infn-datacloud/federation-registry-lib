@@ -1,22 +1,22 @@
 from pydantic import Field
 from typing import List, Optional
 
-from .schemas import ProviderCreate, ProviderRead, ProviderUpdate
-from ..auth_method.schemas import (
+from app.provider.schemas import ProviderCreate, ProviderRead, ProviderUpdate
+from app.auth_method.schemas import (
     AuthMethodCreate,
     AuthMethodRead,
     AuthMethodUpdate,
 )
-from ..flavor.schemas import FlavorCreate, FlavorRead, FlavorUpdate
-from ..identity_provider.schemas import (
+from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorUpdate
+from app.identity_provider.schemas import (
     IdentityProviderCreate,
     IdentityProviderRead,
     IdentityProviderUpdate,
 )
-from ..image.schemas import ImageCreate, ImageRead, ImageUpdate
-from ..location.schemas import LocationCreate, LocationRead, LocationUpdate
-from ..project.schemas import ProjectCreate, ProjectRead, ProjectUpdate
-from ..service.schemas import ServiceCreate, ServiceRead
+from app.image.schemas import ImageCreate, ImageRead, ImageUpdate
+from app.location.schemas import LocationCreate, LocationRead, LocationUpdate
+from app.project.schemas import ProjectCreate, ProjectRead, ProjectUpdate
+from app.service.schemas import ServiceCreate, ServiceRead
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):

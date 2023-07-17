@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 
-from ..models import BaseNodeQuery, BaseNodeCreate, BaseNodeRead
+from app.models import BaseNodeQuery, BaseNodeCreate, BaseNodeRead
 
 
 class ProviderBase(BaseModel):

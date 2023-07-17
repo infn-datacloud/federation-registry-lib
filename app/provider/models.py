@@ -8,7 +8,7 @@ from neomodel import (
     ZeroOrMore,
     ZeroOrOne,
 )
-from ..auth_method.models import AuthMethod
+from app.auth_method.models import AuthMethod
 
 
 class Provider(StructuredNode):

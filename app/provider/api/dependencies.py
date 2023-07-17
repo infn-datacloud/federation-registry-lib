@@ -1,10 +1,10 @@
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
-from ..schemas_extended import ProviderCreateExtended
-from ..models import Provider
-from ..crud import provider
-from ...service.api.dependencies import is_unique_service
+from app.provider.schemas_extended import ProviderCreateExtended
+from app.provider.models import Provider
+from app.provider.crud import provider
+from app.service.api.dependencies import is_unique_service
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
