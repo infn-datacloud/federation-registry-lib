@@ -9,7 +9,7 @@ from app.image.models import Image as ImageModel
 from app.project.api.dependencies import valid_project_id
 from app.project.crud import project
 from app.project.models import Project as ProjectModel
-from app.project.schemas import ProjectQuery, ProjectRead, ProjectUpdate
+from app.project.schemas import ProjectQuery, ProjectUpdate
 from app.project.schemas_extended import ProjectReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
