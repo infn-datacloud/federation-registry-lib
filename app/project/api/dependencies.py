@@ -1,9 +1,9 @@
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
-from ..crud import project
-from ..models import Project as ProjectModel
-from ..schemas import ProjectRead
+from app.project.crud import project
+from app.project.models import Project as ProjectModel
+from app.project.schemas import ProjectRead
 
 
 def valid_project_id(project_uid: UUID4) -> ProjectModel:

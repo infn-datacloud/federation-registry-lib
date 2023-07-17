@@ -1,6 +1,6 @@
-from .models import Project as ProjectModel
-from .schemas import ProjectCreate, ProjectUpdate
-from ..crud import CRUDBase
+from app.project.models import Project as ProjectModel
+from app.project.schemas import ProjectCreate, ProjectUpdate
+from app.crud import CRUDBase
 
 
 class CRUDProject(CRUDBase[ProjectModel, ProjectCreate, ProjectUpdate]):
