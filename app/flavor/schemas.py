@@ -1,7 +1,7 @@
 from pydantic import UUID4, BaseModel, Field, root_validator
 from typing import Optional
 
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
 class FlavorBase(BaseModel):

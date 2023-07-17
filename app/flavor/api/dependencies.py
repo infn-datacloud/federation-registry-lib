@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from ..crud import flavor
-from ..models import Flavor
+from app.flavor.crud import flavor
+from app.flavor.models import Flavor
 
 
 def valid_flavor_id(flavor_uid: UUID4) -> Flavor:

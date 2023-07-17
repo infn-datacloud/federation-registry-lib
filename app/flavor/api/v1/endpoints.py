@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ..dependencies import valid_flavor_id
-from ...crud import flavor
-from ...models import Flavor as FlavorModel
-from ...schemas import FlavorQuery, FlavorRead, FlavorUpdate
-from ...schemas_extended import FlavorReadExtended
-from ....pagination import Pagination, paginate
-from ....query import CommonGetQuery
+from app.flavor.api.dependencies import valid_flavor_id
+from app.flavor.crud import flavor
+from app.flavor.models import Flavor as FlavorModel
+from app.flavor.schemas import FlavorQuery, FlavorUpdate
+from app.flavor.schemas_extended import FlavorReadExtended
+from app.pagination import Pagination, paginate
+from app.query import CommonGetQuery
 
 router = APIRouter(prefix="/flavors", tags=["flavors"])
 

@@ -1,6 +1,6 @@
-from .models import Flavor as FlavorModel
-from .schemas import FlavorCreate, FlavorUpdate
-from ..crud import CRUDBase
+from app.flavor.models import Flavor as FlavorModel
+from app.flavor.schemas import FlavorCreate, FlavorUpdate
+from app.crud import CRUDBase
 
 
 class CRUDFlavor(CRUDBase[FlavorModel, FlavorCreate, FlavorUpdate]):
