@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from ..crud import identity_provider
-from ..models import IdentityProvider
+from app.identity_provider.crud import identity_provider
+from app.identity_provider.models import IdentityProvider
 
 
 def valid_identity_provider_id(

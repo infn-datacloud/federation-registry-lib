@@ -1,7 +1,7 @@
 from pydantic import AnyHttpUrl, BaseModel
 from typing import Optional
 
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
 class IdentityProviderBase(BaseModel):

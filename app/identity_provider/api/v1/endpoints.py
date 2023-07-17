@@ -9,13 +9,12 @@ from app.identity_provider.models import (
 )
 from app.identity_provider.schemas import (
     IdentityProviderQuery,
-    IdentityProviderRead,
     IdentityProviderUpdate,
 )
 from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
-from app.user_group.schemas import UserGroupCreate, UserGroupRead
+from app.user_group.schemas import UserGroupCreate
 from app.user_group.api.dependencies import is_unique_user_group
 from app.user_group.crud import user_group
 
@@ -36,7 +35,9 @@ def get_identity_providers(
 
 
 @db.read_transaction
-@router.get("/{identity_provider_uid}", response_model=IdentityProviderReadExtended)
+@router.get(
+    "/{identity_provider_uid}", response_model=IdentityProviderReadExtended
+)
 def get_identity_provider(
     item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
@@ -45,7 +46,8 @@ def get_identity_provider(
 
 @db.write_transaction
 @router.put(
-    "/{identity_provider_uid}", response_model=Optional[IdentityProviderReadExtended]
+    "/{identity_provider_uid}",
+    response_model=Optional[IdentityProviderReadExtended],
 )
 def put_identity_provider(
     update_data: IdentityProviderUpdate,

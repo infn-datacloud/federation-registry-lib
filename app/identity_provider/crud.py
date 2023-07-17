@@ -1,6 +1,11 @@
-from .models import IdentityProvider as IdentityProviderModel
-from .schemas import IdentityProviderCreate, IdentityProviderUpdate
-from ..crud import CRUDBase
+from app.identity_provider.models import (
+    IdentityProvider as IdentityProviderModel,
+)
+from app.identity_provider.schemas import (
+    IdentityProviderCreate,
+    IdentityProviderUpdate,
+)
+from app.crud import CRUDBase
 
 
 class CRUDIdentityProvider(
