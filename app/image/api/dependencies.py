@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from ..crud import image
-from ..models import Image
+from app.image.crud import image
+from app.image.models import Image
 
 
 def valid_image_id(image_uid: UUID4) -> Image:

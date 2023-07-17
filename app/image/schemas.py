@@ -2,8 +2,8 @@ from datetime import datetime
 from pydantic import UUID4, BaseModel
 from typing import Optional
 
-from .enum import ImageOS
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.image.enum import ImageOS
+from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
 class ImageBase(BaseModel):

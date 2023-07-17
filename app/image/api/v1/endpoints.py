@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List, Optional
 
-from ..dependencies import valid_image_id
-from ...crud import image
-from ...models import Image as ImageModel
-from ...schemas import ImageQuery, ImageRead, ImageUpdate
-from ...schemas_extended import ImageReadExtended
-from ....pagination import Pagination, paginate
-from ....query import CommonGetQuery
+from app.image.api.dependencies import valid_image_id
+from app.image.crud import image
+from app.image.models import Image as ImageModel
+from app.image.schemas import ImageQuery, ImageUpdate
+from app.image.schemas_extended import ImageReadExtended
+from app.pagination import Pagination, paginate
+from app.query import CommonGetQuery
 
 router = APIRouter(prefix="/images", tags=["images"])
 
