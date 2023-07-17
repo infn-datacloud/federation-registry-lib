@@ -1,10 +1,29 @@
-from pydantic import Field
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Optional, Union
 
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.quota.enum import (
+    QuotaTypeBandwidth,
+    QuotaTypeCount,
+    QuotaTypeFrequency,
+    QuotaTypeMoney,
+    QuotaTypeSize,
+    QuotaTypeTime,
+)
+from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
-class QuotaQuery(BaseNodeQuery):
+class QuotaBase(BaseModel):
+    type: Union[
+        QuotaTypeBandwidth,
+        QuotaTypeCount,
+        QuotaTypeFrequency,
+        QuotaTypeMoney,
+        QuotaTypeSize,
+        QuotaTypeTime,
+    ]
+
+
+class QuotaQuery(BaseNodeQuery, QuotaBase):
     """Quota Query Model class.
 
     Attributes:
@@ -24,15 +43,25 @@ class QuotaQuery(BaseNodeQuery):
             of a resource to be granted to user.
     """
 
-    tot_limit: Optional[float] = Field(ge=0, default=None)
-    instance_limit: Optional[float] = Field(ge=0, default=None)
-    user_limit: Optional[float] = Field(ge=0, default=None)
-    tot_guaranteed: Optional[float] = Field(ge=0, default=None)
-    instance_guaranteed: Optional[float] = Field(ge=0, default=None)
-    user_guaranteed: Optional[float] = Field(ge=0, default=None)
+    type: Optional[
+        Union[
+            QuotaTypeBandwidth,
+            QuotaTypeCount,
+            QuotaTypeFrequency,
+            QuotaTypeMoney,
+            QuotaTypeSize,
+            QuotaTypeTime,
+        ]
+    ] = None
+    # tot_limit: Optional[float] = Field(ge=0, default=None)
+    # instance_limit: Optional[float] = Field(ge=0, default=None)
+    # user_limit: Optional[float] = Field(ge=0, default=None)
+    # tot_guaranteed: Optional[float] = Field(ge=0, default=None)
+    # instance_guaranteed: Optional[float] = Field(ge=0, default=None)
+    # user_guaranteed: Optional[float] = Field(ge=0, default=None)
 
 
-class QuotaCreate(BaseNodeCreate):
+class QuotaCreate(BaseNodeCreate, QuotaBase):
     """Quota Create Model class.
 
     Class without id (which is populated by the database).
@@ -57,15 +86,15 @@ class QuotaCreate(BaseNodeCreate):
         service (Service): Service where this quota applies.
     """
 
-    tot_limit: Optional[float] = Field(ge=0, default=None)
-    instance_limit: Optional[float] = Field(ge=0, default=None)
-    user_limit: Optional[float] = Field(ge=0, default=None)
-    tot_guaranteed: float = Field(ge=0, default=0)
-    instance_guaranteed: float = Field(ge=0, default=0)
-    user_guaranteed: float = Field(ge=0, default=0)
+    # tot_limit: Optional[float] = Field(ge=0, default=None)
+    # instance_limit: Optional[float] = Field(ge=0, default=None)
+    # user_limit: Optional[float] = Field(ge=0, default=None)
+    # tot_guaranteed: float = Field(ge=0, default=0)
+    # instance_guaranteed: float = Field(ge=0, default=0)
+    # user_guaranteed: float = Field(ge=0, default=0)
 
 
-class QuotaUpdate(QuotaCreate):
+class QuotaUpdate(QuotaBase):
     """Quota Update Model class.
 
     Class without id (which is populated by the database).
@@ -91,7 +120,7 @@ class QuotaUpdate(QuotaCreate):
     """
 
 
-class Quota(BaseNodeRead, QuotaCreate):
+class QuotaRead(BaseNodeRead, QuotaBase):
     """Quota class
 
     Class retrieved from the database
@@ -119,3 +148,27 @@ class Quota(BaseNodeRead, QuotaCreate):
         user_guaranteed (float): The guaranteed quantity
             of a resource to be granted to user.
     """
+
+
+class NumCPUQuotaCreate(QuotaCreate):
+    pass
+
+
+class NumCPUQuotaUpdate(QuotaUpdate):
+    pass
+
+
+class NumCPUQuotaRead(QuotaRead):
+    pass
+
+
+class RAMQuotaCreate(QuotaCreate):
+    pass
+
+
+class RAMQuotaUpdate(QuotaUpdate):
+    pass
+
+
+class RAMQuotaRead(QuotaRead):
+    pass

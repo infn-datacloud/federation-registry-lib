@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from ..crud import service
-from ..models import Service
-from ..schemas import ServiceCreate
+from app.service.crud import service
+from app.service.models import Service
+from app.service.schemas import ServiceCreate
 
 
 def valid_service_id(service_uid: UUID4) -> Service:

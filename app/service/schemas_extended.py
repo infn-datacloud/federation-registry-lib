@@ -1,33 +1,70 @@
-from pydantic import Field
+from pydantic import BaseModel, Field
 from typing import List
 
-from .schemas import Service
-from ..quota.schemas import ComputeTimeQuota
+from app.project.schemas import ProjectRead
+from app.provider.schemas import ProviderRead
+from app.quota.schemas import NumCPUQuotaRead, RAMQuotaRead
+from app.service.schemas import (
+    ChronosServiceRead,
+    KubernetesServiceRead,
+    MarathonServiceRead,
+    MesosServiceRead,
+    NovaServiceRead,
+    OneDataServiceRead,
+    RucioServiceRead,
+    ServiceRead,
+)
 
 
-class NovaService(Service):
-    compute_time_quotas: List[ComputeTimeQuota] = Field(default_factory=list)
+class ExtendWithProvider(BaseModel):
+    provider: ProviderRead
 
 
-class MesosService(Service):
+class ExtendWithProject(BaseModel):
+    project: ProjectRead
+
+
+class NumCPUQuotaReadExtended(NumCPUQuotaRead, ExtendWithProject):
     pass
 
 
-class ChronosService(Service):
+class RamQuotaReadExtended(RAMQuotaRead, ExtendWithProject):
     pass
 
 
-class MarathonService(Service):
+class ServiceReadExtended(ServiceRead, ExtendWithProvider):
     pass
 
 
-class KubernetesService(Service):
+class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
+    num_cpus_quotas: List[NumCPUQuotaReadExtended] = Field(
+        default_factory=list
+    )
+    ram_quotas: List[RamQuotaReadExtended] = Field(default_factory=list)
+
+
+class MesosServiceReadExtended(MesosServiceRead, ExtendWithProvider):
     pass
 
 
-class RucioService(Service):
+class ChronosServiceReadExtended(ChronosServiceRead, ExtendWithProvider):
     pass
 
 
-class OneDataService(Service):
+class MarathonServiceReadExtended(MarathonServiceRead, ExtendWithProvider):
+    pass
+
+
+class KubernetesServiceReadExtended(KubernetesServiceRead, ExtendWithProvider):
+    num_cpus_quotas: List[NumCPUQuotaReadExtended] = Field(
+        default_factory=list
+    )
+    ram_quotas: List[RamQuotaReadExtended] = Field(default_factory=list)
+
+
+class RucioServiceReadExtended(RucioServiceRead, ExtendWithProvider):
+    pass
+
+
+class OneDataServiceReadExtended(OneDataServiceRead, ExtendWithProvider):
     pass

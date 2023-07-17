@@ -1,8 +1,8 @@
 from pydantic import AnyHttpUrl, BaseModel
 from typing import Optional
 
-from .enum import ServiceType
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.service.enum import ServiceType
+from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
 class ServiceBase(BaseModel):
@@ -87,7 +87,7 @@ class NovaServiceUpdate(ServiceUpdate):
     pass
 
 
-class NovaService(ServiceRead):
+class NovaServiceRead(ServiceRead):
     pass
 
 
@@ -103,7 +103,7 @@ class MesosServiceUpdate(ServiceUpdate):
     pass
 
 
-class MesosService(ServiceRead):
+class MesosServiceRead(ServiceRead):
     pass
 
 
@@ -119,7 +119,7 @@ class ChronosServiceUpdate(ServiceUpdate):
     pass
 
 
-class ChronosService(ServiceRead):
+class ChronosServiceRead(ServiceRead):
     pass
 
 
@@ -135,7 +135,7 @@ class MarathonServiceUpdate(ServiceUpdate):
     pass
 
 
-class MarathonService(ServiceRead):
+class MarathonServiceRead(ServiceRead):
     pass
 
 
@@ -151,7 +151,7 @@ class KubernetesServiceUpdate(ServiceUpdate):
     pass
 
 
-class KubernetesService(ServiceRead):
+class KubernetesServiceRead(ServiceRead):
     pass
 
 
@@ -167,7 +167,7 @@ class RucioServiceUpdate(ServiceUpdate):
     pass
 
 
-class RucioService(ServiceRead):
+class RucioServiceRead(ServiceRead):
     pass
 
 
@@ -183,5 +183,5 @@ class OneDataServiceUpdate(ServiceUpdate):
     pass
 
 
-class OneDataService(ServiceRead):
+class OneDataServiceRead(ServiceRead):
     pass

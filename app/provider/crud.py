@@ -17,6 +17,7 @@ from app.location.schemas import LocationCreate
 from app.project.crud import project
 from app.project.schemas import ProjectCreate
 from app.service.crud import (
+    service,
     nova_service,
     mesos_service,
     chronos_service,
@@ -83,22 +84,9 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
     def create_and_connect_services(
         self, *, db_obj: ProviderModel, new_items: List[ServiceCreate]
     ) -> None:
-        for srv in new_items:
-            if srv.type == ServiceType.openstack_nova.value:
-                db_srv = nova_service.create(obj_in=srv)
-            elif srv.type == ServiceType.mesos.value:
-                db_srv = mesos_service.create(obj_in=srv)
-            elif srv.type == ServiceType.chronos.value:
-                db_srv = chronos_service.create(obj_in=srv)
-            elif srv.type == ServiceType.marathon.value:
-                db_srv = marathon_service.create(obj_in=srv)
-            elif srv.type == ServiceType.kubernetes.value:
-                db_srv = kubernetes_service.create(obj_in=srv)
-            elif srv.type == ServiceType.rucio.value:
-                db_srv = rucio_service.create(obj_in=srv)
-            elif srv.type == ServiceType.onedata.value:
-                db_srv = onedata_service.create(obj_in=srv)
-            db_obj.services.connect(db_srv)
+        for obj_in in new_items:
+            db_service = service.create(obj_in=obj_in, force=True)
+            db_obj.services.connect(db_service)
 
     def create_with_all(
         self, *, obj_in: ProviderCreateExtended

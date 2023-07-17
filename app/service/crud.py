@@ -1,4 +1,4 @@
-from .models import (
+from app.service.models import (
     Service as ServiceModel,
     NovaService as NovaServiceModel,
     MesosService as MesosServiceModel,
@@ -8,7 +8,7 @@ from .models import (
     RucioService as RucioServiceModel,
     OneDataService as OneDataServiceModel,
 )
-from .schemas import (
+from app.service.schemas import (
     ServiceCreate,
     ServiceUpdate,
     NovaServiceCreate,
@@ -26,11 +26,31 @@ from .schemas import (
     OneDataServiceCreate,
     OneDataServiceUpdate,
 )
-from ..crud import CRUDBase
+from app.service.enum import ServiceType
+from app.crud import CRUDBase
 
 
 class CRUDService(CRUDBase[ServiceModel, ServiceCreate, ServiceUpdate]):
     """"""
+
+    def create(
+        self, *, obj_in: ServiceCreate, force: bool = False
+    ) -> ServiceModel:
+        if obj_in.type == ServiceType.openstack_nova.value:
+            return nova_service.create(obj_in=obj_in, force=force)
+        elif obj_in.type == ServiceType.mesos.value:
+            return mesos_service.create(obj_in=obj_in, force=force)
+        elif obj_in.type == ServiceType.chronos.value:
+            return chronos_service.create(obj_in=obj_in, force=force)
+        elif obj_in.type == ServiceType.marathon.value:
+            return marathon_service.create(obj_in=obj_in, force=force)
+        elif obj_in.type == ServiceType.kubernetes.value:
+            return kubernetes_service.create(obj_in=obj_in, force=force)
+        elif obj_in.type == ServiceType.rucio.value:
+            return rucio_service.create(obj_in=obj_in, force=force)
+        elif obj_in.type == ServiceType.onedata.value:
+            return onedata_service.create(obj_in=obj_in, force=force)
+        return super().create(obj_in=obj_in, force=force)
 
 
 class CRUDNovaService(
