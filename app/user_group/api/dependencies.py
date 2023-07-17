@@ -1,9 +1,9 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from ..crud import user_group
-from ..models import UserGroup
-from ..schemas import UserGroupCreate
+from app.user_group.crud import user_group
+from app.user_group.models import UserGroup
+from app.user_group.schemas import UserGroupCreate
 
 
 def valid_user_group_id(user_group_uid: UUID4) -> UserGroup:

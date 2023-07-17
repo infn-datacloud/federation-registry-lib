@@ -8,9 +8,9 @@ from neomodel import (
     ZeroOrMore,
 )
 
-from ..flavor.models import Flavor
-from ..image.models import Image
-from ..service.models import Service
+from app.flavor.models import Flavor
+from app.image.models import Image
+from app.service.models import Service
 
 
 class UserGroup(StructuredNode):

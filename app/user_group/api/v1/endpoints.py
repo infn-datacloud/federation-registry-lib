@@ -15,7 +15,10 @@ from app.user_group.api.dependencies import (
 )
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup as UserGroupModel
-from app.user_group.schemas import UserGroupRead, UserGroupQuery, UserGroupUpdate
+from app.user_group.schemas import (
+    UserGroupQuery,
+    UserGroupUpdate,
+)
 from app.user_group.schemas_extended import UserGroupReadExtended
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
@@ -44,7 +47,9 @@ def get_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
 
 
 @db.write_transaction
-@router.put("/{user_group_uid}", response_model=Optional[UserGroupReadExtended])
+@router.put(
+    "/{user_group_uid}", response_model=Optional[UserGroupReadExtended]
+)
 def put_user_group(
     item: UserGroupModel = Depends(valid_user_group_id),
     update_data: UserGroupUpdate = Body(),
@@ -99,7 +104,9 @@ def connect_user_group_project(
 
 
 @db.read_transaction
-@router.delete("/{user_group_uid}/projects", response_model=UserGroupReadExtended)
+@router.delete(
+    "/{user_group_uid}/projects", response_model=UserGroupReadExtended
+)
 def disconnect_user_group_project(
     item: UserGroupModel = Depends(valid_user_group_id),
     project: ProjectModel = Depends(valid_project_id),

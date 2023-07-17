@@ -1,6 +1,6 @@
-from .models import UserGroup as UserGroupModel
-from .schemas import UserGroupCreate, UserGroupUpdate
-from ..crud import CRUDBase
+from app.user_group.models import UserGroup as UserGroupModel
+from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
+from app.crud import CRUDBase
 
 
 class CRUDUserGroup(
