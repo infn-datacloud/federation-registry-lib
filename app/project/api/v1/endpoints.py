@@ -10,6 +10,7 @@ from app.project.api.dependencies import valid_project_id
 from app.project.crud import project
 from app.project.models import Project as ProjectModel
 from app.project.schemas import ProjectQuery, ProjectRead, ProjectUpdate
+from app.project.schemas_extended import ProjectReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
 
@@ -17,7 +18,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[ProjectRead])
+@router.get("/", response_model=List[ProjectReadExtended])
 def get_projects(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -30,13 +31,13 @@ def get_projects(
 
 
 @db.read_transaction
-@router.get("/{project_uid}", response_model=ProjectRead)
+@router.get("/{project_uid}", response_model=ProjectReadExtended)
 def get_project(item: ProjectModel = Depends(valid_project_id)):
     return item
 
 
 @db.write_transaction
-@router.put("/{project_uid}", response_model=Optional[ProjectRead])
+@router.put("/{project_uid}", response_model=Optional[ProjectReadExtended])
 def put_project(
     update_data: ProjectUpdate, item: ProjectModel = Depends(valid_project_id)
 ):
@@ -54,7 +55,7 @@ def delete_project(item: ProjectModel = Depends(valid_project_id)):
 
 
 @db.write_transaction
-@router.put("/{user_group_uid}/flavors", response_model=ProjectRead)
+@router.put("/{user_group_uid}/flavors", response_model=ProjectReadExtended)
 def connect_user_group_flavor(
     item: ProjectModel = Depends(valid_project_id),
     flavor: FlavorModel = Depends(valid_flavor_id),
@@ -64,7 +65,7 @@ def connect_user_group_flavor(
 
 
 @db.read_transaction
-@router.delete("/{user_group_uid}/flavors", response_model=ProjectRead)
+@router.delete("/{user_group_uid}/flavors", response_model=ProjectReadExtended)
 def disconnect_user_group_flavor(
     item: ProjectModel = Depends(valid_project_id),
     flavor: FlavorModel = Depends(valid_flavor_id),
@@ -74,7 +75,7 @@ def disconnect_user_group_flavor(
 
 
 @db.write_transaction
-@router.put("/{project_uid}/images", response_model=ProjectRead)
+@router.put("/{project_uid}/images", response_model=ProjectReadExtended)
 def connect_user_group_images_link(
     item: ProjectModel = Depends(valid_project_id),
     image: ImageModel = Depends(valid_image_id),
@@ -84,7 +85,7 @@ def connect_user_group_images_link(
 
 
 @db.read_transaction
-@router.delete("/{project_uid}/images", response_model=ProjectRead)
+@router.delete("/{project_uid}/images", response_model=ProjectReadExtended)
 def disconnect_user_group_images_link(
     item: ProjectModel = Depends(valid_project_id),
     image: ImageModel = Depends(valid_image_id),

@@ -2,7 +2,6 @@ from typing import List, Tuple
 
 from .models import SLA as SLAModel
 from .schemas import SLACreate, SLAUpdate
-from .schemas_extended import SLACreateExtended
 from ..crud import CRUDBase
 from ..project.models import Project as ProjectModel
 from ..quota.schemas_extended import QuotaCreateExtended

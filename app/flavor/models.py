@@ -42,7 +42,7 @@ class Flavor(StructuredNode):
     gpu_model = StringProperty()
     gpu_vendor = StringProperty()
 
-    providers = RelationshipFrom(
+    provider = RelationshipFrom(
         "..provider.models.Provider",
         "AVAILABLE_VM_FLAVOR",
         cardinality=One,

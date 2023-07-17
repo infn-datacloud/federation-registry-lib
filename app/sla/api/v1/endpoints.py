@@ -5,8 +5,8 @@ from typing import List, Tuple
 from ...crud import sla
 from ..dependencies import valid_sla_id
 from ...models import SLA as SLAModel
-from ...schemas import SLAQuery, SLAUpdate
-from ...schemas_extended import SLAExtended, SLACreateExtended
+from ...schemas import SLACreate,  SLAQuery, SLAUpdate
+from ...schemas_extended import SLAReadExtended
 from ....pagination import Pagination, paginate
 from ....project.models import Project as ProjectModel
 from ....project.api.dependencies import project_has_no_sla
@@ -81,7 +81,7 @@ def user_group_not_linked_to_provider(
 
 
 @db.read_transaction
-@router.get("/", response_model=List[SLAExtended])
+@router.get("/", response_model=List[SLAReadExtended])
 def get_slas(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -95,12 +95,12 @@ def get_slas(
 
 @db.write_transaction
 @router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=SLAExtended
+    "/", status_code=status.HTTP_201_CREATED, response_model=SLAReadExtended
 )
 def post_sla(
     project: ProjectModel = Depends(project_has_no_sla),
     user_group: UserGroupModel = Depends(valid_user_group_id),
-    item: SLACreateExtended = Body(),
+    item: SLACreate = Body(),
 ):
     provider = project.provider.single()
     user_group_not_linked_to_provider(user_group, provider)
@@ -115,14 +115,14 @@ def post_sla(
 
 
 @db.read_transaction
-@router.get("/{sla_uid}", response_model=SLAExtended)
+@router.get("/{sla_uid}", response_model=SLAReadExtended)
 def get_sla(item: SLAModel = Depends(valid_sla_id)):
     return item
 
 
 # TODO
 @db.write_transaction
-@router.put("/{sla_uid}", response_model=SLAExtended)
+@router.put("/{sla_uid}", response_model=SLAReadExtended)
 def put_sla(update_data: SLAUpdate, item: SLAModel = Depends(valid_sla_id)):
     # for service in item.services:
     #    db_srv = get_service(name=service.name)

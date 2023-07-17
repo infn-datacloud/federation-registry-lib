@@ -12,6 +12,7 @@ from app.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderUpdate,
 )
+from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
 from app.user_group.schemas import UserGroupCreate, UserGroupRead
@@ -22,7 +23,7 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[IdentityProviderRead])
+@router.get("/", response_model=List[IdentityProviderReadExtended])
 def get_identity_providers(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -35,7 +36,7 @@ def get_identity_providers(
 
 
 @db.read_transaction
-@router.get("/{identity_provider_uid}", response_model=IdentityProviderRead)
+@router.get("/{identity_provider_uid}", response_model=IdentityProviderReadExtended)
 def get_identity_provider(
     item: IdentityProviderModel = Depends(valid_identity_provider_id),
 ):
@@ -44,7 +45,7 @@ def get_identity_provider(
 
 @db.write_transaction
 @router.put(
-    "/{identity_provider_uid}", response_model=Optional[IdentityProviderRead]
+    "/{identity_provider_uid}", response_model=Optional[IdentityProviderReadExtended]
 )
 def put_identity_provider(
     update_data: IdentityProviderUpdate,
@@ -71,7 +72,7 @@ def delete_identity_providers(
 @router.post(
     "/{identity_provider_uid}/user_groups",
     status_code=status.HTTP_201_CREATED,
-    response_model=UserGroupRead,
+    response_model=IdentityProviderReadExtended,
 )
 def post_user_group(
     db_item: IdentityProviderModel = Depends(valid_identity_provider_id),
@@ -79,4 +80,4 @@ def post_user_group(
 ):
     db_obj = user_group.create(obj_in=item)
     db_item.user_groups.connect(db_obj)
-    return db_obj
+    return db_item

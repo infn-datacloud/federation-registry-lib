@@ -43,7 +43,7 @@ class Image(StructuredNode):
     gpu_driver = BooleanProperty(default=False)
     creation_time = DateTimeProperty()
 
-    providers = RelationshipFrom(
+    provider = RelationshipFrom(
         "..provider.models.Provider",
         "AVAILABLE_VM_IMAGE",
         cardinality=One,

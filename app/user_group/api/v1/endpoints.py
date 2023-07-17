@@ -16,6 +16,7 @@ from app.user_group.api.dependencies import (
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup as UserGroupModel
 from app.user_group.schemas import UserGroupRead, UserGroupQuery, UserGroupUpdate
+from app.user_group.schemas_extended import UserGroupReadExtended
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 
@@ -23,7 +24,7 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[UserGroupRead],
+    response_model=List[UserGroupReadExtended],
 )
 def get_user_groups(
     comm: CommonGetQuery = Depends(),
@@ -37,13 +38,13 @@ def get_user_groups(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}", response_model=UserGroupRead)
+@router.get("/{user_group_uid}", response_model=UserGroupReadExtended)
 def get_user_group(item: UserGroupModel = Depends(valid_user_group_id)):
     return item
 
 
 @db.write_transaction
-@router.put("/{user_group_uid}", response_model=Optional[UserGroupRead])
+@router.put("/{user_group_uid}", response_model=Optional[UserGroupReadExtended])
 def put_user_group(
     item: UserGroupModel = Depends(valid_user_group_id),
     update_data: UserGroupUpdate = Body(),
@@ -88,7 +89,7 @@ def read_user_group_services(
 
 
 @db.write_transaction
-@router.put("/{user_group_uid}/projects", response_model=UserGroupRead)
+@router.put("/{user_group_uid}/projects", response_model=UserGroupReadExtended)
 def connect_user_group_project(
     item: UserGroupModel = Depends(valid_user_group_id),
     project: ProjectModel = Depends(valid_project_id),
@@ -98,7 +99,7 @@ def connect_user_group_project(
 
 
 @db.read_transaction
-@router.delete("/{user_group_uid}/projects", response_model=UserGroupRead)
+@router.delete("/{user_group_uid}/projects", response_model=UserGroupReadExtended)
 def disconnect_user_group_project(
     item: UserGroupModel = Depends(valid_user_group_id),
     project: ProjectModel = Depends(valid_project_id),

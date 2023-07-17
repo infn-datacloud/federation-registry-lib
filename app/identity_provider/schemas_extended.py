@@ -1,22 +1,11 @@
-from ..auth_method.schemas import (
-    AuthMethodCreate,
-    AuthMethodRead,
-    AuthMethodUpdate,
-)
-from ..identity_provider.schemas import (
-    IdentityProviderCreate,
-    IdentityProviderRead,
-    IdentityProviderUpdate,
-)
+from pydantic import Field
+from typing import List
 
-
-class IdentityProviderCreateExtended(IdentityProviderCreate):
-    relationship: AuthMethodCreate
-
-
-class IdentityProviderUpdateExtended(IdentityProviderUpdate):
-    relationship: AuthMethodUpdate
+from ..identity_provider.schemas import IdentityProviderRead
+from ..provider.schemas import ProviderRead
+from ..user_group.schemas import UserGroupRead
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
-    relationship: AuthMethodRead
+    user_groups: List[UserGroupRead] = Field(default_factory=list)
+    providers: List[ProviderRead] = Field(default_factory=list)

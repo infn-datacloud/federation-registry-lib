@@ -2,12 +2,14 @@ from typing import List
 
 from .models import Provider as ProviderModel
 from .schemas import ProviderCreate, ProviderUpdate
-from .schemas_extended import ProviderCreateExtended
+from .schemas_extended import (
+    ProviderCreateExtended,
+    IdentityProviderCreateExtended,
+)
 from ..crud import CRUDBase
 from ..flavor.crud import flavor
 from ..flavor.schemas import FlavorCreate
 from ..identity_provider.crud import identity_provider
-from ..identity_provider.schemas_extended import IdentityProviderCreateExtended
 from ..image.crud import image
 from ..image.schemas import ImageCreate
 from ..location.crud import location
