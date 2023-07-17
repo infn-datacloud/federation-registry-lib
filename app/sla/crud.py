@@ -1,6 +1,6 @@
-from .models import SLA as SLAModel
-from .schemas import SLACreate, SLAUpdate
-from ..crud import CRUDBase
+from app.sla.models import SLA as SLAModel
+from app.sla.schemas import SLACreate, SLAUpdate
+from app.crud import CRUDBase
 
 
 class CRUDSLA(CRUDBase[SLAModel, SLACreate, SLAUpdate]):

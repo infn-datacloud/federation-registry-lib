@@ -2,13 +2,13 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from neomodel import db
 from typing import List
 
-from ...crud import sla
-from ..dependencies import valid_sla_id
-from ...models import SLA as SLAModel
-from ...schemas import SLACreate, SLAQuery, SLAUpdate
-from ...schemas_extended import SLAReadExtended
-from ....pagination import Pagination, paginate
-from ....query import CommonGetQuery
+from app.sla.api.dependencies import valid_sla_id
+from app.sla.crud import sla
+from app.sla.models import SLA as SLAModel
+from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
+from app.sla.schemas_extended import SLAReadExtended
+from app.pagination import Pagination, paginate
+from app.query import CommonGetQuery
 from app.project.models import Project as ProjectModel
 from app.project.api.dependencies import project_has_no_sla
 from app.user_group.api.dependencies import valid_user_group_id

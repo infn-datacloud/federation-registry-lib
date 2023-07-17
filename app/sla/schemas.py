@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import UUID4, BaseModel
 from typing import Optional
 
-from ..models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
 class SLABase(BaseModel):
