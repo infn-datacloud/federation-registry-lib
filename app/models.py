@@ -1,7 +1,7 @@
 from enum import Enum
 from neo4j.data import DateTime
 from neomodel import One, OneOrMore, ZeroOrOne, ZeroOrMore
-from pydantic import UUID4, BaseModel, Extra, root_validator
+from pydantic import UUID4, BaseModel, root_validator
 from typing import Dict, Optional
 
 
@@ -25,7 +25,6 @@ class BaseNodeCreate(BaseModel):
 
     class Config:
         validate_assignment = True
-        extra = Extra.ignore
 
 
 class BaseNodeRead(BaseModel):
@@ -76,7 +75,6 @@ class BaseNodeRead(BaseModel):
 
     class Config:
         validate_assignment = True
-        extra = Extra.ignore
         orm_mode = True
 
 
@@ -94,4 +92,3 @@ class BaseNodeQuery(BaseModel):
 
     class Config:
         validate_assignment = True
-        extra = Extra.ignore

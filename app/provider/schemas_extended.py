@@ -1,5 +1,5 @@
 from pydantic import Field
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.provider.schemas import ProviderCreate, ProviderRead, ProviderUpdate
 from app.auth_method.schemas import (
@@ -16,7 +16,22 @@ from app.identity_provider.schemas import (
 from app.image.schemas import ImageCreate, ImageRead, ImageUpdate
 from app.location.schemas import LocationCreate, LocationRead, LocationUpdate
 from app.project.schemas import ProjectCreate, ProjectRead, ProjectUpdate
-from app.service.schemas import ServiceCreate, ServiceRead
+from app.service.schemas import (
+    ChronosServiceCreate,
+    ChronosServiceRead,
+    KubernetesServiceCreate,
+    KubernetesServiceRead,
+    MarathonServiceCreate,
+    MarathonServiceRead,
+    MesosServiceCreate,
+    MesosServiceRead,
+    NovaServiceCreate,
+    NovaServiceRead,
+    OneDataServiceCreate,
+    OneDataServiceRead,
+    RucioServiceCreate,
+    RucioServiceRead,
+)
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
@@ -58,7 +73,17 @@ class ProviderCreateExtended(ProviderCreate):
     )
     images: List[ImageCreate] = Field(default_factory=list)
     projects: List[ProjectCreate] = Field(default_factory=list)
-    services: List[ServiceCreate] = Field(default_factory=list)
+    services: List[
+        Union[
+            ChronosServiceCreate,
+            KubernetesServiceCreate,
+            MarathonServiceCreate,
+            MesosServiceCreate,
+            NovaServiceCreate,
+            OneDataServiceCreate,
+            RucioServiceCreate,
+        ]
+    ] = Field(default_factory=list)
 
 
 class ProviderUpdateExtended(ProviderUpdate):
@@ -121,4 +146,14 @@ class ProviderExtended(ProviderRead):
     )
     images: List[ImageRead] = Field(default_factory=list)
     projects: List[ProjectRead] = Field(default_factory=list)
-    services: List[ServiceRead] = Field(default_factory=list)
+    services: List[
+        Union[
+            ChronosServiceRead,
+            KubernetesServiceRead,
+            MarathonServiceRead,
+            MesosServiceRead,
+            NovaServiceRead,
+            OneDataServiceRead,
+            RucioServiceRead,
+        ]
+    ] = Field(default_factory=list)

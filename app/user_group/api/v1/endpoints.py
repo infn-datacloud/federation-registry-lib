@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.flavor.schemas import FlavorRead
 from app.image.schemas import ImageRead
@@ -8,7 +8,15 @@ from app.project.models import Project as ProjectModel
 from app.project.api.dependencies import valid_project_id
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
-from app.service.schemas import ServiceRead
+from app.service.schemas import (
+    ChronosServiceRead,
+    KubernetesServiceRead,
+    MarathonServiceRead,
+    MesosServiceRead,
+    NovaServiceRead,
+    OneDataServiceRead,
+    RucioServiceRead,
+)
 from app.user_group.api.dependencies import (
     valid_user_group_id,
     is_unique_user_group,
@@ -86,7 +94,20 @@ def read_user_group_images(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}/services", response_model=List[ServiceRead])
+@router.get(
+    "/{user_group_uid}/services",
+    response_model=List[
+        Union[
+            ChronosServiceRead,
+            KubernetesServiceRead,
+            MarathonServiceRead,
+            MesosServiceRead,
+            NovaServiceRead,
+            OneDataServiceRead,
+            RucioServiceRead,
+        ]
+    ],
+)
 def read_user_group_services(
     item: UserGroupModel = Depends(valid_user_group_id),
 ):

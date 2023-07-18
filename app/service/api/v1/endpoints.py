@@ -1,12 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.service.api.dependencies import valid_service_id
 from app.service.crud import service
 from app.service.models import Service as ServiceModel
 from app.service.schemas import ServiceQuery, ServiceUpdate
-from app.service.schemas_extended import ServiceReadExtended
+from app.service.schemas_extended import (
+    ChronosServiceReadExtended,
+    KubernetesServiceReadExtended,
+    MarathonServiceReadExtended,
+    MesosServiceReadExtended,
+    NovaServiceReadExtended,
+    OneDataServiceReadExtended,
+    RucioServiceReadExtended,
+)
 from app.identity_provider.schemas import IdentityProviderRead
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
@@ -15,7 +23,20 @@ router = APIRouter(prefix="/services", tags=["services"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[ServiceReadExtended])
+@router.get(
+    "/",
+    response_model=List[
+        Union[
+            ChronosServiceReadExtended,
+            KubernetesServiceReadExtended,
+            MarathonServiceReadExtended,
+            MesosServiceReadExtended,
+            NovaServiceReadExtended,
+            OneDataServiceReadExtended,
+            RucioServiceReadExtended,
+        ]
+    ],
+)
 def get_services(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -28,13 +49,37 @@ def get_services(
 
 
 @db.read_transaction
-@router.get("/{service_uid}", response_model=ServiceReadExtended)
+@router.get(
+    "/{service_uid}",
+    response_model=Union[
+        ChronosServiceReadExtended,
+        KubernetesServiceReadExtended,
+        MarathonServiceReadExtended,
+        MesosServiceReadExtended,
+        NovaServiceReadExtended,
+        OneDataServiceReadExtended,
+        RucioServiceReadExtended,
+    ],
+)
 def get_service(item: ServiceModel = Depends(valid_service_id)):
     return item
 
 
 @db.write_transaction
-@router.put("/{service_uid}", response_model=Optional[ServiceReadExtended])
+@router.put(
+    "/{service_uid}",
+    response_model=Optional[
+        Union[
+            ChronosServiceReadExtended,
+            KubernetesServiceReadExtended,
+            MarathonServiceReadExtended,
+            MesosServiceReadExtended,
+            NovaServiceReadExtended,
+            OneDataServiceReadExtended,
+            RucioServiceReadExtended,
+        ]
+    ],
+)
 def put_service(
     update_data: ServiceUpdate,
     item: ServiceModel = Depends(valid_service_id),

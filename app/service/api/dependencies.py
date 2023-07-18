@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
+from typing import Union
 
 from app.service.crud import service
 from app.service.models import Service

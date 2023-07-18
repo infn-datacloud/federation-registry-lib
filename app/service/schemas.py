@@ -1,11 +1,11 @@
-from pydantic import AnyHttpUrl, BaseModel
+from pydantic import AnyHttpUrl, BaseModel, Extra, validator
 from typing import Optional
 
 from app.service.enum import ServiceType
 from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
-class ServiceBase(BaseModel):
+class ServiceBase(BaseModel, extra=Extra.allow):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
@@ -59,7 +59,27 @@ class ServiceUpdate(ServiceBase):
     """
 
 
-class ServiceRead(BaseNodeRead, ServiceBase):
+class NovaBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != ServiceType.openstack_nova:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class NovaServiceQuery(NovaBase, ServiceQuery):
+    pass
+
+
+class NovaServiceCreate(NovaBase, BaseNodeCreate, ServiceBase):
+    pass
+
+
+class NovaServiceUpdate(NovaBase, ServiceUpdate):
+    pass
+
+
+class NovaServiceRead(NovaBase, BaseNodeRead, ServiceBase):
     """Service class.
 
     Class retrieved from the database.
@@ -71,117 +91,151 @@ class ServiceRead(BaseNodeRead, ServiceBase):
         uid (uuid): Unique ID.
         description (str): Brief description.
         endpoint (str): URL pointing to this service
-        type (ServiceType): Service type.
+        type (ServiceType): Service type equals to org.openstack.nova
     """
 
-
-class NovaServiceQuery(ServiceQuery):
     pass
 
 
-class NovaServiceCreate(ServiceCreate):
+class MesosBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != ServiceType.mesos:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class MesosServiceQuery(MesosBase, ServiceQuery):
     pass
 
 
-class NovaServiceUpdate(ServiceUpdate):
+class MesosServiceCreate(MesosBase, BaseNodeCreate, ServiceBase):
     pass
 
 
-class NovaServiceRead(ServiceRead):
+class MesosServiceUpdate(MesosBase, ServiceUpdate):
     pass
 
 
-class MesosServiceQuery(ServiceQuery):
+class MesosServiceRead(MesosBase, BaseNodeRead, ServiceBase):
     pass
 
 
-class MesosServiceCreate(ServiceCreate):
+class ChronosBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != ServiceType.chronos:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class ChronosServiceQuery(ChronosBase, ServiceQuery):
     pass
 
 
-class MesosServiceUpdate(ServiceUpdate):
+class ChronosServiceCreate(ChronosBase, BaseNodeCreate, ServiceBase):
     pass
 
 
-class MesosServiceRead(ServiceRead):
+class ChronosServiceUpdate(ChronosBase, ServiceUpdate):
     pass
 
 
-class ChronosServiceQuery(ServiceQuery):
+class ChronosServiceRead(ChronosBase, BaseNodeRead, ServiceBase):
     pass
 
 
-class ChronosServiceCreate(ServiceCreate):
+class MarathonBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != ServiceType.marathon:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class MarathonServiceQuery(MarathonBase, ServiceQuery):
     pass
 
 
-class ChronosServiceUpdate(ServiceUpdate):
+class MarathonServiceCreate(MarathonBase, BaseNodeCreate, ServiceBase):
     pass
 
 
-class ChronosServiceRead(ServiceRead):
+class MarathonServiceUpdate(MarathonBase, ServiceUpdate):
     pass
 
 
-class MarathonServiceQuery(ServiceQuery):
+class MarathonServiceRead(MarathonBase, BaseNodeRead, ServiceBase):
     pass
 
 
-class MarathonServiceCreate(ServiceCreate):
+class KubernetesBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != ServiceType.kubernetes:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class KubernetesServiceQuery(KubernetesBase, ServiceQuery):
     pass
 
 
-class MarathonServiceUpdate(ServiceUpdate):
+class KubernetesServiceCreate(KubernetesBase, BaseNodeCreate, ServiceBase):
     pass
 
 
-class MarathonServiceRead(ServiceRead):
+class KubernetesServiceUpdate(KubernetesBase, ServiceUpdate):
     pass
 
 
-class KubernetesServiceQuery(ServiceQuery):
+class KubernetesServiceRead(KubernetesBase, BaseNodeRead, ServiceBase):
     pass
 
 
-class KubernetesServiceCreate(ServiceCreate):
+class RucioBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != ServiceType.rucio:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class RucioServiceQuery(RucioBase, ServiceQuery):
     pass
 
 
-class KubernetesServiceUpdate(ServiceUpdate):
+class RucioServiceCreate(RucioBase, BaseNodeCreate, ServiceBase):
     pass
 
 
-class KubernetesServiceRead(ServiceRead):
+class RucioServiceUpdate(RucioBase, ServiceUpdate):
     pass
 
 
-class RucioServiceQuery(ServiceQuery):
+class RucioServiceRead(RucioBase, BaseNodeRead, ServiceBase):
     pass
 
 
-class RucioServiceCreate(ServiceCreate):
+class OneDataBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != ServiceType.onedata:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class OneDataServiceQuery(OneDataBase, ServiceQuery):
     pass
 
 
-class RucioServiceUpdate(ServiceUpdate):
+class OneDataServiceCreate(OneDataBase, BaseNodeCreate, ServiceBase):
     pass
 
 
-class RucioServiceRead(ServiceRead):
+class OneDataServiceUpdate(OneDataBase, ServiceUpdate):
     pass
 
 
-class OneDataServiceQuery(ServiceQuery):
-    pass
-
-
-class OneDataServiceCreate(ServiceCreate):
-    pass
-
-
-class OneDataServiceUpdate(ServiceUpdate):
-    pass
-
-
-class OneDataServiceRead(ServiceRead):
+class OneDataServiceRead(OneDataBase, BaseNodeRead, ServiceBase):
     pass
