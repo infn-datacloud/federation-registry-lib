@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Extra, validator
 from typing import Optional, Union
 
 from app.quota.enum import (
@@ -12,7 +12,7 @@ from app.quota.enum import (
 from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
-class QuotaBase(BaseModel):
+class QuotaBase(BaseModel, extra=Extra.allow):
     type: Union[
         QuotaTypeBandwidth,
         QuotaTypeCount,
@@ -150,25 +150,41 @@ class QuotaRead(BaseNodeRead, QuotaBase):
     """
 
 
-class NumCPUQuotaCreate(QuotaCreate):
+class NumCPUQuotaBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != QuotaTypeCount.num_cpus:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class NumCPUQuotaCreate(NumCPUQuotaBase, BaseNodeCreate, QuotaBase):
     pass
 
 
-class NumCPUQuotaUpdate(QuotaUpdate):
+class NumCPUQuotaUpdate(NumCPUQuotaBase, QuotaUpdate):
     pass
 
 
-class NumCPUQuotaRead(QuotaRead):
+class NumCPUQuotaRead(NumCPUQuotaBase, BaseNodeCreate, QuotaRead):
     pass
 
 
-class RAMQuotaCreate(QuotaCreate):
+class RAMQuotaBase(BaseModel, extra=Extra.ignore):
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != QuotaTypeSize.mem_size:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class RAMQuotaCreate(RAMQuotaBase, BaseNodeCreate, QuotaBase):
     pass
 
 
-class RAMQuotaUpdate(QuotaUpdate):
+class RAMQuotaUpdate(RAMQuotaBase, QuotaUpdate):
     pass
 
 
-class RAMQuotaRead(QuotaRead):
+class RAMQuotaRead(RAMQuotaBase, BaseNodeCreate, QuotaRead):
     pass
