@@ -63,7 +63,7 @@ def post_sla(
     db_obj = sla.create(obj_in=item)
     project.sla.connect(db_obj)
     user_group.slas.connect(db_obj)
-    return project
+    return db_obj
 
 
 @db.read_transaction

@@ -12,7 +12,6 @@ from app.service.schemas import (
     NovaServiceRead,
     OneDataServiceRead,
     RucioServiceRead,
-    ServiceRead,
 )
 
 
@@ -28,11 +27,7 @@ class NumCPUQuotaReadExtended(NumCPUQuotaRead, ExtendWithProject):
     pass
 
 
-class RamQuotaReadExtended(RAMQuotaRead, ExtendWithProject):
-    pass
-
-
-class ServiceReadExtended(ServiceRead, ExtendWithProvider):
+class RAMQuotaReadExtended(RAMQuotaRead, ExtendWithProject):
     pass
 
 
@@ -40,7 +35,7 @@ class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
     num_cpus_quotas: List[NumCPUQuotaReadExtended] = Field(
         default_factory=list
     )
-    ram_quotas: List[RamQuotaReadExtended] = Field(default_factory=list)
+    ram_quotas: List[RAMQuotaReadExtended] = Field(default_factory=list)
 
 
 class MesosServiceReadExtended(MesosServiceRead, ExtendWithProvider):
@@ -59,7 +54,7 @@ class KubernetesServiceReadExtended(KubernetesServiceRead, ExtendWithProvider):
     num_cpus_quotas: List[NumCPUQuotaReadExtended] = Field(
         default_factory=list
     )
-    ram_quotas: List[RamQuotaReadExtended] = Field(default_factory=list)
+    ram_quotas: List[RAMQuotaReadExtended] = Field(default_factory=list)
 
 
 class RucioServiceReadExtended(RucioServiceRead, ExtendWithProvider):

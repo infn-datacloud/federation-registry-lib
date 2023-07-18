@@ -1,5 +1,5 @@
 from pydantic import Field
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.flavor.schemas import FlavorRead
 from app.identity_provider.schemas import IdentityProviderRead
@@ -7,7 +7,15 @@ from app.image.schemas import ImageRead
 from app.project.schemas import ProjectRead
 from app.provider.schemas import ProviderRead
 from app.quota.schemas import QuotaRead
-from app.service.schemas import ServiceRead
+from app.service.schemas import (
+    ChronosServiceRead,
+    KubernetesServiceRead,
+    MarathonServiceRead,
+    MesosServiceRead,
+    NovaServiceRead,
+    OneDataServiceRead,
+    RucioServiceRead,
+)
 from app.sla.schemas import SLARead
 from app.user_group.schemas import UserGroupRead
 
@@ -21,7 +29,15 @@ class SLAReadExtended(SLARead):
 
 
 class QuotaReadExtended(QuotaRead):
-    service: ServiceRead
+    service: Union[
+        ChronosServiceRead,
+        KubernetesServiceRead,
+        MarathonServiceRead,
+        MesosServiceRead,
+        NovaServiceRead,
+        OneDataServiceRead,
+        RucioServiceRead,
+    ]
 
 
 class ProjectReadExtended(ProjectRead):

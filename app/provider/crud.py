@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from app.provider.models import Provider as ProviderModel
 from app.provider.schemas import ProviderCreate, ProviderUpdate
@@ -17,7 +17,6 @@ from app.location.schemas import LocationCreate
 from app.project.crud import project
 from app.project.schemas import ProjectCreate
 from app.service.crud import (
-    service,
     nova_service,
     mesos_service,
     chronos_service,
@@ -26,8 +25,15 @@ from app.service.crud import (
     rucio_service,
     onedata_service,
 )
-from app.service.enum import ServiceType
-from app.service.schemas import ServiceCreate
+from app.service.schemas import (
+    ChronosServiceCreate,
+    KubernetesServiceCreate,
+    MarathonServiceCreate,
+    MesosServiceCreate,
+    NovaServiceCreate,
+    OneDataServiceCreate,
+    RucioServiceCreate,
+)
 
 
 class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
@@ -82,10 +88,38 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
             db_obj.projects.connect(db_project)
 
     def create_and_connect_services(
-        self, *, db_obj: ProviderModel, new_items: List[ServiceCreate]
+        self,
+        *,
+        db_obj: ProviderModel,
+        new_items: List[
+            Union[
+                ChronosServiceCreate,
+                KubernetesServiceCreate,
+                MarathonServiceCreate,
+                MesosServiceCreate,
+                NovaServiceCreate,
+                OneDataServiceCreate,
+                RucioServiceCreate,
+            ]
+        ],
     ) -> None:
         for obj_in in new_items:
-            db_service = service.create(obj_in=obj_in, force=True)
+            if isinstance(obj_in, NovaServiceCreate):
+                db_service = nova_service.create(obj_in=obj_in, force=True)
+            elif isinstance(obj_in, MesosServiceCreate):
+                db_service = mesos_service.create(obj_in=obj_in, force=True)
+            elif isinstance(obj_in, ChronosServiceCreate):
+                db_service = chronos_service.create(obj_in=obj_in, force=True)
+            elif isinstance(obj_in, MarathonServiceCreate):
+                db_service = marathon_service.create(obj_in=obj_in, force=True)
+            elif isinstance(obj_in, KubernetesServiceCreate):
+                db_service = kubernetes_service.create(
+                    obj_in=obj_in, force=True
+                )
+            elif isinstance(obj_in, RucioServiceCreate):
+                db_service = rucio_service.create(obj_in=obj_in, force=True)
+            elif isinstance(obj_in, OneDataServiceCreate):
+                db_service = onedata_service.create(obj_in=obj_in, force=True)
             db_obj.services.connect(db_service)
 
     def create_with_all(
