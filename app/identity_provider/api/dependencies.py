@@ -14,6 +14,6 @@ def valid_identity_provider_id(
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Identity Provider {identity_provider_uid} not found",
+            detail=f"Identity Provider '{identity_provider_uid}' not found",
         )
     return item

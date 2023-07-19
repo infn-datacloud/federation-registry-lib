@@ -10,6 +10,6 @@ def valid_location_id(location_uid: UUID4) -> Location:
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Location {location_uid} not found",
+            detail=f"Location '{location_uid}' not found",
         )
     return item

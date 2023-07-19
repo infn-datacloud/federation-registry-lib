@@ -11,7 +11,7 @@ def valid_user_group_id(user_group_uid: UUID4) -> UserGroup:
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User Group {user_group_uid} not found",
+            detail=f"User Group '{user_group_uid}' not found",
         )
     return item
 

@@ -10,6 +10,6 @@ def valid_service_id(service_uid: UUID4) -> Service:
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Service {service_uid} not found",
+            detail=f"Service '{service_uid}' not found",
         )
     return item

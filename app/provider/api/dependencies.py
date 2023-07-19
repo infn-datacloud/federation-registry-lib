@@ -15,7 +15,7 @@ def valid_provider_id(provider_uid: UUID4) -> Provider:
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Provider {provider_uid} not found",
+            detail=f"Provider '{provider_uid}' not found",
         )
     return item
 

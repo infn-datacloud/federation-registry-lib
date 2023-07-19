@@ -11,7 +11,7 @@ def valid_project_id(project_uid: UUID4) -> ProjectModel:
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project {project_uid} not found",
+            detail=f"Project '{project_uid}' not found",
         )
     return item
 
@@ -22,6 +22,6 @@ def project_has_no_sla(
     if project.sla.single():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Project {project.name} already has an associated SLA",
+            detail=f"Project '{project.name}' already has an associated SLA",
         )
     return project

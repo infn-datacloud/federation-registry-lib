@@ -10,6 +10,6 @@ def valid_flavor_id(flavor_uid: UUID4) -> Flavor:
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Flavor {flavor_uid} not found",
+            detail=f"Flavor '{flavor_uid}' not found",
         )
     return item

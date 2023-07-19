@@ -10,6 +10,6 @@ def valid_quota_id(quota_uid: UUID4) -> Quota:
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Quota {quota_uid} not found",
+            detail=f"Quota '{quota_uid}' not found",
         )
     return item

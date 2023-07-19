@@ -11,7 +11,7 @@ def valid_sla_id(sla_uid: UUID4) -> SLA:
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User Group {sla_uid} not found",
+            detail=f"SLA '{sla_uid}' not found",
         )
     return item
 
