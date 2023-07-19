@@ -1,8 +1,8 @@
 from fastapi import HTTPException, status
 from pydantic import UUID4
 
-from ..crud import quota
-from ..models import Quota
+from app.quota.crud import quota
+from app.quota.models import Quota
 
 
 def valid_quota_id(quota_uid: UUID4) -> Quota:

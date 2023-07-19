@@ -11,7 +11,7 @@ class QuotaTypeBandwidth(Enum):
 class QuotaTypeCount(Enum):
     """Possibile Quota types with no measurement unit"""
 
-    num_cpus: str = "Num CPUs"
+    num_cpu: str = "Num CPUs"
     public_ip: str = "Public IPs"
 
 

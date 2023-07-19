@@ -153,7 +153,7 @@ class QuotaRead(BaseNodeRead, QuotaBase):
 class NumCPUQuotaBase(BaseModel, extra=Extra.ignore):
     @validator("type", check_fields=False)
     def check_type(cls, v):
-        if v != QuotaTypeCount.num_cpus:
+        if v != QuotaTypeCount.num_cpu:
             raise ValueError(f"Not valid type: {v}")
         return v
 

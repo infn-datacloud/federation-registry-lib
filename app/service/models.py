@@ -37,7 +37,7 @@ class Service(StructuredNode):
 
 
 class NovaService(Service):
-    num_cpus_quotas = RelationshipFrom(
+    num_cpu_quotas = RelationshipFrom(
         "..quota.models.NumCPUQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
     #instances_quotas = RelationshipFrom(
@@ -77,7 +77,7 @@ class MarathonService(Service):
 
 
 class KubernetesService(Service):
-    num_cpus_quotas = RelationshipFrom(
+    num_cpu_quotas = RelationshipFrom(
         "..quota.models.NumCPUQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
     ram_quotas = RelationshipFrom(

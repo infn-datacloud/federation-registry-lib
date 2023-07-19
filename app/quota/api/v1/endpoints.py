@@ -3,13 +3,18 @@ from neomodel import db
 from typing import List, Optional, Union
 
 from app.pagination import Pagination, paginate
-from app.project.api.dependencies import project_has_no_sla
+from app.project.api.dependencies import valid_project_id
 from app.project.models import Project as ProjectModel
 from app.query import CommonGetQuery
 from app.quota.api.dependencies import valid_quota_id
-from app.quota.crud import quota
+from app.quota.crud import num_cpu_quota, ram_quota, quota
 from app.quota.models import Quota as QuotaModel
-from app.quota.schemas import QuotaCreate, QuotaQuery, QuotaUpdate
+from app.quota.schemas import (
+    NumCPUQuotaCreate,
+    QuotaQuery,
+    QuotaUpdate,
+    RAMQuotaCreate,
+)
 from app.quota.schemas_extended import (
     NumCPUQuotaReadExtended,
     RAMQuotaReadExtended,
@@ -38,39 +43,40 @@ def get_quotas(
 
 @db.write_transaction
 @router.post(
-    "/{quota_uid}",
+    "/",
     status_code=status.HTTP_201_CREATED,
     response_model=Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended],
 )
 def post_quota(
-    project: ProjectModel = Depends(project_has_no_sla),
+    project: ProjectModel = Depends(valid_project_id),
     service: ServiceModel = Depends(valid_service_id),
-    item: QuotaCreate = Body(),
+    item: Union[NumCPUQuotaCreate, RAMQuotaCreate] = Body(),
 ):
-    # Check Project provider is one of the UserGroup accessible providers
-    provider = project.provider.single()
-    idp = user_group.identity_provider.single()
-    providers = idp.providers.all()
-    if provider not in providers:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Project's provider {provider} does not support given user group",
-        )
-    # Check UserGroup does not already have a project on the same provider
-    slas = user_group.slas.all()
-    for s in slas:
-        p = s.project.single()
-        if p.provider.single() == provider:
-            msg = f"Project's provider {provider} has already assigned "
-            msg += f"a project to user group {user_group}"
+    # Check project does not have duplicated quota types
+    for quota in project.quotas.all():
+        if quota.type == item.type and quota.service.single() == service:
+            msg = f"Project '{project.name}' already has a quota "
+            msg += f"with type '{item.type}' on service '{service.endpoint}'."
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
+                status_code=status.HTTP_400_BAD_REQUEST, detail=msg
             )
+    # Check Project provider and service provider are equals
+    proj_prov = project.provider.single()
+    serv_prov = service.provider.single()
+    if proj_prov != serv_prov:
+        msg = f"Project provider '{proj_prov.name}' and service provider "
+        msg += f"'{serv_prov.name}' do not match."
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=msg
+        )
     # Create Quota
-    db_obj = quota.create(obj_in=item)
+    if isinstance(item, NumCPUQuotaCreate):
+        db_obj = num_cpu_quota.create(obj_in=item)
+        service.num_cpu_quotas.connect(db_obj)
+    elif isinstance(item, RAMQuotaCreate):
+        db_obj = ram_quota.create(obj_in=item)
+        service.ram_quotas.connect(db_obj)
     project.quotas.connect(db_obj)
-    # service..connect(db_obj)
     return db_obj
 
 
