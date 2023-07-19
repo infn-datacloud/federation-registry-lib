@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.flavor.api.dependencies import valid_flavor_id
 from app.flavor.crud import flavor
-from app.flavor.models import Flavor as FlavorModel
+from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorQuery, FlavorUpdate
 from app.flavor.schemas_extended import FlavorReadExtended
 from app.pagination import Pagination, paginate
@@ -28,21 +28,21 @@ def get_flavors(
 
 @db.read_transaction
 @router.get("/{flavor_uid}", response_model=FlavorReadExtended)
-def get_flavor(item: FlavorModel = Depends(valid_flavor_id)):
+def get_flavor(item: Flavor = Depends(valid_flavor_id)):
     return item
 
 
 @db.write_transaction
 @router.put("/{flavor_uid}", response_model=Optional[FlavorReadExtended])
 def put_flavor(
-    update_data: FlavorUpdate, item: FlavorModel = Depends(valid_flavor_id)
+    update_data: FlavorUpdate, item: Flavor = Depends(valid_flavor_id)
 ):
     return flavor.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction
 @router.delete("/{flavor_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_flavors(item: FlavorModel = Depends(valid_flavor_id)):
+def delete_flavors(item: Flavor = Depends(valid_flavor_id)):
     if not flavor.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

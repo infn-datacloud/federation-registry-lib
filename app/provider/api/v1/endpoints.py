@@ -5,7 +5,7 @@ from typing import List
 from app.pagination import Pagination, paginate
 from app.provider.api.dependencies import valid_provider_id, valid_location
 from app.provider.crud import provider
-from app.provider.models import Provider as ProviderModel
+from app.provider.models import Provider 
 from app.provider.schemas import ProviderQuery
 from app.provider.schemas_extended import (
     ProviderCreateExtended,
@@ -40,7 +40,7 @@ def post_provider(item: ProviderCreateExtended = Depends(valid_location)):
 
 @db.read_transaction
 @router.get("/{provider_uid}", response_model=ProviderExtended)
-def get_provider(item: ProviderModel = Depends(valid_provider_id)):
+def get_provider(item: Provider = Depends(valid_provider_id)):
     return item
 
 
@@ -48,14 +48,14 @@ def get_provider(item: ProviderModel = Depends(valid_provider_id)):
 @router.put("/{provider_uid}", response_model=ProviderExtended)
 def put_provider(
     update_data: ProviderUpdate,
-    item: ProviderModel = Depends(valid_provider_id),
+    item: Provider = Depends(valid_provider_id),
 ):
     return provider.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction
 @router.delete("/{provider_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_providers(item: ProviderModel = Depends(valid_provider_id)):
+def delete_providers(item: Provider = Depends(valid_provider_id)):
     if not provider.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

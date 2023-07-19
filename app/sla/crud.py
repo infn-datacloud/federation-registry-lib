@@ -1,10 +1,10 @@
-from app.sla.models import SLA as SLAModel
+from app.sla.models import SLA 
 from app.sla.schemas import SLACreate, SLAUpdate
 from app.crud import CRUDBase
 
 
-class CRUDSLA(CRUDBase[SLAModel, SLACreate, SLAUpdate]):
+class CRUDSLA(CRUDBase[SLA, SLACreate, SLAUpdate]):
     """"""
 
 
-sla = CRUDSLA(SLAModel, SLACreate)
+sla = CRUDSLA(SLA, SLACreate)

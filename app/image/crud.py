@@ -1,10 +1,10 @@
-from app.image.models import Image as ImageModel
+from app.image.models import Image 
 from app.image.schemas import ImageCreate, ImageUpdate
 from app.crud import CRUDBase
 
 
-class CRUDImage(CRUDBase[ImageModel, ImageCreate, ImageUpdate]):
+class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
     """"""
 
 
-image = CRUDImage(ImageModel, ImageCreate)
+image = CRUDImage(Image, ImageCreate)

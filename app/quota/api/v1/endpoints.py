@@ -4,11 +4,11 @@ from typing import List, Optional, Union
 
 from app.pagination import Pagination, paginate
 from app.project.api.dependencies import valid_project_id
-from app.project.models import Project as ProjectModel
+from app.project.models import Project 
 from app.query import CommonGetQuery
 from app.quota.api.dependencies import valid_quota_id
 from app.quota.crud import num_cpu_quota, ram_quota, quota
-from app.quota.models import Quota as QuotaModel
+from app.quota.models import Quota 
 from app.quota.schemas import (
     NumCPUQuotaCreate,
     QuotaQuery,
@@ -20,7 +20,7 @@ from app.quota.schemas_extended import (
     RAMQuotaReadExtended,
 )
 from app.service.api.dependencies import valid_service_id
-from app.service.models import Service as ServiceModel
+from app.service.models import Service 
 
 router = APIRouter(prefix="/quotas", tags=["quotas"])
 
@@ -48,8 +48,8 @@ def get_quotas(
     response_model=Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended],
 )
 def post_quota(
-    project: ProjectModel = Depends(valid_project_id),
-    service: ServiceModel = Depends(valid_service_id),
+    project: Project = Depends(valid_project_id),
+    service: Service = Depends(valid_service_id),
     item: Union[NumCPUQuotaCreate, RAMQuotaCreate] = Body(),
 ):
     # Check project does not have duplicated quota types
@@ -85,7 +85,7 @@ def post_quota(
     "/{quota_uid}",
     response_model=Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended],
 )
-def get_quota(item: QuotaModel = Depends(valid_quota_id)):
+def get_quota(item: Quota = Depends(valid_quota_id)):
     return item
 
 
@@ -98,14 +98,14 @@ def get_quota(item: QuotaModel = Depends(valid_quota_id)):
 )
 def put_quota(
     update_data: QuotaUpdate,
-    item: QuotaModel = Depends(valid_quota_id),
+    item: Quota = Depends(valid_quota_id),
 ):
     return quota.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction
 @router.delete("/{quota_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_quotas(item: QuotaModel = Depends(valid_quota_id)):
+def delete_quotas(item: Quota = Depends(valid_quota_id)):
     if not quota.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

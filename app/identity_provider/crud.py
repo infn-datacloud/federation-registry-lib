@@ -1,5 +1,5 @@
 from app.identity_provider.models import (
-    IdentityProvider as IdentityProviderModel,
+    IdentityProvider ,
 )
 from app.identity_provider.schemas import (
     IdentityProviderCreate,
@@ -10,12 +10,12 @@ from app.crud import CRUDBase
 
 class CRUDIdentityProvider(
     CRUDBase[
-        IdentityProviderModel, IdentityProviderCreate, IdentityProviderUpdate
+        IdentityProvider, IdentityProviderCreate, IdentityProviderUpdate
     ]
 ):
     """"""
 
 
 identity_provider = CRUDIdentityProvider(
-    IdentityProviderModel, IdentityProviderCreate
+    IdentityProvider, IdentityProviderCreate
 )

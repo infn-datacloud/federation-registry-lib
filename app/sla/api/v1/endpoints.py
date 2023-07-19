@@ -4,15 +4,15 @@ from typing import List
 
 from app.pagination import Pagination, paginate
 from app.project.api.dependencies import project_has_no_sla
-from app.project.models import Project as ProjectModel
+from app.project.models import Project 
 from app.query import CommonGetQuery
 from app.sla.api.dependencies import valid_sla_id, valid_document
 from app.sla.crud import sla
-from app.sla.models import SLA as SLAModel
+from app.sla.models import SLA 
 from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
 from app.sla.schemas_extended import SLAReadExtended
 from app.user_group.api.dependencies import valid_user_group_id
-from app.user_group.models import UserGroup as UserGroupModel
+from app.user_group.models import UserGroup 
 
 router = APIRouter(prefix="/slas", tags=["slas"])
 
@@ -35,8 +35,8 @@ def get_slas(
     "/", status_code=status.HTTP_201_CREATED, response_model=SLAReadExtended
 )
 def post_sla(
-    project: ProjectModel = Depends(project_has_no_sla),
-    user_group: UserGroupModel = Depends(valid_user_group_id),
+    project: Project = Depends(project_has_no_sla),
+    user_group: UserGroup = Depends(valid_user_group_id),
     item: SLACreate = Depends(valid_document),
 ):
     # Check Project provider is one of the UserGroup accessible providers
@@ -68,19 +68,19 @@ def post_sla(
 
 @db.read_transaction
 @router.get("/{sla_uid}", response_model=SLAReadExtended)
-def get_sla(item: SLAModel = Depends(valid_sla_id)):
+def get_sla(item: SLA = Depends(valid_sla_id)):
     return item
 
 
 @db.write_transaction
 @router.put("/{sla_uid}", response_model=SLAReadExtended)
-def put_sla(update_data: SLAUpdate, item: SLAModel = Depends(valid_sla_id)):
+def put_sla(update_data: SLAUpdate, item: SLA = Depends(valid_sla_id)):
     return sla.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction
 @router.delete("/{sla_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_slas(item: SLAModel = Depends(valid_sla_id)):
+def delete_slas(item: SLA = Depends(valid_sla_id)):
     if not sla.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

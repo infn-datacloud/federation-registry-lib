@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from app.provider.models import Provider as ProviderModel
+from app.provider.models import Provider 
 from app.provider.schemas import ProviderCreate, ProviderUpdate
 from app.provider.schemas_extended import (
     ProviderCreateExtended,
@@ -36,13 +36,13 @@ from app.service.schemas import (
 )
 
 
-class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
+class CRUDProvider(CRUDBase[Provider, ProviderCreate, ProviderUpdate]):
     """"""
 
     def create_and_connect_flavors(
         self,
         *,
-        db_obj: ProviderModel,
+        db_obj: Provider,
         new_items: List[FlavorCreate],
     ) -> None:
         for flv in new_items:
@@ -52,7 +52,7 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
     def create_and_connect_identity_providers(
         self,
         *,
-        db_obj: ProviderModel,
+        db_obj: Provider,
         new_items: List[IdentityProviderCreateExtended],
     ) -> None:
         for idp in new_items:
@@ -64,7 +64,7 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
     def create_and_connect_images(
         self,
         *,
-        db_obj: ProviderModel,
+        db_obj: Provider,
         new_items: List[ImageCreate],
     ) -> None:
         for img in new_items:
@@ -72,7 +72,7 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
             db_obj.images.connect(db_image)
 
     def create_and_connect_location(
-        self, *, db_obj: ProviderModel, loc: LocationCreate
+        self, *, db_obj: Provider, loc: LocationCreate
     ) -> None:
         db_location = location.create(obj_in=loc)
         db_obj.location.connect(db_location)
@@ -80,7 +80,7 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
     def create_and_connect_projects(
         self,
         *,
-        db_obj: ProviderModel,
+        db_obj: Provider,
         new_items: List[ProjectCreate],
     ) -> None:
         for proj in new_items:
@@ -90,7 +90,7 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
     def create_and_connect_services(
         self,
         *,
-        db_obj: ProviderModel,
+        db_obj: Provider,
         new_items: List[
             Union[
                 ChronosServiceCreate,
@@ -124,7 +124,7 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
 
     def create_with_all(
         self, *, obj_in: ProviderCreateExtended
-    ) -> ProviderModel:
+    ) -> Provider:
         db_obj = self.create(obj_in=obj_in)
         if obj_in.location is not None:
             self.create_and_connect_location(
@@ -146,4 +146,4 @@ class CRUDProvider(CRUDBase[ProviderModel, ProviderCreate, ProviderUpdate]):
         return db_obj
 
 
-provider = CRUDProvider(ProviderModel, ProviderCreate)
+provider = CRUDProvider(Provider, ProviderCreate)

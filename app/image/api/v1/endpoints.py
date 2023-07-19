@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.image.api.dependencies import valid_image_id
 from app.image.crud import image
-from app.image.models import Image as ImageModel
+from app.image.models import Image 
 from app.image.schemas import ImageQuery, ImageUpdate
 from app.image.schemas_extended import ImageReadExtended
 from app.pagination import Pagination, paginate
@@ -28,21 +28,21 @@ def get_images(
 
 @db.read_transaction
 @router.get("/{image_uid}", response_model=ImageReadExtended)
-def get_image(item: ImageModel = Depends(valid_image_id)):
+def get_image(item: Image = Depends(valid_image_id)):
     return item
 
 
 @db.write_transaction
 @router.put("/{image_uid}", response_model=Optional[ImageReadExtended])
 def put_image(
-    update_data: ImageUpdate, item: ImageModel = Depends(valid_image_id)
+    update_data: ImageUpdate, item: Image = Depends(valid_image_id)
 ):
     return image.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction
 @router.delete("/{image_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_images(item: ImageModel = Depends(valid_image_id)):
+def delete_images(item: Image = Depends(valid_image_id)):
     if not image.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

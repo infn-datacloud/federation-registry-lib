@@ -1,12 +1,12 @@
 from app.service.models import (
-    Service as ServiceModel,
-    NovaService as NovaServiceModel,
-    MesosService as MesosServiceModel,
-    ChronosService as ChronosServiceModel,
-    MarathonService as MarathonServiceModel,
-    KubernetesService as KubernetesServiceModel,
-    RucioService as RucioServiceModel,
-    OneDataService as OneDataServiceModel,
+    Service ,
+    NovaService as NovaService,
+    MesosService as MesosService,
+    ChronosService as ChronosService,
+    MarathonService as MarathonService,
+    KubernetesService as KubernetesService,
+    RucioService as RucioService,
+    OneDataService as OneDataService,
 )
 from app.service.schemas import (
     ServiceCreate,
@@ -29,31 +29,31 @@ from app.service.schemas import (
 from app.crud import CRUDBase
 
 
-class CRUDService(CRUDBase[ServiceModel, ServiceCreate, ServiceUpdate]):
+class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
     """"""
 
 
 class CRUDNovaService(
-    CRUDBase[NovaServiceModel, NovaServiceCreate, NovaServiceUpdate]
+    CRUDBase[NovaService, NovaServiceCreate, NovaServiceUpdate]
 ):
     """"""
 
 
 class CRUDMesosService(
-    CRUDBase[MesosServiceModel, MesosServiceCreate, MesosServiceUpdate]
+    CRUDBase[MesosService, MesosServiceCreate, MesosServiceUpdate]
 ):
     """"""
 
 
 class CRUDChronosService(
-    CRUDBase[ChronosServiceModel, ChronosServiceCreate, ChronosServiceUpdate]
+    CRUDBase[ChronosService, ChronosServiceCreate, ChronosServiceUpdate]
 ):
     """"""
 
 
 class CRUDMarathonService(
     CRUDBase[
-        MarathonServiceModel, MarathonServiceCreate, MarathonServiceUpdate
+        MarathonService, MarathonServiceCreate, MarathonServiceUpdate
     ]
 ):
     """"""
@@ -61,7 +61,7 @@ class CRUDMarathonService(
 
 class CRUDKubernetesService(
     CRUDBase[
-        KubernetesServiceModel,
+        KubernetesService,
         KubernetesServiceCreate,
         KubernetesServiceUpdate,
     ]
@@ -70,26 +70,26 @@ class CRUDKubernetesService(
 
 
 class CRUDRucioService(
-    CRUDBase[RucioServiceModel, RucioServiceCreate, RucioServiceUpdate]
+    CRUDBase[RucioService, RucioServiceCreate, RucioServiceUpdate]
 ):
     """"""
 
 
 class CRUDOneDataService(
-    CRUDBase[OneDataServiceModel, OneDataServiceCreate, OneDataServiceUpdate]
+    CRUDBase[OneDataService, OneDataServiceCreate, OneDataServiceUpdate]
 ):
     """"""
 
 
-service = CRUDService(ServiceModel, ServiceCreate)
-nova_service = CRUDNovaService(NovaServiceModel, NovaServiceCreate)
-mesos_service = CRUDMesosService(MesosServiceModel, MesosServiceCreate)
-chronos_service = CRUDChronosService(ChronosServiceModel, ChronosServiceCreate)
+service = CRUDService(Service, ServiceCreate)
+nova_service = CRUDNovaService(NovaService, NovaServiceCreate)
+mesos_service = CRUDMesosService(MesosService, MesosServiceCreate)
+chronos_service = CRUDChronosService(ChronosService, ChronosServiceCreate)
 marathon_service = CRUDMarathonService(
-    MarathonServiceModel, MarathonServiceCreate
+    MarathonService, MarathonServiceCreate
 )
 kubernetes_service = CRUDKubernetesService(
-    KubernetesServiceModel, KubernetesServiceCreate
+    KubernetesService, KubernetesServiceCreate
 )
-rucio_service = CRUDRucioService(RucioServiceModel, RucioServiceCreate)
-onedata_service = CRUDOneDataService(OneDataServiceModel, OneDataServiceCreate)
+rucio_service = CRUDRucioService(RucioService, RucioServiceCreate)
+onedata_service = CRUDOneDataService(OneDataService, OneDataServiceCreate)

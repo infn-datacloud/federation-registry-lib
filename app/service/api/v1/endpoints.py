@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from app.service.api.dependencies import valid_service_id
 from app.service.crud import service
-from app.service.models import Service as ServiceModel
+from app.service.models import Service 
 from app.service.schemas import ServiceQuery, ServiceUpdate
 from app.service.schemas_extended import (
     ChronosServiceReadExtended,
@@ -61,7 +61,7 @@ def get_services(
         RucioServiceReadExtended,
     ],
 )
-def get_service(item: ServiceModel = Depends(valid_service_id)):
+def get_service(item: Service = Depends(valid_service_id)):
     return item
 
 
@@ -82,14 +82,14 @@ def get_service(item: ServiceModel = Depends(valid_service_id)):
 )
 def put_service(
     update_data: ServiceUpdate,
-    item: ServiceModel = Depends(valid_service_id),
+    item: Service = Depends(valid_service_id),
 ):
     return service.update(db_obj=item, obj_in=update_data)
 
 
 @db.write_transaction
 @router.delete("/{service_uid}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_services(item: ServiceModel = Depends(valid_service_id)):
+def delete_services(item: Service = Depends(valid_service_id)):
     if not service.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -103,6 +103,6 @@ def delete_services(item: ServiceModel = Depends(valid_service_id)):
     response_model=List[IdentityProviderRead],
 )
 def read_user_group_services(
-    item: ServiceModel = Depends(valid_service_id),
+    item: Service = Depends(valid_service_id),
 ):
     return item.provider.single().identity_providers.all()

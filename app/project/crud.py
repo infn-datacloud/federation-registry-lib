@@ -1,10 +1,10 @@
-from app.project.models import Project as ProjectModel
+from app.project.models import Project 
 from app.project.schemas import ProjectCreate, ProjectUpdate
 from app.crud import CRUDBase
 
 
-class CRUDProject(CRUDBase[ProjectModel, ProjectCreate, ProjectUpdate]):
+class CRUDProject(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
     """"""
 
 
-project = CRUDProject(ProjectModel, ProjectCreate)
+project = CRUDProject(Project, ProjectCreate)
