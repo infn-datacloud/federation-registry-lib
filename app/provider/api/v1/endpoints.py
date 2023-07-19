@@ -2,10 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List
 
-from app.provider.api.dependencies import (
-    valid_provider_id,
-    check_rel_consistency,
-)
+from app.pagination import Pagination, paginate
+from app.provider.api.dependencies import valid_provider_id, valid_location
 from app.provider.crud import provider
 from app.provider.models import Provider as ProviderModel
 from app.provider.schemas import ProviderQuery
@@ -14,7 +12,6 @@ from app.provider.schemas_extended import (
     ProviderExtended,
     ProviderUpdate,
 )
-from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
 
 router = APIRouter(prefix="/providers", tags=["providers"])
@@ -37,9 +34,7 @@ def get_providers(
 @router.post(
     "/", status_code=status.HTTP_201_CREATED, response_model=ProviderExtended
 )
-def post_provider(
-    item: ProviderCreateExtended = Depends(check_rel_consistency),
-):
+def post_provider(item: ProviderCreateExtended = Depends(valid_location)):
     return provider.create_with_all(obj_in=item)
 
 

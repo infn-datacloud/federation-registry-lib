@@ -1,10 +1,13 @@
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
-from app.provider.schemas_extended import ProviderCreateExtended
-from app.provider.models import Provider
+from app.identity_provider.crud import identity_provider
+from app.location.crud import location
 from app.provider.crud import provider
-from app.service.api.dependencies import is_unique_service
+from app.provider.models import Provider
+from app.provider.schemas_extended import ProviderCreateExtended
+from app.service.crud import service
+from app.utils import find_duplicates
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
@@ -27,38 +30,75 @@ def is_unique_provider(item: ProviderCreateExtended) -> ProviderCreateExtended:
     return item
 
 
-def check_valid_services(
+def valid_flavor_list(
     item: ProviderCreateExtended = Depends(is_unique_provider),
 ) -> ProviderCreateExtended:
-    for s in item.services:
-        is_unique_service(s)
+    find_duplicates(item.flavors, "name")
+    find_duplicates(item.flavors, "uuid")
     return item
 
 
-def check_rel_consistency(
-    item: ProviderCreateExtended = Depends(check_valid_services),
+def valid_image_list(
+    item: ProviderCreateExtended = Depends(valid_flavor_list),
 ) -> ProviderCreateExtended:
-    for i in [item.flavors, item.images, item.projects]:
-        seen = set()
-        names = [j.name for j in i]
-        dupes = [x for x in names if x in seen or seen.add(x)]
-        duplicates = ",".join(dupes)
-        if len(dupes) > 0:
-            msg = "There are multiple items with identical name: "
-            msg += f"{duplicates}"
+    find_duplicates(item.images, "name")
+    find_duplicates(item.images, "uuid")
+    return item
+
+
+def valid_project_list(
+    item: ProviderCreateExtended = Depends(valid_image_list),
+) -> ProviderCreateExtended:
+    find_duplicates(item.projects, "name")
+    find_duplicates(item.projects, "uuid")
+    return item
+
+
+def valid_service_list(
+    item: ProviderCreateExtended = Depends(valid_project_list),
+) -> ProviderCreateExtended:
+    find_duplicates(item.services, "endpoint")
+    for i in item.services:
+        db_item = service.get(endpoint=i.endpoint)
+        if db_item is not None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
+                detail=f"Service with URL '{i.endpoint}' already registered",
             )
-        seen = set()
-        uuids = [j.uuid for j in i]
-        dupes = [str(x) for x in uuids if x in seen or seen.add(x)]
-        duplicates = ",".join(dupes)
-        if len(dupes) > 0:
-            msg = "There are multiple items with identical uuid: "
-            msg += f"{duplicates}"
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
-            )
+    return item
+
+
+def valid_identity_provider_list(
+    item: ProviderCreateExtended = Depends(valid_service_list),
+) -> ProviderCreateExtended:
+    find_duplicates(item.identity_providers, "endpoint")
+    for i in item.identity_providers:
+        db_item = identity_provider.get(endpoint=i.endpoint)
+        if db_item is not None:
+            for k, v in i.dict(exclude={"relationship"}).items():
+                if db_item.__getattribute__(k) != v:
+                    msg = f"Identity Provider with URL '{i.endpoint}' "
+                    msg += "already exists, but with different attributes. "
+                    msg += f"Received: {i.dict()}. Stored: {db_item}"
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST, detail=msg
+                    )
+    return item
+
+
+def valid_location(
+    item: ProviderCreateExtended = Depends(valid_identity_provider_list),
+) -> ProviderCreateExtended:
+    loc = item.location
+    if loc is not None:
+        db_item = location.get(name=loc.name)
+        if db_item is not None:
+            for k, v in loc.dict().items():
+                if db_item.__getattribute__(k) != v:
+                    msg = f"Location with name '{loc.name}' "
+                    msg += "already exists, but with different attributes. "
+                    msg += f"Received: {loc.dict()}. Stored: {db_item}"
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST, detail=msg
+                    )
     return item
