@@ -1,20 +1,23 @@
 from typing import Generator
+from uuid import uuid4
 
-from ..utils.flavor import (
+from app.tests.utils.flavor import (
     create_random_flavor,
     create_random_update_flavor_data,
 )
-from ..utils.utils import (
+from app.tests.utils.utils import (
     random_lower_string,
     random_non_negative_int,
     random_bool,
 )
-from ...flavor.crud import flavor
-from ...flavor.schemas import FlavorCreate
+from app.flavor.crud import flavor
+from app.flavor.schemas import FlavorCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
     description = random_lower_string()
+    name = random_lower_string()
+    uuid = uuid4()
     num_vcpus = random_non_negative_int()
     num_gpus = random_non_negative_int()
     ram = random_non_negative_int()
@@ -24,6 +27,8 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     gpu_vendor = random_lower_string()
     item_in = FlavorCreate(
         description=description,
+        name=name,
+        uuid=uuid,
         num_vcpus=num_vcpus,
         num_gpus=num_gpus,
         ram=ram,
@@ -34,6 +39,8 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     )
     item = flavor.create(obj_in=item_in)
     assert item.description == description
+    assert item.name == name
+    assert item.uuid == str(uuid)
     assert item.num_vcpus == num_vcpus
     assert item.num_gpus == num_gpus
     assert item.ram == ram
@@ -45,8 +52,11 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
-    item_in = FlavorCreate(name=name)
+    uuid = uuid4()
+    item_in = FlavorCreate(name=name, uuid=uuid)
     item = flavor.create(obj_in=item_in)
+    assert item.name == name
+    assert item.uuid == str(uuid)
     assert item.description == ""
     assert item.num_vcpus == 0
     assert item.num_gpus == 0

@@ -1,17 +1,25 @@
 from typing import Generator
+from uuid import uuid4
 
-from ..utils.sla import create_random_sla, create_random_update_sla_data
-from ..utils.utils import random_lower_string, random_datetime
-from ...sla.crud import sla
-from ...sla.schemas import SLACreate
+from app.tests.utils.sla import (
+    create_random_sla,
+    create_random_update_sla_data,
+)
+from app.tests.utils.utils import random_lower_string, random_datetime
+from app.sla.crud import sla
+from app.sla.schemas import SLACreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
     description = random_lower_string()
     start_date = random_datetime()
     end_date = random_datetime()
+    document_uuid = uuid4()
     item_in = SLACreate(
-        description=description, start_date=start_date, end_date=end_date
+        description=description,
+        start_date=start_date,
+        end_date=end_date,
+        document_uuid=document_uuid,
     )
     item = sla.create(obj_in=item_in)
     assert item.description == description
@@ -26,6 +34,7 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     assert item.description == ""
     assert item.start_date == start_date
     assert item.end_date is None
+    assert item.document_uuid is None
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

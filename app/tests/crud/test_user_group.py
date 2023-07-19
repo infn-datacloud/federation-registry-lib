@@ -1,12 +1,12 @@
 from typing import Generator
 
-from ..utils.user_group import (
+from app.tests.utils.user_group import (
     create_random_update_user_group_data,
     create_random_user_group,
 )
-from ..utils.utils import random_lower_string
-from ...user_group.crud import user_group
-from ...user_group.schemas import UserGroupCreate
+from app.tests.utils.utils import random_lower_string
+from app.user_group.crud import user_group
+from app.user_group.schemas import UserGroupCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

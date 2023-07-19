@@ -1,31 +1,37 @@
 from typing import Generator
 
-from ..utils.identity_provider import (
+from app.tests.utils.identity_provider import (
     create_random_identity_provider,
     create_random_update_identity_provider_data,
 )
-from ..utils.utils import random_lower_string, random_url
-from ...identity_provider.crud import identity_provider
-from ...identity_provider.schemas import IdentityProviderCreate
+from app.tests.utils.utils import random_lower_string, random_url
+from app.identity_provider.crud import identity_provider
+from app.identity_provider.schemas import IdentityProviderCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
     description = random_lower_string()
     endpoint = random_url()
+    group_claim = random_lower_string()
     item_in = IdentityProviderCreate(
-        description=description, endpoint=endpoint
+        description=description, endpoint=endpoint, group_claim=group_claim
     )
     item = identity_provider.create(obj_in=item_in)
     assert item.description == description
     assert item.endpoint == endpoint
+    assert item.group_claim == group_claim
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     endpoint = random_url()
-    item_in = IdentityProviderCreate(endpoint=endpoint)
+    group_claim = random_lower_string()
+    item_in = IdentityProviderCreate(
+        endpoint=endpoint, group_claim=group_claim
+    )
     item = identity_provider.create(obj_in=item_in)
     assert item.description == ""
     assert item.endpoint == endpoint
+    assert item.group_claim == group_claim
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

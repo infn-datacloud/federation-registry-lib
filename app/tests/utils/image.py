@@ -1,14 +1,17 @@
 from random import choice
+from uuid import uuid4
 
-from .utils import random_lower_string, random_bool, random_datetime
-from ...image.crud import image
-from ...image.models import Image
-from ...image.schemas import ImageCreate, ImageUpdate
-from ...image.enum import ImageOS
+from app.tests.utils.utils import random_lower_string, random_bool, random_datetime
+from app.image.crud import image
+from app.image.models import Image
+from app.image.schemas import ImageCreate, ImageUpdate
+from app.image.enum import ImageOS
 
 
 def create_random_image() -> Image:
     description = random_lower_string()
+    name = random_lower_string()
+    uuid = uuid4()
     os = random_os()
     distribution = random_lower_string()
     version = random_lower_string()
@@ -18,6 +21,8 @@ def create_random_image() -> Image:
     creation_time = random_datetime()
     item_in = ImageCreate(
         description=description,
+        name=name,
+        uuid=uuid,
         os=os,
         distribution=distribution,
         version=version,
@@ -31,6 +36,8 @@ def create_random_image() -> Image:
 
 def create_random_update_image_data() -> ImageUpdate:
     description = random_lower_string()
+    name = random_lower_string()
+    uuid = uuid4()
     os = random_os()
     distribution = random_lower_string()
     version = random_lower_string()
@@ -40,6 +47,8 @@ def create_random_update_image_data() -> ImageUpdate:
     creation_time = random_datetime()
     return ImageUpdate(
         description=description,
+        name=name,
+        uuid=uuid,
         os=os,
         distribution=distribution,
         version=version,

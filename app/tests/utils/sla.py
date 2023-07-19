@@ -1,7 +1,7 @@
-from .utils import random_datetime, random_lower_string
-from ...sla.crud import sla
-from ...sla.models import SLA
-from ...sla.schemas import SLACreate, SLAUpdate
+from app.tests.utils.utils import random_datetime, random_lower_string
+from app.sla.crud import sla
+from app.sla.models import SLA
+from app.sla.schemas import SLACreate, SLAUpdate
 
 
 def create_random_sla() -> SLA:

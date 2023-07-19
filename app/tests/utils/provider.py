@@ -1,7 +1,7 @@
-from .utils import random_bool, random_email, random_lower_string
-from ...provider.crud import provider
-from ...provider.models import Provider
-from ...provider.schemas import ProviderCreate, ProviderUpdate
+from app.tests.utils.utils import random_bool, random_email, random_lower_string
+from app.provider.crud import provider
+from app.provider.models import Provider
+from app.provider.schemas import ProviderCreate, ProviderUpdate
 
 
 def create_random_provider() -> Provider:

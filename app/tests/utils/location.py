@@ -1,10 +1,10 @@
 from random import choice, randrange
 from pycountry import countries
 
-from .utils import random_lower_string
-from ...location.crud import location
-from ...location.models import Location
-from ...location.schemas import LocationCreate, LocationUpdate
+from app.tests.utils.utils import random_lower_string
+from app.location.crud import location
+from app.location.models import Location
+from app.location.schemas import LocationCreate, LocationUpdate
 
 
 def create_random_location() -> Location:

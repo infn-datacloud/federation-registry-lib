@@ -1,7 +1,7 @@
-from ..utils.utils import random_lower_string
-from ...user_group.crud import user_group
-from ...user_group.models import UserGroup
-from ...user_group.schemas import UserGroupCreate, UserGroupUpdate
+from app.tests.utils.utils import random_lower_string
+from app.user_group.crud import user_group
+from app.user_group.models import UserGroup
+from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
 
 
 def create_random_user_group() -> UserGroup:

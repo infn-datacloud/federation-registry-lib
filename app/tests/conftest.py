@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from neomodel import clear_neo4j_database, db
 from typing import Generator
 
-from ..main import app
+from app.main import app
 
 
 @pytest.fixture

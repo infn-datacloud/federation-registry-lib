@@ -1,9 +1,9 @@
 from typing import Generator
 
-from ..utils.quota import create_random_quota, create_random_update_quota_data
-from ..utils.utils import random_lower_string, random_non_negative_float
-from ...quota.crud import quota
-from ...quota.schemas import QuotaCreate
+from app.tests.utils.quota import create_random_quota, create_random_update_quota_data
+from app.tests.utils.utils import random_lower_string, random_non_negative_float
+from app.quota.crud import quota
+from app.quota.schemas import QuotaCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

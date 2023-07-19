@@ -1,16 +1,19 @@
-from .utils import (
+from uuid import uuid4
+from app.tests.utils.utils import (
     random_lower_string,
     random_non_negative_int,
     random_bool,
     random_positive_int,
 )
-from ...flavor.crud import flavor
-from ...flavor.models import Flavor
-from ...flavor.schemas import FlavorCreate, FlavorUpdate
+from app.flavor.crud import flavor
+from app.flavor.models import Flavor
+from app.flavor.schemas import FlavorCreate, FlavorUpdate
 
 
 def create_random_flavor() -> Flavor:
     description = random_lower_string()
+    name = random_lower_string()
+    uuid = uuid4()
     num_vcpus = random_non_negative_int()
     num_gpus = random_positive_int()
     ram = random_non_negative_int()
@@ -20,6 +23,8 @@ def create_random_flavor() -> Flavor:
     gpu_vendor = random_lower_string()
     item_in = FlavorCreate(
         description=description,
+        name=name,
+        uuid=uuid,
         num_vcpus=num_vcpus,
         num_gpus=num_gpus,
         ram=ram,
@@ -33,6 +38,8 @@ def create_random_flavor() -> Flavor:
 
 def create_random_update_flavor_data() -> FlavorUpdate:
     description = random_lower_string()
+    name = random_lower_string()
+    uuid = uuid4()
     num_vcpus = random_non_negative_int()
     num_gpus = random_non_negative_int()
     ram = random_non_negative_int()
@@ -42,6 +49,8 @@ def create_random_update_flavor_data() -> FlavorUpdate:
     gpu_vendor = random_lower_string()
     return FlavorUpdate(
         description=description,
+        name=name,
+        uuid=uuid,
         num_vcpus=num_vcpus,
         num_gpus=num_gpus,
         ram=ram,

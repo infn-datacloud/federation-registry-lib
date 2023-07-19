@@ -1,17 +1,24 @@
 from typing import Generator
+from uuid import uuid4
 
-from ..utils.image import (
+from app.tests.utils.image import (
     create_random_image,
     create_random_update_image_data,
     random_os,
 )
-from ..utils.utils import random_lower_string, random_bool, random_datetime
-from ...image.crud import image
-from ...image.schemas import ImageCreate
+from app.tests.utils.utils import (
+    random_lower_string,
+    random_bool,
+    random_datetime,
+)
+from app.image.crud import image
+from app.image.schemas import ImageCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
     description = random_lower_string()
+    name = random_lower_string()
+    uuid = uuid4()
     os = random_os()
     distribution = random_lower_string()
     version = random_lower_string()
@@ -21,6 +28,8 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     creation_time = random_datetime()
     item_in = ImageCreate(
         description=description,
+        name=name,
+        uuid=uuid,
         os=os,
         distribution=distribution,
         version=version,
@@ -31,6 +40,8 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     )
     item = image.create(obj_in=item_in)
     assert item.description == description
+    assert item.name == name
+    assert item.uuid == str(uuid)
     assert item.os == os
     assert item.distribution == distribution
     assert item.version == version
@@ -41,11 +52,15 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
+    name = random_lower_string()
+    uuid = uuid4()
     os = random_os()
     distribution = random_lower_string()
     version = random_lower_string()
     architecture = random_lower_string()
     item_in = ImageCreate(
+        name=name,
+        uuid=uuid,
         os=os,
         distribution=distribution,
         version=version,
@@ -53,6 +68,8 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     )
     item = image.create(obj_in=item_in)
     assert item.description == ""
+    assert item.name == name
+    assert item.uuid == str(uuid)
     assert item.os == os
     assert item.distribution == distribution
     assert item.version == version

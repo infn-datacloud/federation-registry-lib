@@ -1,29 +1,34 @@
 from typing import Generator
 
-from ..utils.service import (
+from app.tests.utils.service import (
     create_random_service,
     create_random_update_service_data,
+    random_service_type
 )
-from ..utils.utils import random_lower_string, random_url
-from ...service.crud import service
-from ...service.schemas import ServiceCreate
+from app.tests.utils.utils import random_lower_string, random_url
+from app.service.crud import service
+from app.service.schemas import ServiceCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
     description = random_lower_string()
     endpoint = random_url()
-    item_in = ServiceCreate(endpoint=endpoint, description=description)
+    service_type = random_service_type()
+    item_in = ServiceCreate(endpoint=endpoint, description=description, type=service_type)
     item = service.create(obj_in=item_in)
     assert item.description == description
     assert item.endpoint == endpoint
+    assert item.type == service_type
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     endpoint = random_url()
-    item_in = ServiceCreate(endpoint=endpoint)
+    service_type = random_service_type()
+    item_in = ServiceCreate(endpoint=endpoint, type=service_type)
     item = service.create(obj_in=item_in)
     assert item.description == ""
     assert item.endpoint == endpoint
+    assert item.type == service_type
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:
@@ -33,12 +38,14 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     assert item.uid == stored_item.uid
     assert item.description == stored_item.description
     assert item.endpoint == stored_item.endpoint
+    assert item.type == stored_item.type
 
     stored_item = service.get(endpoint=item.endpoint)
     assert stored_item
     assert item.uid == stored_item.uid
     assert item.description == stored_item.description
     assert item.endpoint == stored_item.endpoint
+    assert item.type == stored_item.type
 
 
 def test_get_items(setup_and_teardown_db: Generator) -> None:
