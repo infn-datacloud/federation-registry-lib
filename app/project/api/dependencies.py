@@ -22,6 +22,6 @@ def project_has_no_sla(
     if project.sla.single():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Project {project.uid} already has an associated SLA",
+            detail=f"Project {project.name} already has an associated SLA",
         )
     return project

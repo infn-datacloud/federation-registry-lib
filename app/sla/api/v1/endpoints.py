@@ -1,16 +1,16 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from neomodel import db
 from typing import List
 
-from app.sla.api.dependencies import valid_sla_id
+from app.pagination import Pagination, paginate
+from app.project.api.dependencies import project_has_no_sla
+from app.project.models import Project as ProjectModel
+from app.query import CommonGetQuery
+from app.sla.api.dependencies import valid_sla_id, valid_document
 from app.sla.crud import sla
 from app.sla.models import SLA as SLAModel
 from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
 from app.sla.schemas_extended import SLAReadExtended
-from app.pagination import Pagination, paginate
-from app.query import CommonGetQuery
-from app.project.models import Project as ProjectModel
-from app.project.api.dependencies import project_has_no_sla
 from app.user_group.api.dependencies import valid_user_group_id
 from app.user_group.models import UserGroup as UserGroupModel
 
@@ -37,27 +37,27 @@ def get_slas(
 def post_sla(
     project: ProjectModel = Depends(project_has_no_sla),
     user_group: UserGroupModel = Depends(valid_user_group_id),
-    item: SLACreate = Body(),
+    item: SLACreate = Depends(valid_document),
 ):
     # Check Project provider is one of the UserGroup accessible providers
     provider = project.provider.single()
     idp = user_group.identity_provider.single()
     providers = idp.providers.all()
     if provider not in providers:
+        msg = f"Project's provider '{provider.name}' does not support "
+        msg += "given user group."
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Project's provider {provider} does not support given user group",
+            status_code=status.HTTP_400_BAD_REQUEST, detail=msg
         )
     # Check UserGroup does not already have a project on the same provider
     slas = user_group.slas.all()
     for s in slas:
         p = s.project.single()
         if p.provider.single() == provider:
-            msg = f"Project's provider {provider} has already assigned "
-            msg += f"a project to user group {user_group}"
+            msg = f"Project's provider '{provider.name}' has already assigned "
+            msg += f"a project to user group '{user_group.name}'."
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
+                status_code=status.HTTP_400_BAD_REQUEST, detail=msg
             )
     # Create SLA
     db_obj = sla.create(obj_in=item)
