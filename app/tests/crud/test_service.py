@@ -1,21 +1,23 @@
 from typing import Generator
-
+from app.service.crud import service
+from app.service.schemas import ServiceCreate
+from app.tests.utils.provider import create_random_provider
 from app.tests.utils.service import (
     create_random_service,
     create_random_update_service_data,
-    random_service_type
+    random_service_type,
 )
 from app.tests.utils.utils import random_lower_string, random_url
-from app.service.crud import service
-from app.service.schemas import ServiceCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
     description = random_lower_string()
     endpoint = random_url()
     service_type = random_service_type()
-    item_in = ServiceCreate(endpoint=endpoint, description=description, type=service_type)
-    item = service.create(obj_in=item_in)
+    item_in = ServiceCreate(
+        endpoint=endpoint, description=description, type=service_type
+    )
+    item = service.create(obj_in=item_in, provider=create_random_provider())
     assert item.description == description
     assert item.endpoint == endpoint
     assert item.type == service_type
@@ -25,7 +27,7 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     endpoint = random_url()
     service_type = random_service_type()
     item_in = ServiceCreate(endpoint=endpoint, type=service_type)
-    item = service.create(obj_in=item_in)
+    item = service.create(obj_in=item_in, provider=create_random_provider())
     assert item.description == ""
     assert item.endpoint == endpoint
     assert item.type == service_type

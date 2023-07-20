@@ -1,5 +1,6 @@
 from typing import Generator
-
+from app.location.crud import location
+from app.location.schemas import LocationCreate
 from app.tests.utils.location import (
     create_random_location,
     create_random_update_location_data,
@@ -8,8 +9,6 @@ from app.tests.utils.location import (
     random_longitude,
 )
 from app.tests.utils.utils import random_lower_string
-from app.location.crud import location
-from app.location.schemas import LocationCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

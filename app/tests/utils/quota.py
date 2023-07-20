@@ -1,7 +1,10 @@
-from app.tests.utils.utils import random_lower_string, random_non_negative_float
 from app.quota.crud import quota
 from app.quota.models import Quota
 from app.quota.schemas import QuotaCreate, QuotaUpdate
+from app.tests.utils.utils import (
+    random_lower_string,
+    random_non_negative_float,
+)
 
 
 def create_random_quota() -> Quota:

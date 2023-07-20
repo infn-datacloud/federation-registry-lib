@@ -1,18 +1,18 @@
 from typing import Generator
 from uuid import uuid4
-
+from app.image.crud import image
+from app.image.schemas import ImageCreate
 from app.tests.utils.image import (
     create_random_image,
     create_random_update_image_data,
     random_os,
 )
+from app.tests.utils.provider import create_random_provider
 from app.tests.utils.utils import (
     random_lower_string,
     random_bool,
     random_datetime,
 )
-from app.image.crud import image
-from app.image.schemas import ImageCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
@@ -38,7 +38,7 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
         gpu_driver=gpu_driver,
         creation_time=creation_time,
     )
-    item = image.create(obj_in=item_in)
+    item = image.create(obj_in=item_in, provider=create_random_provider())
     assert item.description == description
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -66,7 +66,7 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
         version=version,
         architecture=architecture,
     )
-    item = image.create(obj_in=item_in)
+    item = image.create(obj_in=item_in, provider=create_random_provider())
     assert item.description == ""
     assert item.name == name
     assert item.uuid == str(uuid)

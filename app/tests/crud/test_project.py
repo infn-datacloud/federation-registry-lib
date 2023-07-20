@@ -1,13 +1,13 @@
 from typing import Generator
 from uuid import uuid4
-
+from app.project.crud import project
+from app.project.schemas import ProjectCreate
 from app.tests.utils.project import (
     create_random_project,
     create_random_update_project_data,
 )
+from app.tests.utils.provider import create_random_provider
 from app.tests.utils.utils import random_lower_string
-from app.project.crud import project
-from app.project.schemas import ProjectCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
@@ -27,7 +27,7 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
         private_network_proxy_host=private_network_proxy_host,
         private_network_proxy_user=private_network_proxy_user,
     )
-    item = project.create(obj_in=item_in)
+    item = project.create(obj_in=item_in, provider=create_random_provider())
     assert item.description == description
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -41,7 +41,7 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     uuid = uuid4()
     item_in = ProjectCreate(name=name, uuid=uuid)
-    item = project.create(obj_in=item_in)
+    item = project.create(obj_in=item_in, provider=create_random_provider())
     assert item.description == ""
     assert item.name == name
     assert item.uuid == str(uuid)

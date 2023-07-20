@@ -1,9 +1,8 @@
 import string
 import time
 from datetime import datetime, timezone
-from random import choices, getrandbits, randrange, randint
-
 from pydantic import AnyHttpUrl
+from random import choices, getrandbits, randrange, randint
 
 
 def random_lower_string() -> str:

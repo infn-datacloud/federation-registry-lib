@@ -1,5 +1,6 @@
 from typing import Generator
-
+from app.provider.crud import provider
+from app.provider.schemas_extended import ProviderCreateExtended
 from app.tests.utils.provider import (
     create_random_provider,
     create_random_update_provider_data,
@@ -9,8 +10,6 @@ from app.tests.utils.utils import (
     random_email,
     random_lower_string,
 )
-from app.provider.crud import provider
-from app.provider.schemas import ProviderCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
@@ -18,7 +17,7 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     is_public = random_bool()
     support_emails = [random_email()]
-    item_in = ProviderCreate(
+    item_in = ProviderCreateExtended(
         description=description,
         name=name,
         is_public=is_public,
@@ -33,7 +32,7 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
-    item_in = ProviderCreate(name=name)
+    item_in = ProviderCreateExtended(name=name)
     item = provider.create(obj_in=item_in)
     assert item.description == ""
     assert item.name == name

@@ -1,17 +1,17 @@
 from typing import Generator
 from uuid import uuid4
-
+from app.flavor.crud import flavor
+from app.flavor.schemas import FlavorCreate
 from app.tests.utils.flavor import (
     create_random_flavor,
     create_random_update_flavor_data,
 )
+from app.tests.utils.provider import create_random_provider
 from app.tests.utils.utils import (
     random_lower_string,
     random_non_negative_int,
     random_bool,
 )
-from app.flavor.crud import flavor
-from app.flavor.schemas import FlavorCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
@@ -37,7 +37,7 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
         gpu_model=gpu_model,
         gpu_vendor=gpu_vendor,
     )
-    item = flavor.create(obj_in=item_in)
+    item = flavor.create(obj_in=item_in, provider=create_random_provider())
     assert item.description == description
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -54,7 +54,7 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     uuid = uuid4()
     item_in = FlavorCreate(name=name, uuid=uuid)
-    item = flavor.create(obj_in=item_in)
+    item = flavor.create(obj_in=item_in, provider=create_random_provider())
     assert item.description == ""
     assert item.name == name
     assert item.uuid == str(uuid)

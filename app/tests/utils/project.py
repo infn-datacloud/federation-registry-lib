@@ -1,9 +1,9 @@
 from uuid import uuid4
-
-from app.tests.utils.utils import random_lower_string
 from app.project.crud import project
 from app.project.models import Project
 from app.project.schemas import ProjectCreate, ProjectUpdate
+from app.tests.utils.provider import create_random_provider
+from app.tests.utils.utils import random_lower_string
 
 
 def create_random_project() -> Project:
@@ -23,7 +23,7 @@ def create_random_project() -> Project:
         private_network_proxy_host=private_network_proxy_host,
         private_network_proxy_user=private_network_proxy_user,
     )
-    return project.create(obj_in=item_in)
+    return project.create(obj_in=item_in, provider=create_random_provider())
 
 
 def create_random_update_project_data() -> ProjectUpdate:

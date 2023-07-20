@@ -1,7 +1,12 @@
-from app.tests.utils.utils import random_bool, random_email, random_lower_string
 from app.provider.crud import provider
 from app.provider.models import Provider
-from app.provider.schemas import ProviderCreate, ProviderUpdate
+from app.provider.schemas import ProviderUpdate
+from app.provider.schemas_extended import ProviderCreateExtended
+from app.tests.utils.utils import (
+    random_bool,
+    random_email,
+    random_lower_string,
+)
 
 
 def create_random_provider() -> Provider:
@@ -9,7 +14,7 @@ def create_random_provider() -> Provider:
     name = random_lower_string()
     is_public = random_bool()
     support_email = [random_email()]
-    item_in = ProviderCreate(
+    item_in = ProviderCreateExtended(
         description=description,
         name=name,
         is_public=is_public,

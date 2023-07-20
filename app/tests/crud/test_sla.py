@@ -1,13 +1,14 @@
 from typing import Generator
 from uuid import uuid4
-
+from app.sla.crud import sla
+from app.sla.schemas import SLACreate
+from app.tests.utils.project import create_random_project
 from app.tests.utils.sla import (
     create_random_sla,
     create_random_update_sla_data,
 )
+from app.tests.utils.user_group import create_random_user_group
 from app.tests.utils.utils import random_lower_string, random_datetime
-from app.sla.crud import sla
-from app.sla.schemas import SLACreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
@@ -21,7 +22,11 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
         end_date=end_date,
         document_uuid=document_uuid,
     )
-    item = sla.create(obj_in=item_in)
+    item = sla.create(
+        obj_in=item_in,
+        project=create_random_project(),
+        user_group=create_random_user_group(),
+    )
     assert item.description == description
     assert item.start_date == start_date
     assert item.end_date == end_date
@@ -31,7 +36,11 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     start_date = random_datetime()
     item_in = SLACreate(start_date=start_date)
-    item = sla.create(obj_in=item_in)
+    item = sla.create(
+        obj_in=item_in,
+        project=create_random_project(),
+        user_group=create_random_user_group(),
+    )
     assert item.description == ""
     assert item.start_date == start_date
     assert item.end_date is None

@@ -1,11 +1,15 @@
 from random import choice
 from uuid import uuid4
-
-from app.tests.utils.utils import random_lower_string, random_bool, random_datetime
 from app.image.crud import image
 from app.image.models import Image
 from app.image.schemas import ImageCreate, ImageUpdate
 from app.image.enum import ImageOS
+from app.tests.utils.provider import create_random_provider
+from app.tests.utils.utils import (
+    random_lower_string,
+    random_bool,
+    random_datetime,
+)
 
 
 def create_random_image() -> Image:
@@ -31,7 +35,7 @@ def create_random_image() -> Image:
         gpu_driver=gpu_driver,
         creation_time=creation_time,
     )
-    return image.create(obj_in=item_in)
+    return image.create(obj_in=item_in, provider=create_random_provider())
 
 
 def create_random_update_image_data() -> ImageUpdate:

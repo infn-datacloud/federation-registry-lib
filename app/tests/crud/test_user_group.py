@@ -1,19 +1,21 @@
 from typing import Generator
-
+from app.user_group.crud import user_group
+from app.user_group.schemas import UserGroupCreate
+from app.tests.utils.identity_provider import create_random_identity_provider
 from app.tests.utils.user_group import (
     create_random_update_user_group_data,
     create_random_user_group,
 )
 from app.tests.utils.utils import random_lower_string
-from app.user_group.crud import user_group
-from app.user_group.schemas import UserGroupCreate
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     description = random_lower_string()
     item_in = UserGroupCreate(name=name, description=description)
-    item = user_group.create(obj_in=item_in)
+    item = user_group.create(
+        obj_in=item_in, identity_provider=create_random_identity_provider()
+    )
     assert item.name == name
     assert item.description == description
 
@@ -21,7 +23,9 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     item_in = UserGroupCreate(name=name)
-    item = user_group.create(obj_in=item_in)
+    item = user_group.create(
+        obj_in=item_in, identity_provider=create_random_identity_provider()
+    )
     assert item.name == name
     assert item.description == ""
 
