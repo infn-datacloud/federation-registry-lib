@@ -1,4 +1,8 @@
+from app.crud import CRUDBase
+from app.provider.models import Provider
+from app.quota.crud import quota
 from app.service.models import (
+    NovaService,
     Service,
     NovaService as NovaService,
     MesosService as MesosService,
@@ -26,17 +30,59 @@ from app.service.schemas import (
     OneDataServiceCreate,
     OneDataServiceUpdate,
 )
-from app.crud import CRUDBase
 
 
 class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
     """"""
+
+    def create(
+        self, *, obj_in: ServiceCreate, provider: Provider, force: bool = False
+    ) -> Service:
+        if isinstance(obj_in, NovaServiceCreate):
+            db_obj = nova_service.create(obj_in=obj_in, force=force)
+        elif isinstance(obj_in, MesosServiceCreate):
+            db_obj = mesos_service.create(obj_in=obj_in, force=force)
+        elif isinstance(obj_in, ChronosServiceCreate):
+            db_obj = chronos_service.create(obj_in=obj_in, force=force)
+        elif isinstance(obj_in, MarathonServiceCreate):
+            db_obj = marathon_service.create(obj_in=obj_in, force=force)
+        elif isinstance(obj_in, KubernetesServiceCreate):
+            db_obj = kubernetes_service.create(obj_in=obj_in, force=force)
+        elif isinstance(obj_in, RucioServiceCreate):
+            db_obj = rucio_service.create(obj_in=obj_in, force=force)
+        elif isinstance(obj_in, OneDataServiceCreate):
+            db_obj = onedata_service.create(obj_in=obj_in, force=force)
+        db_obj.provider.connect(provider)
+        return db_obj
+
+    def remove(self, *, db_obj: Service) -> bool:
+        if isinstance(db_obj, NovaServiceCreate):
+            return nova_service.remove(db_obj=db_obj)
+        elif isinstance(db_obj, MesosServiceCreate):
+            return mesos_service.remove(db_obj=db_obj)
+        elif isinstance(db_obj, ChronosServiceCreate):
+            return chronos_service.remove(db_obj=db_obj)
+        elif isinstance(db_obj, MarathonServiceCreate):
+            return marathon_service.remove(db_obj=db_obj)
+        elif isinstance(db_obj, KubernetesServiceCreate):
+            return kubernetes_service.remove(db_obj=db_obj)
+        elif isinstance(db_obj, RucioServiceCreate):
+            return rucio_service.remove(db_obj=db_obj)
+        elif isinstance(db_obj, OneDataServiceCreate):
+            return onedata_service.remove(db_obj=db_obj)
 
 
 class CRUDNovaService(
     CRUDBase[NovaService, NovaServiceCreate, NovaServiceUpdate]
 ):
     """"""
+
+    def remove(self, *, db_obj: NovaService) -> bool:
+        for item in db_obj.num_cpu_quotas.all():
+            quota.remove(item)
+        for item in db_obj.ram_quotas.all():
+            quota.remove(item)
+        return super().remove(db_obj=db_obj)
 
 
 class CRUDMesosService(
@@ -65,6 +111,13 @@ class CRUDKubernetesService(
     ]
 ):
     """"""
+
+    def remove(self, *, db_obj: KubernetesService) -> bool:
+        for item in db_obj.num_cpu_quotas.all():
+            quota.remove(item)
+        for item in db_obj.ram_quotas.all():
+            quota.remove(item)
+        return super().remove(db_obj=db_obj)
 
 
 class CRUDRucioService(

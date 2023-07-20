@@ -5,7 +5,7 @@ from typing import List
 from app.pagination import Pagination, paginate
 from app.provider.api.dependencies import valid_provider_id, valid_location
 from app.provider.crud import provider
-from app.provider.models import Provider 
+from app.provider.models import Provider
 from app.provider.schemas import ProviderQuery
 from app.provider.schemas_extended import (
     ProviderCreateExtended,
@@ -35,7 +35,7 @@ def get_providers(
     "/", status_code=status.HTTP_201_CREATED, response_model=ProviderExtended
 )
 def post_provider(item: ProviderCreateExtended = Depends(valid_location)):
-    return provider.create_with_all(obj_in=item)
+    return provider.create(obj_in=item, force=True)
 
 
 @db.read_transaction

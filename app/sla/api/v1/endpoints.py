@@ -4,15 +4,15 @@ from typing import List
 
 from app.pagination import Pagination, paginate
 from app.project.api.dependencies import project_has_no_sla
-from app.project.models import Project 
+from app.project.models import Project
 from app.query import CommonGetQuery
 from app.sla.api.dependencies import valid_sla_id, valid_document
 from app.sla.crud import sla
-from app.sla.models import SLA 
+from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
 from app.sla.schemas_extended import SLAReadExtended
 from app.user_group.api.dependencies import valid_user_group_id
-from app.user_group.models import UserGroup 
+from app.user_group.models import UserGroup
 
 router = APIRouter(prefix="/slas", tags=["slas"])
 
@@ -60,10 +60,9 @@ def post_sla(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=msg
             )
     # Create SLA
-    db_obj = sla.create(obj_in=item)
-    project.sla.connect(db_obj)
-    user_group.slas.connect(db_obj)
-    return db_obj
+    return sla.create(
+        obj_in=item, project=project, user_group=user_group, force=True
+    )
 
 
 @db.read_transaction

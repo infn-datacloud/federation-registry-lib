@@ -4,11 +4,11 @@ from typing import List, Optional, Union
 
 from app.pagination import Pagination, paginate
 from app.project.api.dependencies import valid_project_id
-from app.project.models import Project 
+from app.project.models import Project
 from app.query import CommonGetQuery
 from app.quota.api.dependencies import valid_quota_id
-from app.quota.crud import num_cpu_quota, ram_quota, quota
-from app.quota.models import Quota 
+from app.quota.crud import quota
+from app.quota.models import Quota
 from app.quota.schemas import (
     NumCPUQuotaCreate,
     QuotaQuery,
@@ -20,7 +20,7 @@ from app.quota.schemas_extended import (
     RAMQuotaReadExtended,
 )
 from app.service.api.dependencies import valid_service_id
-from app.service.models import Service 
+from app.service.models import Service
 
 router = APIRouter(prefix="/quotas", tags=["quotas"])
 
@@ -53,8 +53,8 @@ def post_quota(
     item: Union[NumCPUQuotaCreate, RAMQuotaCreate] = Body(),
 ):
     # Check project does not have duplicated quota types
-    for quota in project.quotas.all():
-        if quota.type == item.type and quota.service.single() == service:
+    for q in project.quotas.all():
+        if q.type == item.type and q.service.single() == service:
             msg = f"Project '{project.name}' already has a quota "
             msg += f"with type '{item.type}' on service '{service.endpoint}'."
             raise HTTPException(
@@ -69,15 +69,10 @@ def post_quota(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=msg
         )
-    # Create Quota
-    if isinstance(item, NumCPUQuotaCreate):
-        db_obj = num_cpu_quota.create(obj_in=item)
-        service.num_cpu_quotas.connect(db_obj)
-    elif isinstance(item, RAMQuotaCreate):
-        db_obj = ram_quota.create(obj_in=item)
-        service.ram_quotas.connect(db_obj)
-    project.quotas.connect(db_obj)
-    return db_obj
+
+    return quota.create(
+        obj_in=item, project=project, service=service, force=True
+    )
 
 
 @db.read_transaction

@@ -5,7 +5,7 @@ from typing import List, Optional
 from app.identity_provider.api.dependencies import valid_identity_provider_id
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import (
-    IdentityProvider ,
+    IdentityProvider,
 )
 from app.identity_provider.schemas import (
     IdentityProviderQuery,
@@ -13,6 +13,7 @@ from app.identity_provider.schemas import (
 )
 from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.pagination import Pagination, paginate
+from app.project.schemas_extended import UserGroupReadExtended
 from app.query import CommonGetQuery
 from app.user_group.schemas import UserGroupCreate
 from app.user_group.api.dependencies import is_unique_user_group
@@ -74,12 +75,12 @@ def delete_identity_providers(
 @router.post(
     "/{identity_provider_uid}/user_groups",
     status_code=status.HTTP_201_CREATED,
-    response_model=IdentityProviderReadExtended,
+    response_model=UserGroupReadExtended,
 )
 def post_user_group(
     db_item: IdentityProvider = Depends(valid_identity_provider_id),
     item: UserGroupCreate = Depends(is_unique_user_group),
 ):
-    db_obj = user_group.create(obj_in=item)
-    db_item.user_groups.connect(db_obj)
-    return db_item
+    return user_group.create(
+        obj_in=item, identity_provider=db_item, force=True
+    )
