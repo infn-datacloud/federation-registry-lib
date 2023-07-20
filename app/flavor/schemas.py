@@ -1,7 +1,8 @@
 from pydantic import UUID4, BaseModel, Field, root_validator
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeRead
+from app.query import create_query_model
 
 
 class FlavorBase(BaseModel):
@@ -12,31 +13,6 @@ class FlavorBase(BaseModel):
     ram: int = Field(ge=0, default=0)
     disk: int = Field(ge=0, default=0)
     infiniband_support: bool = False
-    gpu_model: Optional[str] = None
-    gpu_vendor: Optional[str] = None
-
-
-class FlavorQuery(BaseNodeQuery):
-    """Flavor Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        num_vcpus (int | None): Number of Virtual CPUs.
-        num_gpus (int | None): Number of GPUs.
-        ram (int | None): Reserved RAM (GB)
-        disk (int | None): Reserved disk size (GB)
-        infiniband_support (bool | None): TODO
-        gpu_model (str | None): GPU model name.
-        gpu_vendor (str | None): Name of the GPU vendor.
-    """
-
-    name: Optional[str] = None
-    uuid: Optional[UUID4] = None
-    num_vcpus: Optional[int] = Field(ge=0, default=None)
-    num_gpus: Optional[int] = Field(ge=0, default=None)
-    ram: Optional[int] = Field(ge=0, default=None)
-    disk: Optional[int] = Field(ge=0, default=None)
-    infiniband_support: Optional[bool] = None
     gpu_model: Optional[str] = None
     gpu_vendor: Optional[str] = None
 
@@ -107,3 +83,5 @@ class FlavorRead(BaseNodeRead, FlavorBase):
         gpu_model (str | None): GPU model name.
         gpu_vendor (str | None): Name of the GPU vendor.
     """
+
+FlavorQuery = create_query_model("FlavorQuery", FlavorBase)

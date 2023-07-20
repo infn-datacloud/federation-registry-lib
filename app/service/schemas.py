@@ -1,8 +1,8 @@
 from pydantic import AnyHttpUrl, BaseModel, Extra, validator
-from typing import Optional
 
+from app.models import BaseNodeCreate, BaseNodeRead
+from app.query import create_query_model
 from app.service.enum import ServiceType
-from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 
 
 class ServiceBase(BaseModel, extra=Extra.allow):
@@ -19,18 +19,6 @@ class ServiceBase(BaseModel, extra=Extra.allow):
 
     endpoint: AnyHttpUrl
     type: ServiceType
-
-
-class ServiceQuery(BaseNodeQuery):
-    """Service Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        endpoint (str | None): URL pointing to this service
-    """
-
-    endpoint: Optional[AnyHttpUrl] = None
-    type: Optional[ServiceType] = None
 
 
 class ServiceCreate(BaseNodeCreate, ServiceBase):
@@ -57,6 +45,9 @@ class ServiceUpdate(ServiceBase):
         endpoint (str): URL pointing to this service
         type (ServiceTypeUpdate): Service type.
     """
+
+
+ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
 
 
 class NovaBase(BaseModel, extra=Extra.ignore):

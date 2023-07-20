@@ -1,31 +1,13 @@
 from pydantic import UUID4, BaseModel
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeRead
+from app.query import create_query_model
 
 
 class ProjectBase(BaseModel):
     name: str
     uuid: UUID4
-    public_network_name: Optional[str] = None
-    private_network_name: Optional[str] = None
-    private_network_proxy_host: Optional[str] = None
-    private_network_proxy_user: Optional[str] = None
-
-
-class ProjectQuery(BaseNodeQuery):
-    """Project Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        public_network_name (str | None): TODO
-        private_network_name (str | None): TODO
-        private_network_proxy_host (str | None): TODO
-        private_network_proxy_user (str | None): TODO
-    """
-
-    name: Optional[str] = None
-    uuid: Optional[UUID4] = None
     public_network_name: Optional[str] = None
     private_network_name: Optional[str] = None
     private_network_proxy_host: Optional[str] = None
@@ -78,3 +60,6 @@ class ProjectRead(BaseNodeRead, ProjectBase):
         private_network_proxy_host (str | None): TODO
         private_network_proxy_user (str | None): TODO
     """
+
+
+ProjectQuery = create_query_model("ProjectQuery", ProjectBase)

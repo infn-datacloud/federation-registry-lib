@@ -1,24 +1,12 @@
 from pydantic import AnyHttpUrl, BaseModel
-from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeRead
+from app.query import create_query_model
 
 
 class IdentityProviderBase(BaseModel):
     endpoint: AnyHttpUrl
     group_claim: str
-
-
-class IdentityProviderQuery(BaseNodeQuery):
-    """IdentityProvider Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        endpoint (str | None): URL of the IdentityProvider.
-    """
-
-    endpoint: Optional[AnyHttpUrl] = None
-    group_claim: Optional[str] = None
 
 
 class IdentityProviderCreate(BaseNodeCreate, IdentityProviderBase):
@@ -58,3 +46,8 @@ class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
         description (str): Brief description.
         endpoint (str): URL of the IdentityProvider.
     """
+
+
+IdentityProviderQuery = create_query_model(
+    "IdentityProviderQuery", IdentityProviderBase
+)

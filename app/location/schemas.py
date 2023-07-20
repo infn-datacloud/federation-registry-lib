@@ -2,31 +2,13 @@ from pycountry import countries
 from pydantic import BaseModel, Field, root_validator
 from typing import Dict, Optional
 
-from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeRead
+from app.query import create_query_model
 
 
 class LocationBase(BaseModel):
     name: str
     country: str
-    latitude: Optional[float] = Field(ge=-180, le=180, default=None)
-    longitude: Optional[float] = Field(ge=-90, le=90, default=None)
-
-
-class LocationQuery(BaseNodeQuery):
-    """Location BQuery Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        name (str | None): Location unique name.
-        country (str | None): Country name.
-        country_code (str | None): Country code.
-        latitude (float | None): Latitude coordinate.
-        longitude (float | None): Longitude coordinate.
-    """
-
-    name: Optional[str] = None
-    country: Optional[str] = None
-    country_code: Optional[str] = None
     latitude: Optional[float] = Field(ge=-180, le=180, default=None)
     longitude: Optional[float] = Field(ge=-90, le=90, default=None)
 
@@ -88,3 +70,6 @@ class LocationRead(BaseNodeRead, LocationBase):
         matches = countries.search_fuzzy(values["country"])
         values["country_code"] = matches[0].alpha_3
         return values
+
+
+LocationQuery = create_query_model("LocationQuery", LocationBase)

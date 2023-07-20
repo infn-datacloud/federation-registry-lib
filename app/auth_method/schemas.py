@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Extra
-from typing import Optional
+
 
 class AuthMethodBase(BaseModel):
     idp_name: str
@@ -8,25 +8,6 @@ class AuthMethodBase(BaseModel):
     class Config:
         validate_assignment = True
         extra = Extra.ignore
-
-class AuthMethodQuery(BaseModel):
-    """AuthMethod Create class
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
-
-
-    Attributes:
-        idp_name (str): Identity Provider name saved in the Provider.
-        protocol (str): Protocol to use when authenticating on this
-            identity provider.
-    """
-
-    idp_name: Optional[str] = None
-    protocol: Optional[str] = None
-
-    class Config:
-        validate_assignment = True
 
 
 class AuthMethodCreate(AuthMethodBase):
@@ -41,8 +22,6 @@ class AuthMethodCreate(AuthMethodBase):
         protocol (str): Protocol to use when authenticating on this
             identity provider.
     """
-
-    
 
 
 class AuthMethodUpdate(AuthMethodCreate):

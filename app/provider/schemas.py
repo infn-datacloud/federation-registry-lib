@@ -1,28 +1,14 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
 
-from app.models import BaseNodeQuery, BaseNodeCreate, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeRead
+from app.query import create_query_model
 
 
 class ProviderBase(BaseModel):
     name: str
     is_public: bool = False
     support_emails: List[EmailStr] = Field(default_factory=list)
-
-
-class ProviderQuery(BaseNodeQuery):
-    """Provider Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        name (str | None): Provider name (type).
-        is_public (bool | None): Public or private provider.
-        support_emails (list of str | None): List of maintainers emails.
-    """
-
-    name: Optional[str] = None
-    is_public: Optional[bool] = None
-    support_emails: Optional[List[EmailStr]] = None
 
 
 class ProviderCreate(BaseNodeCreate, ProviderBase):
@@ -75,3 +61,6 @@ class ProviderRead(BaseNodeRead, ProviderBase):
         is_public (bool): Public or private provider.
         support_emails (list of str): List of maintainers emails.
     """
+
+
+ProviderQuery = create_query_model("ProviderQuery", ProviderBase)

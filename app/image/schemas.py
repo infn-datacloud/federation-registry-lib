@@ -3,7 +3,8 @@ from pydantic import UUID4, BaseModel
 from typing import Optional
 
 from app.image.enum import ImageOS
-from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from app.models import BaseNodeCreate, BaseNodeRead
+from app.query import create_query_model
 
 
 class ImageBase(BaseModel):
@@ -15,31 +16,6 @@ class ImageBase(BaseModel):
     architecture: str
     cuda_support: bool = False
     gpu_driver: bool = False
-    creation_time: Optional[datetime] = None
-
-
-class ImageQuery(BaseNodeQuery):
-    """Image Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        os (str | None): Image Operating System.
-        distribution (str | None): OS distribution.
-        version (str | None): Distribution version.
-        architecture (str | None): OS architecture.
-        cuda_support (str | None): Support for cuda enabled.
-        gpu_driver (str | None): Support for GPUs.
-        creation_time (datetime | None): Image creation time.
-    """
-
-    name: Optional[str] = None
-    uuid: Optional[UUID4] = None
-    os: Optional[ImageOS] = None
-    distribution: Optional[str] = None
-    version: Optional[str] = None
-    architecture: Optional[str] = None
-    cuda_support: Optional[bool] = None
-    gpu_driver: Optional[bool] = None
     creation_time: Optional[datetime] = None
 
 
@@ -98,3 +74,6 @@ class ImageRead(BaseNodeRead, ImageBase):
         gpu_driver (str): Support for GPUs.
         creation_time (datetime | None): Image creation time.
     """
+
+
+ImageQuery = create_query_model("ImageQuery", ImageBase)
