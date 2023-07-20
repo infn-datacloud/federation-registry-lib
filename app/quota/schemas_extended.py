@@ -33,5 +33,6 @@ class QuotaReadExtended(QuotaRead):
 class NumCPUQuotaReadExtended(NumCPUQuotaRead, QuotaReadExtended):
     pass
 
+
 class RAMQuotaReadExtended(RAMQuotaRead, QuotaReadExtended):
     pass

@@ -32,9 +32,7 @@ class RAMQuotaReadExtended(RAMQuotaRead, ExtendWithProject):
 
 
 class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
-    num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(
-        default_factory=list
-    )
+    num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(default_factory=list)
     ram_quotas: List[RAMQuotaReadExtended] = Field(default_factory=list)
 
 
@@ -51,9 +49,7 @@ class MarathonServiceReadExtended(MarathonServiceRead, ExtendWithProvider):
 
 
 class KubernetesServiceReadExtended(KubernetesServiceRead, ExtendWithProvider):
-    num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(
-        default_factory=list
-    )
+    num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(default_factory=list)
     ram_quotas: List[RAMQuotaReadExtended] = Field(default_factory=list)
 
 

@@ -84,4 +84,5 @@ class FlavorRead(BaseNodeRead, FlavorBase):
         gpu_vendor (str | None): Name of the GPU vendor.
     """
 
+
 FlavorQuery = create_query_model("FlavorQuery", FlavorBase)

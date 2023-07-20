@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.location.api.dependencies import valid_location_id
 from app.location.crud import location
-from app.location.models import Location 
+from app.location.models import Location
 from app.location.schemas import LocationQuery, LocationRead, LocationUpdate
 from app.location.schemas_extended import LocationReadExtended
 from app.pagination import Pagination, paginate

@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from app.service.api.dependencies import valid_service_id
 from app.service.crud import service
-from app.service.models import Service 
+from app.service.models import Service
 from app.service.schemas import ServiceQuery, ServiceUpdate
 from app.service.schemas_extended import (
     ChronosServiceReadExtended,

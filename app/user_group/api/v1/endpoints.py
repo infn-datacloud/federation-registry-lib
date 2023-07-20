@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 from app.flavor.schemas import FlavorRead
 from app.image.schemas import ImageRead
-from app.project.models import Project 
+from app.project.models import Project
 from app.project.api.dependencies import valid_project_id
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
@@ -22,7 +22,7 @@ from app.user_group.api.dependencies import (
     is_unique_user_group,
 )
 from app.user_group.crud import user_group
-from app.user_group.models import UserGroup 
+from app.user_group.models import UserGroup
 from app.user_group.schemas import (
     UserGroupQuery,
     UserGroupUpdate,

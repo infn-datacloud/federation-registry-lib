@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from app.image.api.dependencies import valid_image_id
 from app.image.crud import image
-from app.image.models import Image 
+from app.image.models import Image
 from app.image.schemas import ImageQuery, ImageUpdate
 from app.image.schemas_extended import ImageReadExtended
 from app.pagination import Pagination, paginate
@@ -34,9 +34,7 @@ def get_image(item: Image = Depends(valid_image_id)):
 
 @db.write_transaction
 @router.put("/{image_uid}", response_model=Optional[ImageReadExtended])
-def put_image(
-    update_data: ImageUpdate, item: Image = Depends(valid_image_id)
-):
+def put_image(update_data: ImageUpdate, item: Image = Depends(valid_image_id)):
     return image.update(db_obj=item, obj_in=update_data)
 
 
