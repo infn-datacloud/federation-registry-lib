@@ -1,5 +1,5 @@
 from app.service.models import (
-    Service ,
+    Service,
     NovaService as NovaService,
     MesosService as MesosService,
     ChronosService as ChronosService,
@@ -52,9 +52,7 @@ class CRUDChronosService(
 
 
 class CRUDMarathonService(
-    CRUDBase[
-        MarathonService, MarathonServiceCreate, MarathonServiceUpdate
-    ]
+    CRUDBase[MarathonService, MarathonServiceCreate, MarathonServiceUpdate]
 ):
     """"""
 
@@ -85,9 +83,7 @@ service = CRUDService(Service, ServiceCreate)
 nova_service = CRUDNovaService(NovaService, NovaServiceCreate)
 mesos_service = CRUDMesosService(MesosService, MesosServiceCreate)
 chronos_service = CRUDChronosService(ChronosService, ChronosServiceCreate)
-marathon_service = CRUDMarathonService(
-    MarathonService, MarathonServiceCreate
-)
+marathon_service = CRUDMarathonService(MarathonService, MarathonServiceCreate)
 kubernetes_service = CRUDKubernetesService(
     KubernetesService, KubernetesServiceCreate
 )

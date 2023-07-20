@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from app.provider.models import Provider 
+from app.provider.models import Provider
 from app.provider.schemas import ProviderCreate, ProviderUpdate
 from app.provider.schemas_extended import (
     ProviderCreateExtended,
@@ -24,6 +24,7 @@ from app.service.crud import (
     kubernetes_service,
     rucio_service,
     onedata_service,
+    service,
 )
 from app.service.schemas import (
     ChronosServiceCreate,
@@ -122,9 +123,7 @@ class CRUDProvider(CRUDBase[Provider, ProviderCreate, ProviderUpdate]):
                 db_service = onedata_service.create(obj_in=obj_in, force=True)
             db_obj.services.connect(db_service)
 
-    def create_with_all(
-        self, *, obj_in: ProviderCreateExtended
-    ) -> Provider:
+    def create_with_all(self, *, obj_in: ProviderCreateExtended) -> Provider:
         db_obj = self.create(obj_in=obj_in)
         if obj_in.location is not None:
             self.create_and_connect_location(
@@ -144,6 +143,17 @@ class CRUDProvider(CRUDBase[Provider, ProviderCreate, ProviderUpdate]):
             db_obj=db_obj, new_items=obj_in.services
         )
         return db_obj
+
+    def remove(self, *, db_obj: Provider) -> bool:
+        for item in db_obj.flavors.all():
+            flavor.remove(item)
+        for item in db_obj.images.all():
+            image.remove(item)
+        for item in db_obj.projects.all():
+            project.remove(item)
+        for item in db_obj.services.all():
+            service.remove(item)
+        return super().remove(db_obj=db_obj)
 
 
 provider = CRUDProvider(Provider, ProviderCreate)
