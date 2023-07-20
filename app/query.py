@@ -64,7 +64,6 @@ def create_query_model(model_name: str, base_model: BaseModel):
             d[f"{k}__ne"] = t
         elif issubclass(v.type_, datetime):
             t = (Optional[datetime], None)
-            d[k] = t
             d[f"{k}__lt"] = t
             d[f"{k}__gt"] = t
             d[f"{k}__lte"] = t
