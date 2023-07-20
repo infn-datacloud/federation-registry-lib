@@ -55,9 +55,9 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     uuid = uuid4()
     item_in = FlavorCreate(name=name, uuid=uuid)
     item = flavor.create(obj_in=item_in)
+    assert item.description == ""
     assert item.name == name
     assert item.uuid == str(uuid)
-    assert item.description == ""
     assert item.num_vcpus == 0
     assert item.num_gpus == 0
     assert item.ram == 0
@@ -72,6 +72,8 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     stored_item = flavor.get(uid=item.uid)
     assert stored_item
     assert item.uid == stored_item.uid
+    assert item.name == stored_item.name
+    assert item.uuid == stored_item.uuid
     assert item.description == stored_item.description
     assert item.num_vcpus == stored_item.num_vcpus
     assert item.num_gpus == stored_item.num_gpus
@@ -95,6 +97,8 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
     assert len(stored_items) == 1
     assert stored_items[0].uid == item.uid
     assert stored_items[0].description == item.description
+    assert stored_items[0].name == item.name
+    assert stored_items[0].uuid == item.uuid
     assert stored_items[0].num_vcpus == item.num_vcpus
     assert stored_items[0].num_gpus == item.num_gpus
     assert stored_items[0].ram == item.ram

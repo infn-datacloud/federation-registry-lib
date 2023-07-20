@@ -57,6 +57,8 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     assert stored_item
     assert item.uid == stored_item.uid
     assert item.description == stored_item.description
+    assert item.name == stored_item.name
+    assert item.uuid == stored_item.uuid
     assert item.public_network_name == stored_item.public_network_name
     assert item.private_network_name == stored_item.private_network_name
     assert (
@@ -82,6 +84,8 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
     assert len(stored_items) == 1
     assert stored_items[0].uid == item.uid
     assert stored_items[0].description == item.description
+    assert stored_items[0].name == item.name
+    assert stored_items[0].uuid == item.uuid
     assert stored_items[0].public_network_name == item.public_network_name
     assert stored_items[0].private_network_name == item.private_network_name
     assert (

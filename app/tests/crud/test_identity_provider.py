@@ -41,12 +41,14 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     assert item.uid == stored_item.uid
     assert item.description == stored_item.description
     assert item.endpoint == stored_item.endpoint
+    assert item.group_claim == stored_item.group_claim
 
     stored_item = identity_provider.get(endpoint=item.endpoint)
     assert stored_item
     assert item.uid == stored_item.uid
     assert item.description == stored_item.description
     assert item.endpoint == stored_item.endpoint
+    assert item.group_claim == stored_item.group_claim
 
 
 def test_get_items(setup_and_teardown_db: Generator) -> None:
@@ -63,6 +65,7 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
     assert stored_items[0].uid == item.uid
     assert stored_items[0].description == item.description
     assert stored_items[0].endpoint == item.endpoint
+    assert stored_items[0].group_claim == item.group_claim
 
     sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
     stored_items = identity_provider.get_multi(sort="uid")

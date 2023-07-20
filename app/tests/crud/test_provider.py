@@ -4,7 +4,11 @@ from app.tests.utils.provider import (
     create_random_provider,
     create_random_update_provider_data,
 )
-from app.tests.utils.utils import random_bool, random_email, random_lower_string
+from app.tests.utils.utils import (
+    random_bool,
+    random_email,
+    random_lower_string,
+)
 from app.provider.crud import provider
 from app.provider.schemas import ProviderCreate
 

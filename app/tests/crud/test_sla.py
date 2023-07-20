@@ -25,6 +25,7 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     assert item.description == description
     assert item.start_date == start_date
     assert item.end_date == end_date
+    assert item.document_uuid == str(document_uuid)
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
@@ -45,6 +46,7 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     assert item.description == stored_item.description
     assert item.start_date == stored_item.start_date
     assert item.end_date == stored_item.end_date
+    assert item.document_uuid == stored_item.document_uuid
 
 
 def test_get_items(setup_and_teardown_db: Generator) -> None:
@@ -62,6 +64,7 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
     assert stored_items[0].description == item.description
     assert stored_items[0].start_date == item.start_date
     assert stored_items[0].end_date == item.end_date
+    assert stored_items[0].document_uuid == item.document_uuid
 
     sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
     stored_items = sla.get_multi(sort="uid")

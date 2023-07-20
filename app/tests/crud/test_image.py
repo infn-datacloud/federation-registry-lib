@@ -85,6 +85,8 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     assert stored_item
     assert item.uid == stored_item.uid
     assert item.description == stored_item.description
+    assert item.name == stored_item.name
+    assert item.uuid == stored_item.uuid
     assert item.os == stored_item.os
     assert item.distribution == stored_item.distribution
     assert item.version == stored_item.version
@@ -107,6 +109,8 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
     assert len(stored_items) == 1
     assert stored_items[0].uid == item.uid
     assert stored_items[0].description == item.description
+    assert stored_items[0].name == item.name
+    assert stored_items[0].uuid == item.uuid
     assert stored_items[0].os == item.os
     assert stored_items[0].distribution == item.distribution
     assert stored_items[0].version == item.version
