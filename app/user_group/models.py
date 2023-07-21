@@ -10,6 +10,7 @@ from neomodel import (
 
 from app.flavor.models import Flavor
 from app.image.models import Image
+from app.provider.models import Provider
 from app.service.models import Service
 
 
@@ -42,14 +43,14 @@ class UserGroup(StructuredNode):
     query_prefix = """
         MATCH (g:UserGroup)
         WHERE (id(g)=$self)
-        MATCH (g)-[:MATCH_PROJECT]->(p)
+        MATCH (g)-[:AGREE]-(s)-[:REFER_TO]->(p)
         """
 
     def flavors(self) -> List[Flavor]:
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
-                MATCH (p)-[:CAN_USE_FLAVOR]->(u)
+                MATCH (p)-[:CAN_USE_VM_FLAVOR]->(u)
                 RETURN u
             """
         )
@@ -60,26 +61,28 @@ class UserGroup(StructuredNode):
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
-                MATCH (p)-[:CAN_USE_IMAGE]->(u)
+                MATCH (p)-[:CAN_USE_VM_IMAGE]->(u)
                 RETURN u
             """
         )
         return [Image.inflate(row[0]) for row in results]
 
+    def providers(self) -> List[Provider]:
+        results, columns = self.cypher(
+            f"""
+                {self.query_prefix}
+                MATCH (p)<-[:BOOK_PROJECT_FOR_SLA]-(u)
+                RETURN u
+            """
+        )
+        return [Provider.inflate(row[0]) for row in results]
+
     def services(self) -> List[Service]:
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
-                MATCH (p)-[:USE_SERVICE_WITH_QUOTA]->(q)-[:APPLIES_TO]->(s)
-                RETURN s
+                MATCH (p)-[:USE_SERVICE_WITH]->(q)-[:APPLY_TO]->(u)
+                RETURN u
             """
         )
         return [Service.inflate(row[0]) for row in results]
-
-
-#        services = {}
-#        for row in results:
-#            service = Service.inflate(row[0])
-#            if service.uid not in services.keys():
-#                services[service.uid] = service
-#        return list(services.values())

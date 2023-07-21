@@ -5,6 +5,7 @@ from typing import List, Optional, Union
 from app.flavor.schemas import FlavorRead
 from app.image.schemas import ImageRead
 from app.pagination import Pagination, paginate
+from app.provider.schemas import ProviderRead
 from app.query import CommonGetQuery
 from app.service.schemas import (
     ChronosServiceRead,
@@ -89,6 +90,14 @@ def read_user_group_images(
     item: UserGroup = Depends(valid_user_group_id),
 ):
     return item.images()
+
+
+@db.read_transaction
+@router.get("/{user_group_uid}/providers", response_model=List[ProviderRead])
+def read_user_group_providers(
+    item: UserGroup = Depends(valid_user_group_id),
+):
+    return item.providers()
 
 
 @db.read_transaction
