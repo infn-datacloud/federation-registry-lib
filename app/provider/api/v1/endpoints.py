@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List
 from app.identity_provider.api.dependencies import valid_identity_provider_id
@@ -72,9 +72,13 @@ def get_provider(item: Provider = Depends(valid_provider_id)):
 @router.put("/{provider_uid}", response_model=ProviderReadExtended)
 def put_provider(
     update_data: ProviderUpdate,
+    response: Response,
     item: Provider = Depends(valid_provider_id),
 ):
-    return provider.update(db_obj=item, obj_in=update_data)
+    db_item = provider.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
 
 
 @db.write_transaction

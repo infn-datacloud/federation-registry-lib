@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional, Union
 
@@ -58,12 +58,16 @@ def get_user_group(item: UserGroup = Depends(valid_user_group_id)):
     "/{user_group_uid}", response_model=Optional[UserGroupReadExtended]
 )
 def put_user_group(
+    update_data: UserGroupUpdate,
+    response: Response,
     item: UserGroup = Depends(valid_user_group_id),
-    update_data: UserGroupUpdate = Body(),
 ):
     if item.name != update_data.name:
-        is_unique_user_group(update_data)
-    return user_group.update(db_obj=item, obj_in=update_data)
+        update_data = is_unique_user_group(update_data)
+    db_item = user_group.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
 
 
 @db.write_transaction

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional
 
@@ -34,8 +34,15 @@ def get_image(item: Image = Depends(valid_image_id)):
 
 @db.write_transaction
 @router.put("/{image_uid}", response_model=Optional[ImageReadExtended])
-def put_image(update_data: ImageUpdate, item: Image = Depends(valid_image_id)):
-    return image.update(db_obj=item, obj_in=update_data)
+def put_image(
+    update_data: ImageUpdate,
+    response: Response,
+    item: Image = Depends(valid_image_id),
+):
+    db_item = image.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
 
 
 @db.write_transaction

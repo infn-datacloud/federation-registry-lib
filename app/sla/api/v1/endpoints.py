@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List
 
@@ -76,8 +76,15 @@ def get_sla(item: SLA = Depends(valid_sla_id)):
 
 @db.write_transaction
 @router.put("/{sla_uid}", response_model=SLAReadExtended)
-def put_sla(update_data: SLAUpdate, item: SLA = Depends(valid_sla_id)):
-    return sla.update(db_obj=item, obj_in=update_data)
+def put_sla(
+    update_data: SLAUpdate,
+    response: Response,
+    item: SLA = Depends(valid_sla_id),
+):
+    db_item = sla.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
 
 
 @db.write_transaction

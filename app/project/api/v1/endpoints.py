@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional
 
@@ -39,10 +39,14 @@ def get_project(item: Project = Depends(valid_project_id)):
 @db.write_transaction
 @router.put("/{project_uid}", response_model=Optional[ProjectReadExtended])
 def put_project(
-    update_data: ProjectUpdate, item: Project = Depends(valid_project_id)
+    update_data: ProjectUpdate,
+    response: Response,
+    item: Project = Depends(valid_project_id),
 ):
-    return project.update(db_obj=item, obj_in=update_data)
-
+    db_item = project.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
 
 @db.write_transaction
 @router.delete("/{project_uid}", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional
 
@@ -35,9 +35,14 @@ def get_flavor(item: Flavor = Depends(valid_flavor_id)):
 @db.write_transaction
 @router.put("/{flavor_uid}", response_model=Optional[FlavorReadExtended])
 def put_flavor(
-    update_data: FlavorUpdate, item: Flavor = Depends(valid_flavor_id)
+    update_data: FlavorUpdate,
+    response: Response,
+    item: Flavor = Depends(valid_flavor_id),
 ):
-    return flavor.update(db_obj=item, obj_in=update_data)
+    db_item = flavor.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
 
 
 @db.write_transaction

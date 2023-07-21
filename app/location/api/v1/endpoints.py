@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional
 
@@ -36,9 +36,13 @@ def get_location(item: Location = Depends(valid_location_id)):
 @router.put("/{location_uid}", response_model=Optional[LocationReadExtended])
 def put_location(
     update_data: LocationUpdate,
+    response: Response,
     item: Location = Depends(valid_location_id),
 ):
-    return location.update(db_obj=item, obj_in=update_data)
+    db_item = location.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
 
 
 @db.write_transaction

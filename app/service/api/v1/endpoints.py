@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional, Union
 
@@ -82,9 +82,13 @@ def get_service(item: Service = Depends(valid_service_id)):
 )
 def put_service(
     update_data: ServiceUpdate,
+    response: Response,
     item: Service = Depends(valid_service_id),
 ):
-    return service.update(db_obj=item, obj_in=update_data)
+    db_item = service.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
 
 
 @db.write_transaction

@@ -60,7 +60,14 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         *,
         db_obj: ModelType,
         obj_in: Union[UpdateSchemaType, Dict[str, Any]]
-    ) -> ModelType:
+    ) -> Optional[ModelType]:
+        if all(
+            [
+                db_obj.__getattribute__(k) == v
+                for k, v in obj_in.dict(exclude_unset=True).items()
+            ]
+        ):
+            return None
         obj_data = db_obj.__dict__
         if isinstance(obj_in, dict):
             update_data = obj_in
