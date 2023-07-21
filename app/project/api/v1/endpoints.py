@@ -69,9 +69,13 @@ def delete_project(item: Project = Depends(valid_project_id)):
 @db.write_transaction
 @router.put("/{user_group_uid}/flavors", response_model=ProjectReadExtended)
 def connect_user_group_flavor(
+    response: Response,
     item: Project = Depends(valid_project_id),
     flavor: Flavor = Depends(valid_flavor_id),
 ):
+    if item.flavors.is_connected(flavor):
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+        return None
     item.flavors.connect(flavor)
     return item
 
@@ -79,9 +83,13 @@ def connect_user_group_flavor(
 @db.write_transaction
 @router.delete("/{user_group_uid}/flavors", response_model=ProjectReadExtended)
 def disconnect_user_group_flavor(
+    response: Response,
     item: Project = Depends(valid_project_id),
     flavor: Flavor = Depends(valid_flavor_id),
 ):
+    if not item.flavors.is_connected(flavor):
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+        return None
     item.flavors.disconnect(flavor)
     return item
 
@@ -89,9 +97,13 @@ def disconnect_user_group_flavor(
 @db.write_transaction
 @router.put("/{project_uid}/images", response_model=ProjectReadExtended)
 def connect_user_group_images_link(
+    response: Response,
     item: Project = Depends(valid_project_id),
     image: Image = Depends(valid_image_id),
 ):
+    if item.images.is_connected(image):
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+        return None
     item.images.connect(image)
     return item
 
@@ -99,8 +111,12 @@ def connect_user_group_images_link(
 @db.write_transaction
 @router.delete("/{project_uid}/images", response_model=ProjectReadExtended)
 def disconnect_user_group_images_link(
+    response: Response,
     item: Project = Depends(valid_project_id),
     image: Image = Depends(valid_image_id),
 ):
+    if not item.images.is_connected(image):
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+        return None
     item.images.disconnect(image)
     return item

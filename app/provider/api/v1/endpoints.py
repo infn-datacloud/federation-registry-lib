@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
-from typing import List
+from typing import List, Union
+from app.auth_method.schemas import AuthMethodCreate, AuthMethodUpdate
 
 from app.identity_provider.api.dependencies import valid_identity_provider_id
 from app.identity_provider.models import IdentityProvider
@@ -101,10 +102,23 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
     "/{project_uid}/identity_providers", response_model=ProviderReadExtended
 )
 def connect_user_group_identity_providers_link(
+    data: Union[AuthMethodCreate, AuthMethodUpdate],
+    response: Response,
     item: Provider = Depends(valid_provider_id),
     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
 ):
-    item.identity_providers.connect(identity_provider)
+    if item.identity_providers.is_connected(identity_provider):
+        db_item = item.identity_providers.relationship(identity_provider)
+        if all(
+            [
+                db_item.__getattribute__(k) == v
+                for k, v in data.dict(exclude_unset=True).items()
+            ]
+        ):
+            response.status_code = status.HTTP_304_NOT_MODIFIED
+            return None
+        item.identity_providers.disconnect(identity_provider)
+    item.identity_providers.connect(identity_provider, data)
     return item
 
 
@@ -113,9 +127,13 @@ def connect_user_group_identity_providers_link(
     "/{project_uid}/identity_providers", response_model=ProviderReadExtended
 )
 def disconnect_user_group_identity_providers_link(
+    response: Response,
     item: Provider = Depends(valid_provider_id),
     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
 ):
+    if not item.identity_providers.is_connected(identity_provider):
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+        return None
     item.identity_providers.disconnect(identity_provider)
     return item
 
@@ -123,13 +141,17 @@ def disconnect_user_group_identity_providers_link(
 @db.write_transaction
 @router.put("/{user_group_uid}/locations", response_model=ProviderReadExtended)
 def connect_user_group_location(
+    response: Response,
     item: Provider = Depends(valid_provider_id),
     location: Location = Depends(valid_location_id),
 ):
-    if item.location is None:
+    if item.location.single() is None:
         item.location.connect(location)
-    else:
+    elif not item.location.is_connected(location):
         item.location.replace(location)
+    else:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+        return None
     return item
 
 
@@ -138,8 +160,12 @@ def connect_user_group_location(
     "/{user_group_uid}/locations", response_model=ProviderReadExtended
 )
 def disconnect_user_group_location(
+    response: Response,
     item: Provider = Depends(valid_provider_id),
     location: Location = Depends(valid_location_id),
 ):
+    if not item.location.is_connected(location):
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+        return None
     item.location.disconnect(location)
     return item
