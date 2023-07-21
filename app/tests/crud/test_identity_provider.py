@@ -1,4 +1,6 @@
 from typing import Generator
+from app.auth_method.schemas import AuthMethodCreate
+from app.tests.utils.provider import create_random_provider
 from app.tests.utils.utils import random_lower_string, random_url
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.schemas import IdentityProviderCreate
@@ -31,6 +33,29 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     assert item.description == ""
     assert item.endpoint == endpoint
     assert item.group_claim == group_claim
+
+
+def test_create_item_with_provider(setup_and_teardown_db: Generator) -> None:
+    endpoint = random_url()
+    group_claim = random_lower_string()
+    item_in = IdentityProviderCreate(
+        endpoint=endpoint, group_claim=group_claim
+    )
+    provider = create_random_provider()
+    idp_name = random_lower_string()
+    protocol = random_lower_string()
+    auth_method = AuthMethodCreate(idp_name=idp_name, protocol=protocol)
+    item = identity_provider.create(
+        obj_in=item_in, provider=provider, relationship=auth_method
+    )
+    assert item.description == ""
+    assert item.endpoint == endpoint
+    assert item.group_claim == group_claim
+    item_providers = item.providers.all()
+    assert len(item_providers) == 1
+    assert item_providers[0].uid == provider.uid
+    assert item.providers.relationship(provider).idp_name == auth_method.idp_name
+    assert item.providers.relationship(provider).protocol == auth_method.protocol
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

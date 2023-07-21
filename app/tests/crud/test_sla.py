@@ -22,29 +22,37 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
         end_date=end_date,
         document_uuid=document_uuid,
     )
-    item = sla.create(
-        obj_in=item_in,
-        project=create_random_project(),
-        user_group=create_random_user_group(),
-    )
+    project = create_random_project()
+    user_group = create_random_user_group()
+    item = sla.create(obj_in=item_in, project=project, user_group=user_group)
     assert item.description == description
     assert item.start_date == start_date
     assert item.end_date == end_date
     assert item.document_uuid == str(document_uuid)
+    item_project = item.project.single()
+    assert item_project is not None
+    assert item_project.uid == project.uid
+    item_user_group = item.user_group.single()
+    assert item_user_group is not None
+    assert item_user_group.uid == user_group.uid
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     start_date = random_datetime()
     item_in = SLACreate(start_date=start_date)
-    item = sla.create(
-        obj_in=item_in,
-        project=create_random_project(),
-        user_group=create_random_user_group(),
-    )
+    project = create_random_project()
+    user_group = create_random_user_group()
+    item = sla.create(obj_in=item_in, project=project, user_group=user_group)
     assert item.description == ""
     assert item.start_date == start_date
     assert item.end_date is None
     assert item.document_uuid is None
+    item_project = item.project.single()
+    assert item_project is not None
+    assert item_project.uid == project.uid
+    item_user_group = item.user_group.single()
+    assert item_user_group is not None
+    assert item_user_group.uid == user_group.uid
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

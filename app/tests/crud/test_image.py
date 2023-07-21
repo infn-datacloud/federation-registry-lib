@@ -38,7 +38,8 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
         gpu_driver=gpu_driver,
         creation_time=creation_time,
     )
-    item = image.create(obj_in=item_in, provider=create_random_provider())
+    provider = create_random_provider()
+    item = image.create(obj_in=item_in, provider=provider)
     assert item.description == description
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -49,6 +50,9 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     assert item.cuda_support == cuda_support
     assert item.gpu_driver == gpu_driver
     assert item.creation_time == creation_time
+    item_provider = item.provider.single()
+    assert item_provider is not None
+    assert item_provider.uid == provider.uid
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
@@ -66,7 +70,8 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
         version=version,
         architecture=architecture,
     )
-    item = image.create(obj_in=item_in, provider=create_random_provider())
+    provider = create_random_provider()
+    item = image.create(obj_in=item_in, provider=provider)
     assert item.description == ""
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -77,6 +82,9 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     assert item.cuda_support is False
     assert item.gpu_driver is False
     assert item.creation_time is None
+    item_provider = item.provider.single()
+    assert item_provider is not None
+    assert item_provider.uid == provider.uid
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

@@ -27,7 +27,8 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
         private_network_proxy_host=private_network_proxy_host,
         private_network_proxy_user=private_network_proxy_user,
     )
-    item = project.create(obj_in=item_in, provider=create_random_provider())
+    provider = create_random_provider()
+    item = project.create(obj_in=item_in, provider=provider)
     assert item.description == description
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -35,13 +36,17 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     assert item.private_network_name == private_network_name
     assert item.private_network_proxy_host == private_network_proxy_host
     assert item.private_network_proxy_user == private_network_proxy_user
+    item_provider = item.provider.single()
+    assert item_provider is not None
+    assert item_provider.uid == provider.uid
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     uuid = uuid4()
+    provider = create_random_provider()
     item_in = ProjectCreate(name=name, uuid=uuid)
-    item = project.create(obj_in=item_in, provider=create_random_provider())
+    item = project.create(obj_in=item_in, provider=provider)
     assert item.description == ""
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -49,6 +54,9 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     assert item.private_network_name is None
     assert item.private_network_proxy_host is None
     assert item.private_network_proxy_user is None
+    item_provider = item.provider.single()
+    assert item_provider is not None
+    assert item_provider.uid == provider.uid
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

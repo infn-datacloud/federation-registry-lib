@@ -8,6 +8,7 @@ from app.tests.utils.location import (
     random_latitude,
     random_longitude,
 )
+from app.tests.utils.provider import create_random_provider
 from app.tests.utils.utils import random_lower_string
 
 
@@ -42,6 +43,22 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     assert item.country == country
     assert item.latitude is None
     assert item.longitude is None
+
+
+def test_create_item_with_provider(setup_and_teardown_db: Generator) -> None:
+    name = random_lower_string()
+    country = random_country()
+    item_in = LocationCreate(name=name, country=country)
+    provider = create_random_provider()
+    item = location.create(obj_in=item_in, provider=provider)
+    assert item.description == ""
+    assert item.name == name
+    assert item.country == country
+    assert item.latitude is None
+    assert item.longitude is None
+    item_providers = item.providers.all()
+    assert len(item_providers) == 1
+    assert item_providers[0].uid == provider.uid
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

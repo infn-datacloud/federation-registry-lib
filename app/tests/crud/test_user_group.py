@@ -13,21 +13,29 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     description = random_lower_string()
     item_in = UserGroupCreate(name=name, description=description)
+    identity_provider = create_random_identity_provider()
     item = user_group.create(
-        obj_in=item_in, identity_provider=create_random_identity_provider()
+        obj_in=item_in, identity_provider=identity_provider
     )
     assert item.name == name
     assert item.description == description
+    item_identity_provider = item.identity_provider.single()
+    assert item_identity_provider is not None
+    assert item_identity_provider.uid == identity_provider.uid
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     item_in = UserGroupCreate(name=name)
+    identity_provider = create_random_identity_provider()
     item = user_group.create(
-        obj_in=item_in, identity_provider=create_random_identity_provider()
+        obj_in=item_in, identity_provider=identity_provider
     )
     assert item.name == name
     assert item.description == ""
+    item_identity_provider = item.identity_provider.single()
+    assert item_identity_provider is not None
+    assert item_identity_provider.uid == identity_provider.uid
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

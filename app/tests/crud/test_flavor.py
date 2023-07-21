@@ -11,6 +11,7 @@ from app.tests.utils.utils import (
     random_lower_string,
     random_non_negative_int,
     random_bool,
+    random_positive_int,
 )
 
 
@@ -19,7 +20,7 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     uuid = uuid4()
     num_vcpus = random_non_negative_int()
-    num_gpus = random_non_negative_int()
+    num_gpus = random_positive_int()
     ram = random_non_negative_int()
     disk = random_non_negative_int()
     infiniband_support = random_bool()
@@ -37,7 +38,8 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
         gpu_model=gpu_model,
         gpu_vendor=gpu_vendor,
     )
-    item = flavor.create(obj_in=item_in, provider=create_random_provider())
+    provider = create_random_provider()
+    item = flavor.create(obj_in=item_in, provider=provider)
     assert item.description == description
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -48,13 +50,17 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     assert item.infiniband_support == infiniband_support
     assert item.gpu_model == gpu_model
     assert item.gpu_vendor == gpu_vendor
+    item_provider = item.provider.single()
+    assert item_provider is not None
+    assert item_provider.uid == provider.uid
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     name = random_lower_string()
     uuid = uuid4()
+    provider = create_random_provider()
     item_in = FlavorCreate(name=name, uuid=uuid)
-    item = flavor.create(obj_in=item_in, provider=create_random_provider())
+    item = flavor.create(obj_in=item_in, provider=provider)
     assert item.description == ""
     assert item.name == name
     assert item.uuid == str(uuid)
@@ -65,6 +71,9 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     assert item.infiniband_support is False
     assert item.gpu_model is None
     assert item.gpu_vendor is None
+    item_provider = item.provider.single()
+    assert item_provider is not None
+    assert item_provider.uid == provider.uid
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:
