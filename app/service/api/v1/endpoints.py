@@ -102,7 +102,7 @@ def delete_services(item: Service = Depends(valid_service_id)):
     "/{service_uid}/identity_providers",
     response_model=List[IdentityProviderRead],
 )
-def read_user_group_services(
+def get_service_identity_providers(
     item: Service = Depends(valid_service_id),
 ):
     return item.provider.single().identity_providers.all()
