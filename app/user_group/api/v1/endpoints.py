@@ -4,8 +4,6 @@ from typing import List, Optional, Union
 
 from app.flavor.schemas import FlavorRead
 from app.image.schemas import ImageRead
-from app.project.models import Project
-from app.project.api.dependencies import valid_project_id
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
 from app.service.schemas import (
@@ -112,25 +110,3 @@ def read_user_group_services(
     item: UserGroup = Depends(valid_user_group_id),
 ):
     return item.services()
-
-
-@db.write_transaction
-@router.put("/{user_group_uid}/projects", response_model=UserGroupReadExtended)
-def connect_user_group_project(
-    item: UserGroup = Depends(valid_user_group_id),
-    project: Project = Depends(valid_project_id),
-):
-    item.projects.connect(project)
-    return item
-
-
-@db.read_transaction
-@router.delete(
-    "/{user_group_uid}/projects", response_model=UserGroupReadExtended
-)
-def disconnect_user_group_project(
-    item: UserGroup = Depends(valid_user_group_id),
-    project: Project = Depends(valid_project_id),
-):
-    item.projects.disconnect(project)
-    return item

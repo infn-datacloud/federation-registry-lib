@@ -64,7 +64,7 @@ def connect_user_group_flavor(
     return item
 
 
-@db.read_transaction
+@db.write_transaction
 @router.delete("/{user_group_uid}/flavors", response_model=ProjectReadExtended)
 def disconnect_user_group_flavor(
     item: Project = Depends(valid_project_id),
@@ -84,7 +84,7 @@ def connect_user_group_images_link(
     return item
 
 
-@db.read_transaction
+@db.write_transaction
 @router.delete("/{project_uid}/images", response_model=ProjectReadExtended)
 def disconnect_user_group_images_link(
     item: Project = Depends(valid_project_id),

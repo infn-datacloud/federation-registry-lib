@@ -116,7 +116,7 @@ class ProviderUpdateExtended(ProviderUpdate):
     # services: List[ServiceUpdate] = Field(default_factory=list)
 
 
-class ProviderExtended(ProviderRead):
+class ProviderReadExtended(ProviderRead):
     """Provider class.
 
     Class retrieved from the database.
