@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List
+
 from app.identity_provider.api.dependencies import valid_identity_provider_id
 from app.identity_provider.models import IdentityProvider
 from app.location.api.dependencies import valid_location_id
 from app.location.models import Location
-
 from app.pagination import Pagination, paginate
 from app.provider.api.dependencies import (
     is_unique_provider,
@@ -16,6 +16,7 @@ from app.provider.api.dependencies import (
     valid_provider_id,
     valid_location,
     valid_service_list,
+    validate_new_provider_values,
 )
 from app.provider.crud import provider
 from app.provider.models import Provider
@@ -69,7 +70,11 @@ def get_provider(item: Provider = Depends(valid_provider_id)):
 
 
 @db.write_transaction
-@router.put("/{provider_uid}", response_model=ProviderReadExtended)
+@router.put(
+    "/{provider_uid}",
+    response_model=ProviderReadExtended,
+    dependencies=[Depends(validate_new_provider_values)],
+)
 def put_provider(
     update_data: ProviderUpdate,
     response: Response,

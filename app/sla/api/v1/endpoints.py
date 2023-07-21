@@ -6,7 +6,11 @@ from app.pagination import Pagination, paginate
 from app.project.api.dependencies import project_has_no_sla
 from app.project.models import Project
 from app.query import CommonGetQuery
-from app.sla.api.dependencies import valid_sla_id, valid_document
+from app.sla.api.dependencies import (
+    valid_sla_id,
+    is_unique_sla,
+    validate_new_sla_values,
+)
 from app.sla.crud import sla
 from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
@@ -35,7 +39,7 @@ def get_slas(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=SLAReadExtended,
-    dependencies=[Depends(valid_document)],
+    dependencies=[Depends(is_unique_sla)],
 )
 def post_sla(
     item: SLACreate,
@@ -75,7 +79,11 @@ def get_sla(item: SLA = Depends(valid_sla_id)):
 
 
 @db.write_transaction
-@router.put("/{sla_uid}", response_model=SLAReadExtended)
+@router.put(
+    "/{sla_uid}",
+    response_model=SLAReadExtended,
+    dependencies=[Depends(validate_new_sla_values)],
+)
 def put_sla(
     update_data: SLAUpdate,
     response: Response,

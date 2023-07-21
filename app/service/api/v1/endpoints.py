@@ -2,7 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional, Union
 
-from app.service.api.dependencies import valid_service_id
+from app.service.api.dependencies import (
+    valid_service_id,
+    validate_new_service_values,
+)
 from app.service.crud import service
 from app.service.models import Service
 from app.service.schemas import ServiceQuery, ServiceUpdate
@@ -79,6 +82,7 @@ def get_service(item: Service = Depends(valid_service_id)):
             RucioServiceReadExtended,
         ]
     ],
+    dependencies=[Depends(validate_new_service_values)],
 )
 def put_service(
     update_data: ServiceUpdate,

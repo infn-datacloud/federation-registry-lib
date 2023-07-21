@@ -1,9 +1,9 @@
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
 from app.service.crud import service
 from app.service.models import Service
-from app.service.schemas import ServiceCreate
+from app.service.schemas import ServiceCreate, ServiceUpdate
 
 
 def valid_service_id(service_uid: UUID4) -> Service:
@@ -23,3 +23,10 @@ def is_unique_service(item: ServiceCreate) -> None:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Service with URL '{item.endpoint}' already registered",
         )
+
+
+def validate_new_service_values(
+    update_data: ServiceUpdate, item: Service = Depends(valid_service_id)
+) -> None:
+    if update_data.endpoint != item.endpoint:
+        is_unique_service(update_data)

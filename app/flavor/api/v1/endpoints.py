@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional
 
-from app.flavor.api.dependencies import valid_flavor_id
+from app.flavor.api.dependencies import valid_flavor_id, validate_new_flavor_values
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorQuery, FlavorUpdate
@@ -33,7 +33,11 @@ def get_flavor(item: Flavor = Depends(valid_flavor_id)):
 
 
 @db.write_transaction
-@router.put("/{flavor_uid}", response_model=Optional[FlavorReadExtended])
+@router.put(
+    "/{flavor_uid}",
+    response_model=Optional[FlavorReadExtended],
+    dependencies=[Depends(validate_new_flavor_values)],
+)
 def put_flavor(
     update_data: FlavorUpdate,
     response: Response,

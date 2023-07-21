@@ -6,7 +6,10 @@ from app.flavor.api.dependencies import valid_flavor_id
 from app.flavor.models import Flavor
 from app.image.api.dependencies import valid_image_id
 from app.image.models import Image
-from app.project.api.dependencies import valid_project_id
+from app.project.api.dependencies import (
+    valid_project_id,
+    validate_new_project_values,
+)
 from app.project.crud import project
 from app.project.models import Project
 from app.project.schemas import ProjectQuery, ProjectUpdate
@@ -37,7 +40,11 @@ def get_project(item: Project = Depends(valid_project_id)):
 
 
 @db.write_transaction
-@router.put("/{project_uid}", response_model=Optional[ProjectReadExtended])
+@router.put(
+    "/{project_uid}",
+    response_model=Optional[ProjectReadExtended],
+    dependencies=[Depends(validate_new_project_values)],
+)
 def put_project(
     update_data: ProjectUpdate,
     response: Response,
@@ -47,6 +54,7 @@ def put_project(
     if db_item is None:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
+
 
 @db.write_transaction
 @router.delete("/{project_uid}", status_code=status.HTTP_204_NO_CONTENT)

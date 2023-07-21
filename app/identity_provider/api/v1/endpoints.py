@@ -2,7 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional
 
-from app.identity_provider.api.dependencies import valid_identity_provider_id
+from app.identity_provider.api.dependencies import (
+    validate_new_identity_provider_values,
+    valid_identity_provider_id,
+)
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import (
     IdentityProvider,
@@ -49,6 +52,7 @@ def get_identity_provider(
 @router.put(
     "/{identity_provider_uid}",
     response_model=Optional[IdentityProviderReadExtended],
+    dependencies=[Depends(validate_new_identity_provider_values)],
 )
 def put_identity_provider(
     update_data: IdentityProviderUpdate,
@@ -57,7 +61,7 @@ def put_identity_provider(
 ):
     db_item = identity_provider.update(db_obj=item, obj_in=update_data)
     if db_item is None:
-        response.status_code = status.HTTP_304_NOT_MODIFIED 
+        response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 
 

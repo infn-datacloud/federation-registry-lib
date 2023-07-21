@@ -1,10 +1,12 @@
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
+from typing import Union
 
 from app.identity_provider.crud import identity_provider
 from app.location.crud import location
 from app.provider.crud import provider
 from app.provider.models import Provider
+from app.provider.schemas import ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended
 from app.service.api.dependencies import is_unique_service
 from app.utils import find_duplicates
@@ -20,13 +22,22 @@ def valid_provider_id(provider_uid: UUID4) -> Provider:
     return item
 
 
-def is_unique_provider(item: ProviderCreateExtended) -> None:
+def is_unique_provider(
+    item: Union[ProviderCreateExtended, ProviderUpdate]
+) -> None:
     db_item = provider.get(name=item.name)
     if db_item is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Provider with name '{item.name}' already registered",
         )
+
+
+def validate_new_provider_values(
+    update_data: ProviderUpdate, item: Provider = Depends(valid_provider_id)
+) -> None:
+    if update_data.name != item.item:
+        is_unique_provider(update_data)
 
 
 def valid_flavor_list(item: ProviderCreateExtended) -> None:

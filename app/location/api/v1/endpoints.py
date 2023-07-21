@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional
 
-from app.location.api.dependencies import valid_location_id
+from app.location.api.dependencies import validate_new_location_values, valid_location_id
 from app.location.crud import location
 from app.location.models import Location
 from app.location.schemas import LocationQuery, LocationRead, LocationUpdate
@@ -33,7 +33,11 @@ def get_location(item: Location = Depends(valid_location_id)):
 
 
 @db.write_transaction
-@router.put("/{location_uid}", response_model=Optional[LocationReadExtended])
+@router.put(
+    "/{location_uid}",
+    response_model=Optional[LocationReadExtended],
+    dependencies=[Depends(validate_new_location_values)],
+)
 def put_location(
     update_data: LocationUpdate,
     response: Response,
