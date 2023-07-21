@@ -76,10 +76,11 @@ def delete_identity_providers(
     "/{identity_provider_uid}/user_groups",
     status_code=status.HTTP_201_CREATED,
     response_model=UserGroupReadExtended,
+    dependencies=[Depends(is_unique_user_group)],
 )
 def post_user_group(
+    item: UserGroupCreate,
     db_item: IdentityProvider = Depends(valid_identity_provider_id),
-    item: UserGroupCreate = Depends(is_unique_user_group),
 ):
     return user_group.create(
         obj_in=item, identity_provider=db_item, force=True

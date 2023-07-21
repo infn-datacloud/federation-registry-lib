@@ -32,12 +32,15 @@ def get_slas(
 
 @db.write_transaction
 @router.post(
-    "/", status_code=status.HTTP_201_CREATED, response_model=SLAReadExtended
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=SLAReadExtended,
+    dependencies=[Depends(valid_document)],
 )
 def post_sla(
+    item: SLACreate,
     project: Project = Depends(project_has_no_sla),
     user_group: UserGroup = Depends(valid_user_group_id),
-    item: SLACreate = Depends(valid_document),
 ):
     # Check Project provider is one of the UserGroup accessible providers
     provider = project.provider.single()

@@ -16,11 +16,10 @@ def valid_user_group_id(user_group_uid: UUID4) -> UserGroup:
     return item
 
 
-def is_unique_user_group(item: UserGroupCreate) -> UserGroupCreate:
+def is_unique_user_group(item: UserGroupCreate) -> None:
     db_item = user_group.get(name=item.name)
     if db_item is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"User Group with name '{item.name}' already registered",
         )
-    return item

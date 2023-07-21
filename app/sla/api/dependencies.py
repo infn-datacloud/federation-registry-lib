@@ -16,11 +16,10 @@ def valid_sla_id(sla_uid: UUID4) -> SLA:
     return item
 
 
-def valid_document(item: SLACreate) -> SLACreate:
+def valid_document(item: SLACreate) -> None:
     db_item = sla.get(document_uuid=item.document_uuid)
     if db_item is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Document '{item.document_uuid}' already used by another SLA",
         )
-    return item

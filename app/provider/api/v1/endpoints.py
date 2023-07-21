@@ -7,7 +7,16 @@ from app.location.api.dependencies import valid_location_id
 from app.location.models import Location
 
 from app.pagination import Pagination, paginate
-from app.provider.api.dependencies import valid_provider_id, valid_location
+from app.provider.api.dependencies import (
+    is_unique_provider,
+    valid_flavor_list,
+    valid_identity_provider_list,
+    valid_image_list,
+    valid_project_list,
+    valid_provider_id,
+    valid_location,
+    valid_service_list,
+)
 from app.provider.crud import provider
 from app.provider.models import Provider
 from app.provider.schemas import ProviderQuery
@@ -39,8 +48,17 @@ def get_providers(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=ProviderReadExtended,
+    dependencies=[
+        Depends(is_unique_provider),
+        Depends(valid_flavor_list),
+        Depends(valid_identity_provider_list),
+        Depends(valid_image_list),
+        Depends(valid_location),
+        Depends(valid_project_list),
+        Depends(valid_service_list),
+    ],
 )
-def post_provider(item: ProviderCreateExtended = Depends(valid_location)):
+def post_provider(item: ProviderCreateExtended):
     return provider.create(obj_in=item, force=True)
 
 
