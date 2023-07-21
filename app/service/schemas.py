@@ -9,7 +9,7 @@ class ServiceBase(BaseModel, extra=Extra.allow):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH, PUT or POST request.
+    Expected as input when performing a PUT, PUT or POST request.
 
     Attributes:
         description (str): Brief description.
@@ -25,7 +25,7 @@ class ServiceCreate(BaseNodeCreate, ServiceBase):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH, PUT or POST request.
+    Expected as input when performing a PUT, PUT or POST request.
 
     Attributes:
         description (str): Brief description.
@@ -34,11 +34,11 @@ class ServiceCreate(BaseNodeCreate, ServiceBase):
     """
 
 
-class ServiceUpdate(ServiceBase):
+class ServiceUpdate(ServiceCreate):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH, PUT or POST request.
+    Expected as input when performing a PUT, PUT or POST request.
 
     Attributes:
         description (str): Brief description.

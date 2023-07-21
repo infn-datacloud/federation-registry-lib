@@ -29,7 +29,7 @@ class ProviderUpdate(ProviderCreate):
     """Provider Update Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
+    Expected as input when performing a PUT request.
 
     Attributes:
         description (str | None): Brief description.

@@ -28,7 +28,7 @@ class AuthMethodUpdate(AuthMethodCreate):
     """AuthMethod Base class
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH REST request.
+    Expected as input when performing a PUT REST request.
 
     Attributes:
         idp_name (str): Identity Provider name saved in the Provider.

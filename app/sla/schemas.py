@@ -16,7 +16,7 @@ class SLACreate(BaseNodeCreate, SLABase):
     """Service Level Agreement (SLA) Create Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH, PUT or POST request.
+    Expected as input when performing a PUT, PUT or POST request.
 
     Attributes:
         description (str): Brief description.
@@ -32,7 +32,7 @@ class SLAUpdate(SLACreate):
     """Service Level Agreement (SLA) Update Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
+    Expected as input when performing a PUT request.
 
     Attributes:
         description (str): Brief description.

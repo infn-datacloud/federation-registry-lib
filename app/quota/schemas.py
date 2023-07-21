@@ -94,11 +94,11 @@ class QuotaCreate(BaseNodeCreate, QuotaBase):
     # user_guaranteed: float = Field(ge=0, default=0)
 
 
-class QuotaUpdate(QuotaBase):
+class QuotaUpdate(QuotaCreate):
     """Quota Update Model class.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PATCH request.
+    Expected as input when performing a PUT request.
 
     Attributes:
         description (str): Brief description.
