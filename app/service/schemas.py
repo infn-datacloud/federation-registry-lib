@@ -34,7 +34,7 @@ class ServiceCreate(BaseNodeCreate, ServiceBase):
     """
 
 
-class ServiceUpdate(ServiceCreate):
+class ServiceUpdate(BaseNodeCreate, extra=Extra.allow):
     """Service Create Model class.
 
     Class without id (which is populated by the database).
@@ -45,6 +45,8 @@ class ServiceUpdate(ServiceCreate):
         endpoint (str): URL pointing to this service
         type (ServiceTypeUpdate): Service type.
     """
+
+    endpoint: AnyHttpUrl
 
 
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)

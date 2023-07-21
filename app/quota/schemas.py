@@ -94,7 +94,7 @@ class QuotaCreate(BaseNodeCreate, QuotaBase):
     # user_guaranteed: float = Field(ge=0, default=0)
 
 
-class QuotaUpdate(QuotaCreate):
+class QuotaUpdate(BaseNodeCreate, extra=Extra.allow):
     """Quota Update Model class.
 
     Class without id (which is populated by the database).
