@@ -7,14 +7,14 @@ from app.image.schemas import ImageRead
 from app.pagination import Pagination, paginate
 from app.provider.schemas import ProviderRead
 from app.query import CommonGetQuery
-from app.service.schemas import (
-    ChronosServiceRead,
-    KubernetesServiceRead,
-    MarathonServiceRead,
-    MesosServiceRead,
-    NovaServiceRead,
-    OneDataServiceRead,
-    RucioServiceRead,
+from app.service.schemas_extended import (
+    ChronosServiceReadExtended,
+    KubernetesServiceReadExtended,
+    MarathonServiceReadExtended,
+    MesosServiceReadExtended,
+    NovaServiceReadExtended,
+    OneDataServiceReadExtended,
+    RucioServiceReadExtended,
 )
 from app.user_group.api.dependencies import (
     valid_user_group_id,
@@ -109,13 +109,13 @@ def get_user_group_providers(
     "/{user_group_uid}/services",
     response_model=List[
         Union[
-            ChronosServiceRead,
-            KubernetesServiceRead,
-            MarathonServiceRead,
-            MesosServiceRead,
-            NovaServiceRead,
-            OneDataServiceRead,
-            RucioServiceRead,
+            ChronosServiceReadExtended,
+            KubernetesServiceReadExtended,
+            MarathonServiceReadExtended,
+            MesosServiceReadExtended,
+            NovaServiceReadExtended,
+            OneDataServiceReadExtended,
+            RucioServiceReadExtended,
         ]
     ],
 )
