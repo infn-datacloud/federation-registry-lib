@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional, Union
 
+from app.auth.dependencies import get_current_active_user
 from app.flavor.schemas import FlavorRead
 from app.image.schemas import ImageRead
 from app.pagination import Pagination, paginate
@@ -37,10 +38,12 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
     response_model=List[UserGroupReadExtended],
 )
 def get_user_groups(
+    current_user: str = Depends(get_current_active_user),
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: UserGroupQuery = Depends(),
 ):
+    print(current_user)
     items = user_group.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
