@@ -77,12 +77,30 @@ class UserGroup(StructuredNode):
         )
         return [Provider.inflate(row[0]) for row in results]
 
-    def services(self) -> List[Service]:
+    def services(self, **kwargs) -> List[Service]:
+        if not kwargs:
+            filters = ""
+        else:
+            filters = []
+            for k, v in kwargs.items():
+                if k.startswith("service_"):
+                    start_idx = len("service_")
+                    attr = k[start_idx:]
+                    filters.append(f"u.{attr} = ${k}")
+                elif k.startswith("quota_"):
+                    start_idx = len("quota_")
+                    attr = k[start_idx:]
+                    filters.append(f"q.{attr} = ${k}")
+            filters = ", ".join(filters)
+            filters = "WHERE " + filters
+
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
                 MATCH (p)-[:USE_SERVICE_WITH]->(q)-[:APPLY_TO]->(u)
+                {filters}
                 RETURN u
-            """
+            """,
+            kwargs,
         )
         return [Service.inflate(row[0]) for row in results]

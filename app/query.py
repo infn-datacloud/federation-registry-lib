@@ -72,3 +72,11 @@ def create_query_model(model_name: str, base_model: BaseModel):
         else:
             d[k] = (Optional[v.type_], None)
     return create_model(model_name, __base__=BaseNodeQuery, **d)
+
+
+def create_subquery_model(base_model: BaseNodeQuery):
+    d = {}
+    for k, v in base_model.__fields__.items():
+        d[f"service_{k}"] = (v.type_, v.default)
+    name = base_model.__qualname__.replace("Query", "SubQuery")
+    return create_model(name, **d)

@@ -26,7 +26,7 @@ from app.user_group.schemas import (
     UserGroupQuery,
     UserGroupUpdate,
 )
-from app.user_group.schemas_extended import UserGroupReadExtended
+from app.user_group.schemas_extended import UserGroupReadExtended, ServiceQuery
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 
@@ -121,5 +121,6 @@ def get_user_group_providers(
 )
 def get_user_group_services(
     item: UserGroup = Depends(valid_user_group_id),
+    service: ServiceQuery = Depends(),
 ):
-    return item.services()
+    return item.services(**service.dict(exclude_none=True))
