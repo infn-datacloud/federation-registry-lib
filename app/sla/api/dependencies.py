@@ -20,9 +20,11 @@ def valid_sla_id(sla_uid: UUID4) -> SLA:
 def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
     db_item = sla.get(document_uuid=item.document_uuid)
     if db_item is not None:
+        msg = f"Document '{item.document_uuid}' already used "
+        msg += "by another SLA"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Document '{item.document_uuid}' already used by another SLA",
+            detail=msg,
         )
 
 

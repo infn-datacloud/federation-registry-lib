@@ -54,8 +54,12 @@ def test_create_item_with_provider(setup_and_teardown_db: Generator) -> None:
     item_providers = item.providers.all()
     assert len(item_providers) == 1
     assert item_providers[0].uid == provider.uid
-    assert item.providers.relationship(provider).idp_name == auth_method.idp_name
-    assert item.providers.relationship(provider).protocol == auth_method.protocol
+    assert (
+        item.providers.relationship(provider).idp_name == auth_method.idp_name
+    )
+    assert (
+        item.providers.relationship(provider).protocol == auth_method.protocol
+    )
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:

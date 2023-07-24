@@ -2,10 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional
 
-from app.location.api.dependencies import validate_new_location_values, valid_location_id
+from app.location.api.dependencies import (
+    validate_new_location_values,
+    valid_location_id,
+)
 from app.location.crud import location
 from app.location.models import Location
-from app.location.schemas import LocationQuery, LocationRead, LocationUpdate
+from app.location.schemas import LocationQuery, LocationUpdate
 from app.location.schemas_extended import LocationReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery

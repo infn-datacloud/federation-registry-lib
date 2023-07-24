@@ -2,15 +2,14 @@ from app.crud import CRUDBase
 from app.provider.models import Provider
 from app.quota.crud import quota
 from app.service.models import (
-    NovaService,
     Service,
-    NovaService as NovaService,
-    MesosService as MesosService,
-    ChronosService as ChronosService,
-    MarathonService as MarathonService,
-    KubernetesService as KubernetesService,
-    RucioService as RucioService,
-    OneDataService as OneDataService,
+    NovaService,
+    MesosService,
+    ChronosService,
+    MarathonService,
+    KubernetesService,
+    RucioService,
+    OneDataService,
 )
 from app.service.schemas import (
     ServiceCreate,

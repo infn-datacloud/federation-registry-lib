@@ -27,7 +27,9 @@ def validate_new_identity_provider_values(
     if update_data.endpoint != item.endpoint:
         db_item = identity_provider.get(endpoint=update_data.endpoint)
         if db_item is not None:
+            msg = f"Identity Provider with URL '{update_data.endpoint}' "
+            msg += "already registered"
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Identity Provider with URL '{update_data.endpoint}' already registered",
+                detail=msg,
             )

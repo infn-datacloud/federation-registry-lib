@@ -22,7 +22,9 @@ def validate_new_location_values(
     if update_data.name != item.name:
         db_item = location.get(name=update_data.name)
         if db_item is not None:
+            msg = f"Location with name '{update_data.name}' "
+            msg += "already registered"
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Location with name '{update_data.name}' already registered",
+                detail=msg,
             )
