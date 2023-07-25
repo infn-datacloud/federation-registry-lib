@@ -22,7 +22,7 @@ async def get_current_user(
         resp = requests.get(
             settings.IDP_CONF.get("userinfo_endpoint"),
             params={"access_token": token},
-            verify="./certs/CS+@LNL+-+CA.crt",
+            verify=settings.CA,
         )
     except SSLError:
         raise HTTPException(
