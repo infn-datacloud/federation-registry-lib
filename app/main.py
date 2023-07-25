@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import Depends, FastAPI
 
 from app.auth.dependencies import oidc_scheme
+from app.config import get_settings
 from app.flavor.api.router import router as flavor_router
 from app.identity_provider.api.router import router as identity_provider_router
 from app.image.api.router import router as image_router
@@ -13,8 +14,12 @@ from app.service.api.router import router as service_router
 from app.sla.api.router import router as sla_router
 from app.user_group.api.router import router as user_group_router
 
+settings = get_settings()
 
-app = FastAPI(dependencies=[Depends(oidc_scheme)])
+dependencies = None
+if settings.DISCOVERY_URL is not None:
+    dependencies = [Depends(oidc_scheme)]
+app = FastAPI(dependencies=dependencies)
 app.include_router(flavor_router)
 app.include_router(identity_provider_router)
 app.include_router(image_router)

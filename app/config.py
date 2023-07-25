@@ -43,19 +43,23 @@ class Settings(BaseSettings):
         config.DATABASE_URL = v
         return v
 
-    DISCOVERY_URL: AnyHttpUrl = "https://iam-csg-dev.spes2.lnl.infn.it/.well-known/openid-configuration"
+    DISCOVERY_URL: Optional[
+        AnyHttpUrl
+    ] = None  # = "https://iam-csg-dev.spes2.lnl.infn.it/.well-known/openid-configuration"
     IDP_CONF: Dict[str, Any] = Field(default_factory=dict)
     SCOPES: List[str] = Field(default_factory=list)
 
-    @validator("IDP_CONF")
+    @validator("IDP_CONF", pre=True)
     def get_endpoint(
         cls, v: Optional[str], values: Dict[str, Any]
     ) -> Dict[str, Any]:
-        resp = requests.get(
-            values.get("DISCOVERY_URL"),
-            verify="./certs/CS+@LNL+-+CA.crt",
-        )
-        return resp.json()
+        if values.get("DISCOVERY_URL") is not None:
+            resp = requests.get(
+                values.get("DISCOVERY_URL"),
+                verify="./certs/CS+@LNL+-+CA.crt",
+            )
+            return resp.json()
+        return {"authorization_endpoint": "", "token_endpoint": ""}
 
     class Config:
         case_sensitive = True
