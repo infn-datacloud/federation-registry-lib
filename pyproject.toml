@@ -12,9 +12,6 @@ uvicorn = "^0.22.0"
 neomodel = "^5.0.1"
 pydantic = {extras = ["email"], version = "^1.10.9"}
 pycountry = "^22.3.5"
-python-multipart = "^0.0.6"
-python-jose = {extras = ["cryptography"], version = "^3.3.0"}
-passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 
 [tool.poetry.dev-dependencies]
 black = "^23.3.0"
