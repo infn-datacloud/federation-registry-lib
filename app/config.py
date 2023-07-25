@@ -1,7 +1,9 @@
-import secrets
+import requests
+from functools import lru_cache
 from enum import Enum
-from pydantic import BaseSettings, validator
-from typing import Any, Dict, Optional
+from neomodel import config
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, Field, validator
+from typing import Any, Dict, List, Optional
 
 
 class Neo4jUriScheme(Enum):
@@ -14,25 +16,21 @@ class Neo4jUriScheme(Enum):
 class Settings(BaseSettings):
     API_V1_STR: str = "/v1"
 
-    SECRET_KEY: str = secrets.token_urlsafe(32)
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
-    ALGORITHM = "HS256"
-
     NEO4J_SERVER: str = "localhost:7687"
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "password"
     NEO4J_URI_SCHEME: Neo4jUriScheme = "bolt"
-    NEOMODEL_DATABSE_URL: Optional[str] = None
+    NEOMODEL_DATABASE_URL: Optional[AnyUrl] = None
 
     @validator("NEO4J_URI_SCHEME")
     def get_enum_val(cls, v: Neo4jUriScheme) -> str:
         return v.value
 
-    @validator("NEOMODEL_DATABSE_URL", pre=True)
+    @validator("NEOMODEL_DATABASE_URL", pre=True)
     def assemble_db_connection(
         cls, v: Optional[str], values: Dict[str, Any]
-    ) -> Any:
-        if isinstance(v, str):
+    ) -> AnyUrl:
+        if isinstance(v, AnyUrl):
             return v
         s = f"{values.get('NEO4J_URI_SCHEME')}://"
         s += f"{values.get('NEO4J_USER')}:"
@@ -40,8 +38,29 @@ class Settings(BaseSettings):
         s += f"{values.get('NEO4J_SERVER')}"
         return s
 
+    @validator("NEOMODEL_DATABASE_URL")
+    def save_db_url(cls, v: Optional[str]) -> AnyUrl:
+        config.DATABASE_URL = v
+        return v
+
+    DISCOVERY_URL: AnyHttpUrl = "https://iam-csg-dev.spes2.lnl.infn.it/.well-known/openid-configuration"
+    IDP_CONF: Dict[str, Any] = Field(default_factory=dict)
+    SCOPES: List[str] = Field(default_factory=list)
+
+    @validator("IDP_CONF")
+    def get_endpoint(
+        cls, v: Optional[str], values: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        resp = requests.get(
+            values.get("DISCOVERY_URL"),
+            verify="./certs/CS+@LNL+-+CA.crt",
+        )
+        return resp.json()
+
     class Config:
         case_sensitive = True
 
 
-settings = Settings()
+@lru_cache
+def get_settings():
+    return Settings()

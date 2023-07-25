@@ -1,9 +1,7 @@
 import uvicorn
-from fastapi import FastAPI
-from neomodel import config
+from fastapi import Depends, FastAPI
 
-from app.config import settings
-from app.auth.endpoints import router as auth_router
+from app.auth.dependencies import oidc_scheme
 from app.flavor.api.router import router as flavor_router
 from app.identity_provider.api.router import router as identity_provider_router
 from app.image.api.router import router as image_router
@@ -16,10 +14,7 @@ from app.sla.api.router import router as sla_router
 from app.user_group.api.router import router as user_group_router
 
 
-config.DATABASE_URL = settings.NEOMODEL_DATABSE_URL
-
-app = FastAPI()
-app.include_router(auth_router)
+app = FastAPI(dependencies=[Depends(oidc_scheme)])
 app.include_router(flavor_router)
 app.include_router(identity_provider_router)
 app.include_router(image_router)

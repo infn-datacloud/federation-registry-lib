@@ -1,20 +1,11 @@
-from typing import Optional
-from pydantic import BaseModel
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+from typing import List
+from pydantic import UUID4, BaseModel, EmailStr
 
 
 class TokenData(BaseModel):
-    username: Optional[str] = None
-
-
-class User(BaseModel):
+    sub: UUID4
     username: str
-    disabled: bool
-
-
-class UserInDB(User):
-    hashed_password: str
+    given_name: str
+    family_name: str
+    email: EmailStr
+    groups: List[str]
