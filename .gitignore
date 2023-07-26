@@ -1,21 +1,2 @@
-.env 
-
 # VSCode and other IDEs
 **/.vscode
-
-# Python Build
-**/__pycache__
-**/.pytest_cache
-
-# Neo4j
-**/data/**
-**/logs/**
-
-# Tests and coverage
-**/.coverage*
-**/coverage*.xml
-**/.nox
-
-# Documentation
-**/site
-**/.cache

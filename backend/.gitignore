@@ -1,0 +1,12 @@
+# Python Build
+**/__pycache__
+**/.pytest_cache
+
+# Tests and coverage
+**/.coverage*
+**/coverage*.xml
+**/.nox
+
+# Mkdocs Documentation
+**/site
+**/.cache
