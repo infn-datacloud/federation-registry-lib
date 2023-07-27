@@ -5,7 +5,7 @@ import {
   ListItemText,
 } from "@mui/material";
 import Link from "next/link";
-import { SideBarItem } from "../_lib/types";
+import { SideBarItem } from "../../_lib/uiTypes";
 
 export default function SideBarItemLink({ item }: { item: SideBarItem }) {
   return (

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Provider } from "../../../_lib/types";
+import { Provider } from "../../../_lib/dbTypes";
 import Loading from "../loading";
 import {
   Card,
