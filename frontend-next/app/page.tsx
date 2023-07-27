@@ -1,40 +1,7 @@
-import { Suspense } from "react";
-
-async function getProviders() {
-  const res = await fetch("http://localhost:8000/providers/", {
-    cache: "no-store",
-  });
-  if (res.status != 200) {
-    throw new Error("Failed to fetch data");
-  }
-  return res.json();
+export default function Page() {
+  return <h1>Hello, Page!</h1>
 }
 
-export default async function Page() {
-  const providers = await getProviders();
-  return (
-    <main>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Providers promise={providers} />
-      </Suspense>
-    </main>
-  );
-}
-
-export async function Providers({ promise }: { promise: Promise<Provider[]> }) {
-  const providers = await promise;
-  return (
-    <ul>
-      {providers.map((provider) => (
-        <li key={provider.name}>{provider.name}</li>
-      ))}
-    </ul>
-  );
-}
-
-type Provider = {
-  name: string;
-};
 //import Image from 'next/image'
 
 // export default function Home() {
