@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { cardMaxWidth, cardMediaHeight } from "../_lib/constants";
-import { Provider } from "../[provider]/_lib/types";
+import { Provider } from "../../_lib/types";
 
 const cardMediaImage =
   "https://www.datanami.com/wp-content/uploads/2019/06/cloud_digital_shutterstock_Phonlamai-Photo-300x200.jpg";

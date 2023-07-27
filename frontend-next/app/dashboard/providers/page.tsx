@@ -1,5 +1,5 @@
+import { getProviders } from "../_lib/crud";
 import ProviderGrid from "./_components/providers";
-import { getProviders } from "./_lib/dataFetching";
 
 export default async function Page() {
   const providers = await getProviders();

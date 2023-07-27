@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material";
 import { Suspense } from "react";
 import ProviderCard from "./provider";
-import { Provider } from "../[provider]/_lib/types";
+import { Provider } from "../../_lib/types";
 import Loading from "../loading";
 
 export default async function ProviderGrid({
