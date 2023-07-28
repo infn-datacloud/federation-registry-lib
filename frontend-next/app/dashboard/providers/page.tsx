@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material";
 import { Suspense } from "react";
 import ProviderCardContent from "./_components/providerCardContent";
-import Loading from "../loading";
+import Loading from "./loading";
 import { getProviders } from "../_lib/crud";
 import { Provider } from "../_lib/dbTypes";
 import CardWrapper from "../_components/card/wrapper";

@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material";
 import { Suspense } from "react";
 import IdentityProviderCardContent from "./_components/identityProviderCardContent";
-import Loading from "../loading";
+import Loading from "../identity_providers/loading";
 import { getIdentityProviders } from "../_lib/crud";
 import { IdentityProvider } from "../_lib/dbTypes";
 import CardWrapper from "../_components/card/wrapper";
