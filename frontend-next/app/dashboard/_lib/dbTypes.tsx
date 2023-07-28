@@ -55,12 +55,12 @@ export type Provider = {
   name: string;
   is_public: boolean;
   support_emails: string[];
-  location: Location;
-  flavors: Flavor[];
-  identity_providers: IdentityProvider[];
-  images: Image[];
-  projects: Project[];
-  services: Service[];
+  location?: Location;
+  flavors?: Flavor[];
+  identity_providers?: IdentityProvider[];
+  images?: Image[];
+  projects?: Project[];
+  services?: Service[];
 };
 
 export type Service = {
@@ -74,6 +74,8 @@ export type SLA = {
   start_date: Date;
   end_date?: Date;
   document_uuid: string;
+  user_group?: UserGroup;
+  project?: Project;
 };
 
 export type UserGroup = {

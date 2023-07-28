@@ -1,0 +1,25 @@
+import { Grid } from "@mui/material";
+import { Suspense } from "react";
+import SLACardContent from "./_components/slaCardContent";
+import Loading from "../loading";
+import { getSLAs } from "../_lib/crud";
+import { SLA } from "../_lib/dbTypes";
+import CardWrapper from "../_components/card/wrapper";
+
+export default async function Page() {
+  const slas: SLA[] = await getSLAs();
+  let children = slas.map((sla, index) => (
+    <Grid item key={index}>
+      <CardWrapper kind="slas" name="SLA" uid={sla.uid}>
+        <SLACardContent item={sla} />
+      </CardWrapper>
+    </Grid>
+  ));
+  return (
+    <Suspense fallback={<Loading />}>
+      <Grid container spacing={2}>
+        {children}
+      </Grid>
+    </Suspense>
+  );
+}

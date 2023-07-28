@@ -1,6 +1,7 @@
 import { Box, Drawer, List, Toolbar } from "@mui/material";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
+import PlaceIcon from "@mui/icons-material/Place";
 import StorageIcon from "@mui/icons-material/Storage";
 import SideBarItem from "./sideBarItem";
 
@@ -8,9 +9,10 @@ const drawerWidth = 240;
 
 export default function SideBar() {
   let sideBarItems = [
+    { title: "Identity Providers", icon: <PeopleAltIcon />, link: "/identity_providers" },
+    { title: "Locations", icon: <PlaceIcon />, link: "/locations" },
     { title: "Providers", icon: <StorageIcon />, link: "/providers" },
     { title: "SLAs", icon: <AssignmentTurnedInIcon />, link: "/slas" },
-    { title: "User Groups", icon: <PeopleAltIcon />, link: "/user_groups" },
   ];
   return (
     <Drawer
