@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
-import { Project } from "../_lib/dbTypes";
+import { Project } from "../../_lib/dbTypes";
 
 export default function ProjectCard({ item }: { item: Project }) {
   return (

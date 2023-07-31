@@ -1,10 +1,10 @@
 import { CardContent, Typography } from "@mui/material";
-import { IdentityProvider } from "../../_lib/dbTypes";
+import { IdentityProviderBase } from "../../_lib/dbTypes";
 
 export default function IdentityProviderCardContent({
   item,
 }: {
-  item: IdentityProvider;
+  item: IdentityProviderBase;
 }) {
   return (
     <CardContent>

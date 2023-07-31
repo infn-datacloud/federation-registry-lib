@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import IdentityProviderCardContent from "./_components/identityProviderCardContent";
 import Loading from "../identity_providers/loading";
 import { getIdentityProviders } from "../_lib/crud";
-import { IdentityProvider } from "../_lib/dbTypes";
 import CardWrapper from "../_components/card/wrapper";
+import { IdentityProvider } from "./_lib/dbTypes";
 
 export default async function Page() {
   const identity_providers: IdentityProvider[] = await getIdentityProviders();

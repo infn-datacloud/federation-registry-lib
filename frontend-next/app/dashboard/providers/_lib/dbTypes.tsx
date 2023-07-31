@@ -7,7 +7,7 @@ import {
   ProjectBase,
   ProviderBase,
   ServiceBase,
-} from "../../../_lib/dbTypes";
+} from "../../_lib/dbTypes";
 
 export interface IdentityProvider extends IdentityProviderBase {
   relationship: AuthDetailsBase;

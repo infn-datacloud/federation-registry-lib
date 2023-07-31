@@ -1,5 +1,5 @@
 import { CardContent, Typography } from "@mui/material";
-import { SLA } from "../../_lib/dbTypes";
+import { SLA } from "../_lib/dbTypes";
 
 export default function SLACardContent({ item }: { item: SLA }) {
   return (

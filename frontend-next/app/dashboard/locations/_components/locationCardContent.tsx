@@ -1,7 +1,7 @@
 import { CardContent, Typography } from "@mui/material";
-import { Location } from "../../_lib/dbTypes";
+import { LocationBase } from "../../_lib/dbTypes";
 
-export default function LocationCardContent({ item }: { item: Location }) {
+export default function LocationCardContent({ item }: { item: LocationBase }) {
   return (
     <CardContent>
       <Typography variant="body2" color="text.secondary">

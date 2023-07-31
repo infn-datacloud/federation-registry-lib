@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
-import { UserGroup } from "../_lib/dbTypes";
+import { UserGroup } from "../../_lib/dbTypes";
 
 export default function UserGroupCard({ item }: { item: UserGroup }) {
   return (

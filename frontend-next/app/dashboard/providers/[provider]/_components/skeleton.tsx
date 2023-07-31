@@ -7,7 +7,7 @@ import ProjectsTable from "./projectsTable";
 import FlavorsTable from "./flavorsTable";
 import ImagesTable from "./imagesTable";
 import ProviderCard from "./providerCard";
-import { Provider } from "../_lib/dbTypes";
+import { Provider } from "../../_lib/dbTypes";
 
 export default function Skeleton({ item }: { item: Provider }) {
   return (

@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import ProviderCardContent from "./_components/providerCardContent";
 import Loading from "./loading";
 import { getProviders } from "../_lib/crud";
-import { Provider } from "../_lib/dbTypes";
 import CardWrapper from "../_components/card/wrapper";
+import { Provider } from "./_lib/dbTypes";
 
 export default async function Page() {
   const providers: Provider[] = await getProviders();

@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import LocationCardContent from "./_components/locationCardContent";
 import Loading from "../locations/loading";
 import { getLocations } from "../_lib/crud";
-import { Location } from "../_lib/dbTypes";
 import CardWrapper from "../_components/card/wrapper";
+import { Location } from "./_lib/dbTypes";
 
 export default async function Page() {
   const locations: Location[] = await getLocations();

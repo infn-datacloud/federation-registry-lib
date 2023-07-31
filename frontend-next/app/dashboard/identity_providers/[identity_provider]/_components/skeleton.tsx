@@ -3,7 +3,7 @@ import Section from "@/app/dashboard/_components/section";
 import IdentityProviderCard from "./identityProviderCard";
 import ProvidersTable from "./providersTable";
 import UserGroupsTable from "./userGroupsTable";
-import { IdentityProvider } from "../_lib/dbTypes";
+import { IdentityProvider } from "../../_lib/dbTypes";
 
 export default function IdentityProviderSkeleton({
   item,

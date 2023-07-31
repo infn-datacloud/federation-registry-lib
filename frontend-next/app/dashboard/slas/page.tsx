@@ -3,8 +3,8 @@ import { Suspense } from "react";
 import SLACardContent from "./_components/slaCardContent";
 import Loading from "../slas/loading";
 import { getSLAs } from "../_lib/crud";
-import { SLA } from "../_lib/dbTypes";
 import CardWrapper from "../_components/card/wrapper";
+import { SLA } from "./_lib/dbTypes";
 
 export default async function Page() {
   const slas: SLA[] = await getSLAs();
