@@ -1,9 +1,11 @@
+"use client";
+
 import { Grid, Typography } from "@mui/material";
-import Section from "@/app/dashboard/_components/section";
 import IdentityProviderCard from "./identityProviderCard";
 import ProvidersTable from "./providersTable";
 import UserGroupsTable from "./userGroupsTable";
 import { IdentityProvider } from "../../_lib/dbTypes";
+import PaginatedTable from "@/app/dashboard/_components/paginatedTable";
 
 export default function IdentityProviderSkeleton({
   item,
@@ -21,22 +23,30 @@ export default function IdentityProviderSkeleton({
         <IdentityProviderCard item={item} />
       </Grid>
       <Grid item xs={12}>
-        <Section
+        <PaginatedTable
           title="Providers"
-          hasItems={item.providers !== undefined && item.providers.length > 0}
-        >
-          <ProvidersTable items={item.providers} />
-        </Section>
+          items={item.providers}
+          renderItem={(items, page, rowsPerPage) => (
+            <ProvidersTable
+              items={items}
+              page={page}
+              rowsPerPage={rowsPerPage}
+            />
+          )}
+        />
       </Grid>
       <Grid item xs={12}>
-        <Section
+        <PaginatedTable
           title="User Groups"
-          hasItems={
-            item.user_groups !== undefined && item.user_groups.length > 0
-          }
-        >
-          <UserGroupsTable items={item.user_groups} />
-        </Section>
+          items={item.user_groups}
+          renderItem={(items, page, rowsPerPage) => (
+            <UserGroupsTable
+              items={items}
+              page={page}
+              rowsPerPage={rowsPerPage}
+            />
+          )}
+        />
       </Grid>
     </Grid>
   );

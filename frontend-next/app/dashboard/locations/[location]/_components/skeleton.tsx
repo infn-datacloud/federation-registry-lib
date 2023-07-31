@@ -1,8 +1,10 @@
+"use client";
+
 import { Grid, Typography } from "@mui/material";
-import Section from "@/app/dashboard/_components/section";
 import LocationCard from "./locationCard";
 import ProvidersTable from "./providersTable";
 import { Location } from "../../_lib/dbTypes";
+import PaginatedTable from "@/app/dashboard/_components/paginatedTable";
 
 export default function LocationSkeleton({ item }: { item: Location }) {
   return (
@@ -16,12 +18,17 @@ export default function LocationSkeleton({ item }: { item: Location }) {
         <LocationCard item={item} />
       </Grid>
       <Grid item xs={12}>
-        <Section
+        <PaginatedTable
           title="Providers"
-          hasItems={item.providers !== undefined && item.providers.length > 0}
-        >
-          <ProvidersTable items={item.providers} />
-        </Section>
+          items={item.providers}
+          renderItem={(items, page, rowsPerPage) => (
+            <ProvidersTable
+              items={items}
+              page={page}
+              rowsPerPage={rowsPerPage}
+            />
+          )}
+        />
       </Grid>
     </Grid>
   );

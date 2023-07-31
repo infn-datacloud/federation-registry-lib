@@ -1,13 +1,15 @@
+"use client";
+
 import { Grid, Typography } from "@mui/material";
-import Section from "@/app/dashboard/_components/section";
 import LocationCard from "./locationCard";
 import IdentityProvidersTable from "./identityProvidersTable";
-import ServicesTable from "./servicesTable";
 import ProjectsTable from "./projectsTable";
 import FlavorsTable from "./flavorsTable";
 import ImagesTable from "./imagesTable";
 import ProviderCard from "./providerCard";
 import { Provider } from "../../_lib/dbTypes";
+import ServicesTable from "./servicesTable";
+import PaginatedTable from "@/app/dashboard/_components/paginatedTable";
 
 export default function Skeleton({ item }: { item: Provider }) {
   return (
@@ -24,32 +26,69 @@ export default function Skeleton({ item }: { item: Provider }) {
         <LocationCard item={item.location} />
       </Grid>
       <Grid item xs={12}>
-        <Section
+        <PaginatedTable
           title="Identity Providers"
-          hasItems={item.identity_providers.length > 0}
-        >
-          <IdentityProvidersTable items={item.identity_providers} />
-        </Section>
+          items={item.identity_providers}
+          renderItem={(items, page, rowsPerPage) => (
+            <IdentityProvidersTable
+              items={items}
+              page={page}
+              rowsPerPage={rowsPerPage}
+            />
+          )}
+        />
       </Grid>
       <Grid item xs={12}>
-        <Section title="Services" hasItems={item.services.length > 0}>
-          <ServicesTable items={item.services} />
-        </Section>
+        <PaginatedTable
+          title="Services"
+          items={item.services}
+          renderItem={(items, page, rowsPerPage) => (
+            <ServicesTable
+              items={items}
+              page={page}
+              rowsPerPage={rowsPerPage}
+            />
+          )}
+        />
       </Grid>
       <Grid item xs={12}>
-        <Section title="Projects" hasItems={item.projects.length > 0}>
-          <ProjectsTable items={item.projects} />
-        </Section>
+        <PaginatedTable
+          title="Projects"
+          items={item.projects}
+          renderItem={(items, page, rowsPerPage) => (
+            <ProjectsTable
+              items={items}
+              page={page}
+              rowsPerPage={rowsPerPage}
+            />
+          )}
+        />
       </Grid>
       <Grid item xs={12}>
-        <Section title="Flavors" hasItems={item.flavors.length > 0}>
-          <FlavorsTable items={item.flavors} />
-        </Section>
+        <PaginatedTable
+          title="Flavors"
+          items={item.flavors}
+          renderItem={(items, page, rowsPerPage) => (
+            <FlavorsTable
+              items={items}
+              page={page}
+              rowsPerPage={rowsPerPage}
+            />
+          )}
+        />
       </Grid>
       <Grid item xs={12}>
-        <Section title="Images" hasItems={item.images.length > 0}>
-          <ImagesTable items={item.images} />
-        </Section>
+      <PaginatedTable
+          title="Images"
+          items={item.images}
+          renderItem={(items, page, rowsPerPage) => (
+            <ImagesTable
+              items={items}
+              page={page}
+              rowsPerPage={rowsPerPage}
+            />
+          )}
+        />
       </Grid>
     </Grid>
   );
