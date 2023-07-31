@@ -1,7 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import { ReactNode } from "react";
 
-export default function ProviderSection({
+export default function Section({
   title,
   hasItems,
   children,
