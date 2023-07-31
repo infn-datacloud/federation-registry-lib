@@ -1,6 +1,5 @@
 "use client";
 
-import { IdentityProvider } from "@/app/dashboard/_lib/dbTypes";
 import {
   Paper,
   Table,
@@ -12,6 +11,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
+import { IdentityProvider } from "../_lib/dbTypes";
 
 export default function IdentityProvidersTable({
   items,

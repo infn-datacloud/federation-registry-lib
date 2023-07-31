@@ -1,6 +1,6 @@
 "use client";
 
-import { Image } from "@/app/dashboard/_lib/dbTypes";
+import { ImageBase } from "@/app/dashboard/_lib/dbTypes";
 import {
   Paper,
   Table,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 
-export default function ImagesTable({ items }: { items: Image[] }) {
+export default function ImagesTable({ items }: { items: ImageBase[] }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 

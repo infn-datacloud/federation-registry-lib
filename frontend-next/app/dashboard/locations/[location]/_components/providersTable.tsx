@@ -1,6 +1,6 @@
 "use client";
 
-import { Provider } from "@/app/dashboard/_lib/dbTypes";
+import { ProviderBase } from "@/app/dashboard/_lib/dbTypes";
 import {
   Paper,
   Table,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 
-export default function ProvidersTable({ items }: { items: Provider[] }) {
+export default function ProvidersTable({ items }: { items: ProviderBase[] }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 

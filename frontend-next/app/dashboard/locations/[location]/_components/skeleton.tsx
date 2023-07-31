@@ -1,8 +1,8 @@
 import { Grid, Typography } from "@mui/material";
-import { Location } from "@/app/dashboard/_lib/dbTypes";
 import Section from "@/app/dashboard/_components/section";
 import LocationCard from "./locationCard";
 import ProvidersTable from "./providersTable";
+import { Location } from "../_lib/dbTypes";
 
 export default function LocationSkeleton({ item }: { item: Location }) {
   return (

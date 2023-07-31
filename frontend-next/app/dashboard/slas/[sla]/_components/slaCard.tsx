@@ -1,7 +1,7 @@
-import { SLA } from "@/app/dashboard/_lib/dbTypes";
+import { SLABase } from "@/app/dashboard/_lib/dbTypes";
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 
-export default function SLACard({ item }: { item: SLA }) {
+export default function SLACard({ item }: { item: SLABase }) {
   return (
     <Card>
       <CardHeader title="Details" />

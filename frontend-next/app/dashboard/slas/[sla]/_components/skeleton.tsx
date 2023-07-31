@@ -1,8 +1,8 @@
 import { Grid, Typography } from "@mui/material";
-import { SLA } from "@/app/dashboard/_lib/dbTypes";
 import SLACard from "./slaCard";
 import UserGroupCard from "./userGroupCard";
 import ProjectCard from "./projectCard";
+import { SLA } from "../_lib/dbTypes";
 
 export default function Skeleton({ item }: { item: SLA }) {
   return (

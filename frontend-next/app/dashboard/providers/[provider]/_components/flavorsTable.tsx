@@ -1,6 +1,6 @@
 "use client";
 
-import { Flavor } from "@/app/dashboard/_lib/dbTypes";
+import { FlavorBase } from "@/app/dashboard/_lib/dbTypes";
 import {
   Paper,
   Table,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 
-export default function FlavorsTable({ items }: { items: Flavor[] }) {
+export default function FlavorsTable({ items }: { items: FlavorBase[] }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 

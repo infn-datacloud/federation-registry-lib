@@ -1,7 +1,7 @@
-import { Provider } from "@/app/dashboard/_lib/dbTypes";
+import { ProviderBase } from "@/app/dashboard/_lib/dbTypes";
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 
-export default function ProviderCard({ item }: { item: Provider }) {
+export default function ProviderCard({ item }: { item: ProviderBase }) {
   return (
     <Card>
       <CardHeader title="Details" />

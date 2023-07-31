@@ -1,11 +1,11 @@
 import { Url } from "next/dist/shared/lib/router/router";
 
-export type AuthDetails = {
+export interface AuthDetailsBase {
   idp_name: string;
   protocol: string;
-};
+}
 
-export type Flavor = {
+export interface FlavorBase {
   uid: string;
   name: string;
   uuid: string;
@@ -16,18 +16,15 @@ export type Flavor = {
   infiniband_support: boolean;
   gpu_model?: string;
   gpu_vendor?: string;
-};
+}
 
-export type IdentityProvider = {
+export interface IdentityProviderBase {
   uid: string;
   endpoint: Url;
   group_claim: string;
-  relationship?: AuthDetails;
-  providers?: Provider[];
-  user_groups?: UserGroup[];
-};
+}
 
-export type Image = {
+export interface ImageBase {
   uid: string;
   name: string;
   uuid: string;
@@ -38,18 +35,17 @@ export type Image = {
   cuda_support: boolean;
   gpu_driver: boolean;
   creation_time?: Date;
-};
+}
 
-export type Location = {
+export interface LocationBase {
   uid: string;
   name: string;
   country: string;
   latitude?: number;
   longitude?: number;
-  providers?: Provider[];
-};
+}
 
-export type Project = {
+export interface ProjectBase {
   uid: string;
   name: string;
   uuid: string;
@@ -57,40 +53,29 @@ export type Project = {
   private_network_name?: string;
   private_network_proxy_host?: string;
   private_network_proxy_user?: string;
-  provider?: Provider;
-};
+}
 
-export type Provider = {
+export interface ProviderBase {
   uid: string;
   name: string;
   is_public: boolean;
   support_emails: string[];
-  location?: Location;
-  flavors?: Flavor[];
-  identity_providers?: IdentityProvider[];
-  images?: Image[];
-  projects?: Project[];
-  services?: Service[];
-  relationship?: AuthDetails;
-};
+}
 
-export type Service = {
+export interface ServiceBase {
   uid: string;
   endpoint: Url;
   type: string;
-};
+}
 
-export type SLA = {
+export interface SLABase {
   uid: string;
   start_date: Date;
   end_date?: Date;
   document_uuid: string;
-  user_group?: UserGroup;
-  project?: Project;
-};
+}
 
-export type UserGroup = {
+export interface UserGroupBase {
   uid: string;
   name: string;
-  identity_provider?: IdentityProvider;
-};
+}

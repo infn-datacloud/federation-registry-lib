@@ -1,6 +1,6 @@
 "use client";
 
-import { UserGroup } from "@/app/dashboard/_lib/dbTypes";
+import { UserGroupBase } from "@/app/dashboard/_lib/dbTypes";
 import {
   Paper,
   Table,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 
-export default function UserGroupsTable({ items }: { items: UserGroup[] }) {
+export default function UserGroupsTable({ items }: { items: UserGroupBase[] }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 

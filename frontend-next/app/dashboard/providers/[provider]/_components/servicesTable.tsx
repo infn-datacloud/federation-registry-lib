@@ -1,6 +1,6 @@
 "use client";
 
-import { Service } from "@/app/dashboard/_lib/dbTypes";
+import { ServiceBase } from "@/app/dashboard/_lib/dbTypes";
 import {
   Paper,
   Table,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 
-export default function ServicesTable({ items }: { items: Service[] }) {
+export default function ServicesTable({ items }: { items: ServiceBase[] }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 

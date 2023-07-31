@@ -1,7 +1,11 @@
-import { IdentityProvider } from "@/app/dashboard/_lib/dbTypes";
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { IdentityProviderBase } from "@/app/dashboard/_lib/dbTypes";
 
-export default function IdentityProviderCard({ item }: { item: IdentityProvider }) {
+export default function IdentityProviderCard({
+  item,
+}: {
+  item: IdentityProviderBase;
+}) {
   return (
     <Card>
       <CardHeader title="Details" />

@@ -1,7 +1,7 @@
-import { Location } from "@/app/dashboard/_lib/dbTypes";
 import { Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { LocationBase } from "@/app/dashboard/_lib/dbTypes";
 
-export default function LocationCard({ item }: { item: Location }) {
+export default function LocationCard({ item }: { item: LocationBase }) {
   return (
     <Card>
       <CardHeader title="Details" />

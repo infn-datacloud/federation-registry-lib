@@ -1,6 +1,6 @@
 "use client";
 
-import { Project } from "@/app/dashboard/_lib/dbTypes";
+import { ProjectBase } from "@/app/dashboard/_lib/dbTypes";
 import {
   Paper,
   Table,
@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 
-export default function ProjectsTable({ items }: { items: Project[] }) {
+export default function ProjectsTable({ items }: { items: ProjectBase[] }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
