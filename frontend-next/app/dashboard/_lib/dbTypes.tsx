@@ -23,6 +23,8 @@ export type IdentityProvider = {
   endpoint: Url;
   group_claim: string;
   relationship?: AuthDetails;
+  providers?: Provider[];
+  user_groups?: UserGroup[];
 };
 
 export type Image = {
@@ -68,6 +70,7 @@ export type Provider = {
   images?: Image[];
   projects?: Project[];
   services?: Service[];
+  relationship?: AuthDetails;
 };
 
 export type Service = {

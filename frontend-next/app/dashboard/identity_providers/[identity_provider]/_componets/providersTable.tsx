@@ -1,6 +1,6 @@
 "use client";
 
-import { IdentityProvider } from "@/app/dashboard/_lib/dbTypes";
+import { Provider } from "@/app/dashboard/_lib/dbTypes";
 import {
   Paper,
   Table,
@@ -13,11 +13,7 @@ import {
 } from "@mui/material";
 import { ChangeEvent, useState } from "react";
 
-export default function IdentityProvidersTable({
-  items,
-}: {
-  items: IdentityProvider[];
-}) {
+export default function ProvidersTable({ items }: { items: Provider[] }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
@@ -38,8 +34,9 @@ export default function IdentityProvidersTable({
         <Table sx={{ minWidth: 650 }}>
           <TableHead>
             <TableRow>
-              <TableCell>Endpoint</TableCell>
-              <TableCell>Group Claim</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Public/Private</TableCell>
+              <TableCell>Support emails</TableCell>
               <TableCell>Communication Name</TableCell>
               <TableCell>Communication Protocol</TableCell>
             </TableRow>
@@ -50,9 +47,10 @@ export default function IdentityProvidersTable({
               .map((item, index) => (
                 <TableRow key={index}>
                   <TableCell component="th" scope="row">
-                    {item.endpoint.toString()}
+                    {item.name}
                   </TableCell>
-                  <TableCell>{item.group_claim}</TableCell>
+                  <TableCell>{item.is_public ? "Public" : "Private"}</TableCell>
+                  <TableCell>{item.support_emails.join(", ")}</TableCell>
                   <TableCell>{item.relationship?.idp_name}</TableCell>
                   <TableCell>{item.relationship?.protocol}</TableCell>
                 </TableRow>
