@@ -44,6 +44,7 @@ export type Location = {
   country: string;
   latitude?: number;
   longitude?: number;
+  providers?: Provider[];
 };
 
 export type Project = {
