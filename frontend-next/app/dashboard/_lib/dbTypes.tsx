@@ -1,5 +1,10 @@
 import { Url } from "next/dist/shared/lib/router/router";
 
+export type AuthDetails = {
+  idp_name: string;
+  protocol: string;
+};
+
 export type Flavor = {
   uid: string;
   name: string;
@@ -17,6 +22,7 @@ export type IdentityProvider = {
   uid: string;
   endpoint: Url;
   group_claim: string;
+  relationship?: AuthDetails;
 };
 
 export type Image = {

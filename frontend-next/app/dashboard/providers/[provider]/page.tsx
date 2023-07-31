@@ -1,5 +1,7 @@
+import { Suspense } from "react";
+import Loading from "../loading";
 import { getProviders } from "../../_lib/crud";
-import Provider from "./_componets/provider";
+import ProviderSkeleton from "./_componets/providerSkeleton";
 
 export default async function Page({
   params,
@@ -7,5 +9,9 @@ export default async function Page({
   params: { provider: string };
 }) {
   const provider = await getProviders(params.provider);
-  return <Provider promise={provider} />;
+  return (
+    <Suspense fallback={<Loading />}>
+      <ProviderSkeleton provider={provider} />
+    </Suspense>
+  );
 }
