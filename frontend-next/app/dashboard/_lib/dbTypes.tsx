@@ -57,6 +57,7 @@ export type Project = {
   private_network_name?: string;
   private_network_proxy_host?: string;
   private_network_proxy_user?: string;
+  provider?: Provider;
 };
 
 export type Provider = {
@@ -91,4 +92,5 @@ export type SLA = {
 export type UserGroup = {
   uid: string;
   name: string;
+  identity_provider?: IdentityProvider;
 };
