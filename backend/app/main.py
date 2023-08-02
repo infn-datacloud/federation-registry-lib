@@ -12,10 +12,22 @@ dependencies = None
 if settings.DISCOVERY_URL is not None:
     dependencies = [Depends(oidc_scheme)]
 
-app = FastAPI(title=settings.PROJECT_NAME, dependencies=dependencies)
+tags_metadata = [
+    {
+        "name": settings.API_V1_STR,
+        "description": "API version 1, see link on the right",
+        "externalDocs": {
+            "description": "API version 1 documentation",
+            "url": "http://localhost:8000/api/v1/docs",
+        },
+    },
+]
 
-app.include_router(router, prefix="/api")
-app.include_router(router_v1, prefix=f"/api{settings.API_V1_STR}")
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    dependencies=dependencies,
+    openapi_tags=tags_metadata,
+)
 
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
@@ -27,6 +39,11 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+sub_app_v1 = FastAPI()
+sub_app_v1.include_router(router_v1)
+app.mount(settings.API_V1_STR, sub_app_v1)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0")
