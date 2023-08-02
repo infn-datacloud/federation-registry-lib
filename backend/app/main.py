@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.auth.dependencies import oidc_scheme
 from app.config import get_settings
@@ -30,6 +31,17 @@ app.include_router(quota_router)
 app.include_router(service_router)
 app.include_router(sla_router)
 app.include_router(user_group_router)
+
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            str(origin) for origin in settings.BACKEND_CORS_ORIGINS
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0")
