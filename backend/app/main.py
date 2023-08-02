@@ -20,7 +20,9 @@ settings = get_settings()
 dependencies = None
 if settings.DISCOVERY_URL is not None:
     dependencies = [Depends(oidc_scheme)]
-app = FastAPI(dependencies=dependencies)
+
+app = FastAPI(title=settings.PROJECT_NAME, dependencies=dependencies)
+
 app.include_router(flavor_router)
 app.include_router(identity_provider_router)
 app.include_router(image_router)
