@@ -1,17 +1,10 @@
-import { Suspense } from "react";
+"use client";
+
 import Loading from "../loading";
-import { getSLAs } from "../../_lib/crud";
+import { useSLAs } from "../../_lib/crud";
 import Skeleton from "./_components/skeleton";
 
-export default async function Page({
-  params,
-}: {
-  params: { provider: string };
-}) {
-  const provider = await getSLAs(params.provider);
-  return (
-    <Suspense fallback={<Loading />}>
-      <Skeleton item={provider} />
-    </Suspense>
-  );
+export default function Page({ params }: { params: { provider: string } }) {
+  const { sla } = useSLAs(params.provider);
+  return sla ? <Skeleton item={sla} /> : <Loading />;
 }

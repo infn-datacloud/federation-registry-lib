@@ -1,17 +1,10 @@
-import { Suspense } from "react";
+"use client";
+
 import Loading from "../loading";
-import { getLocations } from "../../_lib/crud";
+import { useLocations } from "../../_lib/crud";
 import Skeleton from "./_components/skeleton";
 
-export default async function Page({
-  params,
-}: {
-  params: { location: string };
-}) {
-  const location = await getLocations(params.location);
-  return (
-    <Suspense fallback={<Loading />}>
-      <Skeleton item={location} />
-    </Suspense>
-  );
+export default function Page({ params }: { params: { location: string } }) {
+  const { location } = useLocations(params.location);
+  return location ? <Skeleton item={location} /> : <Loading />;
 }

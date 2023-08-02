@@ -1,17 +1,10 @@
-import { Suspense } from "react";
+"use client";
+
 import Loading from "../loading";
-import { getProviders } from "../../_lib/crud";
+import { useProviders } from "../../_lib/crud";
 import Skeleton from "./_components/skeleton";
 
-export default async function Page({
-  params,
-}: {
-  params: { provider: string };
-}) {
-  const provider = await getProviders(params.provider);
-  return (
-    <Suspense fallback={<Loading />}>
-      <Skeleton item={provider} />
-    </Suspense>
-  );
+export default function Page({ params }: { params: { provider: string } }) {
+  const { provider } = useProviders(params.provider);
+  return provider ? <Skeleton item={provider} /> : <Loading />;
 }

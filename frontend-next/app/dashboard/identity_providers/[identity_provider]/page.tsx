@@ -1,17 +1,14 @@
-import { Suspense } from "react";
+"use client";
+
 import Loading from "../loading";
-import { getIdentityProviders } from "../../_lib/crud";
+import { useIdentityProviders } from "../../_lib/crud";
 import Skeleton from "./_components/skeleton";
 
-export default async function Page({
+export default function Page({
   params,
 }: {
   params: { identity_provider: string };
 }) {
-  const identity_provider = await getIdentityProviders(params.identity_provider);
-  return (
-    <Suspense fallback={<Loading />}>
-      <Skeleton item={identity_provider} />
-    </Suspense>
-  );
+  const { identityProvider } = useIdentityProviders(params.identity_provider);
+  return identityProvider ? <Skeleton item={identityProvider} /> : <Loading />;
 }
