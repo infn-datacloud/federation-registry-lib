@@ -3,7 +3,7 @@
 import { CircularProgress, Grid } from "@mui/material";
 import { Suspense } from "react";
 import IdentityProviderCardContent from "./_components/identityProviderCardContent";
-import Loading from "../identity_providers/loading";
+import Loading from "./loading";
 import { useIdentityProviders } from "../_lib/crud";
 import CardWrapper from "../_components/card/wrapper";
 import { IdentityProvider } from "./_lib/dbTypes";

@@ -2,7 +2,7 @@
 
 import { Grid } from "@mui/material";
 import LocationCardContent from "./_components/locationCardContent";
-import Loading from "../locations/loading";
+import Loading from "./loading";
 import { useLocations } from "../_lib/crud";
 import CardWrapper from "../_components/card/wrapper";
 import { Location } from "./_lib/dbTypes";

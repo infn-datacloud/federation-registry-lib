@@ -2,7 +2,7 @@
 
 import { Grid } from "@mui/material";
 import SLACardContent from "./_components/slaCardContent";
-import Loading from "../slas/loading";
+import Loading from "./loading";
 import { useSLAs } from "../_lib/crud";
 import CardWrapper from "../_components/card/wrapper";
 import { SLA } from "./_lib/dbTypes";
