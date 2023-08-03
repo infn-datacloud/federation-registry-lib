@@ -1,4 +1,4 @@
-FROM airdock/python-poetry as requirements-stage
+FROM airdock/python-poetry as requirements
 
 WORKDIR /app/
 
@@ -11,12 +11,12 @@ ENV INSTALL_CMD="poetry export -f requirements.txt --output requirements.txt --w
 RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then ${INSTALL_CMD} --dev ; else ${INSTALL_CMD} ; fi"
 
 
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 as backend-stage
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 as backend
 
 WORKDIR /app/
 
-COPY --from=requirements-stage /app/requirements.txt /code/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+COPY --from=requirements /app/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 # For development, Jupyter remote kernel, Hydrogen
 # Using inside the container:
