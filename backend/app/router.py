@@ -15,18 +15,6 @@ from app.config import get_settings
 
 settings = get_settings()
 
-router = APIRouter()
-router.include_router(flavor_router_v1)
-router.include_router(identity_provider_router_v1)
-router.include_router(image_router_v1)
-router.include_router(location_router_v1)
-router.include_router(project_router_v1)
-router.include_router(provider_router_v1)
-router.include_router(quota_router_v1)
-router.include_router(service_router_v1)
-router.include_router(sla_router_v1)
-router.include_router(user_group_router_v1)
-
 router_v1 = APIRouter()
 router_v1.include_router(flavor_router_v1)
 router_v1.include_router(identity_provider_router_v1)
