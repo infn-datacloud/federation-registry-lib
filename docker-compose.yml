@@ -116,7 +116,7 @@ services:
     build:
       context: ./frontend
       args:
-        FRONTEND_ENV: ${FRONTEND_ENV-production}
+        NEXT_PUBLIC_DOMAIN: ${DOMAIN?Variable not set}
     deploy:
       labels:
         - traefik.enable=true

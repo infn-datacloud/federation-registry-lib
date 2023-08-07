@@ -58,10 +58,6 @@ services:
   frontend:
     ports:
       - "3000:3000"
-    build:
-      context: ./frontend
-      args:
-        FRONTEND_ENV: dev
     labels:
       - traefik.enable=true
       - traefik.constraint-label-stack=${TRAEFIK_TAG?Variable not set}

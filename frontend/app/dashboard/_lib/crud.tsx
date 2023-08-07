@@ -2,7 +2,7 @@ import path from "path";
 import useSWR from "swr";
 
 async function get(basePath: string, apiVersion: string, uid?: string) {
-  const apiUrl = "http://localhost:8000";
+  const apiUrl = `http://${process.env.NEXT_PUBLIC_DOMAIN}`;
 
   let suffix = path.join("api", apiVersion, basePath, "/");
   if (uid !== undefined) {
