@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
-from typing import List, Union
+from typing import List, Optional, Union
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodUpdate
 
 from app.identity_provider.api.dependencies import valid_identity_provider_id
@@ -73,7 +73,7 @@ def get_provider(item: Provider = Depends(valid_provider_id)):
 @db.write_transaction
 @router.put(
     "/{provider_uid}",
-    response_model=ProviderReadExtended,
+    response_model=Optional[ProviderReadExtended],
     dependencies=[Depends(validate_new_provider_values)],
 )
 def put_provider(
@@ -99,9 +99,9 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 
 @db.write_transaction
 @router.put(
-    "/{project_uid}/identity_providers", response_model=ProviderReadExtended
+    "/{provider_uid}/identity_providers/{identity_provider_uid}", response_model=ProviderReadExtended
 )
-def connect_user_group_identity_providers_link(
+def connect_provider_to_identity_providers(
     data: Union[AuthMethodCreate, AuthMethodUpdate],
     response: Response,
     item: Provider = Depends(valid_provider_id),
@@ -118,15 +118,15 @@ def connect_user_group_identity_providers_link(
             response.status_code = status.HTTP_304_NOT_MODIFIED
             return None
         item.identity_providers.disconnect(identity_provider)
-    item.identity_providers.connect(identity_provider, data)
+    item.identity_providers.connect(identity_provider, data.dict())
     return item
 
 
 @db.write_transaction
 @router.delete(
-    "/{project_uid}/identity_providers", response_model=ProviderReadExtended
+    "/{provider_uid}/identity_providers/{identity_provider_uid}", response_model=ProviderReadExtended
 )
-def disconnect_user_group_identity_providers_link(
+def disconnect_provider_from_identity_providers(
     response: Response,
     item: Provider = Depends(valid_provider_id),
     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
@@ -139,8 +139,8 @@ def disconnect_user_group_identity_providers_link(
 
 
 @db.write_transaction
-@router.put("/{user_group_uid}/locations", response_model=ProviderReadExtended)
-def connect_user_group_location(
+@router.put("/{provider_uid}/locations/{location_uid}", response_model=ProviderReadExtended)
+def connect_provider_to_location(
     response: Response,
     item: Provider = Depends(valid_provider_id),
     location: Location = Depends(valid_location_id),
@@ -157,9 +157,9 @@ def connect_user_group_location(
 
 @db.write_transaction
 @router.delete(
-    "/{user_group_uid}/locations", response_model=ProviderReadExtended
+    "/{provider_uid}/locations/{location_uid}", response_model=ProviderReadExtended
 )
-def disconnect_user_group_location(
+def disconnect_provider_from_location(
     response: Response,
     item: Provider = Depends(valid_provider_id),
     location: Location = Depends(valid_location_id),

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
-from typing import List
+from typing import List, Optional
 
 from app.pagination import Pagination, paginate
 from app.project.api.dependencies import project_has_no_sla
@@ -81,7 +81,7 @@ def get_sla(item: SLA = Depends(valid_sla_id)):
 @db.write_transaction
 @router.put(
     "/{sla_uid}",
-    response_model=SLAReadExtended,
+    response_model=Optional[SLAReadExtended],
     dependencies=[Depends(validate_new_sla_values)],
 )
 def put_sla(

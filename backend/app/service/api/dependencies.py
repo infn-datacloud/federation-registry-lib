@@ -28,5 +28,5 @@ def is_unique_service(item: ServiceCreate) -> None:
 def validate_new_service_values(
     update_data: ServiceUpdate, item: Service = Depends(valid_service_id)
 ) -> None:
-    if update_data.endpoint != item.endpoint:
+    if str(update_data.endpoint) != item.endpoint:
         is_unique_service(update_data)

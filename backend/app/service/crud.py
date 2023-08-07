@@ -55,19 +55,19 @@ class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
         return db_obj
 
     def remove(self, *, db_obj: Service) -> bool:
-        if isinstance(db_obj, NovaServiceCreate):
+        if isinstance(db_obj, NovaService):
             return nova_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, MesosServiceCreate):
+        elif isinstance(db_obj, MesosService):
             return mesos_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, ChronosServiceCreate):
+        elif isinstance(db_obj, ChronosService):
             return chronos_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, MarathonServiceCreate):
+        elif isinstance(db_obj, MarathonService):
             return marathon_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, KubernetesServiceCreate):
+        elif isinstance(db_obj, KubernetesService):
             return kubernetes_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, RucioServiceCreate):
+        elif isinstance(db_obj, RucioService):
             return rucio_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, OneDataServiceCreate):
+        elif isinstance(db_obj, OneDataService):
             return onedata_service.remove(db_obj=db_obj)
 
 

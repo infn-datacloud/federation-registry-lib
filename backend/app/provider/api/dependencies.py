@@ -36,7 +36,7 @@ def is_unique_provider(
 def validate_new_provider_values(
     update_data: ProviderUpdate, item: Provider = Depends(valid_provider_id)
 ) -> None:
-    if update_data.name != item.item:
+    if update_data.name != item.name:
         is_unique_provider(update_data)
 
 
@@ -66,7 +66,9 @@ def valid_identity_provider_list(item: ProviderCreateExtended) -> None:
     for i in item.identity_providers:
         db_item = identity_provider.get(endpoint=i.endpoint)
         if db_item is not None:
-            for k, v in i.dict(exclude={"relationship"}).items():
+            for k, v in i.dict(
+                exclude={"relationship"}, exclude_unset=True
+            ).items():
                 if db_item.__getattribute__(k) != v:
                     msg = f"Identity Provider with URL '{i.endpoint}' "
                     msg += "already exists, but with different attributes. "
@@ -81,7 +83,7 @@ def valid_location(item: ProviderCreateExtended) -> None:
     if loc is not None:
         db_item = location.get(name=loc.name)
         if db_item is not None:
-            for k, v in loc.dict().items():
+            for k, v in loc.dict(exclude_unset=True).items():
                 if db_item.__getattribute__(k) != v:
                     msg = f"Location with name '{loc.name}' "
                     msg += "already exists, but with different attributes. "

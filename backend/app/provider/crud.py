@@ -37,13 +37,13 @@ class CRUDProvider(CRUDBase[Provider, ProviderCreate, ProviderUpdate]):
 
     def remove(self, *, db_obj: Provider) -> bool:
         for item in db_obj.flavors.all():
-            flavor.remove(item)
+            flavor.remove(db_obj=item)
         for item in db_obj.images.all():
-            image.remove(item)
+            image.remove(db_obj=item)
         for item in db_obj.projects.all():
-            project.remove(item)
+            project.remove(db_obj=item)
         for item in db_obj.services.all():
-            service.remove(item)
+            service.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
 

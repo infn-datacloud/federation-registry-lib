@@ -31,5 +31,8 @@ def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
 def validate_new_sla_values(
     update_data: SLAUpdate, item: SLA = Depends(valid_sla_id)
 ) -> None:
-    if update_data.document_uuid != item.document_uuid:
+    if (
+        update_data.document_uuid is not None
+        and str(update_data.document_uuid) != item.document_uuid
+    ):
         is_unique_sla(update_data)

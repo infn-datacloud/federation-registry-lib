@@ -24,7 +24,7 @@ def validate_new_identity_provider_values(
     update_data: IdentityProviderUpdate,
     item: IdentityProvider = Depends(valid_identity_provider_id),
 ) -> None:
-    if update_data.endpoint != item.endpoint:
+    if str(update_data.endpoint) != item.endpoint:
         db_item = identity_provider.get(endpoint=update_data.endpoint)
         if db_item is not None:
             msg = f"Identity Provider with URL '{update_data.endpoint}' "

@@ -67,8 +67,8 @@ def delete_project(item: Project = Depends(valid_project_id)):
 
 
 @db.write_transaction
-@router.put("/{user_group_uid}/flavors", response_model=ProjectReadExtended)
-def connect_user_group_flavor(
+@router.put("/{project_uid}/flavors/{flavor_uid}", response_model=ProjectReadExtended)
+def connect_project_to_flavor(
     response: Response,
     item: Project = Depends(valid_project_id),
     flavor: Flavor = Depends(valid_flavor_id),
@@ -81,8 +81,8 @@ def connect_user_group_flavor(
 
 
 @db.write_transaction
-@router.delete("/{user_group_uid}/flavors", response_model=ProjectReadExtended)
-def disconnect_user_group_flavor(
+@router.delete("/{project_uid}/flavors/{flavor_uid}", response_model=ProjectReadExtended)
+def disconnect_project_from_flavor(
     response: Response,
     item: Project = Depends(valid_project_id),
     flavor: Flavor = Depends(valid_flavor_id),
@@ -95,8 +95,8 @@ def disconnect_user_group_flavor(
 
 
 @db.write_transaction
-@router.put("/{project_uid}/images", response_model=ProjectReadExtended)
-def connect_user_group_images_link(
+@router.put("/{project_uid}/images/{image_uid}", response_model=ProjectReadExtended)
+def connect_project_to_image(
     response: Response,
     item: Project = Depends(valid_project_id),
     image: Image = Depends(valid_image_id),
@@ -109,8 +109,8 @@ def connect_user_group_images_link(
 
 
 @db.write_transaction
-@router.delete("/{project_uid}/images", response_model=ProjectReadExtended)
-def disconnect_user_group_images_link(
+@router.delete("/{project_uid}/images/{image_uid}", response_model=ProjectReadExtended)
+def disconnect_project_from_image(
     response: Response,
     item: Project = Depends(valid_project_id),
     image: Image = Depends(valid_image_id),

@@ -22,5 +22,5 @@ def validate_new_flavor_values(
 ) -> None:
     if update_data.name != item.name:
         find_duplicates(item.provider.single().flavors.all(), "name")
-    if update_data.uuid != item.uuid:
+    if str(update_data.uuid) != item.uuid:
         find_duplicates(item.provider.single().flavors.all(), "uuid")
