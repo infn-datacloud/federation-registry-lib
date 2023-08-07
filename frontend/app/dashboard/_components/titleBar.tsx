@@ -10,7 +10,7 @@ export default function TitleBar() {
     >
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          Catalog API
+          Configuration Management Database
         </Typography>
       </Toolbar>
     </AppBar>
