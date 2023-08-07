@@ -40,7 +40,7 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-sub_app_v1 = FastAPI()
+sub_app_v1 = FastAPI(title=settings.PROJECT_NAME)
 sub_app_v1.include_router(router_v1)
 app.mount(settings.API_V1_STR, sub_app_v1)
 
