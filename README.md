@@ -15,7 +15,7 @@ git clone https://baltig.infn.it/infn-cloud/paas/catalog-api
 cd catalog-api
 ```
 
-To start up the service in production mode use docker compose:
+To start up the service in production mode use docker compose. **It requires an external network named *traefik-public***:
 
 ```bash
 docker compose up -d
@@ -27,4 +27,4 @@ To start the service in development mode using docker compose type:
 docker compose up -f docker-compose.yml -f docker-compose.override.yml up -d
 ```
 
-otherwise, to start the service locally in development mode, look at the README.md in each subfolder.
+otherwise, to start the service locally in development mode, look at the `README.md` in each subfolder.

@@ -9,7 +9,13 @@ poetry install
 poetry shell
 ```
 
-Run the development server:
+Start your neo4j database. If you want, from the top folder, you can run a dockerized version with the following command:
+
+```bash
+docker compose -f docker-compose.neo4j.dev.yml up -d
+```
+
+Finally run the development server (use the --reload flag to allow server reload on changes):
 
 ```bash
 uvicorn app.main --reload
