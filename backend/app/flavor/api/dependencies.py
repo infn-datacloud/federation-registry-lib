@@ -1,9 +1,10 @@
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
+from typing import Union
 
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorUpdate
+from app.flavor.schemas import FlavorCreate, FlavorUpdate
 from app.provider.api.dependencies import valid_provider_id
 from app.provider.models import Provider
 
@@ -31,33 +32,56 @@ def valid_flavor_id(flavor_uid: UUID4) -> Flavor:
     return item
 
 
-def is_unique_flavor(
-    *,
-    item: FlavorUpdate,
-    attr: str,
+def valid_flavor_name(
+    item: Union[FlavorCreate, FlavorUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
     """
     Check there are no other flavors, belonging to the same
-    provider, with the same name or uuid.
+    provider, with the same name.
 
     Args:
-        item (FlavorUpdate): new data.
+        item (FlavorCreate | FlavorUpdate): new data.
 
     Returns:
         None
 
     Raises:
-        BadRequestError: DB entity with identical name or uuid,
+        BadRequestError: DB entity with identical name,
             belonging to the same provider, already exists.
     """
 
-    kwargs = {attr: item.__getattribute__(attr)}
-    db_item = provider.flavors.get_or_none(**kwargs)
+    db_item = provider.flavors.get_or_none(name=item.name)
     if db_item is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Flavor with {attr} '{kwargs[attr]}' already registered",
+            detail=f"Flavor with name '{item.name}' already registered",
+        )
+
+
+def valid_flavor_uuid(
+    item: Union[FlavorCreate, FlavorUpdate],
+    provider: Provider = Depends(valid_provider_id),
+) -> None:
+    """
+    Check there are no other flavors, belonging to the same
+    provider, with the same uuid.
+
+    Args:
+        item (FlavorCreate | FlavorUpdate): new data.
+
+    Returns:
+        None
+
+    Raises:
+        BadRequestError: DB entity with identical uuid,
+            belonging to the same provider, already exists.
+    """
+    db_item = provider.flavors.get_or_none(uuid=item.uuid)
+    if db_item is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Flavor with uuid '{item.uuid}' already registered",
         )
 
 
@@ -82,10 +106,6 @@ def validate_new_flavor_values(
     """
 
     if update_data.name != item.name:
-        is_unique_flavor(
-            item=update_data, provider=item.provider.single(), attr="name"
-        )
+        valid_flavor_name(item=update_data, provider=item.provider.single())
     if str(update_data.uuid) != item.uuid:
-        is_unique_flavor(
-            item=update_data, provider=item.provider.single(), attr="uuid"
-        )
+        valid_flavor_uuid(item=update_data, provider=item.provider.single())

@@ -3,6 +3,10 @@ from neomodel import db
 from typing import List, Optional, Union
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodUpdate
 
+from app.flavor.api.dependencies import valid_flavor_name, valid_flavor_uuid
+from app.flavor.crud import flavor
+from app.flavor.schemas import FlavorCreate
+from app.flavor.schemas_extended import FlavorReadExtended
 from app.identity_provider.api.dependencies import valid_identity_provider_id
 from app.identity_provider.models import IdentityProvider
 from app.location.api.dependencies import valid_location_id
@@ -66,7 +70,7 @@ def get_providers(
         Depends(valid_project_list),
         Depends(valid_service_list),
     ],
-    summary="Create a provider",
+    summary="Create provider",
     description="Create a provider and its related entities: \
         flavors, identity providers, images, location, \
         projects and services. \
@@ -133,6 +137,27 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
+
+
+@db.write_transaction
+@router.post(
+    "/{provider_uid}/flavors/{flavor_uid}",
+    response_model=FlavorReadExtended,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(valid_flavor_name), Depends(valid_flavor_uuid)],
+    summary="Add new flavor to provider",
+    description="Create a flavor and connect it to a \
+        provider knowing it *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        At first validate new flavor values checking there are \
+        no other items with the given *name* or *uuid*.",
+)
+def add_flavor_to_provider(
+    item: FlavorCreate,
+    provider: Provider = Depends(valid_provider_id),
+):
+    return flavor.create(obj_in=item, provider=provider, force=True)
 
 
 @db.write_transaction
