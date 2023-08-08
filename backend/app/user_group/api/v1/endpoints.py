@@ -73,7 +73,8 @@ def get_user_group(item: UserGroup = Depends(valid_user_group_id)):
         current ones, the database entity is left unchanged \
         and the endpoint returns the `not modified` message. \
         At first validate new user group values checking there are \
-        no other items with the given *name*.",
+        no other items, belonging to same identity provider, \
+        with the given *name*.",
 )
 def put_user_group(
     update_data: UserGroupUpdate,

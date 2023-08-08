@@ -118,7 +118,8 @@ def delete_identity_providers(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error. \
         At first validate new user group values checking there are \
-        no other items with the given *name*."
+        no other items, belonging to same identity provider, \
+        with the given *name*."
 )
 def post_user_group(
     item: UserGroupCreate,

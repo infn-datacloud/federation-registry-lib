@@ -2,6 +2,8 @@ from typing import Union
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
+from app.identity_provider.api.dependencies import valid_identity_provider_id
+from app.identity_provider.models import IdentityProvider
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
@@ -31,10 +33,12 @@ def valid_user_group_id(user_group_uid: UUID4) -> UserGroup:
 
 
 def is_unique_user_group(
-    item: Union[UserGroupCreate, UserGroupUpdate]
+    item: Union[UserGroupCreate, UserGroupUpdate],
+    identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
 ) -> None:
     """
-    Check there are no other providers with the same name.
+    Check there are no other user groups, belonging to the same
+    identity provider, with the same name.
 
     Args:
         item (UserGroupCreate | UserGroupUpdate): new data.
@@ -46,7 +50,7 @@ def is_unique_user_group(
         BadRequestError: DB entity with given name already exists.
     """
 
-    db_item = user_group.get(name=item.name)
+    db_item = identity_provider.user_groups.get_or_none(name=item.name)
     if db_item is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -60,7 +64,8 @@ def validate_new_user_group_values(
 ) -> None:
     """
     Check given data are valid ones. Check there are no other
-    user groups with the same name.
+    user groups, belonging to the same identity provider,
+    with the same name.
 
     Args:
         update_data (UserGroupUpdate): new data.
@@ -75,4 +80,6 @@ def validate_new_user_group_values(
     """
 
     if update_data.name != item.name:
-        is_unique_user_group(update_data)
+        is_unique_user_group(
+            item=update_data, identity_provider=item.identity_provider.single()
+        )
