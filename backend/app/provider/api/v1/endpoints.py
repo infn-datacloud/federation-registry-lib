@@ -9,9 +9,17 @@ from app.flavor.schemas import FlavorCreate
 from app.flavor.schemas_extended import FlavorReadExtended
 from app.identity_provider.api.dependencies import valid_identity_provider_id
 from app.identity_provider.models import IdentityProvider
+from app.image.api.dependencies import valid_image_name, valid_image_uuid
+from app.image.crud import image
+from app.image.schemas import ImageCreate
+from app.image.schemas_extended import ImageReadExtended
 from app.location.api.dependencies import valid_location_id
 from app.location.models import Location
 from app.pagination import Pagination, paginate
+from app.project.api.dependencies import valid_project_name, valid_project_uuid
+from app.project.crud import project
+from app.project.schemas import ProjectCreate
+from app.project.schemas_extended import ProjectReadExtended
 from app.provider.api.dependencies import (
     is_unique_provider,
     valid_flavor_list,
@@ -212,6 +220,26 @@ def disconnect_provider_from_identity_providers(
     item.identity_providers.disconnect(identity_provider)
     return item
 
+@db.write_transaction
+@router.post(
+    "/{provider_uid}/images/{image_uid}",
+    response_model=ImageReadExtended,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(valid_image_name), Depends(valid_image_uuid)],
+    summary="Add new image to provider",
+    description="Create a image and connect it to a \
+        provider knowing it *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        At first validate new image values checking there are \
+        no other items with the given *name* or *uuid*.",
+)
+def add_image_to_provider(
+    item: ImageCreate,
+    provider: Provider = Depends(valid_provider_id),
+):
+    return image.create(obj_in=item, provider=provider, force=True)
+
 
 @db.write_transaction
 @router.put(
@@ -263,3 +291,23 @@ def disconnect_provider_from_location(
         return None
     item.location.disconnect(location)
     return item
+
+@db.write_transaction
+@router.post(
+    "/{provider_uid}/projects/{project_uid}",
+    response_model=ProjectReadExtended,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(valid_project_name), Depends(valid_project_uuid)],
+    summary="Add new project to provider",
+    description="Create a project and connect it to a \
+        provider knowing it *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        At first validate new project values checking there are \
+        no other items with the given *name* or *uuid*.",
+)
+def add_project_to_provider(
+    item: ProjectCreate,
+    provider: Provider = Depends(valid_provider_id),
+):
+    return project.create(obj_in=item, provider=provider, force=True)
