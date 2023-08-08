@@ -4,7 +4,8 @@ from pydantic import UUID4
 from app.image.crud import image
 from app.image.models import Image
 from app.image.schemas import ImageUpdate
-from app.utils import find_duplicates
+from app.provider.api.dependencies import valid_provider_id
+from app.provider.models import Provider
 
 
 def valid_image_id(image_uid: UUID4) -> Image:
@@ -29,6 +30,35 @@ def valid_image_id(image_uid: UUID4) -> Image:
         )
     return item
 
+def is_unique_image(
+    *,
+    item: ImageUpdate,
+    attr: str,
+    provider: Provider = Depends(valid_provider_id),
+) -> None:
+    """
+    Check there are no other images, belonging to the same
+    provider, with the same name or uuid.
+
+    Args:
+        item (ImageUpdate): new data.
+
+    Returns:
+        None
+
+    Raises:
+        BadRequestError: DB entity with identical name or uuid,
+            belonging to the same provider, already exists.
+    """
+
+    kwargs = {attr: item.__getattribute__(attr)}
+    db_item = provider.images.get_or_none(**kwargs)
+    if db_item is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Image with {attr} '{kwargs[attr]}' already registered",
+        )
+
 
 def validate_new_image_values(
     update_data: ImageUpdate, item: Image = Depends(valid_image_id)
@@ -46,11 +76,15 @@ def validate_new_image_values(
 
     Raises:
         NotFoundError: DB entity with given uid not found.
-        BadRequestError: DB entity with identical name or uuid, 
+        BadRequestError: DB entity with identical name or uuid,
             belonging to the same provider, already exists.
     """
 
     if update_data.name != item.name:
-        find_duplicates(item.provider.single().images.all(), "name")
+        is_unique_image(
+            item=update_data, provider=item.provider.single(), attr="name"
+        )
     if str(update_data.uuid) != item.uuid:
-        find_duplicates(item.provider.single().images.all(), "uuid")
+        is_unique_image(
+            item=update_data, provider=item.provider.single(), attr="uuid"
+        )

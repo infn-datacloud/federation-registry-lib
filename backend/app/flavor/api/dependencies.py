@@ -4,7 +4,8 @@ from pydantic import UUID4
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorUpdate
-from app.utils import find_duplicates
+from app.provider.api.dependencies import valid_provider_id
+from app.provider.models import Provider
 
 
 def valid_flavor_id(flavor_uid: UUID4) -> Flavor:
@@ -30,6 +31,36 @@ def valid_flavor_id(flavor_uid: UUID4) -> Flavor:
     return item
 
 
+def is_unique_flavor(
+    *,
+    item: FlavorUpdate,
+    attr: str,
+    provider: Provider = Depends(valid_provider_id),
+) -> None:
+    """
+    Check there are no other flavors, belonging to the same
+    provider, with the same name or uuid.
+
+    Args:
+        item (FlavorUpdate): new data.
+
+    Returns:
+        None
+
+    Raises:
+        BadRequestError: DB entity with identical name or uuid,
+            belonging to the same provider, already exists.
+    """
+
+    kwargs = {attr: item.__getattribute__(attr)}
+    db_item = provider.flavors.get_or_none(**kwargs)
+    if db_item is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Flavor with {attr} '{kwargs[attr]}' already registered",
+        )
+
+
 def validate_new_flavor_values(
     update_data: FlavorUpdate, item: Flavor = Depends(valid_flavor_id)
 ) -> None:
@@ -46,11 +77,15 @@ def validate_new_flavor_values(
 
     Raises:
         NotFoundError: DB entity with given uid not found.
-        BadRequestError: DB entity with identical name or uuid, 
+        BadRequestError: DB entity with identical name or uuid,
             belonging to the same provider, already exists.
     """
-    
+
     if update_data.name != item.name:
-        find_duplicates(item.provider.single().flavors.all(), "name")
+        is_unique_flavor(
+            item=update_data, provider=item.provider.single(), attr="name"
+        )
     if str(update_data.uuid) != item.uuid:
-        find_duplicates(item.provider.single().flavors.all(), "uuid")
+        is_unique_flavor(
+            item=update_data, provider=item.provider.single(), attr="uuid"
+        )

@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
-from typing import Union
+from typing import Any, List, Union
 
 from app.identity_provider.crud import identity_provider
 from app.location.crud import location
@@ -9,7 +9,6 @@ from app.provider.models import Provider
 from app.provider.schemas import ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended
 from app.service.api.dependencies import is_unique_service
-from app.utils import find_duplicates
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
@@ -80,6 +79,20 @@ def validate_new_provider_values(
 
     if update_data.name != item.name:
         is_unique_provider(update_data)
+
+
+def find_duplicates(items: List[Any], attr: str) -> None:
+    seen = set()
+    values = [j.__getattribute__(attr) for j in items]
+    dupes = [x for x in values if x in seen or seen.add(x)]
+    if len(dupes) > 0:
+        duplicates = ",".join(dupes)
+        msg = f"There are multiple items with identical {attr}: "
+        msg += f"{duplicates}"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=msg,
+        )
 
 
 def valid_flavor_list(item: ProviderCreateExtended) -> None:
