@@ -7,6 +7,19 @@ from app.location.schemas import LocationUpdate
 
 
 def valid_location_id(location_uid: UUID4) -> Location:
+    """
+    Check given uid corresponds to an entity in the DB.
+
+    Args:
+        location_uid (UUID4): uid of the target DB entity.
+
+    Returns:
+        Location: DB entity with given uid.
+
+    Raises:
+        NotFoundError: DB entity with given uid not found.
+    """
+
     item = location.get(uid=str(location_uid).replace("-", ""))
     if not item:
         raise HTTPException(
@@ -19,6 +32,22 @@ def valid_location_id(location_uid: UUID4) -> Location:
 def validate_new_location_values(
     update_data: LocationUpdate, item: Location = Depends(valid_location_id)
 ) -> None:
+    """
+    Check given data are valid ones. Check there are no other 
+    locations with the same name.
+
+    Args:
+        update_data (FlavorUpdate): new data.
+        item (Flavor): DB entity to update.
+
+    Returns:
+        None
+
+    Raises:
+        NotFoundError: DB entity with given uid not found.
+        BadRequestError: DB entity with given name already exists.
+    """
+
     if update_data.name != item.name:
         db_item = location.get(name=update_data.name)
         if db_item is not None:

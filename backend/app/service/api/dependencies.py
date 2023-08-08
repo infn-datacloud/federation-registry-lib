@@ -1,3 +1,4 @@
+from typing import Union
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
@@ -7,6 +8,19 @@ from app.service.schemas import ServiceCreate, ServiceUpdate
 
 
 def valid_service_id(service_uid: UUID4) -> Service:
+    """
+    Check given uid corresponds to an entity in the DB.
+
+    Args:
+        service_uid (UUID4): uid of the target DB entity.
+
+    Returns:
+        Service: DB entity with given uid.
+
+    Raises:
+        NotFoundError: DB entity with given uid not found.
+    """
+
     item = service.get(uid=str(service_uid).replace("-", ""))
     if not item:
         raise HTTPException(
@@ -16,7 +30,20 @@ def valid_service_id(service_uid: UUID4) -> Service:
     return item
 
 
-def is_unique_service(item: ServiceCreate) -> None:
+def is_unique_service(item: Union[ServiceCreate, ServiceUpdate]) -> None:
+    """
+    Check there are no other services with the same endpoint.
+
+    Args:
+        item (ServiceCreate | ServiceUpdate): new data.
+
+    Returns:
+        None
+
+    Raises:
+        BadRequestError: DB entity with given endpoint already exists.
+    """
+
     db_item = service.get(endpoint=item.endpoint)
     if db_item is not None:
         raise HTTPException(
@@ -28,5 +55,21 @@ def is_unique_service(item: ServiceCreate) -> None:
 def validate_new_service_values(
     update_data: ServiceUpdate, item: Service = Depends(valid_service_id)
 ) -> None:
+    """
+    Check given data are valid ones. Check there are no other
+    services with the same endpoint.
+
+    Args:
+        update_data (FlavorUpdate): new data.
+        item (Flavor): DB entity to update.
+
+    Returns:
+        None
+
+    Raises:
+        NotFoundError: DB entity with given uid not found.
+        BadRequestError: DB entity with given endpoint already exists.
+    """
+
     if str(update_data.endpoint) != item.endpoint:
         is_unique_service(update_data)
