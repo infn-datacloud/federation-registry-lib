@@ -30,7 +30,7 @@ def valid_service_id(service_uid: UUID4) -> Service:
     return item
 
 
-def is_unique_service(item: Union[ServiceCreate, ServiceUpdate]) -> None:
+def valid_service_endpoint(item: Union[ServiceCreate, ServiceUpdate]) -> None:
     """
     Check there are no other services with the same endpoint.
 
@@ -72,4 +72,4 @@ def validate_new_service_values(
     """
 
     if str(update_data.endpoint) != item.endpoint:
-        is_unique_service(update_data)
+        valid_service_endpoint(update_data)

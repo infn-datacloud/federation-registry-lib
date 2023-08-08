@@ -8,7 +8,7 @@ from app.provider.crud import provider
 from app.provider.models import Provider
 from app.provider.schemas import ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended
-from app.service.api.dependencies import is_unique_service
+from app.service.api.dependencies import valid_service_endpoint
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
@@ -172,7 +172,7 @@ def valid_service_list(item: ProviderCreateExtended) -> None:
 
     find_duplicates(item.services, "endpoint")
     for i in item.services:
-        is_unique_service(i)
+        valid_service_endpoint(i)
 
 
 def valid_identity_provider_list(item: ProviderCreateExtended) -> None:

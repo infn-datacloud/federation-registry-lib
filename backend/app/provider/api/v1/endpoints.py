@@ -40,6 +40,18 @@ from app.provider.schemas_extended import (
     ProviderUpdate,
 )
 from app.query import CommonGetQuery
+from app.service.api.dependencies import valid_service_endpoint
+from app.service.crud import service
+from app.service.schemas import ServiceCreate
+from app.service.schemas_extended import (
+    ChronosServiceReadExtended,
+    KubernetesServiceReadExtended,
+    MarathonServiceReadExtended,
+    MesosServiceReadExtended,
+    NovaServiceReadExtended,
+    OneDataServiceReadExtended,
+    RucioServiceReadExtended,
+)
 
 router = APIRouter(prefix="/providers", tags=["providers"])
 
@@ -220,6 +232,7 @@ def disconnect_provider_from_identity_providers(
     item.identity_providers.disconnect(identity_provider)
     return item
 
+
 @db.write_transaction
 @router.post(
     "/{provider_uid}/images/{image_uid}",
@@ -292,6 +305,7 @@ def disconnect_provider_from_location(
     item.location.disconnect(location)
     return item
 
+
 @db.write_transaction
 @router.post(
     "/{provider_uid}/projects/{project_uid}",
@@ -311,3 +325,32 @@ def add_project_to_provider(
     provider: Provider = Depends(valid_provider_id),
 ):
     return project.create(obj_in=item, provider=provider, force=True)
+
+
+@db.write_transaction
+@router.post(
+    "/{provider_uid}/services/{service_uid}",
+    response_model=Union[
+        ChronosServiceReadExtended,
+        KubernetesServiceReadExtended,
+        MarathonServiceReadExtended,
+        MesosServiceReadExtended,
+        NovaServiceReadExtended,
+        OneDataServiceReadExtended,
+        RucioServiceReadExtended,
+    ],
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(valid_service_endpoint)],
+    summary="Add new service to provider",
+    description="Create a service and connect it to a \
+        provider knowing it *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        At first validate new service values checking there are \
+        no other items with the given *name* or *uuid*.",
+)
+def add_service_to_provider(
+    item: ServiceCreate,
+    provider: Provider = Depends(valid_provider_id),
+):
+    return service.create(obj_in=item, provider=provider, force=True)
