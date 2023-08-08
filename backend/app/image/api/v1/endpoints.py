@@ -17,7 +17,14 @@ router = APIRouter(prefix="/images", tags=["images"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[ImageReadExtended])
+@router.get(
+    "/",
+    response_model=List[ImageReadExtended],
+    summary="Read all images",
+    description="Retrieve all images stored in the database. \
+        It is possible to filter on images attributes and other \
+        common query parameters.",
+)
 def get_images(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -30,7 +37,14 @@ def get_images(
 
 
 @db.read_transaction
-@router.get("/{image_uid}", response_model=ImageReadExtended)
+@router.get(
+    "/{image_uid}",
+    response_model=ImageReadExtended,
+    summary="Read a specific image",
+    description="Retrieve a specific image using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_image(item: Image = Depends(valid_image_id)):
     return item
 
@@ -40,6 +54,15 @@ def get_image(item: Image = Depends(valid_image_id)):
     "/{image_uid}",
     response_model=Optional[ImageReadExtended],
     dependencies=[Depends(validate_new_image_values)],
+    summary="Edit a specific image",
+    description="Update attribute values of a specific image. \
+        The target image is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new image values checking there are \
+        no other items with the given *uuid* and *name*.",
 )
 def put_image(
     update_data: ImageUpdate,
@@ -53,7 +76,14 @@ def put_image(
 
 
 @db.write_transaction
-@router.delete("/{image_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{image_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete a specific image using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def delete_images(item: Image = Depends(valid_image_id)):
     if not image.remove(db_obj=item):
         raise HTTPException(

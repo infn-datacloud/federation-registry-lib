@@ -26,7 +26,14 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[IdentityProviderReadExtended])
+@router.get(
+    "/",
+    response_model=List[IdentityProviderReadExtended],
+    summary="Read all identity providers",
+    description="Retrieve all identity providers stored in the database. \
+        It is possible to filter on identity providers attributes and other \
+        common query parameters.",
+)
 def get_identity_providers(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -40,7 +47,12 @@ def get_identity_providers(
 
 @db.read_transaction
 @router.get(
-    "/{identity_provider_uid}", response_model=IdentityProviderReadExtended
+    "/{identity_provider_uid}",
+    response_model=IdentityProviderReadExtended,
+    summary="Read a specific identity provider",
+    description="Retrieve a specific identity provider using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
 )
 def get_identity_provider(
     item: IdentityProvider = Depends(valid_identity_provider_id),
@@ -53,6 +65,15 @@ def get_identity_provider(
     "/{identity_provider_uid}",
     response_model=Optional[IdentityProviderReadExtended],
     dependencies=[Depends(validate_new_identity_provider_values)],
+    summary="Edit a specific identity provider",
+    description="Update attribute values of a specific identity provider. \
+        The target identity provider is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new identity provider values checking there are \
+        no other items with the given *endpoint*.",
 )
 def put_identity_provider(
     update_data: IdentityProviderUpdate,
@@ -67,7 +88,13 @@ def put_identity_provider(
 
 @db.write_transaction
 @router.delete(
-    "/{identity_provider_uid}", status_code=status.HTTP_204_NO_CONTENT
+    "/{identity_provider_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete a specific identity provider using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        On cascade, delete related user groups.",
 )
 def delete_identity_providers(
     item: IdentityProvider = Depends(valid_identity_provider_id),
@@ -85,6 +112,13 @@ def delete_identity_providers(
     status_code=status.HTTP_201_CREATED,
     response_model=UserGroupReadExtended,
     dependencies=[Depends(is_unique_user_group)],
+    summary="Create a user group",
+    description="Create a user group belonging to identity provider \
+        identified by the given *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        At first validate new user group values checking there are \
+        no other items with the given *name*."
 )
 def post_user_group(
     item: UserGroupCreate,

@@ -17,7 +17,14 @@ router = APIRouter(prefix="/locations", tags=["locations"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[LocationReadExtended])
+@router.get(
+    "/",
+    response_model=List[LocationReadExtended],
+    summary="Read all locations",
+    description="Retrieve all locations stored in the database. \
+        It is possible to filter on locations attributes and other \
+        common query parameters.",
+)
 def get_locations(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -30,7 +37,14 @@ def get_locations(
 
 
 @db.read_transaction
-@router.get("/{location_uid}", response_model=LocationReadExtended)
+@router.get(
+    "/{location_uid}",
+    response_model=LocationReadExtended,
+    summary="Read a specific location",
+    description="Retrieve a specific location using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_location(item: Location = Depends(valid_location_id)):
     return item
 
@@ -40,6 +54,14 @@ def get_location(item: Location = Depends(valid_location_id)):
     "/{location_uid}",
     response_model=Optional[LocationReadExtended],
     dependencies=[Depends(validate_new_location_values)],
+    description="Update attribute values of a specific location. \
+        The target location is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new location values checking there are \
+        no other items with the given *name*.",
 )
 def put_location(
     update_data: LocationUpdate,
@@ -53,7 +75,14 @@ def put_location(
 
 
 @db.write_transaction
-@router.delete("/{location_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{location_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete a specific image using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def delete_location(item: Location = Depends(valid_location_id)):
     if not location.remove(db_obj=item):
         raise HTTPException(

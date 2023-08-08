@@ -22,7 +22,14 @@ router = APIRouter(prefix="/slas", tags=["slas"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[SLAReadExtended])
+@router.get(
+    "/",
+    response_model=List[SLAReadExtended],
+    summary="Read all SLAs",
+    description="Retrieve all SLAs stored in the database. \
+        It is possible to filter on SLAs attributes and other \
+        common query parameters.",
+)
 def get_slas(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -40,6 +47,15 @@ def get_slas(
     status_code=status.HTTP_201_CREATED,
     response_model=SLAReadExtended,
     dependencies=[Depends(is_unique_sla)],
+    summary="Create an SLA",
+    description="Create an SLA associated to a user group \
+        and a project each identified by the given *uid*s. \
+        If no entity matches the given *uid*s, the endpoint \
+        raises a `not found` error. \
+        At first validate new SLA values checking there are \
+        no other items pointing the given *document uuid*. \
+        Moreover, check the target project is not already \
+        involved into another SLA.",
 )
 def post_sla(
     item: SLACreate,
@@ -73,7 +89,14 @@ def post_sla(
 
 
 @db.read_transaction
-@router.get("/{sla_uid}", response_model=SLAReadExtended)
+@router.get(
+    "/{sla_uid}",
+    response_model=SLAReadExtended,
+    summary="Read a specific SLA",
+    description="Retrieve a specific SLA using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_sla(item: SLA = Depends(valid_sla_id)):
     return item
 
@@ -83,6 +106,14 @@ def get_sla(item: SLA = Depends(valid_sla_id)):
     "/{sla_uid}",
     response_model=Optional[SLAReadExtended],
     dependencies=[Depends(validate_new_sla_values)],
+    description="Update attribute values of a specific SLA. \
+        The target SLA is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new SLA values checking there are \
+        no other items with the given *endpoint*.",
 )
 def put_sla(
     update_data: SLAUpdate,
@@ -96,7 +127,14 @@ def put_sla(
 
 
 @db.write_transaction
-@router.delete("/{sla_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{sla_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete a specific SLA using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def delete_slas(item: SLA = Depends(valid_sla_id)):
     if not sla.remove(db_obj=item):
         raise HTTPException(

@@ -32,6 +32,10 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 @router.get(
     "/",
     response_model=List[UserGroupReadExtended],
+    summary="Read all user groups",
+    description="Retrieve all user groups stored in the database. \
+        It is possible to filter on user groups attributes and other \
+        common query parameters.",
 )
 def get_user_groups(
     comm: CommonGetQuery = Depends(),
@@ -45,7 +49,14 @@ def get_user_groups(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}", response_model=UserGroupReadExtended)
+@router.get(
+    "/{user_group_uid}",
+    response_model=UserGroupReadExtended,
+    summary="Read a specific user group",
+    description="Retrieve a specific user group using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_user_group(item: UserGroup = Depends(valid_user_group_id)):
     return item
 
@@ -55,6 +66,14 @@ def get_user_group(item: UserGroup = Depends(valid_user_group_id)):
     "/{user_group_uid}",
     response_model=Optional[UserGroupReadExtended],
     dependencies=[Depends(validate_new_user_group_values)],
+    description="Update attribute values of a specific user group. \
+        The target user group is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new user group values checking there are \
+        no other items with the given *name*.",
 )
 def put_user_group(
     update_data: UserGroupUpdate,
@@ -68,7 +87,15 @@ def put_user_group(
 
 
 @db.write_transaction
-@router.delete("/{user_group_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{user_group_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete a specific user group using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        On cascade, delete related SLAs.",
+)
 def delete_user_group(item: UserGroup = Depends(valid_user_group_id)):
     if not user_group.remove(db_obj=item):
         raise HTTPException(
@@ -78,7 +105,15 @@ def delete_user_group(item: UserGroup = Depends(valid_user_group_id)):
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}/flavors", response_model=List[FlavorRead])
+@router.get(
+    "/{user_group_uid}/flavors",
+    response_model=List[FlavorRead],
+    summary="Read user group accessible flavors",
+    description="Retrieve all the flavors the user group \
+        has access to thanks to its SLA. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_user_group_flavors(
     item: UserGroup = Depends(valid_user_group_id),
 ):
@@ -86,7 +121,15 @@ def get_user_group_flavors(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}/images", response_model=List[ImageRead])
+@router.get(
+    "/{user_group_uid}/images",
+    response_model=List[ImageRead],
+    summary="Read user group accessible images",
+    description="Retrieve all the images the user group \
+        has access to thanks to its SLA. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_user_group_images(
     item: UserGroup = Depends(valid_user_group_id),
 ):
@@ -94,7 +137,15 @@ def get_user_group_images(
 
 
 @db.read_transaction
-@router.get("/{user_group_uid}/providers", response_model=List[ProviderRead])
+@router.get(
+    "/{user_group_uid}/providers",
+    response_model=List[ProviderRead],
+    summary="Read user group accessible providers",
+    description="Retrieve all the providers the user group \
+        has access to thanks to its SLA. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_user_group_providers(
     item: UserGroup = Depends(valid_user_group_id),
 ):
@@ -115,6 +166,11 @@ def get_user_group_providers(
             RucioServiceReadExtended,
         ]
     ],
+    summary="Read user group accessible services",
+    description="Retrieve all the services the user group \
+        has access to thanks to its SLA. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
 )
 def get_user_group_services(
     item: UserGroup = Depends(valid_user_group_id),

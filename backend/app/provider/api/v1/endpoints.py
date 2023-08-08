@@ -33,7 +33,14 @@ router = APIRouter(prefix="/providers", tags=["providers"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[ProviderReadExtended])
+@router.get(
+    "/",
+    response_model=List[ProviderReadExtended],
+    summary="Read all providers",
+    description="Retrieve all providers stored in the database. \
+        It is possible to filter on providers attributes and other \
+        common query parameters.",
+)
 def get_providers(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -59,13 +66,27 @@ def get_providers(
         Depends(valid_project_list),
         Depends(valid_service_list),
     ],
+    summary="Create a provider",
+    description="Create a provider and its related entities: \
+        flavors, identity providers, images, location, \
+        projects and services. \
+        At first validate new provider values checking there are \
+        no other items with the given *name*. \
+        Moreover check the received lists do not contain duplicates.",
 )
 def post_provider(item: ProviderCreateExtended):
     return provider.create(obj_in=item, force=True)
 
 
 @db.read_transaction
-@router.get("/{provider_uid}", response_model=ProviderReadExtended)
+@router.get(
+    "/{provider_uid}",
+    response_model=ProviderReadExtended,
+    summary="Read a specific provider",
+    description="Retrieve a specific provider using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_provider(item: Provider = Depends(valid_provider_id)):
     return item
 
@@ -75,6 +96,14 @@ def get_provider(item: Provider = Depends(valid_provider_id)):
     "/{provider_uid}",
     response_model=Optional[ProviderReadExtended],
     dependencies=[Depends(validate_new_provider_values)],
+    description="Update attribute values of a specific provider. \
+        The target provider is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new provider values checking there are \
+        no other items with the given *name*.",
 )
 def put_provider(
     update_data: ProviderUpdate,
@@ -88,7 +117,16 @@ def put_provider(
 
 
 @db.write_transaction
-@router.delete("/{provider_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{provider_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete a specific provider using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        On cascade, delete related flavors, images, projects \
+        and services.",
+)
 def delete_providers(item: Provider = Depends(valid_provider_id)):
     if not provider.remove(db_obj=item):
         raise HTTPException(
@@ -99,7 +137,13 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 
 @db.write_transaction
 @router.put(
-    "/{provider_uid}/identity_providers/{identity_provider_uid}", response_model=ProviderReadExtended
+    "/{provider_uid}/identity_providers/{identity_provider_uid}",
+    response_model=ProviderReadExtended,
+    summary="Connect provider to identity provider",
+    description="Connect a provider to a specific identity \
+        provider knowing their *uid*s. \
+        If no entity matches the given *uid*s, the endpoint \
+        raises a `not found` error.",
 )
 def connect_provider_to_identity_providers(
     data: Union[AuthMethodCreate, AuthMethodUpdate],
@@ -124,7 +168,13 @@ def connect_provider_to_identity_providers(
 
 @db.write_transaction
 @router.delete(
-    "/{provider_uid}/identity_providers/{identity_provider_uid}", response_model=ProviderReadExtended
+    "/{provider_uid}/identity_providers/{identity_provider_uid}",
+    response_model=ProviderReadExtended,
+    summary="Disconnect provider from identity provider",
+    description="Disconnect a provider from a specific identity \
+        provider knowing their *uid*s. \
+        If no entity matches the given *uid*s, the endpoint \
+        raises a `not found` error.",
 )
 def disconnect_provider_from_identity_providers(
     response: Response,
@@ -139,7 +189,20 @@ def disconnect_provider_from_identity_providers(
 
 
 @db.write_transaction
-@router.put("/{provider_uid}/locations/{location_uid}", response_model=ProviderReadExtended)
+@router.put(
+    "/{provider_uid}/locations/{location_uid}",
+    response_model=ProviderReadExtended,
+    summary="Connect provider to location",
+    description="Connect a provider to a specific location \
+        knowing their *uid*s. \
+        If the provider already has a \
+        current location and the new one is different, \
+        the endpoint replaces it with the new one, otherwise \
+        it leaves the entity unchanged and returns a \
+        `not modified` message. \
+        If no entity matches the given *uid*s, the endpoint \
+        raises a `not found` error.",
+)
 def connect_provider_to_location(
     response: Response,
     item: Provider = Depends(valid_provider_id),
@@ -157,7 +220,13 @@ def connect_provider_to_location(
 
 @db.write_transaction
 @router.delete(
-    "/{provider_uid}/locations/{location_uid}", response_model=ProviderReadExtended
+    "/{provider_uid}/locations/{location_uid}",
+    response_model=ProviderReadExtended,
+    summary="Disconnect provider from location",
+    description="Disconnect a provider from a specific location \
+        knowing their *uid*s. \
+        If no entity matches the given *uid*s, the endpoint \
+        raises a `not found` error.",
 )
 def disconnect_provider_from_location(
     response: Response,

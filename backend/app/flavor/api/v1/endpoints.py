@@ -17,7 +17,14 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
 
 
 @db.read_transaction
-@router.get("/", response_model=List[FlavorReadExtended])
+@router.get(
+    "/",
+    response_model=List[FlavorReadExtended],
+    summary="Read all flavors",
+    description="Retrieve all flavors stored in the database. \
+        It is possible to filter on flavors attributes and other \
+        common query parameters.",
+)
 def get_flavors(
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
@@ -30,7 +37,14 @@ def get_flavors(
 
 
 @db.read_transaction
-@router.get("/{flavor_uid}", response_model=FlavorReadExtended)
+@router.get(
+    "/{flavor_uid}",
+    response_model=FlavorReadExtended,
+    summary="Read a specific flavor",
+    description="Retrieve a specific flavor using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def get_flavor(item: Flavor = Depends(valid_flavor_id)):
     return item
 
@@ -40,6 +54,15 @@ def get_flavor(item: Flavor = Depends(valid_flavor_id)):
     "/{flavor_uid}",
     response_model=Optional[FlavorReadExtended],
     dependencies=[Depends(validate_new_flavor_values)],
+    summary="Edit a specific flavor",
+    description="Update attribute values of a specific flavor. \
+        The target flavor is identified using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new flavor values checking there are \
+        no other items with the given *uuid* and *name*.",
 )
 def put_flavor(
     update_data: FlavorUpdate,
@@ -53,7 +76,15 @@ def put_flavor(
 
 
 @db.write_transaction
-@router.delete("/{flavor_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{flavor_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific flavor",
+    description="Delete a specific flavor using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def delete_flavors(item: Flavor = Depends(valid_flavor_id)):
     if not flavor.remove(db_obj=item):
         raise HTTPException(

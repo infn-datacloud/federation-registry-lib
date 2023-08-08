@@ -39,6 +39,10 @@ router = APIRouter(prefix="/services", tags=["services"])
             RucioServiceReadExtended,
         ]
     ],
+    summary="Read all services",
+    description="Retrieve all services stored in the database. \
+        It is possible to filter on services attributes and other \
+        common query parameters.",
 )
 def get_services(
     comm: CommonGetQuery = Depends(),
@@ -63,6 +67,10 @@ def get_services(
         OneDataServiceReadExtended,
         RucioServiceReadExtended,
     ],
+    summary="Read a specific service",
+    description="Retrieve a specific service using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
 )
 def get_service(item: Service = Depends(valid_service_id)):
     return item
@@ -83,6 +91,14 @@ def get_service(item: Service = Depends(valid_service_id)):
         ]
     ],
     dependencies=[Depends(validate_new_service_values)],
+    description="Update attribute values of a specific service. \
+        The target service is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new service values checking there are \
+        no other items with the given *endpoint*.",
 )
 def put_service(
     update_data: ServiceUpdate,
@@ -96,7 +112,15 @@ def put_service(
 
 
 @db.write_transaction
-@router.delete("/{service_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{service_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete a specific service using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        On cascade, delete related quotas.",
+)
 def delete_services(item: Service = Depends(valid_service_id)):
     if not service.remove(db_obj=item):
         raise HTTPException(
@@ -109,6 +133,11 @@ def delete_services(item: Service = Depends(valid_service_id)):
 @router.get(
     "/{service_uid}/identity_providers",
     response_model=List[IdentityProviderRead],
+    summary="Read service accessible identity providers",
+    description="Retrieve all the identity providers the \
+        service has access to. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
 )
 def get_service_identity_providers(
     item: Service = Depends(valid_service_id),
