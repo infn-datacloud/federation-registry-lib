@@ -1,9 +1,13 @@
+from typing import Union
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
-from app.identity_provider.schemas import IdentityProviderUpdate
+from app.identity_provider.schemas import (
+    IdentityProviderCreate,
+    IdentityProviderUpdate,
+)
 
 
 def valid_identity_provider_id(
@@ -33,6 +37,32 @@ def valid_identity_provider_id(
     return item
 
 
+def valid_identity_provider_endpoint(
+    item: Union[IdentityProviderCreate, IdentityProviderUpdate]
+) -> None:
+    """
+    Check there are no other identity providers with the same endpoint.
+
+    Args:
+        item (IdentityProviderCreate | IdentityProviderUpdate): input data.
+
+    Returns:
+        None
+
+    Raises:
+        BadRequestError: DB entity with given endpoint already exists.
+    """
+
+    db_item = identity_provider.get(endpoint=item.endpoint)
+    if db_item is not None:
+        msg = f"Identity Provider with URL '{item.endpoint}' "
+        msg += "already registered"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=msg,
+        )
+
+
 def validate_new_identity_provider_values(
     update_data: IdentityProviderUpdate,
     item: IdentityProvider = Depends(valid_identity_provider_id),
@@ -54,11 +84,4 @@ def validate_new_identity_provider_values(
     """
 
     if str(update_data.endpoint) != item.endpoint:
-        db_item = identity_provider.get(endpoint=update_data.endpoint)
-        if db_item is not None:
-            msg = f"Identity Provider with URL '{update_data.endpoint}' "
-            msg += "already registered"
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
-            )
+        valid_identity_provider_endpoint(update_data)

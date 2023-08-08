@@ -3,12 +3,13 @@ from neomodel import db
 from typing import List, Optional
 
 from app.location.api.dependencies import (
+    valid_location_name,
     validate_new_location_values,
     valid_location_id,
 )
 from app.location.crud import location
 from app.location.models import Location
-from app.location.schemas import LocationQuery, LocationUpdate
+from app.location.schemas import LocationCreate, LocationQuery, LocationUpdate
 from app.location.schemas_extended import LocationReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
@@ -34,6 +35,21 @@ def get_locations(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
+
+
+@db.write_transaction
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=LocationReadExtended,
+    dependencies=[Depends(valid_location_name)],
+    summary="Create location",
+    description="Create a location. \
+        At first validate new location values checking there are \
+        no other items with the given *name*.",
+)
+def post_location(item: LocationCreate):
+    return location.create(obj_in=item, force=True)
 
 
 @db.read_transaction

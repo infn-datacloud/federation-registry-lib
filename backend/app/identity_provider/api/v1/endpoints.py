@@ -3,6 +3,7 @@ from neomodel import db
 from typing import List, Optional
 
 from app.identity_provider.api.dependencies import (
+    valid_identity_provider_endpoint,
     validate_new_identity_provider_values,
     valid_identity_provider_id,
 )
@@ -11,6 +12,7 @@ from app.identity_provider.models import (
     IdentityProvider,
 )
 from app.identity_provider.schemas import (
+    IdentityProviderCreate,
     IdentityProviderQuery,
     IdentityProviderUpdate,
 )
@@ -43,6 +45,21 @@ def get_identity_providers(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     return paginate(items=items, page=page.page, size=page.size)
+
+
+@db.write_transaction
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=IdentityProviderReadExtended,
+    dependencies=[Depends(valid_identity_provider_endpoint)],
+    summary="Create location",
+    description="Create a location. \
+        At first validate new location values checking there are \
+        no other items with the given *name*.",
+)
+def post_location(item: IdentityProviderCreate):
+    return identity_provider.create(obj_in=item, force=True)
 
 
 @db.read_transaction
@@ -119,7 +136,7 @@ def delete_identity_providers(
         raises a `not found` error. \
         At first validate new user group values checking there are \
         no other items, belonging to same identity provider, \
-        with the given *name*."
+        with the given *name*.",
 )
 def post_user_group(
     item: UserGroupCreate,

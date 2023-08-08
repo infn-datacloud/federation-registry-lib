@@ -1,9 +1,10 @@
+from typing import Union
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
 from app.location.crud import location
 from app.location.models import Location
-from app.location.schemas import LocationUpdate
+from app.location.schemas import LocationCreate, LocationUpdate
 
 
 def valid_location_id(location_uid: UUID4) -> Location:
@@ -29,11 +30,34 @@ def valid_location_id(location_uid: UUID4) -> Location:
     return item
 
 
+def valid_location_name(item: Union[LocationCreate, LocationUpdate]) -> None:
+    """
+    Check there are no other locations with the same name.
+
+    Args:
+        item (LocationCreate | LocationUpdate): input data.
+
+    Returns:
+        None
+
+    Raises:
+        BadRequestError: DB entity with given name already exists.
+    """
+
+    db_item = location.get(name=item.name)
+    if db_item is not None:
+        msg = f"Location with name '{item.name}' already registered"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=msg,
+        )
+
+
 def validate_new_location_values(
     update_data: LocationUpdate, item: Location = Depends(valid_location_id)
 ) -> None:
     """
-    Check given data are valid ones. Check there are no other 
+    Check given data are valid ones. Check there are no other
     locations with the same name.
 
     Args:
@@ -49,11 +73,4 @@ def validate_new_location_values(
     """
 
     if update_data.name != item.name:
-        db_item = location.get(name=update_data.name)
-        if db_item is not None:
-            msg = f"Location with name '{update_data.name}' "
-            msg += "already registered"
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
-            )
+        valid_location_name(update_data)
