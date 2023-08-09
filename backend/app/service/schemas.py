@@ -21,7 +21,7 @@ class ServiceCreate(BaseNodeCreate, ServiceBase):
     """
 
 
-class ServiceUpdate(BaseNodeCreate, extra=Extra.allow):
+class ServiceUpdate(ServiceCreate):
     """Model to update a Service.
 
     Class without id (which is populated by the database).
@@ -41,25 +41,76 @@ class ServiceUpdate(BaseNodeCreate, extra=Extra.allow):
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
 
 
-class NovaBase(BaseModel, extra=Extra.ignore):
-    """Model derived from Service.
-    It contains the basic attributes for Nova services.
+class KubernetesBase(ServiceBase, extra=Extra.ignore):
+    """Model derived from ServiceBase to inherit attributes
+    common to all services. It adds the basic attributes
+    for Kubernetes services.
 
-    Validation: type value is exactly Nova.
+    Validation: type value is exactly ServiceType.kubernetes.
     """
 
-    @validator("type", check_fields=False)
+    @validator("type")
+    def check_type(cls, v):
+        if v != ServiceType.kubernetes:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class KubernetesServiceCreate(BaseNodeCreate, KubernetesBase):
+    """Model to create a Kubernetes Service.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a POST request.
+    """
+
+
+class KubernetesServiceUpdate(KubernetesServiceCreate):
+    """Model to update a Kubernetes service.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PUT request.
+
+    Default to None mandatory attributes.
+    """
+
+    endpoint: Optional[AnyHttpUrl] = Field(
+        default=None, description="URL of the IaaS service."
+    )
+
+
+class KubernetesServiceRead(BaseNodeRead, KubernetesBase):
+    """Model to read Kubernetes service data retrieved from DB.
+
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
+
+    Add the *uid* attribute, which is the item unique
+    identifier in the database.
+    """
+
+
+KubernetesServiceQuery = create_query_model(
+    "KubernetesServiceQuery", KubernetesBase
+)
+
+
+class NovaBase(ServiceBase, extra=Extra.ignore):
+    """Model derived from ServiceBase to inherit attributes
+    common to all services. It adds the basic attributes
+    for Nova services.
+
+    Validation: type value is exactly ServiceType.openstack_nova.
+    """
+
+    @validator("type")
     def check_type(cls, v):
         if v != ServiceType.openstack_nova:
             raise ValueError(f"Not valid type: {v}")
         return v
 
 
-class NovaServiceQuery(NovaBase, ServiceQuery):
-    """Model to add query attributes on Nova services"""
-
-
-class NovaServiceCreate(NovaBase, BaseNodeCreate, ServiceBase):
+class NovaServiceCreate(BaseNodeCreate, NovaBase):
     """Model to create a Nova Service.
 
     Class without id (which is populated by the database).
@@ -67,7 +118,7 @@ class NovaServiceCreate(NovaBase, BaseNodeCreate, ServiceBase):
     """
 
 
-class NovaServiceUpdate(NovaBase, ServiceUpdate):
+class NovaServiceUpdate(NovaServiceCreate):
     """Model to update a Nova service.
 
     Class without id (which is populated by the database).
@@ -76,8 +127,12 @@ class NovaServiceUpdate(NovaBase, ServiceUpdate):
     Default to None mandatory attributes.
     """
 
+    endpoint: Optional[AnyHttpUrl] = Field(
+        default=None, description="URL of the IaaS service."
+    )
 
-class NovaServiceRead(NovaBase, BaseNodeRead, ServiceBase):
+
+class NovaServiceRead(BaseNodeRead, NovaBase):
     """Model to read Nova service data retrieved from DB.
 
     Class to read data retrieved from the database.
@@ -87,6 +142,9 @@ class NovaServiceRead(NovaBase, BaseNodeRead, ServiceBase):
     Add the *uid* attribute, which is the item unique
     identifier in the database.
     """
+
+
+NovaServiceQuery = create_query_model("NovaServiceQuery", NovaBase)
 
 
 class MesosBase(BaseModel, extra=Extra.ignore):
@@ -158,30 +216,6 @@ class MarathonServiceUpdate(MarathonBase, ServiceUpdate):
 
 
 class MarathonServiceRead(MarathonBase, BaseNodeRead, ServiceBase):
-    pass
-
-
-class KubernetesBase(BaseModel, extra=Extra.ignore):
-    @validator("type", check_fields=False)
-    def check_type(cls, v):
-        if v != ServiceType.kubernetes:
-            raise ValueError(f"Not valid type: {v}")
-        return v
-
-
-class KubernetesServiceQuery(KubernetesBase, ServiceQuery):
-    pass
-
-
-class KubernetesServiceCreate(KubernetesBase, BaseNodeCreate, ServiceBase):
-    pass
-
-
-class KubernetesServiceUpdate(KubernetesBase, ServiceUpdate):
-    pass
-
-
-class KubernetesServiceRead(KubernetesBase, BaseNodeRead, ServiceBase):
     pass
 
 

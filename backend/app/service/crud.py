@@ -1,3 +1,4 @@
+from typing import Any, Dict, Optional, Union
 from app.crud import CRUDBase
 from app.provider.models import Provider
 from app.quota.crud import quota
@@ -69,6 +70,24 @@ class CRUDService(CRUDBase[Service, ServiceCreate, ServiceUpdate]):
             return rucio_service.remove(db_obj=db_obj)
         elif isinstance(db_obj, OneDataService):
             return onedata_service.remove(db_obj=db_obj)
+
+    def update(
+        self, *, db_obj: Service, obj_in: Union[ServiceUpdate, Dict[str, Any]]
+    ) -> Optional[Service]:
+        if isinstance(db_obj, NovaService):
+            return nova_service.update(db_obj=db_obj, obj_in=obj_in)
+        elif isinstance(db_obj, MesosService):
+            return mesos_service.update(db_obj=db_obj, obj_in=obj_in)
+        elif isinstance(db_obj, ChronosService):
+            return chronos_service.update(db_obj=db_obj, obj_in=obj_in)
+        elif isinstance(db_obj, MarathonService):
+            return marathon_service.update(db_obj=db_obj, obj_in=obj_in)
+        elif isinstance(db_obj, KubernetesService):
+            return kubernetes_service.update(db_obj=db_obj, obj_in=obj_in)
+        elif isinstance(db_obj, RucioService):
+            return rucio_service.update(db_obj=db_obj, obj_in=obj_in)
+        elif isinstance(db_obj, OneDataService):
+            return onedata_service.update(db_obj=db_obj, obj_in=obj_in)
 
 
 class CRUDNovaService(
