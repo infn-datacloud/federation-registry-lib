@@ -42,7 +42,15 @@ from app.provider.schemas_extended import (
 from app.query import CommonGetQuery
 from app.service.api.dependencies import valid_service_endpoint
 from app.service.crud import service
-from app.service.schemas import ServiceCreate
+from app.service.schemas import (
+    ChronosServiceCreate,
+    KubernetesServiceCreate,
+    MarathonServiceCreate,
+    MesosServiceCreate,
+    NovaServiceCreate,
+    OneDataServiceCreate,
+    RucioServiceCreate,
+)
 from app.service.schemas_extended import (
     ChronosServiceReadExtended,
     KubernetesServiceReadExtended,
@@ -161,7 +169,7 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 
 @db.write_transaction
 @router.post(
-    "/{provider_uid}/flavors/{flavor_uid}",
+    "/{provider_uid}/flavors/",
     response_model=FlavorReadExtended,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(valid_flavor_name), Depends(valid_flavor_uuid)],
@@ -235,7 +243,7 @@ def disconnect_provider_from_identity_providers(
 
 @db.write_transaction
 @router.post(
-    "/{provider_uid}/images/{image_uid}",
+    "/{provider_uid}/images/",
     response_model=ImageReadExtended,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(valid_image_name), Depends(valid_image_uuid)],
@@ -308,7 +316,7 @@ def disconnect_provider_from_location(
 
 @db.write_transaction
 @router.post(
-    "/{provider_uid}/projects/{project_uid}",
+    "/{provider_uid}/projects/",
     response_model=ProjectReadExtended,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(valid_project_name), Depends(valid_project_uuid)],
@@ -329,7 +337,7 @@ def add_project_to_provider(
 
 @db.write_transaction
 @router.post(
-    "/{provider_uid}/services/{service_uid}",
+    "/{provider_uid}/services/",
     response_model=Union[
         ChronosServiceReadExtended,
         KubernetesServiceReadExtended,
@@ -350,7 +358,15 @@ def add_project_to_provider(
         no other items with the given *name* or *uuid*.",
 )
 def add_service_to_provider(
-    item: ServiceCreate,
+    item: Union[
+        ChronosServiceCreate,
+        KubernetesServiceCreate,
+        MarathonServiceCreate,
+        MesosServiceCreate,
+        NovaServiceCreate,
+        OneDataServiceCreate,
+        RucioServiceCreate,
+    ],
     provider: Provider = Depends(valid_provider_id),
 ):
     return service.create(obj_in=item, provider=provider, force=True)
