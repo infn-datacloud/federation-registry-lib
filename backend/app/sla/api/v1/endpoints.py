@@ -106,6 +106,7 @@ def get_sla(item: SLA = Depends(valid_sla_id)):
     "/{sla_uid}",
     response_model=Optional[SLAReadExtended],
     dependencies=[Depends(validate_new_sla_values)],
+    summary="Edit a specific SLA",
     description="Update attribute values of a specific SLA. \
         The target SLA is identified using its uid. \
         If no entity matches the given *uid*, the endpoint \
@@ -130,6 +131,7 @@ def put_sla(
 @router.delete(
     "/{sla_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific SLA",
     description="Delete a specific SLA using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \

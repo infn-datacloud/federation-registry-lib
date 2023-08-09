@@ -107,6 +107,7 @@ def put_identity_provider(
 @router.delete(
     "/{identity_provider_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific identity provider",
     description="Delete a specific identity provider using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \

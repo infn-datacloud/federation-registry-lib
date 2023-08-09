@@ -79,6 +79,7 @@ def put_image(
 @router.delete(
     "/{image_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific image",
     description="Delete a specific image using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \

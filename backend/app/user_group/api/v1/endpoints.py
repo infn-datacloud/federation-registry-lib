@@ -66,6 +66,7 @@ def get_user_group(item: UserGroup = Depends(valid_user_group_id)):
     "/{user_group_uid}",
     response_model=Optional[UserGroupReadExtended],
     dependencies=[Depends(validate_new_user_group_values)],
+    summary="Edit a specific user group",
     description="Update attribute values of a specific user group. \
         The target user group is identified using its uid. \
         If no entity matches the given *uid*, the endpoint \
@@ -91,6 +92,7 @@ def put_user_group(
 @router.delete(
     "/{user_group_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific user group",
     description="Delete a specific user group using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \

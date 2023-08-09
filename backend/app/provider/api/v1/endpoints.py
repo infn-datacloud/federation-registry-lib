@@ -127,6 +127,7 @@ def get_provider(item: Provider = Depends(valid_provider_id)):
     "/{provider_uid}",
     response_model=Optional[ProviderReadExtended],
     dependencies=[Depends(validate_new_provider_values)],
+    summary="Edit a specific provider",
     description="Update attribute values of a specific provider. \
         The target provider is identified using its uid. \
         If no entity matches the given *uid*, the endpoint \
@@ -151,6 +152,7 @@ def put_provider(
 @router.delete(
     "/{provider_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific provider",
     description="Delete a specific provider using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \

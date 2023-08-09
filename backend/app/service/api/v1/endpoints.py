@@ -91,6 +91,7 @@ def get_service(item: Service = Depends(valid_service_id)):
         ]
     ],
     dependencies=[Depends(validate_new_service_values)],
+    summary="Edit a specific service",
     description="Update attribute values of a specific service. \
         The target service is identified using its uid. \
         If no entity matches the given *uid*, the endpoint \
@@ -115,6 +116,7 @@ def put_service(
 @router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific service",
     description="Delete a specific service using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \

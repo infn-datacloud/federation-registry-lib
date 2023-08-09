@@ -70,6 +70,7 @@ def get_location(item: Location = Depends(valid_location_id)):
     "/{location_uid}",
     response_model=Optional[LocationReadExtended],
     dependencies=[Depends(validate_new_location_values)],
+    summary="Edit a specific Location",
     description="Update attribute values of a specific location. \
         The target location is identified using its uid. \
         If no entity matches the given *uid*, the endpoint \
@@ -94,7 +95,8 @@ def put_location(
 @router.delete(
     "/{location_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    description="Delete a specific image using its *uid*. \
+    summary="Delete a specific location",
+    description="Delete a specific location using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",

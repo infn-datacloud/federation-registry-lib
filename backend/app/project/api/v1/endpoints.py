@@ -58,6 +58,7 @@ def get_project(item: Project = Depends(valid_project_id)):
     "/{project_uid}",
     response_model=Optional[ProjectReadExtended],
     dependencies=[Depends(validate_new_project_values)],
+    summary="Edit a specific project",
     description="Update attribute values of a specific project. \
         The target project is identified using its uid. \
         If no entity matches the given *uid*, the endpoint \
@@ -82,6 +83,7 @@ def put_project(
 @router.delete(
     "/{project_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific project",
     description="Delete a specific project using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
