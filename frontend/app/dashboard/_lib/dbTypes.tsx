@@ -9,11 +9,12 @@ export interface FlavorBase {
   uid: string;
   name: string;
   uuid: string;
-  num_vcpus: number;
-  num_gpus: number;
+  vcpus: number;
   ram: number;
   disk: number;
+  swap: number;
   infiniband_support: boolean;
+  num_gpus: number;
   gpu_model?: string;
   gpu_vendor?: string;
 }

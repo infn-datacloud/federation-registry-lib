@@ -10,13 +10,14 @@ class FlavorBase(BaseModel):
 
     name: str = Field(description="Flavor name in the provider.")
     uuid: UUID4 = Field(description="Flavor UUID in the provider.")
-    num_vcpus: int = Field(
+    vcpus: int = Field(
         default=0, ge=0, description="Number of virtual CPUs"
     )
-    num_gpus: int = Field(default=0, ge=0, description="Number of GPUs")
-    ram: int = Field(default=0, ge=0, description="Reserved RAM size (GB)")
+    ram: int = Field(default=0, ge=0, description="Reserved RAM size (MB)")
     disk: int = Field(default=0, ge=0, description="Reserved disk size (GB)")
+    swap: int = Field(default=0, ge=0, description="Reserved swap disk size (GB)")
     infiniband_support: bool = Field(default=False, description="")  # TODO
+    num_gpus: int = Field(default=0, ge=0, description="Number of GPUs")
     gpu_model: Optional[str] = Field(
         default=None, description="GPU model name"
     )

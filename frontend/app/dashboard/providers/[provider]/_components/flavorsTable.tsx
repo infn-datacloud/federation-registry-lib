@@ -23,10 +23,11 @@ export default function FlavorsTable({
           <TableCell>Name</TableCell>
           <TableCell>UUID</TableCell>
           <TableCell>Num VCPUs</TableCell>
-          <TableCell>Num GPUs</TableCell>
           <TableCell>RAM size (MB)</TableCell>
           <TableCell>Disk size (GB)</TableCell>
+          <TableCell>Swap size (GB)</TableCell>
           <TableCell>Infiniband support</TableCell>
+          <TableCell>Num GPUs</TableCell>
           <TableCell>GPU model</TableCell>
           <TableCell>GPU vendor</TableCell>
         </TableRow>
@@ -40,13 +41,14 @@ export default function FlavorsTable({
                 {item.name}
               </TableCell>
               <TableCell>{item.uuid}</TableCell>
-              <TableCell>{item.num_vcpus}</TableCell>
-              <TableCell>{item.num_gpus}</TableCell>
+              <TableCell>{item.vcpus}</TableCell>
               <TableCell>{item.ram}</TableCell>
               <TableCell>{item.disk}</TableCell>
+              <TableCell>{item.swap}</TableCell>
               <TableCell>
                 {item.infiniband_support ? "Enabled" : "Disabled"}
               </TableCell>
+              <TableCell>{item.num_gpus}</TableCell>
               <TableCell>{item.gpu_model}</TableCell>
               <TableCell>{item.gpu_vendor}</TableCell>
             </TableRow>
