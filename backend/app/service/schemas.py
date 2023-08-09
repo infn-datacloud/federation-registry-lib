@@ -1,4 +1,5 @@
-from pydantic import AnyHttpUrl, BaseModel, Extra, validator
+from pydantic import AnyHttpUrl, BaseModel, Extra, Field, validator
+from typing import Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
@@ -6,53 +7,47 @@ from app.service.enum import ServiceType
 
 
 class ServiceBase(BaseModel, extra=Extra.allow):
-    """Service Create Model class.
+    """Model with Service basic attributes."""
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT, PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        endpoint (str): URL pointing to this service
-        type (ServiceTypeUpdate): Service type.
-    """
-
-    endpoint: AnyHttpUrl
-    type: ServiceType
+    endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
+    type: ServiceType = Field(description="Service type.")
 
 
 class ServiceCreate(BaseNodeCreate, ServiceBase):
-    """Service Create Model class.
+    """Model to create a Service.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT, PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        endpoint (str): URL pointing to this service
-        type (ServiceTypeUpdate): Service type.
+    Expected as input when performing a POST request.
     """
 
 
 class ServiceUpdate(BaseNodeCreate, extra=Extra.allow):
-    """Service Create Model class.
+    """Model to update a Service.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT, PUT or POST request.
+    Expected as input when performing a PUT request.
 
-    Attributes:
-        description (str): Brief description.
-        endpoint (str): URL pointing to this service
-        type (ServiceTypeUpdate): Service type.
+    Default to None mandatory attributes.
     """
 
-    endpoint: AnyHttpUrl
+    endpoint: Optional[AnyHttpUrl] = Field(
+        default=None, description="URL of the IaaS service."
+    )
+    type: Optional[ServiceType] = Field(
+        default=None, description="Service type."
+    )
 
 
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
 
 
 class NovaBase(BaseModel, extra=Extra.ignore):
+    """Model derived from Service.
+    It contains the basic attributes for Nova services.
+
+    Validation: type value is exactly Nova.
+    """
+
     @validator("type", check_fields=False)
     def check_type(cls, v):
         if v != ServiceType.openstack_nova:
@@ -61,33 +56,37 @@ class NovaBase(BaseModel, extra=Extra.ignore):
 
 
 class NovaServiceQuery(NovaBase, ServiceQuery):
-    pass
+    """Model to add query attributes on Nova services"""
 
 
 class NovaServiceCreate(NovaBase, BaseNodeCreate, ServiceBase):
-    pass
+    """Model to create a Nova Service.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a POST request.
+    """
 
 
 class NovaServiceUpdate(NovaBase, ServiceUpdate):
-    pass
+    """Model to update a Nova service.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a PUT request.
+
+    Default to None mandatory attributes.
+    """
 
 
 class NovaServiceRead(NovaBase, BaseNodeRead, ServiceBase):
-    """Service class.
+    """Model to read Nova service data retrieved from DB.
 
-    Class retrieved from the database.
-    Expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
 
-    Attributes:
-        uid (uuid): Unique ID.
-        description (str): Brief description.
-        endpoint (str): URL pointing to this service
-        type (ServiceType): Service type equals to org.openstack.nova
+    Add the *uid* attribute, which is the item unique
+    identifier in the database.
     """
-
-    pass
 
 
 class MesosBase(BaseModel, extra=Extra.ignore):

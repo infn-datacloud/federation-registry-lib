@@ -1,9 +1,18 @@
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, Field
 
 
 class AuthMethodBase(BaseModel):
-    idp_name: str
-    protocol: str
+    """Model with a Provider Authentication Method basic attributes.
+
+    Always validate assignments.
+    """
+
+    idp_name: str = Field(
+        description="Identity Provider name used by the provider to authenticate."
+    )
+    protocol: str = Field(
+        description="Communication protocol used by the provider to authenticate."
+    )
 
     class Config:
         validate_assignment = True
@@ -11,45 +20,24 @@ class AuthMethodBase(BaseModel):
 
 
 class AuthMethodCreate(AuthMethodBase):
-    """AuthMethod Create class
+    """Model to create a Provider Authentication Method.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a POST REST request.
-
-
-    Attributes:
-        idp_name (str): Identity Provider name saved in the Provider.
-        protocol (str): Protocol to use when authenticating on this
-            identity provider.
-    """
-
-
-class AuthMethodUpdate(AuthMethodCreate):
-    """AuthMethod Base class
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT REST request.
-
-    Attributes:
-        idp_name (str): Identity Provider name saved in the Provider.
-        protocol (str): Protocol to use when authenticating on this
-            identity provider.
+    Expected as input when performing a POST request.
     """
 
 
 class AuthMethodRead(AuthMethodBase):
-    """AuthMethod class
+    """Model to read Provider Authentication Method data retrieved from DB.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
 
-    Attributes:
-        idp_name (str): Identity Provider name saved in the Provider.
-        protocol (str): Protocol to use when authenticating on this
-            identity provider.
+    Use ORM mode to read data from DB models.
+    Always validate assignments.
     """
 
     class Config:
+        validate_assignment = True
         orm_mode = True

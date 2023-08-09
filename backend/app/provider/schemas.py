@@ -1,65 +1,51 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import List
+from typing import List, Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
 class ProviderBase(BaseModel):
-    name: str
-    is_public: bool = False
-    support_emails: List[EmailStr] = Field(default_factory=list)
+    """Model with Provider basic attributes."""
+
+    name: str = Field(description="Provider name.")
+    is_public: bool = Field(
+        default=False, description="It is a public provider."
+    )
+    support_emails: List[EmailStr] = Field(
+        default_factory=list, description="Contact emails."
+    )
 
 
 class ProviderCreate(BaseNodeCreate, ProviderBase):
-    """Provider Create Model class.
+    """Model to create a Provider.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        name (str): Provider name (type).
-        is_public (bool): Public or private provider.
-        support_emails (list of str): List of maintainers emails.
+    Expected as input when performing a POST request.
     """
 
 
 class ProviderUpdate(ProviderCreate):
-    """Provider Update Model class.
+    """Model to update a Provider.
 
     Class without id (which is populated by the database).
     Expected as input when performing a PUT request.
 
-    Attributes:
-        description (str | None): Brief description.
-        name (str | None): Provider name (type).
-        is_public (bool | None): Public or private provider.
-        support_email (list of str | None): List of maintainers emails.
-        location (LocationCreate | None): provider physical location
-        clusters TODO
-        flavors TODO
-        identity_providers TODO
-        images TODO
-        projects TODO
-        services TODO
+    Default to None mandatory attributes.
     """
+
+    name: Optional[str] = Field(default=None, description="Provider name.")
 
 
 class ProviderRead(BaseNodeRead, ProviderBase):
-    """Provider class.
+    """Model to read Provider data retrieved from DB.
 
-    Class retrieved from the database.
-    Expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
 
-    Attributes:
-        uid (uuid): Unique ID.
-        description (str): Brief description.
-        name (str): Provider name (type).
-        is_public (bool): Public or private provider.
-        support_emails (list of str): List of maintainers emails.
+    Add the *uid* attribute, which is the item unique
+    identifier in the database.
     """
 
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional, Union
-from app.auth_method.schemas import AuthMethodCreate, AuthMethodUpdate
+from app.auth_method.schemas import AuthMethodCreate
 
 from app.flavor.api.dependencies import valid_flavor_name, valid_flavor_uuid
 from app.flavor.crud import flavor
@@ -33,11 +33,10 @@ from app.provider.api.dependencies import (
 )
 from app.provider.crud import provider
 from app.provider.models import Provider
-from app.provider.schemas import ProviderQuery
+from app.provider.schemas import ProviderQuery, ProviderUpdate
 from app.provider.schemas_extended import (
     ProviderCreateExtended,
     ProviderReadExtended,
-    ProviderUpdate,
 )
 from app.query import CommonGetQuery
 from app.service.api.dependencies import valid_service_endpoint
@@ -199,7 +198,7 @@ def add_flavor_to_provider(
         raises a `not found` error.",
 )
 def connect_provider_to_identity_providers(
-    data: Union[AuthMethodCreate, AuthMethodUpdate],
+    data: AuthMethodCreate,
     response: Response,
     item: Provider = Depends(valid_provider_id),
     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),

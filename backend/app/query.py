@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, create_model, root_validator
+from pydantic import BaseModel, Field, create_model, root_validator
 from pydantic.fields import SHAPE_LIST
 from typing import Optional
 
@@ -8,9 +8,17 @@ from app.models import BaseNodeQuery
 
 
 class CommonGetQuery(BaseModel):
-    skip: int = 0
-    limit: Optional[int] = None
-    sort: Optional[str] = None
+    """Model to add common query attributes."""
+
+    skip: int = Field(
+        default=0,
+        description="Number of items to skip from the ones retrieved \
+            from the get operations",
+    )
+    limit: Optional[int] = Field(
+        default=None, description="Maximum number or returned items"
+    )
+    sort: Optional[str] = Field(default=None, description="Sort rule")
 
     @root_validator
     def must_end_with(cls, values):
@@ -31,6 +39,10 @@ class CommonGetQuery(BaseModel):
 
 
 def create_query_model(model_name: str, base_model: BaseModel):
+    """Create a Query Model with the given model name and
+    starting from the received base model.
+    """
+
     d = {}
     for k, v in base_model.__fields__.items():
         if v.shape == SHAPE_LIST:
@@ -75,6 +87,8 @@ def create_query_model(model_name: str, base_model: BaseModel):
 
 
 def create_subquery_model(base_model: BaseNodeQuery):
+    """Create Query Model starting from another Query Model"""
+
     d = {}
     for k, v in base_model.__fields__.items():
         d[f"service_{k}"] = (v.type_, v.default)

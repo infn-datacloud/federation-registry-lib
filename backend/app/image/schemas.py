@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import UUID4, BaseModel
+from pydantic import UUID4, BaseModel, Field
 from typing import Optional
 
 from app.image.enum import ImageOS
@@ -8,71 +8,73 @@ from app.query import create_query_model
 
 
 class ImageBase(BaseModel):
-    name: str
-    uuid: UUID4
-    os: ImageOS
-    distribution: str
-    version: str
-    architecture: str
-    cuda_support: bool = False
-    gpu_driver: bool = False
-    creation_time: Optional[datetime] = None
+    """Model with Image basic attributes."""
+
+    name: str = Field(description="Image name in the provider.")
+    uuid: UUID4 = Field(description="Image UUID in the provider.")
+    os: ImageOS = Field(description="Image Operating System.")
+    distribution: str = Field(
+        description="Operating system distribution type."
+    )
+    version: str = Field(description="Distribution version.")
+    architecture: str = Field(description="Operating system architecture.")
+    cuda_support: bool = Field(
+        default=False, description="Enable CUDA support."
+    )
+    gpu_driver: bool = Field(
+        default=False, description="Enable GPU driver support."
+    )
+    creation_time: Optional[datetime] = Field(
+        default=None, description="Image creation time."
+    )
 
 
 class ImageCreate(BaseNodeCreate, ImageBase):
-    """Image Create Model class.
+    """Model to create an Image.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        os (str): Image Operating System.
-        distribution (str): OS distribution.
-        version (str): Distribution version.
-        architecture (str): OS architecture.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs.
-        creation_time (datetime | None): Image creation time.
+    Expected as input when performing a POST request.
     """
 
 
 class ImageUpdate(ImageCreate):
-    """Image Update Model class.
+    """Model to update an Image.
 
     Class without id (which is populated by the database).
     Expected as input when performing a PUT request.
 
-    Attributes:
-        description (str): Brief description.
-        os (str | None): Image Operating System.
-        distribution (str | None): OS distribution.
-        version (str | None): Distribution version.
-        architecture (str | None): OS architecture.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs.
-        creation_time (datetime | None): Image creation time.
+    Default to None mandatory attributes.
     """
+
+    name: Optional[str] = Field(
+        default=None, description="Image name in the provider."
+    )
+    uuid: Optional[UUID4] = Field(
+        default=None, description="Image UUID in the provider."
+    )
+    os: Optional[ImageOS] = Field(
+        default=None, description="Image Operating System."
+    )
+    distribution: Optional[str] = Field(
+        default=None, description="Operating system distribution type."
+    )
+    version: Optional[str] = Field(
+        default=None, description="Distribution version."
+    )
+    architecture: Optional[str] = Field(
+        default=None, description="Operating system architecture."
+    )
 
 
 class ImageRead(BaseNodeRead, ImageBase):
-    """Image class.
+    """Model to read Image data retrieved from DB.
 
-    Class retrieved from the database.
-    Expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
 
-    Attributes:
-        uid (uuid): Unique ID.
-        description (str): Brief description.
-        os (str): Image Operating System.
-        distribution (str): OS distribution.
-        version (str): Distribution version.
-        architecture (str): OS architecture.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs.
-        creation_time (datetime | None): Image creation time.
+    Add the *uid* attribute, which is the item unique
+    identifier in the database.
     """
 
 

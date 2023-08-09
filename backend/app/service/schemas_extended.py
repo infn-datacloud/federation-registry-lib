@@ -16,24 +16,42 @@ from app.service.schemas import (
 
 
 class ExtendWithProvider(BaseModel):
+    """Model to extend a Service with the hosting provider."""
+
     provider: ProviderRead
 
 
 class ExtendWithProject(BaseModel):
+    """Model to extend a Quota with the project owning it."""
+
     project: ProjectRead
 
 
 class NumCPUQuotaReadExtended(NumCPUQuotaRead, ExtendWithProject):
-    pass
+    """Model to extend the Num CPUs Quota data read from the
+    DB with the lists of related items.
+    """
 
 
 class RAMQuotaReadExtended(RAMQuotaRead, ExtendWithProject):
-    pass
+    """Model to extend the RAM Quota data read from the
+    DB with the lists of related items.
+    """
 
 
 class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
-    num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(default_factory=list)
-    ram_quotas: List[RAMQuotaReadExtended] = Field(default_factory=list)
+    """Model to extend the Nova Service data read from the
+    DB with the lists of related items.
+    """
+
+    num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(
+        default_factory=list,
+        description="List of quotas related to the CPUs number usage.",
+    )
+    ram_quotas: List[RAMQuotaReadExtended] = Field(
+        default_factory=list,
+        description="List of quotas related to the RAM usage.",
+    )
 
 
 class MesosServiceReadExtended(MesosServiceRead, ExtendWithProvider):

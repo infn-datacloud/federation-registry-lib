@@ -21,14 +21,30 @@ from app.user_group.schemas import UserGroupRead
 
 
 class UserGroupReadExtended(UserGroupRead):
-    identity_provider: IdentityProviderRead
+    """Model to extend the User Group data read from the
+    DB with the lists of related items.
+    """
+
+    identity_provider: IdentityProviderRead = Field(
+        description="Identity Provider owning this User Group."
+    )
 
 
 class SLAReadExtended(SLARead):
-    user_group: UserGroupReadExtended
+    """Model to extend the SLA data read from the
+    DB with the lists of related items.
+    """
+
+    user_group: UserGroupReadExtended = Field(
+        description="Involved User Group."
+    )
 
 
 class QuotaReadExtended(QuotaRead):
+    """Model to extend the Quota data read from the
+    DB with the lists of related items.
+    """
+
     service: Union[
         ChronosServiceRead,
         KubernetesServiceRead,
@@ -37,12 +53,26 @@ class QuotaReadExtended(QuotaRead):
         NovaServiceRead,
         OneDataServiceRead,
         RucioServiceRead,
-    ]
+    ] = Field(
+        description="A generic Quota applies to only one generic Service."
+    )
 
 
 class ProjectReadExtended(ProjectRead):
-    flavors: List[FlavorRead] = Field(default_factory=list)
-    images: List[ImageRead] = Field(default_factory=list)
-    provider: ProviderRead
-    quotas: List[QuotaReadExtended] = Field(default_factory=list)
-    sla: Optional[SLAReadExtended] = None
+    """Model to extend the Project data read from the
+    DB with the lists of related items.
+    """
+
+    flavors: List[FlavorRead] = Field(
+        default_factory=list, description="List of usable Flavors."
+    )
+    images: List[ImageRead] = Field(
+        default_factory=list, description="List of usable Images."
+    )
+    provider: ProviderRead = Field(description="Provider owning this Project.")
+    quotas: List[QuotaReadExtended] = Field(
+        default_factory=list, description="List of owned quotas."
+    )
+    sla: Optional[SLAReadExtended] = Field(
+        default=None, description="SLA involving this Project."
+    )

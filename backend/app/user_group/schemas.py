@@ -1,49 +1,48 @@
-from pydantic import BaseModel
+from typing import Optional
+from pydantic import BaseModel, Field
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
 class UserGroupBase(BaseModel):
-    name: str
+    """Model with User Group basic attributes."""
+
+    name: str = Field(description="User group name.")
 
 
 class UserGroupCreate(BaseNodeCreate, UserGroupBase):
-    """UserGroup Create Model class.
+    """Model to create a User Group.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
+    Expected as input when performing a POST request.
 
-    Attributes:
-        description (str): Brief description.
-        name (str): UserGroup name.
+    Validation: If *num GPUs* is 0, then *gpu model*
+    and *gpu vendor* must be none.
     """
 
 
 class UserGroupUpdate(UserGroupCreate):
-    """UserGroup Update Model class.
+    """Model to update a User Group.
 
     Class without id (which is populated by the database).
     Expected as input when performing a PUT request.
 
-    Attributes:
-        description (str): Brief description.
-        name (str | None): UserGroup name.
+    Default to None mandatory attributes.
     """
+
+    name: Optional[str] = Field(default=None, description="User group name.")
 
 
 class UserGroupRead(BaseNodeRead, UserGroupBase):
-    """UserGroup class.
+    """Model to read User Group data retrieved from DB.
 
-    Class retrieved from the database.
-    Expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
 
-    Attributes:
-        uid (uuid): Unique ID.
-        description (str): Brief description.
-        name (str): UserGroup name.
+    Add the *uid* attribute, which is the item unique
+    identifier in the database.
     """
 
 

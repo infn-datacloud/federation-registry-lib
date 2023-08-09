@@ -1,21 +1,16 @@
 from pydantic import Field
 from typing import List, Optional, Union
 
-from app.provider.schemas import ProviderCreate, ProviderRead, ProviderUpdate
-from app.auth_method.schemas import (
-    AuthMethodCreate,
-    AuthMethodRead,
-    AuthMethodUpdate,
-)
-from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorUpdate
+from app.provider.schemas import ProviderCreate, ProviderRead
+from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
+from app.flavor.schemas import FlavorCreate, FlavorRead
 from app.identity_provider.schemas import (
     IdentityProviderCreate,
     IdentityProviderRead,
-    IdentityProviderUpdate,
 )
-from app.image.schemas import ImageCreate, ImageRead, ImageUpdate
-from app.location.schemas import LocationCreate, LocationRead, LocationUpdate
-from app.project.schemas import ProjectCreate, ProjectRead, ProjectUpdate
+from app.image.schemas import ImageCreate, ImageRead
+from app.location.schemas import LocationCreate, LocationRead
+from app.project.schemas import ProjectCreate, ProjectRead
 from app.service.schemas import (
     ChronosServiceCreate,
     ChronosServiceRead,
@@ -35,44 +30,46 @@ from app.service.schemas import (
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
-    relationship: AuthMethodCreate
+    """Model to extend the Identity Provider data used to create
+    a new instance in the DB with the authentication method details.
+    """
 
-
-class IdentityProviderUpdateExtended(IdentityProviderUpdate):
-    relationship: AuthMethodUpdate
+    relationship: AuthMethodCreate = Field(
+        description="Authentication method used by the Provider"
+    )
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
-    relationship: AuthMethodRead
+    """Model to extend the Identity Provider data read from the
+    DB with the authentication method details.
+    """
+
+    relationship: AuthMethodRead = Field(
+        description="Authentication method used by the Provider"
+    )
 
 
 class ProviderCreateExtended(ProviderCreate):
-    """Provider Create Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        name (str | None): Provider name (type).
-        is_public (bool | None): Public or private provider.
-        support_email (list of str | None): List of maintainers emails.
-        location (LocationCreate | None): provider physical location
-        clusters TODO
-        flavors TODO
-        identity_providers TODO
-        images TODO
-        projects TODO
-        services TODO
+    """Model to extend the Provider data used to create
+    a new instance in the DB with the lists of related items.
     """
 
-    location: Optional[LocationCreate] = None
-    flavors: List[FlavorCreate] = Field(default_factory=list)
-    identity_providers: List[IdentityProviderCreateExtended] = Field(
-        default_factory=list
+    location: Optional[LocationCreate] = Field(
+        default=None, description="Provider location."
     )
-    images: List[ImageCreate] = Field(default_factory=list)
-    projects: List[ProjectCreate] = Field(default_factory=list)
+    flavors: List[FlavorCreate] = Field(
+        default_factory=list, description="List of owned Flavors."
+    )
+    identity_providers: List[IdentityProviderCreateExtended] = Field(
+        default_factory=list,
+        description="List of supported identity providers.",
+    )
+    images: List[ImageCreate] = Field(
+        default_factory=list, description="List of owned Images."
+    )
+    projects: List[ProjectCreate] = Field(
+        default_factory=list, description="List of owned Projects."
+    )
     services: List[
         Union[
             ChronosServiceCreate,
@@ -83,69 +80,30 @@ class ProviderCreateExtended(ProviderCreate):
             OneDataServiceCreate,
             RucioServiceCreate,
         ]
-    ] = Field(default_factory=list)
-
-
-class ProviderUpdateExtended(ProviderUpdate):
-    """Provider Update Model class.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT request.
-
-    Attributes:
-        description (str | None): Brief description.
-        name (str | None): Provider name (type).
-        is_public (bool | None): Public or private provider.
-        support_email (list of str | None): List of maintainers emails.
-        location (LocationUpdate | None): provider physical location
-        clusters TODO
-        flavors TODO
-        identity_providers TODO
-        images TODO
-        projects TODO
-        services TODO
-    """
-
-    location: Optional[LocationUpdate] = None
-    flavors: List[FlavorUpdate] = Field(default_factory=list)
-    identity_providers: List[IdentityProviderUpdateExtended] = Field(
-        default_factory=list
-    )
-    images: List[ImageUpdate] = Field(default_factory=list)
-    projects: List[ProjectUpdate] = Field(default_factory=list)
-    # services: List[ServiceUpdate] = Field(default_factory=list)
+    ] = Field(default_factory=list, description="List of hosted Services.")
 
 
 class ProviderReadExtended(ProviderRead):
-    """Provider class.
-
-    Class retrieved from the database.
-    Expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
-
-    Attributes:
-        uid (uuid): Unique ID.
-        description (str): Brief description.
-        name (str | None): Provider name (type).
-        is_public (bool | None): Public or private provider.
-        support_email (list of str | None): List of maintainers emails.
-        location (LocationCreate | None): provider physical location
-        clusters TODO
-        flavors TODO
-        identity_providers TODO
-        images TODO
-        projects TODO
-        services TODO
+    """Model to extend the Provider data read from the
+    DB with the lists of related items.
     """
 
-    location: Optional[LocationRead] = None
-    flavors: List[FlavorRead] = Field(default_factory=list)
-    identity_providers: List[IdentityProviderReadExtended] = Field(
-        default_factory=list
+    location: Optional[LocationRead] = Field(
+        default=None, description="Provider location."
     )
-    images: List[ImageRead] = Field(default_factory=list)
-    projects: List[ProjectRead] = Field(default_factory=list)
+    flavors: List[FlavorRead] = Field(
+        default_factory=list, description="List of owned Flavors."
+    )
+    identity_providers: List[IdentityProviderReadExtended] = Field(
+        default_factory=list,
+        description="List of supported identity providers.",
+    )
+    images: List[ImageRead] = Field(
+        default_factory=list, description="List of owned Images."
+    )
+    projects: List[ProjectRead] = Field(
+        default_factory=list, description="List of owned Projects."
+    )
     services: List[
         Union[
             ChronosServiceRead,
@@ -156,4 +114,4 @@ class ProviderReadExtended(ProviderRead):
             OneDataServiceRead,
             RucioServiceRead,
         ]
-    ] = Field(default_factory=list)
+    ] = Field(default_factory=list, description="List of hosted Services.")

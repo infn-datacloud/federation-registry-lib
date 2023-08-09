@@ -1,19 +1,18 @@
 from enum import Enum
 from neo4j.data import DateTime
 from neomodel import One, OneOrMore, ZeroOrOne, ZeroOrMore
-from pydantic import UUID4, BaseModel, root_validator
+from pydantic import UUID4, BaseModel, Field, root_validator
 from typing import Dict, Optional
 
 
 class BaseNodeCreate(BaseModel):
-    """Node Base Model when updating or creating data.
-    Always validate assignments.
+    """Base Model when updating or creating a node in the DB.
 
-    Attributes:
-        description (str): Brief description.
+    When dealing with enumerations retrieve the enum value.
+    Always validate assignments.
     """
 
-    description: str = ""
+    description: str = Field(default="", description="Brief item description")
 
     @root_validator
     def get_value_from_enums(cls, data: Dict) -> Dict:
@@ -28,16 +27,18 @@ class BaseNodeCreate(BaseModel):
 
 
 class BaseNodeRead(BaseModel):
-    """Node Base Model when reading data.
-    Use ORM mode to read data from DB models.
+    """Base Model when reading nodes from the DB.
 
-    Attributes:
-        uid (UUID4): unique identifier.
-        description (str): Brief description.
+    Use ORM mode to read data from DB models.
+    Convert Neo4j datetime objects into python datetime ones.
+    When dealing with relationships retrieve all connected items
+    and show them as an object list. If a relationships has a
+    model return a dict with the data stored in it.
+    Always validate assignments.
     """
 
-    uid: UUID4
-    description: str = ""
+    uid: UUID4 = Field(description="Database item's unique identifier")
+    description: str = Field(default="", description="Brief item description")
 
     @root_validator(pre=True)
     def get_relations(cls, data: Dict) -> Dict:
@@ -79,13 +80,10 @@ class BaseNodeRead(BaseModel):
 
 
 class BaseNodeQuery(BaseModel):
-    """Node Base Model used to retrieve possible
-    query parameters when performing get operations
+    """Base Model used to retrieve possible query 
+    parameters when performing nodes get operations
     with filters.
     Always validate assignments.
-
-    Attributes:
-        description (str): Brief description.
     """
 
     description: Optional[str] = None

@@ -3,6 +3,8 @@ from pydantic import UUID4, BaseModel, EmailStr
 
 
 class TokenData(BaseModel):
+    """Model with OIDC token attributes."""
+
     sub: UUID4
     username: str
     given_name: str

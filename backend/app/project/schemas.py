@@ -1,4 +1,4 @@
-from pydantic import UUID4, BaseModel
+from pydantic import UUID4, BaseModel, Field
 from typing import Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
@@ -6,59 +6,58 @@ from app.query import create_query_model
 
 
 class ProjectBase(BaseModel):
-    name: str
-    uuid: UUID4
-    public_network_name: Optional[str] = None
-    private_network_name: Optional[str] = None
-    private_network_proxy_host: Optional[str] = None
-    private_network_proxy_user: Optional[str] = None
+    """Model with Project basic attributes."""
+
+    name: str = Field(description="Project name in the provider.")
+    uuid: UUID4 = Field(description="Project UUID in the provider.")
+    public_network_name: Optional[str] = Field(
+        default=None, description=""
+    )  # TODO
+    private_network_name: Optional[str] = Field(
+        default=None, description=""
+    )  # TODO
+    private_network_proxy_host: Optional[str] = Field(
+        default=None, description=""
+    )  # TODO
+    private_network_proxy_user: Optional[str] = Field(
+        default=None, description=""
+    )  # TODO
 
 
 class ProjectCreate(BaseNodeCreate, ProjectBase):
-    """Project Create Model class.
+    """Model to create a Project.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        public_network_name (str | None): TODO
-        private_network_name (str | None): TODO
-        private_network_proxy_host (str | None): TODO
-        private_network_proxy_user (str | None): TODO
+    Expected as input when performing a POST request.
     """
 
 
 class ProjectUpdate(ProjectCreate):
-    """Project Update Model class.
+    """Model to update a Project.
 
     Class without id (which is populated by the database).
     Expected as input when performing a PUT request.
 
-    Attributes:
-        description (str): Brief description.
-        public_network_name (str | None): TODO
-        private_network_name (str | None): TODO
-        private_network_proxy_host (str | None): TODO
-        private_network_proxy_user (str | None): TODO
+    Default to None mandatory attributes.
     """
+
+    name: Optional[str] = Field(
+        default=None, description="Project name in the provider."
+    )
+    uuid: Optional[UUID4] = Field(
+        default=None, description="Project UUID in the provider."
+    )
 
 
 class ProjectRead(BaseNodeRead, ProjectBase):
-    """Project class.
+    """Model to read Project data retrieved from DB.
 
-    Class retrieved from the database.
-    Expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
 
-    Attributes:
-        uid (uuid): Unique ID.
-        description (str): Brief description.
-        public_network_name (str | None): TODO
-        private_network_name (str | None): TODO
-        private_network_proxy_host (str | None): TODO
-        private_network_proxy_user (str | None): TODO
+    Add the *uid* attribute, which is the item unique
+    identifier in the database.
     """
 
 

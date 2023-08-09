@@ -7,60 +7,52 @@ from app.query import create_query_model
 
 
 class LocationBase(BaseModel):
-    name: str
-    country: str
-    latitude: Optional[float] = Field(ge=-180, le=180, default=None)
-    longitude: Optional[float] = Field(ge=-90, le=90, default=None)
+    """Model with Location basic attributes."""
+
+    name: str = Field(description="Name of the Location hosting a provider.")
+    country: str = Field(description="Location's country name.")
+    latitude: Optional[float] = Field(
+        default=None, ge=-180, le=180, description="Latitude coordinate."
+    )
+    longitude: Optional[float] = Field(
+        default=None, ge=-90, le=90, description="Longitude coordinate."
+    )
 
 
 class LocationCreate(BaseNodeCreate, LocationBase):
-    """Location Create Model class.
+    """Model to create a Location.
 
     Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        name (str): Location unique name.
-        country (str): Country name.
-        country_code (str): Country code.
-        latitude (float | None): Latitude coordinate.
-        longitude (float | None): Longitude coordinate.
+    Expected as input when performing a POST request.
     """
 
 
 class LocationUpdate(LocationCreate):
-    """Location Update Model class.
+    """Model to update a Location.
 
     Class without id (which is populated by the database).
     Expected as input when performing a PUT request.
 
-    Attributes:
-        description (str): Brief description.
-        name (str | None): Location unique name.
-        country (str | None): Country name.
-        country_code (str | None): Country code.
-        latitude (float | None): Latitude coordinate.
-        longitude (float | None): Longitude coordinate.
+    Default to None mandatory attributes.
     """
+
+    name: Optional[str] = Field(
+        default=None, description="Name of the Location hosting a provider."
+    )
+    country: Optional[str] = Field(
+        default=None, description="Location's country name."
+    )
 
 
 class LocationRead(BaseNodeRead, LocationBase):
-    """Location class.
+    """Model to read Location data retrieved from DB.
 
-    Class retrieved from the database.
-    Expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
 
-    Attributes:
-        uid (uuid): Unique ID.
-        description (str): Brief description.
-        description (str): Brief description.
-        country (str): Country name.
-        country_code (str): Country code.
-        latitude (float): Latitude coordinate.
-        longitude (float): Longitude coordinate.
+    Add the *uid* attribute, which is the item unique
+    identifier in the database. Add the *country_code* attribute.
     """
 
     country_code: str

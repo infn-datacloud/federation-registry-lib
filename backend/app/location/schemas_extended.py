@@ -6,4 +6,10 @@ from app.provider.schemas import ProviderRead
 
 
 class LocationReadExtended(LocationRead):
-    providers: List[ProviderRead] = Field(default_factory=list)
+    """Model to extend the Location data read from the
+    DB with the lists of related items.
+    """
+
+    providers: List[ProviderRead] = Field(
+        default_factory=list, description="List of hosted providers."
+    )

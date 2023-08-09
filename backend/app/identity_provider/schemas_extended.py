@@ -8,9 +8,23 @@ from app.user_group.schemas import UserGroupRead
 
 
 class ProviderReadExtended(ProviderRead):
-    relationship: AuthMethodRead
+    """Model to extend the Provider data read from the
+    DB with the authentication method details.
+    """
+
+    relationship: AuthMethodRead = Field(
+        description="Authentication method used by the Provider"
+    )
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
-    user_groups: List[UserGroupRead] = Field(default_factory=list)
-    providers: List[ProviderReadExtended] = Field(default_factory=list)
+    """Model to extend the Identity Provider data read from the
+    DB with the lists of related items.
+    """
+
+    user_groups: List[UserGroupRead] = Field(
+        default_factory=list, description="List of owned user groups."
+    )
+    providers: List[ProviderReadExtended] = Field(
+        default_factory=list, description="List of supported providers."
+    )

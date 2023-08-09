@@ -11,16 +11,34 @@ from app.user_group.schemas import UserGroupRead
 
 
 class ProjectReadExtended(ProjectRead):
-    provider: ProviderRead
+    """Model to extend the SLA data read from the
+    DB with the lists of related items.
+    """
+
+    provider: ProviderRead = Field(description="Provider owning this Project.")
 
 
 class SLAReadExtended(SLARead):
-    project: ProjectRead
+    """Model to extend the SLA data read from the
+    DB with the lists of related items.
+    """
+
+    project: ProjectRead = Field(description="Involved Project.")
 
 
 class UserGroupReadExtended(UserGroupRead):
-    identity_provider: IdentityProviderRead = Field(default_factory=list)
-    slas: List[SLAReadExtended] = Field(default_factory=list)
+    """Model to extend the User Group data read from the
+    DB with the lists of related items.
+    """
+
+    identity_provider: IdentityProviderRead = Field(
+        default_factory=list,
+        description="Identity Provider owning this User Group.",
+    )
+    slas: List[SLAReadExtended] = Field(
+        default_factory=list,
+        description="List of SLAs involving this User Group.",
+    )
 
 
 ServiceSubQuery = create_subquery_model(ServiceQuery)
