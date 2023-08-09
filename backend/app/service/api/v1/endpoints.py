@@ -77,7 +77,7 @@ def get_service(item: Service = Depends(valid_service_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{service_uid}",
     response_model=Optional[
         Union[

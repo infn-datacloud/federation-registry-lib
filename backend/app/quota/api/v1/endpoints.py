@@ -85,7 +85,7 @@ def get_quota(item: Quota = Depends(valid_quota_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{quota_uid}",
     response_model=Optional[
         Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended]

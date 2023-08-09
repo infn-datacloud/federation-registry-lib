@@ -62,7 +62,7 @@ def get_user_group(item: UserGroup = Depends(valid_user_group_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{user_group_uid}",
     response_model=Optional[UserGroupReadExtended],
     dependencies=[Depends(validate_new_user_group_values)],

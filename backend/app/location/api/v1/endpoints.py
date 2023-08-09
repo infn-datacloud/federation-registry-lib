@@ -66,7 +66,7 @@ def get_location(item: Location = Depends(valid_location_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{location_uid}",
     response_model=Optional[LocationReadExtended],
     dependencies=[Depends(validate_new_location_values)],

@@ -78,7 +78,7 @@ def get_identity_provider(
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{identity_provider_uid}",
     response_model=Optional[IdentityProviderReadExtended],
     dependencies=[Depends(validate_new_identity_provider_values)],

@@ -102,7 +102,7 @@ def get_sla(item: SLA = Depends(valid_sla_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{sla_uid}",
     response_model=Optional[SLAReadExtended],
     dependencies=[Depends(validate_new_sla_values)],

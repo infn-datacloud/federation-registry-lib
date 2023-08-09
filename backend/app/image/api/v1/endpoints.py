@@ -50,7 +50,7 @@ def get_image(item: Image = Depends(valid_image_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{image_uid}",
     response_model=Optional[ImageReadExtended],
     dependencies=[Depends(validate_new_image_values)],

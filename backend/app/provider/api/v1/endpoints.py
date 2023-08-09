@@ -123,7 +123,7 @@ def get_provider(item: Provider = Depends(valid_provider_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{provider_uid}",
     response_model=Optional[ProviderReadExtended],
     dependencies=[Depends(validate_new_provider_values)],

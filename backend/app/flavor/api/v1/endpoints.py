@@ -50,7 +50,7 @@ def get_flavor(item: Flavor = Depends(valid_flavor_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{flavor_uid}",
     response_model=Optional[FlavorReadExtended],
     dependencies=[Depends(validate_new_flavor_values)],

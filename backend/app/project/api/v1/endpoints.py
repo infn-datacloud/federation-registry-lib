@@ -54,7 +54,7 @@ def get_project(item: Project = Depends(valid_project_id)):
 
 
 @db.write_transaction
-@router.put(
+@router.patch(
     "/{project_uid}",
     response_model=Optional[ProjectReadExtended],
     dependencies=[Depends(validate_new_project_values)],
