@@ -8,10 +8,12 @@ class AuthMethodBase(BaseModel):
     """
 
     idp_name: str = Field(
-        description="Identity Provider name used by the provider to authenticate."
+        description="Identity Provider name used by the provider \
+            to authenticate."
     )
     protocol: str = Field(
-        description="Communication protocol used by the provider to authenticate."
+        description="Communication protocol used by the provider \
+            to authenticate."
     )
 
     class Config:

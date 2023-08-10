@@ -80,7 +80,7 @@ class BaseNodeRead(BaseModel):
 
 
 class BaseNodeQuery(BaseModel):
-    """Base Model used to retrieve possible query 
+    """Base Model used to retrieve possible query
     parameters when performing nodes get operations
     with filters.
     Always validate assignments.

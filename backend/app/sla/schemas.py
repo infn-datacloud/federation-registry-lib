@@ -38,6 +38,7 @@ class SLAUpdate(SLACreate):
 
     Default to None mandatory attributes.
     """
+
     start_date: Optional[datetime] = Field(
         default=None, description="Starting date of validity for this SLA."
     )

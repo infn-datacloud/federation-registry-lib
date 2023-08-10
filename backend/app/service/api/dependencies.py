@@ -76,5 +76,5 @@ def validate_new_service_values(
     if update_data.type != item.type:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Service type update is forbidden!",
+            detail="Service type update is forbidden!",
         )

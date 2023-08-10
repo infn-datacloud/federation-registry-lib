@@ -9,23 +9,23 @@ from app.service.api.dependencies import (
 from app.service.crud import service
 from app.service.models import Service
 from app.service.schemas import (
-    ChronosServiceUpdate,
+    # ChronosServiceUpdate,
     KubernetesServiceUpdate,
-    MarathonServiceUpdate,
-    MesosServiceUpdate,
+    # MarathonServiceUpdate,
+    # MesosServiceUpdate,
     NovaServiceUpdate,
-    OneDataServiceUpdate,
-    RucioServiceUpdate,
+    # OneDataServiceUpdate,
+    # RucioServiceUpdate,
     ServiceQuery,
 )
 from app.service.schemas_extended import (
-    ChronosServiceReadExtended,
+    # ChronosServiceReadExtended,
     KubernetesServiceReadExtended,
-    MarathonServiceReadExtended,
-    MesosServiceReadExtended,
+    # MarathonServiceReadExtended,
+    # MesosServiceReadExtended,
     NovaServiceReadExtended,
-    OneDataServiceReadExtended,
-    RucioServiceReadExtended,
+    # OneDataServiceReadExtended,
+    # RucioServiceReadExtended,
 )
 from app.identity_provider.schemas import IdentityProviderRead
 from app.pagination import Pagination, paginate
@@ -39,13 +39,13 @@ router = APIRouter(prefix="/services", tags=["services"])
     "/",
     response_model=List[
         Union[
-            #ChronosServiceReadExtended,
+            # ChronosServiceReadExtended,
             KubernetesServiceReadExtended,
-            #MarathonServiceReadExtended,
-            #MesosServiceReadExtended,
+            # MarathonServiceReadExtended,
+            # MesosServiceReadExtended,
             NovaServiceReadExtended,
-            #OneDataServiceReadExtended,
-            #RucioServiceReadExtended,
+            # OneDataServiceReadExtended,
+            # RucioServiceReadExtended,
         ]
     ],
     summary="Read all services",
@@ -68,13 +68,13 @@ def get_services(
 @router.get(
     "/{service_uid}",
     response_model=Union[
-        #ChronosServiceReadExtended,
+        # ChronosServiceReadExtended,
         KubernetesServiceReadExtended,
-        #MarathonServiceReadExtended,
-        #MesosServiceReadExtended,
+        # MarathonServiceReadExtended,
+        # MesosServiceReadExtended,
         NovaServiceReadExtended,
-        #OneDataServiceReadExtended,
-        #RucioServiceReadExtended,
+        # OneDataServiceReadExtended,
+        # RucioServiceReadExtended,
     ],
     summary="Read a specific service",
     description="Retrieve a specific service using its *uid*. \
@@ -90,13 +90,13 @@ def get_service(item: Service = Depends(valid_service_id)):
     "/{service_uid}",
     response_model=Optional[
         Union[
-            #ChronosServiceReadExtended,
+            # ChronosServiceReadExtended,
             KubernetesServiceReadExtended,
-            #MarathonServiceReadExtended,
-            #MesosServiceReadExtended,
+            # MarathonServiceReadExtended,
+            # MesosServiceReadExtended,
             NovaServiceReadExtended,
-            #OneDataServiceReadExtended,
-            #RucioServiceReadExtended,
+            # OneDataServiceReadExtended,
+            # RucioServiceReadExtended,
         ]
     ],
     dependencies=[Depends(validate_new_service_values)],
@@ -112,13 +112,13 @@ def get_service(item: Service = Depends(valid_service_id)):
 )
 def put_service(
     update_data: Union[
-        #ChronosServiceUpdate,
+        # ChronosServiceUpdate,
         KubernetesServiceUpdate,
-        #MarathonServiceUpdate,
-        #MesosServiceUpdate,
+        # MarathonServiceUpdate,
+        # MesosServiceUpdate,
         NovaServiceUpdate,
-        #OneDataServiceUpdate,
-        #RucioServiceUpdate,
+        # OneDataServiceUpdate,
+        # RucioServiceUpdate,
     ],
     response: Response,
     item: Service = Depends(valid_service_id),
