@@ -6,6 +6,27 @@ from app.auth.dependencies import oidc_scheme
 from app.config import get_settings
 from app.router import router_v1
 
+
+summary = """
+Configuration Management Database (CMDB)
+of the DataCloud project
+"""
+description = """
+Configuration Management Database (CMDB) stores providers data
+used by the DataCloud Orchestrator to deploy new services.
+
+You can inspect providers data, identity providers user groups
+and Service Level Agreement connecting these data.
+
+This database is mainly populated by scripts.
+"""
+version = "0.1.0"
+contact = {
+    "name": "Giovanni Savarese",
+    "url": "https://github.com/giosava94",
+    "email": "giovanni.savarese@ba.infn.it",
+}
+
 settings = get_settings()
 
 dependencies = None
@@ -24,11 +45,14 @@ tags_metadata = [
 ]
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
+    contact=contact,
+    description=description,
     dependencies=dependencies,
     openapi_tags=tags_metadata,
+    summary=summary,
+    title=settings.PROJECT_NAME,
+    version=version,
 )
-
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
@@ -40,7 +64,13 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
-sub_app_v1 = FastAPI(title=settings.PROJECT_NAME)
+sub_app_v1 = FastAPI(
+    contact=contact,
+    description=description,
+    summary=summary,
+    title=settings.PROJECT_NAME,
+    version=version,
+)
 sub_app_v1.include_router(router_v1)
 app.mount(settings.API_V1_STR, sub_app_v1)
 
