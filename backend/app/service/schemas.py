@@ -11,6 +11,7 @@ class ServiceBase(BaseModel, extra=Extra.allow):
 
     endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
     type: ServiceType = Field(description="Service type.")
+    name: str = Field(description="Service name.")
 
 
 class ServiceCreate(BaseNodeCreate, ServiceBase):
@@ -36,6 +37,19 @@ class ServiceUpdate(ServiceCreate):
     type: Optional[ServiceType] = Field(
         default=None, description="Service type."
     )
+    name: Optional[str] = Field(default=None, description="Service name.")
+
+
+class ServiceRead(BaseNodeRead, ServiceBase):
+    """Model to read Service data retrieved from DB.
+
+    Class to read data retrieved from the database.
+    Expected as output when performing a generic REST request.
+    It contains all the non-sensible data written in the database.
+
+    Add the *uid* attribute, which is the item unique
+    identifier in the database.
+    """
 
 
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)

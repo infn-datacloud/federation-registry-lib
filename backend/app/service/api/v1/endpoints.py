@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 from typing import List, Optional, Union
 
+from app.identity_provider.schemas import IdentityProviderRead
+from app.pagination import Pagination, paginate
+from app.query import CommonGetQuery
 from app.service.api.dependencies import (
     valid_service_id,
     validate_new_service_values,
@@ -27,9 +30,6 @@ from app.service.schemas_extended import (
     # OneDataServiceReadExtended,
     # RucioServiceReadExtended,
 )
-from app.identity_provider.schemas import IdentityProviderRead
-from app.pagination import Pagination, paginate
-from app.query import CommonGetQuery
 
 router = APIRouter(prefix="/services", tags=["services"])
 
