@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.0
+    hooks:
+      - id: autoflake
+        files: "backend"
+        types: [python]
+        args: [--remove-all-unused-imports, --recursive, --remove-unused-variables, --in-place, --exclude=__init__.py]
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        files: "backend"
+        types: [python]
+        args: [--profile, black]
