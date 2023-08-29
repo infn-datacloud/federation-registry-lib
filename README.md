@@ -15,11 +15,17 @@ git clone https://baltig.infn.it/infn-cloud/paas/catalog-api
 cd catalog-api
 ```
 
-To start up the service in production mode use docker compose. **It requires an external network named *traefik-public***:
+To start up the service in production mode use docker compose. **It requires an external network named _traefik-public_**:
 
 ```bash
 docker compose up -d
 ```
+
+# Developers
+
+> This repository makes use of githooks. To enable them install [pre-commit](https://pre-commit.com/) and run the `pre-commit install` command.
+
+## Running
 
 To start the service in development mode using docker compose type:
 
