@@ -1,15 +1,19 @@
 repos:
-  - repo: https://github.com/PyCQA/autoflake
-    rev: v2.2.0
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.10.1
     hooks:
-      - id: autoflake
-        files: "backend"
+      - id: pyupgrade
         types: [python]
-        args: [--remove-all-unused-imports, --recursive, --remove-unused-variables, --in-place, --exclude=__init__.py]
+        args: [--py38-plus]
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        types: [python]
+        args: [--exclude=__init__.py, --max-line-length=88]
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
       - id: isort
-        files: "backend"
         types: [python]
         args: [--profile, black]
