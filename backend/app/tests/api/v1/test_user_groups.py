@@ -1,14 +1,15 @@
 import uuid
+
 from fastapi import status
 from fastapi.testclient import TestClient
 
+from ....config import settings
+from ....user_group.schemas import UserGroup
 from ...utils.user_group import (
     create_random_update_user_group_data,
     create_random_user_group,
 )
 from ...utils.utils import random_lower_string
-from ....user_group.schemas import UserGroup
-from ....config import settings
 
 # STANDARD OPERATIONS
 

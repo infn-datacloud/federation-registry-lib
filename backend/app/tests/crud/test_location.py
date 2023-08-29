@@ -1,4 +1,5 @@
 from typing import Generator
+
 from app.location.crud import location
 from app.location.schemas import LocationCreate
 from app.tests.utils.location import (

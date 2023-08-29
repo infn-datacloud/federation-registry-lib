@@ -1,8 +1,8 @@
 from typing import Optional
-from pydantic import BaseModel, Field
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from pydantic import BaseModel, Field
 
 
 class UserGroupBase(BaseModel):

@@ -1,4 +1,5 @@
 from random import choice
+
 from app.service.crud import service
 from app.service.enum import ServiceType
 from app.service.models import Service

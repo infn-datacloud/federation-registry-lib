@@ -1,12 +1,12 @@
 from typing import Union
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 from app.identity_provider.api.dependencies import valid_identity_provider_id
 from app.identity_provider.models import IdentityProvider
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 
 
 def valid_user_group_id(user_group_uid: UUID4) -> UserGroup:

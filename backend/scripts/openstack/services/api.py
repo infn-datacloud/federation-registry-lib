@@ -1,7 +1,7 @@
 import os
-import requests
 from typing import Dict, List
 
+import requests
 from scripts.openstack.services.schemas import Endpoints, Service
 
 
@@ -35,5 +35,3 @@ def get_services(*, os_auth_url: str, token: str) -> List[Service]:
     if resp.status == 201:
         return resp.json().get("services")
     raise  # TODO
-
-

@@ -1,13 +1,9 @@
 from typing import Optional
+
 from app.auth_method.schemas import AuthMethodCreate
 from app.crud import CRUDBase
-from app.identity_provider.models import (
-    IdentityProvider,
-)
-from app.identity_provider.schemas import (
-    IdentityProviderCreate,
-    IdentityProviderUpdate,
-)
+from app.identity_provider.models import IdentityProvider
+from app.identity_provider.schemas import IdentityProviderCreate, IdentityProviderUpdate
 from app.provider.models import Provider
 from app.user_group.crud import user_group
 

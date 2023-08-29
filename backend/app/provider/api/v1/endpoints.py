@@ -1,8 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional, Union
-from app.auth_method.schemas import AuthMethodCreate
 
+from app.auth_method.schemas import AuthMethodCreate
 from app.flavor.api.dependencies import valid_flavor_name, valid_flavor_uuid
 from app.flavor.crud import flavor
 from app.flavor.schemas import FlavorCreate
@@ -25,19 +23,16 @@ from app.provider.api.dependencies import (
     valid_flavor_list,
     valid_identity_provider_list,
     valid_image_list,
+    valid_location,
     valid_project_list,
     valid_provider_id,
-    valid_location,
     valid_service_list,
     validate_new_provider_values,
 )
 from app.provider.crud import provider
 from app.provider.models import Provider
 from app.provider.schemas import ProviderQuery, ProviderUpdate
-from app.provider.schemas_extended import (
-    ProviderCreateExtended,
-    ProviderReadExtended,
-)
+from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
 from app.query import CommonGetQuery
 from app.service.api.dependencies import valid_service_endpoint
 from app.service.crud import service
@@ -59,6 +54,8 @@ from app.service.schemas_extended import (
     OneDataServiceReadExtended,
     RucioServiceReadExtended,
 )
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/providers", tags=["providers"])
 

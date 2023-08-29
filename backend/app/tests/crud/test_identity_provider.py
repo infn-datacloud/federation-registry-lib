@@ -1,13 +1,14 @@
 from typing import Generator
+
 from app.auth_method.schemas import AuthMethodCreate
-from app.tests.utils.provider import create_random_provider
-from app.tests.utils.utils import random_lower_string, random_url
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.schemas import IdentityProviderCreate
 from app.tests.utils.identity_provider import (
     create_random_identity_provider,
     create_random_update_identity_provider_data,
 )
+from app.tests.utils.provider import create_random_provider
+from app.tests.utils.utils import random_lower_string, random_url
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

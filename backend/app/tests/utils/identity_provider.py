@@ -1,9 +1,6 @@
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
-from app.identity_provider.schemas import (
-    IdentityProviderCreate,
-    IdentityProviderUpdate,
-)
+from app.identity_provider.schemas import IdentityProviderCreate, IdentityProviderUpdate
 from app.tests.utils.utils import random_lower_string, random_url
 
 

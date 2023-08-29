@@ -1,5 +1,3 @@
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 from typing import Any, List, Union
 
 from app.identity_provider.crud import identity_provider
@@ -9,6 +7,8 @@ from app.provider.models import Provider
 from app.provider.schemas import ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended
 from app.service.api.dependencies import valid_service_endpoint
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:

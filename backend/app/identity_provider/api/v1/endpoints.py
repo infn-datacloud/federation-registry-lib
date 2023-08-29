@@ -1,16 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional
 
 from app.identity_provider.api.dependencies import (
     valid_identity_provider_endpoint,
-    validate_new_identity_provider_values,
     valid_identity_provider_id,
+    validate_new_identity_provider_values,
 )
 from app.identity_provider.crud import identity_provider
-from app.identity_provider.models import (
-    IdentityProvider,
-)
+from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
     IdentityProviderCreate,
     IdentityProviderQuery,
@@ -20,9 +16,11 @@ from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.pagination import Pagination, paginate
 from app.project.schemas_extended import UserGroupReadExtended
 from app.query import CommonGetQuery
-from app.user_group.schemas import UserGroupCreate
 from app.user_group.api.dependencies import is_unique_user_group
 from app.user_group.crud import user_group
+from app.user_group.schemas import UserGroupCreate
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 

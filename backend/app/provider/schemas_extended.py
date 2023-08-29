@@ -1,16 +1,12 @@
-from pydantic import Field
 from typing import List, Optional, Union
 
-from app.provider.schemas import ProviderCreate, ProviderRead
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from app.flavor.schemas import FlavorCreate, FlavorRead
-from app.identity_provider.schemas import (
-    IdentityProviderCreate,
-    IdentityProviderRead,
-)
+from app.identity_provider.schemas import IdentityProviderCreate, IdentityProviderRead
 from app.image.schemas import ImageCreate, ImageRead
 from app.location.schemas import LocationCreate, LocationRead
 from app.project.schemas import ProjectCreate, ProjectRead
+from app.provider.schemas import ProviderCreate, ProviderRead
 from app.service.schemas import (
     ChronosServiceCreate,
     ChronosServiceRead,
@@ -27,6 +23,7 @@ from app.service.schemas import (
     RucioServiceCreate,
     RucioServiceRead,
 )
+from pydantic import Field
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):

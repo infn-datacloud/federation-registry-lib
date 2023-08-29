@@ -1,4 +1,5 @@
 from uuid import uuid4
+
 from app.project.crud import project
 from app.project.models import Project
 from app.project.schemas import ProjectCreate, ProjectUpdate

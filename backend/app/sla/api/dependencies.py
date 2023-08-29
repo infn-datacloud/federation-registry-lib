@@ -1,10 +1,10 @@
 from typing import Union
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 from app.sla.crud import sla
 from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLAUpdate
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 
 
 def valid_sla_id(sla_uid: UUID4) -> SLA:

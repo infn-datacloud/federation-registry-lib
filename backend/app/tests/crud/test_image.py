@@ -1,5 +1,6 @@
 from typing import Generator
 from uuid import uuid4
+
 from app.image.crud import image
 from app.image.schemas import ImageCreate
 from app.tests.utils.image import (
@@ -8,11 +9,7 @@ from app.tests.utils.image import (
     random_os,
 )
 from app.tests.utils.provider import create_random_provider
-from app.tests.utils.utils import (
-    random_lower_string,
-    random_bool,
-    random_datetime,
-)
+from app.tests.utils.utils import random_bool, random_datetime, random_lower_string
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

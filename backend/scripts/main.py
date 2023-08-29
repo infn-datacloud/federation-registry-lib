@@ -8,7 +8,6 @@ from scripts.openstack.services.api import get_catalog, get_services
 from scripts.openstack.services.utils import merge_services_and_catalog_info
 from scripts.utils import get_service_url
 
-
 if __name__ == "__main__":
     cmdb_url = "http://localhost:8000"
 
@@ -63,5 +62,3 @@ if __name__ == "__main__":
         services=services,
     )
     db_provider = add_provider(cmdb_url=cmdb_url, provider=provider)
-
-    

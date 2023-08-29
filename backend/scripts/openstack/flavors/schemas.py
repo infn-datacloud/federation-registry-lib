@@ -1,5 +1,4 @@
 from pydantic import Field
-
 from scripts.openstack.schemas import OpenstackItem
 
 

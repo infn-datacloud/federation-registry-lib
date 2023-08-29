@@ -1,6 +1,6 @@
-from pydantic import AnyHttpUrl, BaseModel, Field
 from typing import Optional
 
+from pydantic import AnyHttpUrl, BaseModel, Field
 from scripts.openstack.schemas import OpenstackItem
 
 

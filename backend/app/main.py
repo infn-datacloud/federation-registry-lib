@@ -1,11 +1,9 @@
 import uvicorn
-from fastapi import Depends, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
 from app.auth.dependencies import oidc_scheme
 from app.config import get_settings
 from app.router import router_v1
-
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 summary = """
 Configuration Management Database (CMDB)

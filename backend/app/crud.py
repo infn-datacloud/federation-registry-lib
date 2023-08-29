@@ -1,6 +1,7 @@
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+
 from neomodel import StructuredNode
 from pydantic import BaseModel
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
 ModelType = TypeVar("ModelType", bound=StructuredNode)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)

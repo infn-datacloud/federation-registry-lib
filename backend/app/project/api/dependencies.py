@@ -1,5 +1,3 @@
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 from typing import Union
 
 from app.project.crud import project
@@ -7,6 +5,8 @@ from app.project.models import Project
 from app.project.schemas import ProjectCreate, ProjectUpdate
 from app.provider.api.dependencies import valid_provider_id
 from app.provider.models import Provider
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 
 
 def valid_project_id(project_uid: UUID4) -> Project:

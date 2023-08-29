@@ -1,4 +1,3 @@
-from pydantic import BaseModel, Field
 from typing import List
 
 from app.project.schemas import ProjectRead
@@ -13,6 +12,7 @@ from app.service.schemas import (
     OneDataServiceRead,
     RucioServiceRead,
 )
+from pydantic import BaseModel, Field
 
 
 class ExtendWithProvider(BaseModel):

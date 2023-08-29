@@ -1,4 +1,3 @@
-from pydantic import Field
 from typing import List, Optional, Union
 
 from app.flavor.schemas import FlavorRead
@@ -18,6 +17,7 @@ from app.service.schemas import (
 )
 from app.sla.schemas import SLARead
 from app.user_group.schemas import UserGroupRead
+from pydantic import Field
 
 
 class UserGroupReadExtended(UserGroupRead):

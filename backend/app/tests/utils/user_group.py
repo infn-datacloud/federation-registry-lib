@@ -1,8 +1,8 @@
+from app.tests.utils.identity_provider import create_random_identity_provider
+from app.tests.utils.utils import random_lower_string
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
-from app.tests.utils.identity_provider import create_random_identity_provider
-from app.tests.utils.utils import random_lower_string
 
 
 def create_random_user_group() -> UserGroup:

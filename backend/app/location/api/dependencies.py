@@ -1,10 +1,10 @@
 from typing import Union
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 from app.location.crud import location
 from app.location.models import Location
 from app.location.schemas import LocationCreate, LocationUpdate
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 
 
 def valid_location_id(location_uid: UUID4) -> Location:

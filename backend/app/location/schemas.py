@@ -1,9 +1,9 @@
-from pycountry import countries
-from pydantic import BaseModel, Field, root_validator
 from typing import Dict, Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from pycountry import countries
+from pydantic import BaseModel, Field, root_validator
 
 
 class LocationBase(BaseModel):

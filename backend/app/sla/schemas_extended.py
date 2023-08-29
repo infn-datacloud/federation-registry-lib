@@ -1,4 +1,3 @@
-from pydantic import Field
 from typing import List
 
 from app.identity_provider.schemas import IdentityProviderRead
@@ -7,6 +6,7 @@ from app.project.schemas_extended import QuotaReadExtended
 from app.provider.schemas import ProviderRead
 from app.sla.schemas import SLARead
 from app.user_group.schemas import UserGroupRead
+from pydantic import Field
 
 
 class ProjectReadExtended(ProjectRead):

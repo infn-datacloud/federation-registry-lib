@@ -1,8 +1,8 @@
-from pydantic import Field
 from typing import List
 
 from app.location.schemas import LocationRead
 from app.provider.schemas import ProviderRead
+from pydantic import Field
 
 
 class LocationReadExtended(LocationRead):

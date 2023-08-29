@@ -1,12 +1,13 @@
 from uuid import uuid4
+
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorCreate, FlavorUpdate
 from app.tests.utils.provider import create_random_provider
 from app.tests.utils.utils import (
+    random_bool,
     random_lower_string,
     random_non_negative_int,
-    random_bool,
     random_positive_int,
 )
 

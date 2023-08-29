@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Extra, validator
 from typing import Optional, Union
 
+from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from app.quota.enum import (
     QuotaTypeBandwidth,
     QuotaTypeCount,
@@ -9,7 +9,7 @@ from app.quota.enum import (
     QuotaTypeSize,
     QuotaTypeTime,
 )
-from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from pydantic import BaseModel, Extra, validator
 
 
 class QuotaBase(BaseModel, extra=Extra.allow):

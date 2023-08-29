@@ -1,14 +1,12 @@
 from typing import Generator
 from uuid import uuid4
+
 from app.sla.crud import sla
 from app.sla.schemas import SLACreate
 from app.tests.utils.project import create_random_project
-from app.tests.utils.sla import (
-    create_random_sla,
-    create_random_update_sla_data,
-)
+from app.tests.utils.sla import create_random_sla, create_random_update_sla_data
 from app.tests.utils.user_group import create_random_user_group
-from app.tests.utils.utils import random_lower_string, random_datetime
+from app.tests.utils.utils import random_datetime, random_lower_string
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:

@@ -1,3 +1,4 @@
+from app.auth_method.models import AuthMethod
 from neomodel import (
     RelationshipFrom,
     StringProperty,
@@ -5,7 +6,6 @@ from neomodel import (
     UniqueIdProperty,
     ZeroOrMore,
 )
-from app.auth_method.models import AuthMethod
 
 
 class IdentityProvider(StructuredNode):

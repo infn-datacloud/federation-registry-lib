@@ -1,10 +1,10 @@
 from datetime import datetime
 from enum import Enum
-from pydantic import BaseModel, Field, create_model, root_validator
-from pydantic.fields import SHAPE_LIST
 from typing import Optional
 
 from app.models import BaseNodeQuery
+from pydantic import BaseModel, Field, create_model, root_validator
+from pydantic.fields import SHAPE_LIST
 
 
 class CommonGetQuery(BaseModel):

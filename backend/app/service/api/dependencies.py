@@ -1,10 +1,10 @@
 from typing import Union
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 from app.service.crud import service
 from app.service.models import Service
 from app.service.schemas import ServiceCreate, ServiceUpdate
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 
 
 def valid_service_id(service_uid: UUID4) -> Service:

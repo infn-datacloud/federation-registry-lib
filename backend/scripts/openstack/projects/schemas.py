@@ -1,6 +1,6 @@
-from pydantic import UUID4, Field
 from typing import Optional
 
+from pydantic import UUID4, Field
 from scripts.openstack.schemas import OpenstackItem
 
 

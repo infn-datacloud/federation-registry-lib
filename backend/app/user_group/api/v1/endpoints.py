@@ -1,5 +1,3 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional, Union
 
 from app.flavor.schemas import FlavorRead
@@ -23,7 +21,9 @@ from app.user_group.api.dependencies import (
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupQuery, UserGroupUpdate
-from app.user_group.schemas_extended import UserGroupReadExtended, ServiceQuery
+from app.user_group.schemas_extended import ServiceQuery, UserGroupReadExtended
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 

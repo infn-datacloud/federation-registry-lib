@@ -1,5 +1,6 @@
-from pydantic import BaseModel, root_validator
 from typing import Any, List, Optional
+
+from pydantic import BaseModel, root_validator
 
 
 class Pagination(BaseModel):

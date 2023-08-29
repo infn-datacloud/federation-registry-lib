@@ -1,15 +1,12 @@
 from random import choice
 from uuid import uuid4
+
 from app.image.crud import image
+from app.image.enum import ImageOS
 from app.image.models import Image
 from app.image.schemas import ImageCreate, ImageUpdate
-from app.image.enum import ImageOS
 from app.tests.utils.provider import create_random_provider
-from app.tests.utils.utils import (
-    random_lower_string,
-    random_bool,
-    random_datetime,
-)
+from app.tests.utils.utils import random_bool, random_datetime, random_lower_string
 
 
 def create_random_image() -> Image:

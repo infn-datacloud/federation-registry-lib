@@ -1,9 +1,9 @@
-from pydantic import AnyHttpUrl, BaseModel, Extra, Field, validator
 from typing import Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 from app.service.enum import ServiceType
+from pydantic import AnyHttpUrl, BaseModel, Extra, Field, validator
 
 
 class ServiceBase(BaseModel, extra=Extra.allow):

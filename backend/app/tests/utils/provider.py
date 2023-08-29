@@ -2,11 +2,7 @@ from app.provider.crud import provider
 from app.provider.models import Provider
 from app.provider.schemas import ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended
-from app.tests.utils.utils import (
-    random_bool,
-    random_email,
-    random_lower_string,
-)
+from app.tests.utils.utils import random_bool, random_email, random_lower_string
 
 
 def create_random_provider() -> Provider:

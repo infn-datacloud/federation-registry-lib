@@ -1,8 +1,9 @@
 from enum import Enum
-from neo4j.data import DateTime
-from neomodel import One, OneOrMore, ZeroOrOne, ZeroOrMore
-from pydantic import UUID4, BaseModel, Field, root_validator
 from typing import Dict, Optional
+
+from neo4j.data import DateTime
+from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
+from pydantic import UUID4, BaseModel, Field, root_validator
 
 
 class BaseNodeCreate(BaseModel):

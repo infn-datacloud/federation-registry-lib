@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional
 
 from app.location.api.dependencies import (
+    valid_location_id,
     valid_location_name,
     validate_new_location_values,
-    valid_location_id,
 )
 from app.location.crud import location
 from app.location.models import Location
@@ -13,6 +11,8 @@ from app.location.schemas import LocationCreate, LocationQuery, LocationUpdate
 from app.location.schemas_extended import LocationReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/locations", tags=["locations"])
 

@@ -1,5 +1,3 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional
 
 from app.pagination import Pagination, paginate
@@ -7,8 +5,8 @@ from app.project.api.dependencies import project_has_no_sla
 from app.project.models import Project
 from app.query import CommonGetQuery
 from app.sla.api.dependencies import (
-    valid_sla_id,
     is_unique_sla,
+    valid_sla_id,
     validate_new_sla_values,
 )
 from app.sla.crud import sla
@@ -17,6 +15,8 @@ from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
 from app.sla.schemas_extended import SLAReadExtended
 from app.user_group.api.dependencies import valid_user_group_id
 from app.user_group.models import UserGroup
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/slas", tags=["slas"])
 

@@ -1,10 +1,10 @@
 from neomodel import (
     FloatProperty,
-    ZeroOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
+    ZeroOrMore,
 )
 
 

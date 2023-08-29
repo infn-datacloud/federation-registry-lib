@@ -1,9 +1,10 @@
-import requests
-from functools import lru_cache
 from enum import Enum
+from functools import lru_cache
+from typing import Any, Dict, List, Optional
+
+import requests
 from neomodel import config
 from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, Field, validator
-from typing import Any, Dict, List, Optional
 
 
 class Neo4jUriScheme(Enum):

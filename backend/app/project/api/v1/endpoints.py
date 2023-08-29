@@ -1,21 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional
 
 from app.flavor.api.dependencies import valid_flavor_id
 from app.flavor.models import Flavor
 from app.image.api.dependencies import valid_image_id
 from app.image.models import Image
-from app.project.api.dependencies import (
-    valid_project_id,
-    validate_new_project_values,
-)
+from app.pagination import Pagination, paginate
+from app.project.api.dependencies import valid_project_id, validate_new_project_values
 from app.project.crud import project
 from app.project.models import Project
 from app.project.schemas import ProjectQuery, ProjectUpdate
 from app.project.schemas_extended import ProjectReadExtended
-from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 

@@ -1,10 +1,10 @@
-import requests
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2AuthorizationCodeBearer
 from ssl import SSLError
 
+import requests
 from app.auth.schemas import TokenData
 from app.config import Settings, get_settings
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2AuthorizationCodeBearer
 
 settings = get_settings()
 

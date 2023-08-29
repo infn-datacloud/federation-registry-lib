@@ -1,10 +1,7 @@
 import os
-import requests
 
-from app.provider.schemas_extended import (
-    ProviderCreateExtended,
-    ProviderReadExtended,
-)
+import requests
+from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
 
 
 def add_provider(

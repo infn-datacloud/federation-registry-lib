@@ -1,17 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional
 
-from app.flavor.api.dependencies import (
-    valid_flavor_id,
-    validate_new_flavor_values,
-)
+from app.flavor.api.dependencies import valid_flavor_id, validate_new_flavor_values
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorQuery, FlavorUpdate
 from app.flavor.schemas_extended import FlavorReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/flavors", tags=["flavors"])
 

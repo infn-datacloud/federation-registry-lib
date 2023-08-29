@@ -1,9 +1,9 @@
-import pytest
-from fastapi.testclient import TestClient
-from neomodel import clear_neo4j_database, db
 from typing import Generator
 
+import pytest
 from app.main import app
+from fastapi.testclient import TestClient
+from neomodel import clear_neo4j_database, db
 
 
 @pytest.fixture

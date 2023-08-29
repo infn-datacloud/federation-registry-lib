@@ -1,5 +1,3 @@
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 from typing import Union
 
 from app.flavor.crud import flavor
@@ -7,6 +5,8 @@ from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorCreate, FlavorUpdate
 from app.provider.api.dependencies import valid_provider_id
 from app.provider.models import Provider
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 
 
 def valid_flavor_id(flavor_uid: UUID4) -> Flavor:

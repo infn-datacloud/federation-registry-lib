@@ -1,3 +1,4 @@
+from app.auth_method.models import AuthMethod
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
@@ -8,7 +9,6 @@ from neomodel import (
     ZeroOrMore,
     ZeroOrOne,
 )
-from app.auth_method.models import AuthMethod
 
 
 class Provider(StructuredNode):

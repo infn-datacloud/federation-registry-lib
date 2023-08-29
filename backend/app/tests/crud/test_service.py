@@ -1,4 +1,5 @@
 from typing import Generator
+
 from app.service.crud import service
 from app.service.schemas import ServiceCreate
 from app.tests.utils.provider import create_random_provider

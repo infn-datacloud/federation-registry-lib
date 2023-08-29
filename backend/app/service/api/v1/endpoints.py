@@ -1,35 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional, Union
 
 from app.identity_provider.schemas import IdentityProviderRead
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
-from app.service.api.dependencies import (
-    valid_service_id,
-    validate_new_service_values,
-)
+from app.service.api.dependencies import valid_service_id, validate_new_service_values
 from app.service.crud import service
 from app.service.models import Service
-from app.service.schemas import (
-    # ChronosServiceUpdate,
+from app.service.schemas import (  # ChronosServiceUpdate,; MarathonServiceUpdate,; MesosServiceUpdate,; OneDataServiceUpdate,; RucioServiceUpdate,
     KubernetesServiceUpdate,
-    # MarathonServiceUpdate,
-    # MesosServiceUpdate,
     NovaServiceUpdate,
-    # OneDataServiceUpdate,
-    # RucioServiceUpdate,
     ServiceQuery,
 )
-from app.service.schemas_extended import (
-    # ChronosServiceReadExtended,
+from app.service.schemas_extended import (  # ChronosServiceReadExtended,; MarathonServiceReadExtended,; MesosServiceReadExtended,; OneDataServiceReadExtended,; RucioServiceReadExtended,
     KubernetesServiceReadExtended,
-    # MarathonServiceReadExtended,
-    # MesosServiceReadExtended,
     NovaServiceReadExtended,
-    # OneDataServiceReadExtended,
-    # RucioServiceReadExtended,
 )
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/services", tags=["services"])
 

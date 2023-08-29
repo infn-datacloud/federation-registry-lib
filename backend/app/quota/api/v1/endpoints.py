@@ -1,5 +1,3 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, Response, status
-from neomodel import db
 from typing import List, Optional, Union
 
 from app.pagination import Pagination, paginate
@@ -9,18 +7,12 @@ from app.query import CommonGetQuery
 from app.quota.api.dependencies import valid_quota_id
 from app.quota.crud import quota
 from app.quota.models import Quota
-from app.quota.schemas import (
-    NumCPUQuotaCreate,
-    QuotaQuery,
-    QuotaUpdate,
-    RAMQuotaCreate,
-)
-from app.quota.schemas_extended import (
-    NumCPUQuotaReadExtended,
-    RAMQuotaReadExtended,
-)
+from app.quota.schemas import NumCPUQuotaCreate, QuotaQuery, QuotaUpdate, RAMQuotaCreate
+from app.quota.schemas_extended import NumCPUQuotaReadExtended, RAMQuotaReadExtended
 from app.service.api.dependencies import valid_service_id
 from app.service.models import Service
+from fastapi import APIRouter, Body, Depends, HTTPException, Response, status
+from neomodel import db
 
 router = APIRouter(prefix="/quotas", tags=["quotas"])
 

@@ -6,9 +6,7 @@ from app.location.crud import location
 from app.project.crud import project
 from app.provider.models import Provider
 from app.provider.schemas import ProviderCreate, ProviderUpdate
-from app.provider.schemas_extended import (
-    ProviderCreateExtended,
-)
+from app.provider.schemas_extended import ProviderCreateExtended
 from app.service.crud import service
 
 

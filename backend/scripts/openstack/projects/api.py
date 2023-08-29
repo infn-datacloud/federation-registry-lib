@@ -1,7 +1,7 @@
 import os
-import requests
 from typing import List
 
+import requests
 from scripts.openstack.projects.schemas import Project
 
 

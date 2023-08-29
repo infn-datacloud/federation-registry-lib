@@ -1,13 +1,10 @@
 from typing import Union
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
-from app.identity_provider.schemas import (
-    IdentityProviderCreate,
-    IdentityProviderUpdate,
-)
+from app.identity_provider.schemas import IdentityProviderCreate, IdentityProviderUpdate
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
 
 
 def valid_identity_provider_id(

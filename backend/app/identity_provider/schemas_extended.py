@@ -1,10 +1,10 @@
-from pydantic import Field
 from typing import List
 
 from app.auth_method.schemas import AuthMethodRead
 from app.identity_provider.schemas import IdentityProviderRead
 from app.provider.schemas import ProviderRead
 from app.user_group.schemas import UserGroupRead
+from pydantic import Field
 
 
 class ProviderReadExtended(ProviderRead):

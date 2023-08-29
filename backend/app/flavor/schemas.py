@@ -1,8 +1,8 @@
-from pydantic import UUID4, BaseModel, Field, root_validator
 from typing import Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from pydantic import UUID4, BaseModel, Field, root_validator
 
 
 class FlavorBase(BaseModel):

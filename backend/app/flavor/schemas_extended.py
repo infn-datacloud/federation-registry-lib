@@ -1,9 +1,9 @@
-from pydantic import Field
 from typing import List
 
 from app.flavor.schemas import FlavorRead
 from app.project.schemas import ProjectRead
 from app.provider.schemas import ProviderRead
+from pydantic import Field
 
 
 class FlavorReadExtended(FlavorRead):
