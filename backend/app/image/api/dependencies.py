@@ -10,8 +10,7 @@ from pydantic import UUID4
 
 
 def valid_image_id(image_uid: UUID4) -> Image:
-    """
-    Check given uid corresponds to an entity in the DB.
+    """Check given uid corresponds to an entity in the DB.
 
     Args:
         image_uid (UUID4): uid of the target DB entity.
@@ -36,9 +35,8 @@ def valid_image_name(
     item: Union[ImageCreate, ImageUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """
-    Check there are no other images, belonging to the same
-    provider, with the same name.
+    """Check there are no other images, belonging to the same provider, with
+    the same name.
 
     Args:
         item (ImageCreate | ImageUpdate): new data.
@@ -63,9 +61,8 @@ def valid_image_uuid(
     item: Union[ImageCreate, ImageUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """
-    Check there are no other images, belonging to the same
-    provider, with the same uuid.
+    """Check there are no other images, belonging to the same provider, with
+    the same uuid.
 
     Args:
         item (ImageCreate | ImageUpdate): new data.
@@ -88,8 +85,7 @@ def valid_image_uuid(
 def validate_new_image_values(
     update_data: ImageUpdate, item: Image = Depends(valid_image_id)
 ) -> None:
-    """
-    Check given data are valid ones. Check there are no other images,
+    """Check given data are valid ones. Check there are no other images,
     belonging to the same provider, with the same uuid and name.
 
     Args:

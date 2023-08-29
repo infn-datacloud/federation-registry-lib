@@ -10,9 +10,8 @@ from pydantic import Field
 
 
 class ProjectReadExtended(ProjectRead):
-    """Model to extend the Project data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Project data read from the DB with the lists of
+    related items."""
 
     provider: ProviderRead = Field(description="Provider owning this project")
     quotas: List[QuotaReadExtended] = Field(
@@ -22,9 +21,8 @@ class ProjectReadExtended(ProjectRead):
 
 
 class UserGroupReadExtended(UserGroupRead):
-    """Model to extend the User Group data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the User Group data read from the DB with the lists of
+    related items."""
 
     identity_provider: IdentityProviderRead = Field(
         description="Identity Provider owning this User Group."
@@ -32,9 +30,8 @@ class UserGroupReadExtended(UserGroupRead):
 
 
 class SLAReadExtended(SLARead):
-    """Model to extend the SLA data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the SLA data read from the DB with the lists of related
+    items."""
 
     project: ProjectReadExtended = Field(description="Involved Project.")
     user_group: UserGroupReadExtended = Field(

@@ -121,7 +121,7 @@ class QuotaUpdate(BaseNodeCreate, extra=Extra.allow):
 
 
 class QuotaRead(BaseNodeRead, QuotaBase):
-    """Quota class
+    """Quota class.
 
     Class retrieved from the database
     expected as output when performing a REST request.

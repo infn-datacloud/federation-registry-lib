@@ -6,7 +6,7 @@ from scripts.openstack.images.schemas import Image
 
 
 def get_images(*, os_image_url: str, token: str) -> List[Image]:
-    """Get list of images"""
+    """Get list of images."""
 
     headers = {"X-Auth-Token": token}
     resp = requests.get(

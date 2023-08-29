@@ -9,8 +9,8 @@ from pydantic import UUID4, BaseModel, Field, root_validator
 class BaseNodeCreate(BaseModel):
     """Base Model when updating or creating a node in the DB.
 
-    When dealing with enumerations retrieve the enum value.
-    Always validate assignments.
+    When dealing with enumerations retrieve the enum value. Always
+    validate assignments.
     """
 
     description: str = Field(default="", description="Brief item description")
@@ -30,11 +30,10 @@ class BaseNodeCreate(BaseModel):
 class BaseNodeRead(BaseModel):
     """Base Model when reading nodes from the DB.
 
-    Use ORM mode to read data from DB models.
-    Convert Neo4j datetime objects into python datetime ones.
-    When dealing with relationships retrieve all connected items
-    and show them as an object list. If a relationships has a
-    model return a dict with the data stored in it.
+    Use ORM mode to read data from DB models. Convert Neo4j datetime
+    objects into python datetime ones. When dealing with relationships
+    retrieve all connected items and show them as an object list. If a
+    relationships has a model return a dict with the data stored in it.
     Always validate assignments.
     """
 
@@ -43,11 +42,11 @@ class BaseNodeRead(BaseModel):
 
     @root_validator(pre=True)
     def get_relations(cls, data: Dict) -> Dict:
-        """
-        From One or ZeroOrOne relationships get that single relationship.
-        From OneOrMore or ZeroOrMore relationships get all relationships;
-        if that relationships has a model return a dict with the data stored
-        in the relationship.
+        """From One or ZeroOrOne relationships get that single relationship.
+
+        From OneOrMore or ZeroOrMore relationships get all
+        relationships; if that relationships has a model return a dict
+        with the data stored in the relationship.
         """
         relations = {}
         for k, v in data.items():
@@ -81,9 +80,9 @@ class BaseNodeRead(BaseModel):
 
 
 class BaseNodeQuery(BaseModel):
-    """Base Model used to retrieve possible query
-    parameters when performing nodes get operations
-    with filters.
+    """Base Model used to retrieve possible query parameters when performing
+    nodes get operations with filters.
+
     Always validate assignments.
     """
 

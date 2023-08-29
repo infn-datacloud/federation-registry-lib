@@ -8,9 +8,8 @@ from pydantic import Field
 
 
 class ProviderReadExtended(ProviderRead):
-    """Model to extend the Provider data read from the
-    DB with the authentication method details.
-    """
+    """Model to extend the Provider data read from the DB with the
+    authentication method details."""
 
     relationship: AuthMethodRead = Field(
         description="Authentication method used by the Provider"
@@ -18,9 +17,8 @@ class ProviderReadExtended(ProviderRead):
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
-    """Model to extend the Identity Provider data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Identity Provider data read from the DB with the
+    lists of related items."""
 
     user_groups: List[UserGroupRead] = Field(
         default_factory=list, description="List of owned user groups."

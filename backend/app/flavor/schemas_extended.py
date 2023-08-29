@@ -7,9 +7,8 @@ from pydantic import Field
 
 
 class FlavorReadExtended(FlavorRead):
-    """Model to extend the Flavor data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Flavor data read from the DB with the lists of
+    related items."""
 
     projects: List[ProjectRead] = Field(
         default_factory=list,

@@ -7,9 +7,8 @@ from pydantic import Field
 
 
 class ImageReadExtended(ImageRead):
-    """Model to extend the Image data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Image data read from the DB with the lists of
+    related items."""
 
     projects: List[ProjectRead] = Field(
         default_factory=list,

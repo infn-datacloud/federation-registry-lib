@@ -17,16 +17,16 @@ class ServiceBase(BaseModel, extra=Extra.allow):
 class ServiceCreate(BaseNodeCreate, ServiceBase):
     """Model to create a Service.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a POST request.
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
     """
 
 
 class ServiceUpdate(ServiceCreate):
     """Model to update a Service.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as
+    input when performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -43,12 +43,12 @@ class ServiceUpdate(ServiceCreate):
 class ServiceRead(BaseNodeRead, ServiceBase):
     """Model to read Service data retrieved from DB.
 
-    Class to read data retrieved from the database.
-    Expected as output when performing a generic REST request.
-    It contains all the non-sensible data written in the database.
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
 
-    Add the *uid* attribute, which is the item unique
-    identifier in the database.
+    Add the *uid* attribute, which is the item unique identifier in the
+    database.
     """
 
 
@@ -56,9 +56,8 @@ ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
 
 
 class KubernetesBase(ServiceBase, extra=Extra.ignore):
-    """Model derived from ServiceBase to inherit attributes
-    common to all services. It adds the basic attributes
-    for Kubernetes services.
+    """Model derived from ServiceBase to inherit attributes common to all
+    services. It adds the basic attributes for Kubernetes services.
 
     Validation: type value is exactly ServiceType.kubernetes.
     """
@@ -73,16 +72,16 @@ class KubernetesBase(ServiceBase, extra=Extra.ignore):
 class KubernetesServiceCreate(BaseNodeCreate, KubernetesBase):
     """Model to create a Kubernetes Service.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a POST request.
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
     """
 
 
 class KubernetesServiceUpdate(KubernetesServiceCreate):
     """Model to update a Kubernetes service.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as
+    input when performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -95,12 +94,12 @@ class KubernetesServiceUpdate(KubernetesServiceCreate):
 class KubernetesServiceRead(BaseNodeRead, KubernetesBase):
     """Model to read Kubernetes service data retrieved from DB.
 
-    Class to read data retrieved from the database.
-    Expected as output when performing a generic REST request.
-    It contains all the non-sensible data written in the database.
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
 
-    Add the *uid* attribute, which is the item unique
-    identifier in the database.
+    Add the *uid* attribute, which is the item unique identifier in the
+    database.
     """
 
 
@@ -110,9 +109,8 @@ KubernetesServiceQuery = create_query_model(
 
 
 class NovaBase(ServiceBase, extra=Extra.ignore):
-    """Model derived from ServiceBase to inherit attributes
-    common to all services. It adds the basic attributes
-    for Nova services.
+    """Model derived from ServiceBase to inherit attributes common to all
+    services. It adds the basic attributes for Nova services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
@@ -127,16 +125,16 @@ class NovaBase(ServiceBase, extra=Extra.ignore):
 class NovaServiceCreate(BaseNodeCreate, NovaBase):
     """Model to create a Nova Service.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a POST request.
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
     """
 
 
 class NovaServiceUpdate(NovaServiceCreate):
     """Model to update a Nova service.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as
+    input when performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -149,12 +147,12 @@ class NovaServiceUpdate(NovaServiceCreate):
 class NovaServiceRead(BaseNodeRead, NovaBase):
     """Model to read Nova service data retrieved from DB.
 
-    Class to read data retrieved from the database.
-    Expected as output when performing a generic REST request.
-    It contains all the non-sensible data written in the database.
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
 
-    Add the *uid* attribute, which is the item unique
-    identifier in the database.
+    Add the *uid* attribute, which is the item unique identifier in the
+    database.
     """
 
 

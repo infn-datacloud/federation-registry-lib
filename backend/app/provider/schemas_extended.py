@@ -27,9 +27,8 @@ from pydantic import Field
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
-    """Model to extend the Identity Provider data used to create
-    a new instance in the DB with the authentication method details.
-    """
+    """Model to extend the Identity Provider data used to create a new instance
+    in the DB with the authentication method details."""
 
     relationship: AuthMethodCreate = Field(
         description="Authentication method used by the Provider"
@@ -37,9 +36,8 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
-    """Model to extend the Identity Provider data read from the
-    DB with the authentication method details.
-    """
+    """Model to extend the Identity Provider data read from the DB with the
+    authentication method details."""
 
     relationship: AuthMethodRead = Field(
         description="Authentication method used by the Provider"
@@ -47,9 +45,8 @@ class IdentityProviderReadExtended(IdentityProviderRead):
 
 
 class ProviderCreateExtended(ProviderCreate):
-    """Model to extend the Provider data used to create
-    a new instance in the DB with the lists of related items.
-    """
+    """Model to extend the Provider data used to create a new instance in the
+    DB with the lists of related items."""
 
     location: Optional[LocationCreate] = Field(
         default=None, description="Provider location."
@@ -81,9 +78,8 @@ class ProviderCreateExtended(ProviderCreate):
 
 
 class ProviderReadExtended(ProviderRead):
-    """Model to extend the Provider data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Provider data read from the DB with the lists of
+    related items."""
 
     location: Optional[LocationRead] = Field(
         default=None, description="Provider location."

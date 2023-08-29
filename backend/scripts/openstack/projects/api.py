@@ -6,7 +6,7 @@ from scripts.openstack.projects.schemas import Project
 
 
 def get_projects(*, os_auth_url: str, token: str) -> List[Project]:
-    """Get list of projects"""
+    """Get list of projects."""
 
     headers = {"X-Auth-Token": token}
     resp = requests.get(

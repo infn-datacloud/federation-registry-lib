@@ -8,8 +8,7 @@ from pydantic import UUID4
 
 
 def valid_service_id(service_uid: UUID4) -> Service:
-    """
-    Check given uid corresponds to an entity in the DB.
+    """Check given uid corresponds to an entity in the DB.
 
     Args:
         service_uid (UUID4): uid of the target DB entity.
@@ -31,8 +30,7 @@ def valid_service_id(service_uid: UUID4) -> Service:
 
 
 def valid_service_endpoint(item: Union[ServiceCreate, ServiceUpdate]) -> None:
-    """
-    Check there are no other services with the same endpoint.
+    """Check there are no other services with the same endpoint.
 
     Args:
         item (ServiceCreate | ServiceUpdate): new data.
@@ -55,9 +53,8 @@ def valid_service_endpoint(item: Union[ServiceCreate, ServiceUpdate]) -> None:
 def validate_new_service_values(
     update_data: ServiceUpdate, item: Service = Depends(valid_service_id)
 ) -> None:
-    """
-    Check given data are valid ones. Check there are no other
-    services with the same endpoint.
+    """Check given data are valid ones. Check there are no other services with
+    the same endpoint.
 
     Args:
         update_data (FlavorUpdate): new data.

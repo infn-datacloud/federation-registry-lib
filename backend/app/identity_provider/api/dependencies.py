@@ -10,8 +10,7 @@ from pydantic import UUID4
 def valid_identity_provider_id(
     identity_provider_uid: UUID4,
 ) -> IdentityProvider:
-    """
-    Check given uid corresponds to an entity in the DB.
+    """Check given uid corresponds to an entity in the DB.
 
     Args:
         identity_provider_uid (UUID4): uid of the target DB entity.
@@ -37,8 +36,7 @@ def valid_identity_provider_id(
 def valid_identity_provider_endpoint(
     item: Union[IdentityProviderCreate, IdentityProviderUpdate]
 ) -> None:
-    """
-    Check there are no other identity providers with the same endpoint.
+    """Check there are no other identity providers with the same endpoint.
 
     Args:
         item (IdentityProviderCreate | IdentityProviderUpdate): input data.
@@ -64,9 +62,8 @@ def validate_new_identity_provider_values(
     update_data: IdentityProviderUpdate,
     item: IdentityProvider = Depends(valid_identity_provider_id),
 ) -> None:
-    """
-    Check given data are valid ones. Check there are no other
-    identity providers with the same endpoint.
+    """Check given data are valid ones. Check there are no other identity
+    providers with the same endpoint.
 
     Args:
         update_data (IdentityProviderUpdate): new data.

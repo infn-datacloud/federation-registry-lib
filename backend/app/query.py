@@ -39,9 +39,8 @@ class CommonGetQuery(BaseModel):
 
 
 def create_query_model(model_name: str, base_model: BaseModel):
-    """Create a Query Model with the given model name and
-    starting from the received base model.
-    """
+    """Create a Query Model with the given model name and starting from the
+    received base model."""
 
     d = {}
     for k, v in base_model.__fields__.items():
@@ -87,7 +86,7 @@ def create_query_model(model_name: str, base_model: BaseModel):
 
 
 def create_subquery_model(base_model: BaseNodeQuery):
-    """Create Query Model starting from another Query Model"""
+    """Create Query Model starting from another Query Model."""
 
     d = {}
     for k, v in base_model.__fields__.items():

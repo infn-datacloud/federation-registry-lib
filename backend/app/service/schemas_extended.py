@@ -28,21 +28,18 @@ class ExtendWithProject(BaseModel):
 
 
 class NumCPUQuotaReadExtended(NumCPUQuotaRead, ExtendWithProject):
-    """Model to extend the Num CPUs Quota data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Num CPUs Quota data read from the DB with the lists
+    of related items."""
 
 
 class RAMQuotaReadExtended(RAMQuotaRead, ExtendWithProject):
-    """Model to extend the RAM Quota data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the RAM Quota data read from the DB with the lists of
+    related items."""
 
 
 class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
-    """Model to extend the Nova Service data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Nova Service data read from the DB with the lists of
+    related items."""
 
     num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(
         default_factory=list,

@@ -12,8 +12,7 @@ from pydantic import UUID4
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
-    """
-    Check given uid corresponds to an entity in the DB.
+    """Check given uid corresponds to an entity in the DB.
 
     Args:
         provider_uid (UUID4): uid of the target DB entity.
@@ -37,8 +36,7 @@ def valid_provider_id(provider_uid: UUID4) -> Provider:
 def is_unique_provider(
     item: Union[ProviderCreateExtended, ProviderUpdate]
 ) -> None:
-    """
-    Check there are no other providers with the same name.
+    """Check there are no other providers with the same name.
 
     Args:
         item (ProviderCreateExtended | ProviderUpdate): new data.
@@ -61,9 +59,8 @@ def is_unique_provider(
 def validate_new_provider_values(
     update_data: ProviderUpdate, item: Provider = Depends(valid_provider_id)
 ) -> None:
-    """
-    Check given data are valid ones. Check there are no other
-    providers with the same name.
+    """Check given data are valid ones. Check there are no other providers with
+    the same name.
 
     Args:
         update_data (ProviderUpdate): new data.
@@ -96,9 +93,8 @@ def find_duplicates(items: List[Any], attr: str) -> None:
 
 
 def valid_flavor_list(item: ProviderCreateExtended) -> None:
-    """
-    Check there are no flavors with the same uuid and name,
-    in the flavor list of the received provider.
+    """Check there are no flavors with the same uuid and name, in the flavor
+    list of the received provider.
 
     Args:
         item (ProviderCreateExtended): provider data.
@@ -115,9 +111,8 @@ def valid_flavor_list(item: ProviderCreateExtended) -> None:
 
 
 def valid_image_list(item: ProviderCreateExtended) -> None:
-    """
-    Check there are no images with the same uuid and name,
-    in the image list of the received provider.
+    """Check there are no images with the same uuid and name, in the image list
+    of the received provider.
 
     Args:
         item (ProviderCreateExtended): provider data.
@@ -134,9 +129,8 @@ def valid_image_list(item: ProviderCreateExtended) -> None:
 
 
 def valid_project_list(item: ProviderCreateExtended) -> None:
-    """
-    Check there are no projects with the same uuid and name,
-    in the project list of the received provider.
+    """Check there are no projects with the same uuid and name, in the project
+    list of the received provider.
 
     Args:
         item (ProviderCreateExtended): provider data.
@@ -153,11 +147,9 @@ def valid_project_list(item: ProviderCreateExtended) -> None:
 
 
 def valid_service_list(item: ProviderCreateExtended) -> None:
-    """
-    Check there are no services with the same endpoint,
-    in the service list of the received provider. Moreover,
-    check there are no other services in the DB with the same
-    endpoint.
+    """Check there are no services with the same endpoint, in the service list
+    of the received provider. Moreover, check there are no other services in
+    the DB with the same endpoint.
 
     Args:
         item (ProviderCreateExtended): provider data.
@@ -176,11 +168,10 @@ def valid_service_list(item: ProviderCreateExtended) -> None:
 
 
 def valid_identity_provider_list(item: ProviderCreateExtended) -> None:
-    """
-    Check there are no identity providers with the same endpoint,
-    in the identity provider list of the received provider. Moreover,
-    check that if there is another identity provider in the DB with
-    the same endpoint, it matches the given attributes.
+    """Check there are no identity providers with the same endpoint, in the
+    identity provider list of the received provider. Moreover, check that if
+    there is another identity provider in the DB with the same endpoint, it
+    matches the given attributes.
 
     Args:
         item (ProviderCreateExtended): provider data.
@@ -211,9 +202,8 @@ def valid_identity_provider_list(item: ProviderCreateExtended) -> None:
 
 
 def valid_location(item: ProviderCreateExtended) -> None:
-    """
-    Check that if there is another location in the DB with
-    the same name, it matches the given attributes.
+    """Check that if there is another location in the DB with the same name, it
+    matches the given attributes.
 
     Args:
         item (ProviderCreateExtended): provider data.

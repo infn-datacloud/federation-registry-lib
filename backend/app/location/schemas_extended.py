@@ -6,9 +6,8 @@ from pydantic import Field
 
 
 class LocationReadExtended(LocationRead):
-    """Model to extend the Location data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Location data read from the DB with the lists of
+    related items."""
 
     providers: List[ProviderRead] = Field(
         default_factory=list, description="List of hosted providers."

@@ -8,8 +8,7 @@ from pydantic import UUID4
 
 
 def valid_sla_id(sla_uid: UUID4) -> SLA:
-    """
-    Check given uid corresponds to an entity in the DB.
+    """Check given uid corresponds to an entity in the DB.
 
     Args:
         sla_uid (UUID4): uid of the target DB entity.
@@ -31,8 +30,7 @@ def valid_sla_id(sla_uid: UUID4) -> SLA:
 
 
 def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
-    """
-    Check there are no other SLAs with the same document uuid.
+    """Check there are no other SLAs with the same document uuid.
 
     Args:
         item (SLACreate | SLAUpdate): new data.
@@ -57,9 +55,8 @@ def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
 def validate_new_sla_values(
     update_data: SLAUpdate, item: SLA = Depends(valid_sla_id)
 ) -> None:
-    """
-    Check given data are valid ones. Check there are no other
-    SLAs with the same document uuid.
+    """Check given data are valid ones. Check there are no other SLAs with the
+    same document uuid.
 
     Args:
         update_data (FlavorUpdate): new data.

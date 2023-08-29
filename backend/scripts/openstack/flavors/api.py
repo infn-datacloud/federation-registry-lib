@@ -6,7 +6,7 @@ from scripts.openstack.flavors.schemas import Flavor
 
 
 def get_flavors(*, os_compute_url: str, token: str) -> List[Flavor]:
-    """Get list of flavors"""
+    """Get list of flavors."""
 
     headers = {"X-Auth-Token": token}
     resp = requests.get(

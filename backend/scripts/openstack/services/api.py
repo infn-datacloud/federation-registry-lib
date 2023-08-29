@@ -6,7 +6,7 @@ from scripts.openstack.services.schemas import Endpoints, Service
 
 
 def get_catalog(*, os_auth_url: str, token: str) -> Dict[str, Endpoints]:
-    """Using the auth token, get the service catalog"""
+    """Using the auth token, get the service catalog."""
 
     headers = {"X-Auth-Token": token}
     resp = requests.get(
@@ -26,7 +26,7 @@ def get_catalog(*, os_auth_url: str, token: str) -> Dict[str, Endpoints]:
 
 
 def get_services(*, os_auth_url: str, token: str) -> List[Service]:
-    """Get list of services"""
+    """Get list of services."""
 
     headers = {"X-Auth-Token": token}
     resp = requests.get(

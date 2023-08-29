@@ -4,7 +4,7 @@ import requests
 
 
 def get_token(*, os_auth_url: str, os_username: str, os_password: str) -> str:
-    """Get token with Password authentication with unscoped authorization"""
+    """Get token with Password authentication with unscoped authorization."""
 
     headers = {"Content-Type": "application/json"}
     data = {

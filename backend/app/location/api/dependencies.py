@@ -8,8 +8,7 @@ from pydantic import UUID4
 
 
 def valid_location_id(location_uid: UUID4) -> Location:
-    """
-    Check given uid corresponds to an entity in the DB.
+    """Check given uid corresponds to an entity in the DB.
 
     Args:
         location_uid (UUID4): uid of the target DB entity.
@@ -31,8 +30,7 @@ def valid_location_id(location_uid: UUID4) -> Location:
 
 
 def valid_location_name(item: Union[LocationCreate, LocationUpdate]) -> None:
-    """
-    Check there are no other locations with the same name.
+    """Check there are no other locations with the same name.
 
     Args:
         item (LocationCreate | LocationUpdate): input data.
@@ -56,9 +54,8 @@ def valid_location_name(item: Union[LocationCreate, LocationUpdate]) -> None:
 def validate_new_location_values(
     update_data: LocationUpdate, item: Location = Depends(valid_location_id)
 ) -> None:
-    """
-    Check given data are valid ones. Check there are no other
-    locations with the same name.
+    """Check given data are valid ones. Check there are no other locations with
+    the same name.
 
     Args:
         update_data (FlavorUpdate): new data.

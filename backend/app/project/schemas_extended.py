@@ -21,9 +21,8 @@ from pydantic import Field
 
 
 class UserGroupReadExtended(UserGroupRead):
-    """Model to extend the User Group data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the User Group data read from the DB with the lists of
+    related items."""
 
     identity_provider: IdentityProviderRead = Field(
         description="Identity Provider owning this User Group."
@@ -31,9 +30,8 @@ class UserGroupReadExtended(UserGroupRead):
 
 
 class SLAReadExtended(SLARead):
-    """Model to extend the SLA data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the SLA data read from the DB with the lists of related
+    items."""
 
     user_group: UserGroupReadExtended = Field(
         description="Involved User Group."
@@ -41,9 +39,8 @@ class SLAReadExtended(SLARead):
 
 
 class QuotaReadExtended(QuotaRead):
-    """Model to extend the Quota data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Quota data read from the DB with the lists of
+    related items."""
 
     service: Union[
         ChronosServiceRead,
@@ -59,9 +56,8 @@ class QuotaReadExtended(QuotaRead):
 
 
 class ProjectReadExtended(ProjectRead):
-    """Model to extend the Project data read from the
-    DB with the lists of related items.
-    """
+    """Model to extend the Project data read from the DB with the lists of
+    related items."""
 
     flavors: List[FlavorRead] = Field(
         default_factory=list, description="List of usable Flavors."

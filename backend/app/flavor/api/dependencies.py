@@ -10,8 +10,7 @@ from pydantic import UUID4
 
 
 def valid_flavor_id(flavor_uid: UUID4) -> Flavor:
-    """
-    Check given uid corresponds to an entity in the DB.
+    """Check given uid corresponds to an entity in the DB.
 
     Args:
         flavor_uid (UUID4): uid of the target DB entity.
@@ -36,9 +35,8 @@ def valid_flavor_name(
     item: Union[FlavorCreate, FlavorUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """
-    Check there are no other flavors, belonging to the same
-    provider, with the same name.
+    """Check there are no other flavors, belonging to the same provider, with
+    the same name.
 
     Args:
         item (FlavorCreate | FlavorUpdate): new data.
@@ -63,9 +61,8 @@ def valid_flavor_uuid(
     item: Union[FlavorCreate, FlavorUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """
-    Check there are no other flavors, belonging to the same
-    provider, with the same uuid.
+    """Check there are no other flavors, belonging to the same provider, with
+    the same uuid.
 
     Args:
         item (FlavorCreate | FlavorUpdate): new data.
@@ -88,8 +85,7 @@ def valid_flavor_uuid(
 def validate_new_flavor_values(
     update_data: FlavorUpdate, item: Flavor = Depends(valid_flavor_id)
 ) -> None:
-    """
-    Check given data are valid ones. Check there are no other flavors,
+    """Check given data are valid ones. Check there are no other flavors,
     belonging to the same provider, with the same uuid and name.
 
     Args:

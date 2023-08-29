@@ -10,8 +10,7 @@ from pydantic import UUID4
 
 
 def valid_project_id(project_uid: UUID4) -> Project:
-    """
-    Check given uid corresponds to an entity in the DB.
+    """Check given uid corresponds to an entity in the DB.
 
     Args:
         project_uid (UUID4): uid of the target DB entity.
@@ -35,8 +34,7 @@ def valid_project_id(project_uid: UUID4) -> Project:
 def project_has_no_sla(
     project: Project = Depends(valid_project_id),
 ) -> Project:
-    """
-    Check target project is not already involved into a SLA.
+    """Check target project is not already involved into a SLA.
 
     Args:
         update_data (ProejctRead): new data.
@@ -61,9 +59,8 @@ def valid_project_name(
     item: Union[ProjectCreate, ProjectUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """
-    Check there are no other projects, belonging to the same
-    provider, with the same name.
+    """Check there are no other projects, belonging to the same provider, with
+    the same name.
 
     Args:
         item (ProjectCreate | ProjectUpdate): new data.
@@ -88,9 +85,8 @@ def valid_project_uuid(
     item: Union[ProjectCreate, ProjectUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """
-    Check there are no other projects, belonging to the same
-    provider, with the same uuid.
+    """Check there are no other projects, belonging to the same provider, with
+    the same uuid.
 
     Args:
         item (ProjectCreate | ProjectUpdate): new data.
@@ -113,8 +109,7 @@ def valid_project_uuid(
 def validate_new_project_values(
     update_data: ProjectUpdate, item: Project = Depends(valid_project_id)
 ) -> None:
-    """
-    Check given data are valid ones. Check there are no other projects,
+    """Check given data are valid ones. Check there are no other projects,
     belonging to the same provider, with the same uuid and name.
 
     Args:

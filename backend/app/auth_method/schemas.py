@@ -24,20 +24,20 @@ class AuthMethodBase(BaseModel):
 class AuthMethodCreate(AuthMethodBase):
     """Model to create a Provider Authentication Method.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a POST request.
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
     """
 
 
 class AuthMethodRead(AuthMethodBase):
     """Model to read Provider Authentication Method data retrieved from DB.
 
-    Class to read data retrieved from the database.
-    Expected as output when performing a generic REST request.
-    It contains all the non-sensible data written in the database.
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
 
-    Use ORM mode to read data from DB models.
-    Always validate assignments.
+    Use ORM mode to read data from DB models. Always validate
+    assignments.
     """
 
     class Config:
