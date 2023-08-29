@@ -6,12 +6,8 @@ from app.query import CommonGetQuery
 from app.service.api.dependencies import valid_service_id, validate_new_service_values
 from app.service.crud import service
 from app.service.models import Service
-from app.service.schemas import (  # ChronosServiceUpdate,; MarathonServiceUpdate,; MesosServiceUpdate,; OneDataServiceUpdate,; RucioServiceUpdate,
-    KubernetesServiceUpdate,
-    NovaServiceUpdate,
-    ServiceQuery,
-)
-from app.service.schemas_extended import (  # ChronosServiceReadExtended,; MarathonServiceReadExtended,; MesosServiceReadExtended,; OneDataServiceReadExtended,; RucioServiceReadExtended,
+from app.service.schemas import KubernetesServiceUpdate, NovaServiceUpdate, ServiceQuery
+from app.service.schemas_extended import (
     KubernetesServiceReadExtended,
     NovaServiceReadExtended,
 )

@@ -29,7 +29,8 @@ class Image(OpenstackItem):
     )
     name: Optional[str] = Field(description="Item name")
     owner: Optional[str] = Field(
-        description="An identifier for the owner of the image, usually the project uuid."
+        description="An identifier for the owner of the image, \
+            usually the project uuid."
     )
     status: Status = Field(description="The image status.")
     updated_at: Optional[datetime] = Field(

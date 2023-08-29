@@ -3,17 +3,28 @@ repos:
     rev: v3.10.1
     hooks:
       - id: pyupgrade
-        types: [python]
         args: [--py38-plus]
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.2.0
+    hooks:
+      - id: autoflake
+        args:
+          [
+            --recursive,
+            --in-place,
+            --expand-star-imports,
+            --remove-all-unused-imports,
+            --ignore-init-module-imports,
+            --remove-duplicate-keys,
+            --remove-unused-variables,
+          ]
   - repo: https://github.com/PyCQA/flake8
     rev: 6.1.0
     hooks:
       - id: flake8
-        types: [python]
         args: [--exclude=__init__.py, --max-line-length=88]
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
       - id: isort
-        types: [python]
-        args: [--profile, black]
+        args: [--profile=black]
