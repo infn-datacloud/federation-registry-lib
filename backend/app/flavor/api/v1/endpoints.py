@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.auth.dependencies import flaat
 from app.flavor.api.dependencies import valid_flavor_id, validate_new_flavor_values
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
@@ -7,7 +8,7 @@ from app.flavor.schemas import FlavorQuery, FlavorUpdate
 from app.flavor.schemas_extended import FlavorReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/flavors", tags=["flavors"])
@@ -22,7 +23,9 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
         It is possible to filter on flavors attributes and other \
         common query parameters.",
 )
+@flaat.is_authenticated()
 def get_flavors(
+    request: Request,
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: FlavorQuery = Depends(),
@@ -42,7 +45,8 @@ def get_flavors(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_flavor(item: Flavor = Depends(valid_flavor_id)):
+@flaat.is_authenticated()
+def get_flavor(request: Request, item: Flavor = Depends(valid_flavor_id)):
     return item
 
 
@@ -61,7 +65,9 @@ def get_flavor(item: Flavor = Depends(valid_flavor_id)):
         At first validate new flavor values checking there are \
         no other items with the given *uuid* and *name*.",
 )
+@flaat.access_level("write")
 def put_flavor(
+    request: Request,
     update_data: FlavorUpdate,
     response: Response,
     item: Flavor = Depends(valid_flavor_id),
@@ -82,7 +88,8 @@ def put_flavor(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def delete_flavors(item: Flavor = Depends(valid_flavor_id)):
+@flaat.access_level("write")
+def delete_flavors(request: Request, item: Flavor = Depends(valid_flavor_id)):
     if not flavor.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

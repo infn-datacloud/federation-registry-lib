@@ -323,7 +323,7 @@ testing = ["covdefaults (>=2.3)", "coverage (>=7.2.3)", "diff-cover (>=7.5)", "p
 
 [[package]]
 name = "flaat"
-version = "1.1.8"
+version = "1.1.14"
 description = "User authorization for OIDC authenticated python web APIs."
 category = "main"
 optional = false
@@ -336,14 +336,14 @@ configargparse = ">=1.0.0,<2.0.0"
 cryptography = ">=37"
 humanfriendly = ">=10.0.0,<11.0.0"
 liboidcagent = "<1.0.0"
-pyjwt = {version = ">=2.0.0,<3.0.0", extras = ["crypto"]}
-requests = ">=2.0.0,<3.0.0"
+pyjwt = {version = ">=2.4", extras = ["crypto"]}
+requests = ">=2.31"
 
 [package.extras]
 aiohttp = ["aiohttp"]
 fastapi = ["fastapi (>=0.61.2)"]
 flask = ["flask"]
-test = ["python-dotenv", "pytest", "pytest-aiohttp", "pytest-cov", "pytest-cases", "pylint-pytest", "aiohttp", "fastapi (>=0.61.2)", "flask", "types-flask"]
+test = ["aiohttp", "fastapi[all] (>=0.61.2)", "flask", "pylint-pytest", "pytest", "pytest-aiohttp", "pytest-cases", "pytest-cov", "python-dotenv", "types-flask"]
 
 [[package]]
 name = "flake8"

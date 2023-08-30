@@ -1,32 +1,24 @@
-from ssl import SSLError
+from app.config import get_settings
+from fastapi.security import HTTPBearer
+from flaat.config import AccessLevel
+from flaat.fastapi import Flaat
+from flaat.requirements import IsTrue
+from flaat.user_infos import UserInfos
 
-import requests
-from app.auth.schemas import TokenData
-from app.config import Settings, get_settings
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2AuthorizationCodeBearer
+security = HTTPBearer()
 
-settings = get_settings()
 
-oidc_scheme = OAuth2AuthorizationCodeBearer(
-    authorizationUrl=settings.IDP_CONF.get("authorization_endpoint"),
-    tokenUrl=settings.IDP_CONF.get("token_endpoint"),
+def has_write_access(user_infos: UserInfos) -> bool:
+    """Target user has write access on CMDB."""
+    settings = get_settings()
+    return user_infos.user_info["email"] in settings.ADMIN_EMAIL_LIST
+
+
+flaat = Flaat()
+flaat.set_access_levels(
+    [
+        AccessLevel("write", IsTrue(has_write_access)),
+    ]
 )
-
-
-async def get_current_user(
-    settings: Settings = Depends(get_settings),
-    token: str = Depends(oidc_scheme),
-) -> TokenData:
-    try:
-        resp = requests.get(
-            settings.IDP_CONF.get("userinfo_endpoint"),
-            params={"access_token": token},
-            verify=settings.CA,
-        )
-    except SSLError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Certificate validation failed",
-        )
-    return resp.json()
+flaat.set_trusted_OP_list(get_settings().TRUSTED_IDP_LIST)
+flaat.set_request_timeout(30)

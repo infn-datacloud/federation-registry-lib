@@ -1,5 +1,5 @@
 import uvicorn
-from app.auth.dependencies import oidc_scheme
+from app.auth.dependencies import security
 from app.config import get_settings
 from app.router import router_v1
 from fastapi import Depends, FastAPI
@@ -28,8 +28,8 @@ contact = {
 settings = get_settings()
 
 dependencies = None
-if settings.DISCOVERY_URL is not None:
-    dependencies = [Depends(oidc_scheme)]
+if len(settings.TRUSTED_IDP_LIST) > 0:
+    dependencies = [Depends(security)]
 
 tags_metadata = [
     {
@@ -45,7 +45,6 @@ tags_metadata = [
 app = FastAPI(
     contact=contact,
     description=description,
-    dependencies=dependencies,
     openapi_tags=tags_metadata,
     summary=summary,
     title=settings.PROJECT_NAME,
@@ -54,9 +53,7 @@ app = FastAPI(
 if settings.BACKEND_CORS_ORIGINS:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            str(origin) for origin in settings.BACKEND_CORS_ORIGINS
-        ],
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -65,6 +62,7 @@ if settings.BACKEND_CORS_ORIGINS:
 sub_app_v1 = FastAPI(
     contact=contact,
     description=description,
+    dependencies=dependencies,
     summary=summary,
     title=settings.PROJECT_NAME,
     version=version,

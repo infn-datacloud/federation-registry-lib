@@ -2,9 +2,8 @@ from enum import Enum
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
-import requests
 from neomodel import config
-from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, Field, validator
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, validator
 
 
 class Neo4jUriScheme(Enum):
@@ -29,9 +28,7 @@ class Settings(BaseSettings):
         return v.value
 
     @validator("NEOMODEL_DATABASE_URL", pre=True)
-    def assemble_db_connection(
-        cls, v: Optional[str], values: Dict[str, Any]
-    ) -> AnyUrl:
+    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> AnyUrl:
         if isinstance(v, AnyUrl):
             return v
         s = f"{values.get('NEO4J_URI_SCHEME')}://"
@@ -45,22 +42,8 @@ class Settings(BaseSettings):
         config.DATABASE_URL = v
         return v
 
-    DISCOVERY_URL: Optional[AnyHttpUrl] = None
-    CA: Optional[str] = None
-    IDP_CONF: Dict[str, Any] = Field(default_factory=dict)
-    SCOPES: List[str] = Field(default_factory=list)
-
-    @validator("IDP_CONF", pre=True)
-    def get_endpoint(
-        cls, v: Optional[str], values: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        if values.get("DISCOVERY_URL") is not None:
-            resp = requests.get(
-                values.get("DISCOVERY_URL"),
-                verify=values.get("CA"),
-            )
-            return resp.json()
-        return {"authorization_endpoint": "", "token_endpoint": ""}
+    TRUSTED_IDP_LIST: List[AnyHttpUrl] = []
+    ADMIN_EMAIL_LIST: List[EmailStr] = []
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200",
