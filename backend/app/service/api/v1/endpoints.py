@@ -1,5 +1,6 @@
 from typing import List, Optional, Union
 
+from app.auth.dependencies import flaat
 from app.identity_provider.schemas import IdentityProviderRead
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
@@ -11,7 +12,7 @@ from app.service.schemas_extended import (
     KubernetesServiceReadExtended,
     NovaServiceReadExtended,
 )
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/services", tags=["services"])
@@ -36,7 +37,9 @@ router = APIRouter(prefix="/services", tags=["services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
+@flaat.is_authenticated()
 def get_services(
+    request: Request,
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: ServiceQuery = Depends(),
@@ -64,7 +67,8 @@ def get_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_service(item: Service = Depends(valid_service_id)):
+@flaat.is_authenticated()
+def get_service(request: Request, item: Service = Depends(valid_service_id)):
     return item
 
 
@@ -93,7 +97,9 @@ def get_service(item: Service = Depends(valid_service_id)):
         At first validate new service values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_service(
+    request: Request,
     update_data: Union[
         # ChronosServiceUpdate,
         KubernetesServiceUpdate,
@@ -123,7 +129,8 @@ def put_service(
         raises a `not found` error. \
         On cascade, delete related quotas.",
 )
-def delete_services(item: Service = Depends(valid_service_id)):
+@flaat.access_level("write")
+def delete_services(request: Request, item: Service = Depends(valid_service_id)):
     if not service.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -141,7 +148,9 @@ def delete_services(item: Service = Depends(valid_service_id)):
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@flaat.is_authenticated()
 def get_service_identity_providers(
+    request: Request,
     item: Service = Depends(valid_service_id),
 ):
     return item.provider.single().identity_providers.all()

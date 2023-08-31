@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.auth.dependencies import flaat
 from app.location.api.dependencies import (
     valid_location_id,
     valid_location_name,
@@ -11,7 +12,7 @@ from app.location.schemas import LocationCreate, LocationQuery, LocationUpdate
 from app.location.schemas_extended import LocationReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/locations", tags=["locations"])
@@ -26,7 +27,9 @@ router = APIRouter(prefix="/locations", tags=["locations"])
         It is possible to filter on locations attributes and other \
         common query parameters.",
 )
+@flaat.is_authenticated()
 def get_locations(
+    request: Request,
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: LocationQuery = Depends(),
@@ -48,7 +51,8 @@ def get_locations(
         At first validate new location values checking there are \
         no other items with the given *name*.",
 )
-def post_location(item: LocationCreate):
+@flaat.access_level("write")
+def post_location(request: Request, item: LocationCreate):
     return location.create(obj_in=item, force=True)
 
 
@@ -61,7 +65,8 @@ def post_location(item: LocationCreate):
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_location(item: Location = Depends(valid_location_id)):
+@flaat.is_authenticated()
+def get_location(request: Request, item: Location = Depends(valid_location_id)):
     return item
 
 
@@ -80,7 +85,9 @@ def get_location(item: Location = Depends(valid_location_id)):
         At first validate new location values checking there are \
         no other items with the given *name*.",
 )
+@flaat.access_level("write")
 def put_location(
+    request: Request,
     update_data: LocationUpdate,
     response: Response,
     item: Location = Depends(valid_location_id),
@@ -101,7 +108,8 @@ def put_location(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def delete_location(item: Location = Depends(valid_location_id)):
+@flaat.access_level("write")
+def delete_location(request: Request, item: Location = Depends(valid_location_id)):
     if not location.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

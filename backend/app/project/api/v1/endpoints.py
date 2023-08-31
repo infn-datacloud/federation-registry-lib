@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.auth.dependencies import flaat
 from app.flavor.api.dependencies import valid_flavor_id
 from app.flavor.models import Flavor
 from app.image.api.dependencies import valid_image_id
@@ -11,7 +12,7 @@ from app.project.models import Project
 from app.project.schemas import ProjectQuery, ProjectUpdate
 from app.project.schemas_extended import ProjectReadExtended
 from app.query import CommonGetQuery
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -26,7 +27,9 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         It is possible to filter on projects attributes and other \
         common query parameters.",
 )
+@flaat.is_authenticated()
 def get_projects(
+    request: Request,
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: ProjectQuery = Depends(),
@@ -46,7 +49,8 @@ def get_projects(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_project(item: Project = Depends(valid_project_id)):
+@flaat.is_authenticated()
+def get_project(request: Request, item: Project = Depends(valid_project_id)):
     return item
 
 
@@ -65,7 +69,9 @@ def get_project(item: Project = Depends(valid_project_id)):
         At first validate new project values checking there are \
         no other items with the given *uuid* and *name*.",
 )
+@flaat.access_level("write")
 def put_project(
+    request: Request,
     update_data: ProjectUpdate,
     response: Response,
     item: Project = Depends(valid_project_id),
@@ -87,7 +93,8 @@ def put_project(
         raises a `not found` error. \
         On cascade, delete related SLA and quotas.",
 )
-def delete_project(item: Project = Depends(valid_project_id)):
+@flaat.access_level("write")
+def delete_project(request: Request, item: Project = Depends(valid_project_id)):
     if not project.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -105,7 +112,9 @@ def delete_project(item: Project = Depends(valid_project_id)):
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
+@flaat.access_level("write")
 def connect_project_to_flavor(
+    request: Request,
     response: Response,
     item: Project = Depends(valid_project_id),
     flavor: Flavor = Depends(valid_flavor_id),
@@ -127,7 +136,9 @@ def connect_project_to_flavor(
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
+@flaat.access_level("write")
 def disconnect_project_from_flavor(
+    request: Request,
     response: Response,
     item: Project = Depends(valid_project_id),
     flavor: Flavor = Depends(valid_flavor_id),
@@ -149,7 +160,9 @@ def disconnect_project_from_flavor(
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
+@flaat.access_level("write")
 def connect_project_to_image(
+    request: Request,
     response: Response,
     item: Project = Depends(valid_project_id),
     image: Image = Depends(valid_image_id),
@@ -171,7 +184,9 @@ def connect_project_to_image(
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
+@flaat.access_level("write")
 def disconnect_project_from_image(
+    request: Request,
     response: Response,
     item: Project = Depends(valid_project_id),
     image: Image = Depends(valid_image_id),

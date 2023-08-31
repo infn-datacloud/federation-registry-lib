@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.auth.dependencies import flaat
 from app.image.api.dependencies import valid_image_id, validate_new_image_values
 from app.image.crud import image
 from app.image.models import Image
@@ -7,7 +8,7 @@ from app.image.schemas import ImageQuery, ImageUpdate
 from app.image.schemas_extended import ImageReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/images", tags=["images"])
@@ -22,7 +23,9 @@ router = APIRouter(prefix="/images", tags=["images"])
         It is possible to filter on images attributes and other \
         common query parameters.",
 )
+@flaat.is_authenticated()
 def get_images(
+    request: Request,
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: ImageQuery = Depends(),
@@ -42,7 +45,8 @@ def get_images(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_image(item: Image = Depends(valid_image_id)):
+@flaat.is_authenticated()
+def get_image(request: Request, item: Image = Depends(valid_image_id)):
     return item
 
 
@@ -61,7 +65,9 @@ def get_image(item: Image = Depends(valid_image_id)):
         At first validate new image values checking there are \
         no other items with the given *uuid* and *name*.",
 )
+@flaat.access_level("write")
 def put_image(
+    request: Request,
     update_data: ImageUpdate,
     response: Response,
     item: Image = Depends(valid_image_id),
@@ -82,7 +88,8 @@ def put_image(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def delete_images(item: Image = Depends(valid_image_id)):
+@flaat.access_level("write")
+def delete_images(request: Request, item: Image = Depends(valid_image_id)):
     if not image.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

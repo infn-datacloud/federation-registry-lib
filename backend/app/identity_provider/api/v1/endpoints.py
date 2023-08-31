@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.auth.dependencies import flaat
 from app.identity_provider.api.dependencies import (
     valid_identity_provider_endpoint,
     valid_identity_provider_id,
@@ -19,7 +20,7 @@ from app.query import CommonGetQuery
 from app.user_group.api.dependencies import is_unique_user_group
 from app.user_group.crud import user_group
 from app.user_group.schemas import UserGroupCreate
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
@@ -34,7 +35,9 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
         It is possible to filter on identity providers attributes and other \
         common query parameters.",
 )
+@flaat.is_authenticated()
 def get_identity_providers(
+    request: Request,
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: IdentityProviderQuery = Depends(),
@@ -56,7 +59,8 @@ def get_identity_providers(
         At first validate new location values checking there are \
         no other items with the given *name*.",
 )
-def post_location(item: IdentityProviderCreate):
+@flaat.access_level("write")
+def post_location(request: Request, item: IdentityProviderCreate):
     return identity_provider.create(obj_in=item, force=True)
 
 
@@ -69,7 +73,9 @@ def post_location(item: IdentityProviderCreate):
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@flaat.is_authenticated()
 def get_identity_provider(
+    request: Request,
     item: IdentityProvider = Depends(valid_identity_provider_id),
 ):
     return item
@@ -90,7 +96,9 @@ def get_identity_provider(
         At first validate new identity provider values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_identity_provider(
+    request: Request,
     update_data: IdentityProviderUpdate,
     response: Response,
     item: IdentityProvider = Depends(valid_identity_provider_id),
@@ -112,7 +120,9 @@ def put_identity_provider(
         raises a `not found` error. \
         On cascade, delete related user groups.",
 )
+@flaat.access_level("write")
 def delete_identity_providers(
+    request: Request,
     item: IdentityProvider = Depends(valid_identity_provider_id),
 ):
     if not identity_provider.remove(db_obj=item):
@@ -137,10 +147,10 @@ def delete_identity_providers(
         no other items, belonging to same identity provider, \
         with the given *name*.",
 )
+@flaat.access_level("write")
 def post_user_group(
+    request: Request,
     item: UserGroupCreate,
     db_item: IdentityProvider = Depends(valid_identity_provider_id),
 ):
-    return user_group.create(
-        obj_in=item, identity_provider=db_item, force=True
-    )
+    return user_group.create(obj_in=item, identity_provider=db_item, force=True)

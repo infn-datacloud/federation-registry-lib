@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from app.auth.dependencies import flaat
 from app.pagination import Pagination, paginate
 from app.project.api.dependencies import project_has_no_sla
 from app.project.models import Project
@@ -15,7 +16,7 @@ from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
 from app.sla.schemas_extended import SLAReadExtended
 from app.user_group.api.dependencies import valid_user_group_id
 from app.user_group.models import UserGroup
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/slas", tags=["slas"])
@@ -30,7 +31,9 @@ router = APIRouter(prefix="/slas", tags=["slas"])
         It is possible to filter on SLAs attributes and other \
         common query parameters.",
 )
+@flaat.is_authenticated()
 def get_slas(
+    request: Request,
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: SLAQuery = Depends(),
@@ -57,7 +60,9 @@ def get_slas(
         Moreover, check the target project is not already \
         involved into another SLA.",
 )
+@flaat.access_level("write")
 def post_sla(
+    request: Request,
     item: SLACreate,
     project: Project = Depends(project_has_no_sla),
     user_group: UserGroup = Depends(valid_user_group_id),
@@ -69,9 +74,7 @@ def post_sla(
     if provider not in providers:
         msg = f"Project's provider '{provider.name}' does not support "
         msg += "given user group."
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=msg
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
     # Check UserGroup does not already have a project on the same provider
     slas = user_group.slas.all()
     for s in slas:
@@ -79,13 +82,9 @@ def post_sla(
         if p.provider.single() == provider:
             msg = f"Project's provider '{provider.name}' has already assigned "
             msg += f"a project to user group '{user_group.name}'."
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=msg
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
     # Create SLA
-    return sla.create(
-        obj_in=item, project=project, user_group=user_group, force=True
-    )
+    return sla.create(obj_in=item, project=project, user_group=user_group, force=True)
 
 
 @db.read_transaction
@@ -97,7 +96,8 @@ def post_sla(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_sla(item: SLA = Depends(valid_sla_id)):
+@flaat.is_authenticated()
+def get_sla(request: Request, item: SLA = Depends(valid_sla_id)):
     return item
 
 
@@ -116,7 +116,9 @@ def get_sla(item: SLA = Depends(valid_sla_id)):
         At first validate new SLA values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_sla(
+    request: Request,
     update_data: SLAUpdate,
     response: Response,
     item: SLA = Depends(valid_sla_id),
@@ -137,7 +139,8 @@ def put_sla(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def delete_slas(item: SLA = Depends(valid_sla_id)):
+@flaat.access_level("write")
+def delete_slas(request: Request, item: SLA = Depends(valid_sla_id)):
     if not sla.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

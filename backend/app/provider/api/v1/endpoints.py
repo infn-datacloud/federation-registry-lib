@@ -1,5 +1,6 @@
 from typing import List, Optional, Union
 
+from app.auth.dependencies import flaat
 from app.auth_method.schemas import AuthMethodCreate
 from app.flavor.api.dependencies import valid_flavor_name, valid_flavor_uuid
 from app.flavor.crud import flavor
@@ -54,7 +55,7 @@ from app.service.schemas_extended import (
     OneDataServiceReadExtended,
     RucioServiceReadExtended,
 )
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/providers", tags=["providers"])
@@ -69,7 +70,9 @@ router = APIRouter(prefix="/providers", tags=["providers"])
         It is possible to filter on providers attributes and other \
         common query parameters.",
 )
+@flaat.is_authenticated()
 def get_providers(
+    request: Request,
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: ProviderQuery = Depends(),
@@ -102,7 +105,8 @@ def get_providers(
         no other items with the given *name*. \
         Moreover check the received lists do not contain duplicates.",
 )
-def post_provider(item: ProviderCreateExtended):
+@flaat.access_level("write")
+def post_provider(request: Request, item: ProviderCreateExtended):
     return provider.create(obj_in=item, force=True)
 
 
@@ -115,7 +119,8 @@ def post_provider(item: ProviderCreateExtended):
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_provider(item: Provider = Depends(valid_provider_id)):
+@flaat.is_authenticated()
+def get_provider(request: Request, item: Provider = Depends(valid_provider_id)):
     return item
 
 
@@ -134,7 +139,9 @@ def get_provider(item: Provider = Depends(valid_provider_id)):
         At first validate new provider values checking there are \
         no other items with the given *name*.",
 )
+@flaat.access_level("write")
 def put_provider(
+    request: Request,
     update_data: ProviderUpdate,
     response: Response,
     item: Provider = Depends(valid_provider_id),
@@ -157,7 +164,8 @@ def put_provider(
         On cascade, delete related flavors, images, projects \
         and services.",
 )
-def delete_providers(item: Provider = Depends(valid_provider_id)):
+@flaat.access_level("write")
+def delete_providers(request: Request, item: Provider = Depends(valid_provider_id)):
     if not provider.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -179,7 +187,9 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
         At first validate new flavor values checking there are \
         no other items with the given *name* or *uuid*.",
 )
+@flaat.access_level("write")
 def add_flavor_to_provider(
+    request: Request,
     item: FlavorCreate,
     provider: Provider = Depends(valid_provider_id),
 ):
@@ -196,7 +206,9 @@ def add_flavor_to_provider(
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
+@flaat.access_level("write")
 def connect_provider_to_identity_providers(
+    request: Request,
     data: AuthMethodCreate,
     response: Response,
     item: Provider = Depends(valid_provider_id),
@@ -227,7 +239,9 @@ def connect_provider_to_identity_providers(
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
+@flaat.access_level("write")
 def disconnect_provider_from_identity_providers(
+    request: Request,
     response: Response,
     item: Provider = Depends(valid_provider_id),
     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
@@ -253,7 +267,9 @@ def disconnect_provider_from_identity_providers(
         At first validate new image values checking there are \
         no other items with the given *name* or *uuid*.",
 )
+@flaat.access_level("write")
 def add_image_to_provider(
+    request: Request,
     item: ImageCreate,
     provider: Provider = Depends(valid_provider_id),
 ):
@@ -275,7 +291,9 @@ def add_image_to_provider(
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
+@flaat.access_level("write")
 def connect_provider_to_location(
+    request: Request,
     response: Response,
     item: Provider = Depends(valid_provider_id),
     location: Location = Depends(valid_location_id),
@@ -300,7 +318,9 @@ def connect_provider_to_location(
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
+@flaat.access_level("write")
 def disconnect_provider_from_location(
+    request: Request,
     response: Response,
     item: Provider = Depends(valid_provider_id),
     location: Location = Depends(valid_location_id),
@@ -326,7 +346,9 @@ def disconnect_provider_from_location(
         At first validate new project values checking there are \
         no other items with the given *name* or *uuid*.",
 )
+@flaat.access_level("write")
 def add_project_to_provider(
+    request: Request,
     item: ProjectCreate,
     provider: Provider = Depends(valid_provider_id),
 ):
@@ -355,7 +377,9 @@ def add_project_to_provider(
         At first validate new service values checking there are \
         no other items with the given *name* or *uuid*.",
 )
+@flaat.access_level("write")
 def add_service_to_provider(
+    request: Request,
     item: Union[
         ChronosServiceCreate,
         KubernetesServiceCreate,
