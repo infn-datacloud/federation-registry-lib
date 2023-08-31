@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 
-from app.auth.dependencies import flaat
+from app.auth.dependencies import check_read_access, check_write_access
 from app.auth_method.schemas import AuthMethodCreate
 from app.flavor.api.dependencies import valid_flavor_name, valid_flavor_uuid
 from app.flavor.crud import flavor
@@ -55,7 +55,7 @@ from app.service.schemas_extended import (
     OneDataServiceReadExtended,
     RucioServiceReadExtended,
 )
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/providers", tags=["providers"])
@@ -70,9 +70,8 @@ router = APIRouter(prefix="/providers", tags=["providers"])
         It is possible to filter on providers attributes and other \
         common query parameters.",
 )
-@flaat.is_authenticated()
 def get_providers(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: ProviderQuery = Depends(),
@@ -89,6 +88,7 @@ def get_providers(
     status_code=status.HTTP_201_CREATED,
     response_model=ProviderReadExtended,
     dependencies=[
+        Depends(check_write_access),
         Depends(is_unique_provider),
         Depends(valid_flavor_list),
         Depends(valid_identity_provider_list),
@@ -105,8 +105,7 @@ def get_providers(
         no other items with the given *name*. \
         Moreover check the received lists do not contain duplicates.",
 )
-@flaat.access_level("write")
-def post_provider(request: Request, item: ProviderCreateExtended):
+def post_provider(item: ProviderCreateExtended):
     return provider.create(obj_in=item, force=True)
 
 
@@ -119,8 +118,9 @@ def post_provider(request: Request, item: ProviderCreateExtended):
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
-def get_provider(request: Request, item: Provider = Depends(valid_provider_id)):
+def get_provider(
+    auth: bool = Depends(check_read_access), item: Provider = Depends(valid_provider_id)
+):
     return item
 
 
@@ -128,7 +128,7 @@ def get_provider(request: Request, item: Provider = Depends(valid_provider_id)):
 @router.patch(
     "/{provider_uid}",
     response_model=Optional[ProviderReadExtended],
-    dependencies=[Depends(validate_new_provider_values)],
+    dependencies=[Depends(check_write_access), Depends(validate_new_provider_values)],
     summary="Edit a specific provider",
     description="Update attribute values of a specific provider. \
         The target provider is identified using its uid. \
@@ -139,9 +139,7 @@ def get_provider(request: Request, item: Provider = Depends(valid_provider_id)):
         At first validate new provider values checking there are \
         no other items with the given *name*.",
 )
-@flaat.access_level("write")
 def put_provider(
-    request: Request,
     update_data: ProviderUpdate,
     response: Response,
     item: Provider = Depends(valid_provider_id),
@@ -156,6 +154,7 @@ def put_provider(
 @router.delete(
     "/{provider_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
     summary="Delete a specific provider",
     description="Delete a specific provider using its *uid*. \
         Returns `no content`. \
@@ -164,8 +163,7 @@ def put_provider(
         On cascade, delete related flavors, images, projects \
         and services.",
 )
-@flaat.access_level("write")
-def delete_providers(request: Request, item: Provider = Depends(valid_provider_id)):
+def delete_providers(item: Provider = Depends(valid_provider_id)):
     if not provider.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -178,7 +176,11 @@ def delete_providers(request: Request, item: Provider = Depends(valid_provider_i
     "/{provider_uid}/flavors/",
     response_model=FlavorReadExtended,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(valid_flavor_name), Depends(valid_flavor_uuid)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(valid_flavor_name),
+        Depends(valid_flavor_uuid),
+    ],
     summary="Add new flavor to provider",
     description="Create a flavor and connect it to a \
         provider knowing it *uid*. \
@@ -187,9 +189,7 @@ def delete_providers(request: Request, item: Provider = Depends(valid_provider_i
         At first validate new flavor values checking there are \
         no other items with the given *name* or *uuid*.",
 )
-@flaat.access_level("write")
 def add_flavor_to_provider(
-    request: Request,
     item: FlavorCreate,
     provider: Provider = Depends(valid_provider_id),
 ):
@@ -200,15 +200,14 @@ def add_flavor_to_provider(
 @router.put(
     "/{provider_uid}/identity_providers/{identity_provider_uid}",
     response_model=ProviderReadExtended,
+    dependencies=[Depends(check_write_access)],
     summary="Connect provider to identity provider",
     description="Connect a provider to a specific identity \
         provider knowing their *uid*s. \
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
 def connect_provider_to_identity_providers(
-    request: Request,
     data: AuthMethodCreate,
     response: Response,
     item: Provider = Depends(valid_provider_id),
@@ -233,15 +232,14 @@ def connect_provider_to_identity_providers(
 @router.delete(
     "/{provider_uid}/identity_providers/{identity_provider_uid}",
     response_model=ProviderReadExtended,
+    dependencies=[Depends(check_write_access)],
     summary="Disconnect provider from identity provider",
     description="Disconnect a provider from a specific identity \
         provider knowing their *uid*s. \
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
 def disconnect_provider_from_identity_providers(
-    request: Request,
     response: Response,
     item: Provider = Depends(valid_provider_id),
     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
@@ -258,7 +256,11 @@ def disconnect_provider_from_identity_providers(
     "/{provider_uid}/images/",
     response_model=ImageReadExtended,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(valid_image_name), Depends(valid_image_uuid)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(valid_image_name),
+        Depends(valid_image_uuid),
+    ],
     summary="Add new image to provider",
     description="Create a image and connect it to a \
         provider knowing it *uid*. \
@@ -267,9 +269,7 @@ def disconnect_provider_from_identity_providers(
         At first validate new image values checking there are \
         no other items with the given *name* or *uuid*.",
 )
-@flaat.access_level("write")
 def add_image_to_provider(
-    request: Request,
     item: ImageCreate,
     provider: Provider = Depends(valid_provider_id),
 ):
@@ -280,6 +280,7 @@ def add_image_to_provider(
 @router.put(
     "/{provider_uid}/locations/{location_uid}",
     response_model=ProviderReadExtended,
+    dependencies=[Depends(check_write_access)],
     summary="Connect provider to location",
     description="Connect a provider to a specific location \
         knowing their *uid*s. \
@@ -291,9 +292,7 @@ def add_image_to_provider(
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
 def connect_provider_to_location(
-    request: Request,
     response: Response,
     item: Provider = Depends(valid_provider_id),
     location: Location = Depends(valid_location_id),
@@ -312,15 +311,14 @@ def connect_provider_to_location(
 @router.delete(
     "/{provider_uid}/locations/{location_uid}",
     response_model=ProviderReadExtended,
+    dependencies=[Depends(check_write_access)],
     summary="Disconnect provider from location",
     description="Disconnect a provider from a specific location \
         knowing their *uid*s. \
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
 def disconnect_provider_from_location(
-    request: Request,
     response: Response,
     item: Provider = Depends(valid_provider_id),
     location: Location = Depends(valid_location_id),
@@ -337,7 +335,11 @@ def disconnect_provider_from_location(
     "/{provider_uid}/projects/",
     response_model=ProjectReadExtended,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(valid_project_name), Depends(valid_project_uuid)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(valid_project_name),
+        Depends(valid_project_uuid),
+    ],
     summary="Add new project to provider",
     description="Create a project and connect it to a \
         provider knowing it *uid*. \
@@ -346,9 +348,7 @@ def disconnect_provider_from_location(
         At first validate new project values checking there are \
         no other items with the given *name* or *uuid*.",
 )
-@flaat.access_level("write")
 def add_project_to_provider(
-    request: Request,
     item: ProjectCreate,
     provider: Provider = Depends(valid_provider_id),
 ):
@@ -368,7 +368,7 @@ def add_project_to_provider(
         RucioServiceReadExtended,
     ],
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(valid_service_endpoint)],
+    dependencies=[Depends(check_write_access), Depends(valid_service_endpoint)],
     summary="Add new service to provider",
     description="Create a service and connect it to a \
         provider knowing it *uid*. \
@@ -377,9 +377,7 @@ def add_project_to_provider(
         At first validate new service values checking there are \
         no other items with the given *name* or *uuid*.",
 )
-@flaat.access_level("write")
 def add_service_to_provider(
-    request: Request,
     item: Union[
         ChronosServiceCreate,
         KubernetesServiceCreate,

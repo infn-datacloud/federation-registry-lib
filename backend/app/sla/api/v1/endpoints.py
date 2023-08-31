@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.auth.dependencies import flaat
+from app.auth.dependencies import check_read_access, check_write_access
 from app.pagination import Pagination, paginate
 from app.project.api.dependencies import project_has_no_sla
 from app.project.models import Project
@@ -16,7 +16,7 @@ from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
 from app.sla.schemas_extended import SLAReadExtended
 from app.user_group.api.dependencies import valid_user_group_id
 from app.user_group.models import UserGroup
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/slas", tags=["slas"])
@@ -31,9 +31,8 @@ router = APIRouter(prefix="/slas", tags=["slas"])
         It is possible to filter on SLAs attributes and other \
         common query parameters.",
 )
-@flaat.is_authenticated()
 def get_slas(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: SLAQuery = Depends(),
@@ -49,7 +48,7 @@ def get_slas(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=SLAReadExtended,
-    dependencies=[Depends(is_unique_sla)],
+    dependencies=[Depends(check_write_access), Depends(is_unique_sla)],
     summary="Create an SLA",
     description="Create an SLA associated to a user group \
         and a project each identified by the given *uid*s. \
@@ -60,9 +59,7 @@ def get_slas(
         Moreover, check the target project is not already \
         involved into another SLA.",
 )
-@flaat.access_level("write")
 def post_sla(
-    request: Request,
     item: SLACreate,
     project: Project = Depends(project_has_no_sla),
     user_group: UserGroup = Depends(valid_user_group_id),
@@ -96,8 +93,7 @@ def post_sla(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
-def get_sla(request: Request, item: SLA = Depends(valid_sla_id)):
+def get_sla(auth: bool = Depends(check_read_access), item: SLA = Depends(valid_sla_id)):
     return item
 
 
@@ -105,7 +101,7 @@ def get_sla(request: Request, item: SLA = Depends(valid_sla_id)):
 @router.patch(
     "/{sla_uid}",
     response_model=Optional[SLAReadExtended],
-    dependencies=[Depends(validate_new_sla_values)],
+    dependencies=[Depends(check_write_access), Depends(validate_new_sla_values)],
     summary="Edit a specific SLA",
     description="Update attribute values of a specific SLA. \
         The target SLA is identified using its uid. \
@@ -116,9 +112,7 @@ def get_sla(request: Request, item: SLA = Depends(valid_sla_id)):
         At first validate new SLA values checking there are \
         no other items with the given *endpoint*.",
 )
-@flaat.access_level("write")
 def put_sla(
-    request: Request,
     update_data: SLAUpdate,
     response: Response,
     item: SLA = Depends(valid_sla_id),
@@ -133,14 +127,14 @@ def put_sla(
 @router.delete(
     "/{sla_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
     summary="Delete a specific SLA",
     description="Delete a specific SLA using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
-def delete_slas(request: Request, item: SLA = Depends(valid_sla_id)):
+def delete_slas(item: SLA = Depends(valid_sla_id)):
     if not sla.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.auth.dependencies import flaat
+from app.auth.dependencies import check_read_access, check_write_access
 from app.identity_provider.api.dependencies import (
     valid_identity_provider_endpoint,
     valid_identity_provider_id,
@@ -20,7 +20,7 @@ from app.query import CommonGetQuery
 from app.user_group.api.dependencies import is_unique_user_group
 from app.user_group.crud import user_group
 from app.user_group.schemas import UserGroupCreate
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
@@ -35,9 +35,8 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
         It is possible to filter on identity providers attributes and other \
         common query parameters.",
 )
-@flaat.is_authenticated()
 def get_identity_providers(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: IdentityProviderQuery = Depends(),
@@ -53,14 +52,16 @@ def get_identity_providers(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=IdentityProviderReadExtended,
-    dependencies=[Depends(valid_identity_provider_endpoint)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(valid_identity_provider_endpoint),
+    ],
     summary="Create location",
     description="Create a location. \
         At first validate new location values checking there are \
         no other items with the given *name*.",
 )
-@flaat.access_level("write")
-def post_location(request: Request, item: IdentityProviderCreate):
+def post_location(item: IdentityProviderCreate):
     return identity_provider.create(obj_in=item, force=True)
 
 
@@ -73,9 +74,8 @@ def post_location(request: Request, item: IdentityProviderCreate):
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
 def get_identity_provider(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     item: IdentityProvider = Depends(valid_identity_provider_id),
 ):
     return item
@@ -85,7 +85,10 @@ def get_identity_provider(
 @router.patch(
     "/{identity_provider_uid}",
     response_model=Optional[IdentityProviderReadExtended],
-    dependencies=[Depends(validate_new_identity_provider_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_identity_provider_values),
+    ],
     summary="Edit a specific identity provider",
     description="Update attribute values of a specific identity provider. \
         The target identity provider is identified using its uid. \
@@ -96,9 +99,7 @@ def get_identity_provider(
         At first validate new identity provider values checking there are \
         no other items with the given *endpoint*.",
 )
-@flaat.access_level("write")
 def put_identity_provider(
-    request: Request,
     update_data: IdentityProviderUpdate,
     response: Response,
     item: IdentityProvider = Depends(valid_identity_provider_id),
@@ -113,6 +114,7 @@ def put_identity_provider(
 @router.delete(
     "/{identity_provider_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
     summary="Delete a specific identity provider",
     description="Delete a specific identity provider using its *uid*. \
         Returns `no content`. \
@@ -120,9 +122,7 @@ def put_identity_provider(
         raises a `not found` error. \
         On cascade, delete related user groups.",
 )
-@flaat.access_level("write")
 def delete_identity_providers(
-    request: Request,
     item: IdentityProvider = Depends(valid_identity_provider_id),
 ):
     if not identity_provider.remove(db_obj=item):
@@ -137,7 +137,7 @@ def delete_identity_providers(
     "/{identity_provider_uid}/user_groups",
     status_code=status.HTTP_201_CREATED,
     response_model=UserGroupReadExtended,
-    dependencies=[Depends(is_unique_user_group)],
+    dependencies=[Depends(check_write_access), Depends(is_unique_user_group)],
     summary="Create a user group",
     description="Create a user group belonging to identity provider \
         identified by the given *uid*. \
@@ -147,9 +147,7 @@ def delete_identity_providers(
         no other items, belonging to same identity provider, \
         with the given *name*.",
 )
-@flaat.access_level("write")
 def post_user_group(
-    request: Request,
     item: UserGroupCreate,
     db_item: IdentityProvider = Depends(valid_identity_provider_id),
 ):

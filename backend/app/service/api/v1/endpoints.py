@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 
-from app.auth.dependencies import flaat
+from app.auth.dependencies import check_read_access, check_write_access
 from app.identity_provider.schemas import IdentityProviderRead
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
@@ -12,7 +12,7 @@ from app.service.schemas_extended import (
     KubernetesServiceReadExtended,
     NovaServiceReadExtended,
 )
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/services", tags=["services"])
@@ -37,9 +37,8 @@ router = APIRouter(prefix="/services", tags=["services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@flaat.is_authenticated()
 def get_services(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: ServiceQuery = Depends(),
@@ -67,8 +66,9 @@ def get_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
-def get_service(request: Request, item: Service = Depends(valid_service_id)):
+def get_service(
+    auth: bool = Depends(check_read_access), item: Service = Depends(valid_service_id)
+):
     return item
 
 
@@ -86,7 +86,7 @@ def get_service(request: Request, item: Service = Depends(valid_service_id)):
             # RucioServiceReadExtended,
         ]
     ],
-    dependencies=[Depends(validate_new_service_values)],
+    dependencies=[Depends(check_write_access), Depends(validate_new_service_values)],
     summary="Edit a specific service",
     description="Update attribute values of a specific service. \
         The target service is identified using its uid. \
@@ -97,9 +97,7 @@ def get_service(request: Request, item: Service = Depends(valid_service_id)):
         At first validate new service values checking there are \
         no other items with the given *endpoint*.",
 )
-@flaat.access_level("write")
 def put_service(
-    request: Request,
     update_data: Union[
         # ChronosServiceUpdate,
         KubernetesServiceUpdate,
@@ -122,6 +120,7 @@ def put_service(
 @router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
     summary="Delete a specific service",
     description="Delete a specific service using its *uid*. \
         Returns `no content`. \
@@ -129,8 +128,7 @@ def put_service(
         raises a `not found` error. \
         On cascade, delete related quotas.",
 )
-@flaat.access_level("write")
-def delete_services(request: Request, item: Service = Depends(valid_service_id)):
+def delete_services(item: Service = Depends(valid_service_id)):
     if not service.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -148,9 +146,8 @@ def delete_services(request: Request, item: Service = Depends(valid_service_id))
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
 def get_service_identity_providers(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     item: Service = Depends(valid_service_id),
 ):
     return item.provider.single().identity_providers.all()

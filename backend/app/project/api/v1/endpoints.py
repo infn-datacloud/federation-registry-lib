@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from app.auth.dependencies import flaat
+from app.auth.dependencies import check_read_access, check_write_access
 from app.flavor.api.dependencies import valid_flavor_id
 from app.flavor.models import Flavor
 from app.image.api.dependencies import valid_image_id
@@ -12,7 +12,7 @@ from app.project.models import Project
 from app.project.schemas import ProjectQuery, ProjectUpdate
 from app.project.schemas_extended import ProjectReadExtended
 from app.query import CommonGetQuery
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -27,9 +27,8 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         It is possible to filter on projects attributes and other \
         common query parameters.",
 )
-@flaat.is_authenticated()
 def get_projects(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: ProjectQuery = Depends(),
@@ -49,8 +48,9 @@ def get_projects(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
-def get_project(request: Request, item: Project = Depends(valid_project_id)):
+def get_project(
+    auth: bool = Depends(check_read_access), item: Project = Depends(valid_project_id)
+):
     return item
 
 
@@ -58,7 +58,7 @@ def get_project(request: Request, item: Project = Depends(valid_project_id)):
 @router.patch(
     "/{project_uid}",
     response_model=Optional[ProjectReadExtended],
-    dependencies=[Depends(validate_new_project_values)],
+    dependencies=[Depends(check_write_access), Depends(validate_new_project_values)],
     summary="Edit a specific project",
     description="Update attribute values of a specific project. \
         The target project is identified using its uid. \
@@ -69,9 +69,7 @@ def get_project(request: Request, item: Project = Depends(valid_project_id)):
         At first validate new project values checking there are \
         no other items with the given *uuid* and *name*.",
 )
-@flaat.access_level("write")
 def put_project(
-    request: Request,
     update_data: ProjectUpdate,
     response: Response,
     item: Project = Depends(valid_project_id),
@@ -86,6 +84,7 @@ def put_project(
 @router.delete(
     "/{project_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
     summary="Delete a specific project",
     description="Delete a specific project using its *uid*. \
         Returns `no content`. \
@@ -93,8 +92,7 @@ def put_project(
         raises a `not found` error. \
         On cascade, delete related SLA and quotas.",
 )
-@flaat.access_level("write")
-def delete_project(request: Request, item: Project = Depends(valid_project_id)):
+def delete_project(item: Project = Depends(valid_project_id)):
     if not project.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -106,15 +104,14 @@ def delete_project(request: Request, item: Project = Depends(valid_project_id)):
 @router.put(
     "/{project_uid}/flavors/{flavor_uid}",
     response_model=ProjectReadExtended,
+    dependencies=[Depends(check_write_access)],
     summary="Connect project to flavor",
     description="Connect a project to a specific flavor \
         knowing their *uid*s. \
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
 def connect_project_to_flavor(
-    request: Request,
     response: Response,
     item: Project = Depends(valid_project_id),
     flavor: Flavor = Depends(valid_flavor_id),
@@ -130,15 +127,14 @@ def connect_project_to_flavor(
 @router.delete(
     "/{project_uid}/flavors/{flavor_uid}",
     response_model=ProjectReadExtended,
+    dependencies=[Depends(check_write_access)],
     summary="Disconnect project from flavor",
     description="Disconnect a project from a specific flavor \
         knowing their *uid*s. \
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
 def disconnect_project_from_flavor(
-    request: Request,
     response: Response,
     item: Project = Depends(valid_project_id),
     flavor: Flavor = Depends(valid_flavor_id),
@@ -154,15 +150,14 @@ def disconnect_project_from_flavor(
 @router.put(
     "/{project_uid}/images/{image_uid}",
     response_model=ProjectReadExtended,
+    dependencies=[Depends(check_write_access)],
     summary="Connect project to image",
     description="Connect a project to a specific image \
         knowing their *uid*s. \
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
 def connect_project_to_image(
-    request: Request,
     response: Response,
     item: Project = Depends(valid_project_id),
     image: Image = Depends(valid_image_id),
@@ -178,15 +173,14 @@ def connect_project_to_image(
 @router.delete(
     "/{project_uid}/images/{image_uid}",
     response_model=ProjectReadExtended,
+    dependencies=[Depends(check_write_access)],
     summary="Disconnect project from image",
     description="Disconnect a project from a specific image \
         knowing their *uid*s. \
         If no entity matches the given *uid*s, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
 def disconnect_project_from_image(
-    request: Request,
     response: Response,
     item: Project = Depends(valid_project_id),
     image: Image = Depends(valid_image_id),

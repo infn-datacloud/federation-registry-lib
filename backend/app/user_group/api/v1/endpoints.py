@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 
-from app.auth.dependencies import flaat
+from app.auth.dependencies import check_read_access, check_write_access
 from app.flavor.schemas import FlavorRead
 from app.image.schemas import ImageRead
 from app.pagination import Pagination, paginate
@@ -23,7 +23,7 @@ from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupQuery, UserGroupUpdate
 from app.user_group.schemas_extended import ServiceQuery, UserGroupReadExtended
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
@@ -38,9 +38,8 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
         It is possible to filter on user groups attributes and other \
         common query parameters.",
 )
-@flaat.is_authenticated()
 def get_user_groups(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     comm: CommonGetQuery = Depends(),
     page: Pagination = Depends(),
     item: UserGroupQuery = Depends(),
@@ -60,8 +59,10 @@ def get_user_groups(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
-def get_user_group(request: Request, item: UserGroup = Depends(valid_user_group_id)):
+def get_user_group(
+    auth: bool = Depends(check_read_access),
+    item: UserGroup = Depends(valid_user_group_id),
+):
     return item
 
 
@@ -69,7 +70,7 @@ def get_user_group(request: Request, item: UserGroup = Depends(valid_user_group_
 @router.patch(
     "/{user_group_uid}",
     response_model=Optional[UserGroupReadExtended],
-    dependencies=[Depends(validate_new_user_group_values)],
+    dependencies=[Depends(check_write_access), Depends(validate_new_user_group_values)],
     summary="Edit a specific user group",
     description="Update attribute values of a specific user group. \
         The target user group is identified using its uid. \
@@ -81,9 +82,7 @@ def get_user_group(request: Request, item: UserGroup = Depends(valid_user_group_
         no other items, belonging to same identity provider, \
         with the given *name*.",
 )
-@flaat.access_level("write")
 def put_user_group(
-    request: Request,
     update_data: UserGroupUpdate,
     response: Response,
     item: UserGroup = Depends(valid_user_group_id),
@@ -98,6 +97,7 @@ def put_user_group(
 @router.delete(
     "/{user_group_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
     summary="Delete a specific user group",
     description="Delete a specific user group using its *uid*. \
         Returns `no content`. \
@@ -105,8 +105,7 @@ def put_user_group(
         raises a `not found` error. \
         On cascade, delete related SLAs.",
 )
-@flaat.access_level("write")
-def delete_user_group(request: Request, item: UserGroup = Depends(valid_user_group_id)):
+def delete_user_group(item: UserGroup = Depends(valid_user_group_id)):
     if not user_group.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -124,9 +123,8 @@ def delete_user_group(request: Request, item: UserGroup = Depends(valid_user_gro
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
 def get_user_group_flavors(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     item: UserGroup = Depends(valid_user_group_id),
 ):
     return item.flavors()
@@ -142,9 +140,8 @@ def get_user_group_flavors(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
 def get_user_group_images(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     item: UserGroup = Depends(valid_user_group_id),
 ):
     return item.images()
@@ -160,9 +157,8 @@ def get_user_group_images(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
 def get_user_group_providers(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     item: UserGroup = Depends(valid_user_group_id),
 ):
     return item.providers()
@@ -188,9 +184,8 @@ def get_user_group_providers(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.is_authenticated()
 def get_user_group_services(
-    request: Request,
+    auth: bool = Depends(check_read_access),
     item: UserGroup = Depends(valid_user_group_id),
     service: ServiceQuery = Depends(),
 ):
