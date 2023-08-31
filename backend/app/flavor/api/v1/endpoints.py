@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 
-from app.auth.dependencies import check_read_access, flaat
+from app.auth.dependencies import check_read_access, check_write_access
 from app.flavor.api.dependencies import valid_flavor_id, validate_new_flavor_values
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
@@ -60,7 +60,7 @@ def get_flavor(
 @router.patch(
     "/{flavor_uid}",
     response_model=Optional[FlavorReadExtended],
-    dependencies=[Depends(validate_new_flavor_values)],
+    dependencies=[Depends(check_write_access), Depends(validate_new_flavor_values)],
     summary="Edit a specific flavor",
     description="Update attribute values of a specific flavor. \
         The target flavor is identified using its *uid*. \
@@ -71,9 +71,7 @@ def get_flavor(
         At first validate new flavor values checking there are \
         no other items with the given *uuid* and *name*.",
 )
-@flaat.access_level("write")
 def put_flavor(
-    request: Request,
     update_data: FlavorUpdate,
     response: Response,
     item: Flavor = Depends(valid_flavor_id),
@@ -88,14 +86,14 @@ def put_flavor(
 @router.delete(
     "/{flavor_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
     summary="Delete a specific flavor",
     description="Delete a specific flavor using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.access_level("write")
-def delete_flavors(request: Request, item: Flavor = Depends(valid_flavor_id)):
+def delete_flavors(item: Flavor = Depends(valid_flavor_id)):
     if not flavor.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
