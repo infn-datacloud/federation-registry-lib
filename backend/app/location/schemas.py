@@ -39,9 +39,7 @@ class LocationUpdate(LocationCreate):
     name: Optional[str] = Field(
         default=None, description="Name of the Location hosting a provider."
     )
-    country: Optional[str] = Field(
-        default=None, description="Location's country name."
-    )
+    country: Optional[str] = Field(default=None, description="Location's country name.")
 
 
 class LocationRead(BaseNodeRead, LocationBase):
@@ -62,6 +60,14 @@ class LocationRead(BaseNodeRead, LocationBase):
         matches = countries.search_fuzzy(values["country"])
         values["country_code"] = matches[0].alpha_3
         return values
+
+
+class LocationReadPublic(BaseNodeRead, LocationBase):
+    pass
+
+
+class LocationReadShort(BaseNodeRead, LocationBase):
+    pass
 
 
 LocationQuery = create_query_model("LocationQuery", LocationBase)

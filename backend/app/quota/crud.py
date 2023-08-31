@@ -1,18 +1,39 @@
 from app.crud import CRUDBase
 from app.project.models import Project
+from app.project.schemas_extended import QuotaReadExtended
 from app.quota.models import NumCPUQuota, Quota, RAMQuota
 from app.quota.schemas import (
     NumCPUQuotaCreate,
+    NumCPUQuotaRead,
+    NumCPUQuotaReadPublic,
+    NumCPUQuotaReadShort,
     NumCPUQuotaUpdate,
     QuotaCreate,
+    QuotaRead,
+    QuotaReadPublic,
+    QuotaReadShort,
     QuotaUpdate,
     RAMQuotaCreate,
+    RAMQuotaRead,
+    RAMQuotaReadPublic,
+    RAMQuotaReadShort,
     RAMQuotaUpdate,
 )
+from app.quota.schemas_extended import NumCPUQuotaReadExtended, RAMQuotaReadExtended
 from app.service.models import Service
 
 
-class CRUDQuota(CRUDBase[Quota, QuotaCreate, QuotaUpdate]):
+class CRUDQuota(
+    CRUDBase[
+        Quota,
+        QuotaCreate,
+        QuotaUpdate,
+        QuotaRead,
+        QuotaReadPublic,
+        QuotaReadShort,
+        QuotaReadExtended,
+    ]
+):
     """"""
 
     def create(
@@ -33,15 +54,54 @@ class CRUDQuota(CRUDBase[Quota, QuotaCreate, QuotaUpdate]):
 
 
 class CRUDNumCPUQuota(
-    CRUDBase[NumCPUQuota, NumCPUQuotaCreate, NumCPUQuotaUpdate]
+    CRUDBase[
+        NumCPUQuota,
+        NumCPUQuotaCreate,
+        NumCPUQuotaUpdate,
+        NumCPUQuotaRead,
+        NumCPUQuotaReadPublic,
+        NumCPUQuotaReadShort,
+        NumCPUQuotaReadExtended,
+    ]
 ):
     """"""
 
 
-class CRUDRAMQuota(CRUDBase[RAMQuota, RAMQuotaCreate, RAMQuotaUpdate]):
+class CRUDRAMQuota(
+    CRUDBase[
+        RAMQuota,
+        RAMQuotaCreate,
+        RAMQuotaUpdate,
+        RAMQuotaRead,
+        RAMQuotaReadPublic,
+        RAMQuotaReadShort,
+        RAMQuotaReadExtended,
+    ]
+):
     """"""
 
 
-quota = CRUDQuota(Quota, QuotaCreate)
-num_cpu_quota = CRUDNumCPUQuota(NumCPUQuota, NumCPUQuotaCreate)
-ram_quota = CRUDRAMQuota(RAMQuota, RAMQuotaCreate)
+quota = CRUDQuota(
+    model=Quota,
+    create_schema=QuotaCreate,
+    read_schema=QuotaRead,
+    read_public_schema=QuotaReadPublic,
+    read_short_schema=QuotaReadShort,
+    read_extended_schema=QuotaReadExtended,
+)
+num_cpu_quota = CRUDNumCPUQuota(
+    model=NumCPUQuota,
+    create_schema=NumCPUQuotaCreate,
+    read_schema=NumCPUQuotaRead,
+    read_public_schema=NumCPUQuotaReadPublic,
+    read_short_schema=NumCPUQuotaReadShort,
+    read_extended_schema=NumCPUQuotaReadExtended,
+)
+ram_quota = CRUDRAMQuota(
+    model=RAMQuota,
+    create_schema=RAMQuotaCreate,
+    read_schema=RAMQuotaRead,
+    read_public_schema=RAMQuotaReadPublic,
+    read_short_schema=RAMQuotaReadShort,
+    read_extended_schema=RAMQuotaReadExtended,
+)

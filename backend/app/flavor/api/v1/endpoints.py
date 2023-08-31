@@ -6,7 +6,7 @@ from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorQuery, FlavorRead, FlavorUpdate
 from app.flavor.schemas_extended import FlavorReadExtended
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -26,15 +26,16 @@ def get_flavors(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: FlavorQuery = Depends(),
 ):
     items = flavor.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = flavor.paginate(items=items, page=page.page, size=page.size)
-    if auth:
-        return [FlavorReadExtended.from_orm(i) for i in items]
-    return [FlavorRead.from_orm(i) for i in items]
+    return flavor.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.read_transaction
@@ -48,11 +49,12 @@ def get_flavors(
 )
 def get_flavor(
     auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
     item: Flavor = Depends(valid_flavor_id),
 ):
-    if auth:
-        return FlavorReadExtended.from_orm(item)
-    return FlavorRead.from_orm(item)
+    return flavor.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction

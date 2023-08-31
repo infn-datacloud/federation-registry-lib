@@ -10,7 +10,7 @@ from app.project.crud import project
 from app.project.models import Project
 from app.project.schemas import ProjectQuery, ProjectUpdate
 from app.project.schemas_extended import ProjectReadExtended
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -30,12 +30,16 @@ def get_projects(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: ProjectQuery = Depends(),
 ):
     items = project.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return project.paginate(items=items, page=page.page, size=page.size)
+    items = project.paginate(items=items, page=page.page, size=page.size)
+    return project.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.read_transaction
@@ -48,9 +52,13 @@ def get_projects(
         raises a `not found` error.",
 )
 def get_project(
-    auth: bool = Depends(check_read_access), item: Project = Depends(valid_project_id)
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: Project = Depends(valid_project_id),
 ):
-    return item
+    return project.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction

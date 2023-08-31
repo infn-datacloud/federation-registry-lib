@@ -52,6 +52,14 @@ class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
     """
 
 
+class IdentityProviderReadPublic(BaseNodeRead, IdentityProviderBase):
+    pass
+
+
+class IdentityProviderReadShort(BaseNodeRead, IdentityProviderBase):
+    pass
+
+
 IdentityProviderQuery = create_query_model(
     "IdentityProviderQuery", IdentityProviderBase
 )

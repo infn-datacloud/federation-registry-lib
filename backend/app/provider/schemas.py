@@ -9,9 +9,7 @@ class ProviderBase(BaseModel):
     """Model with Provider basic attributes."""
 
     name: str = Field(description="Provider name.")
-    is_public: bool = Field(
-        default=False, description="It is a public provider."
-    )
+    is_public: bool = Field(default=False, description="It is a public provider.")
     support_emails: List[EmailStr] = Field(
         default_factory=list, description="Contact emails."
     )
@@ -47,6 +45,14 @@ class ProviderRead(BaseNodeRead, ProviderBase):
     Add the *uid* attribute, which is the item unique identifier in the
     database.
     """
+
+
+class ProviderReadPublic(BaseNodeRead, ProviderBase):
+    pass
+
+
+class ProviderReadShort(BaseNodeRead, ProviderBase):
+    pass
 
 
 ProviderQuery = create_query_model("ProviderQuery", ProviderBase)

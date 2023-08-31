@@ -33,7 +33,7 @@ from app.provider.crud import provider
 from app.provider.models import Provider
 from app.provider.schemas import ProviderQuery, ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_endpoint
 from app.service.crud import service
 from app.service.schemas import (
@@ -73,12 +73,16 @@ def get_providers(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: ProviderQuery = Depends(),
 ):
     items = provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return provider.paginate(items=items, page=page.page, size=page.size)
+    items = provider.paginate(items=items, page=page.page, size=page.size)
+    return project.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.write_transaction
@@ -118,9 +122,13 @@ def post_provider(item: ProviderCreateExtended):
         raises a `not found` error.",
 )
 def get_provider(
-    auth: bool = Depends(check_read_access), item: Provider = Depends(valid_provider_id)
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: Provider = Depends(valid_provider_id),
 ):
-    return item
+    return provider.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction

@@ -10,7 +10,7 @@ from app.location.crud import location
 from app.location.models import Location
 from app.location.schemas import LocationCreate, LocationQuery, LocationUpdate
 from app.location.schemas_extended import LocationReadExtended
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -30,12 +30,16 @@ def get_locations(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: LocationQuery = Depends(),
 ):
     items = location.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return location.paginate(items=items, page=page.page, size=page.size)
+    items = location.paginate(items=items, page=page.page, size=page.size)
+    return location.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.write_transaction
@@ -63,9 +67,13 @@ def post_location(item: LocationCreate):
         raises a `not found` error.",
 )
 def get_location(
-    auth: bool = Depends(check_read_access), item: Location = Depends(valid_location_id)
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: Location = Depends(valid_location_id),
 ):
-    return item
+    return location.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction

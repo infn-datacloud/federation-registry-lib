@@ -1,10 +1,27 @@
 from app.crud import CRUDBase
 from app.image.models import Image
-from app.image.schemas import ImageCreate, ImageUpdate
+from app.image.schemas import (
+    ImageCreate,
+    ImageRead,
+    ImageReadPublic,
+    ImageReadShort,
+    ImageUpdate,
+)
+from app.image.schemas_extended import ImageReadExtended
 from app.provider.models import Provider
 
 
-class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
+class CRUDImage(
+    CRUDBase[
+        Image,
+        ImageCreate,
+        ImageUpdate,
+        ImageRead,
+        ImageReadPublic,
+        ImageReadShort,
+        ImageReadExtended,
+    ]
+):
     """"""
 
     def create(
@@ -15,4 +32,11 @@ class CRUDImage(CRUDBase[Image, ImageCreate, ImageUpdate]):
         return db_obj
 
 
-image = CRUDImage(Image, ImageCreate)
+image = CRUDImage(
+    model=Image,
+    create_schema=ImageCreate,
+    read_schema=ImageRead,
+    read_public_schema=ImageReadPublic,
+    read_short_schema=ImageReadShort,
+    read_extended_schema=ImageReadExtended,
+)

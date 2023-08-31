@@ -2,11 +2,28 @@ from typing import Optional
 
 from app.crud import CRUDBase
 from app.location.models import Location
-from app.location.schemas import LocationCreate, LocationUpdate
+from app.location.schemas import (
+    LocationCreate,
+    LocationRead,
+    LocationReadPublic,
+    LocationReadShort,
+    LocationUpdate,
+)
+from app.location.schemas_extended import LocationReadExtended
 from app.provider.models import Provider
 
 
-class CRUDLocation(CRUDBase[Location, LocationCreate, LocationUpdate]):
+class CRUDLocation(
+    CRUDBase[
+        Location,
+        LocationCreate,
+        LocationUpdate,
+        LocationRead,
+        LocationReadPublic,
+        LocationReadShort,
+        LocationReadExtended,
+    ]
+):
     """"""
 
     def create(
@@ -22,4 +39,11 @@ class CRUDLocation(CRUDBase[Location, LocationCreate, LocationUpdate]):
         return db_obj
 
 
-location = CRUDLocation(Location, LocationCreate)
+location = CRUDLocation(
+    model=Location,
+    create_schema=LocationCreate,
+    read_schema=LocationRead,
+    read_public_schema=LocationReadPublic,
+    read_short_schema=LocationReadShort,
+    read_extended_schema=LocationReadExtended,
+)

@@ -46,4 +46,12 @@ class UserGroupRead(BaseNodeRead, UserGroupBase):
     """
 
 
+class UserGroupReadPublic(BaseNodeRead, UserGroupBase):
+    pass
+
+
+class UserGroupReadShort(BaseNodeRead, UserGroupBase):
+    pass
+
+
 UserGroupQuery = create_query_model("UserGroupQuery", UserGroupBase)

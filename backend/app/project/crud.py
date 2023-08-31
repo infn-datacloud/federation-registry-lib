@@ -1,12 +1,29 @@
 from app.crud import CRUDBase
 from app.project.models import Project
-from app.project.schemas import ProjectCreate, ProjectUpdate
+from app.project.schemas import (
+    ProjectCreate,
+    ProjectRead,
+    ProjectReadPublic,
+    ProjectReadShort,
+    ProjectUpdate,
+)
+from app.project.schemas_extended import ProjectReadExtended
 from app.provider.models import Provider
 from app.quota.crud import quota
 from app.sla.crud import sla
 
 
-class CRUDProject(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
+class CRUDProject(
+    CRUDBase[
+        Project,
+        ProjectCreate,
+        ProjectUpdate,
+        ProjectRead,
+        ProjectReadPublic,
+        ProjectReadShort,
+        ProjectReadExtended,
+    ]
+):
     """"""
 
     def create(
@@ -25,4 +42,11 @@ class CRUDProject(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
         return super().remove(db_obj=db_obj)
 
 
-project = CRUDProject(Project, ProjectCreate)
+project = CRUDProject(
+    model=Project,
+    create_schema=ProjectCreate,
+    read_schema=ProjectRead,
+    read_public_schema=ProjectReadPublic,
+    read_short_schema=ProjectReadShort,
+    read_extended_schema=ProjectReadExtended,
+)

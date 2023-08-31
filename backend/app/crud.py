@@ -6,20 +6,55 @@ from pydantic import BaseModel
 ModelType = TypeVar("ModelType", bound=StructuredNode)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
+ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseModel)
+ReadPublicSchemaType = TypeVar("ReadPublicSchemaType", bound=BaseModel)
+ReadShortSchemaType = TypeVar("ReadShortSchemaType", bound=BaseModel)
+ReadExtendedSchemaType = TypeVar("ReadExtendedSchemaType", BaseModel, None)
 
 
-class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
-    def __init__(self, model: Type[ModelType], schema: Type[CreateSchemaType]):
+class CRUDBase(
+    Generic[
+        ModelType,
+        CreateSchemaType,
+        UpdateSchemaType,
+        ReadSchemaType,
+        ReadPublicSchemaType,
+        ReadShortSchemaType,
+        ReadExtendedSchemaType,
+    ]
+):
+    def __init__(
+        self,
+        *,
+        model: Type[ModelType],
+        create_schema: Type[CreateSchemaType],
+        read_schema: Type[ReadSchemaType],
+        read_public_schema: Type[ReadPublicSchemaType],
+        read_short_schema: Type[ReadShortSchemaType],
+        read_extended_schema: Type[ReadExtendedSchemaType],
+    ):
         """CRUD object with default methods to Create, Read, Update, Delete
         (CRUD)
 
         **Parameters**
 
         * `model`: A Neo4j model class
-        * `schema`: A Pydantic model (schema) class
+        * `create schema`: A Pydantic model (schema) class to create items
+        * `read schema`: A Pydantic model (schema) class,
+            for authenticated users, to read items
+        * `read schema public`: A Pydantic model (schema) class,
+            for unauthenticated users, to read items
+        * `read schema short`: A Pydantic model (schema) class,
+            for authenticated users, to read essential items' data
+        * `read schema extended`: A Pydantic model (schema) class,
+            for authenticated users, to read items with their connections
         """
         self.model = model
-        self.schema = schema
+        self.create_schema = create_schema
+        self.read_schema = read_schema
+        self.read_public_schema = read_public_schema
+        self.read_short_schema = read_short_schema
+        self.read_extended_schema = read_extended_schema
 
     def get(self, **kwargs) -> Optional[ModelType]:
         return self.model.nodes.get_or_none(**kwargs)
@@ -45,7 +80,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return items[start:end]
 
     def create(self, *, obj_in: CreateSchemaType, force: bool = False) -> ModelType:
-        obj_in = self.schema.parse_obj(obj_in)
+        obj_in = self.create_schema.parse_obj(obj_in)
         obj_in_data = obj_in.dict(exclude_none=True)
         db_obj = None
         if not force:
@@ -82,3 +117,19 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         start = page * size
         end = start + size
         return items[start:end]
+
+    def choose_out_schema(
+        self, *, items: List[ModelType], auth: bool, short: bool, with_conn: bool
+    ) -> Union[
+        ReadSchemaType,
+        ReadPublicSchemaType,
+        ReadShortSchemaType,
+        ReadExtendedSchemaType,
+    ]:
+        if auth:
+            if with_conn:
+                return [self.read_extended_schema.from_orm(i) for i in items]
+            if short:
+                return [self.read_short_schema.from_orm(i) for i in items]
+            return [self.read_schema.from_orm(i) for i in items]
+        return [self.read_public_schema.from_orm(i) for i in items]

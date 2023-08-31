@@ -34,9 +34,7 @@ class ServiceUpdate(ServiceCreate):
     endpoint: Optional[AnyHttpUrl] = Field(
         default=None, description="URL of the IaaS service."
     )
-    type: Optional[ServiceType] = Field(
-        default=None, description="Service type."
-    )
+    type: Optional[ServiceType] = Field(default=None, description="Service type.")
     name: Optional[str] = Field(default=None, description="Service name.")
 
 
@@ -50,6 +48,14 @@ class ServiceRead(BaseNodeRead, ServiceBase):
     Add the *uid* attribute, which is the item unique identifier in the
     database.
     """
+
+
+class ServiceReadPublic(BaseNodeRead, ServiceBase):
+    pass
+
+
+class ServiceReadShort(BaseNodeRead, ServiceBase):
+    pass
 
 
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
@@ -103,9 +109,15 @@ class KubernetesServiceRead(BaseNodeRead, KubernetesBase):
     """
 
 
-KubernetesServiceQuery = create_query_model(
-    "KubernetesServiceQuery", KubernetesBase
-)
+class KubernetesServiceReadPublic(BaseNodeRead, KubernetesBase):
+    pass
+
+
+class KubernetesServiceReadShort(BaseNodeRead, KubernetesBase):
+    pass
+
+
+KubernetesServiceQuery = create_query_model("KubernetesServiceQuery", KubernetesBase)
 
 
 class NovaBase(ServiceBase, extra=Extra.ignore):
@@ -154,6 +166,14 @@ class NovaServiceRead(BaseNodeRead, NovaBase):
     Add the *uid* attribute, which is the item unique identifier in the
     database.
     """
+
+
+class NovaServiceReadPublic(BaseNodeRead, NovaBase):
+    pass
+
+
+class NovaServiceReadShort(BaseNodeRead, NovaBase):
+    pass
 
 
 NovaServiceQuery = create_query_model("NovaServiceQuery", NovaBase)

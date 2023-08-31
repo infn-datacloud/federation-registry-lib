@@ -150,6 +150,14 @@ class QuotaRead(BaseNodeRead, QuotaBase):
     """
 
 
+class QuotaReadPublic(BaseNodeRead, QuotaBase):
+    pass
+
+
+class QuotaReadShort(BaseNodeRead, QuotaBase):
+    pass
+
+
 class NumCPUQuotaBase(BaseModel, extra=Extra.ignore):
     @validator("type", check_fields=False)
     def check_type(cls, v):
@@ -170,6 +178,14 @@ class NumCPUQuotaRead(NumCPUQuotaBase, BaseNodeCreate, QuotaRead):
     pass
 
 
+class NumCPUQuotaReadPublic(BaseNodeRead, NumCPUQuotaBase):
+    pass
+
+
+class NumCPUQuotaReadShort(BaseNodeRead, NumCPUQuotaBase):
+    pass
+
+
 class RAMQuotaBase(BaseModel, extra=Extra.ignore):
     @validator("type", check_fields=False)
     def check_type(cls, v):
@@ -187,4 +203,12 @@ class RAMQuotaUpdate(RAMQuotaBase, QuotaUpdate):
 
 
 class RAMQuotaRead(RAMQuotaBase, BaseNodeCreate, QuotaRead):
+    pass
+
+
+class RAMQuotaReadPublic(BaseNodeRead, RAMQuotaBase):
+    pass
+
+
+class RAMQuotaReadShort(BaseNodeRead, RAMQuotaBase):
     pass

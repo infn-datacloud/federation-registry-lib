@@ -15,7 +15,7 @@ from app.identity_provider.schemas import (
 )
 from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.project.schemas_extended import UserGroupReadExtended
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.user_group.api.dependencies import is_unique_user_group
 from app.user_group.crud import user_group
 from app.user_group.schemas import UserGroupCreate
@@ -38,12 +38,16 @@ def get_identity_providers(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: IdentityProviderQuery = Depends(),
 ):
     items = identity_provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return identity_provider.paginate(items=items, page=page.page, size=page.size)
+    items = identity_provider.paginate(items=items, page=page.page, size=page.size)
+    return identity_provider.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.write_transaction
@@ -75,9 +79,12 @@ def post_location(item: IdentityProviderCreate):
 )
 def get_identity_provider(
     auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
     item: IdentityProvider = Depends(valid_identity_provider_id),
 ):
-    return item
+    return identity_provider.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction

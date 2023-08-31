@@ -1,11 +1,28 @@
 from app.crud import CRUDBase
 from app.identity_provider.models import IdentityProvider
+from app.project.schemas_extended import UserGroupReadExtended
 from app.sla.crud import sla
 from app.user_group.models import UserGroup
-from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
+from app.user_group.schemas import (
+    UserGroupCreate,
+    UserGroupRead,
+    UserGroupReadPublic,
+    UserGroupReadShort,
+    UserGroupUpdate,
+)
 
 
-class CRUDUserGroup(CRUDBase[UserGroup, UserGroupCreate, UserGroupUpdate]):
+class CRUDUserGroup(
+    CRUDBase[
+        UserGroup,
+        UserGroupCreate,
+        UserGroupUpdate,
+        UserGroupRead,
+        UserGroupReadPublic,
+        UserGroupReadShort,
+        UserGroupReadExtended,
+    ]
+):
     """"""
 
     def create(
@@ -25,4 +42,11 @@ class CRUDUserGroup(CRUDBase[UserGroup, UserGroupCreate, UserGroupUpdate]):
         return super().remove(db_obj=db_obj)
 
 
-user_group = CRUDUserGroup(UserGroup, UserGroupCreate)
+user_group = CRUDUserGroup(
+    model=UserGroup,
+    create_schema=UserGroupCreate,
+    read_schema=UserGroupRead,
+    read_public_schema=UserGroupReadPublic,
+    read_short_schema=UserGroupReadShort,
+    read_extended_schema=UserGroupReadExtended,
+)

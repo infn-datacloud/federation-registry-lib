@@ -10,12 +10,8 @@ class ProjectBase(BaseModel):
 
     name: str = Field(description="Project name in the provider.")
     uuid: UUID4 = Field(description="Project UUID in the provider.")
-    public_network_name: Optional[str] = Field(
-        default=None, description=""
-    )  # TODO
-    private_network_name: Optional[str] = Field(
-        default=None, description=""
-    )  # TODO
+    public_network_name: Optional[str] = Field(default=None, description="")  # TODO
+    private_network_name: Optional[str] = Field(default=None, description="")  # TODO
     private_network_proxy_host: Optional[str] = Field(
         default=None, description=""
     )  # TODO
@@ -59,6 +55,14 @@ class ProjectRead(BaseNodeRead, ProjectBase):
     Add the *uid* attribute, which is the item unique identifier in the
     database.
     """
+
+
+class ProjectReadPublic(BaseNodeRead, ProjectBase):
+    pass
+
+
+class ProjectReadShort(BaseNodeRead, ProjectBase):
+    pass
 
 
 ProjectQuery = create_query_model("ProjectQuery", ProjectBase)

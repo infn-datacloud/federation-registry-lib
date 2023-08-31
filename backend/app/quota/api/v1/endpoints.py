@@ -48,22 +48,16 @@ def post_quota(
         if q.type == item.type and q.service.single() == service:
             msg = f"Project '{project.name}' already has a quota "
             msg += f"with type '{item.type}' on service '{service.endpoint}'."
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail=msg
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
     # Check Project provider and service provider are equals
     proj_prov = project.provider.single()
     serv_prov = service.provider.single()
     if proj_prov != serv_prov:
         msg = f"Project provider '{proj_prov.name}' and service provider "
         msg += f"'{serv_prov.name}' do not match."
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=msg
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
-    return quota.create(
-        obj_in=item, project=project, service=service, force=True
-    )
+    return quota.create(obj_in=item, project=project, service=service, force=True)
 
 
 @db.read_transaction
@@ -78,9 +72,7 @@ def get_quota(item: Quota = Depends(valid_quota_id)):
 @db.write_transaction
 @router.patch(
     "/{quota_uid}",
-    response_model=Optional[
-        Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended]
-    ],
+    response_model=Optional[Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended]],
 )
 def put_quota(
     update_data: QuotaUpdate,

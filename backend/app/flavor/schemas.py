@@ -13,17 +13,11 @@ class FlavorBase(BaseModel):
     vcpus: int = Field(default=0, ge=0, description="Number of virtual CPUs")
     ram: int = Field(default=0, ge=0, description="Reserved RAM size (MB)")
     disk: int = Field(default=0, ge=0, description="Reserved disk size (GB)")
-    swap: int = Field(
-        default=0, ge=0, description="Reserved swap disk size (GB)"
-    )
+    swap: int = Field(default=0, ge=0, description="Reserved swap disk size (GB)")
     infiniband_support: bool = Field(default=False, description="")  # TODO
     num_gpus: int = Field(default=0, ge=0, description="Number of GPUs")
-    gpu_model: Optional[str] = Field(
-        default=None, description="GPU model name"
-    )
-    gpu_vendor: Optional[str] = Field(
-        default=None, description="GPU vendor name"
-    )
+    gpu_model: Optional[str] = Field(default=None, description="GPU model name")
+    gpu_vendor: Optional[str] = Field(default=None, description="GPU vendor name")
 
 
 class FlavorCreate(BaseNodeCreate, FlavorBase):
@@ -42,9 +36,7 @@ class FlavorCreate(BaseNodeCreate, FlavorBase):
             if values.get("gpu_model") is not None:
                 raise ValueError("'GPU model' must be None if 'Num GPUs' is 0")
             if values.get("gpu_vendor") is not None:
-                raise ValueError(
-                    "'GPU vendor' must be None if 'Num GPUs' is 0"
-                )
+                raise ValueError("'GPU vendor' must be None if 'Num GPUs' is 0")
         return values
 
 
@@ -66,7 +58,8 @@ class FlavorUpdate(FlavorCreate):
 
 
 class FlavorRead(BaseNodeRead, FlavorBase):
-    """Model to read Flavor data retrieved from DB.
+    """Model, for authenticated users, to read all Flavor data retrieved from
+    DB.
 
     Class to read data retrieved from the database. Expected as output
     when performing a generic REST request. It contains all the non-
@@ -75,6 +68,14 @@ class FlavorRead(BaseNodeRead, FlavorBase):
     Add the *uid* attribute, which is the item unique identifier in the
     database.
     """
+
+
+class FlavorReadPublic(BaseNodeRead, FlavorBase):
+    pass
+
+
+class FlavorReadShort(BaseNodeRead, FlavorBase):
+    pass
 
 
 FlavorQuery = create_query_model("FlavorQuery", FlavorBase)

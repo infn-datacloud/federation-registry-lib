@@ -6,7 +6,7 @@ from app.image.crud import image
 from app.image.models import Image
 from app.image.schemas import ImageQuery, ImageUpdate
 from app.image.schemas_extended import ImageReadExtended
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -26,12 +26,16 @@ def get_images(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: ImageQuery = Depends(),
 ):
     items = image.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return image.paginate(items=items, page=page.page, size=page.size)
+    items = image.paginate(items=items, page=page.page, size=page.size)
+    return image.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.read_transaction
@@ -44,9 +48,13 @@ def get_images(
         raises a `not found` error.",
 )
 def get_image(
-    auth: bool = Depends(check_read_access), item: Image = Depends(valid_image_id)
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: Image = Depends(valid_image_id),
 ):
-    return item
+    return image.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction

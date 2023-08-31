@@ -5,12 +5,28 @@ from app.image.crud import image
 from app.location.crud import location
 from app.project.crud import project
 from app.provider.models import Provider
-from app.provider.schemas import ProviderCreate, ProviderUpdate
-from app.provider.schemas_extended import ProviderCreateExtended
+from app.provider.schemas import (
+    ProviderCreate,
+    ProviderRead,
+    ProviderReadPublic,
+    ProviderReadShort,
+    ProviderUpdate,
+)
+from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
 from app.service.crud import service
 
 
-class CRUDProvider(CRUDBase[Provider, ProviderCreate, ProviderUpdate]):
+class CRUDProvider(
+    CRUDBase[
+        Provider,
+        ProviderCreate,
+        ProviderUpdate,
+        ProviderRead,
+        ProviderReadPublic,
+        ProviderReadShort,
+        ProviderReadExtended,
+    ]
+):
     """"""
 
     def create(
@@ -45,4 +61,11 @@ class CRUDProvider(CRUDBase[Provider, ProviderCreate, ProviderUpdate]):
         return super().remove(db_obj=db_obj)
 
 
-provider = CRUDProvider(Provider, ProviderCreate)
+provider = CRUDProvider(
+    model=Provider,
+    create_schema=ProviderCreate,
+    read_schema=ProviderRead,
+    read_public_schema=ProviderReadPublic,
+    read_short_schema=ProviderReadShort,
+    read_extended_schema=ProviderReadExtended,
+)

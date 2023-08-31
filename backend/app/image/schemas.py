@@ -13,17 +13,11 @@ class ImageBase(BaseModel):
     name: str = Field(description="Image name in the provider.")
     uuid: UUID4 = Field(description="Image UUID in the provider.")
     os: ImageOS = Field(description="Image Operating System.")
-    distribution: str = Field(
-        description="Operating system distribution type."
-    )
+    distribution: str = Field(description="Operating system distribution type.")
     version: str = Field(description="Distribution version.")
     architecture: str = Field(description="Operating system architecture.")
-    cuda_support: bool = Field(
-        default=False, description="Enable CUDA support."
-    )
-    gpu_driver: bool = Field(
-        default=False, description="Enable GPU driver support."
-    )
+    cuda_support: bool = Field(default=False, description="Enable CUDA support.")
+    gpu_driver: bool = Field(default=False, description="Enable GPU driver support.")
     creation_time: Optional[datetime] = Field(
         default=None, description="Image creation time."
     )
@@ -46,21 +40,15 @@ class ImageUpdate(ImageCreate):
     Default to None mandatory attributes.
     """
 
-    name: Optional[str] = Field(
-        default=None, description="Image name in the provider."
-    )
+    name: Optional[str] = Field(default=None, description="Image name in the provider.")
     uuid: Optional[UUID4] = Field(
         default=None, description="Image UUID in the provider."
     )
-    os: Optional[ImageOS] = Field(
-        default=None, description="Image Operating System."
-    )
+    os: Optional[ImageOS] = Field(default=None, description="Image Operating System.")
     distribution: Optional[str] = Field(
         default=None, description="Operating system distribution type."
     )
-    version: Optional[str] = Field(
-        default=None, description="Distribution version."
-    )
+    version: Optional[str] = Field(default=None, description="Distribution version.")
     architecture: Optional[str] = Field(
         default=None, description="Operating system architecture."
     )
@@ -76,6 +64,14 @@ class ImageRead(BaseNodeRead, ImageBase):
     Add the *uid* attribute, which is the item unique identifier in the
     database.
     """
+
+
+class ImageReadPublic(BaseNodeRead, ImageBase):
+    pass
+
+
+class ImageReadShort(BaseNodeRead, ImageBase):
+    pass
 
 
 ImageQuery = create_query_model("ImageQuery", ImageBase)

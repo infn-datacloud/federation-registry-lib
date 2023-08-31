@@ -7,6 +7,18 @@ from pydantic import BaseModel, Field, create_model, root_validator
 from pydantic.fields import SHAPE_LIST
 
 
+class SchemaSize(BaseModel):
+    """Model to add query attribute related to data response size."""
+
+    short: bool = Field(
+        default=True, description="Show a shortened version of the item."
+    )
+    with_conn: bool = Field(
+        default=False,
+        description="Show all related items. This flag overwrite the `short` flag",
+    )
+
+
 class Pagination(BaseModel):
     page: int = 0
     size: Optional[int] = None

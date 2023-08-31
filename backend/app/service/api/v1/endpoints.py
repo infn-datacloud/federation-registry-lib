@@ -1,8 +1,9 @@
 from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
+from app.identity_provider.crud import identity_provider
 from app.identity_provider.schemas import IdentityProviderRead
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_id, validate_new_service_values
 from app.service.crud import service
 from app.service.models import Service
@@ -40,12 +41,16 @@ def get_services(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: ServiceQuery = Depends(),
 ):
     items = service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return service.paginate(items=items, page=page.page, size=page.size)
+    items = service.paginate(items=items, page=page.page, size=page.size)
+    return service.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.read_transaction
@@ -66,9 +71,13 @@ def get_services(
         raises a `not found` error.",
 )
 def get_service(
-    auth: bool = Depends(check_read_access), item: Service = Depends(valid_service_id)
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: Service = Depends(valid_service_id),
 ):
-    return item
+    return service.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction
@@ -147,6 +156,10 @@ def delete_services(item: Service = Depends(valid_service_id)):
 )
 def get_service_identity_providers(
     auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
     item: Service = Depends(valid_service_id),
 ):
-    return item.provider.single().identity_providers.all()
+    items = item.provider.single().identity_providers.all()
+    return identity_provider.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )

@@ -9,9 +9,7 @@ from pydantic import UUID4, BaseModel, Field
 class SLABase(BaseModel):
     """Model with SLA basic attributes."""
 
-    start_date: datetime = Field(
-        description="Starting date of validity for this SLA."
-    )
+    start_date: datetime = Field(description="Starting date of validity for this SLA.")
     end_date: Optional[datetime] = Field(
         default=None,
         description="End of life date for this SLA. \
@@ -54,6 +52,14 @@ class SLARead(BaseNodeRead, SLABase):
     Add the *uid* attribute, which is the item unique identifier in the
     database.
     """
+
+
+class SLAReadPublic(BaseNodeRead, SLABase):
+    pass
+
+
+class SLAReadShort(BaseNodeRead, SLABase):
+    pass
 
 
 SLAQuery = create_query_model("SLAQuery", SLABase)

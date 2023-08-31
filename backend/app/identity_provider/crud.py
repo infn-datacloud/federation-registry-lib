@@ -3,13 +3,28 @@ from typing import Optional
 from app.auth_method.schemas import AuthMethodCreate
 from app.crud import CRUDBase
 from app.identity_provider.models import IdentityProvider
-from app.identity_provider.schemas import IdentityProviderCreate, IdentityProviderUpdate
+from app.identity_provider.schemas import (
+    IdentityProviderCreate,
+    IdentityProviderRead,
+    IdentityProviderReadPublic,
+    IdentityProviderReadShort,
+    IdentityProviderUpdate,
+)
+from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.provider.models import Provider
 from app.user_group.crud import user_group
 
 
 class CRUDIdentityProvider(
-    CRUDBase[IdentityProvider, IdentityProviderCreate, IdentityProviderUpdate]
+    CRUDBase[
+        IdentityProvider,
+        IdentityProviderCreate,
+        IdentityProviderUpdate,
+        IdentityProviderRead,
+        IdentityProviderReadPublic,
+        IdentityProviderReadShort,
+        IdentityProviderReadExtended,
+    ]
 ):
     """"""
 
@@ -33,5 +48,10 @@ class CRUDIdentityProvider(
 
 
 identity_provider = CRUDIdentityProvider(
-    IdentityProvider, IdentityProviderCreate
+    model=IdentityProvider,
+    create_schema=IdentityProviderCreate,
+    read_schema=IdentityProviderRead,
+    read_public_schema=IdentityProviderReadPublic,
+    read_short_schema=IdentityProviderReadShort,
+    read_extended_schema=IdentityProviderReadExtended,
 )

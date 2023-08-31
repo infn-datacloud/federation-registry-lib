@@ -1,10 +1,14 @@
 from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
+from app.flavor.crud import flavor
 from app.flavor.schemas import FlavorRead
+from app.image.crud import image
 from app.image.schemas import ImageRead
+from app.provider.crud import provider
 from app.provider.schemas import ProviderRead
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
+from app.service.crud import service
 from app.service.schemas_extended import (
     ChronosServiceReadExtended,
     KubernetesServiceReadExtended,
@@ -41,12 +45,16 @@ def get_user_groups(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: UserGroupQuery = Depends(),
 ):
     items = user_group.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return user_group.paginate(items=items, page=page.page, size=page.size)
+    items = user_group.paginate(items=items, page=page.page, size=page.size)
+    return user_group.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.read_transaction
@@ -60,9 +68,12 @@ def get_user_groups(
 )
 def get_user_group(
     auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
 ):
-    return item
+    return user_group.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction
@@ -124,9 +135,12 @@ def delete_user_group(item: UserGroup = Depends(valid_user_group_id)):
 )
 def get_user_group_flavors(
     auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
 ):
-    return item.flavors()
+    return flavor.choose_out_schema(
+        items=item.flavors(), auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.read_transaction
@@ -141,9 +155,12 @@ def get_user_group_flavors(
 )
 def get_user_group_images(
     auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
 ):
-    return item.images()
+    return image.choose_out_schema(
+        items=item.images(), auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.read_transaction
@@ -158,9 +175,12 @@ def get_user_group_images(
 )
 def get_user_group_providers(
     auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
 ):
-    return item.providers()
+    return provider.choose_out_schema(
+        items=item.providers(), auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.read_transaction
@@ -185,7 +205,11 @@ def get_user_group_providers(
 )
 def get_user_group_services(
     auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
-    service: ServiceQuery = Depends(),
+    qservice: ServiceQuery = Depends(),
 ):
-    return item.services(**service.dict(exclude_none=True))
+    items = item.services(**qservice.dict(exclude_none=True))
+    return service.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
