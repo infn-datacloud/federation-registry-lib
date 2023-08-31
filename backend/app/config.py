@@ -42,7 +42,8 @@ class Settings(BaseSettings):
         config.DATABASE_URL = v
         return v
 
-    ENABLE_AUTH: bool = False
+    ADMIN_EMAIL_LIST: List[EmailStr] = []
+    TRUSTED_IDP_LIST: List[AnyHttpUrl] = []
 
     @validator("TRUSTED_IDP_LIST")
     def validate_list(cls, v: List[AnyHttpUrl], values: Dict[str, Any]) -> AnyHttpUrl:
@@ -51,7 +52,7 @@ class Settings(BaseSettings):
                 len(v) > 0
             ), "Empty TRUSTED_IDP_LIST when authentication has been enabled"
         return v
-    
+
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200",
     # "http://localhost:3000", "http://localhost:8080",

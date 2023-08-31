@@ -8,7 +8,7 @@ from app.flavor.schemas import FlavorQuery, FlavorRead, FlavorUpdate
 from app.flavor.schemas_extended import FlavorReadExtended
 from app.pagination import Pagination, paginate
 from app.query import CommonGetQuery
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
 router = APIRouter(prefix="/flavors", tags=["flavors"])
