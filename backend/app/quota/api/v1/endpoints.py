@@ -1,9 +1,8 @@
 from typing import List, Optional, Union
 
-from app.pagination import Pagination, paginate
 from app.project.api.dependencies import valid_project_id
 from app.project.models import Project
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from app.quota.api.dependencies import valid_quota_id
 from app.quota.crud import quota
 from app.quota.models import Quota
@@ -23,14 +22,14 @@ router = APIRouter(prefix="/quotas", tags=["quotas"])
     response_model=List[Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended]],
 )
 def get_quotas(
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: QuotaQuery = Depends(),
 ):
     items = quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return quota.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.write_transaction

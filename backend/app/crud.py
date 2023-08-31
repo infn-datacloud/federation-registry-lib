@@ -30,7 +30,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         skip: int = 0,
         limit: Optional[int] = None,
         sort: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ) -> List[ModelType]:
         if kwargs:
             items = self.model.nodes.filter(**kwargs).order_by(sort).all()
@@ -44,9 +44,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         end = skip + limit
         return items[start:end]
 
-    def create(
-        self, *, obj_in: CreateSchemaType, force: bool = False
-    ) -> ModelType:
+    def create(self, *, obj_in: CreateSchemaType, force: bool = False) -> ModelType:
         obj_in = self.schema.parse_obj(obj_in)
         obj_in_data = obj_in.dict(exclude_none=True)
         db_obj = None
@@ -57,10 +55,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         return db_obj
 
     def update(
-        self,
-        *,
-        db_obj: ModelType,
-        obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+        self, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> Optional[ModelType]:
         obj_data = db_obj.__dict__
         if isinstance(obj_in, dict):
@@ -78,3 +73,12 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def remove(self, *, db_obj: ModelType) -> bool:
         return db_obj.delete()
+
+    def paginate(
+        self, *, items: List[ModelType], page: int, size: Optional[int]
+    ) -> List[ModelType]:
+        if size is None:
+            return items
+        start = page * size
+        end = start + size
+        return items[start:end]

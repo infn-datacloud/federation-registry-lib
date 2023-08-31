@@ -1,10 +1,9 @@
 from typing import List, Optional
 
 from app.auth.dependencies import check_read_access, check_write_access
-from app.pagination import Pagination, paginate
 from app.project.api.dependencies import project_has_no_sla
 from app.project.models import Project
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from app.sla.api.dependencies import (
     is_unique_sla,
     valid_sla_id,
@@ -33,14 +32,14 @@ router = APIRouter(prefix="/slas", tags=["slas"])
 )
 def get_slas(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: SLAQuery = Depends(),
 ):
     items = sla.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return sla.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.write_transaction

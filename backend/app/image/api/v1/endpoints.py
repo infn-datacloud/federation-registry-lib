@@ -6,8 +6,7 @@ from app.image.crud import image
 from app.image.models import Image
 from app.image.schemas import ImageQuery, ImageUpdate
 from app.image.schemas_extended import ImageReadExtended
-from app.pagination import Pagination, paginate
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -25,14 +24,14 @@ router = APIRouter(prefix="/images", tags=["images"])
 )
 def get_images(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: ImageQuery = Depends(),
 ):
     items = image.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return image.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.read_transaction

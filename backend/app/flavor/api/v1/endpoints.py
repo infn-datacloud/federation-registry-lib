@@ -6,8 +6,7 @@ from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorQuery, FlavorRead, FlavorUpdate
 from app.flavor.schemas_extended import FlavorReadExtended
-from app.pagination import Pagination, paginate
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -25,14 +24,14 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
 )
 def get_flavors(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: FlavorQuery = Depends(),
 ):
     items = flavor.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = paginate(items=items, page=page.page, size=page.size)
+    items = flavor.paginate(items=items, page=page.page, size=page.size)
     if auth:
         return [FlavorReadExtended.from_orm(i) for i in items]
     return [FlavorRead.from_orm(i) for i in items]

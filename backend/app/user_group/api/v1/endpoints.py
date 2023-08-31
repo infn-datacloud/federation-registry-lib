@@ -3,9 +3,8 @@ from typing import List, Optional, Union
 from app.auth.dependencies import check_read_access, check_write_access
 from app.flavor.schemas import FlavorRead
 from app.image.schemas import ImageRead
-from app.pagination import Pagination, paginate
 from app.provider.schemas import ProviderRead
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from app.service.schemas_extended import (
     ChronosServiceReadExtended,
     KubernetesServiceReadExtended,
@@ -40,14 +39,14 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 )
 def get_user_groups(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: UserGroupQuery = Depends(),
 ):
     items = user_group.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return user_group.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.read_transaction

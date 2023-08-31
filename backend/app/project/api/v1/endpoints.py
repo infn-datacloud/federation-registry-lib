@@ -5,13 +5,12 @@ from app.flavor.api.dependencies import valid_flavor_id
 from app.flavor.models import Flavor
 from app.image.api.dependencies import valid_image_id
 from app.image.models import Image
-from app.pagination import Pagination, paginate
 from app.project.api.dependencies import valid_project_id, validate_new_project_values
 from app.project.crud import project
 from app.project.models import Project
 from app.project.schemas import ProjectQuery, ProjectUpdate
 from app.project.schemas_extended import ProjectReadExtended
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -29,14 +28,14 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 )
 def get_projects(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: ProjectQuery = Depends(),
 ):
     items = project.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return project.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.read_transaction

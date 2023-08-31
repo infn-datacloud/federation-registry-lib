@@ -2,8 +2,7 @@ from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.identity_provider.schemas import IdentityProviderRead
-from app.pagination import Pagination, paginate
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from app.service.api.dependencies import valid_service_id, validate_new_service_values
 from app.service.crud import service
 from app.service.models import Service
@@ -39,14 +38,14 @@ router = APIRouter(prefix="/services", tags=["services"])
 )
 def get_services(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: ServiceQuery = Depends(),
 ):
     items = service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return service.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.read_transaction

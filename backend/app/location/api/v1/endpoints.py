@@ -10,8 +10,7 @@ from app.location.crud import location
 from app.location.models import Location
 from app.location.schemas import LocationCreate, LocationQuery, LocationUpdate
 from app.location.schemas_extended import LocationReadExtended
-from app.pagination import Pagination, paginate
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -29,14 +28,14 @@ router = APIRouter(prefix="/locations", tags=["locations"])
 )
 def get_locations(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: LocationQuery = Depends(),
 ):
     items = location.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return location.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.write_transaction

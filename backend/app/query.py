@@ -7,7 +7,18 @@ from pydantic import BaseModel, Field, create_model, root_validator
 from pydantic.fields import SHAPE_LIST
 
 
-class CommonGetQuery(BaseModel):
+class Pagination(BaseModel):
+    page: int = 0
+    size: Optional[int] = None
+
+    @root_validator(pre=True)
+    def set_page_to_0(cls, values):
+        if values.get("size") is None:
+            values["page"] = 0
+        return values
+
+
+class DbQueryCommonParams(BaseModel):
     """Model to add common query attributes."""
 
     skip: int = Field(

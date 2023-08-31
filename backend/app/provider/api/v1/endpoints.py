@@ -14,7 +14,6 @@ from app.image.schemas import ImageCreate
 from app.image.schemas_extended import ImageReadExtended
 from app.location.api.dependencies import valid_location_id
 from app.location.models import Location
-from app.pagination import Pagination, paginate
 from app.project.api.dependencies import valid_project_name, valid_project_uuid
 from app.project.crud import project
 from app.project.schemas import ProjectCreate
@@ -34,7 +33,7 @@ from app.provider.crud import provider
 from app.provider.models import Provider
 from app.provider.schemas import ProviderQuery, ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from app.service.api.dependencies import valid_service_endpoint
 from app.service.crud import service
 from app.service.schemas import (
@@ -72,14 +71,14 @@ router = APIRouter(prefix="/providers", tags=["providers"])
 )
 def get_providers(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: ProviderQuery = Depends(),
 ):
     items = provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return provider.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.write_transaction

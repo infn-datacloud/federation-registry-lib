@@ -14,9 +14,8 @@ from app.identity_provider.schemas import (
     IdentityProviderUpdate,
 )
 from app.identity_provider.schemas_extended import IdentityProviderReadExtended
-from app.pagination import Pagination, paginate
 from app.project.schemas_extended import UserGroupReadExtended
-from app.query import CommonGetQuery
+from app.query import DbQueryCommonParams, Pagination
 from app.user_group.api.dependencies import is_unique_user_group
 from app.user_group.crud import user_group
 from app.user_group.schemas import UserGroupCreate
@@ -37,14 +36,14 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 )
 def get_identity_providers(
     auth: bool = Depends(check_read_access),
-    comm: CommonGetQuery = Depends(),
+    comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     item: IdentityProviderQuery = Depends(),
 ):
     items = identity_provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return paginate(items=items, page=page.page, size=page.size)
+    return identity_provider.paginate(items=items, page=page.page, size=page.size)
 
 
 @db.write_transaction
