@@ -1,8 +1,7 @@
 import uvicorn
-from app.auth.dependencies import security
 from app.config import get_settings
 from app.router import router_v1
-from fastapi import Depends, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 summary = """
@@ -26,10 +25,6 @@ contact = {
 }
 
 settings = get_settings()
-
-dependencies = None
-if len(settings.TRUSTED_IDP_LIST) > 0:
-    dependencies = [Depends(security)]
 
 tags_metadata = [
     {
@@ -62,7 +57,6 @@ if settings.BACKEND_CORS_ORIGINS:
 sub_app_v1 = FastAPI(
     contact=contact,
     description=description,
-    dependencies=dependencies,
     summary=summary,
     title=settings.PROJECT_NAME,
     version=version,

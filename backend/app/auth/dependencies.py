@@ -1,11 +1,22 @@
 from app.config import get_settings
-from fastapi.security import HTTPBearer
+from fastapi import Depends
+from fastapi.security import HTTPBasicCredentials, HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
 from flaat.requirements import IsTrue
 from flaat.user_infos import UserInfos
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
+
+
+def check_read_access(
+    client_credentials: HTTPBasicCredentials = Depends(security),
+) -> bool:
+    if client_credentials:
+        flaat.is_authenticated()
+        return True
+    return False
+
 
 
 def has_write_access(user_infos: UserInfos) -> bool:
