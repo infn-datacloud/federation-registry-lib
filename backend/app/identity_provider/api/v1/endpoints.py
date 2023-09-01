@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.identity_provider.api.dependencies import (
@@ -11,6 +11,9 @@ from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
     IdentityProviderCreate,
     IdentityProviderQuery,
+    IdentityProviderRead,
+    IdentityProviderReadPublic,
+    IdentityProviderReadShort,
     IdentityProviderUpdate,
 )
 from app.identity_provider.schemas_extended import IdentityProviderReadExtended
@@ -28,7 +31,12 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[IdentityProviderReadExtended],
+    response_model=Union[
+        List[IdentityProviderReadExtended],
+        List[IdentityProviderRead],
+        List[IdentityProviderReadShort],
+        List[IdentityProviderReadPublic],
+    ],
     summary="Read all identity providers",
     description="Retrieve all identity providers stored in the database. \
         It is possible to filter on identity providers attributes and other \
@@ -71,7 +79,12 @@ def post_location(item: IdentityProviderCreate):
 @db.read_transaction
 @router.get(
     "/{identity_provider_uid}",
-    response_model=IdentityProviderReadExtended,
+    response_model=Union[
+        IdentityProviderReadExtended,
+        IdentityProviderRead,
+        IdentityProviderReadShort,
+        IdentityProviderReadPublic,
+    ],
     summary="Read a specific identity provider",
     description="Retrieve a specific identity provider using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -90,7 +103,7 @@ def get_identity_provider(
 @db.write_transaction
 @router.patch(
     "/{identity_provider_uid}",
-    response_model=Optional[IdentityProviderReadExtended],
+    response_model=Optional[IdentityProviderRead],
     dependencies=[
         Depends(check_write_access),
         Depends(validate_new_identity_provider_values),

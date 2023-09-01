@@ -2,12 +2,27 @@ from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.identity_provider.crud import identity_provider
-from app.identity_provider.schemas import IdentityProviderRead
+from app.identity_provider.schemas import (
+    IdentityProviderRead,
+    IdentityProviderReadPublic,
+    IdentityProviderReadShort,
+)
+from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_id, validate_new_service_values
 from app.service.crud import service
 from app.service.models import Service
-from app.service.schemas import KubernetesServiceUpdate, NovaServiceUpdate, ServiceQuery
+from app.service.schemas import (
+    KubernetesServiceRead,
+    KubernetesServiceReadPublic,
+    KubernetesServiceReadShort,
+    KubernetesServiceUpdate,
+    NovaServiceRead,
+    NovaServiceReadPublic,
+    NovaServiceReadShort,
+    NovaServiceUpdate,
+    ServiceQuery,
+)
 from app.service.schemas_extended import (
     KubernetesServiceReadExtended,
     NovaServiceReadExtended,
@@ -21,16 +36,11 @@ router = APIRouter(prefix="/services", tags=["services"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[
-        Union[
-            # ChronosServiceReadExtended,
-            KubernetesServiceReadExtended,
-            # MarathonServiceReadExtended,
-            # MesosServiceReadExtended,
-            NovaServiceReadExtended,
-            # OneDataServiceReadExtended,
-            # RucioServiceReadExtended,
-        ]
+    response_model=Union[
+        List[Union[KubernetesServiceReadExtended, NovaServiceReadExtended]],
+        List[Union[KubernetesServiceRead, NovaServiceRead]],
+        List[Union[KubernetesServiceReadShort, NovaServiceReadShort]],
+        List[Union[KubernetesServiceReadPublic, NovaServiceReadPublic]],
     ],
     summary="Read all services",
     description="Retrieve all services stored in the database. \
@@ -57,13 +67,14 @@ def get_services(
 @router.get(
     "/{service_uid}",
     response_model=Union[
-        # ChronosServiceReadExtended,
         KubernetesServiceReadExtended,
-        # MarathonServiceReadExtended,
-        # MesosServiceReadExtended,
         NovaServiceReadExtended,
-        # OneDataServiceReadExtended,
-        # RucioServiceReadExtended,
+        KubernetesServiceRead,
+        NovaServiceRead,
+        KubernetesServiceReadShort,
+        NovaServiceReadShort,
+        KubernetesServiceReadPublic,
+        NovaServiceReadPublic,
     ],
     summary="Read a specific service",
     description="Retrieve a specific service using its *uid*. \
@@ -83,17 +94,7 @@ def get_service(
 @db.write_transaction
 @router.patch(
     "/{service_uid}",
-    response_model=Optional[
-        Union[
-            # ChronosServiceReadExtended,
-            KubernetesServiceReadExtended,
-            # MarathonServiceReadExtended,
-            # MesosServiceReadExtended,
-            NovaServiceReadExtended,
-            # OneDataServiceReadExtended,
-            # RucioServiceReadExtended,
-        ]
-    ],
+    response_model=Optional[Union[KubernetesServiceRead, NovaServiceRead]],
     dependencies=[Depends(check_write_access), Depends(validate_new_service_values)],
     summary="Edit a specific service",
     description="Update attribute values of a specific service. \
@@ -106,15 +107,7 @@ def get_service(
         no other items with the given *endpoint*.",
 )
 def put_service(
-    update_data: Union[
-        # ChronosServiceUpdate,
-        KubernetesServiceUpdate,
-        # MarathonServiceUpdate,
-        # MesosServiceUpdate,
-        NovaServiceUpdate,
-        # OneDataServiceUpdate,
-        # RucioServiceUpdate,
-    ],
+    update_data: Union[KubernetesServiceUpdate, NovaServiceUpdate],
     response: Response,
     item: Service = Depends(valid_service_id),
 ):
@@ -147,7 +140,12 @@ def delete_services(item: Service = Depends(valid_service_id)):
 @db.read_transaction
 @router.get(
     "/{service_uid}/identity_providers",
-    response_model=List[IdentityProviderRead],
+    response_model=Union[
+        List[IdentityProviderReadExtended],
+        List[IdentityProviderRead],
+        List[IdentityProviderReadShort],
+        List[IdentityProviderReadPublic],
+    ],
     summary="Read service accessible identity providers",
     description="Retrieve all the identity providers the \
         service has access to. \

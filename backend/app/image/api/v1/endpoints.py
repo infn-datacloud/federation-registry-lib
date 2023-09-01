@@ -1,10 +1,16 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.image.api.dependencies import valid_image_id, validate_new_image_values
 from app.image.crud import image
 from app.image.models import Image
-from app.image.schemas import ImageQuery, ImageUpdate
+from app.image.schemas import (
+    ImageQuery,
+    ImageRead,
+    ImageReadPublic,
+    ImageReadShort,
+    ImageUpdate,
+)
 from app.image.schemas_extended import ImageReadExtended
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -16,7 +22,12 @@ router = APIRouter(prefix="/images", tags=["images"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[ImageReadExtended],
+    response_model=Union[
+        List[ImageReadExtended],
+        List[ImageRead],
+        List[ImageReadShort],
+        List[ImageReadPublic],
+    ],
     summary="Read all images",
     description="Retrieve all images stored in the database. \
         It is possible to filter on images attributes and other \
@@ -41,7 +52,12 @@ def get_images(
 @db.read_transaction
 @router.get(
     "/{image_uid}",
-    response_model=ImageReadExtended,
+    response_model=Union[
+        ImageReadExtended,
+        ImageRead,
+        ImageReadShort,
+        ImageReadPublic,
+    ],
     summary="Read a specific image",
     description="Retrieve a specific image using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -60,7 +76,7 @@ def get_image(
 @db.write_transaction
 @router.patch(
     "/{image_uid}",
-    response_model=Optional[ImageReadExtended],
+    response_model=Optional[ImageRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_image_values)],
     summary="Edit a specific image",
     description="Update attribute values of a specific image. \

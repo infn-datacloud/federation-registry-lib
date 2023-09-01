@@ -4,7 +4,13 @@ from app.auth.dependencies import check_read_access, check_write_access
 from app.flavor.api.dependencies import valid_flavor_id, validate_new_flavor_values
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorQuery, FlavorRead, FlavorUpdate
+from app.flavor.schemas import (
+    FlavorQuery,
+    FlavorRead,
+    FlavorReadPublic,
+    FlavorReadShort,
+    FlavorUpdate,
+)
 from app.flavor.schemas_extended import FlavorReadExtended
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -16,7 +22,12 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=Union[List[FlavorReadExtended], List[FlavorRead]],
+    response_model=Union[
+        List[FlavorReadExtended],
+        List[FlavorRead],
+        List[FlavorReadShort],
+        List[FlavorReadPublic],
+    ],
     summary="Read all flavors",
     description="Retrieve all flavors stored in the database. \
         It is possible to filter on flavors attributes and other \
@@ -41,7 +52,9 @@ def get_flavors(
 @db.read_transaction
 @router.get(
     "/{flavor_uid}",
-    response_model=Union[FlavorReadExtended, FlavorRead],
+    response_model=Union[
+        FlavorReadExtended, FlavorRead, FlavorReadShort, FlavorReadPublic
+    ],
     summary="Read a specific flavor",
     description="Retrieve a specific flavor using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -60,7 +73,7 @@ def get_flavor(
 @db.write_transaction
 @router.patch(
     "/{flavor_uid}",
-    response_model=Optional[FlavorReadExtended],
+    response_model=Optional[FlavorRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_flavor_values)],
     summary="Edit a specific flavor",
     description="Update attribute values of a specific flavor. \

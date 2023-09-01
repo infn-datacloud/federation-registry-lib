@@ -2,21 +2,27 @@ from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.flavor.crud import flavor
-from app.flavor.schemas import FlavorRead
+from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
+from app.flavor.schemas_extended import FlavorReadExtended
+from app.identity_provider.schemas_extended import ProviderReadExtended
 from app.image.crud import image
-from app.image.schemas import ImageRead
+from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
+from app.image.schemas_extended import ImageReadExtended
 from app.provider.crud import provider
-from app.provider.schemas import ProviderRead
+from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadShort
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.crud import service
+from app.service.schemas import (
+    KubernetesServiceRead,
+    KubernetesServiceReadPublic,
+    KubernetesServiceReadShort,
+    NovaServiceRead,
+    NovaServiceReadPublic,
+    NovaServiceReadShort,
+)
 from app.service.schemas_extended import (
-    ChronosServiceReadExtended,
     KubernetesServiceReadExtended,
-    MarathonServiceReadExtended,
-    MesosServiceReadExtended,
     NovaServiceReadExtended,
-    OneDataServiceReadExtended,
-    RucioServiceReadExtended,
 )
 from app.user_group.api.dependencies import (
     valid_user_group_id,
@@ -24,7 +30,13 @@ from app.user_group.api.dependencies import (
 )
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
-from app.user_group.schemas import UserGroupQuery, UserGroupUpdate
+from app.user_group.schemas import (
+    UserGroupQuery,
+    UserGroupRead,
+    UserGroupReadPublic,
+    UserGroupReadShort,
+    UserGroupUpdate,
+)
 from app.user_group.schemas_extended import ServiceQuery, UserGroupReadExtended
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -35,7 +47,12 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[UserGroupReadExtended],
+    response_model=Union[
+        List[UserGroupReadExtended],
+        List[UserGroupRead],
+        List[UserGroupReadShort],
+        List[UserGroupReadPublic],
+    ],
     summary="Read all user groups",
     description="Retrieve all user groups stored in the database. \
         It is possible to filter on user groups attributes and other \
@@ -60,7 +77,9 @@ def get_user_groups(
 @db.read_transaction
 @router.get(
     "/{user_group_uid}",
-    response_model=UserGroupReadExtended,
+    response_model=Union[
+        UserGroupReadExtended, UserGroupRead, UserGroupReadShort, UserGroupReadPublic
+    ],
     summary="Read a specific user group",
     description="Retrieve a specific user group using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -79,7 +98,7 @@ def get_user_group(
 @db.write_transaction
 @router.patch(
     "/{user_group_uid}",
-    response_model=Optional[UserGroupReadExtended],
+    response_model=Optional[UserGroupRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_user_group_values)],
     summary="Edit a specific user group",
     description="Update attribute values of a specific user group. \
@@ -126,7 +145,12 @@ def delete_user_group(item: UserGroup = Depends(valid_user_group_id)):
 @db.read_transaction
 @router.get(
     "/{user_group_uid}/flavors",
-    response_model=List[FlavorRead],
+    response_model=Union[
+        List[FlavorReadExtended],
+        List[FlavorRead],
+        List[FlavorReadShort],
+        List[FlavorReadPublic],
+    ],
     summary="Read user group accessible flavors",
     description="Retrieve all the flavors the user group \
         has access to thanks to its SLA. \
@@ -146,7 +170,12 @@ def get_user_group_flavors(
 @db.read_transaction
 @router.get(
     "/{user_group_uid}/images",
-    response_model=List[ImageRead],
+    response_model=Union[
+        List[ImageReadExtended],
+        List[ImageRead],
+        List[ImageReadShort],
+        List[ImageReadPublic],
+    ],
     summary="Read user group accessible images",
     description="Retrieve all the images the user group \
         has access to thanks to its SLA. \
@@ -166,7 +195,12 @@ def get_user_group_images(
 @db.read_transaction
 @router.get(
     "/{user_group_uid}/providers",
-    response_model=List[ProviderRead],
+    response_model=Union[
+        List[ProviderReadExtended],
+        List[ProviderRead],
+        List[ProviderReadShort],
+        List[ProviderReadPublic],
+    ],
     summary="Read user group accessible providers",
     description="Retrieve all the providers the user group \
         has access to thanks to its SLA. \
@@ -186,16 +220,11 @@ def get_user_group_providers(
 @db.read_transaction
 @router.get(
     "/{user_group_uid}/services",
-    response_model=List[
-        Union[
-            ChronosServiceReadExtended,
-            KubernetesServiceReadExtended,
-            MarathonServiceReadExtended,
-            MesosServiceReadExtended,
-            NovaServiceReadExtended,
-            OneDataServiceReadExtended,
-            RucioServiceReadExtended,
-        ]
+    response_model=Union[
+        List[Union[KubernetesServiceReadExtended, NovaServiceReadExtended]],
+        List[Union[KubernetesServiceRead, NovaServiceRead]],
+        List[Union[KubernetesServiceReadShort, NovaServiceReadShort]],
+        List[Union[KubernetesServiceReadPublic, NovaServiceReadPublic]],
     ],
     summary="Read user group accessible services",
     description="Retrieve all the services the user group \
@@ -207,9 +236,9 @@ def get_user_group_services(
     auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
-    qservice: ServiceQuery = Depends(),
+    srv: ServiceQuery = Depends(),
 ):
-    items = item.services(**qservice.dict(exclude_none=True))
+    items = item.services(**srv.dict(exclude_none=True))
     return service.choose_out_schema(
         items=items, auth=auth, short=size.short, with_conn=size.with_conn
     )

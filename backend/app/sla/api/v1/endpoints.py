@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.project.api.dependencies import project_has_no_sla
@@ -11,7 +11,14 @@ from app.sla.api.dependencies import (
 )
 from app.sla.crud import sla
 from app.sla.models import SLA
-from app.sla.schemas import SLACreate, SLAQuery, SLAUpdate
+from app.sla.schemas import (
+    SLACreate,
+    SLAQuery,
+    SLARead,
+    SLAReadPublic,
+    SLAReadShort,
+    SLAUpdate,
+)
 from app.sla.schemas_extended import SLAReadExtended
 from app.user_group.api.dependencies import valid_user_group_id
 from app.user_group.models import UserGroup
@@ -24,7 +31,9 @@ router = APIRouter(prefix="/slas", tags=["slas"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[SLAReadExtended],
+    response_model=Union[
+        List[SLAReadExtended], List[SLARead], List[SLAReadShort], List[SLAReadPublic]
+    ],
     summary="Read all SLAs",
     description="Retrieve all SLAs stored in the database. \
         It is possible to filter on SLAs attributes and other \
@@ -86,7 +95,7 @@ def post_sla(
 @db.read_transaction
 @router.get(
     "/{sla_uid}",
-    response_model=SLAReadExtended,
+    response_model=Union[SLAReadExtended, SLARead, SLAReadShort, SLAReadPublic],
     summary="Read a specific SLA",
     description="Retrieve a specific SLA using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -99,7 +108,7 @@ def get_sla(auth: bool = Depends(check_read_access), item: SLA = Depends(valid_s
 @db.write_transaction
 @router.patch(
     "/{sla_uid}",
-    response_model=Optional[SLAReadExtended],
+    response_model=Optional[SLARead],
     dependencies=[Depends(check_write_access), Depends(validate_new_sla_values)],
     summary="Edit a specific SLA",
     description="Update attribute values of a specific SLA. \

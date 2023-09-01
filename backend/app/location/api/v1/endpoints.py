@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.location.api.dependencies import (
@@ -8,7 +8,14 @@ from app.location.api.dependencies import (
 )
 from app.location.crud import location
 from app.location.models import Location
-from app.location.schemas import LocationCreate, LocationQuery, LocationUpdate
+from app.location.schemas import (
+    LocationCreate,
+    LocationQuery,
+    LocationRead,
+    LocationReadPublic,
+    LocationReadShort,
+    LocationUpdate,
+)
 from app.location.schemas_extended import LocationReadExtended
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -20,7 +27,12 @@ router = APIRouter(prefix="/locations", tags=["locations"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[LocationReadExtended],
+    response_model=Union[
+        List[LocationReadExtended],
+        List[LocationRead],
+        List[LocationReadShort],
+        List[LocationReadPublic],
+    ],
     summary="Read all locations",
     description="Retrieve all locations stored in the database. \
         It is possible to filter on locations attributes and other \
@@ -60,7 +72,9 @@ def post_location(item: LocationCreate):
 @db.read_transaction
 @router.get(
     "/{location_uid}",
-    response_model=LocationReadExtended,
+    response_model=Union[
+        LocationReadExtended, LocationRead, LocationReadShort, LocationReadPublic
+    ],
     summary="Read a specific location",
     description="Retrieve a specific location using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -79,7 +93,7 @@ def get_location(
 @db.write_transaction
 @router.patch(
     "/{location_uid}",
-    response_model=Optional[LocationReadExtended],
+    response_model=Optional[LocationRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_location_values)],
     summary="Edit a specific Location",
     description="Update attribute values of a specific location. \

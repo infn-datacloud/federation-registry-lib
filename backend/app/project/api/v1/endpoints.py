@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.flavor.api.dependencies import valid_flavor_id
@@ -8,7 +8,13 @@ from app.image.models import Image
 from app.project.api.dependencies import valid_project_id, validate_new_project_values
 from app.project.crud import project
 from app.project.models import Project
-from app.project.schemas import ProjectQuery, ProjectUpdate
+from app.project.schemas import (
+    ProjectQuery,
+    ProjectRead,
+    ProjectReadPublic,
+    ProjectReadShort,
+    ProjectUpdate,
+)
 from app.project.schemas_extended import ProjectReadExtended
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -20,7 +26,12 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[ProjectReadExtended],
+    response_model=Union[
+        List[ProjectReadExtended],
+        List[ProjectRead],
+        List[ProjectReadShort],
+        List[ProjectReadPublic],
+    ],
     summary="Read all projects",
     description="Retrieve all projects stored in the database. \
         It is possible to filter on projects attributes and other \
@@ -45,7 +56,9 @@ def get_projects(
 @db.read_transaction
 @router.get(
     "/{project_uid}",
-    response_model=ProjectReadExtended,
+    response_model=Union[
+        ProjectReadExtended, ProjectRead, ProjectReadShort, ProjectReadPublic
+    ],
     summary="Read a specific project",
     description="Retrieve a specific project using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -64,7 +77,7 @@ def get_project(
 @db.write_transaction
 @router.patch(
     "/{project_uid}",
-    response_model=Optional[ProjectReadExtended],
+    response_model=Optional[ProjectRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_project_values)],
     summary="Edit a specific project",
     description="Update attribute values of a specific project. \
