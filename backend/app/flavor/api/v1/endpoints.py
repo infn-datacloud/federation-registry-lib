@@ -11,7 +11,7 @@ from app.flavor.schemas import (
     FlavorReadShort,
     FlavorUpdate,
 )
-from app.flavor.schemas_extended import FlavorReadExtended
+from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -26,6 +26,7 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
         List[FlavorReadExtended],
         List[FlavorRead],
         List[FlavorReadShort],
+        List[FlavorReadExtendedPublic],
         List[FlavorReadPublic],
     ],
     summary="Read all flavors",
@@ -53,7 +54,11 @@ def get_flavors(
 @router.get(
     "/{flavor_uid}",
     response_model=Union[
-        FlavorReadExtended, FlavorRead, FlavorReadShort, FlavorReadPublic
+        FlavorReadExtended,
+        FlavorRead,
+        FlavorReadShort,
+        FlavorReadExtendedPublic,
+        FlavorReadPublic,
     ],
     summary="Read a specific flavor",
     description="Retrieve a specific flavor using its *uid*. \

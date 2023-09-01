@@ -16,7 +16,10 @@ from app.identity_provider.schemas import (
     IdentityProviderReadShort,
     IdentityProviderUpdate,
 )
-from app.identity_provider.schemas_extended import IdentityProviderReadExtended
+from app.identity_provider.schemas_extended import (
+    IdentityProviderReadExtended,
+    IdentityProviderReadExtendedPublic,
+)
 from app.project.schemas_extended import UserGroupReadExtended
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.user_group.api.dependencies import is_unique_user_group
@@ -35,6 +38,7 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
         List[IdentityProviderReadExtended],
         List[IdentityProviderRead],
         List[IdentityProviderReadShort],
+        List[IdentityProviderReadExtendedPublic],
         List[IdentityProviderReadPublic],
     ],
     summary="Read all identity providers",
@@ -83,6 +87,7 @@ def post_location(item: IdentityProviderCreate):
         IdentityProviderReadExtended,
         IdentityProviderRead,
         IdentityProviderReadShort,
+        IdentityProviderReadExtendedPublic,
         IdentityProviderReadPublic,
     ],
     summary="Read a specific identity provider",

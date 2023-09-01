@@ -1,27 +1,23 @@
 from typing import List, Optional, Union
 
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
-from app.flavor.schemas import FlavorCreate, FlavorRead
-from app.identity_provider.schemas import IdentityProviderCreate, IdentityProviderRead
-from app.image.schemas import ImageCreate, ImageRead
-from app.location.schemas import LocationCreate, LocationRead
-from app.project.schemas import ProjectCreate, ProjectRead
-from app.provider.schemas import ProviderCreate, ProviderRead
+from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
+from app.identity_provider.schemas import (
+    IdentityProviderCreate,
+    IdentityProviderRead,
+    IdentityProviderReadPublic,
+)
+from app.image.schemas import ImageCreate, ImageRead, ImageReadPublic
+from app.location.schemas import LocationCreate, LocationRead, LocationReadPublic
+from app.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
+from app.provider.schemas import ProviderCreate, ProviderRead, ProviderReadPublic
 from app.service.schemas import (
-    ChronosServiceCreate,
-    ChronosServiceRead,
     KubernetesServiceCreate,
     KubernetesServiceRead,
-    MarathonServiceCreate,
-    MarathonServiceRead,
-    MesosServiceCreate,
-    MesosServiceRead,
+    KubernetesServiceReadPublic,
     NovaServiceCreate,
     NovaServiceRead,
-    OneDataServiceCreate,
-    OneDataServiceRead,
-    RucioServiceCreate,
-    RucioServiceRead,
+    NovaServiceReadPublic,
 )
 from pydantic import Field
 
@@ -36,6 +32,15 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
+    """Model to extend the Identity Provider data read from the DB with the
+    authentication method details."""
+
+    relationship: AuthMethodRead = Field(
+        description="Authentication method used by the Provider"
+    )
+
+
+class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
     """Model to extend the Identity Provider data read from the DB with the
     authentication method details."""
 
@@ -64,22 +69,14 @@ class ProviderCreateExtended(ProviderCreate):
     projects: List[ProjectCreate] = Field(
         default_factory=list, description="List of owned Projects."
     )
-    services: List[
-        Union[
-            ChronosServiceCreate,
-            KubernetesServiceCreate,
-            MarathonServiceCreate,
-            MesosServiceCreate,
-            NovaServiceCreate,
-            OneDataServiceCreate,
-            RucioServiceCreate,
-        ]
-    ] = Field(default_factory=list, description="List of hosted Services.")
+    services: List[Union[KubernetesServiceCreate, NovaServiceCreate]] = Field(
+        default_factory=list, description="List of hosted Services."
+    )
 
 
 class ProviderReadExtended(ProviderRead):
     """Model to extend the Provider data read from the DB with the lists of
-    related items."""
+    related items for authenticated users."""
 
     location: Optional[LocationRead] = Field(
         default=None, description="Provider location."
@@ -97,14 +94,31 @@ class ProviderReadExtended(ProviderRead):
     projects: List[ProjectRead] = Field(
         default_factory=list, description="List of owned Projects."
     )
-    services: List[
-        Union[
-            ChronosServiceRead,
-            KubernetesServiceRead,
-            MarathonServiceRead,
-            MesosServiceRead,
-            NovaServiceRead,
-            OneDataServiceRead,
-            RucioServiceRead,
-        ]
-    ] = Field(default_factory=list, description="List of hosted Services.")
+    services: List[Union[KubernetesServiceRead, NovaServiceRead]] = Field(
+        default_factory=list, description="List of hosted Services."
+    )
+
+
+class ProviderReadExtendedPublic(ProviderReadPublic):
+    """Model to extend the Provider data read from the DB with the lists of
+    related items for non-authenticated users."""
+
+    location: Optional[LocationReadPublic] = Field(
+        default=None, description="Provider location."
+    )
+    flavors: List[FlavorReadPublic] = Field(
+        default_factory=list, description="List of owned Flavors."
+    )
+    identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
+        default_factory=list,
+        description="List of supported identity providers.",
+    )
+    images: List[ImageReadPublic] = Field(
+        default_factory=list, description="List of owned Images."
+    )
+    projects: List[ProjectReadPublic] = Field(
+        default_factory=list, description="List of owned Projects."
+    )
+    services: List[Union[KubernetesServiceReadPublic, NovaServiceReadPublic]] = Field(
+        default_factory=list, description="List of hosted Services."
+    )

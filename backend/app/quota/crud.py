@@ -32,6 +32,7 @@ class CRUDQuota(
         QuotaReadPublic,
         QuotaReadShort,
         QuotaReadExtended,
+        None,
     ]
 ):
     """"""
@@ -62,6 +63,7 @@ class CRUDNumCPUQuota(
         NumCPUQuotaReadPublic,
         NumCPUQuotaReadShort,
         NumCPUQuotaReadExtended,
+        None,
     ]
 ):
     """"""
@@ -76,6 +78,7 @@ class CRUDRAMQuota(
         RAMQuotaReadPublic,
         RAMQuotaReadShort,
         RAMQuotaReadExtended,
+        None,
     ]
 ):
     """"""
@@ -88,6 +91,7 @@ quota = CRUDQuota(
     read_public_schema=QuotaReadPublic,
     read_short_schema=QuotaReadShort,
     read_extended_schema=QuotaReadExtended,
+    read_extended_public_schema=None,
 )
 num_cpu_quota = CRUDNumCPUQuota(
     model=NumCPUQuota,
@@ -96,6 +100,7 @@ num_cpu_quota = CRUDNumCPUQuota(
     read_public_schema=NumCPUQuotaReadPublic,
     read_short_schema=NumCPUQuotaReadShort,
     read_extended_schema=NumCPUQuotaReadExtended,
+    read_extended_public_schema=None,
 )
 ram_quota = CRUDRAMQuota(
     model=RAMQuota,
@@ -104,4 +109,5 @@ ram_quota = CRUDRAMQuota(
     read_public_schema=RAMQuotaReadPublic,
     read_short_schema=RAMQuotaReadShort,
     read_extended_schema=RAMQuotaReadExtended,
+    read_extended_public_schema=None,
 )

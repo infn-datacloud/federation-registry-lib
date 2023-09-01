@@ -3,11 +3,14 @@ from typing import List, Optional, Union
 from app.auth.dependencies import check_read_access, check_write_access
 from app.flavor.crud import flavor
 from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
-from app.flavor.schemas_extended import FlavorReadExtended
-from app.identity_provider.schemas_extended import ProviderReadExtended
+from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
+from app.identity_provider.schemas_extended import (
+    ProviderReadExtended,
+    ProviderReadExtendedPublic,
+)
 from app.image.crud import image
 from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
-from app.image.schemas_extended import ImageReadExtended
+from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.provider.crud import provider
 from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadShort
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
@@ -22,7 +25,9 @@ from app.service.schemas import (
 )
 from app.service.schemas_extended import (
     KubernetesServiceReadExtended,
+    KubernetesServiceReadExtendedPublic,
     NovaServiceReadExtended,
+    NovaServiceReadExtendedPublic,
 )
 from app.user_group.api.dependencies import (
     valid_user_group_id,
@@ -37,7 +42,11 @@ from app.user_group.schemas import (
     UserGroupReadShort,
     UserGroupUpdate,
 )
-from app.user_group.schemas_extended import ServiceQuery, UserGroupReadExtended
+from app.user_group.schemas_extended import (
+    ServiceQuery,
+    UserGroupReadExtended,
+    UserGroupReadExtendedPublic,
+)
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -51,6 +60,7 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
         List[UserGroupReadExtended],
         List[UserGroupRead],
         List[UserGroupReadShort],
+        List[UserGroupReadExtendedPublic],
         List[UserGroupReadPublic],
     ],
     summary="Read all user groups",
@@ -78,7 +88,11 @@ def get_user_groups(
 @router.get(
     "/{user_group_uid}",
     response_model=Union[
-        UserGroupReadExtended, UserGroupRead, UserGroupReadShort, UserGroupReadPublic
+        UserGroupReadExtended,
+        UserGroupRead,
+        UserGroupReadShort,
+        UserGroupReadExtendedPublic,
+        UserGroupReadPublic,
     ],
     summary="Read a specific user group",
     description="Retrieve a specific user group using its *uid*. \
@@ -149,6 +163,7 @@ def delete_user_group(item: UserGroup = Depends(valid_user_group_id)):
         List[FlavorReadExtended],
         List[FlavorRead],
         List[FlavorReadShort],
+        List[FlavorReadExtendedPublic],
         List[FlavorReadPublic],
     ],
     summary="Read user group accessible flavors",
@@ -174,6 +189,7 @@ def get_user_group_flavors(
         List[ImageReadExtended],
         List[ImageRead],
         List[ImageReadShort],
+        List[ImageReadExtendedPublic],
         List[ImageReadPublic],
     ],
     summary="Read user group accessible images",
@@ -199,6 +215,7 @@ def get_user_group_images(
         List[ProviderReadExtended],
         List[ProviderRead],
         List[ProviderReadShort],
+        List[ProviderReadExtendedPublic],
         List[ProviderReadPublic],
     ],
     summary="Read user group accessible providers",
@@ -224,6 +241,7 @@ def get_user_group_providers(
         List[Union[KubernetesServiceReadExtended, NovaServiceReadExtended]],
         List[Union[KubernetesServiceRead, NovaServiceRead]],
         List[Union[KubernetesServiceReadShort, NovaServiceReadShort]],
+        List[Union[KubernetesServiceReadExtendedPublic, NovaServiceReadExtendedPublic]],
         List[Union[KubernetesServiceReadPublic, NovaServiceReadPublic]],
     ],
     summary="Read user group accessible services",

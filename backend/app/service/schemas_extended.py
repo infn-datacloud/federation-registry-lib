@@ -1,16 +1,18 @@
 from typing import List
 
-from app.project.schemas import ProjectRead
-from app.provider.schemas import ProviderRead
-from app.quota.schemas import NumCPUQuotaRead, RAMQuotaRead
+from app.project.schemas import ProjectRead, ProjectReadPublic
+from app.provider.schemas import ProviderRead, ProviderReadPublic
+from app.quota.schemas import (
+    NumCPUQuotaRead,
+    NumCPUQuotaReadPublic,
+    RAMQuotaRead,
+    RAMQuotaReadPublic,
+)
 from app.service.schemas import (
-    ChronosServiceRead,
     KubernetesServiceRead,
-    MarathonServiceRead,
-    MesosServiceRead,
+    KubernetesServiceReadPublic,
     NovaServiceRead,
-    OneDataServiceRead,
-    RucioServiceRead,
+    NovaServiceReadPublic,
 )
 from pydantic import BaseModel, Field
 
@@ -27,6 +29,18 @@ class ExtendWithProject(BaseModel):
     project: ProjectRead
 
 
+class ExtendWithProviderPublic(BaseModel):
+    """Model to extend a Service with the hosting provider."""
+
+    provider: ProviderReadPublic
+
+
+class ExtendWithProjectPublic(BaseModel):
+    """Model to extend a Quota with the project owning it."""
+
+    project: ProjectReadPublic
+
+
 class NumCPUQuotaReadExtended(NumCPUQuotaRead, ExtendWithProject):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
@@ -37,9 +51,19 @@ class RAMQuotaReadExtended(RAMQuotaRead, ExtendWithProject):
     related items."""
 
 
+class NumCPUQuotaReadExtendedPublic(NumCPUQuotaReadPublic, ExtendWithProjectPublic):
+    """Model to extend the Num CPUs Quota data read from the DB with the lists
+    of related items."""
+
+
+class RAMQuotaReadExtendedPublic(RAMQuotaReadPublic, ExtendWithProjectPublic):
+    """Model to extend the RAM Quota data read from the DB with the lists of
+    related items."""
+
+
 class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
     """Model to extend the Nova Service data read from the DB with the lists of
-    related items."""
+    related items for authenticated users."""
 
     num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(
         default_factory=list,
@@ -51,26 +75,33 @@ class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
     )
 
 
-class MesosServiceReadExtended(MesosServiceRead, ExtendWithProvider):
-    pass
+class NovaServiceReadExtendedPublic(NovaServiceReadPublic, ExtendWithProviderPublic):
+    """Model to extend the Nova Service data read from the DB with the lists of
+    related items for non-authenticated users."""
 
-
-class ChronosServiceReadExtended(ChronosServiceRead, ExtendWithProvider):
-    pass
-
-
-class MarathonServiceReadExtended(MarathonServiceRead, ExtendWithProvider):
-    pass
+    num_cpu_quotas: List[NumCPUQuotaReadExtendedPublic] = Field(
+        default_factory=list,
+        description="List of quotas related to the CPUs number usage.",
+    )
+    ram_quotas: List[RAMQuotaReadExtendedPublic] = Field(
+        default_factory=list,
+        description="List of quotas related to the RAM usage.",
+    )
 
 
 class KubernetesServiceReadExtended(KubernetesServiceRead, ExtendWithProvider):
+    """Model to extend the Nova Service data read from the DB with the lists of
+    related items for authenticated users."""
+
     num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(default_factory=list)
     ram_quotas: List[RAMQuotaReadExtended] = Field(default_factory=list)
 
 
-class RucioServiceReadExtended(RucioServiceRead, ExtendWithProvider):
-    pass
+class KubernetesServiceReadExtendedPublic(
+    KubernetesServiceReadPublic, ExtendWithProviderPublic
+):
+    """Model to extend the Nova Service data read from the DB with the lists of
+    related items for non-authenticated users."""
 
-
-class OneDataServiceReadExtended(OneDataServiceRead, ExtendWithProvider):
-    pass
+    num_cpu_quotas: List[NumCPUQuotaReadExtendedPublic] = Field(default_factory=list)
+    ram_quotas: List[RAMQuotaReadExtendedPublic] = Field(default_factory=list)

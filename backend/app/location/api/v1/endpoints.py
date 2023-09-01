@@ -16,7 +16,10 @@ from app.location.schemas import (
     LocationReadShort,
     LocationUpdate,
 )
-from app.location.schemas_extended import LocationReadExtended
+from app.location.schemas_extended import (
+    LocationReadExtended,
+    LocationReadExtendedPublic,
+)
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -31,6 +34,7 @@ router = APIRouter(prefix="/locations", tags=["locations"])
         List[LocationReadExtended],
         List[LocationRead],
         List[LocationReadShort],
+        List[LocationReadExtendedPublic],
         List[LocationReadPublic],
     ],
     summary="Read all locations",
@@ -73,7 +77,11 @@ def post_location(item: LocationCreate):
 @router.get(
     "/{location_uid}",
     response_model=Union[
-        LocationReadExtended, LocationRead, LocationReadShort, LocationReadPublic
+        LocationReadExtended,
+        LocationRead,
+        LocationReadShort,
+        LocationReadExtendedPublic,
+        LocationReadPublic,
     ],
     summary="Read a specific location",
     description="Retrieve a specific location using its *uid*. \

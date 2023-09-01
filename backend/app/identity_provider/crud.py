@@ -10,7 +10,10 @@ from app.identity_provider.schemas import (
     IdentityProviderReadShort,
     IdentityProviderUpdate,
 )
-from app.identity_provider.schemas_extended import IdentityProviderReadExtended
+from app.identity_provider.schemas_extended import (
+    IdentityProviderReadExtended,
+    IdentityProviderReadExtendedPublic,
+)
 from app.provider.models import Provider
 from app.user_group.crud import user_group
 
@@ -24,6 +27,7 @@ class CRUDIdentityProvider(
         IdentityProviderReadPublic,
         IdentityProviderReadShort,
         IdentityProviderReadExtended,
+        IdentityProviderReadExtendedPublic,
     ]
 ):
     """"""
@@ -54,4 +58,5 @@ identity_provider = CRUDIdentityProvider(
     read_public_schema=IdentityProviderReadPublic,
     read_short_schema=IdentityProviderReadShort,
     read_extended_schema=IdentityProviderReadExtended,
+    read_extended_public_schema=IdentityProviderReadExtendedPublic,
 )

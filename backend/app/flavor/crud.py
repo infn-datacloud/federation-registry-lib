@@ -7,7 +7,7 @@ from app.flavor.schemas import (
     FlavorReadShort,
     FlavorUpdate,
 )
-from app.flavor.schemas_extended import FlavorReadExtended
+from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.provider.models import Provider
 
 
@@ -20,6 +20,7 @@ class CRUDFlavor(
         FlavorReadPublic,
         FlavorReadShort,
         FlavorReadExtended,
+        FlavorReadExtendedPublic,
     ]
 ):
     """"""
@@ -39,4 +40,5 @@ flavor = CRUDFlavor(
     read_public_schema=FlavorReadPublic,
     read_short_schema=FlavorReadShort,
     read_extended_schema=FlavorReadExtended,
+    read_extended_public_schema=FlavorReadExtendedPublic,
 )

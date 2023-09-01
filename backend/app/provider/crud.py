@@ -12,7 +12,11 @@ from app.provider.schemas import (
     ProviderReadShort,
     ProviderUpdate,
 )
-from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
+from app.provider.schemas_extended import (
+    ProviderCreateExtended,
+    ProviderReadExtended,
+    ProviderReadExtendedPublic,
+)
 from app.service.crud import service
 
 
@@ -25,6 +29,7 @@ class CRUDProvider(
         ProviderReadPublic,
         ProviderReadShort,
         ProviderReadExtended,
+        ProviderReadExtendedPublic,
     ]
 ):
     """"""
@@ -68,4 +73,5 @@ provider = CRUDProvider(
     read_public_schema=ProviderReadPublic,
     read_short_schema=ProviderReadShort,
     read_extended_schema=ProviderReadExtended,
+    read_extended_public_schema=ProviderReadExtendedPublic,
 )

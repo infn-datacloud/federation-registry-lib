@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 from app.auth.dependencies import check_read_access, check_write_access
 from app.project.api.dependencies import project_has_no_sla
 from app.project.models import Project
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.sla.api.dependencies import (
     is_unique_sla,
     valid_sla_id,
@@ -19,7 +19,7 @@ from app.sla.schemas import (
     SLAReadShort,
     SLAUpdate,
 )
-from app.sla.schemas_extended import SLAReadExtended
+from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from app.user_group.api.dependencies import valid_user_group_id
 from app.user_group.models import UserGroup
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -32,7 +32,11 @@ router = APIRouter(prefix="/slas", tags=["slas"])
 @router.get(
     "/",
     response_model=Union[
-        List[SLAReadExtended], List[SLARead], List[SLAReadShort], List[SLAReadPublic]
+        List[SLAReadExtended],
+        List[SLARead],
+        List[SLAReadShort],
+        List[SLAReadExtendedPublic],
+        List[SLAReadPublic],
     ],
     summary="Read all SLAs",
     description="Retrieve all SLAs stored in the database. \
@@ -43,12 +47,16 @@ def get_slas(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: SLAQuery = Depends(),
 ):
     items = sla.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return sla.paginate(items=items, page=page.page, size=page.size)
+    items = sla.paginate(items=items, page=page.page, size=page.size)
+    return sla.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.write_transaction
@@ -95,14 +103,22 @@ def post_sla(
 @db.read_transaction
 @router.get(
     "/{sla_uid}",
-    response_model=Union[SLAReadExtended, SLARead, SLAReadShort, SLAReadPublic],
+    response_model=Union[
+        SLAReadExtended, SLARead, SLAReadShort, SLAReadExtendedPublic, SLAReadPublic
+    ],
     summary="Read a specific SLA",
     description="Retrieve a specific SLA using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_sla(auth: bool = Depends(check_read_access), item: SLA = Depends(valid_sla_id)):
-    return item
+def get_sla(
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: SLA = Depends(valid_sla_id),
+):
+    return sla.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction

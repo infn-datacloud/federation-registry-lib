@@ -23,7 +23,9 @@ from app.service.schemas import (
 )
 from app.service.schemas_extended import (
     KubernetesServiceReadExtended,
+    KubernetesServiceReadExtendedPublic,
     NovaServiceReadExtended,
+    NovaServiceReadExtendedPublic,
 )
 
 
@@ -35,6 +37,7 @@ class CRUDService(
         ServiceRead,
         ServiceReadPublic,
         ServiceReadShort,
+        None,
         None,
     ]
 ):
@@ -104,6 +107,7 @@ class CRUDNovaService(
         NovaServiceReadPublic,
         NovaServiceReadShort,
         NovaServiceReadExtended,
+        NovaServiceReadExtendedPublic,
     ]
 ):
     """"""
@@ -143,6 +147,7 @@ class CRUDKubernetesService(
         KubernetesServiceReadPublic,
         KubernetesServiceReadShort,
         KubernetesServiceReadExtended,
+        KubernetesServiceReadExtendedPublic,
     ]
 ):
     """"""
@@ -174,6 +179,7 @@ service = CRUDService(
     read_public_schema=ServiceReadPublic,
     read_short_schema=ServiceReadShort,
     read_extended_schema=None,
+    read_extended_public_schema=None,
 )
 nova_service = CRUDNovaService(
     model=NovaService,
@@ -182,6 +188,7 @@ nova_service = CRUDNovaService(
     read_public_schema=NovaServiceReadPublic,
     read_short_schema=NovaServiceReadShort,
     read_extended_schema=NovaServiceReadExtended,
+    read_extended_public_schema=NovaServiceReadExtendedPublic,
 )
 # mesos_service = CRUDMesosService(MesosService, MesosServiceCreate)
 # chronos_service = CRUDChronosService(ChronosService, ChronosServiceCreate)
@@ -193,6 +200,7 @@ kubernetes_service = CRUDKubernetesService(
     read_public_schema=KubernetesServiceReadPublic,
     read_short_schema=KubernetesServiceReadShort,
     read_extended_schema=KubernetesServiceReadExtended,
+    read_extended_public_schema=KubernetesServiceReadExtendedPublic,
 )
 # rucio_service = CRUDRucioService(RucioService, RucioServiceCreate)
 # onedata_service = CRUDOneDataService(OneDataService, OneDataServiceCreate)

@@ -7,7 +7,7 @@ from app.project.schemas import (
     ProjectReadShort,
     ProjectUpdate,
 )
-from app.project.schemas_extended import ProjectReadExtended
+from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.provider.models import Provider
 from app.quota.crud import quota
 from app.sla.crud import sla
@@ -22,6 +22,7 @@ class CRUDProject(
         ProjectReadPublic,
         ProjectReadShort,
         ProjectReadExtended,
+        ProjectReadExtendedPublic,
     ]
 ):
     """"""
@@ -49,4 +50,5 @@ project = CRUDProject(
     read_public_schema=ProjectReadPublic,
     read_short_schema=ProjectReadShort,
     read_extended_schema=ProjectReadExtended,
+    read_extended_public_schema=ProjectReadExtendedPublic,
 )

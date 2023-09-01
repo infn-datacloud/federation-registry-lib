@@ -7,7 +7,10 @@ from app.identity_provider.schemas import (
     IdentityProviderReadPublic,
     IdentityProviderReadShort,
 )
-from app.identity_provider.schemas_extended import IdentityProviderReadExtended
+from app.identity_provider.schemas_extended import (
+    IdentityProviderReadExtended,
+    IdentityProviderReadExtendedPublic,
+)
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_id, validate_new_service_values
 from app.service.crud import service
@@ -25,7 +28,9 @@ from app.service.schemas import (
 )
 from app.service.schemas_extended import (
     KubernetesServiceReadExtended,
+    KubernetesServiceReadExtendedPublic,
     NovaServiceReadExtended,
+    NovaServiceReadExtendedPublic,
 )
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -40,6 +45,7 @@ router = APIRouter(prefix="/services", tags=["services"])
         List[Union[KubernetesServiceReadExtended, NovaServiceReadExtended]],
         List[Union[KubernetesServiceRead, NovaServiceRead]],
         List[Union[KubernetesServiceReadShort, NovaServiceReadShort]],
+        List[Union[KubernetesServiceReadExtendedPublic, NovaServiceReadExtendedPublic]],
         List[Union[KubernetesServiceReadPublic, NovaServiceReadPublic]],
     ],
     summary="Read all services",
@@ -73,6 +79,8 @@ def get_services(
         NovaServiceRead,
         KubernetesServiceReadShort,
         NovaServiceReadShort,
+        KubernetesServiceReadExtendedPublic,
+        NovaServiceReadExtendedPublic,
         KubernetesServiceReadPublic,
         NovaServiceReadPublic,
     ],
@@ -144,6 +152,7 @@ def delete_services(item: Service = Depends(valid_service_id)):
         List[IdentityProviderReadExtended],
         List[IdentityProviderRead],
         List[IdentityProviderReadShort],
+        List[IdentityProviderReadExtendedPublic],
         List[IdentityProviderReadPublic],
     ],
     summary="Read service accessible identity providers",

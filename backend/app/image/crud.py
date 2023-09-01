@@ -7,7 +7,7 @@ from app.image.schemas import (
     ImageReadShort,
     ImageUpdate,
 )
-from app.image.schemas_extended import ImageReadExtended
+from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.provider.models import Provider
 
 
@@ -20,6 +20,7 @@ class CRUDImage(
         ImageReadPublic,
         ImageReadShort,
         ImageReadExtended,
+        ImageReadExtendedPublic,
     ]
 ):
     """"""
@@ -39,4 +40,5 @@ image = CRUDImage(
     read_public_schema=ImageReadPublic,
     read_short_schema=ImageReadShort,
     read_extended_schema=ImageReadExtended,
+    read_extended_public_schema=ImageReadExtendedPublic,
 )

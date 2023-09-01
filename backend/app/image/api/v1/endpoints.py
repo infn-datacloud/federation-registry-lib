@@ -11,7 +11,7 @@ from app.image.schemas import (
     ImageReadShort,
     ImageUpdate,
 )
-from app.image.schemas_extended import ImageReadExtended
+from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -26,6 +26,7 @@ router = APIRouter(prefix="/images", tags=["images"])
         List[ImageReadExtended],
         List[ImageRead],
         List[ImageReadShort],
+        List[ImageReadExtendedPublic],
         List[ImageReadPublic],
     ],
     summary="Read all images",
@@ -56,6 +57,7 @@ def get_images(
         ImageReadExtended,
         ImageRead,
         ImageReadShort,
+        ImageReadExtendedPublic,
         ImageReadPublic,
     ],
     summary="Read a specific image",

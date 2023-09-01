@@ -10,6 +10,7 @@ ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseModel)
 ReadPublicSchemaType = TypeVar("ReadPublicSchemaType", bound=BaseModel)
 ReadShortSchemaType = TypeVar("ReadShortSchemaType", bound=BaseModel)
 ReadExtendedSchemaType = TypeVar("ReadExtendedSchemaType", BaseModel, None)
+ReadExtendedPublicSchemaType = TypeVar("ReadExtendedPublicSchemaType", BaseModel, None)
 
 
 class CRUDBase(
@@ -21,6 +22,7 @@ class CRUDBase(
         ReadPublicSchemaType,
         ReadShortSchemaType,
         ReadExtendedSchemaType,
+        ReadExtendedPublicSchemaType,
     ]
 ):
     def __init__(
@@ -32,6 +34,7 @@ class CRUDBase(
         read_public_schema: Type[ReadPublicSchemaType],
         read_short_schema: Type[ReadShortSchemaType],
         read_extended_schema: Type[ReadExtendedSchemaType],
+        read_extended_public_schema: Type[ReadExtendedPublicSchemaType],
     ):
         """CRUD object with default methods to Create, Read, Update, Delete
         (CRUD)
@@ -55,6 +58,7 @@ class CRUDBase(
         self.read_public_schema = read_public_schema
         self.read_short_schema = read_short_schema
         self.read_extended_schema = read_extended_schema
+        self.read_extended_public_schema = read_extended_public_schema
 
     def get(self, **kwargs) -> Optional[ModelType]:
         return self.model.nodes.get_or_none(**kwargs)
@@ -132,4 +136,6 @@ class CRUDBase(
             if short:
                 return [self.read_short_schema.from_orm(i) for i in items]
             return [self.read_schema.from_orm(i) for i in items]
+        if with_conn:
+            return [self.read_extended_public_schema.from_orm(i) for i in items]
         return [self.read_public_schema.from_orm(i) for i in items]

@@ -38,7 +38,11 @@ from app.provider.schemas import (
     ProviderReadShort,
     ProviderUpdate,
 )
-from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
+from app.provider.schemas_extended import (
+    ProviderCreateExtended,
+    ProviderReadExtended,
+    ProviderReadExtendedPublic,
+)
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_endpoint
 from app.service.crud import service
@@ -60,6 +64,7 @@ router = APIRouter(prefix="/providers", tags=["providers"])
         List[ProviderReadExtended],
         List[ProviderRead],
         List[ProviderReadShort],
+        List[ProviderReadExtendedPublic],
         List[ProviderReadPublic],
     ],
     summary="Read all providers",
@@ -114,7 +119,11 @@ def post_provider(item: ProviderCreateExtended):
 @router.get(
     "/{provider_uid}",
     response_model=Union[
-        ProviderReadExtended, ProviderRead, ProviderReadShort, ProviderReadPublic
+        ProviderReadExtended,
+        ProviderRead,
+        ProviderReadShort,
+        ProviderReadExtendedPublic,
+        ProviderReadPublic,
     ],
     summary="Read a specific provider",
     description="Retrieve a specific provider using its *uid*. \

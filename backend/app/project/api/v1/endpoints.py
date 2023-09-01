@@ -15,7 +15,7 @@ from app.project.schemas import (
     ProjectReadShort,
     ProjectUpdate,
 )
-from app.project.schemas_extended import ProjectReadExtended
+from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -30,6 +30,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         List[ProjectReadExtended],
         List[ProjectRead],
         List[ProjectReadShort],
+        List[ProjectReadExtendedPublic],
         List[ProjectReadPublic],
     ],
     summary="Read all projects",
@@ -57,7 +58,11 @@ def get_projects(
 @router.get(
     "/{project_uid}",
     response_model=Union[
-        ProjectReadExtended, ProjectRead, ProjectReadShort, ProjectReadPublic
+        ProjectReadExtended,
+        ProjectRead,
+        ProjectReadShort,
+        ProjectReadExtendedPublic,
+        ProjectReadPublic,
     ],
     summary="Read a specific project",
     description="Retrieve a specific project using its *uid*. \

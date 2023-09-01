@@ -9,7 +9,10 @@ from app.location.schemas import (
     LocationReadShort,
     LocationUpdate,
 )
-from app.location.schemas_extended import LocationReadExtended
+from app.location.schemas_extended import (
+    LocationReadExtended,
+    LocationReadExtendedPublic,
+)
 from app.provider.models import Provider
 
 
@@ -22,6 +25,7 @@ class CRUDLocation(
         LocationReadPublic,
         LocationReadShort,
         LocationReadExtended,
+        LocationReadExtendedPublic,
     ]
 ):
     """"""
@@ -46,4 +50,5 @@ location = CRUDLocation(
     read_public_schema=LocationReadPublic,
     read_short_schema=LocationReadShort,
     read_extended_schema=LocationReadExtended,
+    read_extended_public_schema=LocationReadExtendedPublic,
 )

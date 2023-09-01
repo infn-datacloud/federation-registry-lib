@@ -1,6 +1,9 @@
 from app.crud import CRUDBase
 from app.identity_provider.models import IdentityProvider
-from app.project.schemas_extended import UserGroupReadExtended
+from app.project.schemas_extended import (
+    UserGroupReadExtended,
+    UserGroupReadExtendedPublic,
+)
 from app.sla.crud import sla
 from app.user_group.models import UserGroup
 from app.user_group.schemas import (
@@ -21,6 +24,7 @@ class CRUDUserGroup(
         UserGroupReadPublic,
         UserGroupReadShort,
         UserGroupReadExtended,
+        UserGroupReadExtendedPublic,
     ]
 ):
     """"""
@@ -49,4 +53,5 @@ user_group = CRUDUserGroup(
     read_public_schema=UserGroupReadPublic,
     read_short_schema=UserGroupReadShort,
     read_extended_schema=UserGroupReadExtended,
+    read_extended_public_schema=UserGroupReadExtendedPublic,
 )

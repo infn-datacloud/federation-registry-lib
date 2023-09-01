@@ -1,6 +1,6 @@
 from app.crud import CRUDBase
 from app.project.models import Project
-from app.project.schemas_extended import SLAReadExtended
+from app.project.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLARead, SLAReadPublic, SLAReadShort, SLAUpdate
 from app.user_group.models import UserGroup
@@ -15,6 +15,7 @@ class CRUDSLA(
         SLAReadPublic,
         SLAReadShort,
         SLAReadExtended,
+        SLAReadExtendedPublic,
     ]
 ):
     """"""
@@ -40,4 +41,5 @@ sla = CRUDSLA(
     read_public_schema=SLAReadPublic,
     read_short_schema=SLAReadShort,
     read_extended_schema=SLAReadExtended,
+    read_extended_public_schema=SLAReadExtendedPublic,
 )
