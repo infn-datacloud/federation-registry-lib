@@ -1,5 +1,5 @@
 openstack:
-  recas-ba:
+  - name: recas-ba
     auth_url: https://keystone.recas.ba.infn.it:443
     identity_providers:
       - name: infn-cloud

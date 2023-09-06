@@ -1,0 +1,3 @@
+oidc-agent-accounts:
+  - name: infncloud
+    endpoint: https://iam.cloud.infn.it/
