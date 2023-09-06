@@ -54,7 +54,6 @@ class UserGroup(StructuredNode):
                 RETURN u
             """
         )
-        print(results)
         return [Flavor.inflate(row[0]) for row in results]
 
     def images(self) -> List[Image]:

@@ -1,3 +1,7 @@
+from typing import List
+
+from app.flavor.models import Flavor
+from app.image.models import Image
 from neomodel import (
     One,
     RelationshipFrom,
@@ -54,13 +58,41 @@ class Project(StructuredNode):
         "BOOK_PROJECT_FOR_SLA",
         cardinality=One,
     )
-    flavors = RelationshipTo(
+    private_flavors = RelationshipTo(
         "..flavor.models.Flavor",
         "CAN_USE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )
-    images = RelationshipTo(
+    private_images = RelationshipTo(
         "..image.models.Image",
         "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )
+
+    query_prefix = """
+        MATCH (p:Project)
+        WHERE (id(p)=$self)
+        MATCH (p)-[:BOOK_PROJECT_FOR_SLA]-(q)
+        """
+
+    def public_flavors(self) -> List[Flavor]:
+        results, columns = self.cypher(
+            f"""
+                {self.query_prefix}
+                MATCH (q)-[:AVAILABLE_VM_FLAVOR]->(u)
+                WHERE u.is_public = True
+                RETURN u
+            """
+        )
+        return [Flavor.inflate(row[0]) for row in results]
+
+    def public_images(self) -> List[Image]:
+        results, columns = self.cypher(
+            f"""
+                {self.query_prefix}
+                MATCH (q)-[:AVAILABLE_VM_IMAGE]->(u)
+                WHERE u.is_public = True
+                RETURN u
+            """
+        )
+        return [Image.inflate(row[0]) for row in results]
