@@ -1,0 +1,19 @@
+openstack:
+  recas-ba:
+    auth_url: https://keystone.recas.ba.infn.it:443
+    identity_providers:
+      - name: infn-cloud
+        protocol: openid
+        endpoint: https://iam.cloud.infn.it/
+        group_claim: groups
+    projects:
+      - name: infn-cloud-ops
+        domain: default
+      - id: edfda059a23c439f8ffc06edd484efa0
+      - id: 83be7870dbb54d4a988f89ea77e9e2b9
+    is_public: false
+    support_emails: 
+      - "giovanni.savarese@ba.infn.it"
+    location:
+      name: "ReCas-BA"
+      country: "Italy"

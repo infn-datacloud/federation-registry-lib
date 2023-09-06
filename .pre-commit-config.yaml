@@ -25,7 +25,7 @@ repos:
     rev: 6.1.0
     hooks:
       - id: flake8
-        args: [--exclude=__init__.py, --max-line-length=88]
+        args: [--exclude=__init__.py, --max-line-length=88, --ignore=E402]
   - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
