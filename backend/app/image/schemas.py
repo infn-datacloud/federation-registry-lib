@@ -21,6 +21,7 @@ class ImageBase(BaseModel):
     creation_time: Optional[datetime] = Field(
         default=None, description="Image creation time."
     )
+    is_public: bool = Field(default=True, description="Public available")
 
 
 class ImageCreate(BaseNodeCreate, ImageBase):

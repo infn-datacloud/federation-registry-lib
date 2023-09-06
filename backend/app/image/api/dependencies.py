@@ -105,3 +105,25 @@ def validate_new_image_values(
         valid_image_name(item=update_data, provider=item.provider.single())
     if str(update_data.uuid) != item.uuid:
         valid_image_uuid(item=update_data, provider=item.provider.single())
+
+
+def is_private_image(item: Image = Depends(valid_image_id)) -> Image:
+    """Check given image has private or shared visibility.
+
+    Args:
+        item (Image): entity to validate.
+
+    Returns:
+        Image: DB entity with given uid.
+
+    Raises:
+        NotFoundError: DB entity with given uid not found.
+        BadRequestError: DB entity has not valid visibility
+    """
+
+    if item.is_public:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Image {item.uid} is a public image",
+        )
+    return item

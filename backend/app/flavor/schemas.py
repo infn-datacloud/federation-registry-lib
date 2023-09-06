@@ -18,6 +18,7 @@ class FlavorBase(BaseModel):
     num_gpus: int = Field(default=0, ge=0, description="Number of GPUs")
     gpu_model: Optional[str] = Field(default=None, description="GPU model name")
     gpu_vendor: Optional[str] = Field(default=None, description="GPU vendor name")
+    is_public: bool = Field(default=True, description="Public available")
 
 
 class FlavorCreate(BaseNodeCreate, FlavorBase):

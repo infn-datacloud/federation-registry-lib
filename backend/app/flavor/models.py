@@ -42,6 +42,7 @@ class Flavor(StructuredNode):
     num_gpus = IntegerProperty(default=0)
     gpu_model = StringProperty()
     gpu_vendor = StringProperty()
+    is_public = BooleanProperty(default=True)
 
     provider = RelationshipFrom(
         "..provider.models.Provider",

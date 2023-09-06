@@ -12,6 +12,9 @@ from app.flavor.schemas import (
     FlavorUpdate,
 )
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
+from app.project.crud import project
+from app.project.schemas import ProjectRead, ProjectReadPublic, ProjectReadShort
+from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -118,3 +121,32 @@ def delete_flavors(item: Flavor = Depends(valid_flavor_id)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
+
+
+@db.read_transaction
+@router.get(
+    "/{flavor_uid}/projects",
+    response_model=Union[
+        List[ProjectReadExtended],
+        List[ProjectRead],
+        List[ProjectReadShort],
+        List[ProjectReadExtendedPublic],
+        List[ProjectReadPublic],
+    ],
+    summary="Read user group accessible projects",
+    description="Retrieve all the projects the user group \
+        has access to thanks to its SLA. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
+def get_flavor_projects(
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: Flavor = Depends(valid_flavor_id),
+):
+    if item.is_public:
+        items = item.provider.single().projects.all()
+    items = item.projects.all()
+    return project.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )

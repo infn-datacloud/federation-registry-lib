@@ -105,3 +105,25 @@ def validate_new_flavor_values(
         valid_flavor_name(item=update_data, provider=item.provider.single())
     if str(update_data.uuid) != item.uuid:
         valid_flavor_uuid(item=update_data, provider=item.provider.single())
+
+
+def is_private_flavor(item: Flavor = Depends(valid_flavor_id)) -> Flavor:
+    """Check given flavor has private or shared visibility.
+
+    Args:
+        item (Flavor): entity to validate.
+
+    Returns:
+        Flavor: DB entity with given uid.
+
+    Raises:
+        NotFoundError: DB entity with given uid not found.
+        BadRequestError: DB entity has not valid visibility
+    """
+
+    if item.is_public:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Flavor {item.uid} is a public flavor",
+        )
+    return item

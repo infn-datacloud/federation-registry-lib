@@ -42,6 +42,7 @@ class Image(StructuredNode):
     cuda_support = BooleanProperty(default=False)
     gpu_driver = BooleanProperty(default=False)
     creation_time = DateTimeProperty()
+    is_public = BooleanProperty(default=True)
 
     provider = RelationshipFrom(
         "..provider.models.Provider",
