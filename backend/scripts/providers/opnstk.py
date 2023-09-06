@@ -2,11 +2,10 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+from models import IDP, Openstack
 from openstack import connect
 from openstack.connection import Connection
 from pydantic import UUID4
-from scripts.models import Openstack
-from utils import choose_idp, generate_token, get_identity_providers_from_config
 
 external_path = Path.cwd().parent
 sys.path.insert(1, str(external_path))
@@ -14,7 +13,11 @@ sys.path.insert(1, str(external_path))
 from app.flavor.schemas import FlavorCreate
 from app.image.schemas import ImageCreate
 from app.project.schemas import ProjectCreate
-from app.provider.schemas_extended import ProviderCreateExtended
+from app.provider.schemas_extended import (
+    AuthMethodCreate,
+    IdentityProviderCreateExtended,
+    ProviderCreateExtended,
+)
 
 
 def get_project(conn: Connection) -> ProjectCreate:
@@ -65,32 +68,45 @@ def get_images(
     return (images, imag_proj)
 
 
-def create_os_provider(
-    v: Openstack, tokens: Dict[UUID4, str]
+def get_identity_providers_from_config(
+    idp_list: List[IDP],
+) -> List[IdentityProviderCreateExtended]:
+    identity_providers = []
+    for idp in idp_list:
+        identity_providers.append(
+            IdentityProviderCreateExtended(
+                endpoint=idp.endpoint,
+                group_claim=idp.group_claim,
+                relationship=AuthMethodCreate(idp_name=idp.name, protocol=idp.protocol),
+            )
+        )
+    return identity_providers
+
+
+def get_os_provider(
+    *, config: Openstack, chosen_idp: IDP, token: str
 ) -> ProviderCreateExtended:
-    auth_url = v.auth_url
+    """Generate an Openstack virtual provider, reading information from a real
+    openstack instance."""
     provider = ProviderCreateExtended(
-        name=v.name,
-        is_public=v.is_public,
-        support_emails=v.support_emails,
-        location=v.location,
+        name=config.name,
+        is_public=config.is_public,
+        support_emails=config.support_emails,
+        location=config.location,
+        identity_providers=get_identity_providers_from_config(
+            config.identity_providers
+        ),
     )
-    provider.identity_providers = get_identity_providers_from_config(
-        v.identity_providers
-    )
-    chosen_idp = choose_idp(provider.identity_providers)
-    if tokens.get(chosen_idp.endpoint) is None:
-        tokens[chosen_idp.endpoint] = generate_token(chosen_idp.endpoint)
 
     flav_rels = {}
     imag_rels = {}
-    for project in v.projects:
+    for project in config.projects:
         conn = connect(
-            auth_url=auth_url,
+            auth_url=config.auth_url,
             auth_type="v3oidcaccesstoken",
-            identity_provider=chosen_idp.relationship.idp_name,
-            protocol=chosen_idp.relationship.protocol,
-            access_token=tokens[chosen_idp.endpoint],
+            identity_provider=chosen_idp.name,
+            protocol=chosen_idp.protocol,
+            access_token=token,
             project_id=project.id,
             project_name=project.name,
             project_domain_name=project.domain,

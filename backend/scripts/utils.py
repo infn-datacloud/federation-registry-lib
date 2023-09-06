@@ -1,37 +1,14 @@
-import sys
-from pathlib import Path
+import os
 from typing import List
 
-from models import IDP
+import yaml
+from models import IDP, Config
 from pydantic import AnyHttpUrl
-
-external_path = Path.cwd().parent
-sys.path.insert(1, str(external_path))
-
-from app.auth_method.schemas import AuthMethodCreate
-from app.provider.schemas_extended import IdentityProviderCreateExtended
 
 PREFERRED_IDP_LIST = ["https://iam.cloud.infn.it/"]
 
 
-def get_identity_providers_from_config(
-    idp_list: List[IDP],
-) -> List[IdentityProviderCreateExtended]:
-    identity_providers = []
-    for idp in idp_list:
-        identity_providers.append(
-            IdentityProviderCreateExtended(
-                endpoint=idp.endpoint,
-                group_claim=idp.group_claim,
-                relationship=AuthMethodCreate(idp_name=idp.name, protocol=idp.protocol),
-            )
-        )
-    return identity_providers
-
-
-def choose_idp(
-    identity_providers: List[IdentityProviderCreateExtended],
-) -> IdentityProviderCreateExtended:
+def choose_idp(identity_providers: List[IDP]) -> IDP:
     for idp_url in PREFERRED_IDP_LIST:
         for chosen_idp in identity_providers:
             if idp_url == chosen_idp.endpoint:
@@ -40,3 +17,9 @@ def choose_idp(
 
 def generate_token(endpoint: AnyHttpUrl) -> str:
     return None
+
+
+def load_config(*, base_path: str = ".", fname: str = "config.yaml") -> Config:
+    with open(os.path.join(base_path, fname)) as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    return Config(**config)
