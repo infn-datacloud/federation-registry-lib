@@ -12,10 +12,14 @@ class ImageBase(BaseModel):
 
     name: str = Field(description="Image name in the provider.")
     uuid: UUID4 = Field(description="Image UUID in the provider.")
-    os: ImageOS = Field(description="Image Operating System.")
-    distribution: str = Field(description="Operating system distribution type.")
-    version: str = Field(description="Distribution version.")
-    architecture: str = Field(description="Operating system architecture.")
+    os: Optional[ImageOS] = Field(default=None, description="Image Operating System.")
+    distribution: Optional[str] = Field(
+        default=None, description="Operating system distribution type."
+    )
+    version: Optional[str] = Field(default=None, description="Distribution version.")
+    architecture: Optional[str] = Field(
+        default=None, description="Operating system architecture."
+    )
     cuda_support: bool = Field(default=False, description="Enable CUDA support.")
     gpu_driver: bool = Field(default=False, description="Enable GPU driver support.")
     creation_time: Optional[datetime] = Field(
@@ -44,14 +48,6 @@ class ImageUpdate(ImageCreate):
     name: Optional[str] = Field(default=None, description="Image name in the provider.")
     uuid: Optional[UUID4] = Field(
         default=None, description="Image UUID in the provider."
-    )
-    os: Optional[ImageOS] = Field(default=None, description="Image Operating System.")
-    distribution: Optional[str] = Field(
-        default=None, description="Operating system distribution type."
-    )
-    version: Optional[str] = Field(default=None, description="Distribution version.")
-    architecture: Optional[str] = Field(
-        default=None, description="Operating system architecture."
     )
 
 

@@ -13,8 +13,6 @@ class BaseNodeCreate(BaseModel):
     validate assignments.
     """
 
-    __hash__ = object.__hash__
-
     description: Optional[str] = Field(default="", description="Brief item description")
 
     @validator("description")
