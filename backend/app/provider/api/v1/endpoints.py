@@ -83,7 +83,7 @@ def get_providers(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = provider.paginate(items=items, page=page.page, size=page.size)
-    return project.choose_out_schema(
+    return provider.choose_out_schema(
         items=items, auth=auth, short=size.short, with_conn=size.with_conn
     )
 

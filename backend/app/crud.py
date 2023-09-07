@@ -1,5 +1,6 @@
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
+from fastapi.encoders import jsonable_encoder
 from neomodel import StructuredNode
 from pydantic import BaseModel
 
@@ -100,7 +101,7 @@ class CRUDBase(
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
-            update_data = obj_in.dict(exclude_unset=True)
+            update_data = jsonable_encoder(obj_in.dict(exclude_unset=True))
 
         if all([obj_data[k] == v for k, v in update_data.items()]):
             return None
@@ -125,9 +126,9 @@ class CRUDBase(
     def choose_out_schema(
         self, *, items: List[ModelType], auth: bool, short: bool, with_conn: bool
     ) -> Union[
-        ReadSchemaType,
         ReadPublicSchemaType,
         ReadShortSchemaType,
+        ReadSchemaType,
         ReadExtendedSchemaType,
     ]:
         if auth:
