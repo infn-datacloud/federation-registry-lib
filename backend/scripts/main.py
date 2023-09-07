@@ -1,3 +1,4 @@
+from cmdb import add_or_patch_provider
 from providers.opnstk import get_os_provider
 from utils import choose_idp, generate_token, load_config
 
@@ -20,29 +21,7 @@ if __name__ == "__main__":
         )
 
     cmdb_url = "http://localhost:8000"
-
-#    resp = requests.post(
-#    url=os.path.join(cmdb_url, "api/v1/providers/"),
-#    data=provider,
-#    headers={
-#        "Authorization": "Bearer"
-#    },
-# )
-# if resp.status_code != 201:
-#    raise  # TODO
-# print(resp.json())
-#
-# for service in conn.service_catalog:
-#   print(service)
-# for service in conn.list_services():
-#    print(service)
-
-# for image in conn.image.images():
-# print(image)
-#    print(image.to_dict().keys())
-#    for k,v in image.to_dict().items():
-#        print(f"{k}: {v}")
-# for project in conn.identity.projects():
-#    print(project)
-# for idp in conn.identity.identity_providers():
-#    print(idp)
+    for provider in providers:
+        add_or_patch_provider(
+            url=cmdb_url, provider=provider, token=tokens[chosen_idp.endpoint]
+        )
