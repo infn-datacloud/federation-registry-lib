@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 from neo4j.data import DateTime
 from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
-from pydantic import UUID4, BaseModel, Field, root_validator, validator
+from pydantic import UUID4, BaseModel, Field, root_validator
 
 
 class BaseNodeCreate(BaseModel):
@@ -13,12 +13,7 @@ class BaseNodeCreate(BaseModel):
     validate assignments.
     """
 
-    description: Optional[str] = Field(default="", description="Brief item description")
-
-    @validator("description")
-    def set_empty_string(cls, desc):
-        if desc is None:
-            return ""
+    description: str = Field(default="", description="Brief item description")
 
     @root_validator
     def get_value_from_enums(cls, data: Dict) -> Dict:

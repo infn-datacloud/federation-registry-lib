@@ -25,6 +25,8 @@ def get_project(conn: Connection) -> ProjectCreate:
     project = conn.identity.get_project(curr_proj_id)
     data = project.to_dict()
     data["uuid"] = data.pop("id")
+    if data.get("description") is None:
+        data["description"] = ""
     return ProjectCreate(**data)
 
 
@@ -39,6 +41,8 @@ def get_flavors(
             flav_proj[flavor.id] = projects
         data = flavor.to_dict()
         data["uuid"] = data.pop("id")
+        if data.get("description") is None:
+            data["description"] = ""
         flavors.append(FlavorCreate(**data))
     return (flavors, flav_proj)
 
@@ -60,6 +64,8 @@ def get_images(
                     imag_proj[image.id].append(member.id)
         data = image.to_dict()
         data["uuid"] = data.pop("id")
+        if data.get("description") is None:
+            data["description"] = ""
         data["version"] = data.pop("os_version")
         data["distribution"] = data.pop("os_distro")
         data["is_public"] = is_public
