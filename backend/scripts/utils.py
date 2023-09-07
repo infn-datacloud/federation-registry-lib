@@ -1,4 +1,5 @@
 import os
+import subprocess
 from typing import List
 
 import yaml
@@ -16,7 +17,12 @@ def choose_idp(identity_providers: List[IDP]) -> IDP:
 
 
 def generate_token(endpoint: AnyHttpUrl) -> str:
-    return None
+    token_cmd = subprocess.run(
+        ["docker", "exec", "catalog-api-oidc-agent-1", "oidc-token", endpoint],
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    return token_cmd.stdout.strip("\n")
 
 
 def load_config(*, base_path: str = ".", fname: str = "config.yaml") -> Config:
