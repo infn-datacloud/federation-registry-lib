@@ -4,15 +4,23 @@ import requests
 from fastapi import status
 from fastapi.encoders import jsonable_encoder
 from logger import logger
+from models.cmdb import (
+    FlavorRead,
+    FlavorWrite,
+    ImageRead,
+    ImageWrite,
+    ProjectRead,
+    ProjectWrite,
+    ProviderWrite,
+)
 from pydantic import AnyHttpUrl, BaseModel
 
 WriteSchema = TypeVar("WriteSchema", bound=BaseModel)
 ReadSchema = TypeVar("ReadSchema", bound=BaseModel)
 
 
-class CRUDBase(Generic[WriteSchema, ReadSchema]):
+class BasicPopulation(Generic[WriteSchema]):
     def __init__(self, type: str) -> None:
-        super().__init__()
         self.type = type.capitalize()
 
     def __action_failed(
@@ -43,6 +51,11 @@ class CRUDBase(Generic[WriteSchema, ReadSchema]):
         else:
             self.__action_failed(name=new_data.name, resp=resp, action="update")
 
+
+class Findable(BasicPopulation[WriteSchema], Generic[WriteSchema, ReadSchema]):
+    def __init__(self, type: str) -> None:
+        super().__init__(type)
+
     def find(self, *, new_data: WriteSchema, db_items: List[ReadSchema]) -> ReadSchema:
         db_item = None
         if new_data.name in [i.name for i in db_items]:
@@ -63,3 +76,23 @@ class CRUDBase(Generic[WriteSchema, ReadSchema]):
                 f"or uuid '{new_data.uuid}' belongs to this provider"
             )
         return db_item
+
+
+class ImagePopulation(Findable[ImageWrite, ImageRead]):
+    def __init__(self) -> None:
+        super().__init__("Image")
+
+
+class FlavorPopulation(Findable[FlavorWrite, FlavorRead]):
+    def __init__(self) -> None:
+        super().__init__("Flavor")
+
+
+class ProjectPopulation(Findable[ProjectWrite, ProjectRead]):
+    def __init__(self) -> None:
+        super().__init__("Project")
+
+
+class ProviderPopulation(BasicPopulation[ProviderWrite]):
+    def __init__(self) -> None:
+        super().__init__("Project")

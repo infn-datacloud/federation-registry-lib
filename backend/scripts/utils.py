@@ -4,22 +4,22 @@ from typing import List
 
 import yaml
 from logger import logger
-from models.cmdb import AuthMethod, IdentityProvider
+from models.cmdb import AuthMethodWrite, IdentityProviderWrite
 from models.config import IDP, Config
 from pydantic import AnyHttpUrl
 
 
 def get_identity_providers(
     idp_list: List[IDP],
-) -> List[IdentityProvider]:
+) -> List[IdentityProviderWrite]:
     logger.info("Retrieve current project accessible images")
     identity_providers = []
     for idp in idp_list:
         identity_providers.append(
-            IdentityProvider(
+            IdentityProviderWrite(
                 endpoint=idp.endpoint,
                 group_claim=idp.group_claim,
-                relationship=AuthMethod(idp_name=idp.name, protocol=idp.protocol),
+                relationship=AuthMethodWrite(idp_name=idp.name, protocol=idp.protocol),
             )
         )
     return identity_providers

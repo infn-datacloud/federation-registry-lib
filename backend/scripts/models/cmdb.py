@@ -24,35 +24,37 @@ class URLs(BaseModel):
     user_groups: AnyHttpUrl
 
 
-class AuthMethod(AuthMethodCreate):
+class AuthMethodWrite(AuthMethodCreate):
     pass
 
 
-class IdentityProvider(IdentityProviderCreateExtended):
+class IdentityProviderWrite(IdentityProviderCreateExtended):
     pass
 
 
-class Project(ProjectCreate):
+class ProjectWrite(ProjectCreate):
     pass
 
 
-class Flavor(FlavorCreate):
+class FlavorWrite(FlavorCreate):
     projects: List[UUID4] = Field(
         default_factory=list,
         description="List of projects UUIDs which have access to this flavor",
     )
 
 
-class Image(ImageCreate):
+class ImageWrite(ImageCreate):
     projects: List[UUID4] = Field(
         default_factory=list,
         description="List of projects UUIDs which have access to this image",
     )
 
 
-class Provider(ProviderCreateExtended):
-    flavors: List[Flavor] = Field(default_factory=list, description="List of flavors")
-    images: List[Image] = Field(default_factory=list, description="List of images")
+class ProviderWrite(ProviderCreateExtended):
+    flavors: List[FlavorWrite] = Field(
+        default_factory=list, description="List of flavors"
+    )
+    images: List[ImageWrite] = Field(default_factory=list, description="List of images")
 
 
 class FlavorRead(FlavorRead):

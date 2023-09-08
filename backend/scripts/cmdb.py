@@ -1,21 +1,26 @@
 import os
 
 import requests
-from crud import CRUDBase
+from crud import (
+    FlavorPopulation,
+    ImagePopulation,
+    ProjectPopulation,
+    ProviderPopulation,
+)
 from fastapi import status
 from logger import logger
-from models.cmdb import Provider, ProviderRead, URLs
+from models.cmdb import ProviderRead, ProviderWrite, URLs
 from pydantic import AnyHttpUrl
 
-crud_image = CRUDBase("Image")
-crud_flavor = CRUDBase("Flavor")
-crud_project = CRUDBase("Project")
-crud_provider = CRUDBase("Provider")
+crud_image = ImagePopulation()
+crud_flavor = FlavorPopulation()
+crud_project = ProjectPopulation()
+crud_provider = ProviderPopulation()
 
 
 def add_or_patch_provider(
     *,
-    provider: Provider,
+    provider: ProviderWrite,
     token: str,
     url: AnyHttpUrl,
     api_ver_flavors: str = "v1",

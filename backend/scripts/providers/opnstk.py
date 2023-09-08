@@ -1,14 +1,14 @@
 from typing import List
 
 from logger import logger
-from models.cmdb import Flavor, Image, Project, Provider
+from models.cmdb import FlavorWrite, ImageWrite, ProjectWrite, ProviderWrite
 from models.config import IDP, Openstack
 from openstack import connect
 from openstack.connection import Connection
 from utils import get_identity_providers
 
 
-def get_project(conn: Connection) -> Project:
+def get_project(conn: Connection) -> ProjectWrite:
     logger.info("Retrieve current project data")
     curr_proj_id = conn.current_project.get("id")
     project = conn.identity.get_project(curr_proj_id)
@@ -16,10 +16,10 @@ def get_project(conn: Connection) -> Project:
     data["uuid"] = data.pop("id")
     if data.get("description") is None:
         data["description"] = ""
-    return Project(**data)
+    return ProjectWrite(**data)
 
 
-def get_flavors(conn: Connection) -> List[Flavor]:
+def get_flavors(conn: Connection) -> List[FlavorWrite]:
     logger.info("Retrieve current project accessible flavors")
     flavors = []
     for flavor in conn.compute.flavors():
@@ -30,11 +30,11 @@ def get_flavors(conn: Connection) -> List[Flavor]:
         data["uuid"] = data.pop("id")
         if data.get("description") is None:
             data["description"] = ""
-        flavors.append(Flavor(**data, projects=projects))
+        flavors.append(FlavorWrite(**data, projects=projects))
     return flavors
 
 
-def get_images(conn: Connection) -> List[Image]:
+def get_images(conn: Connection) -> List[ImageWrite]:
     logger.info("Retrieve current project accessible images")
     images = []
     for image in conn.image.images():
@@ -56,14 +56,14 @@ def get_images(conn: Connection) -> List[Image]:
         data["distribution"] = data.pop("os_distro")
         data["is_public"] = is_public
         data.pop("visibility")
-        images.append(Image(**data, projects=projects))
+        images.append(ImageWrite(**data, projects=projects))
     return images
 
 
-def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provider:
+def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> ProviderWrite:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
-    provider = Provider(
+    provider = ProviderWrite(
         name=config.name,
         is_public=config.is_public,
         support_emails=config.support_emails,
