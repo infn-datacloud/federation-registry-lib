@@ -1,14 +1,8 @@
-import sys
-from pathlib import Path
 from typing import List, Optional
-
-from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
-
-external_path = Path.cwd().parent
-sys.path.insert(1, str(external_path))
 
 from app.location.schemas import LocationCreate
 from app.provider.schemas import ProviderCreate
+from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
 
 
 class IDP(BaseModel):

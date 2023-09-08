@@ -1,11 +1,4 @@
-import sys
-from pathlib import Path
 from typing import List
-
-from pydantic import UUID4, Field
-
-external_path = Path.cwd().parent
-sys.path.insert(1, str(external_path))
 
 from app.flavor.schemas import FlavorCreate
 from app.image.schemas import ImageCreate
@@ -15,6 +8,7 @@ from app.provider.schemas_extended import (
     IdentityProviderCreateExtended,
     ProviderCreateExtended,
 )
+from pydantic import UUID4, Field
 
 
 class AuthMethod(AuthMethodCreate):
