@@ -1,15 +1,27 @@
 from typing import List
 
-from app.flavor.schemas import FlavorCreate
-from app.image.schemas import ImageCreate
-from app.project.schemas import ProjectCreate
+from app.flavor.schemas import FlavorCreate, FlavorRead
+from app.image.schemas import ImageCreate, ImageRead
+from app.project.schemas import ProjectCreate, ProjectRead
 from app.provider.schemas_extended import (
     AuthMethodCreate,
     IdentityProviderCreateExtended,
     ProviderCreateExtended,
     ProviderReadExtended,
 )
-from pydantic import UUID4, Field
+from pydantic import UUID4, AnyHttpUrl, BaseModel, Field
+
+
+class URLs(BaseModel):
+    flavors: AnyHttpUrl
+    identity_providers: AnyHttpUrl
+    images: AnyHttpUrl
+    locations: AnyHttpUrl
+    projects: AnyHttpUrl
+    providers: AnyHttpUrl
+    services: AnyHttpUrl
+    slas: AnyHttpUrl
+    user_groups: AnyHttpUrl
 
 
 class AuthMethod(AuthMethodCreate):
@@ -41,6 +53,18 @@ class Image(ImageCreate):
 class Provider(ProviderCreateExtended):
     flavors: List[Flavor] = Field(default_factory=list, description="List of flavors")
     images: List[Image] = Field(default_factory=list, description="List of images")
+
+
+class FlavorRead(FlavorRead):
+    pass
+
+
+class ImageRead(ImageRead):
+    pass
+
+
+class ProjectRead(ProjectRead):
+    pass
 
 
 class ProviderRead(ProviderReadExtended):
