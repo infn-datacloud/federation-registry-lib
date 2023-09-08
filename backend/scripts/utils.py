@@ -3,8 +3,25 @@ import subprocess
 from typing import List
 
 import yaml
+from models.cmdb import AuthMethod, IdentityProvider
 from models.config import IDP, Config
 from pydantic import AnyHttpUrl
+
+
+def get_identity_providers(
+    idp_list: List[IDP],
+) -> List[IdentityProvider]:
+    print("Retrieve current project accessible images")
+    identity_providers = []
+    for idp in idp_list:
+        identity_providers.append(
+            IdentityProvider(
+                endpoint=idp.endpoint,
+                group_claim=idp.group_claim,
+                relationship=AuthMethod(idp_name=idp.name, protocol=idp.protocol),
+            )
+        )
+    return identity_providers
 
 
 def choose_idp(
@@ -13,19 +30,24 @@ def choose_idp(
     for idp_url in preferred_idp_list:
         for chosen_idp in identity_providers:
             if idp_url == chosen_idp.endpoint:
+                print(f"Chosen identity provider: {chosen_idp.endpoint}")
                 return chosen_idp
 
 
 def generate_token(*, endpoint: AnyHttpUrl) -> str:
+    print("Generating access token")
     token_cmd = subprocess.run(
         ["docker", "exec", "catalog-api-oidc-agent-1", "oidc-token", endpoint],
         stdout=subprocess.PIPE,
         text=True,
     )
+    print("Access token generated")
     return token_cmd.stdout.strip("\n")
 
 
 def load_config(*, base_path: str = ".", fname: str = "config.yaml") -> Config:
+    print("Loading configuration")
     with open(os.path.join(base_path, fname)) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
+    print("Configuration loaded")
     return Config(**config)

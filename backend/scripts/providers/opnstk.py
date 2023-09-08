@@ -1,12 +1,14 @@
 from typing import List
 
-from models.cmdb import AuthMethod, Flavor, IdentityProvider, Image, Project, Provider
+from models.cmdb import Flavor, Image, Project, Provider
 from models.config import IDP, Openstack
 from openstack import connect
 from openstack.connection import Connection
+from utils import get_identity_providers
 
 
 def get_project(conn: Connection) -> Project:
+    print("Retrieve current project data")
     curr_proj_id = conn.current_project.get("id")
     project = conn.identity.get_project(curr_proj_id)
     data = project.to_dict()
@@ -17,6 +19,7 @@ def get_project(conn: Connection) -> Project:
 
 
 def get_flavors(conn: Connection) -> List[Flavor]:
+    print("Retrieve current project accessible flavors")
     flavors = []
     for flavor in conn.compute.flavors():
         projects = []
@@ -31,6 +34,7 @@ def get_flavors(conn: Connection) -> List[Flavor]:
 
 
 def get_images(conn: Connection) -> List[Image]:
+    print("Retrieve current project accessible images")
     images = []
     for image in conn.image.images():
         is_public = True
@@ -55,21 +59,6 @@ def get_images(conn: Connection) -> List[Image]:
     return images
 
 
-def get_identity_providers_from_config(
-    idp_list: List[IDP],
-) -> List[IdentityProvider]:
-    identity_providers = []
-    for idp in idp_list:
-        identity_providers.append(
-            IdentityProvider(
-                endpoint=idp.endpoint,
-                group_claim=idp.group_claim,
-                relationship=AuthMethod(idp_name=idp.name, protocol=idp.protocol),
-            )
-        )
-    return identity_providers
-
-
 def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provider:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
@@ -78,12 +67,17 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
         is_public=config.is_public,
         support_emails=config.support_emails,
         location=config.location,
-        identity_providers=get_identity_providers_from_config(
-            config.identity_providers
-        ),
+        identity_providers=get_identity_providers(config.identity_providers),
     )
 
     for project in config.projects:
+        if project.id is not None:
+            print(f"Connecting to openstack instance with project ID: {project.id}")
+        else:
+            print(
+                "Connecting to openstack instance with project"
+                f"name and domain: {project.name} - {project.domain}"
+            )
         conn = connect(
             auth_url=config.auth_url,
             auth_type="v3oidcaccesstoken",
@@ -110,5 +104,6 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
                 provider.images.append(i)
 
         conn.close()
+        print("Connection closed")
 
     return provider

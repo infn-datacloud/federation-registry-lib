@@ -1,21 +1,15 @@
 import os
-import sys
-from pathlib import Path
 
 import requests
 from fastapi import status
 from fastapi.encoders import jsonable_encoder
-
-external_path = Path.cwd().parent
-sys.path.insert(1, str(external_path))
-
-from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
+from models.cmdb import Provider, ProviderRead
 
 
 def add_or_patch_provider(
     *,
     url: str,
-    provider: ProviderCreateExtended,
+    provider: Provider,
     token: str,
     api_ver_providers: str = "v1",
     api_ver_projects: str = "v1",
@@ -26,8 +20,10 @@ def add_or_patch_provider(
     api_ver_services: str = "v1",
     api_ver_slas: str = "v1",
     api_ver_user_groups: str = "v1",
-) -> ProviderReadExtended:
+) -> None:
     """Add a new provider to the CMDB with the given attributes."""
+
+    print(f"Adding provider {provider.name} to CMDB")
 
     provider_url = os.path.join(url, f"api/{api_ver_providers}/providers/")
     flavor_url = os.path.join(url, f"api/{api_ver_flavors}/flavors/")
@@ -65,7 +61,7 @@ def add_or_patch_provider(
             print(
                 f"Exactly one match found. Trying to update provider '{provider.name}'"
             )
-            db_provider = ProviderReadExtended(**provider_list[0])
+            db_provider = ProviderRead(**provider_list[0])
 
             resp = requests.patch(
                 url=os.path.join(provider_url, str(db_provider.uid)),
