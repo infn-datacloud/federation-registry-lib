@@ -42,5 +42,20 @@ class Openstack(ProviderBase):
     projects: List[Project]
 
 
+class CMDB(BaseModel):
+    url: AnyHttpUrl
+    api_ver_providers: str = "v1"
+    api_ver_projects: str = "v1"
+    api_ver_locations: str = "v1"
+    api_ver_flavors: str = "v1"
+    api_ver_images: str = "v1"
+    api_ver_identity_providers: str = "v1"
+    api_ver_services: str = "v1"
+    api_ver_slas: str = "v1"
+    api_ver_user_groups: str = "v1"
+
+
 class Config(BaseModel):
+    cmdb: CMDB
+    oidc_agent_accounts: List[AnyHttpUrl]
     openstack: List[Openstack]

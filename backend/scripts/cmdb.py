@@ -13,14 +13,27 @@ from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadEx
 
 
 def add_or_patch_provider(
-    *, url: str, provider: ProviderCreateExtended, token: str
+    *,
+    url: str,
+    provider: ProviderCreateExtended,
+    token: str,
+    api_ver_providers: str = "v1",
+    api_ver_projects: str = "v1",
+    api_ver_locations: str = "v1",
+    api_ver_flavors: str = "v1",
+    api_ver_images: str = "v1",
+    api_ver_identity_providers: str = "v1",
+    api_ver_services: str = "v1",
+    api_ver_slas: str = "v1",
+    api_ver_user_groups: str = "v1",
 ) -> ProviderReadExtended:
     """Add a new provider to the CMDB with the given attributes."""
 
-    provider_url = os.path.join(url, "api/v1/providers/")
-    flavor_url = os.path.join(url, "api/v1/flavors/")
-    image_url = os.path.join(url, "api/v1/images/")
-    project_url = os.path.join(url, "api/v1/projects/")
+    provider_url = os.path.join(url, f"api/{api_ver_providers}/providers/")
+    flavor_url = os.path.join(url, f"api/{api_ver_flavors}/flavors/")
+    image_url = os.path.join(url, f"api/{api_ver_images}/images/")
+    project_url = os.path.join(url, f"api/{api_ver_projects}/projects/")
+    os.path.join(url, f"/api/{api_ver_locations}/locations/")
 
     resp = requests.get(
         url=provider_url,

@@ -3,20 +3,20 @@ import subprocess
 from typing import List
 
 import yaml
-from models import IDP, Config
+from models.config import IDP, Config
 from pydantic import AnyHttpUrl
 
-PREFERRED_IDP_LIST = ["https://iam.cloud.infn.it/"]
 
-
-def choose_idp(identity_providers: List[IDP]) -> IDP:
-    for idp_url in PREFERRED_IDP_LIST:
+def choose_idp(
+    *, identity_providers: List[IDP], preferred_idp_list: List[AnyHttpUrl]
+) -> IDP:
+    for idp_url in preferred_idp_list:
         for chosen_idp in identity_providers:
             if idp_url == chosen_idp.endpoint:
                 return chosen_idp
 
 
-def generate_token(endpoint: AnyHttpUrl) -> str:
+def generate_token(*, endpoint: AnyHttpUrl) -> str:
     token_cmd = subprocess.run(
         ["docker", "exec", "catalog-api-oidc-agent-1", "oidc-token", endpoint],
         stdout=subprocess.PIPE,
