@@ -1,5 +1,6 @@
 from typing import List
 
+from logger import logger
 from models.cmdb import Flavor, Image, Project, Provider
 from models.config import IDP, Openstack
 from openstack import connect
@@ -8,7 +9,7 @@ from utils import get_identity_providers
 
 
 def get_project(conn: Connection) -> Project:
-    print("Retrieve current project data")
+    logger.info("Retrieve current project data")
     curr_proj_id = conn.current_project.get("id")
     project = conn.identity.get_project(curr_proj_id)
     data = project.to_dict()
@@ -19,7 +20,7 @@ def get_project(conn: Connection) -> Project:
 
 
 def get_flavors(conn: Connection) -> List[Flavor]:
-    print("Retrieve current project accessible flavors")
+    logger.info("Retrieve current project accessible flavors")
     flavors = []
     for flavor in conn.compute.flavors():
         projects = []
@@ -34,7 +35,7 @@ def get_flavors(conn: Connection) -> List[Flavor]:
 
 
 def get_images(conn: Connection) -> List[Image]:
-    print("Retrieve current project accessible images")
+    logger.info("Retrieve current project accessible images")
     images = []
     for image in conn.image.images():
         is_public = True
@@ -72,9 +73,11 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
 
     for project in config.projects:
         if project.id is not None:
-            print(f"Connecting to openstack instance with project ID: {project.id}")
+            logger.info(
+                f"Connecting to openstack instance with project ID: {project.id}"
+            )
         else:
-            print(
+            logger.info(
                 "Connecting to openstack instance with project"
                 f"name and domain: {project.name} - {project.domain}"
             )
@@ -104,6 +107,6 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
                 provider.images.append(i)
 
         conn.close()
-        print("Connection closed")
+        logger.info("Connection closed")
 
     return provider
