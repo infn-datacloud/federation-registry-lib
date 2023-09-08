@@ -23,10 +23,9 @@ if __name__ == "__main__":
         )
         providers.append(provider)
 
-    cmdb_url = "http://localhost:8000"
     for provider in providers:
         add_or_patch_provider(
-            url=cmdb_url,
+            url=config.cmdb.url,
             provider=provider,
             token=tokens[chosen_idp.endpoint],
             api_ver_providers=config.cmdb.api_ver_providers,
