@@ -123,43 +123,45 @@ def add_or_patch_provider(
                         new_data=project, url=url, header=write_header
                     )
 
-            # for identity_provider in provider.identity_providers:
-            #    db_identity_provider = crud_identity_provider.find(
-            #        url=urls.identity_providers,
-            #        header=read_header,
-            #        key_value_pair=("endpoint", identity_provider.endpoint),
-            #    )
-            #    if db_identity_provider is None:
-            #        logger.info(
-            #            f"Creating new identity provider
-            # '{identity_provider.endpoint}'."
-            #        )
-            #        db_identity_provider = crud_identity_provider.create(
-            #            new_data=identity_provider,
-            #            url=urls.identity_providers,
-            #            header=write_header,
-            #        )
-            #    else:
-            #        logger.info(
-            #            f"Trying to update identity provider
-            # '{identity_provider.endpoint}'."
-            #        )
-            #        url = os.path.join(
-            #            urls.identity_providers, str(db_identity_provider.uid)
-            #        )
-            #        crud_identity_provider.update(
-            #            new_data=identity_provider, url=url, header=write_header
-            #        )
-            #    logger.info(
-            #        f"Connecting identity provider
-            # '{identity_provider.endpoint}'."
-            #    )
-            #    url = os.path.join(
-            #        urls.providers, str(db_provider.uid), "identity_providers"
-            #    )
-            #    crud_identity_provider.connect(
-            #        url=url, header=write_header, new_data=db_identity_provider
-            #    )
+            for identity_provider in provider.identity_providers:
+                db_identity_provider = crud_identity_provider.find(
+                    url=urls.identity_providers,
+                    header=read_header,
+                    key_value_pair=("endpoint", identity_provider.endpoint),
+                )
+                if db_identity_provider is None:
+                    logger.info(
+                        "Creating new identity provider "
+                        f"'{identity_provider.endpoint}'."
+                    )
+                    db_identity_provider = crud_identity_provider.create(
+                        new_data=identity_provider,
+                        url=urls.identity_providers,
+                        header=write_header,
+                    )
+                else:
+                    logger.info(
+                        "Trying to update identity provider "
+                        f"'{identity_provider.endpoint}'."
+                    )
+                    url = os.path.join(
+                        urls.identity_providers, str(db_identity_provider.uid)
+                    )
+                    crud_identity_provider.update(
+                        new_data=identity_provider, url=url, header=write_header
+                    )
+                logger.info(
+                    f"Connecting identity provider '{identity_provider.endpoint}'."
+                )
+                url = os.path.join(
+                    urls.providers,
+                    str(db_provider.uid),
+                    "identity_providers",
+                    str(db_identity_provider.uid),
+                )
+                crud_identity_provider.connect(
+                    url=url, header=write_header, new_data=identity_provider
+                )
 
             if provider.location is not None:
                 db_location = crud_location.find(
@@ -183,9 +185,14 @@ def add_or_patch_provider(
                         new_data=provider.location, url=url, header=write_header
                     )
                 logger.info(f"Connecting location '{provider.location.name}'.")
-                url = os.path.join(urls.providers, str(db_provider.uid), "locations")
+                url = os.path.join(
+                    urls.providers,
+                    str(db_provider.uid),
+                    "locations",
+                    str(db_location.uid),
+                )
                 crud_location.connect(
-                    url=url, header=write_header, new_data=db_location
+                    url=url, header=write_header, new_data=provider.location
                 )
 
         # Multiple matches -> DB Corrupted
