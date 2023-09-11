@@ -3,7 +3,9 @@ import os
 import requests
 from crud import (
     FlavorPopulation,
+    IdentityProviderPopulation,
     ImagePopulation,
+    LocationPopulation,
     ProjectPopulation,
     ProviderPopulation,
 )
@@ -16,6 +18,8 @@ crud_image = ImagePopulation()
 crud_flavor = FlavorPopulation()
 crud_project = ProjectPopulation()
 crud_provider = ProviderPopulation()
+crud_location = LocationPopulation()
+crud_identity_provider = IdentityProviderPopulation()
 
 
 def add_or_patch_provider(
@@ -66,7 +70,7 @@ def add_or_patch_provider(
 
         if len(provider_list) == 0:
             logger.info(f"No match found. Creating new provider '{provider.name}'")
-            crud_provider.create(
+            db_provider = crud_provider.create(
                 new_data=provider, url=urls.providers, header=write_header
             )
 
@@ -87,7 +91,9 @@ def add_or_patch_provider(
                 else:
                     logger.info(f"Creating new flavor '{flavor.name}'.")
                     url = os.path.join(urls.providers, str(db_provider.uid), "flavors")
-                    crud_flavor.create(new_data=flavor, url=url, header=write_header)
+                    db_flavor = crud_flavor.create(
+                        new_data=flavor, url=url, header=write_header
+                    )
 
             for image in provider.images:
                 db_image = crud_image.find(new_data=image, db_items=db_provider.images)
@@ -98,7 +104,9 @@ def add_or_patch_provider(
                 else:
                     logger.info(f"Creating new image '{image.name}'.")
                     url = os.path.join(urls.providers, str(db_provider.uid), "images")
-                    crud_image.create(new_data=image, url=url, header=write_header)
+                    db_image = crud_image.create(
+                        new_data=image, url=url, header=write_header
+                    )
 
             for project in provider.projects:
                 db_project = crud_project.find(
@@ -111,7 +119,74 @@ def add_or_patch_provider(
                 else:
                     logger.info(f"Creating new project '{project.name}'.")
                     url = os.path.join(urls.providers, str(db_provider.uid), "projects")
-                    crud_project.create(new_data=project, url=url, header=write_header)
+                    db_project = crud_project.create(
+                        new_data=project, url=url, header=write_header
+                    )
+
+            # for identity_provider in provider.identity_providers:
+            #    db_identity_provider = crud_identity_provider.find(
+            #        url=urls.identity_providers,
+            #        header=read_header,
+            #        key_value_pair=("endpoint", identity_provider.endpoint),
+            #    )
+            #    if db_identity_provider is None:
+            #        logger.info(
+            #            f"Creating new identity provider
+            # '{identity_provider.endpoint}'."
+            #        )
+            #        db_identity_provider = crud_identity_provider.create(
+            #            new_data=identity_provider,
+            #            url=urls.identity_providers,
+            #            header=write_header,
+            #        )
+            #    else:
+            #        logger.info(
+            #            f"Trying to update identity provider
+            # '{identity_provider.endpoint}'."
+            #        )
+            #        url = os.path.join(
+            #            urls.identity_providers, str(db_identity_provider.uid)
+            #        )
+            #        crud_identity_provider.update(
+            #            new_data=identity_provider, url=url, header=write_header
+            #        )
+            #    logger.info(
+            #        f"Connecting identity provider
+            # '{identity_provider.endpoint}'."
+            #    )
+            #    url = os.path.join(
+            #        urls.providers, str(db_provider.uid), "identity_providers"
+            #    )
+            #    crud_identity_provider.connect(
+            #        url=url, header=write_header, new_data=db_identity_provider
+            #    )
+
+            if provider.location is not None:
+                db_location = crud_location.find(
+                    url=urls.locations,
+                    header=read_header,
+                    key_value_pair=("name", provider.location.name),
+                )
+                if db_location is None:
+                    logger.info(f"Creating new location '{provider.location.name}'.")
+                    db_location = crud_location.create(
+                        new_data=provider.location,
+                        url=urls.locations,
+                        header=write_header,
+                    )
+                else:
+                    logger.info(
+                        f"Trying to update location '{provider.location.name}'."
+                    )
+                    url = os.path.join(urls.locations, str(db_location.uid))
+                    crud_location.update(
+                        new_data=provider.location, url=url, header=write_header
+                    )
+                logger.info(f"Connecting location '{provider.location.name}'.")
+                url = os.path.join(urls.providers, str(db_provider.uid), "locations")
+                crud_location.connect(
+                    url=url, header=write_header, new_data=db_location
+                )
 
         # Multiple matches -> DB Corrupted
         else:

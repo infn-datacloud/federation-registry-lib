@@ -129,6 +129,7 @@ class CRUDBase(
         ReadPublicSchemaType,
         ReadShortSchemaType,
         ReadSchemaType,
+        ReadExtendedPublicSchemaType,
         ReadExtendedSchemaType,
     ]:
         if auth:

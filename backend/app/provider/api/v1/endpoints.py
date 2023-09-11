@@ -215,7 +215,7 @@ def add_flavor_to_provider(
 @db.write_transaction
 @router.put(
     "/{provider_uid}/identity_providers/{identity_provider_uid}",
-    response_model=ProviderReadExtended,
+    response_model=Optional[ProviderReadExtended],
     dependencies=[Depends(check_write_access)],
     summary="Connect provider to identity provider",
     description="Connect a provider to a specific identity \
@@ -247,7 +247,7 @@ def connect_provider_to_identity_providers(
 @db.write_transaction
 @router.delete(
     "/{provider_uid}/identity_providers/{identity_provider_uid}",
-    response_model=ProviderReadExtended,
+    response_model=Optional[ProviderReadExtended],
     dependencies=[Depends(check_write_access)],
     summary="Disconnect provider from identity provider",
     description="Disconnect a provider from a specific identity \
@@ -295,7 +295,7 @@ def add_image_to_provider(
 @db.write_transaction
 @router.put(
     "/{provider_uid}/locations/{location_uid}",
-    response_model=ProviderReadExtended,
+    response_model=Optional[ProviderReadExtended],
     dependencies=[Depends(check_write_access)],
     summary="Connect provider to location",
     description="Connect a provider to a specific location \
@@ -326,7 +326,7 @@ def connect_provider_to_location(
 @db.write_transaction
 @router.delete(
     "/{provider_uid}/locations/{location_uid}",
-    response_model=ProviderReadExtended,
+    response_model=Optional[ProviderReadExtended],
     dependencies=[Depends(check_write_access)],
     summary="Disconnect provider from location",
     description="Disconnect a provider from a specific location \

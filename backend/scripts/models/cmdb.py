@@ -2,10 +2,12 @@ from typing import List
 
 from app.flavor.schemas import FlavorCreate, FlavorRead
 from app.image.schemas import ImageCreate, ImageRead
+from app.location.schemas import LocationCreate, LocationRead
 from app.project.schemas import ProjectCreate, ProjectRead
 from app.provider.schemas_extended import (
     AuthMethodCreate,
     IdentityProviderCreateExtended,
+    IdentityProviderRead,
     ProviderCreateExtended,
     ProviderReadExtended,
 )
@@ -22,6 +24,10 @@ class URLs(BaseModel):
     services: AnyHttpUrl
     slas: AnyHttpUrl
     user_groups: AnyHttpUrl
+
+
+class LocationWrite(LocationCreate):
+    pass
 
 
 class AuthMethodWrite(AuthMethodCreate):
@@ -61,7 +67,15 @@ class FlavorRead(FlavorRead):
     pass
 
 
+class IdentityProviderRead(IdentityProviderRead):
+    pass
+
+
 class ImageRead(ImageRead):
+    pass
+
+
+class LocationRead(LocationRead):
     pass
 
 
