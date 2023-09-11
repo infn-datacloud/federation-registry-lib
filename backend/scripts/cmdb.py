@@ -8,6 +8,7 @@ from crud import (
     LocationPopulation,
     ProjectPopulation,
     ProviderPopulation,
+    ServicePopulation,
 )
 from fastapi import status
 from logger import logger
@@ -20,6 +21,7 @@ crud_project = ProjectPopulation()
 crud_provider = ProviderPopulation()
 crud_location = LocationPopulation()
 crud_identity_provider = IdentityProviderPopulation()
+crud_service = ServicePopulation()
 
 
 def add_or_patch_provider(
@@ -121,6 +123,21 @@ def add_or_patch_provider(
                     url = os.path.join(urls.providers, str(db_provider.uid), "projects")
                     db_project = crud_project.create(
                         new_data=project, url=url, header=write_header
+                    )
+
+            for service in provider.services:
+                db_service = crud_service.find(
+                    new_data=service, db_items=db_provider.services, uuid=False
+                )
+                if db_service is not None:
+                    logger.info(f"Trying to update service '{service.name}'.")
+                    url = os.path.join(urls.services, str(db_service.uid))
+                    crud_service.update(new_data=service, url=url, header=write_header)
+                else:
+                    logger.info(f"Creating new service '{service.name}'.")
+                    url = os.path.join(urls.providers, str(db_provider.uid), "services")
+                    db_service = crud_service.create(
+                        new_data=service, url=url, header=write_header
                     )
 
             for identity_provider in provider.identity_providers:

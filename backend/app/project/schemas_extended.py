@@ -8,8 +8,10 @@ from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.quota.schemas import QuotaRead, QuotaReadPublic
 from app.service.schemas import (
-    KubernetesServiceRead,
-    KubernetesServiceReadPublic,
+    CinderServiceRead,
+    CinderServiceReadPublic,
+    KeystoneServiceRead,
+    KeystoneServiceReadPublic,
     NovaServiceRead,
     NovaServiceReadPublic,
 )
@@ -54,7 +56,7 @@ class QuotaReadExtended(QuotaRead):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: Union[KubernetesServiceRead, NovaServiceRead] = Field(
+    service: Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead] = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
@@ -63,9 +65,9 @@ class QuotaReadExtendedPublic(QuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: Union[KubernetesServiceReadPublic, NovaServiceReadPublic] = Field(
-        description="A generic Quota applies to only one generic Service."
-    )
+    service: Union[
+        CinderServiceReadPublic, KeystoneServiceReadPublic, NovaServiceReadPublic
+    ] = Field(description="A generic Quota applies to only one generic Service.")
 
 
 class ProjectReadExtended(ProjectRead):

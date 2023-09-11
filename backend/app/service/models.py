@@ -30,10 +30,9 @@ class Service(StructuredNode):
     description = StringProperty(default="")
     endpoint = StringProperty(unique_index=True, required=True)
     type = StringProperty(required=True)
+    name = StringProperty(required=True)
 
-    provider = RelationshipFrom(
-        "..provider.models.Provider", "SUPPLY", cardinality=One
-    )
+    provider = RelationshipFrom("..provider.models.Provider", "SUPPLY", cardinality=One)
 
 
 class NovaService(Service):
@@ -64,30 +63,9 @@ class NovaService(Service):
     # )
 
 
-class MesosService(Service):
+class CinderService(Service):
     pass
 
 
-class ChronosService(Service):
-    pass
-
-
-class MarathonService(Service):
-    pass
-
-
-class KubernetesService(Service):
-    num_cpu_quotas = RelationshipFrom(
-        "..quota.models.NumCPUQuota", "APPLY_TO", cardinality=ZeroOrMore
-    )
-    ram_quotas = RelationshipFrom(
-        "..quota.models.RAMQuota", "APPLY_TO", cardinality=ZeroOrMore
-    )
-
-
-class RucioService(Service):
-    pass
-
-
-class OneDataService(Service):
+class KeystoneService(Service):
     pass

@@ -17,6 +17,8 @@ from models.cmdb import (
     ProjectWrite,
     ProviderRead,
     ProviderWrite,
+    ServiceRead,
+    ServiceWrite,
 )
 from pydantic import AnyHttpUrl, BaseModel
 
@@ -77,17 +79,15 @@ class UUIDNameFindable(
         super().__init__(type=type, write_schema=write_schema, read_schema=read_schema)
 
     def find(
-        self, *, new_data: WriteSchema, db_items: List[ReadSchema]
+        self, *, new_data: WriteSchema, db_items: List[ReadSchema], uuid: bool = True
     ) -> Optional[ReadSchema]:
         label = self._repr(item=new_data)
         db_item = None
         if label in [i.name for i in db_items]:
             idx = [i.name for i in db_items].index(label)
             db_item = db_items[idx]
-            logger.info(
-                f"{self.type} '{label}' already belongs to this provider"
-            )
-        elif new_data.uuid in [i.uuid for i in db_items]:
+            logger.info(f"{self.type} '{label}' already belongs to this provider")
+        elif uuid and new_data.uuid in [i.uuid for i in db_items]:
             idx = [i.uuid for i in db_items].index(new_data.uuid)
             db_item = db_items[idx]
             logger.info(
@@ -96,7 +96,9 @@ class UUIDNameFindable(
         else:
             logger.info(
                 f"No {self.type.lower()}s with name '{label}' "
-                f"or uuid '{new_data.uuid}' belongs to this provider"
+                f"or uuid '{new_data.uuid}' "
+                if uuid
+                else "" "belongs to this provider"
             )
         return db_item
 
@@ -142,9 +144,7 @@ class FindableConnectable(BasicPopulation[WriteSchema, ReadSchema]):
         if resp.status_code == status.HTTP_200_OK:
             logger.info(f"{self.type} '{label}' successfully connected")
         elif resp.status_code == status.HTTP_304_NOT_MODIFIED:
-            logger.info(
-                f"{self.type} '{label}' already connected. Data not modified"
-            )
+            logger.info(f"{self.type} '{label}' already connected. Data not modified")
         else:
             self._action_failed(name=label, resp=resp, action="connect")
 
@@ -190,4 +190,13 @@ class IdentityProviderPopulation(
             type="IdentityProvider",
             read_schema=IdentityProviderRead,
             write_schema=IdentityProviderWrite,
+        )
+
+
+class ServicePopulation(UUIDNameFindable[ServiceWrite, ServiceRead]):
+    def __init__(self) -> None:
+        super().__init__(
+            type="Service",
+            read_schema=ServiceRead,
+            write_schema=ServiceWrite,
         )

@@ -16,16 +16,21 @@ from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadS
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.crud import service
 from app.service.schemas import (
-    KubernetesServiceRead,
-    KubernetesServiceReadPublic,
-    KubernetesServiceReadShort,
+    CinderServiceRead,
+    CinderServiceReadPublic,
+    CinderServiceReadShort,
+    KeystoneServiceRead,
+    KeystoneServiceReadPublic,
+    KeystoneServiceReadShort,
     NovaServiceRead,
     NovaServiceReadPublic,
     NovaServiceReadShort,
 )
 from app.service.schemas_extended import (
-    KubernetesServiceReadExtended,
-    KubernetesServiceReadExtendedPublic,
+    CinderServiceReadExtended,
+    CinderServiceReadExtendedPublic,
+    KeystoneServiceReadExtended,
+    KeystoneServiceReadExtendedPublic,
     NovaServiceReadExtended,
     NovaServiceReadExtendedPublic,
 )
@@ -238,11 +243,33 @@ def get_user_group_providers(
 @router.get(
     "/{user_group_uid}/services",
     response_model=Union[
-        List[Union[KubernetesServiceReadExtended, NovaServiceReadExtended]],
-        List[Union[KubernetesServiceRead, NovaServiceRead]],
-        List[Union[KubernetesServiceReadShort, NovaServiceReadShort]],
-        List[Union[KubernetesServiceReadExtendedPublic, NovaServiceReadExtendedPublic]],
-        List[Union[KubernetesServiceReadPublic, NovaServiceReadPublic]],
+        List[
+            Union[
+                CinderServiceReadExtended,
+                KeystoneServiceReadExtended,
+                NovaServiceReadExtended,
+            ]
+        ],
+        List[Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]],
+        List[
+            Union[
+                CinderServiceReadShort, KeystoneServiceReadShort, NovaServiceReadShort
+            ]
+        ],
+        List[
+            Union[
+                CinderServiceReadExtendedPublic,
+                KeystoneServiceReadExtendedPublic,
+                NovaServiceReadExtendedPublic,
+            ]
+        ],
+        List[
+            Union[
+                CinderServiceReadPublic,
+                KeystoneServiceReadPublic,
+                NovaServiceReadPublic,
+            ]
+        ],
     ],
     summary="Read user group accessible services",
     description="Retrieve all the services the user group \

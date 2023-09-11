@@ -16,10 +16,14 @@ from app.service.api.dependencies import valid_service_id, validate_new_service_
 from app.service.crud import service
 from app.service.models import Service
 from app.service.schemas import (
-    KubernetesServiceRead,
-    KubernetesServiceReadPublic,
-    KubernetesServiceReadShort,
-    KubernetesServiceUpdate,
+    CinderServiceRead,
+    CinderServiceReadPublic,
+    CinderServiceReadShort,
+    CinderServiceUpdate,
+    KeystoneServiceRead,
+    KeystoneServiceReadPublic,
+    KeystoneServiceReadShort,
+    KeystoneServiceUpdate,
     NovaServiceRead,
     NovaServiceReadPublic,
     NovaServiceReadShort,
@@ -27,8 +31,10 @@ from app.service.schemas import (
     ServiceQuery,
 )
 from app.service.schemas_extended import (
-    KubernetesServiceReadExtended,
-    KubernetesServiceReadExtendedPublic,
+    CinderServiceReadExtended,
+    CinderServiceReadExtendedPublic,
+    KeystoneServiceReadExtended,
+    KeystoneServiceReadExtendedPublic,
     NovaServiceReadExtended,
     NovaServiceReadExtendedPublic,
 )
@@ -42,11 +48,33 @@ router = APIRouter(prefix="/services", tags=["services"])
 @router.get(
     "/",
     response_model=Union[
-        List[Union[KubernetesServiceReadExtended, NovaServiceReadExtended]],
-        List[Union[KubernetesServiceRead, NovaServiceRead]],
-        List[Union[KubernetesServiceReadShort, NovaServiceReadShort]],
-        List[Union[KubernetesServiceReadExtendedPublic, NovaServiceReadExtendedPublic]],
-        List[Union[KubernetesServiceReadPublic, NovaServiceReadPublic]],
+        List[
+            Union[
+                CinderServiceReadExtended,
+                KeystoneServiceReadExtended,
+                NovaServiceReadExtended,
+            ]
+        ],
+        List[Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]],
+        List[
+            Union[
+                CinderServiceReadShort, KeystoneServiceReadShort, NovaServiceReadShort
+            ]
+        ],
+        List[
+            Union[
+                CinderServiceReadExtendedPublic,
+                KeystoneServiceReadExtendedPublic,
+                NovaServiceReadExtendedPublic,
+            ]
+        ],
+        List[
+            Union[
+                CinderServiceReadPublic,
+                KeystoneServiceReadPublic,
+                NovaServiceReadPublic,
+            ]
+        ],
     ],
     summary="Read all services",
     description="Retrieve all services stored in the database. \
@@ -73,15 +101,20 @@ def get_services(
 @router.get(
     "/{service_uid}",
     response_model=Union[
-        KubernetesServiceReadExtended,
+        CinderServiceReadExtended,
+        KeystoneServiceReadExtended,
         NovaServiceReadExtended,
-        KubernetesServiceRead,
+        CinderServiceRead,
+        KeystoneServiceRead,
         NovaServiceRead,
-        KubernetesServiceReadShort,
+        CinderServiceReadShort,
+        KeystoneServiceReadShort,
         NovaServiceReadShort,
-        KubernetesServiceReadExtendedPublic,
+        CinderServiceReadExtendedPublic,
+        KeystoneServiceReadExtendedPublic,
         NovaServiceReadExtendedPublic,
-        KubernetesServiceReadPublic,
+        CinderServiceReadPublic,
+        KeystoneServiceReadPublic,
         NovaServiceReadPublic,
     ],
     summary="Read a specific service",
@@ -102,7 +135,9 @@ def get_service(
 @db.write_transaction
 @router.patch(
     "/{service_uid}",
-    response_model=Optional[Union[KubernetesServiceRead, NovaServiceRead]],
+    response_model=Optional[
+        Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]
+    ],
     dependencies=[Depends(check_write_access), Depends(validate_new_service_values)],
     summary="Edit a specific service",
     description="Update attribute values of a specific service. \
@@ -115,7 +150,7 @@ def get_service(
         no other items with the given *endpoint*.",
 )
 def put_service(
-    update_data: Union[KubernetesServiceUpdate, NovaServiceUpdate],
+    update_data: Union[CinderServiceUpdate, KeystoneServiceUpdate, NovaServiceUpdate],
     response: Response,
     item: Service = Depends(valid_service_id),
 ):

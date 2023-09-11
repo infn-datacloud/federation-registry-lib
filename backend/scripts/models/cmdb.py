@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, Dict, List
 
 from app.flavor.schemas import FlavorCreate, FlavorRead
 from app.image.schemas import ImageCreate, ImageRead
@@ -11,6 +11,7 @@ from app.provider.schemas_extended import (
     ProviderCreateExtended,
     ProviderReadExtended,
 )
+from app.service.schemas import ServiceCreate, ServiceRead
 from pydantic import UUID4, AnyHttpUrl, BaseModel, Field
 
 
@@ -61,6 +62,9 @@ class ProviderWrite(ProviderCreateExtended):
         default_factory=list, description="List of flavors"
     )
     images: List[ImageWrite] = Field(default_factory=list, description="List of images")
+    quotas: Dict[UUID4, Dict[str, Any]] = Field(
+        default_factory=dict, description="Project quotas"
+    )
 
 
 class FlavorRead(FlavorRead):
@@ -84,4 +88,12 @@ class ProjectRead(ProjectRead):
 
 
 class ProviderRead(ProviderReadExtended):
+    pass
+
+
+class ServiceWrite(ServiceCreate):
+    pass
+
+
+class ServiceRead(ServiceRead):
     pass

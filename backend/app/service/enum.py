@@ -1,13 +1,17 @@
 from enum import Enum
 
 
+class ServiceName(Enum):
+    """Possible IaaS services names."""
+
+    OPENSTACK_NOVA: str = "org.openstack.nova"
+    OPENSTACK_CINDER: str = "org.openstack.cinder"
+    OPENSTACK_KEYSTONE: str = "org.openstack.keystone"
+
+
 class ServiceType(Enum):
     """Possible IaaS services types."""
 
-    openstack_nova: str = "org.openstack.nova"
-    mesos: str = "eu.indigo-datacloud.mesos"
-    chronos: str = "eu.indigo-datacloud.chronos"
-    marathon: str = "eu.indigo-datacloud.marathon"
-    kubernetes: str = "eu.deep.kubernetes"
-    rucio: str = "eu.egi.storage-element"
-    onedata: str = "eu.egi.cloud.storage-management.oneprovider"
+    IDENTITY: str = "identity"
+    COMPUTE: str = "compute"
+    BLOCK_STORAGE: str = "block-storage"

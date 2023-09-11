@@ -2,7 +2,7 @@ from typing import Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from app.service.enum import ServiceType
+from app.service.enum import ServiceName, ServiceType
 from pydantic import AnyHttpUrl, BaseModel, Extra, Field, validator
 
 
@@ -11,7 +11,7 @@ class ServiceBase(BaseModel, extra=Extra.allow):
 
     endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
     type: ServiceType = Field(description="Service type.")
-    name: str = Field(description="Service name.")
+    name: ServiceName = Field(description="Service name.")
 
 
 class ServiceCreate(BaseNodeCreate, ServiceBase):
@@ -35,7 +35,7 @@ class ServiceUpdate(ServiceCreate):
         default=None, description="URL of the IaaS service."
     )
     type: Optional[ServiceType] = Field(default=None, description="Service type.")
-    name: Optional[str] = Field(default=None, description="Service name.")
+    name: Optional[ServiceName] = Field(default=None, description="Service name.")
 
 
 class ServiceRead(BaseNodeRead, ServiceBase):
@@ -61,65 +61,6 @@ class ServiceReadShort(BaseNodeRead, ServiceBase):
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
 
 
-class KubernetesBase(ServiceBase, extra=Extra.ignore):
-    """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Kubernetes services.
-
-    Validation: type value is exactly ServiceType.kubernetes.
-    """
-
-    @validator("type")
-    def check_type(cls, v):
-        if v != ServiceType.kubernetes:
-            raise ValueError(f"Not valid type: {v}")
-        return v
-
-
-class KubernetesServiceCreate(BaseNodeCreate, KubernetesBase):
-    """Model to create a Kubernetes Service.
-
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
-    """
-
-
-class KubernetesServiceUpdate(KubernetesServiceCreate):
-    """Model to update a Kubernetes service.
-
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
-
-    Default to None mandatory attributes.
-    """
-
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-
-
-class KubernetesServiceRead(BaseNodeRead, KubernetesBase):
-    """Model to read Kubernetes service data retrieved from DB.
-
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
-    database.
-    """
-
-
-class KubernetesServiceReadPublic(BaseNodeRead, KubernetesBase):
-    pass
-
-
-class KubernetesServiceReadShort(BaseNodeRead, KubernetesBase):
-    pass
-
-
-KubernetesServiceQuery = create_query_model("KubernetesServiceQuery", KubernetesBase)
-
-
 class NovaBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Nova services.
@@ -127,9 +68,15 @@ class NovaBase(ServiceBase, extra=Extra.ignore):
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
+    @validator("name")
+    def check_name(cls, v):
+        if v != ServiceName.OPENSTACK_NOVA:
+            raise ValueError(f"Not valid name: {v}")
+        return v
+
     @validator("type")
     def check_type(cls, v):
-        if v != ServiceType.openstack_nova:
+        if v != ServiceType.COMPUTE:
             raise ValueError(f"Not valid type: {v}")
         return v
 
@@ -179,121 +126,131 @@ class NovaServiceReadShort(BaseNodeRead, NovaBase):
 NovaServiceQuery = create_query_model("NovaServiceQuery", NovaBase)
 
 
-class MesosBase(BaseModel, extra=Extra.ignore):
-    @validator("type", check_fields=False)
+class CinderBase(ServiceBase, extra=Extra.ignore):
+    """Model derived from ServiceBase to inherit attributes common to all
+    services. It adds the basic attributes for Cinder services.
+
+    Validation: type value is exactly ServiceType.openstack_nova.
+    """
+
+    @validator("name")
+    def check_name(cls, v):
+        if v != ServiceName.OPENSTACK_CINDER:
+            raise ValueError(f"Not valid name: {v}")
+        return v
+
+    @validator("type")
     def check_type(cls, v):
-        if v != ServiceType.mesos:
+        if v != ServiceType.BLOCK_STORAGE:
             raise ValueError(f"Not valid type: {v}")
         return v
 
 
-class MesosServiceQuery(MesosBase, ServiceQuery):
+class CinderServiceCreate(BaseNodeCreate, CinderBase):
+    """Model to create a Cinder Service.
+
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
+    """
+
+
+class CinderServiceUpdate(CinderServiceCreate):
+    """Model to update a Cinder service.
+
+    Class without id (which is populated by the database). Expected as
+    input when performing a PUT request.
+
+    Default to None mandatory attributes.
+    """
+
+    endpoint: Optional[AnyHttpUrl] = Field(
+        default=None, description="URL of the IaaS service."
+    )
+
+
+class CinderServiceRead(BaseNodeRead, CinderBase):
+    """Model to read Cinder service data retrieved from DB.
+
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
+
+    Add the *uid* attribute, which is the item unique identifier in the
+    database.
+    """
+
+
+class CinderServiceReadPublic(BaseNodeRead, CinderBase):
     pass
 
 
-class MesosServiceCreate(MesosBase, BaseNodeCreate, ServiceBase):
+class CinderServiceReadShort(BaseNodeRead, CinderBase):
     pass
 
 
-class MesosServiceUpdate(MesosBase, ServiceUpdate):
-    pass
+CinderServiceQuery = create_query_model("CinderServiceQuery", CinderBase)
 
 
-class MesosServiceRead(MesosBase, BaseNodeRead, ServiceBase):
-    pass
+class KeystoneBase(ServiceBase, extra=Extra.ignore):
+    """Model derived from ServiceBase to inherit attributes common to all
+    services. It adds the basic attributes for Keystone services.
 
+    Validation: type value is exactly ServiceType.openstack_nova.
+    """
 
-class ChronosBase(BaseModel, extra=Extra.ignore):
-    @validator("type", check_fields=False)
+    @validator("name")
+    def check_name(cls, v):
+        if v != ServiceName.OPENSTACK_KEYSTONE:
+            raise ValueError(f"Not valid name: {v}")
+        return v
+
+    @validator("type")
     def check_type(cls, v):
-        if v != ServiceType.chronos:
+        if v != ServiceType.IDENTITY:
             raise ValueError(f"Not valid type: {v}")
         return v
 
 
-class ChronosServiceQuery(ChronosBase, ServiceQuery):
+class KeystoneServiceCreate(BaseNodeCreate, KeystoneBase):
+    """Model to create a Keystone Service.
+
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
+    """
+
+
+class KeystoneServiceUpdate(KeystoneServiceCreate):
+    """Model to update a Keystone service.
+
+    Class without id (which is populated by the database). Expected as
+    input when performing a PUT request.
+
+    Default to None mandatory attributes.
+    """
+
+    endpoint: Optional[AnyHttpUrl] = Field(
+        default=None, description="URL of the IaaS service."
+    )
+
+
+class KeystoneServiceRead(BaseNodeRead, KeystoneBase):
+    """Model to read Keystone service data retrieved from DB.
+
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
+
+    Add the *uid* attribute, which is the item unique identifier in the
+    database.
+    """
+
+
+class KeystoneServiceReadPublic(BaseNodeRead, KeystoneBase):
     pass
 
 
-class ChronosServiceCreate(ChronosBase, BaseNodeCreate, ServiceBase):
+class KeystoneServiceReadShort(BaseNodeRead, KeystoneBase):
     pass
 
 
-class ChronosServiceUpdate(ChronosBase, ServiceUpdate):
-    pass
-
-
-class ChronosServiceRead(ChronosBase, BaseNodeRead, ServiceBase):
-    pass
-
-
-class MarathonBase(BaseModel, extra=Extra.ignore):
-    @validator("type", check_fields=False)
-    def check_type(cls, v):
-        if v != ServiceType.marathon:
-            raise ValueError(f"Not valid type: {v}")
-        return v
-
-
-class MarathonServiceQuery(MarathonBase, ServiceQuery):
-    pass
-
-
-class MarathonServiceCreate(MarathonBase, BaseNodeCreate, ServiceBase):
-    pass
-
-
-class MarathonServiceUpdate(MarathonBase, ServiceUpdate):
-    pass
-
-
-class MarathonServiceRead(MarathonBase, BaseNodeRead, ServiceBase):
-    pass
-
-
-class RucioBase(BaseModel, extra=Extra.ignore):
-    @validator("type", check_fields=False)
-    def check_type(cls, v):
-        if v != ServiceType.rucio:
-            raise ValueError(f"Not valid type: {v}")
-        return v
-
-
-class RucioServiceQuery(RucioBase, ServiceQuery):
-    pass
-
-
-class RucioServiceCreate(RucioBase, BaseNodeCreate, ServiceBase):
-    pass
-
-
-class RucioServiceUpdate(RucioBase, ServiceUpdate):
-    pass
-
-
-class RucioServiceRead(RucioBase, BaseNodeRead, ServiceBase):
-    pass
-
-
-class OneDataBase(BaseModel, extra=Extra.ignore):
-    @validator("type", check_fields=False)
-    def check_type(cls, v):
-        if v != ServiceType.onedata:
-            raise ValueError(f"Not valid type: {v}")
-        return v
-
-
-class OneDataServiceQuery(OneDataBase, ServiceQuery):
-    pass
-
-
-class OneDataServiceCreate(OneDataBase, BaseNodeCreate, ServiceBase):
-    pass
-
-
-class OneDataServiceUpdate(OneDataBase, ServiceUpdate):
-    pass
-
-
-class OneDataServiceRead(OneDataBase, BaseNodeRead, ServiceBase):
-    pass
+KeystoneServiceQuery = create_query_model("KeystoneServiceQuery", KeystoneBase)

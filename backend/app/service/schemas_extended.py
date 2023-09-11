@@ -9,8 +9,10 @@ from app.quota.schemas import (
     RAMQuotaReadPublic,
 )
 from app.service.schemas import (
-    KubernetesServiceRead,
-    KubernetesServiceReadPublic,
+    CinderServiceRead,
+    CinderServiceReadPublic,
+    KeystoneServiceRead,
+    KeystoneServiceReadPublic,
     NovaServiceRead,
     NovaServiceReadPublic,
 )
@@ -89,19 +91,25 @@ class NovaServiceReadExtendedPublic(NovaServiceReadPublic, ExtendWithProviderPub
     )
 
 
-class KubernetesServiceReadExtended(KubernetesServiceRead, ExtendWithProvider):
-    """Model to extend the Nova Service data read from the DB with the lists of
-    related items for authenticated users."""
-
-    num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(default_factory=list)
-    ram_quotas: List[RAMQuotaReadExtended] = Field(default_factory=list)
+class CinderServiceReadExtended(CinderServiceRead, ExtendWithProvider):
+    """Model to extend the Cinder Service data read from the DB with the lists
+    of related items for authenticated users."""
 
 
-class KubernetesServiceReadExtendedPublic(
-    KubernetesServiceReadPublic, ExtendWithProviderPublic
+class CinderServiceReadExtendedPublic(
+    CinderServiceReadPublic, ExtendWithProviderPublic
 ):
-    """Model to extend the Nova Service data read from the DB with the lists of
-    related items for non-authenticated users."""
+    """Model to extend the Cinder Service data read from the DB with the lists
+    of related items for non-authenticated users."""
 
-    num_cpu_quotas: List[NumCPUQuotaReadExtendedPublic] = Field(default_factory=list)
-    ram_quotas: List[RAMQuotaReadExtendedPublic] = Field(default_factory=list)
+
+class KeystoneServiceReadExtended(KeystoneServiceRead, ExtendWithProvider):
+    """Model to extend the Keystone Service data read from the DB with the
+    lists of related items for authenticated users."""
+
+
+class KeystoneServiceReadExtendedPublic(
+    KeystoneServiceReadPublic, ExtendWithProviderPublic
+):
+    """Model to extend the Keystone Service data read from the DB with the
+    lists of related items for non-authenticated users."""

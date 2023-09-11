@@ -12,9 +12,12 @@ from app.location.schemas import LocationCreate, LocationRead, LocationReadPubli
 from app.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderCreate, ProviderRead, ProviderReadPublic
 from app.service.schemas import (
-    KubernetesServiceCreate,
-    KubernetesServiceRead,
-    KubernetesServiceReadPublic,
+    CinderServiceCreate,
+    CinderServiceRead,
+    CinderServiceReadPublic,
+    KeystoneServiceCreate,
+    KeystoneServiceRead,
+    KeystoneServiceReadPublic,
     NovaServiceCreate,
     NovaServiceRead,
     NovaServiceReadPublic,
@@ -69,9 +72,9 @@ class ProviderCreateExtended(ProviderCreate):
     projects: List[ProjectCreate] = Field(
         default_factory=list, description="List of owned Projects."
     )
-    services: List[Union[KubernetesServiceCreate, NovaServiceCreate]] = Field(
-        default_factory=list, description="List of hosted Services."
-    )
+    services: List[
+        Union[CinderServiceCreate, KeystoneServiceCreate, NovaServiceCreate]
+    ] = Field(default_factory=list, description="List of hosted Services.")
 
 
 class ProviderReadExtended(ProviderRead):
@@ -94,9 +97,9 @@ class ProviderReadExtended(ProviderRead):
     projects: List[ProjectRead] = Field(
         default_factory=list, description="List of owned Projects."
     )
-    services: List[Union[KubernetesServiceRead, NovaServiceRead]] = Field(
-        default_factory=list, description="List of hosted Services."
-    )
+    services: List[
+        Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]
+    ] = Field(default_factory=list, description="List of hosted Services.")
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
@@ -119,6 +122,6 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     projects: List[ProjectReadPublic] = Field(
         default_factory=list, description="List of owned Projects."
     )
-    services: List[Union[KubernetesServiceReadPublic, NovaServiceReadPublic]] = Field(
-        default_factory=list, description="List of hosted Services."
-    )
+    services: List[
+        Union[CinderServiceReadPublic, KeystoneServiceReadPublic, NovaServiceReadPublic]
+    ] = Field(default_factory=list, description="List of hosted Services.")

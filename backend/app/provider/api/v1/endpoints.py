@@ -46,9 +46,14 @@ from app.provider.schemas_extended import (
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_endpoint
 from app.service.crud import service
-from app.service.schemas import KubernetesServiceCreate, NovaServiceCreate
+from app.service.schemas import (
+    CinderServiceCreate,
+    KeystoneServiceCreate,
+    NovaServiceCreate,
+)
 from app.service.schemas_extended import (
-    KubernetesServiceReadExtended,
+    CinderServiceReadExtended,
+    KeystoneServiceReadExtended,
     NovaServiceReadExtended,
 )
 from fastapi import APIRouter, Depends, HTTPException, Response, status
@@ -374,7 +379,9 @@ def add_project_to_provider(
 @db.write_transaction
 @router.post(
     "/{provider_uid}/services/",
-    response_model=Union[KubernetesServiceReadExtended, NovaServiceReadExtended],
+    response_model=Union[
+        CinderServiceReadExtended, KeystoneServiceReadExtended, NovaServiceReadExtended
+    ],
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(check_write_access), Depends(valid_service_endpoint)],
     summary="Add new service to provider",
@@ -386,7 +393,7 @@ def add_project_to_provider(
         no other items with the given *name* or *uuid*.",
 )
 def add_service_to_provider(
-    item: Union[KubernetesServiceCreate, NovaServiceCreate],
+    item: Union[CinderServiceCreate, KeystoneServiceCreate, NovaServiceCreate],
     provider: Provider = Depends(valid_provider_id),
 ):
     return service.create(obj_in=item, provider=provider, force=True)
