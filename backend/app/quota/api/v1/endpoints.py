@@ -1,13 +1,24 @@
 from typing import List, Optional, Union
 
+from app.auth.dependencies import check_read_access, check_write_access
 from app.project.api.dependencies import valid_project_id
 from app.project.models import Project
-from app.query import DbQueryCommonParams, Pagination
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import valid_quota_id
 from app.quota.crud import quota
 from app.quota.models import Quota
-from app.quota.schemas import NumCPUQuotaCreate, QuotaQuery, QuotaUpdate, RAMQuotaCreate
-from app.quota.schemas_extended import NumCPUQuotaReadExtended, RAMQuotaReadExtended
+from app.quota.schemas import (
+    NovaQuotaCreate,
+    NovaQuotaRead,
+    NovaQuotaReadPublic,
+    NovaQuotaReadShort,
+    QuotaQuery,
+    QuotaUpdate,
+)
+from app.quota.schemas_extended import (
+    NovaQuotaReadExtended,
+    NovaQuotaReadExtendedPublic,
+)
 from app.service.api.dependencies import valid_service_id
 from app.service.models import Service
 from fastapi import APIRouter, Body, Depends, HTTPException, Response, status
@@ -19,29 +30,51 @@ router = APIRouter(prefix="/quotas", tags=["quotas"])
 @db.read_transaction
 @router.get(
     "/",
-    response_model=List[Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended]],
+    response_model=Union[
+        List[NovaQuotaReadExtended],
+        List[NovaQuotaRead],
+        List[NovaQuotaReadShort],
+        List[NovaQuotaReadExtendedPublic],
+        List[NovaQuotaReadPublic],
+    ],
+    summary="Read all quotas",
+    description="Retrieve all quotas stored in the database. \
+        It is possible to filter on quotas attributes and other \
+        common query parameters.",
 )
 def get_quotas(
+    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
     item: QuotaQuery = Depends(),
 ):
     items = quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    return quota.paginate(items=items, page=page.page, size=page.size)
+    items = quota.paginate(items=items, page=page.page, size=page.size)
+    return quota.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
 
 @db.write_transaction
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended],
+    response_model=NovaQuotaReadExtended,
+    dependencies=[Depends(check_write_access)],
+    summary="Create quota",
+    description="Create a quota and connect it to its related entities: \
+        project and service. \
+        At first verify that target project and service exist. \
+        Then verify project does not already have an equal quota type and \
+        check service and project belong to the same provider.",
 )
 def post_quota(
     project: Project = Depends(valid_project_id),
     service: Service = Depends(valid_service_id),
-    item: Union[NumCPUQuotaCreate, RAMQuotaCreate] = Body(),
+    item: NovaQuotaCreate = Body(),
 ):
     # Check project does not have duplicated quota types
     for q in project.quotas.all():
@@ -63,16 +96,40 @@ def post_quota(
 @db.read_transaction
 @router.get(
     "/{quota_uid}",
-    response_model=Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended],
+    response_model=Union[
+        NovaQuotaReadExtended,
+        NovaQuotaRead,
+        NovaQuotaReadShort,
+        NovaQuotaReadExtendedPublic,
+        NovaQuotaReadPublic,
+    ],
+    summary="Read a specific quota",
+    description="Retrieve a specific quota using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
 )
-def get_quota(item: Quota = Depends(valid_quota_id)):
-    return item
+def get_quota(
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: Quota = Depends(valid_quota_id),
+):
+    return quota.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
 
 
 @db.write_transaction
 @router.patch(
     "/{quota_uid}",
-    response_model=Optional[Union[NumCPUQuotaReadExtended, RAMQuotaReadExtended]],
+    response_model=Optional[NovaQuotaRead],
+    dependencies=[Depends(check_write_access)],
+    summary="Edit a specific quota",
+    description="Update attribute values of a specific quota. \
+        The target quota is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message.",
 )
 def put_quota(
     update_data: QuotaUpdate,
@@ -86,7 +143,16 @@ def put_quota(
 
 
 @db.write_transaction
-@router.delete("/{quota_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{quota_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
+    summary="Delete a specific quota",
+    description="Delete a specific quota using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
 def delete_quotas(item: Quota = Depends(valid_quota_id)):
     if not quota.remove(db_obj=item):
         raise HTTPException(

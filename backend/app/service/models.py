@@ -36,31 +36,9 @@ class Service(StructuredNode):
 
 
 class NovaService(Service):
-    num_cpu_quotas = RelationshipFrom(
-        "..quota.models.NumCPUQuota", "APPLY_TO", cardinality=ZeroOrMore
+    quotas = RelationshipFrom(
+        "..quota.models.NovaQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
-    # instances_quotas = RelationshipFrom(
-    #    "..quota.models.InstanceQuota", "APPLY_TO", cardinality=ZeroOrMore
-    # )
-    # key_pairs_quotas = RelationshipFrom(
-    #    "..quota.models.KeyPairQuota", "APPLY_TO", cardinality=ZeroOrMore
-    # )
-    # metadata_quotas = RelationshipFrom(
-    #    "..quota.models.MetadataItemsQuota",
-    #    "APPLY_TO",
-    #    cardinality=ZeroOrMore,
-    # )
-    ram_quotas = RelationshipFrom(
-        "..quota.models.RAMQuota", "APPLY_TO", cardinality=ZeroOrMore
-    )
-    # server_group_quotas = RelationshipFrom(
-    #    "..quota.models.ServerGroupQuota", "APPLY_TO", cardinality=ZeroOrMore
-    # )
-    # server_group_members_quotas = RelationshipFrom(
-    #    "..quota.models.ServerGroupMemberQuota",
-    #    "APPLY_TO",
-    #    cardinality=ZeroOrMore,
-    # )
 
 
 class CinderService(Service):

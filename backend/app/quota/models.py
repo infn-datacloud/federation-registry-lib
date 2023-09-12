@@ -1,5 +1,6 @@
 from neomodel import (
-    FloatProperty,
+    BooleanProperty,
+    IntegerProperty,
     One,
     RelationshipFrom,
     RelationshipTo,
@@ -40,85 +41,27 @@ class Quota(StructuredNode):
     project = RelationshipFrom(
         "..project.models.Project", "USE_SERVICE_WITH", cardinality=One
     )
+    service = RelationshipTo("..service.models.Service", "APPLY_TO", cardinality=One)
+
+
+class NovaQuota(Quota):
+    cores: IntegerProperty()
+    fixed_ips: IntegerProperty()
+    floating_ips: IntegerProperty()
+    force: BooleanProperty()
+    injected_file_content_bytes: IntegerProperty()
+    injected_file_path_bytes: IntegerProperty()
+    injected_files: IntegerProperty()
+    instances: IntegerProperty()
+    key_pairs: IntegerProperty()
+    metadata_items: IntegerProperty()
+    networks: IntegerProperty()
+    ram: IntegerProperty()
+    security_group_rules: IntegerProperty()
+    security_groups: IntegerProperty()
+    server_groups: IntegerProperty()
+    server_group_members: IntegerProperty()
+
     service = RelationshipTo(
-        "..service.models.Service", "APPLY_TO", cardinality=One
+        "..service.models.NovaService", "APPLY_TO", cardinality=One
     )
-
-
-class NumCPUQuota(Quota):
-    tot_limit = FloatProperty(default=0)
-    tot_request = FloatProperty(default=0)
-    tot_guaranteed = FloatProperty(default=0)
-
-
-class InstanceQuota(Quota):
-    tot_limit = FloatProperty(default=0)
-    tot_guaranteed = FloatProperty(default=0)
-
-
-class KeyPairQuota(Quota):
-    user_limit = FloatProperty(default=0)
-    user_guaranteed = FloatProperty(default=0)
-
-
-class MetadataItemsQuota(Quota):
-    instance_limit = FloatProperty(default=0)
-    instance_guaranteed = FloatProperty(default=0)
-
-
-class RAMQuota(Quota):
-    tot_limit = FloatProperty()
-    tot_request = FloatProperty()
-    tot_guaranteed = FloatProperty(default=0)
-
-
-class ServerGroupQuota(Quota):
-    tot_limit = FloatProperty(default=0)
-    tot_guaranteed = FloatProperty(default=0)
-
-
-class ServerGroupMemberQuota(Quota):
-    group_limit = FloatProperty(default=0)
-    group_guaranteed = FloatProperty(default=0)
-
-
-class NumGPUQuota(Quota):
-    tot_limit = FloatProperty(default=0)
-    tot_request = FloatProperty(default=0)
-    tot_guaranteed = FloatProperty(default=0)
-
-
-class UploadBandwidthQuota(Quota):
-    pass
-
-
-class DownloadBandwidthQuota(Quota):
-    pass
-
-
-class PublicIPQuota(Quota):
-    pass
-
-
-class CPUFrequencyQuota(Quota):
-    pass
-
-
-class MoneyQuota(Quota):
-    pass
-
-
-class DiskQuota(Quota):
-    pass
-
-
-class UploadAggregatedQuota(Quota):
-    pass
-
-
-class DownloadAggregatedQuota(Quota):
-    pass
-
-
-class ComputeTimeQuota(Quota):
-    pass

@@ -1,9 +1,12 @@
-from typing import Union
-
-from app.project.schemas import ProjectRead
-from app.provider.schemas import ProviderRead
-from app.quota.schemas import NumCPUQuotaRead, QuotaRead, RAMQuotaRead
-from app.service.schemas import CinderServiceRead, KeystoneServiceRead, NovaServiceRead
+from app.project.schemas import ProjectRead, ProjectReadPublic
+from app.provider.schemas import ProviderRead, ProviderReadPublic
+from app.quota.schemas import (
+    NovaQuotaRead,
+    NovaQuotaReadPublic,
+    QuotaRead,
+    QuotaReadPublic,
+)
+from app.service.schemas import NovaServiceRead, NovaServiceReadPublic
 
 
 class ProjectReadExtended(ProjectRead):
@@ -12,16 +15,19 @@ class ProjectReadExtended(ProjectRead):
 
 class QuotaReadExtended(QuotaRead):
     project: ProjectReadExtended
-    service: Union[
-        CinderServiceRead,
-        KeystoneServiceRead,
-        NovaServiceRead,
-    ]
 
 
-class NumCPUQuotaReadExtended(NumCPUQuotaRead, QuotaReadExtended):
-    pass
+class ProjectReadExtendedPublic(ProjectReadPublic):
+    provider: ProviderReadPublic
 
 
-class RAMQuotaReadExtended(RAMQuotaRead, QuotaReadExtended):
-    pass
+class QuotaReadExtendedPublic(QuotaReadPublic):
+    project: ProjectReadExtendedPublic
+
+
+class NovaQuotaReadExtended(NovaQuotaRead, QuotaReadExtended):
+    service: NovaServiceRead
+
+
+class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic, QuotaReadExtendedPublic):
+    service: NovaServiceReadPublic

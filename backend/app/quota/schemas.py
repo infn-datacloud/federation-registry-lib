@@ -1,152 +1,44 @@
-from typing import Optional, Union
+from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from app.quota.enum import (
-    QuotaTypeBandwidth,
-    QuotaTypeCount,
-    QuotaTypeFrequency,
-    QuotaTypeMoney,
-    QuotaTypeSize,
-    QuotaTypeTime,
-)
-from pydantic import BaseModel, Extra, validator
+from app.models import BaseNodeCreate, BaseNodeRead
+from app.query import create_query_model
+from app.service.enum import ServiceName
+from pydantic import BaseModel, Extra, Field, validator
 
 
 class QuotaBase(BaseModel, extra=Extra.allow):
-    type: Union[
-        QuotaTypeBandwidth,
-        QuotaTypeCount,
-        QuotaTypeFrequency,
-        QuotaTypeMoney,
-        QuotaTypeSize,
-        QuotaTypeTime,
-    ]
+    """Model with Quota basic attributes."""
 
-
-class QuotaQuery(BaseNodeQuery, QuotaBase):
-    """Quota Query Model class.
-
-    Attributes:
-        description (str | None): Brief description.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float| None): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float | None): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float | None): The guaranteed quantity
-            of a resource to be granted to user.
-    """
-
-    type: Optional[
-        Union[
-            QuotaTypeBandwidth,
-            QuotaTypeCount,
-            QuotaTypeFrequency,
-            QuotaTypeMoney,
-            QuotaTypeSize,
-            QuotaTypeTime,
-        ]
-    ] = None
-    # tot_limit: Optional[float] = Field(ge=0, default=None)
-    # instance_limit: Optional[float] = Field(ge=0, default=None)
-    # user_limit: Optional[float] = Field(ge=0, default=None)
-    # tot_guaranteed: Optional[float] = Field(ge=0, default=None)
-    # instance_guaranteed: Optional[float] = Field(ge=0, default=None)
-    # user_guaranteed: Optional[float] = Field(ge=0, default=None)
+    type: ServiceName = Field(description="Service type.")
 
 
 class QuotaCreate(BaseNodeCreate, QuotaBase):
-    """Quota Create Model class.
+    """Model to create a Quota.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT or POST request.
-
-    Attributes:
-        description (str): Brief description.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
-        type (QuotaType): Quota type.
-        service (Service): Service where this quota applies.
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
     """
 
-    # tot_limit: Optional[float] = Field(ge=0, default=None)
-    # instance_limit: Optional[float] = Field(ge=0, default=None)
-    # user_limit: Optional[float] = Field(ge=0, default=None)
-    # tot_guaranteed: float = Field(ge=0, default=0)
-    # instance_guaranteed: float = Field(ge=0, default=0)
-    # user_guaranteed: float = Field(ge=0, default=0)
 
+class QuotaUpdate(QuotaCreate):
+    """Model to update a Quota.
 
-class QuotaUpdate(BaseNodeCreate, extra=Extra.allow):
-    """Quota Update Model class.
+    Class without id (which is populated by the database). Expected as
+    input when performing a PUT request.
 
-    Class without id (which is populated by the database).
-    Expected as input when performing a PUT request.
-
-    Attributes:
-        description (str): Brief description.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
-        type (QuotaType | None): Quota type.
-        service (Service | None): Service where this quota applies.
+    Default to None mandatory attributes.
     """
 
 
 class QuotaRead(BaseNodeRead, QuotaBase):
-    """Quota class.
+    """Model to read Service data retrieved from DB.
 
-    Class retrieved from the database
-    expected as output when performing a REST request.
-    It contains all the non-sensible data written
-    in the database.
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
 
-    Attributes:
-        uid (uuid): Quota unique ID.
-        type (str): Quota type (type).
-        description (str): Brief description.
-        unit (str | None): Measurement unit derived from the
-            quota type/type.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total.
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance.
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user.
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total.
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance.
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user.
+    Add the *uid* attribute, which is the item unique identifier in the
+    database.
     """
 
 
@@ -158,57 +50,58 @@ class QuotaReadShort(BaseNodeRead, QuotaBase):
     pass
 
 
-class NumCPUQuotaBase(BaseModel, extra=Extra.ignore):
+QuotaQuery = create_query_model("QuotaQuery", QuotaBase)
+
+
+class NovaBase(BaseModel, extra=Extra.ignore):
+    """Model derived from ServiceBase to inherit attributes common to all
+    services. It adds the basic attributes for Nova services.
+
+    Validation: type value is exactly ServiceType.openstack_nova.
+    """
+
+    cores: Optional[int] = Field(default=None, description="")
+    fixed_ips: Optional[int] = Field(default=None, description="")
+    floating_ips: Optional[int] = Field(default=None, description="")
+    force: Optional[bool] = Field(default=None, description="")
+    injected_file_content_bytes: Optional[int] = Field(default=None, description="")
+    injected_file_path_bytes: Optional[int] = Field(default=None, description="")
+    injected_files: Optional[int] = Field(default=None, description="")
+    instances: Optional[int] = Field(default=None, description="")
+    key_pairs: Optional[int] = Field(default=None, description="")
+    metadata_items: Optional[int] = Field(default=None, description="")
+    networks: Optional[int] = Field(default=None, description="")
+    ram: Optional[int] = Field(default=None, description="")
+    security_group_rules: Optional[int] = Field(default=None, description="")
+    security_groups: Optional[int] = Field(default=None, description="")
+    server_groups: Optional[int] = Field(default=None, description="")
+    server_group_members: Optional[int] = Field(default=None, description="")
+
     @validator("type", check_fields=False)
     def check_type(cls, v):
-        if v != QuotaTypeCount.num_cpu:
+        if v != ServiceName.OPENSTACK_NOVA:
             raise ValueError(f"Not valid type: {v}")
         return v
 
 
-class NumCPUQuotaCreate(NumCPUQuotaBase, BaseNodeCreate, QuotaBase):
+class NovaQuotaCreate(BaseNodeCreate, NovaBase):
     pass
 
 
-class NumCPUQuotaUpdate(NumCPUQuotaBase, QuotaUpdate):
+class NovaQuotaUpdate(NovaQuotaCreate):
     pass
 
 
-class NumCPUQuotaRead(NumCPUQuotaBase, BaseNodeCreate, QuotaRead):
+class NovaQuotaRead(BaseNodeCreate, NovaBase):
     pass
 
 
-class NumCPUQuotaReadPublic(BaseNodeRead, NumCPUQuotaBase):
+class NovaQuotaReadPublic(BaseNodeRead, NovaBase):
     pass
 
 
-class NumCPUQuotaReadShort(BaseNodeRead, NumCPUQuotaBase):
+class NovaQuotaReadShort(BaseNodeRead, NovaBase):
     pass
 
 
-class RAMQuotaBase(BaseModel, extra=Extra.ignore):
-    @validator("type", check_fields=False)
-    def check_type(cls, v):
-        if v != QuotaTypeSize.mem_size:
-            raise ValueError(f"Not valid type: {v}")
-        return v
-
-
-class RAMQuotaCreate(RAMQuotaBase, BaseNodeCreate, QuotaBase):
-    pass
-
-
-class RAMQuotaUpdate(RAMQuotaBase, QuotaUpdate):
-    pass
-
-
-class RAMQuotaRead(RAMQuotaBase, BaseNodeCreate, QuotaRead):
-    pass
-
-
-class RAMQuotaReadPublic(BaseNodeRead, RAMQuotaBase):
-    pass
-
-
-class RAMQuotaReadShort(BaseNodeRead, RAMQuotaBase):
-    pass
+NovaQuotaQuery = create_query_model("NovaQuotaQuery", NovaBase)

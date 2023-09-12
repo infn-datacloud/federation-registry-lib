@@ -63,6 +63,8 @@ class CRUDService(
         return db_obj
 
     def remove(self, *, db_obj: Service) -> bool:
+        for item in db_obj.quotas.all():
+            quota.remove(item)
         if isinstance(db_obj, NovaService):
             return nova_service.remove(db_obj=db_obj)
         elif isinstance(db_obj, CinderService):
@@ -94,13 +96,6 @@ class CRUDNovaService(
     ]
 ):
     """"""
-
-    def remove(self, *, db_obj: NovaService) -> bool:
-        for item in db_obj.num_cpu_quotas.all():
-            quota.remove(item)
-        for item in db_obj.ram_quotas.all():
-            quota.remove(item)
-        return super().remove(db_obj=db_obj)
 
 
 class CRUDCinderService(

@@ -2,12 +2,7 @@ from typing import List
 
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
-from app.quota.schemas import (
-    NumCPUQuotaRead,
-    NumCPUQuotaReadPublic,
-    RAMQuotaRead,
-    RAMQuotaReadPublic,
-)
+from app.quota.schemas import NovaQuotaRead, NovaQuotaReadPublic
 from app.service.schemas import (
     CinderServiceRead,
     CinderServiceReadPublic,
@@ -43,37 +38,23 @@ class ExtendWithProjectPublic(BaseModel):
     project: ProjectReadPublic
 
 
-class NumCPUQuotaReadExtended(NumCPUQuotaRead, ExtendWithProject):
+class NovaQuotaReadExtended(NovaQuotaRead, ExtendWithProject):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
 
 
-class RAMQuotaReadExtended(RAMQuotaRead, ExtendWithProject):
-    """Model to extend the RAM Quota data read from the DB with the lists of
-    related items."""
-
-
-class NumCPUQuotaReadExtendedPublic(NumCPUQuotaReadPublic, ExtendWithProjectPublic):
+class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic, ExtendWithProjectPublic):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
-
-
-class RAMQuotaReadExtendedPublic(RAMQuotaReadPublic, ExtendWithProjectPublic):
-    """Model to extend the RAM Quota data read from the DB with the lists of
-    related items."""
 
 
 class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
     """Model to extend the Nova Service data read from the DB with the lists of
     related items for authenticated users."""
 
-    num_cpu_quotas: List[NumCPUQuotaReadExtended] = Field(
+    quotas: List[NovaQuotaReadExtended] = Field(
         default_factory=list,
-        description="List of quotas related to the CPUs number usage.",
-    )
-    ram_quotas: List[RAMQuotaReadExtended] = Field(
-        default_factory=list,
-        description="List of quotas related to the RAM usage.",
+        description="List of quotas.",
     )
 
 
@@ -81,13 +62,9 @@ class NovaServiceReadExtendedPublic(NovaServiceReadPublic, ExtendWithProviderPub
     """Model to extend the Nova Service data read from the DB with the lists of
     related items for non-authenticated users."""
 
-    num_cpu_quotas: List[NumCPUQuotaReadExtendedPublic] = Field(
+    quotas: List[NovaQuotaReadExtendedPublic] = Field(
         default_factory=list,
-        description="List of quotas related to the CPUs number usage.",
-    )
-    ram_quotas: List[RAMQuotaReadExtendedPublic] = Field(
-        default_factory=list,
-        description="List of quotas related to the RAM usage.",
+        description="List of quotas.",
     )
 
 
