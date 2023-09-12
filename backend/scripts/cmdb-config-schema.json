@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cmdb-config-schema.json",
+  "title": "CMDB Population Script's Configuration",
+  "description": "Configuration file with manual information about CMDB providers",
+  "fileMatch": "*.config.yaml",
+  "type": "object",
+  "properties": {
+    "cmdb": {
+      "description": "CMDB instance details",
+      "type": "object",
+      "properties": {
+        "url": {
+          "description": "CMDB base URL",
+          "type": "string",
+          "format": "uri"
+        },
+        "api_ver_flavors": {
+          "description": "Flavors API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_identity_providers": {
+          "description": "Identity providers API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_images": {
+          "description": "Images API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_locations": {
+          "description": "Locations API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_projects": {
+          "description": "Projects API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_providers": {
+          "description": "Providers API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_quotas": {
+          "description": "Quotas API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_services": {
+          "description": "Services API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_slas": {
+          "description": "SLAs API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        },
+        "api_ver_user_groups": {
+          "description": "User groups API endpoint version to use",
+          "type": "string",
+          "default": "v1"
+        }
+      },
+      "required": ["url"]
+    },
+    "oidc_agent_accounts": {
+      "description": "List of identity providers URLs available for OIDC-agent authentication",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "uri"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "openstack": {
+      "description": "List of Openstack instances to integrate in the CMDB",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Provider name",
+            "type": "string"
+          },
+          "auth_url": {
+            "description": "Provider authentication url",
+            "type": "string",
+            "format": "uri"
+          },
+          "identity_providers": {
+            "description": "List of identity providers supported by this provider",
+            "type": "array",
+            "items": {
+              "description": "Identity provider details",
+              "type": "object",
+              "properties": {
+                "endpoint": {
+                  "description": "Identity provider URL",
+                  "type": "string",
+                  "format": "uri"
+                },
+                "name": {
+                  "description": "Identity provider name used by this provider to communicate",
+                  "type": "string"
+                },
+                "protocol": {
+                  "description": "Protocol used by this provider to communicate",
+                  "type": "string"
+                },
+                "group_claim": {
+                  "description": "Group claim to use to check user's group",
+                  "type": "string"
+                }
+              },
+              "required": ["name", "protocol", "endpoint", "group_claim"]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "projects": {
+            "description": "List of projects to integrate in the CMDB and to use to perform authentication on this provider",
+            "type": "array",
+            "items": {
+              "description": "Project details",
+              "type": "object",
+              "oneOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "description": "Project UUID",
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": ["id"]
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "description": "Project name",
+                      "type": "string"
+                    },
+                    "domain": {
+                      "description": "Project domain",
+                      "type": "string"
+                    }
+                  },
+                  "required": ["name", "domain"]
+                }
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "is_public": {
+            "description": "Provider is public",
+            "type": "boolean",
+            "default": false
+          },
+          "support_emails": {
+            "description": "List of support emails for this provider",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "location": {
+            "description": "Provider geographical location",
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Location name",
+                "type": "string"
+              },
+              "country": {
+                "description": "Location country extended name",
+                "type": "string"
+              },
+              "latitude": {
+                "description": "Location latitude",
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+              },
+              "longitude": {
+                "description": "Location longitude",
+                "type": "number",
+                "minimum": -180,
+                "maximum": 180
+              }
+            },
+            "required": ["name", "country"]
+          }
+        },
+        "required": ["name", "auth_url", "identity_providers", "projects"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": ["cmdb", "oidc_agent_accounts"]
+}

@@ -1,11 +1,12 @@
 cmdb:
   url: http://localhost:8000/
-  api_ver_providers: "v1"
-  api_ver_projects: "v1"
-  api_ver_locations: "v1"
   api_ver_flavors: "v1"
-  api_ver_images: "v1"
   api_ver_identity_providers: "v1"
+  api_ver_images: "v1"
+  api_ver_locations: "v1"
+  api_ver_projects: "v1"
+  api_ver_providers: "v1"
+  api_ver_quotas: "v1"
   api_ver_services: "v1"
   api_ver_slas: "v1"
   api_ver_user_groups: "v1"

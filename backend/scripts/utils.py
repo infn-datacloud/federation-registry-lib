@@ -46,7 +46,7 @@ def generate_token(*, endpoint: AnyHttpUrl) -> str:
     return token_cmd.stdout.strip("\n")
 
 
-def load_config(*, base_path: str = ".", fname: str = "config.yaml") -> Config:
+def load_config(*, base_path: str = ".", fname: str = ".config.yaml") -> Config:
     logger.info("Loading configuration")
     with open(os.path.join(base_path, fname)) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
