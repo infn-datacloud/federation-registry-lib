@@ -3,7 +3,8 @@ from typing import List
 from app.flavor.schemas import FlavorCreate, FlavorRead
 from app.image.schemas import ImageCreate, ImageRead
 from app.location.schemas import LocationCreate, LocationRead
-from app.project.schemas import ProjectCreate, ProjectRead
+from app.project.schemas import ProjectCreate
+from app.project.schemas_extended import ProjectReadExtended
 from app.provider.schemas_extended import (
     AuthMethodCreate,
     IdentityProviderCreateExtended,
@@ -94,8 +95,8 @@ class LocationRead(LocationRead):
     pass
 
 
-class ProjectRead(ProjectRead):
-    quotas: QuotaRead = Field(default_factory=list, description="List of quotas")
+class ProjectRead(ProjectReadExtended):
+    pass
 
 
 class ProviderRead(ProviderReadExtended):

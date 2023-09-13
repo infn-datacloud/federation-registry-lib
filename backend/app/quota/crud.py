@@ -1,3 +1,5 @@
+from typing import Any, Dict, Optional, Union
+
 from app.crud import CRUDBase
 from app.project.models import Project
 from app.quota.models import NovaQuota, Quota
@@ -49,6 +51,16 @@ class CRUDQuota(
         db_obj.service.connect(service)
         db_obj.project.connect(project)
         return db_obj
+
+    def remove(self, *, db_obj: Quota) -> bool:
+        if isinstance(db_obj, NovaQuota):
+            return nova_quota.remove(db_obj=db_obj)
+
+    def update(
+        self, *, db_obj: Quota, obj_in: Union[QuotaUpdate, Dict[str, Any]]
+    ) -> Optional[Quota]:
+        if isinstance(db_obj, NovaQuota):
+            return nova_quota.update(db_obj=db_obj, obj_in=obj_in)
 
 
 class CRUDNovaQuota(

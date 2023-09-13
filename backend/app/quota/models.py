@@ -41,26 +41,25 @@ class Quota(StructuredNode):
     project = RelationshipFrom(
         "..project.models.Project", "USE_SERVICE_WITH", cardinality=One
     )
-    service = RelationshipTo("..service.models.Service", "APPLY_TO", cardinality=One)
 
 
 class NovaQuota(Quota):
-    cores: IntegerProperty()
-    fixed_ips: IntegerProperty()
-    floating_ips: IntegerProperty()
-    force: BooleanProperty()
-    injected_file_content_bytes: IntegerProperty()
-    injected_file_path_bytes: IntegerProperty()
-    injected_files: IntegerProperty()
-    instances: IntegerProperty()
-    key_pairs: IntegerProperty()
-    metadata_items: IntegerProperty()
-    networks: IntegerProperty()
-    ram: IntegerProperty()
-    security_group_rules: IntegerProperty()
-    security_groups: IntegerProperty()
-    server_groups: IntegerProperty()
-    server_group_members: IntegerProperty()
+    cores = IntegerProperty()
+    fixed_ips = IntegerProperty()
+    floating_ips = IntegerProperty()
+    force = BooleanProperty()
+    injected_file_content_bytes = IntegerProperty()
+    injected_file_path_bytes = IntegerProperty()
+    injected_files = IntegerProperty()
+    instances = IntegerProperty()
+    key_pairs = IntegerProperty()
+    metadata_items = IntegerProperty()
+    networks = IntegerProperty()
+    ram = IntegerProperty()
+    security_group_rules = IntegerProperty()
+    security_groups = IntegerProperty()
+    server_groups = IntegerProperty()
+    server_group_members = IntegerProperty()
 
     service = RelationshipTo(
         "..service.models.NovaService", "APPLY_TO", cardinality=One

@@ -165,10 +165,22 @@ def add_or_patch_provider(
 
                 # Connect quotas
                 db_project = crud_project.find(
-                    url=urls.projects, header=read_header, params={"name": project.name}
+                    url=urls.projects,
+                    header=read_header,
+                    params={"name": project.name, "with_conn": True},
                 )  # TODO Modify provider schema such that project contains quotas?
-                if len(db_project.quotas) == 0:
-                    logger.info("Creating new set of quotas.")
+                if len(db_project.quotas) > 0:
+                    logger.info(
+                        f"Trying to update quotas of project '{project.name}'."
+                    )
+                    url = os.path.join(urls.quotas, str(db_project.quotas[0].uid))
+                    crud_quota.update(
+                        new_data=project.compute_quota, url=url, header=write_header
+                    )
+                else:
+                    logger.info(
+                        f"Creating new set of quotas for project '{project.name}'."
+                    )
                     crud_quota.create(
                         new_data=project.compute_quota,
                         url=urls.quotas,
@@ -178,9 +190,6 @@ def add_or_patch_provider(
                             "service_uid": compute_service_uid,
                         },
                     )
-                else:
-                    # TODO Update existing
-                    pass
 
             for identity_provider in provider.identity_providers:
                 db_identity_provider = crud_identity_provider.find(
