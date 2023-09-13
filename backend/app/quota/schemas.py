@@ -92,7 +92,7 @@ class NovaQuotaUpdate(NovaQuotaCreate):
     pass
 
 
-class NovaQuotaRead(BaseNodeCreate, NovaBase):
+class NovaQuotaRead(BaseNodeRead, NovaBase):
     pass
 
 

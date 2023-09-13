@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from app.identity_provider.schemas import (
     IdentityProviderRead,
@@ -6,15 +6,8 @@ from app.identity_provider.schemas import (
 )
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
-from app.quota.schemas import QuotaRead, QuotaReadPublic
-from app.service.schemas import (
-    CinderServiceRead,
-    CinderServiceReadPublic,
-    KeystoneServiceRead,
-    KeystoneServiceReadPublic,
-    NovaServiceRead,
-    NovaServiceReadPublic,
-)
+from app.quota.schemas import NovaQuotaRead, NovaQuotaReadPublic
+from app.service.schemas import NovaServiceRead, NovaServiceReadPublic
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from pydantic import Field
@@ -52,22 +45,22 @@ class SLAReadExtendedPublic(SLAReadPublic):
     user_group: UserGroupReadExtendedPublic = Field(description="Involved User Group.")
 
 
-class QuotaReadExtended(QuotaRead):
+class NovaQuotaReadExtended(NovaQuotaRead):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead] = Field(
+    service: NovaServiceRead = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
 
-class QuotaReadExtendedPublic(QuotaReadPublic):
+class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: Union[
-        CinderServiceReadPublic, KeystoneServiceReadPublic, NovaServiceReadPublic
-    ] = Field(description="A generic Quota applies to only one generic Service.")
+    service: NovaServiceReadPublic = Field(
+        description="A generic Quota applies to only one generic Service."
+    )
 
 
 class ProjectReadExtended(ProjectRead):
@@ -75,7 +68,7 @@ class ProjectReadExtended(ProjectRead):
     related items for authenticated users."""
 
     provider: ProviderRead = Field(description="Provider owning this Project.")
-    quotas: List[QuotaReadExtended] = Field(
+    quotas: List[NovaQuotaReadExtended] = Field(
         default_factory=list, description="List of owned quotas."
     )
     sla: Optional[SLAReadExtended] = Field(
@@ -88,7 +81,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     related items for non-authenticated users."""
 
     provider: ProviderReadPublic = Field(description="Provider owning this Project.")
-    quotas: List[QuotaReadExtendedPublic] = Field(
+    quotas: List[NovaQuotaReadExtendedPublic] = Field(
         default_factory=list, description="List of owned quotas."
     )
     sla: Optional[SLAReadExtendedPublic] = Field(

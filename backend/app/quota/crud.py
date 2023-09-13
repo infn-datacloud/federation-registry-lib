@@ -1,6 +1,5 @@
 from app.crud import CRUDBase
 from app.project.models import Project
-from app.project.schemas_extended import QuotaReadExtended, QuotaReadExtendedPublic
 from app.quota.models import NovaQuota, Quota
 from app.quota.schemas import (
     NovaQuotaCreate,
@@ -17,6 +16,8 @@ from app.quota.schemas import (
 from app.quota.schemas_extended import (
     NovaQuotaReadExtended,
     NovaQuotaReadExtendedPublic,
+    QuotaReadExtended,
+    QuotaReadExtendedPublic,
 )
 from app.service.models import Service
 

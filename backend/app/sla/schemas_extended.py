@@ -5,8 +5,8 @@ from app.identity_provider.schemas import (
     IdentityProviderReadPublic,
 )
 from app.project.schemas import ProjectRead, ProjectReadPublic
-from app.project.schemas_extended import QuotaReadExtended
 from app.provider.schemas import ProviderRead, ProviderReadPublic
+from app.quota.schemas_extended import QuotaReadExtended
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from pydantic import Field
