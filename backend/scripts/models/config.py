@@ -56,6 +56,9 @@ class CMDB(BaseModel):
     api_ver_providers: str = Field(
         default="v1", description="Providers API version to use"
     )
+    api_ver_quotas: str = Field(
+        default="v1", description="Quotas API version to use"
+    )
     api_ver_services: str = Field(
         default="v1", description="Services API version to use"
     )

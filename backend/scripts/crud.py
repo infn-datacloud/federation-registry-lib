@@ -1,4 +1,4 @@
-from typing import Dict, Generic, List, Optional, Tuple, TypeVar
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
 import requests
 from fastapi import status
@@ -17,6 +17,8 @@ from models.cmdb import (
     ProjectWrite,
     ProviderRead,
     ProviderWrite,
+    QuotaRead,
+    QuotaWrite,
     ServiceRead,
     ServiceWrite,
 )
@@ -47,10 +49,17 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
         raise BaseException("Operation failed")
 
     def create(
-        self, *, new_data: WriteSchema, url: AnyHttpUrl, header: Dict[str, str]
+        self,
+        *,
+        new_data: WriteSchema,
+        url: AnyHttpUrl,
+        header: Dict[str, str],
+        params: Optional[Dict[str, Any]] = None,
     ) -> ReadSchema:
         label = self._repr(item=new_data)
-        resp = requests.post(url=url, json=jsonable_encoder(new_data), headers=header)
+        resp = requests.post(
+            url=url, json=jsonable_encoder(new_data), headers=header, params=params
+        )
         if resp.status_code == status.HTTP_201_CREATED:
             logger.info(f"{self.type} '{label}' successfully created")
             return self.read_schema.parse_obj(resp.json())
@@ -71,67 +80,48 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
         else:
             self._action_failed(name=label, resp=resp, action="update")
 
+    def find(
+        self, *, url: AnyHttpUrl, header: Dict[str, str], params: Dict[str, Any]
+    ) -> Optional[ReadSchema]:
+        db_item = None
+        resp = requests.get(url=url, params=params, headers=header)
+        if resp.status_code == status.HTTP_200_OK:
+            if len(resp.json()) == 0:
+                logger.info(f"{self.type} '{list(params.values())}' not found")
+            elif len(resp.json()) == 1:
+                logger.info(f"{self.type} '{list(params.values())}' found")
+                db_item = self.read_schema.parse_obj(resp.json()[0])
+            else:
+                logger.error(
+                    f"{self.type} '{list(params.values())}' multiple occurrences found"
+                )
+                raise Exception("Database corrupted")
+        else:
+            self._action_failed(name=list(params.values()), resp=resp, action="find")
+        return db_item
 
-class UUIDNameFindable(
+
+class KeyValueFindable(
     BasicPopulation[WriteSchema, ReadSchema], Generic[WriteSchema, ReadSchema]
 ):
     def __init__(self, *, type: str, write_schema: str, read_schema: str) -> None:
         super().__init__(type=type, write_schema=write_schema, read_schema=read_schema)
 
-    def find(
-        self, *, new_data: WriteSchema, db_items: List[ReadSchema], uuid: bool = True
+    def find_in_list(
+        self, *, key: str, value: str, db_items: List[ReadSchema]
     ) -> Optional[ReadSchema]:
-        label = self._repr(item=new_data)
-        db_item = None
-        if label in [i.name for i in db_items]:
-            idx = [i.name for i in db_items].index(label)
-            db_item = db_items[idx]
-            logger.info(f"{self.type} '{label}' already belongs to this provider")
-        elif uuid and new_data.uuid in [i.uuid for i in db_items]:
-            idx = [i.uuid for i in db_items].index(new_data.uuid)
-            db_item = db_items[idx]
-            logger.info(
-                f"{self.type} '{new_data.uuid}' already belongs to this provider"
-            )
-        else:
-            logger.info(
-                f"No {self.type.lower()}s with name '{label}' "
-                f"or uuid '{new_data.uuid}' "
-                if uuid
-                else "" "belongs to this provider"
-            )
-        return db_item
+        items = [i.dict().get(key) for i in db_items]
+        if value in items:
+            logger.info(f"{self.type} '{value}' already belongs to this provider")
+            idx = items.index(value)
+            return db_items[idx]
+        logger.info(f"No {self.type.lower()}s '{value}' belongs to this provider.")
+        return None
 
 
-class FindableConnectable(BasicPopulation[WriteSchema, ReadSchema]):
+class Connectable(BasicPopulation[WriteSchema, ReadSchema]):
     def __init__(self, *, type: str, write_schema: str, read_schema: str) -> None:
         super().__init__(type=type, write_schema=write_schema, read_schema=read_schema)
-
-    def find(
-        self,
-        *,
-        url: AnyHttpUrl,
-        header: Dict[str, str],
-        key_value_pair: Tuple[str, str],
-    ) -> Optional[ReadSchema]:
-        db_item = None
-        resp = requests.get(
-            url=url, params={key_value_pair[0]: key_value_pair[1]}, headers=header
-        )
-        if resp.status_code == status.HTTP_200_OK:
-            if len(resp.json()) == 0:
-                logger.info(f"{self.type} '{key_value_pair[1]}' not found")
-            elif len(resp.json()) == 1:
-                logger.info(f"{self.type} '{key_value_pair[1]}' found")
-                db_item = self.read_schema.parse_obj(resp.json()[0])
-            else:
-                logger.error(
-                    f"{self.type} '{key_value_pair[1]}' multiple occurrences found"
-                )
-                raise Exception("Database corrupted")
-        else:
-            self._action_failed(name=key_value_pair[1], resp=resp, action="find")
-        return db_item
 
     def connect(
         self, *, url: AnyHttpUrl, header: Dict[str, str], new_data: WriteSchema
@@ -149,19 +139,19 @@ class FindableConnectable(BasicPopulation[WriteSchema, ReadSchema]):
             self._action_failed(name=label, resp=resp, action="connect")
 
 
-class ImagePopulation(UUIDNameFindable[ImageWrite, ImageRead]):
+class ImagePopulation(KeyValueFindable[ImageWrite, ImageRead]):
     def __init__(self) -> None:
         super().__init__(type="Image", read_schema=ImageRead, write_schema=ImageWrite)
 
 
-class FlavorPopulation(UUIDNameFindable[FlavorWrite, FlavorRead]):
+class FlavorPopulation(KeyValueFindable[FlavorWrite, FlavorRead]):
     def __init__(self) -> None:
         super().__init__(
             type="Flavor", read_schema=FlavorRead, write_schema=FlavorWrite
         )
 
 
-class ProjectPopulation(UUIDNameFindable[ProjectWrite, ProjectRead]):
+class ProjectPopulation(KeyValueFindable[ProjectWrite, ProjectRead]):
     def __init__(self) -> None:
         super().__init__(
             type="Project", read_schema=ProjectRead, write_schema=ProjectWrite
@@ -175,7 +165,7 @@ class ProviderPopulation(BasicPopulation[ProviderWrite, ProviderRead]):
         )
 
 
-class LocationPopulation(FindableConnectable[LocationWrite, LocationRead]):
+class LocationPopulation(Connectable[LocationWrite, LocationRead]):
     def __init__(self) -> None:
         super().__init__(
             type="Location", read_schema=LocationRead, write_schema=LocationWrite
@@ -183,7 +173,7 @@ class LocationPopulation(FindableConnectable[LocationWrite, LocationRead]):
 
 
 class IdentityProviderPopulation(
-    FindableConnectable[IdentityProviderWrite, IdentityProviderRead]
+    Connectable[IdentityProviderWrite, IdentityProviderRead]
 ):
     def __init__(self) -> None:
         super().__init__(
@@ -193,10 +183,19 @@ class IdentityProviderPopulation(
         )
 
 
-class ServicePopulation(UUIDNameFindable[ServiceWrite, ServiceRead]):
+class ServicePopulation(KeyValueFindable[ServiceWrite, ServiceRead]):
     def __init__(self) -> None:
         super().__init__(
             type="Service",
             read_schema=ServiceRead,
             write_schema=ServiceWrite,
+        )
+
+
+class QuotaPopulation(KeyValueFindable[QuotaWrite, QuotaRead]):
+    def __init__(self) -> None:
+        super().__init__(
+            type="Quota",
+            read_schema=QuotaRead,
+            write_schema=QuotaWrite,
         )

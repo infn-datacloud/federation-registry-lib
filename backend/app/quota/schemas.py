@@ -53,7 +53,7 @@ class QuotaReadShort(BaseNodeRead, QuotaBase):
 QuotaQuery = create_query_model("QuotaQuery", QuotaBase)
 
 
-class NovaBase(BaseModel, extra=Extra.ignore):
+class NovaBase(QuotaBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Nova services.
 

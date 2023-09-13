@@ -34,6 +34,7 @@ if __name__ == "__main__":
             api_ver_flavors=config.cmdb.api_ver_flavors,
             api_ver_images=config.cmdb.api_ver_images,
             api_ver_identity_providers=config.cmdb.api_ver_identity_providers,
+            api_ver_quotas=config.cmdb.api_ver_quotas,
             api_ver_services=config.cmdb.api_ver_services,
             api_ver_slas=config.cmdb.api_ver_slas,
             api_ver_user_groups=config.cmdb.api_ver_user_groups,

@@ -1,9 +1,10 @@
-from typing import Any, Dict, List
+from typing import List
 
 from logger import logger
 from models.cmdb import (
     FlavorWrite,
     ImageWrite,
+    NovaQuotaWrite,
     ProjectWrite,
     ProviderWrite,
     ServiceWrite,
@@ -14,7 +15,7 @@ from openstack.connection import Connection
 from utils import get_identity_providers
 
 
-def get_project(conn: Connection) -> ProjectWrite:
+def get_project_and_quotas(conn: Connection) -> ProjectWrite:
     logger.info("Retrieve current project data")
     curr_proj_id = conn.current_project.get("id")
     project = conn.identity.get_project(curr_proj_id)
@@ -22,7 +23,15 @@ def get_project(conn: Connection) -> ProjectWrite:
     data["uuid"] = data.pop("id")
     if data.get("description") is None:
         data["description"] = ""
-    return ProjectWrite(**data)
+
+    logger.info("Retrieve current project accessible quotas")
+    compute_quota = NovaQuotaWrite(
+        **conn.compute.get_quota_set(conn.current_project_id)
+    )
+    # block_storage_quota = CinderQuotaWrite(
+    # **conn.block_storage.get_quota_set(conn.current_project_id).items(),
+    # )
+    return ProjectWrite(**data, compute_quota=compute_quota)
 
 
 def get_flavors(conn: Connection) -> List[FlavorWrite]:
@@ -66,20 +75,6 @@ def get_images(conn: Connection) -> List[ImageWrite]:
     return images
 
 
-def get_quotas(conn: Connection) -> Dict[str, Any]:
-    logger.info("Retrieve current project accessible quotas")
-    quota_set = {}
-    for k, v in conn.compute.get_quota_set(conn.current_project_id).items():
-        quota_set[conn.compute.service_type] = {}
-        if k not in ["project_id", "id", "name"]:
-            quota_set[conn.compute.service_type][k] = v
-    for k, v in conn.block_storage.get_quota_set(conn.current_project_id).items():
-        quota_set[conn.block_storage.service_type] = {}
-        if k not in ["project_id", "id", "name"]:
-            quota_set[conn.compute.service_type][k] = v
-    return quota_set
-
-
 def get_services(conn: Connection) -> List[ServiceWrite]:
     return [
         ServiceWrite(
@@ -98,16 +93,6 @@ def get_services(conn: Connection) -> List[ServiceWrite]:
             name="org.openstack.cinder",
         ),
     ]
-
-
-#         if not quota.is_public:
-# projects = conn.compute.get_quota_access(quota)
-# data = quota.to_dict()
-# data["uuid"] = data.pop("id")
-# if data.get("description") is None:
-# data["description"] = ""
-# quotas.append(FlavorWrite(**data, projects=projects))
-# return quotas
 
 
 def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> ProviderWrite:
@@ -145,7 +130,7 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
         if len(provider.services) == 0:
             provider.services = get_services(conn)
 
-        provider.projects.append(get_project(conn))
+        provider.projects.append(get_project_and_quotas(conn))
 
         flavors = get_flavors(conn)
         uids = [j.uuid for j in provider.flavors]
@@ -158,8 +143,6 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
         for i in images:
             if i.uuid not in uids:
                 provider.images.append(i)
-
-        provider.quotas[conn.current_project_id] = get_quotas(conn)
 
         conn.close()
         logger.info("Connection closed")

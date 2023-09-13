@@ -72,7 +72,10 @@ class BaseNodeRead(BaseModel):
             for k, v in data.items()
             if isinstance(v, DateTime)
         }
-        return {**data, **datetime_fields}
+        enumeration_fields = {
+            k: v.value for k, v in data.items() if isinstance(v, Enum)
+        }
+        return {**data, **datetime_fields, **enumeration_fields}
 
     class Config:
         validate_assignment = True

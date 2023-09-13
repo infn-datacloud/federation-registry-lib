@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import List
 
 from app.flavor.schemas import FlavorCreate, FlavorRead
 from app.image.schemas import ImageCreate, ImageRead
@@ -11,6 +11,7 @@ from app.provider.schemas_extended import (
     ProviderCreateExtended,
     ProviderReadExtended,
 )
+from app.quota.schemas import NovaQuotaCreate, QuotaCreate, QuotaRead
 from app.service.schemas import ServiceCreate, ServiceRead
 from pydantic import UUID4, AnyHttpUrl, BaseModel, Field
 
@@ -22,6 +23,7 @@ class URLs(BaseModel):
     locations: AnyHttpUrl
     projects: AnyHttpUrl
     providers: AnyHttpUrl
+    quotas: AnyHttpUrl
     services: AnyHttpUrl
     slas: AnyHttpUrl
     user_groups: AnyHttpUrl
@@ -39,8 +41,17 @@ class IdentityProviderWrite(IdentityProviderCreateExtended):
     pass
 
 
-class ProjectWrite(ProjectCreate):
+class QuotaWrite(QuotaCreate):
     pass
+
+
+class NovaQuotaWrite(NovaQuotaCreate):
+    type: str = "org.openstack.nova"
+
+
+class ProjectWrite(ProjectCreate):
+    compute_quota: NovaQuotaWrite
+    # block_storage_quota: QuotaWrite
 
 
 class FlavorWrite(FlavorCreate):
@@ -62,8 +73,8 @@ class ProviderWrite(ProviderCreateExtended):
         default_factory=list, description="List of flavors"
     )
     images: List[ImageWrite] = Field(default_factory=list, description="List of images")
-    quotas: Dict[UUID4, Dict[str, Any]] = Field(
-        default_factory=dict, description="Project quotas"
+    projects: List[ProjectWrite] = Field(
+        default_factory=list, description="List of projects"
     )
 
 
@@ -84,7 +95,7 @@ class LocationRead(LocationRead):
 
 
 class ProjectRead(ProjectRead):
-    pass
+    quotas: QuotaRead = Field(default_factory=list, description="List of quotas")
 
 
 class ProviderRead(ProviderReadExtended):
@@ -96,4 +107,8 @@ class ServiceWrite(ServiceCreate):
 
 
 class ServiceRead(ServiceRead):
+    pass
+
+
+class QuotaRead(QuotaRead):
     pass
