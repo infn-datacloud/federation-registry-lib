@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, List, Optional, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
 import requests
 from fastapi import status
@@ -29,7 +29,13 @@ ReadSchema = TypeVar("ReadSchema", bound=BaseModel)
 
 
 class BasicPopulation(Generic[WriteSchema, ReadSchema]):
-    def __init__(self, *, type: str, write_schema: str, read_schema: str) -> None:
+    def __init__(
+        self,
+        *,
+        type: str,
+        write_schema: Type[WriteSchema],
+        read_schema: Type[ReadSchema],
+    ) -> None:
         self.type = type.capitalize()
         self.write_schema = write_schema
         self.read_schema = read_schema
@@ -56,6 +62,7 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
         header: Dict[str, str],
         params: Optional[Dict[str, Any]] = None,
     ) -> ReadSchema:
+        """Create new instance."""
         label = self._repr(item=new_data)
         resp = requests.post(
             url=url, json=jsonable_encoder(new_data), headers=header, params=params
@@ -69,6 +76,7 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
     def update(
         self, *, new_data: WriteSchema, url: AnyHttpUrl, header: Dict[str, str]
     ) -> Optional[ReadSchema]:
+        """Update existing instance."""
         label = self._repr(item=new_data)
         resp = requests.patch(url=url, json=jsonable_encoder(new_data), headers=header)
         if resp.status_code == status.HTTP_200_OK:
@@ -83,6 +91,7 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
     def find(
         self, *, url: AnyHttpUrl, header: Dict[str, str], params: Dict[str, Any]
     ) -> Optional[ReadSchema]:
+        """Find instance with given params."""
         db_item = None
         resp = requests.get(url=url, params=params, headers=header)
         if resp.status_code == status.HTTP_200_OK:
@@ -100,16 +109,11 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
             self._action_failed(name=list(params.values()), resp=resp, action="find")
         return db_item
 
-
-class KeyValueFindable(
-    BasicPopulation[WriteSchema, ReadSchema], Generic[WriteSchema, ReadSchema]
-):
-    def __init__(self, *, type: str, write_schema: str, read_schema: str) -> None:
-        super().__init__(type=type, write_schema=write_schema, read_schema=read_schema)
-
     def find_in_list(
         self, *, key: str, value: str, db_items: List[ReadSchema]
     ) -> Optional[ReadSchema]:
+        """Find instance within a given list with corresponding key-value
+        pair."""
         items = [i.dict().get(key) for i in db_items]
         if value in items:
             logger.info(f"{self.type} '{value}' already belongs to this provider")
@@ -120,7 +124,13 @@ class KeyValueFindable(
 
 
 class Connectable(BasicPopulation[WriteSchema, ReadSchema]):
-    def __init__(self, *, type: str, write_schema: str, read_schema: str) -> None:
+    def __init__(
+        self,
+        *,
+        type: str,
+        write_schema: Type[WriteSchema],
+        read_schema: Type[ReadSchema],
+    ) -> None:
         super().__init__(type=type, write_schema=write_schema, read_schema=read_schema)
 
     def connect(
@@ -139,19 +149,19 @@ class Connectable(BasicPopulation[WriteSchema, ReadSchema]):
             self._action_failed(name=label, resp=resp, action="connect")
 
 
-class ImagePopulation(KeyValueFindable[ImageWrite, ImageRead]):
+class ImagePopulation(BasicPopulation[ImageWrite, ImageRead]):
     def __init__(self) -> None:
         super().__init__(type="Image", read_schema=ImageRead, write_schema=ImageWrite)
 
 
-class FlavorPopulation(KeyValueFindable[FlavorWrite, FlavorRead]):
+class FlavorPopulation(BasicPopulation[FlavorWrite, FlavorRead]):
     def __init__(self) -> None:
         super().__init__(
             type="Flavor", read_schema=FlavorRead, write_schema=FlavorWrite
         )
 
 
-class ProjectPopulation(KeyValueFindable[ProjectWrite, ProjectRead]):
+class ProjectPopulation(BasicPopulation[ProjectWrite, ProjectRead]):
     def __init__(self) -> None:
         super().__init__(
             type="Project", read_schema=ProjectRead, write_schema=ProjectWrite
@@ -183,7 +193,7 @@ class IdentityProviderPopulation(
         )
 
 
-class ServicePopulation(KeyValueFindable[ServiceWrite, ServiceRead]):
+class ServicePopulation(BasicPopulation[ServiceWrite, ServiceRead]):
     def __init__(self) -> None:
         super().__init__(
             type="Service",
@@ -192,7 +202,7 @@ class ServicePopulation(KeyValueFindable[ServiceWrite, ServiceRead]):
         )
 
 
-class QuotaPopulation(KeyValueFindable[QuotaWrite, QuotaRead]):
+class QuotaPopulation(BasicPopulation[QuotaWrite, QuotaRead]):
     def __init__(self) -> None:
         super().__init__(
             type="Quota",
