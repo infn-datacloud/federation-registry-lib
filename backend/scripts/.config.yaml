@@ -1,15 +1,16 @@
 cmdb:
-  url: http://localhost:8000/
-  api_ver_flavors: "v1"
-  api_ver_identity_providers: "v1"
-  api_ver_images: "v1"
-  api_ver_locations: "v1"
-  api_ver_projects: "v1"
-  api_ver_providers: "v1"
-  api_ver_quotas: "v1"
-  api_ver_services: "v1"
-  api_ver_slas: "v1"
-  api_ver_user_groups: "v1"
+  base_url: http://localhost:8000/
+  api_ver:
+    flavors: "v1"
+    identity_providers: "v1"
+    images: "v1"
+    locations: "v1"
+    projects: "v1"
+    providers: "v1"
+    quotas: "v1"
+    services: "v1"
+    slas: "v1"
+    user_groups: "v1"
 
 oidc_agent_accounts:
   - https://iam.cloud.infn.it/

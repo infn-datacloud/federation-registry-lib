@@ -1,9 +1,10 @@
 from cmdb import add_or_patch_provider
 from providers.opnstk import get_os_provider
-from utils import choose_idp, generate_token, load_config
+from utils import build_cmdb_urls, choose_idp, generate_token, load_config
 
 if __name__ == "__main__":
     config = load_config()
+    cmdb_urls = build_cmdb_urls(config=config)
 
     tokens = {}
     providers = []
@@ -25,17 +26,5 @@ if __name__ == "__main__":
 
     for provider in providers:
         add_or_patch_provider(
-            url=config.cmdb.url,
-            provider=provider,
-            token=tokens[chosen_idp.endpoint],
-            api_ver_providers=config.cmdb.api_ver_providers,
-            api_ver_projects=config.cmdb.api_ver_projects,
-            api_ver_locations=config.cmdb.api_ver_locations,
-            api_ver_flavors=config.cmdb.api_ver_flavors,
-            api_ver_images=config.cmdb.api_ver_images,
-            api_ver_identity_providers=config.cmdb.api_ver_identity_providers,
-            api_ver_quotas=config.cmdb.api_ver_quotas,
-            api_ver_services=config.cmdb.api_ver_services,
-            api_ver_slas=config.cmdb.api_ver_slas,
-            api_ver_user_groups=config.cmdb.api_ver_user_groups,
+            cmdb_urls=cmdb_urls, provider=provider, token=tokens[chosen_idp.endpoint]
         )
