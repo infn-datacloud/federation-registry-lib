@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.identity_provider.schemas import (
     IdentityProviderRead,
@@ -6,8 +6,18 @@ from app.identity_provider.schemas import (
 )
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
-from app.quota.schemas import NovaQuotaRead, NovaQuotaReadPublic
-from app.service.schemas import NovaServiceRead, NovaServiceReadPublic
+from app.quota.schemas import (
+    CinderQuotaRead,
+    CinderQuotaReadPublic,
+    NovaQuotaRead,
+    NovaQuotaReadPublic,
+)
+from app.service.schemas import (
+    CinderServiceRead,
+    CinderServiceReadPublic,
+    NovaServiceRead,
+    NovaServiceReadPublic,
+)
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from pydantic import Field
@@ -63,12 +73,30 @@ class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic):
     )
 
 
+class CinderQuotaReadExtended(CinderQuotaRead):
+    """Model to extend the Quota data read from the DB with the lists of
+    related items."""
+
+    service: CinderServiceRead = Field(
+        description="A generic Quota applies to only one generic Service."
+    )
+
+
+class CinderQuotaReadExtendedPublic(CinderQuotaReadPublic):
+    """Model to extend the Quota data read from the DB with the lists of
+    related items."""
+
+    service: CinderServiceReadPublic = Field(
+        description="A generic Quota applies to only one generic Service."
+    )
+
+
 class ProjectReadExtended(ProjectRead):
     """Model to extend the Project data read from the DB with the lists of
     related items for authenticated users."""
 
     provider: ProviderRead = Field(description="Provider owning this Project.")
-    quotas: List[NovaQuotaReadExtended] = Field(
+    quotas: List[Union[NovaQuotaReadExtended, CinderQuotaReadExtended]] = Field(
         default_factory=list, description="List of owned quotas."
     )
     sla: Optional[SLAReadExtended] = Field(
@@ -81,9 +109,9 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     related items for non-authenticated users."""
 
     provider: ProviderReadPublic = Field(description="Provider owning this Project.")
-    quotas: List[NovaQuotaReadExtendedPublic] = Field(
-        default_factory=list, description="List of owned quotas."
-    )
+    quotas: List[
+        Union[NovaQuotaReadExtendedPublic, CinderQuotaReadExtendedPublic]
+    ] = Field(default_factory=list, description="List of owned quotas.")
     sla: Optional[SLAReadExtendedPublic] = Field(
         default=None, description="SLA involving this Project."
     )

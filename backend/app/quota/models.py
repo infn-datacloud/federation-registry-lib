@@ -64,3 +64,17 @@ class NovaQuota(Quota):
     service = RelationshipTo(
         "..service.models.NovaService", "APPLY_TO", cardinality=One
     )
+
+
+class CinderQuota(Quota):
+    backup_gigabytes = IntegerProperty()
+    backups = IntegerProperty()
+    gigabytes = IntegerProperty()
+    groups = IntegerProperty()
+    per_volume_gigabytes = IntegerProperty()
+    snapshots = IntegerProperty()
+    volumes = IntegerProperty()
+
+    service = RelationshipTo(
+        "..service.models.CinderService", "APPLY_TO", cardinality=One
+    )

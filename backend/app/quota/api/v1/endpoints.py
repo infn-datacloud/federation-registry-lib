@@ -6,16 +6,24 @@ from app.project.models import Project
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import valid_quota_id
 from app.quota.crud import quota
-from app.quota.models import Quota
+from app.quota.models import CinderQuota, NovaQuota
 from app.quota.schemas import (
+    CinderQuotaCreate,
+    CinderQuotaQuery,
+    CinderQuotaRead,
+    CinderQuotaReadPublic,
+    CinderQuotaReadShort,
+    CinderQuotaUpdate,
     NovaQuotaCreate,
+    NovaQuotaQuery,
     NovaQuotaRead,
     NovaQuotaReadPublic,
     NovaQuotaReadShort,
-    QuotaQuery,
-    QuotaUpdate,
+    NovaQuotaUpdate,
 )
 from app.quota.schemas_extended import (
+    CinderQuotaReadExtended,
+    CinderQuotaReadExtendedPublic,
     NovaQuotaReadExtended,
     NovaQuotaReadExtendedPublic,
 )
@@ -31,11 +39,11 @@ router = APIRouter(prefix="/quotas", tags=["quotas"])
 @router.get(
     "/",
     response_model=Union[
-        List[NovaQuotaReadExtended],
-        List[NovaQuotaRead],
-        List[NovaQuotaReadShort],
-        List[NovaQuotaReadExtendedPublic],
-        List[NovaQuotaReadPublic],
+        List[Union[NovaQuotaReadExtended, CinderQuotaReadExtended]],
+        List[Union[NovaQuotaRead, CinderQuotaRead]],
+        List[Union[NovaQuotaReadShort, CinderQuotaReadShort]],
+        List[Union[NovaQuotaReadExtendedPublic, CinderQuotaReadExtendedPublic]],
+        List[Union[NovaQuotaReadPublic, CinderQuotaReadPublic]],
     ],
     summary="Read all quotas",
     description="Retrieve all quotas stored in the database. \
@@ -47,7 +55,7 @@ def get_quotas(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
-    item: QuotaQuery = Depends(),
+    item: Union[NovaQuotaQuery, CinderQuotaQuery] = Depends(),
 ):
     items = quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -62,7 +70,7 @@ def get_quotas(
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=NovaQuotaReadExtended,
+    response_model=Union[NovaQuotaReadExtended, CinderQuotaReadExtended],
     dependencies=[Depends(check_write_access)],
     summary="Create quota",
     description="Create a quota and connect it to its related entities: \
@@ -74,7 +82,7 @@ def get_quotas(
 def post_quota(
     project: Project = Depends(valid_project_id),
     service: Service = Depends(valid_service_id),
-    item: NovaQuotaCreate = Body(),
+    item: Union[NovaQuotaCreate, CinderQuotaCreate] = Body(),
 ):
     # Check project does not have duplicated quota types
     for q in project.quotas.all():
@@ -98,10 +106,15 @@ def post_quota(
     "/{quota_uid}",
     response_model=Union[
         NovaQuotaReadExtended,
+        CinderQuotaReadExtended,
         NovaQuotaRead,
+        CinderQuotaRead,
         NovaQuotaReadShort,
+        CinderQuotaReadShort,
         NovaQuotaReadExtendedPublic,
+        CinderQuotaReadExtendedPublic,
         NovaQuotaReadPublic,
+        CinderQuotaReadPublic,
     ],
     summary="Read a specific quota",
     description="Retrieve a specific quota using its *uid*. \
@@ -111,7 +124,7 @@ def post_quota(
 def get_quota(
     auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
-    item: Quota = Depends(valid_quota_id),
+    item: Union[NovaQuotaCreate, CinderQuotaCreate] = Depends(valid_quota_id),
 ):
     return quota.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
@@ -121,7 +134,7 @@ def get_quota(
 @db.write_transaction
 @router.patch(
     "/{quota_uid}",
-    response_model=Optional[NovaQuotaRead],
+    response_model=Optional[Union[NovaQuotaRead, CinderQuotaRead]],
     dependencies=[Depends(check_write_access)],
     summary="Edit a specific quota",
     description="Update attribute values of a specific quota. \
@@ -132,9 +145,9 @@ def get_quota(
         and the endpoint returns the `not modified` message.",
 )
 def put_quota(
-    update_data: QuotaUpdate,
+    update_data: Union[NovaQuotaUpdate, CinderQuotaUpdate],
     response: Response,
-    item: Quota = Depends(valid_quota_id),
+    item: Union[NovaQuota, CinderQuota] = Depends(valid_quota_id),
 ):
     db_item = quota.update(db_obj=item, obj_in=update_data)
     if db_item is None:
@@ -153,7 +166,7 @@ def put_quota(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def delete_quotas(item: Quota = Depends(valid_quota_id)):
+def delete_quotas(item: Union[NovaQuota, CinderQuota] = Depends(valid_quota_id)):
     if not quota.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

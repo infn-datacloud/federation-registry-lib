@@ -105,3 +105,48 @@ class NovaQuotaReadShort(BaseNodeRead, NovaBase):
 
 
 NovaQuotaQuery = create_query_model("NovaQuotaQuery", NovaBase)
+
+
+class CinderBase(QuotaBase, extra=Extra.ignore):
+    """Model derived from ServiceBase to inherit attributes common to all
+    services. It adds the basic attributes for Cinder services.
+
+    Validation: type value is exactly ServiceType.openstack_nova.
+    """
+
+    backup_gigabytes: Optional[int] = Field(default=None, description="")
+    backups: Optional[int] = Field(default=None, description="")
+    gigabytes: Optional[int] = Field(default=None, description="")
+    groups: Optional[int] = Field(default=None, description="")
+    per_volume_gigabytes: Optional[int] = Field(default=None, description="")
+    snapshots: Optional[int] = Field(default=None, description="")
+    volumes: Optional[int] = Field(default=None, description="")
+
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != ServiceName.OPENSTACK_CINDER:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class CinderQuotaCreate(BaseNodeCreate, CinderBase):
+    pass
+
+
+class CinderQuotaUpdate(CinderQuotaCreate):
+    pass
+
+
+class CinderQuotaRead(BaseNodeRead, CinderBase):
+    pass
+
+
+class CinderQuotaReadPublic(BaseNodeRead, CinderBase):
+    pass
+
+
+class CinderQuotaReadShort(BaseNodeRead, CinderBase):
+    pass
+
+
+CinderQuotaQuery = create_query_model("CinderQuotaQuery", CinderBase)

@@ -12,7 +12,7 @@ from app.provider.schemas_extended import (
     ProviderCreateExtended,
     ProviderReadExtended,
 )
-from app.quota.schemas import NovaQuotaCreate, QuotaCreate, QuotaRead
+from app.quota.schemas import CinderQuotaCreate, NovaQuotaCreate, QuotaCreate, QuotaRead
 from app.service.schemas import ServiceCreate, ServiceRead
 from pydantic import UUID4, AnyHttpUrl, BaseModel, Field
 
@@ -50,9 +50,13 @@ class NovaQuotaWrite(NovaQuotaCreate):
     type: str = "org.openstack.nova"
 
 
+class CinderQuotaWrite(CinderQuotaCreate):
+    type: str = "org.openstack.cinder"
+
+
 class ProjectWrite(ProjectCreate):
     compute_quota: NovaQuotaWrite
-    # block_storage_quota: QuotaWrite
+    block_storage_quota: CinderQuotaWrite
 
 
 class FlavorWrite(FlavorCreate):

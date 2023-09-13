@@ -2,6 +2,7 @@ from typing import List
 
 from logger import logger
 from models.cmdb import (
+    CinderQuotaWrite,
     FlavorWrite,
     ImageWrite,
     NovaQuotaWrite,
@@ -28,10 +29,12 @@ def get_project_and_quotas(conn: Connection) -> ProjectWrite:
     compute_quota = NovaQuotaWrite(
         **conn.compute.get_quota_set(conn.current_project_id)
     )
-    # block_storage_quota = CinderQuotaWrite(
-    # **conn.block_storage.get_quota_set(conn.current_project_id).items(),
-    # )
-    return ProjectWrite(**data, compute_quota=compute_quota)
+    block_storage_quota = CinderQuotaWrite(
+        **conn.block_storage.get_quota_set(conn.current_project_id),
+    )
+    return ProjectWrite(
+        **data, compute_quota=compute_quota, block_storage_quota=block_storage_quota
+    )
 
 
 def get_flavors(conn: Connection) -> List[FlavorWrite]:

@@ -2,7 +2,12 @@ from typing import List
 
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
-from app.quota.schemas import NovaQuotaRead, NovaQuotaReadPublic
+from app.quota.schemas import (
+    CinderQuotaRead,
+    CinderQuotaReadPublic,
+    NovaQuotaRead,
+    NovaQuotaReadPublic,
+)
 from app.service.schemas import (
     CinderServiceRead,
     CinderServiceReadPublic,
@@ -48,6 +53,16 @@ class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic, ExtendWithProjectPublic):
     of related items."""
 
 
+class CinderQuotaReadExtended(CinderQuotaRead, ExtendWithProject):
+    """Model to extend the Num CPUs Quota data read from the DB with the lists
+    of related items."""
+
+
+class CinderQuotaReadExtendedPublic(CinderQuotaReadPublic, ExtendWithProjectPublic):
+    """Model to extend the Num CPUs Quota data read from the DB with the lists
+    of related items."""
+
+
 class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
     """Model to extend the Nova Service data read from the DB with the lists of
     related items for authenticated users."""
@@ -72,12 +87,22 @@ class CinderServiceReadExtended(CinderServiceRead, ExtendWithProvider):
     """Model to extend the Cinder Service data read from the DB with the lists
     of related items for authenticated users."""
 
+    quotas: List[CinderQuotaReadExtended] = Field(
+        default_factory=list,
+        description="List of quotas.",
+    )
+
 
 class CinderServiceReadExtendedPublic(
     CinderServiceReadPublic, ExtendWithProviderPublic
 ):
     """Model to extend the Cinder Service data read from the DB with the lists
     of related items for non-authenticated users."""
+
+    quotas: List[CinderQuotaReadExtendedPublic] = Field(
+        default_factory=list,
+        description="List of quotas.",
+    )
 
 
 class KeystoneServiceReadExtended(KeystoneServiceRead, ExtendWithProvider):

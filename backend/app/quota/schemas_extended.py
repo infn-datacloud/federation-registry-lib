@@ -1,12 +1,19 @@
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.quota.schemas import (
+    CinderQuotaRead,
+    CinderQuotaReadPublic,
     NovaQuotaRead,
     NovaQuotaReadPublic,
     QuotaRead,
     QuotaReadPublic,
 )
-from app.service.schemas import NovaServiceRead, NovaServiceReadPublic
+from app.service.schemas import (
+    CinderServiceRead,
+    CinderServiceReadPublic,
+    NovaServiceRead,
+    NovaServiceReadPublic,
+)
 
 
 class ProjectReadExtended(ProjectRead):
@@ -31,3 +38,11 @@ class NovaQuotaReadExtended(NovaQuotaRead, QuotaReadExtended):
 
 class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic, QuotaReadExtendedPublic):
     service: NovaServiceReadPublic
+
+
+class CinderQuotaReadExtended(CinderQuotaRead, QuotaReadExtended):
+    service: CinderServiceRead
+
+
+class CinderQuotaReadExtendedPublic(CinderQuotaReadPublic, QuotaReadExtendedPublic):
+    service: CinderServiceReadPublic

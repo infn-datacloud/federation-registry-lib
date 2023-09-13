@@ -139,11 +139,6 @@ def add_or_patch_provider(
                         new_data=service, url=url, header=write_header
                     )
 
-                if db_service.type == "compute":
-                    compute_service_uid = db_service.uid
-                # elif db_service.type == "block-storage":
-                #    block_storage_service_uid = db_service.uid
-
             for project in provider.projects:
                 db_project = crud_project.find_in_list(
                     key="name", value=project.name, db_items=db_provider.projects
@@ -169,27 +164,31 @@ def add_or_patch_provider(
                     header=read_header,
                     params={"name": project.name, "with_conn": True},
                 )  # TODO Modify provider schema such that project contains quotas?
-                if len(db_project.quotas) > 0:
-                    logger.info(
-                        f"Trying to update quotas of project '{project.name}'."
+                for quota in [project.compute_quota, project.block_storage_quota]:
+                    db_quota = crud_quota.find_in_list(
+                        key="type", value=quota.type, db_items=db_project.quotas
                     )
-                    url = os.path.join(urls.quotas, str(db_project.quotas[0].uid))
-                    crud_quota.update(
-                        new_data=project.compute_quota, url=url, header=write_header
-                    )
-                else:
-                    logger.info(
-                        f"Creating new set of quotas for project '{project.name}'."
-                    )
-                    crud_quota.create(
-                        new_data=project.compute_quota,
-                        url=urls.quotas,
-                        header=write_header,
-                        params={
-                            "project_uid": db_project.uid,
-                            "service_uid": compute_service_uid,
-                        },
-                    )
+                    if db_quota is not None:
+                        logger.info(
+                            f"Trying to update quotas of project '{project.name}'."
+                        )
+                        url = os.path.join(urls.quotas, str(db_quota.uid))
+                        crud_quota.update(new_data=quota, url=url, header=write_header)
+                    else:
+                        logger.info(
+                            f"Creating new set of quotas for project '{project.name}'."
+                        )
+                        idx = [s.name for s in db_provider.services].index(quota.type)
+                        service_uid = db_provider.services[idx].uid
+                        db_quota = crud_quota.create(
+                            new_data=quota,
+                            url=urls.quotas,
+                            header=write_header,
+                            params={
+                                "project_uid": db_project.uid,
+                                "service_uid": service_uid,
+                            },
+                        )
 
             for identity_provider in provider.identity_providers:
                 db_identity_provider = crud_identity_provider.find(

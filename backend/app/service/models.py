@@ -42,7 +42,9 @@ class NovaService(Service):
 
 
 class CinderService(Service):
-    pass
+    quotas = RelationshipFrom(
+        "..quota.models.CinderQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
 
 
 class KeystoneService(Service):
