@@ -88,6 +88,7 @@ def get_project(
 @db.write_transaction
 @router.patch(
     "/{project_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[ProjectRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_project_values)],
     summary="Edit a specific project",

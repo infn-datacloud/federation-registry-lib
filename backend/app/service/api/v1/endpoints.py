@@ -135,6 +135,7 @@ def get_service(
 @db.write_transaction
 @router.patch(
     "/{service_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[
         Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]
     ],

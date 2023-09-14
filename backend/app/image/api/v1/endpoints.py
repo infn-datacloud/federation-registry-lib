@@ -81,6 +81,7 @@ def get_image(
 @db.write_transaction
 @router.patch(
     "/{image_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[ImageRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_image_values)],
     summary="Edit a specific image",

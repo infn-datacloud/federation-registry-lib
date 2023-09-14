@@ -101,6 +101,7 @@ def get_location(
 @db.write_transaction
 @router.patch(
     "/{location_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[LocationRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_location_values)],
     summary="Edit a specific Location",

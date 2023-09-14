@@ -148,6 +148,7 @@ def get_provider(
 @db.write_transaction
 @router.patch(
     "/{provider_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[ProviderRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_provider_values)],
     summary="Edit a specific provider",

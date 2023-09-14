@@ -117,6 +117,7 @@ def get_user_group(
 @db.write_transaction
 @router.patch(
     "/{user_group_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[UserGroupRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_user_group_values)],
     summary="Edit a specific user group",

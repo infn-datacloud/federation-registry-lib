@@ -108,6 +108,7 @@ def get_identity_provider(
 @db.write_transaction
 @router.patch(
     "/{identity_provider_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[IdentityProviderRead],
     dependencies=[
         Depends(check_write_access),

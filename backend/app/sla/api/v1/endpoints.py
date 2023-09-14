@@ -124,6 +124,7 @@ def get_sla(
 @db.write_transaction
 @router.patch(
     "/{sla_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[SLARead],
     dependencies=[Depends(check_write_access), Depends(validate_new_sla_values)],
     summary="Edit a specific SLA",

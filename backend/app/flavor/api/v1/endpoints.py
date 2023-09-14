@@ -81,6 +81,7 @@ def get_flavor(
 @db.write_transaction
 @router.patch(
     "/{flavor_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[FlavorRead],
     dependencies=[Depends(check_write_access), Depends(validate_new_flavor_values)],
     summary="Edit a specific flavor",

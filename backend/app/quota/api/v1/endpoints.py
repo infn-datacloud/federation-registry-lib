@@ -134,6 +134,7 @@ def get_quota(
 @db.write_transaction
 @router.patch(
     "/{quota_uid}",
+    status_code=status.HTTP_200_OK,
     response_model=Optional[Union[NovaQuotaRead, CinderQuotaRead]],
     dependencies=[Depends(check_write_access)],
     summary="Edit a specific quota",
