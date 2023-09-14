@@ -1,6 +1,13 @@
 from cmdb import add_or_patch_provider
+from crud import CRUDs
 from providers.opnstk import get_os_provider
-from utils import build_cmdb_urls, choose_idp, generate_token, load_config
+from utils import (
+    build_cmdb_urls,
+    choose_idp,
+    generate_token,
+    get_read_write_headers,
+    load_config,
+)
 
 if __name__ == "__main__":
     config = load_config()
@@ -24,7 +31,13 @@ if __name__ == "__main__":
         )
         providers.append(provider)
 
+    # To update CMDB data, we use the last chosen token to generate
+    # read and write headers.
+    read_header, write_header = get_read_write_headers(
+        token=tokens[chosen_idp.endpoint]
+    )
+    cruds = CRUDs(
+        cmdb_urls=cmdb_urls, read_headers=read_header, write_headers=write_header
+    )
     for provider in providers:
-        add_or_patch_provider(
-            cmdb_urls=cmdb_urls, provider=provider, token=tokens[chosen_idp.endpoint]
-        )
+        add_or_patch_provider(provider=provider, cruds=cruds)

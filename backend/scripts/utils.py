@@ -1,6 +1,6 @@
 import os
 import subprocess
-from typing import List
+from typing import Dict, List, Tuple
 
 import yaml
 from logger import logger
@@ -88,3 +88,13 @@ def build_cmdb_urls(*, config: Config) -> URLs:
             config.cmdb.base_url, f"api/{config.cmdb.api_ver.user_groups}/user_groups/"
         ),
     )
+
+
+def get_read_write_headers(*, token: str) -> Tuple[Dict[str, str], Dict[str, str]]:
+    read_header = {"authorization": f"Bearer {token}"}
+    write_header = {
+        **read_header,
+        "accept": "application/json",
+        "content-type": "application/json",
+    }
+    return (read_header, write_header)
