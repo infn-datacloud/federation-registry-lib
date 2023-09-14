@@ -72,7 +72,7 @@
           }
         }
       },
-      "required": ["url"]
+      "required": ["base_url"]
     },
     "oidc_agent_accounts": {
       "description": "List of identity providers URLs available for OIDC-agent authentication",
