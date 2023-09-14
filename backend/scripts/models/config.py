@@ -40,19 +40,6 @@ class Openstack(ProviderCreate):
     projects: List[Project] = Field(description="List of projects to inspect")
 
 
-class URLs(BaseModel):
-    flavors: AnyHttpUrl = Field(description="Flavors endpoint")
-    identity_providers: AnyHttpUrl = Field(description="Identity Providers endpoint")
-    images: AnyHttpUrl = Field(description="Images endpoint")
-    locations: AnyHttpUrl = Field(description="Locations endpoint")
-    projects: AnyHttpUrl = Field(description="Projects endpoint")
-    providers: AnyHttpUrl = Field(description="Providers endpoint")
-    quotas: AnyHttpUrl = Field(description="Quotas endpoint")
-    services: AnyHttpUrl = Field(description="Services endpoint")
-    slas: AnyHttpUrl = Field(description="SLAs endpoint")
-    user_groups: AnyHttpUrl = Field(description="User Groups endpoint")
-
-
 class APIVersions(BaseModel):
     flavors: str = Field(default="v1", description="Flavors API version to use")
     identity_providers: str = Field(
@@ -81,3 +68,16 @@ class Config(BaseModel):
     openstack: List[Openstack] = Field(
         description="List of openstack providers to integrate in the CMDB"
     )
+
+
+class URLs(BaseModel):
+    flavors: AnyHttpUrl = Field(description="Flavors endpoint")
+    identity_providers: AnyHttpUrl = Field(description="Identity Providers endpoint")
+    images: AnyHttpUrl = Field(description="Images endpoint")
+    locations: AnyHttpUrl = Field(description="Locations endpoint")
+    projects: AnyHttpUrl = Field(description="Projects endpoint")
+    providers: AnyHttpUrl = Field(description="Providers endpoint")
+    quotas: AnyHttpUrl = Field(description="Quotas endpoint")
+    services: AnyHttpUrl = Field(description="Services endpoint")
+    slas: AnyHttpUrl = Field(description="SLAs endpoint")
+    user_groups: AnyHttpUrl = Field(description="User Groups endpoint")

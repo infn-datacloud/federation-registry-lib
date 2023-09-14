@@ -14,20 +14,7 @@ from app.provider.schemas_extended import (
 )
 from app.quota.schemas import CinderQuotaCreate, NovaQuotaCreate, QuotaCreate, QuotaRead
 from app.service.schemas import ServiceCreate, ServiceRead
-from pydantic import UUID4, AnyHttpUrl, BaseModel, Field
-
-
-class URLs(BaseModel):
-    flavors: AnyHttpUrl
-    identity_providers: AnyHttpUrl
-    images: AnyHttpUrl
-    locations: AnyHttpUrl
-    projects: AnyHttpUrl
-    providers: AnyHttpUrl
-    quotas: AnyHttpUrl
-    services: AnyHttpUrl
-    slas: AnyHttpUrl
-    user_groups: AnyHttpUrl
+from pydantic import UUID4, Field
 
 
 class LocationWrite(LocationCreate):
