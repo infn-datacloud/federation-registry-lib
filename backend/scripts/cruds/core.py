@@ -11,6 +11,50 @@ QuerySchema = TypeVar("QuerySchema", bound=BaseModel)
 WriteSchema = TypeVar("WriteSchema", bound=BaseModel)
 
 
+class ConnectionException(Exception):
+    def __init__(self, resp: requests.Response, item_repr: str) -> None:
+        msg = f"Failed to connect {item_repr}\n"
+        msg += f"Status code: {resp.status_code}"
+        msg += f"Message: {resp.text}"
+        logger.error(msg)
+        super().__init__(msg)
+
+
+class CreationException(Exception):
+    def __init__(self, resp: requests.Response, item_repr: str) -> None:
+        msg = f"Failed to create {item_repr}\n"
+        msg += f"Status code: {resp.status_code}"
+        msg += f"Message: {resp.text}"
+        logger.error(msg)
+        super().__init__(msg)
+
+
+class UpdateException(Exception):
+    def __init__(self, resp: requests.Response, item_repr: str) -> None:
+        msg = f"Failed to update {item_repr}\n"
+        msg += f"Status code: {resp.status_code}"
+        msg += f"Message: {resp.text}"
+        logger.error(msg)
+        super().__init__(msg)
+
+
+class FindException(Exception):
+    def __init__(self, resp: requests.Response, item_repr: str) -> None:
+        msg = f"Failed to search {item_repr}\n"
+        msg += f"Status code: {resp.status_code}"
+        msg += f"Message: {resp.text}"
+        logger.error(msg)
+        super().__init__(msg)
+
+
+class DatabaseCorruptedException(Exception):
+    def __init__(self, item_repr: str) -> None:
+        msg = f"Multiple occurrences found for {item_repr} when one expected.\n"
+        msg += "Database may be corrupted."
+        logger.error(msg)
+        super().__init__(msg)
+
+
 class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
     def __init__(
         self,
@@ -32,14 +76,6 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         self.read_headers = read_headers
         self.write_headers = write_headers
 
-    def _action_failed(
-        self, *, resp: requests.Response, action: str, item: WriteSchema
-    ) -> None:
-        logger.error(f"Failed to {action} {self.type}={item}")
-        logger.error(f"Status code: {resp.status_code}")
-        logger.error(f"Message: {resp.text}")
-        raise BaseException("Failed to  failed")
-
     def create(
         self,
         *,
@@ -49,9 +85,8 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
     ) -> ReadSchema:
         """Create new instance."""
         logger.info(f"Creating new {self.type}={new_data}")
-        url = self.post_url.format(parent_uid=str(parent_uid))
         resp = requests.post(
-            url=url,
+            url=self.post_url.format(parent_uid=str(parent_uid)),
             json=jsonable_encoder(new_data),
             headers=self.write_headers,
             params=params,
@@ -59,37 +94,30 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         if resp.status_code == status.HTTP_201_CREATED:
             logger.info(f"{self.type}={new_data} successfully created")
             return self.read_schema(**resp.json())
-        else:
-            self._action_failed(resp=resp, action="create", item=new_data)
+        raise CreationException(resp=resp, item_repr=f"{self.type}={new_data}")
 
-    def update(
-        self,
-        *,
-        new_data: WriteSchema,
-        old_data: ReadSchema,
-    ) -> ReadSchema:
+    def update(self, *, new_data: WriteSchema, uid: UUID4) -> Optional[ReadSchema]:
         """Update existing instance."""
         logger.info(f"Trying to update {self.type}={new_data}.")
-        url = self.patch_url.format(uid=str(old_data.uid))
         resp = requests.patch(
-            url=url, json=jsonable_encoder(new_data), headers=self.write_headers
+            url=self.patch_url.format(uid=str(uid)),
+            json=jsonable_encoder(new_data),
+            headers=self.write_headers,
         )
         if resp.status_code == status.HTTP_200_OK:
             logger.info(f"{self.type}={new_data} successfully updated")
             return self.read_schema(**resp.json())
-        elif resp.status_code == status.HTTP_304_NOT_MODIFIED:
+        if resp.status_code == status.HTTP_304_NOT_MODIFIED:
             logger.info(
                 f"New data match stored data. {self.type}={new_data} not modified"
             )
-            return old_data
-        else:
-            self._action_failed(resp=resp, action="update", item=new_data)
+            return None
+        raise UpdateException(resp=resp, item_repr=f"{self.type}={new_data}")
 
     def single(
         self, *, data: QuerySchema, with_conn: bool = False
     ) -> Optional[ReadSchema]:
         """Find single instance with given params."""
-        db_item = None
         resp = requests.get(
             url=self.get_url,
             params={**data.dict(exclude_unset=True), "with_conn": with_conn},
@@ -98,15 +126,12 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         if resp.status_code == status.HTTP_200_OK:
             if len(resp.json()) == 0:
                 logger.info(f"{self.type}={data} not found")
-            elif len(resp.json()) == 1:
+                return None
+            if len(resp.json()) == 1:
                 logger.info(f"{self.type}={data} found")
-                db_item = self.read_schema(**resp.json()[0])
-            else:
-                logger.error(f"{self.type}={data} multiple occurrences found")
-                raise Exception("Database corrupted")
-        else:
-            self._action_failed(resp=resp, action="find", item=data)
-        return db_item
+                return self.read_schema(**resp.json()[0])
+            raise DatabaseCorruptedException(item_repr=f"{self.type}={data}")
+        raise FindException(resp=resp, item_repr=f"{self.type}={data}")
 
     def find_in_list(
         self, *, data: QuerySchema, db_items: List[ReadSchema]
@@ -115,8 +140,9 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         pair."""
         d = data.dict(exclude_unset=True)
         for db_item in db_items:
+            i = db_item.dict()
             for k, v in d.items():
-                if db_item.dict().get(k) == v:
+                if i.get(k) == v:
                     logger.info(f"{self.type}={data} already belongs to this provider")
                     return db_item
         logger.info(f"No {self.type}={data} belongs to this provider.")
@@ -133,7 +159,8 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         """Create new item or update existing one."""
         if db_item is None:
             return self.create(new_data=item, parent_uid=parent_uid, params=params)
-        return self.update(new_data=item, old_data=db_item)
+        updated_item = self.update(new_data=item, uid=db_item.uid)
+        return db_item if updated_item is None else updated_item
 
 
 class Connectable(BasicCRUD[WriteSchema, ReadSchema, QuerySchema]):
@@ -160,19 +187,19 @@ class Connectable(BasicCRUD[WriteSchema, ReadSchema, QuerySchema]):
             write_headers=write_headers,
         )
 
-    def connect(self, *, new_data: WriteSchema, uid: UUID4, parent_uid: UUID4) -> None:
+    def connect(
+        self, *, uid: UUID4, parent_uid: UUID4, conn_data: Optional[Any] = None
+    ) -> None:
         """Connect item to another entity."""
-        logger.info(f"Connecting {self.type}={new_data}.")
-        data = None
-        if new_data.dict().get("relationship") is not None:
-            data = new_data.relationship
-        url = self.connect_url.format(parent_uid=parent_uid, uid=uid)
+        logger.info(f"Connecting {self.type}.")
         resp = requests.put(
-            url=url, headers=self.write_headers, json=jsonable_encoder(data)
+            url=self.connect_url.format(parent_uid=parent_uid, uid=uid),
+            headers=self.write_headers,
+            json=jsonable_encoder(conn_data),
         )
         if resp.status_code == status.HTTP_200_OK:
-            logger.info(f"{self.type}={new_data} successfully connected")
+            logger.info("Successfully connected")
         elif resp.status_code == status.HTTP_304_NOT_MODIFIED:
-            logger.info(f"{self.type}={new_data} already connected. Data not modified")
+            logger.info("Already connected. Data not modified")
         else:
-            self._action_failed(resp=resp, action="connect", item=new_data)
+            raise ConnectionException(resp=resp, item_repr=f"{self.type}={str(uid)}")

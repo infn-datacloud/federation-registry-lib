@@ -38,5 +38,7 @@ class IdentityProviderCRUD(
     ) -> IdentityProviderRead:
         db_item = self.single(data=IdentityProviderQuery(endpoint=item.endpoint))
         db_item = super().create_or_update(item=item, db_item=db_item)
-        self.connect(new_data=item, uid=db_item.uid, parent_uid=parent.uid)
+        self.connect(
+            uid=db_item.uid, parent_uid=parent.uid, conn_data=item.relationship
+        )
         return db_item

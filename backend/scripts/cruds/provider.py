@@ -93,7 +93,8 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
         if db_item is None:
             db_item = self.create(new_data=item)
         else:
-            db_item = self.update(new_data=item, old_data=db_item)
+            updated_item = self.update(new_data=item, uid=db_item.uid)
+            db_item = db_item if updated_item is None else updated_item
 
             for flavor in item.flavors:
                 self.flavors.create_or_update(item=flavor, parent=db_item)
