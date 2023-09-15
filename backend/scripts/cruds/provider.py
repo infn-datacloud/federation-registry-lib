@@ -94,10 +94,8 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
 
             for flavor in item.flavors:
                 self.flavors.create_or_update(item=flavor, parent=db_item)
-
             for image in item.images:
                 self.images.create_or_update(item=image, parent=db_item)
-
             for service in item.services:
                 db_service = self.services.create_or_update(
                     item=service, parent=db_item
@@ -107,7 +105,6 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
                         project.compute_quota.service = db_service.uid
                     if db_service.type == "block-storage":
                         project.block_storage_quota.service = db_service.uid
-
             for project in item.projects:
                 db_project = self.projects.create_or_update(
                     item=project, parent=db_item
@@ -118,11 +115,9 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
                 )
                 for quota in [project.compute_quota, project.block_storage_quota]:
                     self.quotas.create_or_update(item=quota, parent=db_project)
-
             for identity_item in item.identity_providers:
                 self.identity_providers.create_or_update(
                     item=identity_item, parent=db_item
                 )
-
             if item.location is not None:
                 self.locations.create_or_update(item=item.location, parent=db_item)

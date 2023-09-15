@@ -26,7 +26,7 @@ class QuotaCRUD(BasicCRUD[QuotaWrite, QuotaRead, QuotaQuery]):
 
     def create_or_update(self, *, item: QuotaWrite, parent: ProjectRead) -> QuotaRead:
         db_item = self.find_in_list(
-            data=QuotaQuery(name=item.type), db_items=parent.quotas
+            data=QuotaQuery(type=item.type), db_items=parent.quotas
         )
         return super().create_or_update(
             item=item,
