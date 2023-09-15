@@ -1,7 +1,8 @@
 from typing import Dict
 
 from cruds.core import BasicCRUD
-from models.cmdb import ImageQuery, ImageRead, ImageWrite, ProviderRead
+from models.cmdb.image import ImageQuery, ImageRead, ImageWrite
+from models.cmdb.provider import ProviderRead
 from pydantic import AnyHttpUrl
 
 

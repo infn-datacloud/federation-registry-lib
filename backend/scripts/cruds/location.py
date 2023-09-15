@@ -1,7 +1,8 @@
 from typing import Dict
 
 from cruds.core import Connectable
-from models.cmdb import LocationQuery, LocationRead, LocationWrite, ProviderRead
+from models.cmdb.location import LocationQuery, LocationRead, LocationWrite
+from models.cmdb.provider import ProviderRead
 from pydantic import AnyHttpUrl
 
 

@@ -9,7 +9,8 @@ from cruds.location import LocationCRUD
 from cruds.project import ProjectCRUD
 from cruds.quota import QuotaCRUD
 from cruds.service import ServiceCRUD
-from models.cmdb import ProjectQuery, ProviderQuery, ProviderRead, ProviderWrite
+from models.cmdb.project import ProjectQuery
+from models.cmdb.provider import ProviderQuery, ProviderRead, ProviderWrite
 from models.config import URLs
 
 
@@ -41,7 +42,7 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
             post_url=cmdb_urls.identity_providers,
             patch_url=os.path.join(cmdb_urls.identity_providers, "{uid}"),
             connect_url=os.path.join(
-                cmdb_urls.providers, "{parent_uid}", "identity_providers"
+                cmdb_urls.providers, "{parent_uid}", "identity_providers", "{uid}"
             ),
             read_headers=read_headers,
             write_headers=write_headers,
@@ -57,7 +58,9 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
             get_url=cmdb_urls.locations,
             post_url=cmdb_urls.locations,
             patch_url=os.path.join(cmdb_urls.locations, "{uid}"),
-            connect_url=os.path.join(cmdb_urls.providers, "{parent_uid}", "locations"),
+            connect_url=os.path.join(
+                cmdb_urls.providers, "{parent_uid}", "locations", "{uid}"
+            ),
             read_headers=read_headers,
             write_headers=write_headers,
         )

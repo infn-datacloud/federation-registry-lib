@@ -1,7 +1,8 @@
 from typing import Dict
 
 from cruds.core import BasicCRUD
-from models.cmdb import FlavorQuery, FlavorRead, FlavorWrite, ProviderRead
+from models.cmdb.flavor import FlavorQuery, FlavorRead, FlavorWrite
+from models.cmdb.provider import ProviderRead
 from pydantic import AnyHttpUrl
 
 

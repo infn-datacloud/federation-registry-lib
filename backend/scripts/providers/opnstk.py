@@ -1,15 +1,12 @@
 from typing import List
 
 from logger import logger
-from models.cmdb import (
-    CinderQuotaWrite,
-    FlavorWrite,
-    ImageWrite,
-    NovaQuotaWrite,
-    ProjectWrite,
-    ProviderWrite,
-    ServiceWrite,
-)
+from models.cmdb.flavor import FlavorWrite
+from models.cmdb.image import ImageWrite
+from models.cmdb.project import ProjectWrite
+from models.cmdb.provider import ProviderWrite
+from models.cmdb.quota import CinderQuotaWrite, NovaQuotaWrite
+from models.cmdb.service import ServiceWrite
 from models.config import IDP, Openstack
 from openstack import connect
 from openstack.connection import Connection

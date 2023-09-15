@@ -1,12 +1,12 @@
 from typing import Dict
 
 from cruds.core import Connectable
-from models.cmdb import (
+from models.cmdb.identity_provider import (
     IdentityProviderQuery,
     IdentityProviderRead,
     IdentityProviderWrite,
-    ProviderRead,
 )
+from models.cmdb.provider import ProviderRead
 from pydantic import AnyHttpUrl
 
 

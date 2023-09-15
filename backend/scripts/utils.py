@@ -4,7 +4,7 @@ from typing import Dict, List, Tuple
 
 import yaml
 from logger import logger
-from models.cmdb import AuthMethodWrite, IdentityProviderWrite
+from models.cmdb.identity_provider import AuthMethodWrite, IdentityProviderWrite
 from models.config import IDP, Config, URLs
 from pydantic import AnyHttpUrl
 

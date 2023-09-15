@@ -1,7 +1,8 @@
 from typing import Dict
 
 from cruds.core import BasicCRUD
-from models.cmdb import ProjectQuery, ProjectRead, ProjectWrite, ProviderRead
+from models.cmdb.project import ProjectQuery, ProjectRead, ProjectWrite
+from models.cmdb.provider import ProviderRead
 from pydantic import AnyHttpUrl
 
 
