@@ -7,13 +7,13 @@ class Representation(BaseModel):
         return f"{self.endpoint}"
 
 
-class ServiceWrite(ServiceCreate):
+class ServiceWrite(ServiceCreate, Representation):
     pass
 
 
-class ServiceRead(ServiceRead):
+class ServiceRead(ServiceRead, Representation):
     pass
 
 
-class ServiceQuery(ServiceQuery):
+class ServiceQuery(ServiceQuery, Representation):
     pass

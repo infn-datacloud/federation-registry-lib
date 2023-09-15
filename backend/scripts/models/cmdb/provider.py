@@ -1,9 +1,10 @@
-from typing import List
+from typing import List, Optional
 
 from app.provider.schemas import ProviderQuery
 from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
 from models.cmdb.flavor import FlavorWrite
 from models.cmdb.image import ImageWrite
+from models.cmdb.location import LocationWrite
 from models.cmdb.project import ProjectWrite
 from models.cmdb.service import ServiceWrite
 from pydantic import BaseModel, Field
@@ -24,6 +25,9 @@ class ProviderWrite(ProviderCreateExtended, Representation):
     )
     services: List[ServiceWrite] = Field(
         default_factory=list, description="List of services"
+    )
+    location: Optional[LocationWrite] = Field(
+        default=None, description="Provider location"
     )
 
 

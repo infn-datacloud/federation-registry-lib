@@ -7,33 +7,31 @@ from app.quota.schemas import (
     QuotaQuery,
     QuotaRead,
 )
-from pydantic import UUID4, Field
+from pydantic import UUID4, BaseModel, Field
 
 
-class QuotaWrite(QuotaCreate):
+class Representation(BaseModel):
     def __str__(self) -> str:
-        return f"{self.__class__.__name__.replace('Write', '')}={self.type}"
+        return f"{self.type}"
 
 
-class NovaQuotaWrite(NovaQuotaCreate):
-    type: str = "org.openstack.nova"
-    service: Optional[UUID4] = Field(default=None, description="")
-
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__.replace('Write', '')}={self.type}"
-
-
-class CinderQuotaWrite(CinderQuotaCreate):
-    type: str = "org.openstack.cinder"
-    service: Optional[UUID4] = Field(default=None, description="")
-
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__.replace('Write', '')}={self.type}"
-
-
-class QuotaRead(QuotaRead):
+class QuotaWrite(QuotaCreate, Representation):
     pass
 
 
-class QuotaQuery(QuotaQuery):
+class NovaQuotaWrite(NovaQuotaCreate, Representation):
+    type: str = "org.openstack.nova"
+    service: Optional[UUID4] = Field(default=None, description="")
+
+
+class CinderQuotaWrite(CinderQuotaCreate, Representation):
+    type: str = "org.openstack.cinder"
+    service: Optional[UUID4] = Field(default=None, description="")
+
+
+class QuotaRead(QuotaRead, Representation):
+    pass
+
+
+class QuotaQuery(QuotaQuery, Representation):
     pass
