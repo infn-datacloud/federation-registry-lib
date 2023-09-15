@@ -16,7 +16,6 @@ class LocationCRUD(Connectable[LocationWrite, LocationRead, LocationQuery]):
         write_headers: Dict[str, str],
     ) -> None:
         super().__init__(
-            type="Location",
             read_schema=LocationRead,
             write_schema=LocationWrite,
             get_url=get_url,

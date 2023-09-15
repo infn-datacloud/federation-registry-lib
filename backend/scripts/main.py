@@ -1,5 +1,4 @@
-from cmdb import add_or_patch_provider
-from crud import CRUDs
+from cruds.provider import ProviderCRUD
 from providers.opnstk import get_os_provider
 from utils import (
     build_cmdb_urls,
@@ -36,8 +35,8 @@ if __name__ == "__main__":
     read_header, write_header = get_read_write_headers(
         token=tokens[chosen_idp.endpoint]
     )
-    cruds = CRUDs(
+    crud = ProviderCRUD(
         cmdb_urls=cmdb_urls, read_headers=read_header, write_headers=write_header
     )
     for provider in providers:
-        add_or_patch_provider(provider=provider, cruds=cruds)
+        crud.create_or_update(item=provider)

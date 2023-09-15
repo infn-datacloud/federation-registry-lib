@@ -23,7 +23,6 @@ class IdentityProviderCRUD(
         write_headers: Dict[str, str],
     ) -> None:
         super().__init__(
-            type="IdentityProvider",
             read_schema=IdentityProviderRead,
             write_schema=IdentityProviderWrite,
             get_url=get_url,

@@ -1,4 +1,3 @@
-import os
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 
 import requests
@@ -16,7 +15,6 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
     def __init__(
         self,
         *,
-        type: str,
         write_schema: Type[WriteSchema],
         read_schema: Type[ReadSchema],
         get_url: AnyHttpUrl,
@@ -25,7 +23,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         read_headers: Dict[str, str],
         write_headers: Dict[str, str],
     ) -> None:
-        self.type = type.capitalize()
+        self.type = self.__class__.__name__.replace("CRUD", "")
         self.write_schema = write_schema
         self.read_schema = read_schema
         self.get_url = get_url
@@ -35,12 +33,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         self.write_headers = write_headers
 
     def _action_failed(
-        self,
-        *,
-        resp: requests.Response,
-        action: str,
-        item: WriteSchema,
-        name: Optional[str] = None,
+        self, *, resp: requests.Response, action: str, item: WriteSchema
     ) -> None:
         logger.error(f"Failed to {action} {item}")
         logger.error(f"Status code: {resp.status_code}")
@@ -56,11 +49,9 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
     ) -> ReadSchema:
         """Create new instance."""
         logger.info(f"Creating new {new_data}")
-        url = self.post_url
-        if parent_uid is not None:
-            url = os.path.join(url, str(parent_uid), f"{self.type.lower()}s")
+        url = self.post_url.format(parent_uid=str(parent_uid))
         resp = requests.post(
-            url=self.post_url,
+            url=url,
             json=jsonable_encoder(new_data),
             headers=self.write_headers,
             params=params,
@@ -79,7 +70,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
     ) -> ReadSchema:
         """Update existing instance."""
         logger.info(f"Trying to update {new_data}.")
-        url = os.path.join(self.patch_url, str(old_data.uid))
+        url = self.patch_url.format(uid=str(old_data.uid))
         resp = requests.patch(
             url=url, json=jsonable_encoder(new_data), headers=self.write_headers
         )
@@ -120,9 +111,9 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
     ) -> Optional[ReadSchema]:
         """Find instance within a given list with corresponding key-value
         pair."""
-        data = data.dict(exclude_unset=True)
+        d = data.dict(exclude_unset=True)
         for db_item in db_items:
-            for k, v in data.items():
+            for k, v in d.items():
                 if db_item.dict().get(k) == v:
                     logger.info(f"{data} already belongs to this provider")
                     return db_item
@@ -147,7 +138,6 @@ class Connectable(BasicCRUD[WriteSchema, ReadSchema, QuerySchema]):
     def __init__(
         self,
         *,
-        type: str,
         write_schema: Type[WriteSchema],
         read_schema: Type[ReadSchema],
         get_url: AnyHttpUrl,
@@ -159,7 +149,6 @@ class Connectable(BasicCRUD[WriteSchema, ReadSchema, QuerySchema]):
     ) -> None:
         self.connect_url = connect_url
         super().__init__(
-            type=type,
             write_schema=write_schema,
             read_schema=read_schema,
             get_url=get_url,
@@ -175,10 +164,7 @@ class Connectable(BasicCRUD[WriteSchema, ReadSchema, QuerySchema]):
         data = None
         if new_data.dict().get("relationship") is not None:
             data = new_data.relationship
-        url = self.connect_url
-        if parent_uid is not None:
-            url = os.path.join(url, str(parent_uid), f"{self.type.lower()}s")
-        url = os.path.join(url, str(uid))
+        url = self.connect_url.format(parent_uid=parent_uid, uid=uid)
         resp = requests.put(
             url=url, headers=self.write_headers, json=jsonable_encoder(data)
         )

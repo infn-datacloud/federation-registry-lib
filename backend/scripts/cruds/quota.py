@@ -15,7 +15,6 @@ class QuotaCRUD(BasicCRUD[QuotaWrite, QuotaRead, QuotaQuery]):
         write_headers: Dict[str, str],
     ) -> None:
         super().__init__(
-            type="Quota",
             read_schema=QuotaRead,
             write_schema=QuotaWrite,
             get_url=get_url,

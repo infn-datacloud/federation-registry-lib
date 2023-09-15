@@ -15,7 +15,6 @@ class FlavorCRUD(BasicCRUD[FlavorWrite, FlavorRead, FlavorQuery]):
         write_headers: Dict[str, str],
     ) -> None:
         super().__init__(
-            type="Flavor",
             read_schema=FlavorRead,
             write_schema=FlavorWrite,
             get_url=get_url,

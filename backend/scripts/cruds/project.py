@@ -15,7 +15,6 @@ class ProjectCRUD(BasicCRUD[ProjectWrite, ProjectRead, ProjectQuery]):
         write_headers: Dict[str, str],
     ) -> None:
         super().__init__(
-            type="Project",
             read_schema=ProjectRead,
             write_schema=ProjectWrite,
             get_url=get_url,

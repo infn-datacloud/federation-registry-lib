@@ -15,7 +15,6 @@ class ImageCRUD(BasicCRUD[ImageWrite, ImageRead, ImageQuery]):
         write_headers: Dict[str, str],
     ) -> None:
         super().__init__(
-            type="Image",
             read_schema=ImageRead,
             write_schema=ImageWrite,
             get_url=get_url,

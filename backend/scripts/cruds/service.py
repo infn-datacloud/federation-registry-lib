@@ -15,7 +15,6 @@ class ServiceCRUD(BasicCRUD[ServiceWrite, ServiceRead, ServiceQuery]):
         write_headers: Dict[str, str],
     ) -> None:
         super().__init__(
-            type="Service",
             read_schema=ServiceRead,
             write_schema=ServiceWrite,
             get_url=get_url,
