@@ -6,31 +6,40 @@ from fastapi import status
 from fastapi.encoders import jsonable_encoder
 from logger import logger
 from models.cmdb import (
+    FlavorQuery,
     FlavorRead,
     FlavorWrite,
+    IdentityProviderQuery,
     IdentityProviderRead,
     IdentityProviderWrite,
+    ImageQuery,
     ImageRead,
     ImageWrite,
+    LocationQuery,
     LocationRead,
     LocationWrite,
+    ProjectQuery,
     ProjectRead,
     ProjectWrite,
+    ProviderQuery,
     ProviderRead,
     ProviderWrite,
+    QuotaQuery,
     QuotaRead,
     QuotaWrite,
+    ServiceQuery,
     ServiceRead,
     ServiceWrite,
 )
 from models.config import URLs
 from pydantic import UUID4, AnyHttpUrl, BaseModel
 
-WriteSchema = TypeVar("WriteSchema", bound=BaseModel)
 ReadSchema = TypeVar("ReadSchema", bound=BaseModel)
+QuerySchema = TypeVar("QuerySchema", bound=BaseModel)
+WriteSchema = TypeVar("WriteSchema", bound=BaseModel)
 
 
-class BasicPopulation(Generic[WriteSchema, ReadSchema]):
+class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
     def __init__(
         self,
         *,
@@ -52,19 +61,18 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
         self.read_headers = read_headers
         self.write_headers = write_headers
 
-    def _repr(self, *, item: WriteSchema) -> str:
-        if item.dict().get("name") is not None:
-            return item.name
-        if item.dict().get("endpoint") is not None:
-            return item.endpoint
-
     def _action_failed(
-        self, *, resp: requests.Response, name: str, action: str
+        self,
+        *,
+        resp: requests.Response,
+        action: str,
+        item: WriteSchema,
+        name: Optional[str] = None,
     ) -> None:
-        logger.error(f"Failed to {action} {self.type.lower()} '{name}'")
+        logger.error(f"Failed to {action} {item}")
         logger.error(f"Status code: {resp.status_code}")
         logger.error(f"Message: {resp.text}")
-        raise BaseException("Operation failed")
+        raise BaseException("Failed to  failed")
 
     def create(
         self,
@@ -74,8 +82,7 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
         parent_uid: Optional[UUID4] = None,
     ) -> ReadSchema:
         """Create new instance."""
-        label = self._repr(item=new_data)
-        logger.info(f"Creating new {self.type} '{label}'")
+        logger.info(f"Creating new {new_data}")
         url = self.post_url
         if parent_uid is not None:
             url = os.path.join(url, str(parent_uid), f"{self.type.lower()}s")
@@ -86,69 +93,84 @@ class BasicPopulation(Generic[WriteSchema, ReadSchema]):
             params=params,
         )
         if resp.status_code == status.HTTP_201_CREATED:
-            logger.info(f"{self.type} '{label}' successfully created")
+            logger.info(f"{new_data} successfully created")
             return self.read_schema(**resp.json())
         else:
-            self._action_failed(name=label, resp=resp, action="create")
+            self._action_failed(resp=resp, action="create", item=new_data)
 
     def update(
         self,
         *,
         new_data: WriteSchema,
         old_data: ReadSchema,
-        uid: UUID4,
     ) -> ReadSchema:
         """Update existing instance."""
-        label = self._repr(item=new_data)
-        logger.info(f"Trying to update {self.type} '{label}'.")
-        url = os.path.join(self.patch_url, str(uid))
+        logger.info(f"Trying to update {new_data}.")
+        url = os.path.join(self.patch_url, str(old_data.uid))
         resp = requests.patch(
             url=url, json=jsonable_encoder(new_data), headers=self.write_headers
         )
         if resp.status_code == status.HTTP_200_OK:
-            logger.info(f"{self.type} '{label}' successfully updated")
+            logger.info(f"{new_data} successfully updated")
             return self.read_schema(**resp.json())
         elif resp.status_code == status.HTTP_304_NOT_MODIFIED:
-            logger.info("New data match stored data.")
-            logger.info(f"{self.type} '{label}' not modified")
+            logger.info(f"New data match stored data. {new_data} not modified")
             return old_data
         else:
-            self._action_failed(name=label, resp=resp, action="update")
+            self._action_failed(resp=resp, action="update", item=new_data)
 
-    def single(self, *, params: Dict[str, Any]) -> Optional[ReadSchema]:
-        """Find instance with given params."""
+    def single(
+        self, *, data: QuerySchema, with_conn: bool = False
+    ) -> Optional[ReadSchema]:
+        """Find single instance with given params."""
         db_item = None
-        resp = requests.get(url=self.get_url, params=params, headers=self.read_headers)
+        resp = requests.get(
+            url=self.get_url,
+            params={**data.dict(exclude_unset=True), "with_conn": with_conn},
+            headers=self.read_headers,
+        )
         if resp.status_code == status.HTTP_200_OK:
             if len(resp.json()) == 0:
-                logger.info(f"{self.type} '{list(params.values())}' not found")
+                logger.info(f"{data} not found")
             elif len(resp.json()) == 1:
-                logger.info(f"{self.type} '{list(params.values())}' found")
+                logger.info(f"{data} found")
                 db_item = self.read_schema(**resp.json()[0])
             else:
-                logger.error(
-                    f"{self.type} '{list(params.values())}' multiple occurrences found"
-                )
+                logger.error(f"{data} multiple occurrences found")
                 raise Exception("Database corrupted")
         else:
-            self._action_failed(name=list(params.values()), resp=resp, action="find")
+            self._action_failed(resp=resp, action="find", item=data)
         return db_item
 
     def find_in_list(
-        self, *, key: str, value: str, db_items: List[ReadSchema]
+        self, *, data: QuerySchema, db_items: List[ReadSchema]
     ) -> Optional[ReadSchema]:
         """Find instance within a given list with corresponding key-value
         pair."""
-        items = [i.dict().get(key) for i in db_items]
-        if value in items:
-            logger.info(f"{self.type} '{value}' already belongs to this provider")
-            idx = items.index(value)
-            return db_items[idx]
-        logger.info(f"No {self.type.lower()}s '{value}' belongs to this provider.")
+        data = data.dict(exclude_unset=True)
+        for db_item in db_items:
+            for k, v in data.items():
+                if db_item.dict().get(k) == v:
+                    logger.info(f"{data} already belongs to this provider")
+                    return db_item
+        logger.info(f"No {data} belongs to this provider.")
         return None
 
+    def create_or_update(
+        self,
+        *,
+        item: WriteSchema,
+        db_item: Optional[ReadSchema] = None,
+        parent_uid: Optional[UUID4] = None,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> ReadSchema:
+        """Create new item or update existing one."""
+        if db_item is None:
+            return self.create(new_data=item, parent_uid=parent_uid, params=params)
+        return self.update(new_data=item, old_data=db_item)
 
-class Connectable(BasicPopulation[WriteSchema, ReadSchema]):
+
+class Connectable(BasicCRUD[WriteSchema, ReadSchema, QuerySchema]):
     def __init__(
         self,
         *,
@@ -174,15 +196,9 @@ class Connectable(BasicPopulation[WriteSchema, ReadSchema]):
             write_headers=write_headers,
         )
 
-    def connect(
-        self,
-        *,
-        parent_uid: UUID4,
-        uid: UUID4,
-        new_data: WriteSchema,
-    ) -> None:
-        label = self._repr(item=new_data)
-        logger.info(f"Connecting {self.type} '{label}'.")
+    def connect(self, *, new_data: WriteSchema, uid: UUID4, parent_uid: UUID4) -> None:
+        """Connect item to another entity."""
+        logger.info(f"Connecting {new_data}.")
         data = None
         if new_data.dict().get("relationship") is not None:
             data = new_data.relationship
@@ -194,35 +210,14 @@ class Connectable(BasicPopulation[WriteSchema, ReadSchema]):
             url=url, headers=self.write_headers, json=jsonable_encoder(data)
         )
         if resp.status_code == status.HTTP_200_OK:
-            logger.info(f"{self.type} '{label}' successfully connected")
+            logger.info(f"{new_data} successfully connected")
         elif resp.status_code == status.HTTP_304_NOT_MODIFIED:
-            logger.info(f"{self.type} '{label}' already connected. Data not modified")
+            logger.info(f"{new_data} already connected. Data not modified")
         else:
-            self._action_failed(name=label, resp=resp, action="connect")
+            self._action_failed(resp=resp, action="connect", item=new_data)
 
 
-class ImagePopulation(BasicPopulation[ImageWrite, ImageRead]):
-    def __init__(
-        self,
-        get_url: AnyHttpUrl,
-        post_url: AnyHttpUrl,
-        patch_url: AnyHttpUrl,
-        read_headers: Dict[str, str],
-        write_headers: Dict[str, str],
-    ) -> None:
-        super().__init__(
-            type="Image",
-            read_schema=ImageRead,
-            write_schema=ImageWrite,
-            get_url=get_url,
-            post_url=post_url,
-            patch_url=patch_url,
-            read_headers=read_headers,
-            write_headers=write_headers,
-        )
-
-
-class FlavorPopulation(BasicPopulation[FlavorWrite, FlavorRead]):
+class FlavorCRUD(BasicCRUD[FlavorWrite, FlavorRead, FlavorQuery]):
     def __init__(
         self,
         get_url: AnyHttpUrl,
@@ -242,74 +237,19 @@ class FlavorPopulation(BasicPopulation[FlavorWrite, FlavorRead]):
             write_headers=write_headers,
         )
 
-
-class ProjectPopulation(BasicPopulation[ProjectWrite, ProjectRead]):
-    def __init__(
-        self,
-        get_url: AnyHttpUrl,
-        post_url: AnyHttpUrl,
-        patch_url: AnyHttpUrl,
-        read_headers: Dict[str, str],
-        write_headers: Dict[str, str],
-    ) -> None:
-        super().__init__(
-            type="Project",
-            read_schema=ProjectRead,
-            write_schema=ProjectWrite,
-            get_url=get_url,
-            post_url=post_url,
-            patch_url=patch_url,
-            read_headers=read_headers,
-            write_headers=write_headers,
+    def create_or_update(
+        self, *, item: FlavorWrite, parent: ProviderRead
+    ) -> FlavorRead:
+        db_item = self.find_in_list(
+            data=FlavorQuery(name=item.name, uuid=item.uuid), db_items=parent.flavors
+        )
+        return super().create_or_update(
+            item=item, db_item=db_item, parent_uid=parent.uid
         )
 
 
-class ProviderPopulation(BasicPopulation[ProviderWrite, ProviderRead]):
-    def __init__(
-        self,
-        get_url: AnyHttpUrl,
-        post_url: AnyHttpUrl,
-        patch_url: AnyHttpUrl,
-        read_headers: Dict[str, str],
-        write_headers: Dict[str, str],
-    ) -> None:
-        super().__init__(
-            type="Provider",
-            read_schema=ProviderRead,
-            write_schema=ProviderWrite,
-            get_url=get_url,
-            post_url=post_url,
-            patch_url=patch_url,
-            read_headers=read_headers,
-            write_headers=write_headers,
-        )
-
-
-class LocationPopulation(Connectable[LocationWrite, LocationRead]):
-    def __init__(
-        self,
-        get_url: AnyHttpUrl,
-        post_url: AnyHttpUrl,
-        patch_url: AnyHttpUrl,
-        connect_url: AnyHttpUrl,
-        read_headers: Dict[str, str],
-        write_headers: Dict[str, str],
-    ) -> None:
-        super().__init__(
-            type="Location",
-            read_schema=LocationRead,
-            write_schema=LocationWrite,
-            get_url=get_url,
-            post_url=post_url,
-            patch_url=patch_url,
-            connect_url=connect_url,
-            read_headers=read_headers,
-            write_headers=write_headers,
-        )
-
-
-class IdentityProviderPopulation(
-    Connectable[IdentityProviderWrite, IdentityProviderRead]
+class IdentityProviderCRUD(
+    Connectable[IdentityProviderWrite, IdentityProviderRead, IdentityProviderQuery]
 ):
     def __init__(
         self,
@@ -332,8 +272,16 @@ class IdentityProviderPopulation(
             write_headers=write_headers,
         )
 
+    def create_or_update(
+        self, *, item: IdentityProviderWrite, parent: ProviderRead
+    ) -> IdentityProviderRead:
+        db_item = self.single(data=IdentityProviderQuery(endpoint=item.endpoint))
+        db_item = super().create_or_update(item=item, db_item=db_item)
+        self.connect(new_data=item, uid=db_item.uid, parent_uid=parent.uid)
+        return db_item
 
-class ServicePopulation(BasicPopulation[ServiceWrite, ServiceRead]):
+
+class ImageCRUD(BasicCRUD[ImageWrite, ImageRead, ImageQuery]):
     def __init__(
         self,
         get_url: AnyHttpUrl,
@@ -343,9 +291,100 @@ class ServicePopulation(BasicPopulation[ServiceWrite, ServiceRead]):
         write_headers: Dict[str, str],
     ) -> None:
         super().__init__(
-            type="Service",
-            read_schema=ServiceRead,
-            write_schema=ServiceWrite,
+            type="Image",
+            read_schema=ImageRead,
+            write_schema=ImageWrite,
+            get_url=get_url,
+            post_url=post_url,
+            patch_url=patch_url,
+            read_headers=read_headers,
+            write_headers=write_headers,
+        )
+
+    def create_or_update(self, *, item: ImageWrite, parent: ProviderRead) -> ImageRead:
+        db_item = self.find_in_list(
+            data=ImageQuery(name=item.name, uuid=item.uuid), db_items=parent.images
+        )
+        return super().create_or_update(
+            item=item, db_item=db_item, parent_uid=parent.uid
+        )
+
+
+class LocationCRUD(Connectable[LocationWrite, LocationRead, LocationQuery]):
+    def __init__(
+        self,
+        get_url: AnyHttpUrl,
+        post_url: AnyHttpUrl,
+        patch_url: AnyHttpUrl,
+        connect_url: AnyHttpUrl,
+        read_headers: Dict[str, str],
+        write_headers: Dict[str, str],
+    ) -> None:
+        super().__init__(
+            type="Location",
+            read_schema=LocationRead,
+            write_schema=LocationWrite,
+            get_url=get_url,
+            post_url=post_url,
+            patch_url=patch_url,
+            connect_url=connect_url,
+            read_headers=read_headers,
+            write_headers=write_headers,
+        )
+
+    def create_or_update(
+        self, *, item: LocationWrite, parent: ProviderRead
+    ) -> LocationRead:
+        db_item = self.single(data=LocationQuery(name=item.name))
+        db_item = super().create_or_update(item=item, db_item=db_item)
+        self.connect(new_data=item, uid=db_item.uid, parent_uid=parent.uid)
+        return db_item
+
+
+class ProjectCRUD(BasicCRUD[ProjectWrite, ProjectRead, ProjectQuery]):
+    def __init__(
+        self,
+        get_url: AnyHttpUrl,
+        post_url: AnyHttpUrl,
+        patch_url: AnyHttpUrl,
+        read_headers: Dict[str, str],
+        write_headers: Dict[str, str],
+    ) -> None:
+        super().__init__(
+            type="Project",
+            read_schema=ProjectRead,
+            write_schema=ProjectWrite,
+            get_url=get_url,
+            post_url=post_url,
+            patch_url=patch_url,
+            read_headers=read_headers,
+            write_headers=write_headers,
+        )
+
+    def create_or_update(
+        self, *, item: ProjectWrite, parent: ProviderRead
+    ) -> ProjectRead:
+        db_item = self.find_in_list(
+            data=ProjectQuery(name=item.name, uuid=item.uuid), db_items=parent.projects
+        )
+        return super().create_or_update(
+            item=item, db_item=db_item, parent_uid=parent.uid
+        )
+
+
+class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
+    def __init__(
+        self,
+        get_url: AnyHttpUrl,
+        post_url: AnyHttpUrl,
+        patch_url: AnyHttpUrl,
+        read_headers: Dict[str, str],
+        write_headers: Dict[str, str],
+    ) -> None:
+        super().__init__(
+            type="Provider",
+            read_schema=ProviderRead,
+            write_schema=ProviderWrite,
             get_url=get_url,
             post_url=post_url,
             patch_url=patch_url,
@@ -354,7 +393,7 @@ class ServicePopulation(BasicPopulation[ServiceWrite, ServiceRead]):
         )
 
 
-class QuotaPopulation(BasicPopulation[QuotaWrite, QuotaRead]):
+class QuotaCRUD(BasicCRUD[QuotaWrite, QuotaRead, QuotaQuery]):
     def __init__(
         self,
         get_url: AnyHttpUrl,
@@ -374,6 +413,50 @@ class QuotaPopulation(BasicPopulation[QuotaWrite, QuotaRead]):
             write_headers=write_headers,
         )
 
+    def create_or_update(self, *, item: QuotaWrite, parent: ProjectRead) -> QuotaRead:
+        db_item = self.find_in_list(
+            data=QuotaQuery(name=item.type), db_items=parent.quotas
+        )
+        return super().create_or_update(
+            item=item,
+            db_item=db_item,
+            params={
+                "project_uid": parent.uid,
+                "service_uid": item.service,
+            },
+        )
+
+
+class ServiceCRUD(BasicCRUD[ServiceWrite, ServiceRead, ServiceQuery]):
+    def __init__(
+        self,
+        get_url: AnyHttpUrl,
+        post_url: AnyHttpUrl,
+        patch_url: AnyHttpUrl,
+        read_headers: Dict[str, str],
+        write_headers: Dict[str, str],
+    ) -> None:
+        super().__init__(
+            type="Service",
+            read_schema=ServiceRead,
+            write_schema=ServiceWrite,
+            get_url=get_url,
+            post_url=post_url,
+            patch_url=patch_url,
+            read_headers=read_headers,
+            write_headers=write_headers,
+        )
+
+    def create_or_update(
+        self, *, item: ServiceWrite, parent: ProviderRead
+    ) -> ServiceRead:
+        db_item = self.find_in_list(
+            data=ServiceQuery(name=item.name), db_items=parent.services
+        )
+        return super().create_or_update(
+            item=item, db_item=db_item, parent_uid=parent.uid
+        )
+
 
 class CRUDs:
     def __init__(
@@ -382,14 +465,14 @@ class CRUDs:
         read_headers: Dict[str, str],
         write_headers: Dict[str, str],
     ) -> None:
-        self.flavors = FlavorPopulation(
+        self.flavors = FlavorCRUD(
             get_url=cmdb_urls.flavors,
             post_url=cmdb_urls.providers,
             patch_url=cmdb_urls.flavors,
             read_headers=read_headers,
             write_headers=write_headers,
         )
-        self.identity_providers = IdentityProviderPopulation(
+        self.identity_providers = IdentityProviderCRUD(
             get_url=cmdb_urls.identity_providers,
             post_url=cmdb_urls.identity_providers,
             patch_url=cmdb_urls.identity_providers,
@@ -397,14 +480,14 @@ class CRUDs:
             read_headers=read_headers,
             write_headers=write_headers,
         )
-        self.images = ImagePopulation(
+        self.images = ImageCRUD(
             get_url=cmdb_urls.images,
             post_url=cmdb_urls.providers,
             patch_url=cmdb_urls.images,
             read_headers=read_headers,
             write_headers=write_headers,
         )
-        self.locations = LocationPopulation(
+        self.locations = LocationCRUD(
             get_url=cmdb_urls.locations,
             post_url=cmdb_urls.locations,
             patch_url=cmdb_urls.locations,
@@ -412,28 +495,28 @@ class CRUDs:
             read_headers=read_headers,
             write_headers=write_headers,
         )
-        self.projects = ProjectPopulation(
+        self.projects = ProjectCRUD(
             get_url=cmdb_urls.projects,
             post_url=cmdb_urls.providers,
             patch_url=cmdb_urls.projects,
             read_headers=read_headers,
             write_headers=write_headers,
         )
-        self.providers = ProviderPopulation(
+        self.providers = ProviderCRUD(
             get_url=cmdb_urls.providers,
             post_url=cmdb_urls.providers,
             patch_url=cmdb_urls.providers,
             read_headers=read_headers,
             write_headers=write_headers,
         )
-        self.quotas = QuotaPopulation(
+        self.quotas = QuotaCRUD(
             get_url=cmdb_urls.quotas,
             post_url=cmdb_urls.quotas,
             patch_url=cmdb_urls.quotas,
             read_headers=read_headers,
             write_headers=write_headers,
         )
-        self.services = ServicePopulation(
+        self.services = ServiceCRUD(
             get_url=cmdb_urls.services,
             post_url=cmdb_urls.providers,
             patch_url=cmdb_urls.services,
