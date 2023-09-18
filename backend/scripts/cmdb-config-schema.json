@@ -169,21 +169,49 @@
                       "description": "Resource limitations to apply to each user belonging to this project",
                       "type": "object",
                       "properties": {
-                        "cores": {
-                          "description": "Max num of CPUs",
-                          "type": "number"
+                        "compute": {
+                          "description": "Compute per user quotas",
+                          "type": "object",
+                          "properties": {
+                            "cores": {
+                              "description": "Max num of CPUs",
+                              "type": "number"
+                            },
+                            "fixed_ips": {
+                              "description": "Max num of assignable fixed IPs",
+                              "type": "number"
+                            },
+                            "public_ips": {
+                              "description": "Max num of assignable public IPs",
+                              "type": "number"
+                            },
+                            "instances": {
+                              "description": "Max num of VM instances",
+                              "type": "number"
+                            },
+                            "ram": {
+                              "description": "Max usable RAM in MB",
+                              "type": "number"
+                            }
+                          }
                         },
-                        "ram": {
-                          "description": "Max usable RAM in MB",
-                          "type": "number"
-                        },
-                        "disk": {
-                          "description": "Max usable disk size in GB",
-                          "type": "number"
-                        },
-                        "public_ips": {
-                          "description": "Max num of assignable public IPs",
-                          "type": "number"
+                        "block_storage": {
+                          "description": "Block storage per user quotas",
+                          "type": "object",
+                          "properties": {
+                            "gigabytes": {
+                              "description": "Disk size in gigabytes",
+                              "type": "number"
+                            },
+                            "per_volumes_gigabytes": {
+                              "description": "Max size in gigabytes for each volume",
+                              "type": "number"
+                            },
+                            "volumes": {
+                              "description": "Max num of volumes",
+                              "type": "number"
+                            }
+                          }
                         }
                       }
                     }

@@ -33,10 +33,12 @@ openstack:
             - name: test
               idp_name: infn-cloud
           per_user_limits:
-            cores: 2
-            ram: 2
-            disk: 2
-            public_ips: 2
+            compute:
+              cores: 2
+              ram: 2
+              public_ips: 2
+            block_storage:
+              gigabytes: 2
       - doc_uuid: bdfda059a23c439f8ffc06edd484e1a0
         project:
           id: edfda059a23c439f8ffc06edd484efa0
