@@ -1,16 +1,16 @@
 cmdb:
   base_url: http://localhost:8000/
   api_ver:
-    flavors: "v1"
-    identity_providers: "v1"
-    images: "v1"
-    locations: "v1"
-    projects: "v1"
-    providers: "v1"
-    quotas: "v1"
-    services: "v1"
-    slas: "v1"
-    user_groups: "v1"
+    flavors: v1
+    identity_providers: v1
+    images: v1
+    locations: v1
+    projects: v1
+    providers: v1
+    quotas: v1
+    services: v1
+    slas: v1
+    user_groups: v1
 
 oidc_agent_accounts:
   - https://iam.cloud.infn.it/
@@ -23,14 +23,55 @@ openstack:
         protocol: openid
         endpoint: https://iam.cloud.infn.it/
         group_claim: groups
-    projects:
-      - name: infn-cloud-ops
-        domain: default
-      - id: edfda059a23c439f8ffc06edd484efa0
-      - id: 83be7870dbb54d4a988f89ea77e9e2b9
+    slas:
+      - doc_uuid: edfda059a23c439f8ffc06edd484e1a0
+        project:
+          name: infn-cloud-ops
+          domain: default
+          region: default
+          groups:
+            - name: test
+              idp_name: infn-cloud
+          per_user_limits:
+            cores: 2
+            ram: 2
+            disk: 2
+            public_ips: 2
+      - doc_uuid: bdfda059a23c439f8ffc06edd484e1a0
+        project:
+          id: edfda059a23c439f8ffc06edd484efa0
+          groups:
+            - name: prova
+              idp: infn-cloud
+      - doc_uuid: cdfda059a23c439f8ffc06edd484e1a0
+        project:
+          id: 83be7870dbb54d4a988f89ea77e9e2b9
+          groups:
+            - name: test
+              idp: infn-cloud
     is_public: false
     support_emails:
-      - "giovanni.savarese@ba.infn.it"
+      - giovanni.savarese@ba.infn.it
     location:
-      name: "ReCas-BA"
-      country: "Italy"
+      site: Bari
+      country: Italy
+  - name: cloud-cnaf
+    auth_url: https://cloud-api-pub.cr.cnaf.infn.it:5000/v3
+    identity_providers:
+      - endpoint: https://iam.cloud.infn.it/
+        name: infn-cc
+        protocol: openid
+        group_claim: groups
+    slas:
+      - doc_uuid: uuid
+        project:
+          id: 12bb88070aa443a494bcbbbe2e96b48b
+          groups:
+            - name: test
+              idp: infn-cc
+    is_public: false
+    support_emails:
+      - giovanni.savarese@ba.infn.it
+    location:
+      site: Bologna
+      country: Italy

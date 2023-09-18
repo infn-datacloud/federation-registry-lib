@@ -129,37 +129,94 @@
             "minItems": 1,
             "uniqueItems": true
           },
-          "projects": {
-            "description": "List of projects to integrate in the CMDB and to use to perform authentication on this provider",
+          "slas": {
+            "description": "List of SLAs to integrate in the CMDB and to use to pair projects with user groups",
             "type": "array",
             "items": {
-              "description": "Project details",
+              "description": "SLA details",
               "type": "object",
-              "oneOf": [
-                {
-                  "properties": {
-                    "id": {
-                      "description": "Project UUID",
-                      "type": "string",
-                      "format": "uuid"
-                    }
-                  },
-                  "required": ["id"]
+              "properties": {
+                "doc_uuid": {
+                  "description": "SLA document UUID",
+                  "type": "string",
+                  "format": "uuid"
                 },
-                {
+                "project": {
+                  "description": "Project details",
+                  "type": "object",
                   "properties": {
-                    "name": {
-                      "description": "Project name",
-                      "type": "string"
+                    "groups": {
+                      "description": "Identity providers groups who have access to this project",
+                      "type": "array",
+                      "items": {
+                        "description": "User group properties",
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "description": "User group name",
+                            "type": "string"
+                          },
+                          "idp": {
+                            "description": "User group identity provider",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "minItems": 1,
+                      "required": ["name", "idp"]
                     },
-                    "domain": {
-                      "description": "Project domain",
-                      "type": "string"
+                    "per_user_limits": {
+                      "description": "Resource limitations to apply to each user belonging to this project",
+                      "type": "object",
+                      "properties": {
+                        "cores": {
+                          "description": "Max num of CPUs",
+                          "type": "number"
+                        },
+                        "ram": {
+                          "description": "Max usable RAM in MB",
+                          "type": "number"
+                        },
+                        "disk": {
+                          "description": "Max usable disk size in GB",
+                          "type": "number"
+                        },
+                        "public_ips": {
+                          "description": "Max num of assignable public IPs",
+                          "type": "number"
+                        }
+                      }
                     }
                   },
-                  "required": ["name", "domain"]
+                  "required": ["groups"],
+                  "oneOf": [
+                    {
+                      "properties": {
+                        "id": {
+                          "description": "Project UUID",
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "required": ["id"]
+                    },
+                    {
+                      "properties": {
+                        "name": {
+                          "description": "Project name",
+                          "type": "string"
+                        },
+                        "domain": {
+                          "description": "Project domain",
+                          "type": "string"
+                        }
+                      },
+                      "required": ["name", "domain"]
+                    }
+                  ]
                 }
-              ]
+              },
+              "required": ["doc_uuid", "project"]
             },
             "minItems": 1,
             "uniqueItems": true
@@ -183,8 +240,8 @@
             "description": "Provider geographical location",
             "type": "object",
             "properties": {
-              "name": {
-                "description": "Location name",
+              "site": {
+                "description": "Location site name",
                 "type": "string"
               },
               "country": {
@@ -204,10 +261,10 @@
                 "maximum": 180
               }
             },
-            "required": ["name", "country"]
+            "required": ["site", "country"]
           }
         },
-        "required": ["name", "auth_url", "identity_providers", "projects"]
+        "required": ["name", "auth_url", "identity_providers", "slas"]
       },
       "minItems": 1,
       "uniqueItems": true
