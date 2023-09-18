@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 from app.auth.dependencies import check_read_access, check_write_access
 from app.location.api.dependencies import (
     valid_location_id,
-    valid_location_name,
+    valid_location_site,
     validate_new_location_values,
 )
 from app.location.crud import location
@@ -63,11 +63,11 @@ def get_locations(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=LocationReadExtended,
-    dependencies=[Depends(check_write_access), Depends(valid_location_name)],
+    dependencies=[Depends(check_write_access), Depends(valid_location_site)],
     summary="Create location",
     description="Create a location. \
         At first validate new location values checking there are \
-        no other items with the given *name*.",
+        no other items with the given *site*.",
 )
 def post_location(item: LocationCreate):
     return location.create(obj_in=item, force=True)
@@ -112,7 +112,7 @@ def get_location(
         current ones, the database entity is left unchanged \
         and the endpoint returns the `not modified` message. \
         At first validate new location values checking there are \
-        no other items with the given *name*.",
+        no other items with the given *site*.",
 )
 def put_location(
     update_data: LocationUpdate,

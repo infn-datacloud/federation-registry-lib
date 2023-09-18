@@ -16,7 +16,7 @@ class Location(StructuredNode):
     Attributes:
         uid (int): Location unique ID.
         description (str): Brief description.
-        name (str): Location unique name.
+        site (str): Location unique name.
         country (str): Country name.
         latitude (float): Latitude coordinate.
         longitude (float): Longitude coordinate.
@@ -24,7 +24,7 @@ class Location(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
-    name = StringProperty(unique_index=True, required=True)
+    site = StringProperty(unique_index=True, required=True)
     country = StringProperty(required=True)
     latitude = FloatProperty()
     longitude = FloatProperty()

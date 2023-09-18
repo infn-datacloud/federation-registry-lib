@@ -29,8 +29,8 @@ def valid_location_id(location_uid: UUID4) -> Location:
     return item
 
 
-def valid_location_name(item: Union[LocationCreate, LocationUpdate]) -> None:
-    """Check there are no other locations with the same name.
+def valid_location_site(item: Union[LocationCreate, LocationUpdate]) -> None:
+    """Check there are no other locations with the same site.
 
     Args:
         item (LocationCreate | LocationUpdate): input data.
@@ -39,12 +39,12 @@ def valid_location_name(item: Union[LocationCreate, LocationUpdate]) -> None:
         None
 
     Raises:
-        BadRequestError: DB entity with given name already exists.
+        BadRequestError: DB entity with given site already exists.
     """
 
-    db_item = location.get(name=item.name)
+    db_item = location.get(site=item.site)
     if db_item is not None:
-        msg = f"Location with name '{item.name}' already registered"
+        msg = f"Location with site '{item.site}' already registered"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=msg,
@@ -55,7 +55,7 @@ def validate_new_location_values(
     update_data: LocationUpdate, item: Location = Depends(valid_location_id)
 ) -> None:
     """Check given data are valid ones. Check there are no other locations with
-    the same name.
+    the same site.
 
     Args:
         update_data (FlavorUpdate): new data.
@@ -66,8 +66,8 @@ def validate_new_location_values(
 
     Raises:
         NotFoundError: DB entity with given uid not found.
-        BadRequestError: DB entity with given name already exists.
+        BadRequestError: DB entity with given site already exists.
     """
 
-    if update_data.name != item.name:
-        valid_location_name(update_data)
+    if update_data.site != item.site:
+        valid_location_site(update_data)

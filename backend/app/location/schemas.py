@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, root_validator
 class LocationBase(BaseModel):
     """Model with Location basic attributes."""
 
-    name: str = Field(description="Name of the Location hosting a provider.")
+    site: str = Field(description="Name of the Location hosting a provider.")
     country: str = Field(description="Location's country name.")
     latitude: Optional[float] = Field(
         default=None, ge=-180, le=180, description="Latitude coordinate."
@@ -36,7 +36,7 @@ class LocationUpdate(LocationCreate):
     Default to None mandatory attributes.
     """
 
-    name: Optional[str] = Field(
+    site: Optional[str] = Field(
         default=None, description="Name of the Location hosting a provider."
     )
     country: Optional[str] = Field(default=None, description="Location's country name.")
