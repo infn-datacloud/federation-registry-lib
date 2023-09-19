@@ -30,6 +30,7 @@ class Provider(StructuredNode):
     uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(unique_index=True, required=True)
+    status = StringProperty()
     is_public = BooleanProperty(default=False)
     support_emails = ArrayProperty(StringProperty())
 

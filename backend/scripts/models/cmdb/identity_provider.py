@@ -1,10 +1,13 @@
+from typing import List
+
 from app.identity_provider.schemas import IdentityProviderQuery
+from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.provider.schemas_extended import (
     AuthMethodCreate,
     IdentityProviderCreateExtended,
-    IdentityProviderRead,
 )
-from pydantic import BaseModel
+from app.user_group.schemas import UserGroupRead
+from pydantic import BaseModel, Field
 
 
 class Representation(BaseModel):
@@ -16,8 +19,8 @@ class IdentityProviderWrite(IdentityProviderCreateExtended, Representation):
     pass
 
 
-class IdentityProviderRead(IdentityProviderRead, Representation):
-    pass
+class IdentityProviderRead(IdentityProviderReadExtended, Representation):
+    user_groups: List[UserGroupRead] = Field(default_factory=list)
 
 
 class IdentityProviderQuery(IdentityProviderQuery, Representation):

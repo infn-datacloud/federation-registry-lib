@@ -1,13 +1,12 @@
-from typing import Optional
-
 from app.quota.schemas import (
-    CinderQuotaCreate,
-    NovaQuotaCreate,
+    BlockStorageQuotaCreate,
+    ComputeQuotaCreate,
     QuotaCreate,
     QuotaQuery,
     QuotaRead,
 )
-from pydantic import UUID4, BaseModel, Field
+from app.service.enum import ServiceType
+from pydantic import AnyHttpUrl, BaseModel, Field
 
 
 class Representation(BaseModel):
@@ -19,14 +18,14 @@ class QuotaWrite(QuotaCreate, Representation):
     pass
 
 
-class NovaQuotaWrite(NovaQuotaCreate, Representation):
-    type: str = "org.openstack.nova"
-    service: Optional[UUID4] = Field(default=None, description="")
+class ComputeQuotaWrite(ComputeQuotaCreate, Representation):
+    type: ServiceType = Field(default=ServiceType.COMPUTE)
+    service: AnyHttpUrl = Field(default=None, description="")
 
 
-class CinderQuotaWrite(CinderQuotaCreate, Representation):
-    type: str = "org.openstack.cinder"
-    service: Optional[UUID4] = Field(default=None, description="")
+class BlockStorageQuotaWrite(BlockStorageQuotaCreate, Representation):
+    type: ServiceType = Field(default=ServiceType.BLOCK_STORAGE)
+    service: AnyHttpUrl = Field(default=None, description="")
 
 
 class QuotaRead(QuotaRead, Representation):

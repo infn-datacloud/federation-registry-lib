@@ -14,6 +14,7 @@ if __name__ == "__main__":
 
     tokens = {}
     providers = []
+    slas = []
     for conf in config.openstack:
         # At first, Choose which IDP should be used to authenticate script.
         # Generate a token using OIDC-Agent if not yet present.

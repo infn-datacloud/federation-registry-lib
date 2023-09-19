@@ -2,18 +2,18 @@ from typing import Any, Dict, Optional, Union
 
 from app.crud import CRUDBase
 from app.project.models import Project
-from app.quota.models import CinderQuota, NovaQuota, Quota
+from app.quota.models import BlockStorageQuota, ComputeQuota, Quota
 from app.quota.schemas import (
-    CinderQuotaCreate,
-    CinderQuotaRead,
-    CinderQuotaReadPublic,
-    CinderQuotaReadShort,
-    CinderQuotaUpdate,
-    NovaQuotaCreate,
-    NovaQuotaRead,
-    NovaQuotaReadPublic,
-    NovaQuotaReadShort,
-    NovaQuotaUpdate,
+    BlockStorageQuotaCreate,
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    BlockStorageQuotaReadShort,
+    BlockStorageQuotaUpdate,
+    ComputeQuotaCreate,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
+    ComputeQuotaReadShort,
+    ComputeQuotaUpdate,
     QuotaCreate,
     QuotaRead,
     QuotaReadPublic,
@@ -21,10 +21,10 @@ from app.quota.schemas import (
     QuotaUpdate,
 )
 from app.quota.schemas_extended import (
-    CinderQuotaReadExtended,
-    CinderQuotaReadExtendedPublic,
-    NovaQuotaReadExtended,
-    NovaQuotaReadExtendedPublic,
+    BlockStorageQuotaReadExtended,
+    BlockStorageQuotaReadExtendedPublic,
+    ComputeQuotaReadExtended,
+    ComputeQuotaReadExtendedPublic,
     QuotaReadExtended,
     QuotaReadExtendedPublic,
 )
@@ -53,54 +53,54 @@ class CRUDQuota(
         service: Service,
         force: bool = False
     ) -> Quota:
-        if isinstance(obj_in, NovaQuotaCreate):
+        if isinstance(obj_in, ComputeQuotaCreate):
             db_obj = nova_quota.create(obj_in=obj_in, force=force)
-        if isinstance(obj_in, CinderQuotaCreate):
+        if isinstance(obj_in, BlockStorageQuotaCreate):
             db_obj = cinder_quota.create(obj_in=obj_in, force=force)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
         return db_obj
 
     def remove(self, *, db_obj: Quota) -> bool:
-        if isinstance(db_obj, NovaQuota):
+        if isinstance(db_obj, ComputeQuota):
             return nova_quota.remove(db_obj=db_obj)
-        if isinstance(db_obj, CinderQuota):
+        if isinstance(db_obj, BlockStorageQuota):
             return cinder_quota.remove(db_obj=db_obj)
 
     def update(
         self, *, db_obj: Quota, obj_in: Union[QuotaUpdate, Dict[str, Any]]
     ) -> Optional[Quota]:
-        if isinstance(db_obj, NovaQuota):
+        if isinstance(db_obj, ComputeQuota):
             return nova_quota.update(db_obj=db_obj, obj_in=obj_in)
-        if isinstance(db_obj, CinderQuota):
+        if isinstance(db_obj, BlockStorageQuota):
             return cinder_quota.update(db_obj=db_obj, obj_in=obj_in)
 
 
-class CRUDNovaQuota(
+class CRUDComputeQuota(
     CRUDBase[
-        NovaQuota,
-        NovaQuotaCreate,
-        NovaQuotaUpdate,
-        NovaQuotaRead,
-        NovaQuotaReadPublic,
-        NovaQuotaReadShort,
-        NovaQuotaReadExtended,
-        NovaQuotaReadExtendedPublic,
+        ComputeQuota,
+        ComputeQuotaCreate,
+        ComputeQuotaUpdate,
+        ComputeQuotaRead,
+        ComputeQuotaReadPublic,
+        ComputeQuotaReadShort,
+        ComputeQuotaReadExtended,
+        ComputeQuotaReadExtendedPublic,
     ]
 ):
     """"""
 
 
-class CRUDCinderQuota(
+class CRUDBlockStorageQuota(
     CRUDBase[
-        CinderQuota,
-        CinderQuotaCreate,
-        CinderQuotaUpdate,
-        CinderQuotaRead,
-        CinderQuotaReadPublic,
-        CinderQuotaReadShort,
-        CinderQuotaReadExtended,
-        CinderQuotaReadExtendedPublic,
+        BlockStorageQuota,
+        BlockStorageQuotaCreate,
+        BlockStorageQuotaUpdate,
+        BlockStorageQuotaRead,
+        BlockStorageQuotaReadPublic,
+        BlockStorageQuotaReadShort,
+        BlockStorageQuotaReadExtended,
+        BlockStorageQuotaReadExtendedPublic,
     ]
 ):
     """"""
@@ -115,21 +115,21 @@ quota = CRUDQuota(
     read_extended_schema=QuotaReadExtended,
     read_extended_public_schema=QuotaReadExtendedPublic,
 )
-nova_quota = CRUDNovaQuota(
-    model=NovaQuota,
-    create_schema=NovaQuotaCreate,
-    read_schema=NovaQuotaRead,
-    read_public_schema=NovaQuotaReadPublic,
-    read_short_schema=NovaQuotaReadShort,
-    read_extended_schema=NovaQuotaReadExtended,
-    read_extended_public_schema=NovaQuotaReadExtendedPublic,
+nova_quota = CRUDComputeQuota(
+    model=ComputeQuota,
+    create_schema=ComputeQuotaCreate,
+    read_schema=ComputeQuotaRead,
+    read_public_schema=ComputeQuotaReadPublic,
+    read_short_schema=ComputeQuotaReadShort,
+    read_extended_schema=ComputeQuotaReadExtended,
+    read_extended_public_schema=ComputeQuotaReadExtendedPublic,
 )
-cinder_quota = CRUDCinderQuota(
-    model=CinderQuota,
-    create_schema=CinderQuotaCreate,
-    read_schema=CinderQuotaRead,
-    read_public_schema=CinderQuotaReadPublic,
-    read_short_schema=CinderQuotaReadShort,
-    read_extended_schema=CinderQuotaReadExtended,
-    read_extended_public_schema=CinderQuotaReadExtendedPublic,
+cinder_quota = CRUDBlockStorageQuota(
+    model=BlockStorageQuota,
+    create_schema=BlockStorageQuotaCreate,
+    read_schema=BlockStorageQuotaRead,
+    read_public_schema=BlockStorageQuotaReadPublic,
+    read_short_schema=BlockStorageQuotaReadShort,
+    read_extended_schema=BlockStorageQuotaReadExtended,
+    read_extended_public_schema=BlockStorageQuotaReadExtendedPublic,
 )

@@ -2,14 +2,15 @@ from typing import Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from app.service.enum import ServiceName
+from app.service.enum import ServiceType
 from pydantic import BaseModel, Extra, Field, validator
 
 
 class QuotaBase(BaseModel, extra=Extra.allow):
     """Model with Quota basic attributes."""
 
-    type: ServiceName = Field(description="Service type.")
+    type: ServiceType = Field(description="Service type.")
+    per_user: bool = Field(default=False, description="Quota to apply for each user")
 
 
 class QuotaCreate(BaseNodeCreate, QuotaBase):
@@ -53,100 +54,85 @@ class QuotaReadShort(BaseNodeRead, QuotaBase):
 QuotaQuery = create_query_model("QuotaQuery", QuotaBase)
 
 
-class NovaBase(QuotaBase, extra=Extra.ignore):
+class ComputeBase(QuotaBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Nova services.
+    services. It adds the basic attributes for Compute services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
     cores: Optional[int] = Field(default=None, description="")
     fixed_ips: Optional[int] = Field(default=None, description="")
-    floating_ips: Optional[int] = Field(default=None, description="")
-    force: Optional[bool] = Field(default=None, description="")
-    injected_file_content_bytes: Optional[int] = Field(default=None, description="")
-    injected_file_path_bytes: Optional[int] = Field(default=None, description="")
-    injected_files: Optional[int] = Field(default=None, description="")
+    public_ips: Optional[int] = Field(default=None, description="")
     instances: Optional[int] = Field(default=None, description="")
-    key_pairs: Optional[int] = Field(default=None, description="")
-    metadata_items: Optional[int] = Field(default=None, description="")
-    networks: Optional[int] = Field(default=None, description="")
     ram: Optional[int] = Field(default=None, description="")
-    security_group_rules: Optional[int] = Field(default=None, description="")
-    security_groups: Optional[int] = Field(default=None, description="")
-    server_groups: Optional[int] = Field(default=None, description="")
-    server_group_members: Optional[int] = Field(default=None, description="")
 
     @validator("type", check_fields=False)
     def check_type(cls, v):
-        if v != ServiceName.OPENSTACK_NOVA:
+        if v != ServiceType.COMPUTE:
             raise ValueError(f"Not valid type: {v}")
         return v
 
 
-class NovaQuotaCreate(BaseNodeCreate, NovaBase):
+class ComputeQuotaCreate(BaseNodeCreate, ComputeBase):
     pass
 
 
-class NovaQuotaUpdate(NovaQuotaCreate):
+class ComputeQuotaUpdate(ComputeQuotaCreate):
     pass
 
 
-class NovaQuotaRead(BaseNodeRead, NovaBase):
+class ComputeQuotaRead(BaseNodeRead, ComputeBase):
     pass
 
 
-class NovaQuotaReadPublic(BaseNodeRead, NovaBase):
+class ComputeQuotaReadPublic(BaseNodeRead, ComputeBase):
     pass
 
 
-class NovaQuotaReadShort(BaseNodeRead, NovaBase):
+class ComputeQuotaReadShort(BaseNodeRead, ComputeBase):
     pass
 
 
-NovaQuotaQuery = create_query_model("NovaQuotaQuery", NovaBase)
+ComputeQuotaQuery = create_query_model("ComputeQuotaQuery", ComputeBase)
 
 
-class CinderBase(QuotaBase, extra=Extra.ignore):
+class BlockStorageBase(QuotaBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Cinder services.
+    services. It adds the basic attributes for BlockStorage services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
-    backup_gigabytes: Optional[int] = Field(default=None, description="")
-    backups: Optional[int] = Field(default=None, description="")
     gigabytes: Optional[int] = Field(default=None, description="")
-    groups: Optional[int] = Field(default=None, description="")
     per_volume_gigabytes: Optional[int] = Field(default=None, description="")
-    snapshots: Optional[int] = Field(default=None, description="")
     volumes: Optional[int] = Field(default=None, description="")
 
     @validator("type", check_fields=False)
     def check_type(cls, v):
-        if v != ServiceName.OPENSTACK_CINDER:
+        if v != ServiceType.BLOCK_STORAGE:
             raise ValueError(f"Not valid type: {v}")
         return v
 
 
-class CinderQuotaCreate(BaseNodeCreate, CinderBase):
+class BlockStorageQuotaCreate(BaseNodeCreate, BlockStorageBase):
     pass
 
 
-class CinderQuotaUpdate(CinderQuotaCreate):
+class BlockStorageQuotaUpdate(BlockStorageQuotaCreate):
     pass
 
 
-class CinderQuotaRead(BaseNodeRead, CinderBase):
+class BlockStorageQuotaRead(BaseNodeRead, BlockStorageBase):
     pass
 
 
-class CinderQuotaReadPublic(BaseNodeRead, CinderBase):
+class BlockStorageQuotaReadPublic(BaseNodeRead, BlockStorageBase):
     pass
 
 
-class CinderQuotaReadShort(BaseNodeRead, CinderBase):
+class BlockStorageQuotaReadShort(BaseNodeRead, BlockStorageBase):
     pass
 
 
-CinderQuotaQuery = create_query_model("CinderQuotaQuery", CinderBase)
+BlockStorageQuotaQuery = create_query_model("BlockStorageQuotaQuery", BlockStorageBase)

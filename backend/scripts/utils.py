@@ -12,7 +12,7 @@ from pydantic import AnyHttpUrl
 def get_identity_providers(
     idp_list: List[IDP],
 ) -> List[IdentityProviderWrite]:
-    logger.info("Retrieve current project accessible images")
+    logger.info("Retrieve provider authorized identity providers")
     identity_providers = []
     for idp in idp_list:
         identity_providers.append(

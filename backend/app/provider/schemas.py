@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from app.models import BaseNodeCreate, BaseNodeRead
+from app.provider.enum import Status
 from app.query import create_query_model
 from pydantic import BaseModel, EmailStr, Field
 
@@ -13,6 +14,7 @@ class ProviderBase(BaseModel):
     support_emails: List[EmailStr] = Field(
         default_factory=list, description="Contact emails."
     )
+    status: Status = Field(description="Provider status")
 
 
 class ProviderCreate(BaseNodeCreate, ProviderBase):

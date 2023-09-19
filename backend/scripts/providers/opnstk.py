@@ -5,15 +5,31 @@ from models.cmdb.flavor import FlavorWrite
 from models.cmdb.image import ImageWrite
 from models.cmdb.project import ProjectWrite
 from models.cmdb.provider import ProviderWrite
-from models.cmdb.quota import CinderQuotaWrite, NovaQuotaWrite
+from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
 from models.cmdb.service import ServiceWrite
+from models.cmdb.sla import SLAWrite
+from models.cmdb.user_group import UserGroupWrite
 from models.config import IDP, Openstack
 from openstack import connect
 from openstack.connection import Connection
 from utils import get_identity_providers
 
 
-def get_project_and_quotas(conn: Connection) -> ProjectWrite:
+def get_compute_quotas(conn: Connection) -> ComputeQuotaWrite:
+    logger.info("Retrieve current project accessible compute quotas")
+    quota = conn.compute.get_quota_set(conn.current_project_id)
+    data = quota.to_dict()
+    return ComputeQuotaWrite(**data, service=conn.compute.get_endpoint())
+
+
+def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaWrite:
+    logger.info("Retrieve current project accessible block storage quotas")
+    quota = conn.block_storage.get_quota_set(conn.current_project_id)
+    data = quota.to_dict()
+    return BlockStorageQuotaWrite(**data, service=conn.block_storage.get_endpoint())
+
+
+def get_project(conn: Connection) -> ProjectWrite:
     logger.info("Retrieve current project data")
     curr_proj_id = conn.current_project.get("id")
     project = conn.identity.get_project(curr_proj_id)
@@ -21,17 +37,7 @@ def get_project_and_quotas(conn: Connection) -> ProjectWrite:
     data["uuid"] = data.pop("id")
     if data.get("description") is None:
         data["description"] = ""
-
-    logger.info("Retrieve current project accessible quotas")
-    compute_quota = NovaQuotaWrite(
-        **conn.compute.get_quota_set(conn.current_project_id)
-    )
-    block_storage_quota = CinderQuotaWrite(
-        **conn.block_storage.get_quota_set(conn.current_project_id),
-    )
-    return ProjectWrite(
-        **data, compute_quota=compute_quota, block_storage_quota=block_storage_quota
-    )
+    return ProjectWrite(**data)
 
 
 def get_flavors(conn: Connection) -> List[FlavorWrite]:
@@ -40,11 +46,13 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
     for flavor in conn.compute.flavors():
         projects = []
         if not flavor.is_public:
-            projects = conn.compute.get_flavor_access(flavor)
+            for i in conn.compute.get_flavor_access(flavor):
+                projects.append(i.get("tenant_id"))
         data = flavor.to_dict()
         data["uuid"] = data.pop("id")
         if data.get("description") is None:
             data["description"] = ""
+        # print(data["extra_specs"])
         flavors.append(FlavorWrite(**data, projects=projects))
     return flavors
 
@@ -76,21 +84,25 @@ def get_images(conn: Connection) -> List[ImageWrite]:
 
 
 def get_services(conn: Connection) -> List[ServiceWrite]:
+    logger.info("Retrieve current region accessible services")
     return [
         ServiceWrite(
             endpoint=conn.auth.get("auth_url"),
             type=conn.identity.service_type,
             name="org.openstack.keystone",
+            region=conn.identity.region_name,
         ),
         ServiceWrite(
             endpoint=conn.compute.get_endpoint(),
             type=conn.compute.service_type,
             name="org.openstack.nova",
+            region=conn.compute.region_name,
         ),
         ServiceWrite(
             endpoint=conn.block_storage.get_endpoint(),
             type=conn.block_storage.service_type,
             name="org.openstack.cinder",
+            region=conn.block_storage.region_name,
         ),
     ]
 
@@ -103,10 +115,12 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
         is_public=config.is_public,
         support_emails=config.support_emails,
         location=config.location,
+        status=config.status,
         identity_providers=get_identity_providers(config.identity_providers),
     )
 
-    for project in config.projects:
+    for sla in config.slas:
+        project = sla.project
         if project.id is not None:
             logger.info(
                 f"Connecting to openstack instance with project ID: {project.id}"
@@ -127,22 +141,45 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
             project_domain_name=project.domain,
         )
 
-        if len(provider.services) == 0:
-            provider.services = get_services(conn)
-
-        provider.projects.append(get_project_and_quotas(conn))
+        proj = get_project(conn)
+        proj.quotas.append(get_compute_quotas(conn))
+        proj.quotas.append(get_block_storage_quotas(conn))
+        if project.per_user_limits is not None:
+            if project.per_user_limits.compute is not None:
+                q = ComputeQuotaWrite(
+                    **project.per_user_limits.compute.dict(exclude_none=True),
+                    service=conn.compute.get_endpoint(),
+                )
+                proj.quotas.append(q)
+            if project.per_user_limits.block_storage is not None:
+                q = BlockStorageQuotaWrite(
+                    **project.per_user_limits.block_storage.dict(exclude_none=True),
+                    service=conn.block_storage.get_endpoint(),
+                )
+                proj.quotas.append(q)
+        user_group = UserGroupWrite(
+            name=project.group.name, identity_provider=project.group.idp
+        )
+        proj.sla = SLAWrite(**sla.dict(), user_group=user_group)
+        provider.projects.append(proj)
 
         flavors = get_flavors(conn)
-        uids = [j.uuid for j in provider.flavors]
+        uuids = [j.uuid for j in provider.flavors]
         for i in flavors:
-            if i.uuid not in uids:
+            if i.uuid not in uuids:
                 provider.flavors.append(i)
 
         images = get_images(conn)
-        uids = [j.uuid for j in provider.images]
+        uuids = [j.uuid for j in provider.images]
         for i in images:
-            if i.uuid not in uids:
+            if i.uuid not in uuids:
                 provider.images.append(i)
+
+        services = get_services(conn)
+        endpoints = [j.endpoint for j in provider.services]
+        for i in services:
+            if i.endpoint not in endpoints:
+                provider.services.append(i)
 
         conn.close()
         logger.info("Connection closed")

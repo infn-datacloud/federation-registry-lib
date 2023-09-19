@@ -28,9 +28,14 @@ class ProjectCRUD(BasicCRUD[ProjectWrite, ProjectRead, ProjectQuery]):
     def create_or_update(
         self, *, item: ProjectWrite, parent: ProviderRead
     ) -> ProjectRead:
-        db_item = self.find_in_list(
+        db_item, idx = self.find_in_list(
             data=ProjectQuery(name=item.name, uuid=item.uuid), db_items=parent.projects
         )
-        return super().create_or_update(
+        new_data = super().create_or_update(
             item=item, db_item=db_item, parent_uid=parent.uid
         )
+        if db_item is None:
+            parent.projects.append(new_data)
+        else:
+            parent.projects[idx] = new_data
+        return parent

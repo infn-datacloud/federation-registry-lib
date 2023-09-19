@@ -1,18 +1,18 @@
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.quota.schemas import (
-    CinderQuotaRead,
-    CinderQuotaReadPublic,
-    NovaQuotaRead,
-    NovaQuotaReadPublic,
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
     QuotaRead,
     QuotaReadPublic,
 )
 from app.service.schemas import (
-    CinderServiceRead,
-    CinderServiceReadPublic,
-    NovaServiceRead,
-    NovaServiceReadPublic,
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
 )
 
 
@@ -32,17 +32,17 @@ class QuotaReadExtendedPublic(QuotaReadPublic):
     project: ProjectReadExtendedPublic
 
 
-class NovaQuotaReadExtended(NovaQuotaRead, QuotaReadExtended):
-    service: NovaServiceRead
+class ComputeQuotaReadExtended(ComputeQuotaRead, QuotaReadExtended):
+    service: ComputeServiceRead
 
 
-class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic, QuotaReadExtendedPublic):
-    service: NovaServiceReadPublic
+class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic, QuotaReadExtendedPublic):
+    service: ComputeServiceReadPublic
 
 
-class CinderQuotaReadExtended(CinderQuotaRead, QuotaReadExtended):
-    service: CinderServiceRead
+class BlockStorageQuotaReadExtended(BlockStorageQuotaRead, QuotaReadExtended):
+    service: BlockStorageServiceRead
 
 
-class CinderQuotaReadExtendedPublic(CinderQuotaReadPublic, QuotaReadExtendedPublic):
-    service: CinderServiceReadPublic
+class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic, QuotaReadExtendedPublic):
+    service: BlockStorageServiceReadPublic

@@ -3,18 +3,18 @@ from typing import List
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.quota.schemas import (
-    CinderQuotaRead,
-    CinderQuotaReadPublic,
-    NovaQuotaRead,
-    NovaQuotaReadPublic,
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
 )
 from app.service.schemas import (
-    CinderServiceRead,
-    CinderServiceReadPublic,
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
     KeystoneServiceRead,
     KeystoneServiceReadPublic,
-    NovaServiceRead,
-    NovaServiceReadPublic,
 )
 from pydantic import BaseModel, Field
 
@@ -43,63 +43,63 @@ class ExtendWithProjectPublic(BaseModel):
     project: ProjectReadPublic
 
 
-class NovaQuotaReadExtended(NovaQuotaRead, ExtendWithProject):
+class ComputeQuotaReadExtended(ComputeQuotaRead, ExtendWithProject):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
 
 
-class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic, ExtendWithProjectPublic):
+class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic, ExtendWithProjectPublic):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
 
 
-class CinderQuotaReadExtended(CinderQuotaRead, ExtendWithProject):
+class BlockStorageQuotaReadExtended(BlockStorageQuotaRead, ExtendWithProject):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
 
 
-class CinderQuotaReadExtendedPublic(CinderQuotaReadPublic, ExtendWithProjectPublic):
+class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic, ExtendWithProjectPublic):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
 
 
-class NovaServiceReadExtended(NovaServiceRead, ExtendWithProvider):
-    """Model to extend the Nova Service data read from the DB with the lists of
-    related items for authenticated users."""
-
-    quotas: List[NovaQuotaReadExtended] = Field(
-        default_factory=list,
-        description="List of quotas.",
-    )
-
-
-class NovaServiceReadExtendedPublic(NovaServiceReadPublic, ExtendWithProviderPublic):
-    """Model to extend the Nova Service data read from the DB with the lists of
-    related items for non-authenticated users."""
-
-    quotas: List[NovaQuotaReadExtendedPublic] = Field(
-        default_factory=list,
-        description="List of quotas.",
-    )
-
-
-class CinderServiceReadExtended(CinderServiceRead, ExtendWithProvider):
-    """Model to extend the Cinder Service data read from the DB with the lists
+class ComputeServiceReadExtended(ComputeServiceRead, ExtendWithProvider):
+    """Model to extend the Compute Service data read from the DB with the lists
     of related items for authenticated users."""
 
-    quotas: List[CinderQuotaReadExtended] = Field(
+    quotas: List[ComputeQuotaReadExtended] = Field(
         default_factory=list,
         description="List of quotas.",
     )
 
 
-class CinderServiceReadExtendedPublic(
-    CinderServiceReadPublic, ExtendWithProviderPublic
-):
-    """Model to extend the Cinder Service data read from the DB with the lists
+class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic, ExtendWithProviderPublic):
+    """Model to extend the Compute Service data read from the DB with the lists
     of related items for non-authenticated users."""
 
-    quotas: List[CinderQuotaReadExtendedPublic] = Field(
+    quotas: List[ComputeQuotaReadExtendedPublic] = Field(
+        default_factory=list,
+        description="List of quotas.",
+    )
+
+
+class BlockStorageServiceReadExtended(BlockStorageServiceRead, ExtendWithProvider):
+    """Model to extend the BlockStorage Service data read from the DB with the
+    lists of related items for authenticated users."""
+
+    quotas: List[BlockStorageQuotaReadExtended] = Field(
+        default_factory=list,
+        description="List of quotas.",
+    )
+
+
+class BlockStorageServiceReadExtendedPublic(
+    BlockStorageServiceReadPublic, ExtendWithProviderPublic
+):
+    """Model to extend the BlockStorage Service data read from the DB with the
+    lists of related items for non-authenticated users."""
+
+    quotas: List[BlockStorageQuotaReadExtendedPublic] = Field(
         default_factory=list,
         description="List of quotas.",
     )

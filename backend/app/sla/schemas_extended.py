@@ -1,15 +1,22 @@
-from typing import List
-
 from app.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
-from app.quota.schemas_extended import QuotaReadExtended
+from app.quota.schemas import QuotaRead, QuotaReadPublic
+from app.service.schemas import ServiceRead, ServiceReadPublic
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from pydantic import Field
+
+
+class QuotaReadExtended(QuotaRead):
+    service: ServiceRead
+
+
+class QuotaReadExtendedPublic(QuotaReadPublic):
+    service: ServiceReadPublic
 
 
 class ProjectReadExtended(ProjectRead):
@@ -17,10 +24,10 @@ class ProjectReadExtended(ProjectRead):
     related items."""
 
     provider: ProviderRead = Field(description="Provider owning this project")
-    quotas: List[QuotaReadExtended] = Field(
-        default_factory=list,
-        description="List of quotas owned by this Project.",
-    )
+    #quotas: List[QuotaRead] = Field(
+    #    default_factory=list,
+    #    description="List of quotas owned by this Project.",
+    #)
 
 
 class ProjectReadExtendedPublic(ProjectReadPublic):
@@ -28,10 +35,10 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     related items."""
 
     provider: ProviderReadPublic = Field(description="Provider owning this project")
-    quotas: List[QuotaReadExtended] = Field(
-        default_factory=list,
-        description="List of quotas owned by this Project.",
-    )
+    #quotas: List[QuotaReadExtendedPublic] = Field(
+    #    default_factory=list,
+    #    description="List of quotas owned by this Project.",
+    #)
 
 
 class UserGroupReadExtended(UserGroupRead):

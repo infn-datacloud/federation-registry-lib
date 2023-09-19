@@ -9,8 +9,15 @@ from cruds.location import LocationCRUD
 from cruds.project import ProjectCRUD
 from cruds.quota import QuotaCRUD
 from cruds.service import ServiceCRUD
+from cruds.sla import SLACRUD
+from cruds.user_group import UserGroupCRUD
+from models.cmdb.flavor import FlavorQuery
+from models.cmdb.identity_provider import IdentityProviderQuery
+from models.cmdb.image import ImageQuery
 from models.cmdb.project import ProjectQuery
 from models.cmdb.provider import ProviderQuery, ProviderRead, ProviderWrite
+from models.cmdb.service import ServiceQuery
+from models.cmdb.user_group import UserGroupQuery
 from models.config import URLs
 
 
@@ -34,6 +41,9 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
             get_url=cmdb_urls.flavors,
             post_url=os.path.join(cmdb_urls.providers, "{parent_uid}", "flavors"),
             patch_url=os.path.join(cmdb_urls.flavors, "{uid}"),
+            connect_url=os.path.join(
+                cmdb_urls.projects, "{parent_uid}", "flavors", "{uid}"
+            ),
             read_headers=read_headers,
             write_headers=write_headers,
         )
@@ -51,6 +61,9 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
             get_url=cmdb_urls.images,
             post_url=os.path.join(cmdb_urls.providers, "{parent_uid}", "images"),
             patch_url=os.path.join(cmdb_urls.images, "{uid}"),
+            connect_url=os.path.join(
+                cmdb_urls.projects, "{parent_uid}", "images", "{uid}"
+            ),
             read_headers=read_headers,
             write_headers=write_headers,
         )
@@ -85,8 +98,22 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
             read_headers=read_headers,
             write_headers=write_headers,
         )
-        # self.slas = None
-        # self.user_groups = None
+        self.slas = SLACRUD(
+            get_url=cmdb_urls.slas,
+            post_url=cmdb_urls.slas,
+            patch_url=os.path.join(cmdb_urls.slas, "{uid}"),
+            read_headers=read_headers,
+            write_headers=write_headers,
+        )
+        self.user_groups = UserGroupCRUD(
+            get_url=cmdb_urls.user_groups,
+            post_url=os.path.join(
+                cmdb_urls.identity_providers, "{parent_uid}", "user_groups"
+            ),
+            patch_url=os.path.join(cmdb_urls.user_groups, "{uid}"),
+            read_headers=read_headers,
+            write_headers=write_headers,
+        )
 
     def create_or_update(self, *, item: ProviderWrite) -> ProviderRead:
         db_item = self.single(data=ProviderQuery(name=item.name), with_conn=True)
@@ -96,32 +123,73 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
             updated_item = self.update(new_data=item, uid=db_item.uid)
             db_item = db_item if updated_item is None else updated_item
 
-            for flavor in item.flavors:
-                self.flavors.create_or_update(item=flavor, parent=db_item)
-            for image in item.images:
-                self.images.create_or_update(item=image, parent=db_item)
             for service in item.services:
-                db_service = self.services.create_or_update(
-                    item=service, parent=db_item
-                )
-                for project in item.projects:
-                    if db_service.type == "compute":
-                        project.compute_quota.service = db_service.uid
-                    if db_service.type == "block-storage":
-                        project.block_storage_quota.service = db_service.uid
+                db_item = self.services.create_or_update(item=service, parent=db_item)
             for project in item.projects:
-                db_project = self.projects.create_or_update(
-                    item=project, parent=db_item
-                )
-
-                db_project = self.projects.single(
-                    data=ProjectQuery(name=project.name), with_conn=True
-                )
-                for quota in [project.compute_quota, project.block_storage_quota]:
-                    self.quotas.create_or_update(item=quota, parent=db_project)
+                db_item = self.projects.create_or_update(item=project, parent=db_item)
+            for flavor in item.flavors:
+                db_item = self.flavors.create_or_update(item=flavor, parent=db_item)
+            for image in item.images:
+                db_item = self.images.create_or_update(item=image, parent=db_item)
             for identity_item in item.identity_providers:
-                self.identity_providers.create_or_update(
+                db_item = self.identity_providers.create_or_update(
                     item=identity_item, parent=db_item
                 )
             if item.location is not None:
-                self.locations.create_or_update(item=item.location, parent=db_item)
+                db_item = self.locations.create_or_update(
+                    item=item.location, parent=db_item
+                )
+
+        for flavor in item.flavors:
+            for project_uuid in flavor.projects:
+                db_flavor, idx = self.flavors.find_in_list(
+                    data=FlavorQuery(name=flavor.name), db_items=db_item.flavors
+                )
+                db_project, idx = self.projects.find_in_list(
+                    data=ProjectQuery(uuid=project_uuid), db_items=db_item.projects
+                )
+                if db_project is not None:
+                    self.flavors.connect(uid=db_flavor.uid, parent_uid=db_project.uid)
+
+        for image in item.images:
+            for project_uuid in image.projects:
+                db_image, idx = self.images.find_in_list(
+                    data=ImageQuery(name=image.name), db_items=db_item.images
+                )
+                db_project, idx = self.projects.find_in_list(
+                    data=ProjectQuery(uuid=project_uuid), db_items=db_item.projects
+                )
+                if db_project is not None:
+                    self.images.connect(uid=db_image.uid, parent_uid=db_project.uid)
+
+        for project in item.projects:
+            db_project, idx = self.projects.find_in_list(
+                data=ProjectQuery(uuid=project.uuid), db_items=db_item.projects
+            )
+            db_project = self.projects.single(uid=db_project.uid, with_conn=True)
+            for quota in project.quotas:
+                db_service, idx = self.services.find_in_list(
+                    data=ServiceQuery(endpoint=quota.service), db_items=db_item.services
+                )
+                db_project = self.quotas.create_or_update(
+                    item=quota, project=db_project, service=db_service
+                )
+
+            db_identity_provider = self.identity_providers.single(
+                data=IdentityProviderQuery(
+                    endpoint=project.sla.user_group.identity_provider
+                ),
+                with_conn=True,
+            )
+            if db_identity_provider is not None:
+                db_identity_provider = self.user_groups.create_or_update(
+                    item=project.sla.user_group, parent=db_identity_provider
+                )
+
+            db_user_group, idx = self.user_groups.find_in_list(
+                data=UserGroupQuery(name=project.sla.user_group.name),
+                db_items=db_identity_provider.user_groups,
+            )
+            db_project = self.slas.create_or_update(
+                item=project.sla, project=db_project, user_group=db_user_group
+            )

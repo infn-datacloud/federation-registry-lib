@@ -16,6 +16,9 @@ class Representation(BaseModel):
 
 
 class ProviderWrite(ProviderCreateExtended, Representation):
+    location: Optional[LocationWrite] = Field(
+        default=None, description="Provider location"
+    )
     flavors: List[FlavorWrite] = Field(
         default_factory=list, description="List of flavors"
     )
@@ -25,9 +28,6 @@ class ProviderWrite(ProviderCreateExtended, Representation):
     )
     services: List[ServiceWrite] = Field(
         default_factory=list, description="List of services"
-    )
-    location: Optional[LocationWrite] = Field(
-        default=None, description="Provider location"
     )
 
 

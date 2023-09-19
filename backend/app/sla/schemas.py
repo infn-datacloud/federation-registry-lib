@@ -9,13 +9,15 @@ from pydantic import UUID4, BaseModel, Field
 class SLABase(BaseModel):
     """Model with SLA basic attributes."""
 
-    start_date: datetime = Field(description="Starting date of validity for this SLA.")
+    start_date: Optional[datetime] = Field(
+        default=None, description="Starting date of validity for this SLA."
+    )
     end_date: Optional[datetime] = Field(
         default=None,
         description="End of life date for this SLA. \
             If not set it lasts forever.",
     )
-    document_uuid: Optional[UUID4] = Field(
+    doc_uuid: Optional[UUID4] = Field(
         default=None, description="UUID of the corresponding document."
     )
 
@@ -36,10 +38,6 @@ class SLAUpdate(SLACreate):
 
     Default to None mandatory attributes.
     """
-
-    start_date: Optional[datetime] = Field(
-        default=None, description="Starting date of validity for this SLA."
-    )
 
 
 class SLARead(BaseNodeRead, SLABase):

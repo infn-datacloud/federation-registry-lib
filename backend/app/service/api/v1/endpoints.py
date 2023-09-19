@@ -16,27 +16,27 @@ from app.service.api.dependencies import valid_service_id, validate_new_service_
 from app.service.crud import service
 from app.service.models import Service
 from app.service.schemas import (
-    CinderServiceRead,
-    CinderServiceReadPublic,
-    CinderServiceReadShort,
-    CinderServiceUpdate,
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    BlockStorageServiceReadShort,
+    BlockStorageServiceUpdate,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
+    ComputeServiceReadShort,
+    ComputeServiceUpdate,
     KeystoneServiceRead,
     KeystoneServiceReadPublic,
     KeystoneServiceReadShort,
     KeystoneServiceUpdate,
-    NovaServiceRead,
-    NovaServiceReadPublic,
-    NovaServiceReadShort,
-    NovaServiceUpdate,
     ServiceQuery,
 )
 from app.service.schemas_extended import (
-    CinderServiceReadExtended,
-    CinderServiceReadExtendedPublic,
+    BlockStorageServiceReadExtended,
+    BlockStorageServiceReadExtendedPublic,
+    ComputeServiceReadExtended,
+    ComputeServiceReadExtendedPublic,
     KeystoneServiceReadExtended,
     KeystoneServiceReadExtendedPublic,
-    NovaServiceReadExtended,
-    NovaServiceReadExtendedPublic,
 )
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -50,29 +50,29 @@ router = APIRouter(prefix="/services", tags=["services"])
     response_model=Union[
         List[
             Union[
-                CinderServiceReadExtended,
+                BlockStorageServiceReadExtended,
                 KeystoneServiceReadExtended,
-                NovaServiceReadExtended,
+                ComputeServiceReadExtended,
             ]
         ],
-        List[Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]],
+        List[Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]],
         List[
             Union[
-                CinderServiceReadShort, KeystoneServiceReadShort, NovaServiceReadShort
+                BlockStorageServiceReadShort, KeystoneServiceReadShort, ComputeServiceReadShort
             ]
         ],
         List[
             Union[
-                CinderServiceReadExtendedPublic,
+                BlockStorageServiceReadExtendedPublic,
                 KeystoneServiceReadExtendedPublic,
-                NovaServiceReadExtendedPublic,
+                ComputeServiceReadExtendedPublic,
             ]
         ],
         List[
             Union[
-                CinderServiceReadPublic,
+                BlockStorageServiceReadPublic,
                 KeystoneServiceReadPublic,
-                NovaServiceReadPublic,
+                ComputeServiceReadPublic,
             ]
         ],
     ],
@@ -101,21 +101,21 @@ def get_services(
 @router.get(
     "/{service_uid}",
     response_model=Union[
-        CinderServiceReadExtended,
+        BlockStorageServiceReadExtended,
         KeystoneServiceReadExtended,
-        NovaServiceReadExtended,
-        CinderServiceRead,
+        ComputeServiceReadExtended,
+        BlockStorageServiceRead,
         KeystoneServiceRead,
-        NovaServiceRead,
-        CinderServiceReadShort,
+        ComputeServiceRead,
+        BlockStorageServiceReadShort,
         KeystoneServiceReadShort,
-        NovaServiceReadShort,
-        CinderServiceReadExtendedPublic,
+        ComputeServiceReadShort,
+        BlockStorageServiceReadExtendedPublic,
         KeystoneServiceReadExtendedPublic,
-        NovaServiceReadExtendedPublic,
-        CinderServiceReadPublic,
+        ComputeServiceReadExtendedPublic,
+        BlockStorageServiceReadPublic,
         KeystoneServiceReadPublic,
-        NovaServiceReadPublic,
+        ComputeServiceReadPublic,
     ],
     summary="Read a specific service",
     description="Retrieve a specific service using its *uid*. \
@@ -137,7 +137,7 @@ def get_service(
     "/{service_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[
-        Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]
+        Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]
     ],
     dependencies=[Depends(check_write_access), Depends(validate_new_service_values)],
     summary="Edit a specific service",
@@ -151,7 +151,7 @@ def get_service(
         no other items with the given *endpoint*.",
 )
 def put_service(
-    update_data: Union[CinderServiceUpdate, KeystoneServiceUpdate, NovaServiceUpdate],
+    update_data: Union[BlockStorageServiceUpdate, KeystoneServiceUpdate, ComputeServiceUpdate],
     response: Response,
     item: Service = Depends(valid_service_id),
 ):

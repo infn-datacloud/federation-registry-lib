@@ -6,26 +6,26 @@ from app.project.models import Project
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import valid_quota_id
 from app.quota.crud import quota
-from app.quota.models import CinderQuota, NovaQuota
+from app.quota.models import BlockStorageQuota, ComputeQuota
 from app.quota.schemas import (
-    CinderQuotaCreate,
-    CinderQuotaQuery,
-    CinderQuotaRead,
-    CinderQuotaReadPublic,
-    CinderQuotaReadShort,
-    CinderQuotaUpdate,
-    NovaQuotaCreate,
-    NovaQuotaQuery,
-    NovaQuotaRead,
-    NovaQuotaReadPublic,
-    NovaQuotaReadShort,
-    NovaQuotaUpdate,
+    BlockStorageQuotaCreate,
+    BlockStorageQuotaQuery,
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    BlockStorageQuotaReadShort,
+    BlockStorageQuotaUpdate,
+    ComputeQuotaCreate,
+    ComputeQuotaQuery,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
+    ComputeQuotaReadShort,
+    ComputeQuotaUpdate,
 )
 from app.quota.schemas_extended import (
-    CinderQuotaReadExtended,
-    CinderQuotaReadExtendedPublic,
-    NovaQuotaReadExtended,
-    NovaQuotaReadExtendedPublic,
+    BlockStorageQuotaReadExtended,
+    BlockStorageQuotaReadExtendedPublic,
+    ComputeQuotaReadExtended,
+    ComputeQuotaReadExtendedPublic,
 )
 from app.service.api.dependencies import valid_service_id
 from app.service.models import Service
@@ -39,11 +39,11 @@ router = APIRouter(prefix="/quotas", tags=["quotas"])
 @router.get(
     "/",
     response_model=Union[
-        List[Union[NovaQuotaReadExtended, CinderQuotaReadExtended]],
-        List[Union[NovaQuotaRead, CinderQuotaRead]],
-        List[Union[NovaQuotaReadShort, CinderQuotaReadShort]],
-        List[Union[NovaQuotaReadExtendedPublic, CinderQuotaReadExtendedPublic]],
-        List[Union[NovaQuotaReadPublic, CinderQuotaReadPublic]],
+        List[Union[ComputeQuotaReadExtended, BlockStorageQuotaReadExtended]],
+        List[Union[ComputeQuotaRead, BlockStorageQuotaRead]],
+        List[Union[ComputeQuotaReadShort, BlockStorageQuotaReadShort]],
+        List[Union[ComputeQuotaReadExtendedPublic, BlockStorageQuotaReadExtendedPublic]],
+        List[Union[ComputeQuotaReadPublic, BlockStorageQuotaReadPublic]],
     ],
     summary="Read all quotas",
     description="Retrieve all quotas stored in the database. \
@@ -55,7 +55,7 @@ def get_quotas(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
-    item: Union[NovaQuotaQuery, CinderQuotaQuery] = Depends(),
+    item: Union[ComputeQuotaQuery, BlockStorageQuotaQuery] = Depends(),
 ):
     items = quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -70,7 +70,7 @@ def get_quotas(
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=Union[NovaQuotaReadExtended, CinderQuotaReadExtended],
+    response_model=Union[ComputeQuotaReadExtended, BlockStorageQuotaReadExtended],
     dependencies=[Depends(check_write_access)],
     summary="Create quota",
     description="Create a quota and connect it to its related entities: \
@@ -82,14 +82,14 @@ def get_quotas(
 def post_quota(
     project: Project = Depends(valid_project_id),
     service: Service = Depends(valid_service_id),
-    item: Union[NovaQuotaCreate, CinderQuotaCreate] = Body(),
+    item: Union[ComputeQuotaCreate, BlockStorageQuotaCreate] = Body(),
 ):
     # Check project does not have duplicated quota types
-    for q in project.quotas.all():
-        if q.type == item.type and q.service.single() == service:
-            msg = f"Project '{project.name}' already has a quota "
-            msg += f"with type '{item.type}' on service '{service.endpoint}'."
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
+    # for q in project.quotas.all():
+    #     if q.type == item.type and q.service.single() == service:
+    #         msg = f"Project '{project.name}' already has a quota "
+    #         msg += f"with type '{item.type}' on service '{service.endpoint}'."
+    #         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
     # Check Project provider and service provider are equals
     proj_prov = project.provider.single()
     serv_prov = service.provider.single()
@@ -105,16 +105,16 @@ def post_quota(
 @router.get(
     "/{quota_uid}",
     response_model=Union[
-        NovaQuotaReadExtended,
-        CinderQuotaReadExtended,
-        NovaQuotaRead,
-        CinderQuotaRead,
-        NovaQuotaReadShort,
-        CinderQuotaReadShort,
-        NovaQuotaReadExtendedPublic,
-        CinderQuotaReadExtendedPublic,
-        NovaQuotaReadPublic,
-        CinderQuotaReadPublic,
+        ComputeQuotaReadExtended,
+        BlockStorageQuotaReadExtended,
+        ComputeQuotaRead,
+        BlockStorageQuotaRead,
+        ComputeQuotaReadShort,
+        BlockStorageQuotaReadShort,
+        ComputeQuotaReadExtendedPublic,
+        BlockStorageQuotaReadExtendedPublic,
+        ComputeQuotaReadPublic,
+        BlockStorageQuotaReadPublic,
     ],
     summary="Read a specific quota",
     description="Retrieve a specific quota using its *uid*. \
@@ -124,7 +124,7 @@ def post_quota(
 def get_quota(
     auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
-    item: Union[NovaQuotaCreate, CinderQuotaCreate] = Depends(valid_quota_id),
+    item: Union[ComputeQuotaCreate, BlockStorageQuotaCreate] = Depends(valid_quota_id),
 ):
     return quota.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
@@ -135,7 +135,7 @@ def get_quota(
 @router.patch(
     "/{quota_uid}",
     status_code=status.HTTP_200_OK,
-    response_model=Optional[Union[NovaQuotaRead, CinderQuotaRead]],
+    response_model=Optional[Union[ComputeQuotaRead, BlockStorageQuotaRead]],
     dependencies=[Depends(check_write_access)],
     summary="Edit a specific quota",
     description="Update attribute values of a specific quota. \
@@ -146,9 +146,9 @@ def get_quota(
         and the endpoint returns the `not modified` message.",
 )
 def put_quota(
-    update_data: Union[NovaQuotaUpdate, CinderQuotaUpdate],
+    update_data: Union[ComputeQuotaUpdate, BlockStorageQuotaUpdate],
     response: Response,
-    item: Union[NovaQuota, CinderQuota] = Depends(valid_quota_id),
+    item: Union[ComputeQuota, BlockStorageQuota] = Depends(valid_quota_id),
 ):
     db_item = quota.update(db_obj=item, obj_in=update_data)
     if db_item is None:
@@ -167,7 +167,7 @@ def put_quota(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def delete_quotas(item: Union[NovaQuota, CinderQuota] = Depends(valid_quota_id)):
+def delete_quotas(item: Union[ComputeQuota, BlockStorageQuota] = Depends(valid_quota_id)):
     if not quota.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

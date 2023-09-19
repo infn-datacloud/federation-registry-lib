@@ -21,15 +21,15 @@ class SLA(StructuredNode):
         description (str): Brief description.
         start_date (datetime): SLA validity start date.
         end_date (datetime): SLA validity end date.
-        document_uuid (UUID): UUID of the document with
+        doc_uuid (UUID): UUID of the document with
             the SLA details
     """
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
-    start_date = DateTimeProperty(required=True)
+    start_date = DateTimeProperty()
     end_date = DateTimeProperty()
-    document_uuid = StringProperty()
+    doc_uuid = StringProperty()
 
     user_group = RelationshipFrom(
         "..user_group.models.UserGroup", "AGREE", cardinality=One

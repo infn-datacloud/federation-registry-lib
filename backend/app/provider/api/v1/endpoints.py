@@ -47,14 +47,14 @@ from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_endpoint
 from app.service.crud import service
 from app.service.schemas import (
-    CinderServiceCreate,
+    BlockStorageServiceCreate,
+    ComputeServiceCreate,
     KeystoneServiceCreate,
-    NovaServiceCreate,
 )
 from app.service.schemas_extended import (
-    CinderServiceReadExtended,
+    BlockStorageServiceReadExtended,
+    ComputeServiceReadExtended,
     KeystoneServiceReadExtended,
-    NovaServiceReadExtended,
 )
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -381,7 +381,7 @@ def add_project_to_provider(
 @router.post(
     "/{provider_uid}/services/",
     response_model=Union[
-        CinderServiceReadExtended, KeystoneServiceReadExtended, NovaServiceReadExtended
+        BlockStorageServiceReadExtended, KeystoneServiceReadExtended, ComputeServiceReadExtended
     ],
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(check_write_access), Depends(valid_service_endpoint)],
@@ -394,7 +394,7 @@ def add_project_to_provider(
         no other items with the given *name* or *uuid*.",
 )
 def add_service_to_provider(
-    item: Union[CinderServiceCreate, KeystoneServiceCreate, NovaServiceCreate],
+    item: Union[BlockStorageServiceCreate, KeystoneServiceCreate, ComputeServiceCreate],
     provider: Provider = Depends(valid_provider_id),
 ):
     return service.create(obj_in=item, provider=provider, force=True)

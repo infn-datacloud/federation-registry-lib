@@ -16,23 +16,23 @@ from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadS
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.crud import service
 from app.service.schemas import (
-    CinderServiceRead,
-    CinderServiceReadPublic,
-    CinderServiceReadShort,
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    BlockStorageServiceReadShort,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
+    ComputeServiceReadShort,
     KeystoneServiceRead,
     KeystoneServiceReadPublic,
     KeystoneServiceReadShort,
-    NovaServiceRead,
-    NovaServiceReadPublic,
-    NovaServiceReadShort,
 )
 from app.service.schemas_extended import (
-    CinderServiceReadExtended,
-    CinderServiceReadExtendedPublic,
+    BlockStorageServiceReadExtended,
+    BlockStorageServiceReadExtendedPublic,
+    ComputeServiceReadExtended,
+    ComputeServiceReadExtendedPublic,
     KeystoneServiceReadExtended,
     KeystoneServiceReadExtendedPublic,
-    NovaServiceReadExtended,
-    NovaServiceReadExtendedPublic,
 )
 from app.user_group.api.dependencies import (
     valid_user_group_id,
@@ -246,29 +246,29 @@ def get_user_group_providers(
     response_model=Union[
         List[
             Union[
-                CinderServiceReadExtended,
+                BlockStorageServiceReadExtended,
                 KeystoneServiceReadExtended,
-                NovaServiceReadExtended,
+                ComputeServiceReadExtended,
             ]
         ],
-        List[Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]],
+        List[Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]],
         List[
             Union[
-                CinderServiceReadShort, KeystoneServiceReadShort, NovaServiceReadShort
+                BlockStorageServiceReadShort, KeystoneServiceReadShort, ComputeServiceReadShort
             ]
         ],
         List[
             Union[
-                CinderServiceReadExtendedPublic,
+                BlockStorageServiceReadExtendedPublic,
                 KeystoneServiceReadExtendedPublic,
-                NovaServiceReadExtendedPublic,
+                ComputeServiceReadExtendedPublic,
             ]
         ],
         List[
             Union[
-                CinderServiceReadPublic,
+                BlockStorageServiceReadPublic,
                 KeystoneServiceReadPublic,
-                NovaServiceReadPublic,
+                ComputeServiceReadPublic,
             ]
         ],
     ],

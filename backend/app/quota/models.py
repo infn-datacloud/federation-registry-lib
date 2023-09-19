@@ -37,44 +37,30 @@ class Quota(StructuredNode):
     uid = UniqueIdProperty()
     description = StringProperty(default="")
     type = StringProperty(required=True)
+    per_user = BooleanProperty(default=False)
 
     project = RelationshipFrom(
         "..project.models.Project", "USE_SERVICE_WITH", cardinality=One
     )
 
 
-class NovaQuota(Quota):
+class ComputeQuota(Quota):
     cores = IntegerProperty()
     fixed_ips = IntegerProperty()
-    floating_ips = IntegerProperty()
-    force = BooleanProperty()
-    injected_file_content_bytes = IntegerProperty()
-    injected_file_path_bytes = IntegerProperty()
-    injected_files = IntegerProperty()
+    public_ips = IntegerProperty()
     instances = IntegerProperty()
-    key_pairs = IntegerProperty()
-    metadata_items = IntegerProperty()
-    networks = IntegerProperty()
     ram = IntegerProperty()
-    security_group_rules = IntegerProperty()
-    security_groups = IntegerProperty()
-    server_groups = IntegerProperty()
-    server_group_members = IntegerProperty()
 
     service = RelationshipTo(
-        "..service.models.NovaService", "APPLY_TO", cardinality=One
+        "..service.models.ComputeService", "APPLY_TO", cardinality=One
     )
 
 
-class CinderQuota(Quota):
-    backup_gigabytes = IntegerProperty()
-    backups = IntegerProperty()
+class BlockStorageQuota(Quota):
     gigabytes = IntegerProperty()
-    groups = IntegerProperty()
     per_volume_gigabytes = IntegerProperty()
-    snapshots = IntegerProperty()
     volumes = IntegerProperty()
 
     service = RelationshipTo(
-        "..service.models.CinderService", "APPLY_TO", cardinality=One
+        "..service.models.BlockStorageService", "APPLY_TO", cardinality=One
     )

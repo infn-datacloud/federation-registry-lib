@@ -218,11 +218,11 @@ def valid_location(item: ProviderCreateExtended) -> None:
 
     loc = item.location
     if loc is not None:
-        db_item = location.get(name=loc.name)
+        db_item = location.get(site=loc.site)
         if db_item is not None:
             for k, v in loc.dict(exclude_unset=True).items():
                 if db_item.__getattribute__(k) != v:
-                    msg = f"Location with name '{loc.name}' "
+                    msg = f"Location with site '{loc.site}' "
                     msg += "already exists, but with different attributes. "
                     msg += f"Received: {loc.dict()}. Stored: {db_item}"
                     raise HTTPException(

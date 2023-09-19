@@ -1,23 +1,60 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from app.location.schemas import LocationCreate
 from app.provider.schemas import ProviderCreate
-from pydantic import AnyHttpUrl, BaseModel, Field, root_validator
+from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
+from pydantic import UUID4, AnyHttpUrl, BaseModel, Field, root_validator, validator
 
 
 class IDP(BaseModel):
-    name: str = Field(description="Identity provider name used to authenticate")
-    protocol: str = Field(description="Protocol used to authenticate")
+    endpoint: AnyHttpUrl = Field(description="Identity provider endpoint")
     group_claim: str = Field(
         description="Key name from which derive user's authorization"
     )
-    endpoint: AnyHttpUrl = Field(description="Identity provider endpoint")
+    name: str = Field(description="Identity provider name used to authenticate")
+    protocol: str = Field(description="Protocol used to authenticate")
+
+
+class Limits(BaseModel):
+    compute: Optional[ComputeQuotaWrite] = Field(
+        default=None, description="Compute per user quota"
+    )
+    block_storage: Optional[BlockStorageQuotaWrite] = Field(
+        default=None, description="Block storage per user quota"
+    )
+
+    @validator("compute")
+    def set_per_user_compute(
+        cls, v: Optional[ComputeQuotaWrite]
+    ) -> Optional[ComputeQuotaWrite]:
+        if v is not None:
+            v.per_user = True
+        return v
+
+    @validator("block_storage")
+    def set_per_user_block_storage(
+        cls, v: Optional[BlockStorageQuotaWrite]
+    ) -> Optional[BlockStorageQuotaWrite]:
+        if v is not None:
+            v.per_user = True
+        return v
+
+
+class UserGroup(BaseModel):
+    name: str = Field(description="User group name")
+    idp: Union[str, AnyHttpUrl] = Field(description="Identity provider name or URL")
 
 
 class Project(BaseModel):
     id: Optional[str] = Field(default=None, description="Project unique ID")
     name: Optional[str] = Field(default=None, description="Project name")
     domain: Optional[str] = Field(default=None, description="Project domain name")
+    group: UserGroup = Field(description="User group having access to this project")
+    per_user_limits: Optional[Limits] = Field(
+        default=None,
+        description="Quota restrictions to apply to each user who has access to this project",
+    )
+    # _region: Optional[str] = Field(default=None, description="Service region to use to access to this project")
 
     @root_validator
     def check_id_or_name_and_domain(cls, values):
@@ -31,13 +68,18 @@ class Project(BaseModel):
         return values
 
 
+class SLA(BaseModel):
+    doc_uuid: UUID4 = Field(description="Document UUID")
+    project: Project = Field(description="Linked project")
+
+
 class Openstack(ProviderCreate):
     auth_url: str = Field(description="Identity service endpoint")
     location: LocationCreate = Field(description="Location details")
     identity_providers: List[IDP] = Field(
         description="List of supported identity providers"
     )
-    projects: List[Project] = Field(description="List of projects to inspect")
+    slas: List[SLA] = Field(description="List of SLAs belonged by this provider")
 
 
 class APIVersions(BaseModel):

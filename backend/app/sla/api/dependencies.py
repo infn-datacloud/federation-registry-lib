@@ -42,9 +42,9 @@ def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
         BadRequestError: DB entity with given document uuid already exists.
     """
 
-    db_item = sla.get(document_uuid=item.document_uuid)
+    db_item = sla.get(doc_uuid=item.doc_uuid)
     if db_item is not None:
-        msg = f"Document '{item.document_uuid}' already used "
+        msg = f"Document '{item.doc_uuid}' already used "
         msg += "by another SLA"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -71,7 +71,7 @@ def validate_new_sla_values(
     """
 
     if (
-        update_data.document_uuid is not None
-        and str(update_data.document_uuid) != item.document_uuid
+        update_data.doc_uuid is not None
+        and str(update_data.doc_uuid) != item.doc_uuid
     ):
         is_unique_sla(update_data)

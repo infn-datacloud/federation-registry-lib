@@ -6,7 +6,11 @@ from pydantic import UUID4, BaseModel, Field
 
 class Representation(BaseModel):
     def __str__(self) -> str:
-        return f"{self.name}"
+        if self.name is not None:
+            return f"{self.name}"
+        if self.uuid is not None:
+            return f"{self.uuid}"
+        return super().__str__()
 
 
 class FlavorWrite(FlavorCreate, Representation):

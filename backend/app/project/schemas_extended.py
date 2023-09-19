@@ -7,16 +7,16 @@ from app.identity_provider.schemas import (
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.quota.schemas import (
-    CinderQuotaRead,
-    CinderQuotaReadPublic,
-    NovaQuotaRead,
-    NovaQuotaReadPublic,
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
 )
 from app.service.schemas import (
-    CinderServiceRead,
-    CinderServiceReadPublic,
-    NovaServiceRead,
-    NovaServiceReadPublic,
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
 )
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
@@ -55,38 +55,38 @@ class SLAReadExtendedPublic(SLAReadPublic):
     user_group: UserGroupReadExtendedPublic = Field(description="Involved User Group.")
 
 
-class NovaQuotaReadExtended(NovaQuotaRead):
+class ComputeQuotaReadExtended(ComputeQuotaRead):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: NovaServiceRead = Field(
+    service: ComputeServiceRead = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
 
-class NovaQuotaReadExtendedPublic(NovaQuotaReadPublic):
+class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: NovaServiceReadPublic = Field(
+    service: ComputeServiceReadPublic = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
 
-class CinderQuotaReadExtended(CinderQuotaRead):
+class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: CinderServiceRead = Field(
+    service: BlockStorageServiceRead = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
 
-class CinderQuotaReadExtendedPublic(CinderQuotaReadPublic):
+class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: CinderServiceReadPublic = Field(
+    service: BlockStorageServiceReadPublic = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
@@ -96,7 +96,7 @@ class ProjectReadExtended(ProjectRead):
     related items for authenticated users."""
 
     provider: ProviderRead = Field(description="Provider owning this Project.")
-    quotas: List[Union[NovaQuotaReadExtended, CinderQuotaReadExtended]] = Field(
+    quotas: List[Union[ComputeQuotaReadExtended, BlockStorageQuotaReadExtended]] = Field(
         default_factory=list, description="List of owned quotas."
     )
     sla: Optional[SLAReadExtended] = Field(
@@ -110,7 +110,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
 
     provider: ProviderReadPublic = Field(description="Provider owning this Project.")
     quotas: List[
-        Union[NovaQuotaReadExtendedPublic, CinderQuotaReadExtendedPublic]
+        Union[ComputeQuotaReadExtendedPublic, BlockStorageQuotaReadExtendedPublic]
     ] = Field(default_factory=list, description="List of owned quotas.")
     sla: Optional[SLAReadExtendedPublic] = Field(
         default=None, description="SLA involving this Project."

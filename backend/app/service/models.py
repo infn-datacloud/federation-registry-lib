@@ -35,15 +35,15 @@ class Service(StructuredNode):
     provider = RelationshipFrom("..provider.models.Provider", "SUPPLY", cardinality=One)
 
 
-class NovaService(Service):
+class ComputeService(Service):
     quotas = RelationshipFrom(
-        "..quota.models.NovaQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "..quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
 
 
-class CinderService(Service):
+class BlockStorageService(Service):
     quotas = RelationshipFrom(
-        "..quota.models.CinderQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "..quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
 
 

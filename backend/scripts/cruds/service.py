@@ -28,9 +28,14 @@ class ServiceCRUD(BasicCRUD[ServiceWrite, ServiceRead, ServiceQuery]):
     def create_or_update(
         self, *, item: ServiceWrite, parent: ProviderRead
     ) -> ServiceRead:
-        db_item = self.find_in_list(
+        db_item, idx = self.find_in_list(
             data=ServiceQuery(name=item.name), db_items=parent.services
         )
-        return super().create_or_update(
+        new_data = super().create_or_update(
             item=item, db_item=db_item, parent_uid=parent.uid
         )
+        if db_item is None:
+            parent.services.append(new_data)
+        else:
+            parent.services[idx] = new_data
+        return parent

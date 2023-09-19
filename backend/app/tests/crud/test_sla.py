@@ -13,12 +13,12 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     description = random_lower_string()
     start_date = random_datetime()
     end_date = random_datetime()
-    document_uuid = uuid4()
+    doc_uuid = uuid4()
     item_in = SLACreate(
         description=description,
         start_date=start_date,
         end_date=end_date,
-        document_uuid=document_uuid,
+        doc_uuid=doc_uuid,
     )
     project = create_random_project()
     user_group = create_random_user_group()
@@ -26,7 +26,7 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     assert item.description == description
     assert item.start_date == start_date
     assert item.end_date == end_date
-    assert item.document_uuid == str(document_uuid)
+    assert item.doc_uuid == str(doc_uuid)
     item_project = item.project.single()
     assert item_project is not None
     assert item_project.uid == project.uid
@@ -44,7 +44,7 @@ def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     assert item.description == ""
     assert item.start_date == start_date
     assert item.end_date is None
-    assert item.document_uuid is None
+    assert item.doc_uuid is None
     item_project = item.project.single()
     assert item_project is not None
     assert item_project.uid == project.uid
@@ -61,7 +61,7 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     assert item.description == stored_item.description
     assert item.start_date == stored_item.start_date
     assert item.end_date == stored_item.end_date
-    assert item.document_uuid == stored_item.document_uuid
+    assert item.doc_uuid == stored_item.doc_uuid
 
 
 def test_get_items(setup_and_teardown_db: Generator) -> None:
@@ -79,7 +79,7 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
     assert stored_items[0].description == item.description
     assert stored_items[0].start_date == item.start_date
     assert stored_items[0].end_date == item.end_date
-    assert stored_items[0].document_uuid == item.document_uuid
+    assert stored_items[0].doc_uuid == item.doc_uuid
 
     sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
     stored_items = sla.get_multi(sort="uid")

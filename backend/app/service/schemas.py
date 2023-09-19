@@ -12,6 +12,10 @@ class ServiceBase(BaseModel, extra=Extra.allow):
     endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
     type: ServiceType = Field(description="Service type.")
     name: ServiceName = Field(description="Service name.")
+    region: Optional[str] = Field(
+        default=None,
+        description="When dealing with openstack service region is essential",
+    )
 
 
 class ServiceCreate(BaseNodeCreate, ServiceBase):
@@ -61,9 +65,9 @@ class ServiceReadShort(BaseNodeRead, ServiceBase):
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
 
 
-class NovaBase(ServiceBase, extra=Extra.ignore):
+class ComputeBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Nova services.
+    services. It adds the basic attributes for Compute services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
@@ -81,16 +85,16 @@ class NovaBase(ServiceBase, extra=Extra.ignore):
         return v
 
 
-class NovaServiceCreate(BaseNodeCreate, NovaBase):
-    """Model to create a Nova Service.
+class ComputeServiceCreate(BaseNodeCreate, ComputeBase):
+    """Model to create a Compute Service.
 
     Class without id (which is populated by the database). Expected as
     input when performing a POST request.
     """
 
 
-class NovaServiceUpdate(NovaServiceCreate):
-    """Model to update a Nova service.
+class ComputeServiceUpdate(ComputeServiceCreate):
+    """Model to update a Compute service.
 
     Class without id (which is populated by the database). Expected as
     input when performing a PUT request.
@@ -103,8 +107,8 @@ class NovaServiceUpdate(NovaServiceCreate):
     )
 
 
-class NovaServiceRead(BaseNodeRead, NovaBase):
-    """Model to read Nova service data retrieved from DB.
+class ComputeServiceRead(BaseNodeRead, ComputeBase):
+    """Model to read Compute service data retrieved from DB.
 
     Class to read data retrieved from the database. Expected as output
     when performing a generic REST request. It contains all the non-
@@ -115,20 +119,20 @@ class NovaServiceRead(BaseNodeRead, NovaBase):
     """
 
 
-class NovaServiceReadPublic(BaseNodeRead, NovaBase):
+class ComputeServiceReadPublic(BaseNodeRead, ComputeBase):
     pass
 
 
-class NovaServiceReadShort(BaseNodeRead, NovaBase):
+class ComputeServiceReadShort(BaseNodeRead, ComputeBase):
     pass
 
 
-NovaServiceQuery = create_query_model("NovaServiceQuery", NovaBase)
+ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeBase)
 
 
-class CinderBase(ServiceBase, extra=Extra.ignore):
+class BlockStorageBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Cinder services.
+    services. It adds the basic attributes for BlockStorage services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
@@ -146,16 +150,16 @@ class CinderBase(ServiceBase, extra=Extra.ignore):
         return v
 
 
-class CinderServiceCreate(BaseNodeCreate, CinderBase):
-    """Model to create a Cinder Service.
+class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageBase):
+    """Model to create a BlockStorage Service.
 
     Class without id (which is populated by the database). Expected as
     input when performing a POST request.
     """
 
 
-class CinderServiceUpdate(CinderServiceCreate):
-    """Model to update a Cinder service.
+class BlockStorageServiceUpdate(BlockStorageServiceCreate):
+    """Model to update a BlockStorage service.
 
     Class without id (which is populated by the database). Expected as
     input when performing a PUT request.
@@ -168,8 +172,8 @@ class CinderServiceUpdate(CinderServiceCreate):
     )
 
 
-class CinderServiceRead(BaseNodeRead, CinderBase):
-    """Model to read Cinder service data retrieved from DB.
+class BlockStorageServiceRead(BaseNodeRead, BlockStorageBase):
+    """Model to read BlockStorage service data retrieved from DB.
 
     Class to read data retrieved from the database. Expected as output
     when performing a generic REST request. It contains all the non-
@@ -180,15 +184,17 @@ class CinderServiceRead(BaseNodeRead, CinderBase):
     """
 
 
-class CinderServiceReadPublic(BaseNodeRead, CinderBase):
+class BlockStorageServiceReadPublic(BaseNodeRead, BlockStorageBase):
     pass
 
 
-class CinderServiceReadShort(BaseNodeRead, CinderBase):
+class BlockStorageServiceReadShort(BaseNodeRead, BlockStorageBase):
     pass
 
 
-CinderServiceQuery = create_query_model("CinderServiceQuery", CinderBase)
+BlockStorageServiceQuery = create_query_model(
+    "BlockStorageServiceQuery", BlockStorageBase
+)
 
 
 class KeystoneBase(ServiceBase, extra=Extra.ignore):

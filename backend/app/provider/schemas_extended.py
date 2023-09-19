@@ -12,15 +12,15 @@ from app.location.schemas import LocationCreate, LocationRead, LocationReadPubli
 from app.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderCreate, ProviderRead, ProviderReadPublic
 from app.service.schemas import (
-    CinderServiceCreate,
-    CinderServiceRead,
-    CinderServiceReadPublic,
+    BlockStorageServiceCreate,
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    ComputeServiceCreate,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
     KeystoneServiceCreate,
     KeystoneServiceRead,
     KeystoneServiceReadPublic,
-    NovaServiceCreate,
-    NovaServiceRead,
-    NovaServiceReadPublic,
 )
 from pydantic import Field
 
@@ -73,7 +73,7 @@ class ProviderCreateExtended(ProviderCreate):
         default_factory=list, description="List of owned Projects."
     )
     services: List[
-        Union[CinderServiceCreate, KeystoneServiceCreate, NovaServiceCreate]
+        Union[BlockStorageServiceCreate, KeystoneServiceCreate, ComputeServiceCreate]
     ] = Field(default_factory=list, description="List of hosted Services.")
 
 
@@ -98,7 +98,7 @@ class ProviderReadExtended(ProviderRead):
         default_factory=list, description="List of owned Projects."
     )
     services: List[
-        Union[CinderServiceRead, KeystoneServiceRead, NovaServiceRead]
+        Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]
     ] = Field(default_factory=list, description="List of hosted Services.")
 
 
@@ -123,5 +123,5 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
         default_factory=list, description="List of owned Projects."
     )
     services: List[
-        Union[CinderServiceReadPublic, KeystoneServiceReadPublic, NovaServiceReadPublic]
+        Union[BlockStorageServiceReadPublic, KeystoneServiceReadPublic, ComputeServiceReadPublic]
     ] = Field(default_factory=list, description="List of hosted Services.")
