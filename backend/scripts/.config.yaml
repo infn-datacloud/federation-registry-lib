@@ -17,6 +17,7 @@ oidc_agent_accounts:
 
 openstack:
   - name: recas-ba
+    status: active
     auth_url: https://keystone.recas.ba.infn.it:443
     identity_providers:
       - name: infn-cloud
@@ -28,10 +29,9 @@ openstack:
         project:
           name: infn-cloud-ops
           domain: default
-          region: default
-          groups:
-            - name: test
-              idp_name: infn-cloud
+          group:
+            name: test
+            idp: https://iam.cloud.infn.it/
           per_user_limits:
             compute:
               cores: 2
@@ -42,22 +42,24 @@ openstack:
       - doc_uuid: bdfda059a23c439f8ffc06edd484e1a0
         project:
           id: edfda059a23c439f8ffc06edd484efa0
-          groups:
-            - name: prova
-              idp: infn-cloud
+          group:
+            name: prova
+            idp: https://iam.cloud.infn.it/
       - doc_uuid: cdfda059a23c439f8ffc06edd484e1a0
         project:
           id: 83be7870dbb54d4a988f89ea77e9e2b9
-          groups:
-            - name: test
-              idp: infn-cloud
+          group:
+            name: test
+            idp: https://iam.cloud.infn.it/
     is_public: false
     support_emails:
       - giovanni.savarese@ba.infn.it
     location:
       site: Bari
       country: Italy
+
   - name: cloud-cnaf
+    status: active
     auth_url: https://cloud-api-pub.cr.cnaf.infn.it:5000/v3
     identity_providers:
       - endpoint: https://iam.cloud.infn.it/
@@ -65,12 +67,12 @@ openstack:
         protocol: openid
         group_claim: groups
     slas:
-      - doc_uuid: uuid
+      - doc_uuid: c2bb880f0aa443a49abcbbbe2e96b48b
         project:
           id: 12bb88070aa443a494bcbbbe2e96b48b
-          groups:
-            - name: test
-              idp: infn-cc
+          group:
+            name: test
+            idp: https://iam.cloud.infn.it/
     is_public: false
     support_emails:
       - giovanni.savarese@ba.infn.it

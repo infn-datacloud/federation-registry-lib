@@ -94,6 +94,12 @@
             "description": "Provider name",
             "type": "string"
           },
+          "status": {
+            "description": "Provider status",
+            "type": "string",
+            "enum": ["active", "maintenance", "removed"],
+            "default": "active"
+          },
           "auth_url": {
             "description": "Provider authentication url",
             "type": "string",
@@ -145,24 +151,20 @@
                   "description": "Project details",
                   "type": "object",
                   "properties": {
-                    "groups": {
-                      "description": "Identity providers groups who have access to this project",
-                      "type": "array",
-                      "items": {
-                        "description": "User group properties",
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "description": "User group name",
-                            "type": "string"
-                          },
-                          "idp": {
-                            "description": "User group identity provider",
-                            "type": "string"
-                          }
+                    "group": {
+                      "description": "Identity providers group who have access to this project",
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "description": "User group name",
+                          "type": "string"
+                        },
+                        "idp": {
+                          "description": "User group identity provider URL",
+                          "type": "string",
+                          "format": "uri"
                         }
                       },
-                      "minItems": 1,
                       "required": ["name", "idp"]
                     },
                     "per_user_limits": {
@@ -216,7 +218,7 @@
                       }
                     }
                   },
-                  "required": ["groups"],
+                  "required": ["group"],
                   "oneOf": [
                     {
                       "properties": {
@@ -236,10 +238,16 @@
                         },
                         "domain": {
                           "description": "Project domain",
-                          "type": "string"
+                          "type": "string",
+                          "default": "default"
+                        },
+                        "region": {
+                          "description": "Project domain",
+                          "type": "string",
+                          "default": "default"
                         }
                       },
-                      "required": ["name", "domain"]
+                      "required": ["name"]
                     }
                   ]
                 }
