@@ -29,8 +29,9 @@ class LocationCRUD(Connectable[LocationWrite, LocationRead, LocationQuery]):
 
     def create_or_update(
         self, *, item: LocationWrite, parent: ProviderRead
-    ) -> LocationRead:
-        db_item = self.single(data=LocationQuery(name=item.name))
+    ) -> ProviderRead:
+        db_item = self.single(data=LocationQuery(site=item.site))
         db_item = super().create_or_update(item=item, db_item=db_item)
         self.connect(uid=db_item.uid, parent_uid=parent.uid)
-        return db_item
+        parent.location = db_item
+        return parent

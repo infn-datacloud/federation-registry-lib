@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class Representation(BaseModel):
     def __str__(self) -> str:
-        return f"{self.name}"
+        return f"{self.site}"
 
 
 class LocationWrite(LocationCreate, Representation):
