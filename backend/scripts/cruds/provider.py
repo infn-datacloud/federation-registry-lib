@@ -125,16 +125,60 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
 
             for service in item.services:
                 db_item = self.services.create_or_update(item=service, parent=db_item)
+            disposables = []
+            for db_service in db_item.services:
+                if db_service.endpoint not in [i.endpoint for i in item.services]:
+                    disposables.append(db_service)
+            for disposable in disposables:
+                self.services.remove(uid=disposable.uid)
+                db_item.services.remove(disposable)
+
             for project in item.projects:
                 db_item = self.projects.create_or_update(item=project, parent=db_item)
+            disposables = []
+            for db_project in db_item.projects:
+                if db_project.name not in [i.name for i in item.projects]:
+                    disposables.append(db_project)
+            for disposable in disposables:
+                self.projects.remove(uid=disposable.uid)
+                db_item.projects.remove(disposable)
+
             for flavor in item.flavors:
                 db_item = self.flavors.create_or_update(item=flavor, parent=db_item)
+            disposables = []
+            for db_flavor in db_item.flavors:
+                if db_flavor.name not in [i.name for i in item.flavors]:
+                    disposables.append(db_flavor)
+            for disposable in disposables:
+                self.flavors.remove(uid=disposable.uid)
+                db_item.flavors.remove(disposable)
+
             for image in item.images:
                 db_item = self.images.create_or_update(item=image, parent=db_item)
+            disposables = []
+            for db_image in db_item.images:
+                if db_image.name not in [i.name for i in item.images]:
+                    disposables.append(db_image)
+            for disposable in disposables:
+                self.images.remove(uid=disposable.uid)
+                db_item.images.remove(disposable)
+
             for identity_item in item.identity_providers:
                 db_item = self.identity_providers.create_or_update(
                     item=identity_item, parent=db_item
                 )
+            disposables = []
+            for db_identity_provider in db_item.identity_providers:
+                if db_identity_provider.endpoint not in [
+                    i.endpoint for i in item.identity_providers
+                ]:
+                    disposables.append(db_identity_provider)
+            for disposable in disposables:
+                self.identity_providers.disconnect(
+                    uid=disposable.uid, parent_uid=db_item.uid
+                )
+                db_item.identity_providers.remove(disposable)
+
             if item.location is not None:
                 db_item = self.locations.create_or_update(
                     item=item.location, parent=db_item
