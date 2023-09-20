@@ -11,6 +11,12 @@ from app.image.schemas import ImageCreate, ImageRead, ImageReadPublic
 from app.location.schemas import LocationCreate, LocationRead, LocationReadPublic
 from app.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderCreate, ProviderRead, ProviderReadPublic
+from app.quota.schemas import (
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
+)
 from app.service.schemas import (
     BlockStorageServiceCreate,
     BlockStorageServiceRead,
@@ -22,7 +28,30 @@ from app.service.schemas import (
     KeystoneServiceRead,
     KeystoneServiceReadPublic,
 )
+from app.sla.schemas import SLARead, SLAReadPublic
 from pydantic import Field
+
+
+class ProjectReadExtended(ProjectRead):
+    """Model to extend the Project data read from the DB."""
+
+    quotas: List[Union[ComputeQuotaRead, BlockStorageQuotaRead]] = Field(
+        default_factory=list, description="List of owned quotas."
+    )
+    sla: Optional[SLARead] = Field(
+        default=None, description="SLA involving this Project."
+    )
+
+
+class ProjectReadExtendedPublic(ProjectReadPublic):
+    """Model to extend the Project data read from the DB."""
+
+    quotas: List[Union[ComputeQuotaReadPublic, BlockStorageQuotaReadPublic]] = Field(
+        default_factory=list, description="List of owned quotas."
+    )
+    sla: Optional[SLAReadPublic] = Field(
+        default=None, description="SLA involving this Project."
+    )
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
@@ -94,7 +123,7 @@ class ProviderReadExtended(ProviderRead):
     images: List[ImageRead] = Field(
         default_factory=list, description="List of owned Images."
     )
-    projects: List[ProjectRead] = Field(
+    projects: List[ProjectReadExtended] = Field(
         default_factory=list, description="List of owned Projects."
     )
     services: List[
@@ -119,9 +148,13 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     images: List[ImageReadPublic] = Field(
         default_factory=list, description="List of owned Images."
     )
-    projects: List[ProjectReadPublic] = Field(
+    projects: List[ProjectReadExtendedPublic] = Field(
         default_factory=list, description="List of owned Projects."
     )
     services: List[
-        Union[BlockStorageServiceReadPublic, KeystoneServiceReadPublic, ComputeServiceReadPublic]
+        Union[
+            BlockStorageServiceReadPublic,
+            KeystoneServiceReadPublic,
+            ComputeServiceReadPublic,
+        ]
     ] = Field(default_factory=list, description="List of hosted Services.")

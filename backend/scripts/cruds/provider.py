@@ -166,7 +166,6 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
             db_project, idx = self.projects.find_in_list(
                 data=ProjectQuery(uuid=project.uuid), db_items=db_item.projects
             )
-            db_project = self.projects.single(uid=db_project.uid, with_conn=True)
             for quota in project.quotas:
                 db_service, idx = self.services.find_in_list(
                     data=ServiceQuery(endpoint=quota.service), db_items=db_item.services
