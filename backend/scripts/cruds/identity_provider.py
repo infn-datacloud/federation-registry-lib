@@ -35,10 +35,21 @@ class IdentityProviderCRUD(
 
     def create_or_update(
         self, *, item: IdentityProviderWrite, parent: ProviderRead
-    ) -> IdentityProviderRead:
-        db_item = self.single(data=IdentityProviderQuery(endpoint=item.endpoint))
-        db_item = super().create_or_update(item=item, db_item=db_item)
+    ) -> ProviderRead:
+        db_item = self.single(
+            data=IdentityProviderQuery(endpoint=item.endpoint), with_conn=True
+        )
+        new_data = super().create_or_update(item=item, db_item=db_item)
         self.connect(
             uid=db_item.uid, parent_uid=parent.uid, conn_data=item.relationship
         )
-        return db_item
+
+        db_item, idx = self.find_in_list(
+            data=IdentityProviderQuery(endpoint=item.endpoint),
+            db_items=parent.identity_providers,
+        )
+        if db_item is None:
+            parent.identity_providers.append(new_data)
+        else:
+            parent.identity_providers[idx] = new_data
+        return parent
