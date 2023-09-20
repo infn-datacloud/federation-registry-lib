@@ -29,6 +29,7 @@ from app.service.schemas import (
     KeystoneServiceReadPublic,
 )
 from app.sla.schemas import SLARead, SLAReadPublic
+from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from pydantic import Field
 
 
@@ -70,6 +71,9 @@ class IdentityProviderReadExtended(IdentityProviderRead):
     relationship: AuthMethodRead = Field(
         description="Authentication method used by the Provider"
     )
+    user_groups: List[UserGroupRead] = Field(
+        default_factory=list, description="List of owned user groups"
+    )
 
 
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
@@ -78,6 +82,9 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
 
     relationship: AuthMethodRead = Field(
         description="Authentication method used by the Provider"
+    )
+    user_groups: List[UserGroupReadPublic] = Field(
+        default_factory=list, description="List of owned user groups"
     )
 
 

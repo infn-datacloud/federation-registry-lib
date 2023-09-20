@@ -140,6 +140,7 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
                     item=item.location, parent=db_item
                 )
 
+        # Connect private flavors to corresponding projects
         for flavor in item.flavors:
             for project_uuid in flavor.projects:
                 db_flavor, idx = self.flavors.find_in_list(
@@ -151,6 +152,7 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
                 if db_project is not None:
                     self.flavors.connect(uid=db_flavor.uid, parent_uid=db_project.uid)
 
+        # Connect private images to corresponding projects
         for image in item.images:
             for project_uuid in image.projects:
                 db_image, idx = self.images.find_in_list(
@@ -163,6 +165,7 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
                     self.images.connect(uid=db_image.uid, parent_uid=db_project.uid)
 
         for project in item.projects:
+            # Create quotas and connect to corresponding projects.
             db_project, idx = self.projects.find_in_list(
                 data=ProjectQuery(uuid=project.uuid), db_items=db_item.projects
             )
@@ -174,16 +177,16 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
                     item=quota, project=db_project, service=db_service
                 )
 
-            db_identity_provider = self.identity_providers.single(
+            # Create user groups
+            db_identity_provider, idx = self.identity_providers.find_in_list(
                 data=IdentityProviderQuery(
                     endpoint=project.sla.user_group.identity_provider
                 ),
-                with_conn=True,
+                db_items=db_item.identity_providers,
             )
-            if db_identity_provider is not None:
-                db_identity_provider = self.user_groups.create_or_update(
-                    item=project.sla.user_group, parent=db_identity_provider
-                )
+            db_identity_provider = self.user_groups.create_or_update(
+                item=project.sla.user_group, parent=db_identity_provider
+            )
 
             db_user_group, idx = self.user_groups.find_in_list(
                 data=UserGroupQuery(name=project.sla.user_group.name),
