@@ -1,5 +1,5 @@
 from neomodel import (
-    DateTimeProperty,
+    DateProperty,
     One,
     RelationshipFrom,
     RelationshipTo,
@@ -27,8 +27,8 @@ class SLA(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
-    start_date = DateTimeProperty(required=True)
-    end_date = DateTimeProperty(required=True)
+    start_date = DateProperty(required=True)
+    end_date = DateProperty(required=True)
     doc_uuid = StringProperty()
 
     user_group = RelationshipFrom(

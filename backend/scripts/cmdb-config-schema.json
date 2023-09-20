@@ -148,12 +148,12 @@
                   "format": "uuid"
                 },
                 "start_date": {
-                  "description": "SLA start date",
+                  "description": "SLA starting date",
                   "type": "string",
                   "format": "date"
                 },
                 "end_date": {
-                  "description": "SLA end date",
+                  "description": "SLA ending date",
                   "type": "string",
                   "format": "date"
                 },

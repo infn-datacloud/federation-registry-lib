@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
@@ -8,8 +8,8 @@ from pydantic import UUID4, Field
 class SLABase(BaseNode):
     """Model with SLA basic attributes."""
 
-    start_date: datetime = Field(description="Starting date of validity for this SLA.")
-    end_date: datetime = Field(
+    start_date: date = Field(description="Starting date of validity for this SLA.")
+    end_date: date = Field(
         description="End of life date for this SLA. \
             If not set it lasts forever.",
     )

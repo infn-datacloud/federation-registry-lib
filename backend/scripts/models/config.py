@@ -1,16 +1,15 @@
 from typing import List, Optional, Union
 
+from app.identity_provider.schemas import IdentityProviderBase
 from app.location.schemas import LocationCreate
 from app.provider.schemas import ProviderCreate
+from app.sla.schemas import SLABase
+from app.user_group.schemas import UserGroupBase
 from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
-from pydantic import UUID4, AnyHttpUrl, BaseModel, Field, root_validator, validator
+from pydantic import AnyHttpUrl, BaseModel, Field, root_validator, validator
 
 
-class IDP(BaseModel):
-    endpoint: AnyHttpUrl = Field(description="Identity provider endpoint")
-    group_claim: str = Field(
-        description="Key name from which derive user's authorization"
-    )
+class IDP(IdentityProviderBase):
     name: str = Field(description="Identity provider name used to authenticate")
     protocol: str = Field(description="Protocol used to authenticate")
 
@@ -40,8 +39,7 @@ class Limits(BaseModel):
         return v
 
 
-class UserGroup(BaseModel):
-    name: str = Field(description="User group name")
+class UserGroup(UserGroupBase):
     idp: Union[str, AnyHttpUrl] = Field(description="Identity provider name or URL")
 
 
@@ -52,9 +50,10 @@ class Project(BaseModel):
     group: UserGroup = Field(description="User group having access to this project")
     per_user_limits: Optional[Limits] = Field(
         default=None,
-        description="Quota restrictions to apply to each user who has access to this project",
+        description="Quota limitations to apply to users owning this project",
     )
-    # _region: Optional[str] = Field(default=None, description="Service region to use to access to this project")
+    # _region: Optional[str] = Field(default=None,
+    # description="Service region to use to access to this project")
 
     @root_validator
     def check_id_or_name_and_domain(cls, values):
@@ -68,8 +67,7 @@ class Project(BaseModel):
         return values
 
 
-class SLA(BaseModel):
-    doc_uuid: UUID4 = Field(description="Document UUID")
+class SLA(SLABase):
     project: Project = Field(description="Linked project")
 
 
