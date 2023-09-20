@@ -54,7 +54,7 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
             data["description"] = ""
         extra = data.pop("extra_specs")
         if extra:
-            data["gpus"] = extra.get("num_gpus")
+            data["gpus"] = extra.get("gpu_number", 0)
             data["gpu_model"] = extra.get("gpu_model")
             data["gpu_vendor"] = extra.get("gpu_vendor")
             data["local_storage"] = extra.get(
