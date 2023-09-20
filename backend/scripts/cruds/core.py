@@ -1,4 +1,3 @@
-import os
 from typing import Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar
 
 import requests
@@ -116,38 +115,23 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         raise UpdateException(resp=resp, item_repr=f"{self.type}={new_data}")
 
     def single(
-        self,
-        *,
-        data: Optional[QuerySchema] = None,
-        uid: Optional[UUID4] = None,
-        with_conn: bool = False,
+        self, *, data: Optional[QuerySchema] = None, with_conn: bool = False
     ) -> Optional[ReadSchema]:
         """Find single instance with given params."""
-        if data is not None:
-            resp = requests.get(
-                url=self.get_url,
-                params={**data.dict(exclude_unset=True), "with_conn": with_conn},
-                headers=self.read_headers,
-            )
-            if resp.status_code == status.HTTP_200_OK:
-                if len(resp.json()) == 0:
-                    logger.info(f"{self.type}={data} not found")
-                    return None
-                if len(resp.json()) == 1:
-                    logger.info(f"{self.type}={data} found")
-                    return self.read_schema(**resp.json()[0])
-                raise DatabaseCorruptedException(item_repr=f"{self.type}={data}")
-            raise FindException(resp=resp, item_repr=f"{self.type}={data}")
-        elif uid is not None:
-            resp = requests.get(
-                url=os.path.join(self.get_url, str(uid)),
-                params={"with_conn": with_conn},
-                headers=self.read_headers,
-            )
-            if resp.status_code == status.HTTP_200_OK:
-                logger.info(f"{self.type}={uid} found")
-                return self.read_schema(**resp.json())
-            raise FindException(resp=resp, item_repr=f"{self.type}={uid}")
+        resp = requests.get(
+            url=self.get_url,
+            params={**data.dict(exclude_unset=True), "with_conn": with_conn},
+            headers=self.read_headers,
+        )
+        if resp.status_code == status.HTTP_200_OK:
+            if len(resp.json()) == 0:
+                logger.info(f"{self.type}={data} not found")
+                return None
+            if len(resp.json()) == 1:
+                logger.info(f"{self.type}={data} found")
+                return self.read_schema(**resp.json()[0])
+            raise DatabaseCorruptedException(item_repr=f"{self.type}={data}")
+        raise FindException(resp=resp, item_repr=f"{self.type}={data}")
 
     def find_in_list(
         self, *, data: QuerySchema, db_items: List[ReadSchema], exact: bool = True
