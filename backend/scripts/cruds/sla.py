@@ -29,11 +29,7 @@ class SLACRUD(BasicCRUD[SLAWrite, SLARead, SLAQuery]):
     def create_or_update(
         self, *, item: SLAWrite, project: ProjectRead, user_group: UserGroupRead
     ) -> ProjectRead:
-        # db_item, idx = self.find_in_list(
-        #    data=SLAQuery(**item.dict()), db_items=project.slas
-        # )
-        # print(db_item)
-        db_item = None
+        db_item = project.sla
         new_data = super().create_or_update(
             item=item,
             db_item=db_item,

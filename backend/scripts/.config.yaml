@@ -49,7 +49,7 @@ openstack:
         project:
           id: 83be7870dbb54d4a988f89ea77e9e2b9
           group:
-            name: test
+            name: pippo
             idp: https://iam.cloud.infn.it/
     is_public: false
     support_emails:
