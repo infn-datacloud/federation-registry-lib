@@ -29,7 +29,9 @@ class ImageCRUD(Connectable[ImageWrite, ImageRead, ImageQuery]):
 
     def create_or_update(self, *, item: ImageWrite, parent: ProviderRead) -> ImageRead:
         db_item, idx = self.find_in_list(
-            data=ImageQuery(name=item.name, uuid=item.uuid), db_items=parent.images
+            data=ImageQuery(name=item.name, uuid=item.uuid),
+            db_items=parent.images,
+            exact=False,
         )
         new_data = super().create_or_update(
             item=item, db_item=db_item, parent_uid=parent.uid

@@ -148,18 +148,24 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
                 logger.info(f"{self.type}={uid} found")
                 return self.read_schema(**resp.json())
             raise FindException(resp=resp, item_repr=f"{self.type}={uid}")
-            
 
     def find_in_list(
-        self, *, data: QuerySchema, db_items: List[ReadSchema]
+        self, *, data: QuerySchema, db_items: List[ReadSchema], exact: bool = True
     ) -> Tuple[Optional[ReadSchema], int]:
         """Find instance within a given list with corresponding key-value
         pair."""
         d = data.dict(exclude_unset=True)
         for idx, db_item in enumerate(db_items):
             i = db_item.dict()
-            for k, v in d.items():
-                if i.get(k) == v:
+            if not exact:
+                for k, v in d.items():
+                    if i.get(k) == v:
+                        logger.info(
+                            f"{self.type}={data} already belongs to this provider"
+                        )
+                        return (db_item, idx)
+            else:
+                if all([i.get(k) == v for k, v in d.items()]):
                     logger.info(f"{self.type}={data} already belongs to this provider")
                     return (db_item, idx)
         logger.info(f"No {self.type}={data} belongs to this provider.")

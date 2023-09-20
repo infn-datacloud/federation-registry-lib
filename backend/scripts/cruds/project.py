@@ -29,7 +29,9 @@ class ProjectCRUD(BasicCRUD[ProjectWrite, ProjectRead, ProjectQuery]):
         self, *, item: ProjectWrite, parent: ProviderRead
     ) -> ProjectRead:
         db_item, idx = self.find_in_list(
-            data=ProjectQuery(name=item.name, uuid=item.uuid), db_items=parent.projects
+            data=ProjectQuery(name=item.name, uuid=item.uuid),
+            db_items=parent.projects,
+            exact=False,
         )
         new_data = super().create_or_update(
             item=item, db_item=db_item, parent_uid=parent.uid

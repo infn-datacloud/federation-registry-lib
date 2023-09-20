@@ -26,13 +26,13 @@ class QuotaCRUD(BasicCRUD[QuotaWrite, QuotaRead, QuotaQuery]):
             write_headers=write_headers,
         )
 
-    def create_or_update(self, *, item: QuotaWrite, project: ProjectRead, service: ServiceRead) -> ProjectRead:
-        #db_item, idx = self.find_in_list(
-        #    data=QuotaQuery(**item.dict()), db_items=project.quotas
-        #)
-        #print(db_item)
-        db_item=None
-        idx = -1
+    def create_or_update(
+        self, *, item: QuotaWrite, project: ProjectRead, service: ServiceRead
+    ) -> ProjectRead:
+        db_item, idx = self.find_in_list(
+            data=QuotaQuery(type=item.type, per_user=item.per_user),
+            db_items=project.quotas,
+        )
         new_data = super().create_or_update(
             item=item,
             db_item=db_item,

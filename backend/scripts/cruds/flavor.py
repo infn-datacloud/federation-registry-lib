@@ -31,7 +31,9 @@ class FlavorCRUD(Connectable[FlavorWrite, FlavorRead, FlavorQuery]):
         self, *, item: FlavorWrite, parent: ProviderRead
     ) -> FlavorRead:
         db_item, idx = self.find_in_list(
-            data=FlavorQuery(name=item.name, uuid=item.uuid), db_items=parent.flavors
+            data=FlavorQuery(name=item.name, uuid=item.uuid),
+            db_items=parent.flavors,
+            exact=False,
         )
         new_data = super().create_or_update(
             item=item, db_item=db_item, parent_uid=parent.uid
