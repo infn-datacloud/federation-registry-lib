@@ -1,5 +1,5 @@
 from cruds.provider import ProviderCRUD
-from providers.opnstk import get_os_provider
+from providers.opnstk import get_provider
 from utils import (
     build_cmdb_urls,
     choose_idp,
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         if tokens.get(chosen_idp.endpoint) is None:
             tokens[chosen_idp.endpoint] = generate_token(endpoint=chosen_idp.endpoint)
 
-        provider = get_os_provider(
+        provider = get_provider(
             config=conf, chosen_idp=chosen_idp, token=tokens[chosen_idp.endpoint]
         )
         providers.append(provider)

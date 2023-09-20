@@ -1,11 +1,12 @@
 import os
 import subprocess
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import yaml
 from logger import logger
 from models.cmdb.identity_provider import AuthMethodWrite, IdentityProviderWrite
-from models.config import IDP, Config, URLs
+from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
+from models.config import IDP, Config, Limits, URLs
 from pydantic import AnyHttpUrl
 
 
@@ -98,3 +99,24 @@ def get_read_write_headers(*, token: str) -> Tuple[Dict[str, str], Dict[str, str
         "content-type": "application/json",
     }
     return (read_header, write_header)
+
+
+def get_per_user_quotas(
+    per_user_limits: Limits,
+    compute_service: AnyHttpUrl,
+    block_storage_service: AnyHttpUrl,
+) -> Tuple[Optional[ComputeQuotaWrite], Optional[BlockStorageQuotaWrite]]:
+    cq = None
+    bsq = None
+    if per_user_limits is not None:
+        if per_user_limits.compute is not None:
+            cq = ComputeQuotaWrite(
+                **per_user_limits.compute.dict(exclude_none=True),
+                service=compute_service,
+            )
+        if per_user_limits.block_storage is not None:
+            bsq = BlockStorageQuotaWrite(
+                **per_user_limits.block_storage.dict(exclude_none=True),
+                service=block_storage_service,
+            )
+    return (cq, bsq)

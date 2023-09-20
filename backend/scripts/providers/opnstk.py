@@ -12,14 +12,7 @@ from models.cmdb.user_group import UserGroupWrite
 from models.config import IDP, Openstack
 from openstack import connect
 from openstack.connection import Connection
-from utils import get_identity_providers
-
-
-def get_compute_quotas(conn: Connection) -> ComputeQuotaWrite:
-    logger.info("Retrieve current project accessible compute quotas")
-    quota = conn.compute.get_quota_set(conn.current_project_id)
-    data = quota.to_dict()
-    return ComputeQuotaWrite(**data, service=conn.compute.get_endpoint())
+from utils import get_identity_providers, get_per_user_quotas
 
 
 def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaWrite:
@@ -29,15 +22,11 @@ def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaWrite:
     return BlockStorageQuotaWrite(**data, service=conn.block_storage.get_endpoint())
 
 
-def get_project(conn: Connection) -> ProjectWrite:
-    logger.info("Retrieve current project data")
-    curr_proj_id = conn.current_project.get("id")
-    project = conn.identity.get_project(curr_proj_id)
-    data = project.to_dict()
-    data["uuid"] = data.pop("id")
-    if data.get("description") is None:
-        data["description"] = ""
-    return ProjectWrite(**data)
+def get_compute_quotas(conn: Connection) -> ComputeQuotaWrite:
+    logger.info("Retrieve current project accessible compute quotas")
+    quota = conn.compute.get_quota_set(conn.current_project_id)
+    data = quota.to_dict()
+    return ComputeQuotaWrite(**data, service=conn.compute.get_endpoint())
 
 
 def get_flavors(conn: Connection) -> List[FlavorWrite]:
@@ -90,6 +79,17 @@ def get_images(conn: Connection) -> List[ImageWrite]:
     return images
 
 
+def get_project(conn: Connection) -> ProjectWrite:
+    logger.info("Retrieve current project data")
+    curr_proj_id = conn.current_project.get("id")
+    project = conn.identity.get_project(curr_proj_id)
+    data = project.to_dict()
+    data["uuid"] = data.pop("id")
+    if data.get("description") is None:
+        data["description"] = ""
+    return ProjectWrite(**data)
+
+
 def get_services(conn: Connection) -> List[ServiceWrite]:
     logger.info("Retrieve current region accessible services")
     return [
@@ -114,7 +114,7 @@ def get_services(conn: Connection) -> List[ServiceWrite]:
     ]
 
 
-def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> ProviderWrite:
+def get_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> ProviderWrite:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
     provider = ProviderWrite(
@@ -149,21 +149,19 @@ def get_os_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> Provid
         )
 
         proj = get_project(conn)
-        proj.quotas.append(get_compute_quotas(conn))
-        proj.quotas.append(get_block_storage_quotas(conn))
-        if project.per_user_limits is not None:
-            if project.per_user_limits.compute is not None:
-                q = ComputeQuotaWrite(
-                    **project.per_user_limits.compute.dict(exclude_none=True),
-                    service=conn.compute.get_endpoint(),
-                )
-                proj.quotas.append(q)
-            if project.per_user_limits.block_storage is not None:
-                q = BlockStorageQuotaWrite(
-                    **project.per_user_limits.block_storage.dict(exclude_none=True),
-                    service=conn.block_storage.get_endpoint(),
-                )
-                proj.quotas.append(q)
+        compute_quota = get_compute_quotas(conn)
+        block_storage_quota = get_block_storage_quotas(conn)
+        per_user_comp_quota, per_user_blk_sto_quota = get_per_user_quotas(
+            per_user_limits=project.per_user_limits,
+            compute_service=compute_quota.service,
+            block_storage_service=block_storage_quota.service,
+        )
+        proj.quotas.append(compute_quota)
+        proj.quotas.append(block_storage_quota)
+        if per_user_comp_quota is not None:
+            proj.quotas.append(per_user_comp_quota)
+        if per_user_blk_sto_quota is not None:
+            proj.quotas.append(per_user_blk_sto_quota)
         user_group = UserGroupWrite(
             name=project.group.name, identity_provider=project.group.idp
         )
