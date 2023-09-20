@@ -41,7 +41,7 @@ class IdentityProviderCRUD(
         )
         new_data = super().create_or_update(item=item, db_item=db_item)
         self.connect(
-            uid=db_item.uid, parent_uid=parent.uid, conn_data=item.relationship
+            uid=new_data.uid, parent_uid=parent.uid, conn_data=item.relationship
         )
 
         db_item, idx = self.find_in_list(
