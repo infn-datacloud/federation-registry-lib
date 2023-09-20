@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
@@ -23,6 +23,15 @@ class FlavorBase(BaseNode):
     )
     is_public: bool = Field(default=True, description="Public available")
 
+    @root_validator
+    def check_gpu_values(cls, values: Dict[str, Any]):
+        if values.get("gpus") == 0:
+            if values.get("gpu_model") is not None:
+                raise ValueError("'GPU model' must be None if 'Num GPUs' is 0")
+            if values.get("gpu_vendor") is not None:
+                raise ValueError("'GPU vendor' must be None if 'Num GPUs' is 0")
+        return values
+
 
 class FlavorCreate(BaseNodeCreate, FlavorBase):
     """Model to create a Flavor.
@@ -33,15 +42,6 @@ class FlavorCreate(BaseNodeCreate, FlavorBase):
     Validation: If *num GPUs* is 0, then *gpu model*
     and *gpu vendor* must be none.
     """
-
-    @root_validator
-    def check_gpu_values(cls, values):
-        if values.get("gpus") == 0:
-            if values.get("gpu_model") is not None:
-                raise ValueError("'GPU model' must be None if 'Num GPUs' is 0")
-            if values.get("gpu_vendor") is not None:
-                raise ValueError("'GPU vendor' must be None if 'Num GPUs' is 0")
-        return values
 
 
 class FlavorUpdate(FlavorCreate):
