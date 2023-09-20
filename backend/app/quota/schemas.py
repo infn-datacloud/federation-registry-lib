@@ -1,12 +1,12 @@
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 from app.service.enum import ServiceType
-from pydantic import BaseModel, Extra, Field, validator
+from pydantic import Extra, Field, validator
 
 
-class QuotaBase(BaseModel, extra=Extra.allow):
+class QuotaBase(BaseNode, extra=Extra.allow):
     """Model with Quota basic attributes."""
 
     type: ServiceType = Field(description="Service type.")

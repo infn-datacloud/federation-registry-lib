@@ -2,12 +2,12 @@ from datetime import datetime
 from typing import Optional
 
 from app.image.enum import ImageOS
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, Field
 
 
-class ImageBase(BaseModel):
+class ImageBase(BaseNode):
     """Model with Image basic attributes."""
 
     name: str = Field(description="Image name in the provider.")

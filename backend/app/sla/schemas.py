@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, Field
 
 
-class SLABase(BaseModel):
+class SLABase(BaseNode):
     """Model with SLA basic attributes."""
 
     start_date: Optional[datetime] = Field(

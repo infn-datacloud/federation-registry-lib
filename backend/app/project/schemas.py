@@ -1,11 +1,11 @@
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, Field
 
 
-class ProjectBase(BaseModel):
+class ProjectBase(BaseNode):
     """Model with Project basic attributes."""
 
     name: str = Field(description="Project name in the provider.")

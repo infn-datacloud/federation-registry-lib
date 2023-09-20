@@ -1,11 +1,11 @@
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import AnyHttpUrl, BaseModel, Field
+from pydantic import AnyHttpUrl, Field
 
 
-class IdentityProviderBase(BaseModel):
+class IdentityProviderBase(BaseNode):
     """Model with Identity Provider basic attributes."""
 
     endpoint: AnyHttpUrl = Field(description="URL of the identity provider")

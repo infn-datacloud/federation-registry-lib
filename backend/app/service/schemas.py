@@ -1,12 +1,12 @@
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 from app.service.enum import ServiceName, ServiceType
-from pydantic import AnyHttpUrl, BaseModel, Extra, Field, validator
+from pydantic import AnyHttpUrl, Extra, Field, validator
 
 
-class ServiceBase(BaseModel, extra=Extra.allow):
+class ServiceBase(BaseNode, extra=Extra.allow):
     """Model with Service basic attributes."""
 
     endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")

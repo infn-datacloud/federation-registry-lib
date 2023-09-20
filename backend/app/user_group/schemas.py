@@ -1,11 +1,11 @@
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 
-class UserGroupBase(BaseModel):
+class UserGroupBase(BaseNode):
     """Model with User Group basic attributes."""
 
     name: str = Field(description="User group name.")

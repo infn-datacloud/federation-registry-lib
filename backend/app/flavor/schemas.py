@@ -1,11 +1,11 @@
 from typing import Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import UUID4, BaseModel, Field, root_validator
+from pydantic import UUID4, Field, root_validator
 
 
-class FlavorBase(BaseModel):
+class FlavorBase(BaseNode):
     """Model with Flavor basic attributes."""
 
     name: str = Field(description="Flavor name in the provider.")

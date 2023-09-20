@@ -1,12 +1,12 @@
 from typing import List, Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.provider.enum import Status
 from app.query import create_query_model
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import EmailStr, Field
 
 
-class ProviderBase(BaseModel):
+class ProviderBase(BaseNode):
     """Model with Provider basic attributes."""
 
     name: str = Field(description="Provider name.")

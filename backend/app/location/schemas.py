@@ -1,12 +1,12 @@
 from typing import Dict, Optional
 
-from app.models import BaseNodeCreate, BaseNodeRead
+from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 from pycountry import countries
-from pydantic import BaseModel, Field, root_validator
+from pydantic import Field, root_validator
 
 
-class LocationBase(BaseModel):
+class LocationBase(BaseNode):
     """Model with Location basic attributes."""
 
     site: str = Field(description="Name of the Location hosting a provider.")
