@@ -103,7 +103,7 @@ class CRUDBase(
         else:
             update_data = jsonable_encoder(obj_in.dict(exclude_unset=True))
 
-        if all([obj_data[k] == v for k, v in update_data.items()]):
+        if all([obj_data.get(k) == v for k, v in update_data.items()]):
             return None
 
         for field in obj_data:
