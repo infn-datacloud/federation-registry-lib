@@ -26,6 +26,8 @@ openstack:
         group_claim: groups
     slas:
       - doc_uuid: edfda059a23c439f8ffc06edd484e1a0
+        start_date: 2023-09-10
+        end_date: 2023-09-25
         project:
           name: infn-cloud-ops
           domain: default
@@ -40,12 +42,16 @@ openstack:
             block_storage:
               gigabytes: 2
       - doc_uuid: bdfda059a23c439f8ffc06edd484e1a0
+        start_date: 2023-09-11
+        end_date: 2024-09-25
         project:
           id: edfda059a23c439f8ffc06edd484efa0
           group:
             name: prova
             idp: https://iam.cloud.infn.it/
       - doc_uuid: cdfda059a23c439f8ffc06edd484e1a0
+        start_date: 2023-09-11
+        end_date: 2023-10-25
         project:
           id: 83be7870dbb54d4a988f89ea77e9e2b9
           group:
@@ -68,6 +74,8 @@ openstack:
         group_claim: groups
     slas:
       - doc_uuid: c2bb880f0aa443a49abcbbbe2e96b48b
+        start_date: 2023-10-11
+        end_date: 2023-10-25
         project:
           id: 12bb88070aa443a494bcbbbe2e96b48b
           group:

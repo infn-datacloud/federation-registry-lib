@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
@@ -9,17 +8,12 @@ from pydantic import UUID4, Field
 class SLABase(BaseNode):
     """Model with SLA basic attributes."""
 
-    start_date: Optional[datetime] = Field(
-        default=None, description="Starting date of validity for this SLA."
-    )
-    end_date: Optional[datetime] = Field(
-        default=None,
+    start_date: datetime = Field(description="Starting date of validity for this SLA.")
+    end_date: datetime = Field(
         description="End of life date for this SLA. \
             If not set it lasts forever.",
     )
-    doc_uuid: Optional[UUID4] = Field(
-        default=None, description="UUID of the corresponding document."
-    )
+    doc_uuid: UUID4 = Field(description="UUID of the corresponding document.")
 
 
 class SLACreate(BaseNodeCreate, SLABase):

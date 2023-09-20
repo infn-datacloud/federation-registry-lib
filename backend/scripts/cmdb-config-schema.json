@@ -147,6 +147,16 @@
                   "type": "string",
                   "format": "uuid"
                 },
+                "start_date": {
+                  "description": "SLA start date",
+                  "type": "string",
+                  "format": "date"
+                },
+                "end_date": {
+                  "description": "SLA end date",
+                  "type": "string",
+                  "format": "date"
+                },
                 "project": {
                   "description": "Project details",
                   "type": "object",
@@ -252,7 +262,7 @@
                   ]
                 }
               },
-              "required": ["doc_uuid", "project"]
+              "required": ["doc_uuid", "start_date", "end_date", "project"]
             },
             "minItems": 1,
             "uniqueItems": true
