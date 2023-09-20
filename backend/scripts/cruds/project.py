@@ -27,7 +27,7 @@ class ProjectCRUD(BasicCRUD[ProjectWrite, ProjectRead, ProjectQuery]):
 
     def create_or_update(
         self, *, item: ProjectWrite, parent: ProviderRead
-    ) -> ProjectRead:
+    ) -> ProviderRead:
         db_item, idx = self.find_in_list(
             data=ProjectQuery(name=item.name, uuid=item.uuid),
             db_items=parent.projects,

@@ -27,7 +27,9 @@ class ImageCRUD(Connectable[ImageWrite, ImageRead, ImageQuery]):
             write_headers=write_headers,
         )
 
-    def create_or_update(self, *, item: ImageWrite, parent: ProviderRead) -> ImageRead:
+    def create_or_update(
+        self, *, item: ImageWrite, parent: ProviderRead
+    ) -> ProviderRead:
         db_item, idx = self.find_in_list(
             data=ImageQuery(name=item.name, uuid=item.uuid),
             db_items=parent.images,
