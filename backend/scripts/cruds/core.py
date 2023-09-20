@@ -29,6 +29,15 @@ class CreationException(Exception):
         super().__init__(msg)
 
 
+class DisconnectionException(Exception):
+    def __init__(self, resp: requests.Response, item_repr: str) -> None:
+        msg = f"Failed to disconnect {item_repr}\n"
+        msg += f"Status code: {resp.status_code}"
+        msg += f"Message: {resp.text}"
+        logger.error(msg)
+        super().__init__(msg)
+
+
 class UpdateException(Exception):
     def __init__(self, resp: requests.Response, item_repr: str) -> None:
         msg = f"Failed to update {item_repr}\n"
@@ -41,6 +50,15 @@ class UpdateException(Exception):
 class FindException(Exception):
     def __init__(self, resp: requests.Response, item_repr: str) -> None:
         msg = f"Failed to search {item_repr}\n"
+        msg += f"Status code: {resp.status_code}"
+        msg += f"Message: {resp.text}"
+        logger.error(msg)
+        super().__init__(msg)
+
+
+class DeleteException(Exception):
+    def __init__(self, resp: requests.Response, item_repr: str) -> None:
+        msg = f"Failed to delete {item_repr}\n"
         msg += f"Status code: {resp.status_code}"
         msg += f"Message: {resp.text}"
         logger.error(msg)
@@ -155,6 +173,15 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         logger.info(f"No {self.type}={data} belongs to this provider.")
         return (None, -1)
 
+    def remove(self, *, uid: UUID4) -> None:
+        """Remove item."""
+        resp = requests.delete(
+            url=self.patch_url.format(uid=uid), headers=self.write_headers
+        )
+        if resp.status_code == status.HTTP_204_NO_CONTENT:
+            return None
+        raise DeleteException(resp=resp, item_repr=f"{self.type}={uid}")
+
     def create_or_update(
         self,
         *,
@@ -210,3 +237,17 @@ class Connectable(BasicCRUD[WriteSchema, ReadSchema, QuerySchema]):
             logger.info("Already connected. Data not modified")
         else:
             raise ConnectionException(resp=resp, item_repr=f"{self.type}={str(uid)}")
+
+    def disconnect(self, *, uid: UUID4, parent_uid: UUID4) -> None:
+        """Disconnect item from another entity."""
+        logger.info(f"Disconnecting {self.type}.")
+        resp = requests.delete(
+            url=self.connect_url.format(parent_uid=parent_uid, uid=uid),
+            headers=self.write_headers,
+        )
+        if resp.status_code == status.HTTP_200_OK:
+            logger.info("Successfully disconnected")
+        elif resp.status_code == status.HTTP_304_NOT_MODIFIED:
+            logger.info("Already disconnected. Data not modified")
+        else:
+            raise DisconnectionException(resp=resp, item_repr=f"{self.type}={str(uid)}")
