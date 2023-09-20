@@ -22,7 +22,7 @@ class Flavor(StructuredNode):
         uid (int): Flavor unique ID.
         description (str): Brief description.
         vcpus (int): Number of Virtual CPUs.
-        num_gpus (int): Number of GPUs.
+        gpus (int): Number of GPUs.
         ram (int): Reserved RAM (MB)
         disk (int): Reserved disk size (GB)
         infiniband_support (bool): TODO
@@ -39,9 +39,10 @@ class Flavor(StructuredNode):
     disk = IntegerProperty(default=0)
     swap = IntegerProperty(default=0)
     infiniband_support = BooleanProperty(default=False)
-    num_gpus = IntegerProperty(default=0)
+    gpus = IntegerProperty(default=0)
     gpu_model = StringProperty()
     gpu_vendor = StringProperty()
+    local_storage = StringProperty()
     is_public = BooleanProperty(default=True)
 
     provider = RelationshipFrom(

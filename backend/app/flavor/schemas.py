@@ -15,9 +15,12 @@ class FlavorBase(BaseModel):
     disk: int = Field(default=0, ge=0, description="Reserved disk size (GB)")
     swap: int = Field(default=0, ge=0, description="Reserved swap disk size (GB)")
     infiniband_support: bool = Field(default=False, description="")  # TODO
-    num_gpus: int = Field(default=0, ge=0, description="Number of GPUs")
+    gpus: int = Field(default=0, ge=0, description="Number of GPUs")
     gpu_model: Optional[str] = Field(default=None, description="GPU model name")
     gpu_vendor: Optional[str] = Field(default=None, description="GPU vendor name")
+    local_storage: Optional[str] = Field(
+        default=None, description="Local storage presence"
+    )
     is_public: bool = Field(default=True, description="Public available")
 
 
@@ -33,7 +36,7 @@ class FlavorCreate(BaseNodeCreate, FlavorBase):
 
     @root_validator
     def check_gpu_values(cls, values):
-        if values.get("num_gpus") == 0:
+        if values.get("gpus") == 0:
             if values.get("gpu_model") is not None:
                 raise ValueError("'GPU model' must be None if 'Num GPUs' is 0")
             if values.get("gpu_vendor") is not None:

@@ -52,7 +52,14 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
         data["uuid"] = data.pop("id")
         if data.get("description") is None:
             data["description"] = ""
-        # print(data["extra_specs"])
+        extra = data.pop("extra_specs")
+        if extra:
+            data["gpus"] = extra.get("num_gpus")
+            data["gpu_model"] = extra.get("gpu_model")
+            data["gpu_vendor"] = extra.get("gpu_vendor")
+            data["local_storage"] = extra.get(
+                "aggregate_instance_extra_specs:local_storage"
+            )
         flavors.append(FlavorWrite(**data, projects=projects))
     return flavors
 
