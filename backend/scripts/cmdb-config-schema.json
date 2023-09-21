@@ -339,19 +339,8 @@
       "type": "string"
     },
     "default_private_net": {
-      "description": "Default private network to use when multiple public networks are available for this project",
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "Private network name",
-          "type": "string"
-        },
-        "cidr": {
-          "description": "CIDR identifying the network",
-          "type": "string",
-          "pattern": "((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}\\/(?:\\d|[12]\\d|3[012])$"
-        }
-      }
+      "description": "Name of the default private network to use when multiple public networks are available for this project",
+      "type": "string"
     },
     "private_net_proxy": {
       "description": "Proxy the IM service will use to access the private network",

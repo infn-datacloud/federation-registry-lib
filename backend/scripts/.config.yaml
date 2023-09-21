@@ -93,9 +93,7 @@ openstack:
             name: test
             idp: https://iam.cloud.infn.it/
           default_public_net: pluto
-          default_private_net:
-            name: pippo
-            cidr: 10.21.4.1/32
+          default_private_net: pippo
           private_net_proxy:
             ip: 10.1.21.3
             user: topolino
@@ -109,9 +107,7 @@ openstack:
           per_region_props: # in alternativa se i parametri variano a seconda della region
             - region_name: bari
               default_public_net: pluto
-              default_private_net:
-                name: pippo
-                cidr: 0.21.4.1/32
+              default_private_net: pippo
               private_net_proxy:
                 ip: 0.21.1.1
                 user: topolino
@@ -124,9 +120,7 @@ openstack:
                   gigabytes: 2
             - region_name: cnaf
               default_public_net: john
-              default_private_net:
-                name: dave
-                cidr: 0.21.4.1/32
+              default_private_net: dave
               private_net_proxy:
                 ip: 0.21.1.1
                 user: jenny

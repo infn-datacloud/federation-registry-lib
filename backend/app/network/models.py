@@ -29,7 +29,6 @@ class Network(StructuredNode):
     public = BooleanProperty(default=False)
     external = BooleanProperty(default=False)
     preferred = BooleanProperty(default=False)
-    cidr = StringProperty()
     proxy_ip = StringProperty()
     proxy_user = StringProperty()
 

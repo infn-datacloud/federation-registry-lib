@@ -15,9 +15,6 @@ class NetworkBase(BaseNode):
     preferred: bool = Field(
         default=False, description="Main network to use when creating a VM or docker"
     )
-    cidr: Optional[str] = Field(
-        default=None, description="IP/Netmask to use when dealing with private networks"
-    )
     proxy_ip: Optional[str] = Field(
         default=None,
         description="Proxy IP address to use to access to private networks",
