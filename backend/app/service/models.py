@@ -36,6 +36,12 @@ class Service(StructuredNode):
     region = RelationshipFrom("..region.models.Region", "SUPPLY", cardinality=One)
 
 
+class BlockStorageService(Service):
+    quotas = RelationshipFrom(
+        "..quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
+
+
 class ComputeService(Service):
     flavors = RelationshipTo(
         "..flavor.models.Flavor",
@@ -52,11 +58,13 @@ class ComputeService(Service):
     )
 
 
-class BlockStorageService(Service):
-    quotas = RelationshipFrom(
-        "..quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
-    )
-
-
 class KeystoneService(Service):
     pass
+
+
+class NetworkService(Service):
+    networks = RelationshipTo(
+        "..network.models.Network",
+        "AVAILABLE_NETWORK",
+        cardinality=ZeroOrMore,
+    )

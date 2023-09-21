@@ -68,6 +68,11 @@ class Project(StructuredNode):
         "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )
+    networks = RelationshipTo(
+        "..network.models.Network",
+        "CAN_USE_NETWORK",
+        cardinality=ZeroOrMore,
+    )
 
     query_prefix = """
         MATCH (p:Project)
