@@ -7,7 +7,6 @@ from neomodel import (
     StructuredNode,
     UniqueIdProperty,
     ZeroOrMore,
-    ZeroOrOne,
 )
 
 
@@ -39,11 +38,8 @@ class Provider(StructuredNode):
         "BOOK_PROJECT_FOR_SLA",
         cardinality=ZeroOrMore,
     )
-    services = RelationshipTo(
-        "..service.models.Service", "SUPPLY", cardinality=ZeroOrMore
-    )
-    location = RelationshipTo(
-        "..location.models.Location", "LOCATED_AT", cardinality=ZeroOrOne
+    region = RelationshipTo(
+        "..region.models.Region", "DIVIDED_INTO", cardinality=ZeroOrMore
     )
     identity_providers = RelationshipTo(
         "..identity_provider.models.IdentityProvider",
