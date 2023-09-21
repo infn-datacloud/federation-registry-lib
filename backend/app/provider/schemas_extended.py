@@ -1,14 +1,14 @@
 from typing import List, Optional, Union
 
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
-from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
+from app.flavor.schemas import FlavorCreate
 from app.identity_provider.schemas import (
     IdentityProviderCreate,
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from app.image.schemas import ImageCreate, ImageRead, ImageReadPublic
-from app.location.schemas import LocationCreate, LocationRead, LocationReadPublic
+from app.image.schemas import ImageCreate
+from app.location.schemas import LocationCreate
 from app.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderCreate, ProviderRead, ProviderReadPublic
 from app.quota.schemas import (
@@ -19,14 +19,8 @@ from app.quota.schemas import (
 )
 from app.service.schemas import (
     BlockStorageServiceCreate,
-    BlockStorageServiceRead,
-    BlockStorageServiceReadPublic,
     ComputeServiceCreate,
-    ComputeServiceRead,
-    ComputeServiceReadPublic,
     KeystoneServiceCreate,
-    KeystoneServiceRead,
-    KeystoneServiceReadPublic,
 )
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
@@ -117,51 +111,23 @@ class ProviderReadExtended(ProviderRead):
     """Model to extend the Provider data read from the DB with the lists of
     related items for authenticated users."""
 
-    location: Optional[LocationRead] = Field(
-        default=None, description="Provider location."
-    )
-    flavors: List[FlavorRead] = Field(
-        default_factory=list, description="List of owned Flavors."
-    )
     identity_providers: List[IdentityProviderReadExtended] = Field(
         default_factory=list,
         description="List of supported identity providers.",
     )
-    images: List[ImageRead] = Field(
-        default_factory=list, description="List of owned Images."
-    )
     projects: List[ProjectReadExtended] = Field(
         default_factory=list, description="List of owned Projects."
     )
-    services: List[
-        Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]
-    ] = Field(default_factory=list, description="List of hosted Services.")
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
     """Model to extend the Provider data read from the DB with the lists of
     related items for non-authenticated users."""
 
-    location: Optional[LocationReadPublic] = Field(
-        default=None, description="Provider location."
-    )
-    flavors: List[FlavorReadPublic] = Field(
-        default_factory=list, description="List of owned Flavors."
-    )
     identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
         default_factory=list,
         description="List of supported identity providers.",
     )
-    images: List[ImageReadPublic] = Field(
-        default_factory=list, description="List of owned Images."
-    )
     projects: List[ProjectReadExtendedPublic] = Field(
         default_factory=list, description="List of owned Projects."
     )
-    services: List[
-        Union[
-            BlockStorageServiceReadPublic,
-            KeystoneServiceReadPublic,
-            ComputeServiceReadPublic,
-        ]
-    ] = Field(default_factory=list, description="List of hosted Services.")
