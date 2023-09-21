@@ -45,8 +45,8 @@ class Flavor(StructuredNode):
     local_storage = StringProperty()
     is_public = BooleanProperty(default=True)
 
-    provider = RelationshipFrom(
-        "..provider.models.Provider",
+    service = RelationshipFrom(
+        "..service.models.ComputeService",
         "AVAILABLE_VM_FLAVOR",
         cardinality=One,
     )

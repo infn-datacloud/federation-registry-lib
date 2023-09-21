@@ -47,13 +47,3 @@ class Provider(StructuredNode):
         cardinality=ZeroOrMore,
         model=AuthMethod,
     )
-    flavors = RelationshipTo(
-        "..flavor.models.Flavor",
-        "AVAILABLE_VM_FLAVOR",
-        cardinality=ZeroOrMore,
-    )
-    images = RelationshipTo(
-        "..image.models.Image",
-        "AVAILABLE_VM_IMAGE",
-        cardinality=ZeroOrMore,
-    )

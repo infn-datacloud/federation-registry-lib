@@ -1,6 +1,7 @@
 from neomodel import (
     One,
     RelationshipFrom,
+    RelationshipTo,
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
@@ -36,6 +37,16 @@ class Service(StructuredNode):
 
 
 class ComputeService(Service):
+    flavors = RelationshipTo(
+        "..flavor.models.Flavor",
+        "AVAILABLE_VM_FLAVOR",
+        cardinality=ZeroOrMore,
+    )
+    images = RelationshipTo(
+        "..image.models.Image",
+        "AVAILABLE_VM_IMAGE",
+        cardinality=ZeroOrMore,
+    )
     quotas = RelationshipFrom(
         "..quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
