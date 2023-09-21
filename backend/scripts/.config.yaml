@@ -18,6 +18,14 @@ oidc_agent_accounts:
 openstack:
   - name: recas-ba
     status: active
+    is_public: false
+    support_emails:
+      - giovanni.savarese@ba.infn.it
+    region:
+      - name: RegionOne
+        location:
+          site: INFN Bari
+          country: Italy
     auth_url: https://keystone.recas.ba.infn.it:443
     identity_providers:
       - name: infn-cloud
@@ -34,13 +42,6 @@ openstack:
           group:
             name: test
             idp: https://iam.cloud.infn.it/
-          per_user_limits:
-            compute:
-              cores: 2
-              ram: 2
-              public_ips: 2
-            block_storage:
-              gigabytes: 2
       - doc_uuid: bdfda059a23c439f8ffc06edd484e1a0
         start_date: 2023-09-11
         end_date: 2024-09-25
@@ -57,15 +58,25 @@ openstack:
           group:
             name: pippo
             idp: https://iam.cloud.infn.it/
+
+  - name: backbone
+    status: active
     is_public: false
     support_emails:
       - giovanni.savarese@ba.infn.it
-    location:
-      site: Bari
-      country: Italy
-
-  - name: cloud-cnaf
-    status: active
+    image_tags: ["a", "b"]
+    block_storage_vol_types:
+      gold: my type1
+      silver: muy-type2
+    region:
+      - name: cnaf
+        location:
+          site: INFN CNAF
+          country: Italy
+      - name: bari
+        location:
+          site: INFN Bari
+          country: Italy
     auth_url: https://cloud-api-pub.cr.cnaf.infn.it:5000/v3
     identity_providers:
       - endpoint: https://iam.cloud.infn.it/
@@ -81,9 +92,48 @@ openstack:
           group:
             name: test
             idp: https://iam.cloud.infn.it/
-    is_public: false
-    support_emails:
-      - giovanni.savarese@ba.infn.it
-    location:
-      site: Bologna
-      country: Italy
+          default_public_net: pluto
+          default_private_net:
+            name: pippo
+            cidr: 10.21.4.1/32
+          private_net_proxy:
+            ip: 10.1.21.3
+            user: topolino
+          per_user_limits:
+            compute:
+              cores: 2
+              ram: 2
+              public_ips: 2
+            block_storage:
+              gigabytes: 2
+          per_region_props: # in alternativa se i parametri variano a seconda della region
+            - region_name: bari
+              default_public_net: pluto
+              default_private_net:
+                name: pippo
+                cidr: 0.21.4.1/32
+              private_net_proxy:
+                ip: 0.21.1.1
+                user: topolino
+              per_user_limits:
+                compute:
+                  cores: 2
+                  ram: 2
+                  public_ips: 2
+                block_storage:
+                  gigabytes: 2
+            - region_name: cnaf
+              default_public_net: john
+              default_private_net:
+                name: dave
+                cidr: 0.21.4.1/32
+              private_net_proxy:
+                ip: 0.21.1.1
+                user: jenny
+              per_user_limits:
+                compute:
+                  cores: 3
+                  ram: 2
+                  public_ips: 4
+                block_storage:
+                  gigabytes: 2

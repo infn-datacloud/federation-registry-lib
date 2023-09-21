@@ -100,6 +100,35 @@
             "enum": ["active", "maintenance", "removed"],
             "default": "active"
           },
+          "is_public": {
+            "description": "Provider is public",
+            "type": "boolean",
+            "default": false
+          },
+          "support_emails": {
+            "description": "List of support emails for this provider",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "image_tags": {
+            "description": "List of tags to use to filter images",
+            "type": "array",
+            "items": {
+              "description": "Image required tag",
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "block_storage_vol_types": {
+            "description": "Mapping of custom block storage volume types into standardized types",
+            "type": "object",
+            "properties": {}
+          },
           "auth_url": {
             "description": "Provider authentication url",
             "type": "string",
@@ -134,6 +163,49 @@
             },
             "minItems": 1,
             "uniqueItems": true
+          },
+          "region": {
+            "description": "Provider regions to integrate in the CMDB",
+            "type": "array",
+            "items": {
+              "description": "Region location",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Openstack region name",
+                  "type": "string"
+                },
+                "location": {
+                  "description": "Provider geographical location",
+                  "type": "object",
+                  "properties": {
+                    "site": {
+                      "description": "Location site name",
+                      "type": "string"
+                    },
+                    "country": {
+                      "description": "Location country extended name",
+                      "type": "string"
+                    },
+                    "latitude": {
+                      "description": "Location latitude",
+                      "type": "number",
+                      "minimum": -90,
+                      "maximum": 90
+                    },
+                    "longitude": {
+                      "description": "Location longitude",
+                      "type": "number",
+                      "minimum": -180,
+                      "maximum": 180
+                    }
+                  },
+                  "required": ["site", "country"]
+                }
+              },
+              "required": ["name"]
+            },
+            "minItems": 1
           },
           "slas": {
             "description": "List of SLAs to integrate in the CMDB and to use to pair projects with user groups",
@@ -177,55 +249,45 @@
                       },
                       "required": ["name", "idp"]
                     },
+                    "default_public_net": {
+                      "$ref": "#/$defs/default_public_net"
+                    },
+                    "default_private_net": {
+                      "$ref": "#/$defs/default_private_net"
+                    },
+                    "private_net_proxy": {
+                      "$ref": "#/$defs/private_net_proxy"
+                    },
                     "per_user_limits": {
-                      "description": "Resource limitations to apply to each user belonging to this project",
-                      "type": "object",
-                      "properties": {
-                        "compute": {
-                          "description": "Compute per user quotas",
-                          "type": "object",
-                          "properties": {
-                            "cores": {
-                              "description": "Max num of CPUs",
-                              "type": "number"
-                            },
-                            "fixed_ips": {
-                              "description": "Max num of assignable fixed IPs",
-                              "type": "number"
-                            },
-                            "public_ips": {
-                              "description": "Max num of assignable public IPs",
-                              "type": "number"
-                            },
-                            "instances": {
-                              "description": "Max num of VM instances",
-                              "type": "number"
-                            },
-                            "ram": {
-                              "description": "Max usable RAM in MB",
-                              "type": "number"
-                            }
+                      "$ref": "#/$defs/per_user_limits"
+                    },
+                    "per_region_props": {
+                      "description": "Project properties that may change based on region",
+                      "type": "array",
+                      "items": {
+                        "description": "",
+                        "type": "object",
+                        "properties": {
+                          "region_name": {
+                            "description": "Region name",
+                            "type": "string"
+                          },
+                          "default_public_net": {
+                            "$ref": "#/$defs/default_public_net"
+                          },
+                          "default_private_net": {
+                            "$ref": "#/$defs/default_private_net"
+                          },
+                          "private_net_proxy": {
+                            "$ref": "#/$defs/private_net_proxy"
+                          },
+                          "per_user_limits": {
+                            "$ref": "#/$defs/per_user_limits"
                           }
                         },
-                        "block_storage": {
-                          "description": "Block storage per user quotas",
-                          "type": "object",
-                          "properties": {
-                            "gigabytes": {
-                              "description": "Disk size in gigabytes",
-                              "type": "number"
-                            },
-                            "per_volumes_gigabytes": {
-                              "description": "Max size in gigabytes for each volume",
-                              "type": "number"
-                            },
-                            "volumes": {
-                              "description": "Max num of volumes",
-                              "type": "number"
-                            }
-                          }
-                        }
-                      }
+                        "required": ["region_name"]
+                      },
+                      "minItems": 2
                     }
                   },
                   "required": ["group"],
@@ -250,11 +312,6 @@
                           "description": "Project domain",
                           "type": "string",
                           "default": "default"
-                        },
-                        "region": {
-                          "description": "Project domain",
-                          "type": "string",
-                          "default": "default"
                         }
                       },
                       "required": ["name"]
@@ -266,55 +323,100 @@
             },
             "minItems": 1,
             "uniqueItems": true
-          },
-          "is_public": {
-            "description": "Provider is public",
-            "type": "boolean",
-            "default": false
-          },
-          "support_emails": {
-            "description": "List of support emails for this provider",
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "email"
-            },
-            "minItems": 1,
-            "uniqueItems": true
-          },
-          "location": {
-            "description": "Provider geographical location",
-            "type": "object",
-            "properties": {
-              "site": {
-                "description": "Location site name",
-                "type": "string"
-              },
-              "country": {
-                "description": "Location country extended name",
-                "type": "string"
-              },
-              "latitude": {
-                "description": "Location latitude",
-                "type": "number",
-                "minimum": -90,
-                "maximum": 90
-              },
-              "longitude": {
-                "description": "Location longitude",
-                "type": "number",
-                "minimum": -180,
-                "maximum": 180
-              }
-            },
-            "required": ["site", "country"]
           }
         },
-        "required": ["name", "auth_url", "identity_providers", "slas"]
+        "required": ["name", "auth_url", "identity_providers", "slas", "region"]
       },
       "minItems": 1,
       "uniqueItems": true
     }
   },
-  "required": ["cmdb", "oidc_agent_accounts"]
+  "required": ["cmdb", "oidc_agent_accounts"],
+
+  "$defs": {
+    "default_public_net": {
+      "description": "Name of the default public network to use when multiple public networks are available for this project",
+      "type": "string"
+    },
+    "default_private_net": {
+      "description": "Default private network to use when multiple public networks are available for this project",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Private network name",
+          "type": "string"
+        },
+        "cidr": {
+          "description": "CIDR identifying the network",
+          "type": "string",
+          "pattern": "((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}\\/(?:\\d|[12]\\d|3[012])$"
+        }
+      }
+    },
+    "private_net_proxy": {
+      "description": "Proxy the IM service will use to access the private network",
+      "type": "object",
+      "properties": {
+        "user": {
+          "description": "Username used to perform ssh operations",
+          "type": "string"
+        },
+        "ip": {
+          "description": "Proxy IP",
+          "type": "string",
+          "pattern": "((^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}$"
+        }
+      }
+    },
+    "per_user_limits": {
+      "description": "Resource limitations to apply to each user belonging to this project",
+      "type": "object",
+      "properties": {
+        "compute": {
+          "description": "Compute per user quotas",
+          "type": "object",
+          "properties": {
+            "cores": {
+              "description": "Max num of CPUs",
+              "type": "number"
+            },
+            "fixed_ips": {
+              "description": "Max num of assignable fixed IPs",
+              "type": "number"
+            },
+            "public_ips": {
+              "description": "Max num of assignable public IPs",
+              "type": "number"
+            },
+            "instances": {
+              "description": "Max num of VM instances",
+              "type": "number"
+            },
+            "ram": {
+              "description": "Max usable RAM in MB",
+              "type": "number"
+            }
+          }
+        },
+        "block_storage": {
+          "description": "Block storage per user quotas",
+          "type": "object",
+          "properties": {
+            "gigabytes": {
+              "description": "Disk size in gigabytes",
+              "type": "number"
+            },
+            "per_volumes_gigabytes": {
+              "description": "Max size in gigabytes for each volume",
+              "type": "number"
+            },
+            "volumes": {
+              "description": "Max num of volumes",
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
 }
