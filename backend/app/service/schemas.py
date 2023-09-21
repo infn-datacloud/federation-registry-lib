@@ -65,71 +65,6 @@ class ServiceReadShort(BaseNodeRead, ServiceBase):
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
 
 
-class ComputeBase(ServiceBase, extra=Extra.ignore):
-    """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Compute services.
-
-    Validation: type value is exactly ServiceType.openstack_nova.
-    """
-
-    @validator("name")
-    def check_name(cls, v):
-        if v != ServiceName.OPENSTACK_NOVA:
-            raise ValueError(f"Not valid name: {v}")
-        return v
-
-    @validator("type")
-    def check_type(cls, v):
-        if v != ServiceType.COMPUTE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
-
-
-class ComputeServiceCreate(BaseNodeCreate, ComputeBase):
-    """Model to create a Compute Service.
-
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
-    """
-
-
-class ComputeServiceUpdate(ComputeServiceCreate):
-    """Model to update a Compute service.
-
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
-
-    Default to None mandatory attributes.
-    """
-
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-
-
-class ComputeServiceRead(BaseNodeRead, ComputeBase):
-    """Model to read Compute service data retrieved from DB.
-
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
-    database.
-    """
-
-
-class ComputeServiceReadPublic(BaseNodeRead, ComputeBase):
-    pass
-
-
-class ComputeServiceReadShort(BaseNodeRead, ComputeBase):
-    pass
-
-
-ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeBase)
-
-
 class BlockStorageBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for BlockStorage services.
@@ -197,6 +132,71 @@ BlockStorageServiceQuery = create_query_model(
 )
 
 
+class ComputeBase(ServiceBase, extra=Extra.ignore):
+    """Model derived from ServiceBase to inherit attributes common to all
+    services. It adds the basic attributes for Compute services.
+
+    Validation: type value is exactly ServiceType.openstack_nova.
+    """
+
+    @validator("name")
+    def check_name(cls, v):
+        if v != ServiceName.OPENSTACK_NOVA:
+            raise ValueError(f"Not valid name: {v}")
+        return v
+
+    @validator("type")
+    def check_type(cls, v):
+        if v != ServiceType.COMPUTE:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class ComputeServiceCreate(BaseNodeCreate, ComputeBase):
+    """Model to create a Compute Service.
+
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
+    """
+
+
+class ComputeServiceUpdate(ComputeServiceCreate):
+    """Model to update a Compute service.
+
+    Class without id (which is populated by the database). Expected as
+    input when performing a PUT request.
+
+    Default to None mandatory attributes.
+    """
+
+    endpoint: Optional[AnyHttpUrl] = Field(
+        default=None, description="URL of the IaaS service."
+    )
+
+
+class ComputeServiceRead(BaseNodeRead, ComputeBase):
+    """Model to read Compute service data retrieved from DB.
+
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
+
+    Add the *uid* attribute, which is the item unique identifier in the
+    database.
+    """
+
+
+class ComputeServiceReadPublic(BaseNodeRead, ComputeBase):
+    pass
+
+
+class ComputeServiceReadShort(BaseNodeRead, ComputeBase):
+    pass
+
+
+ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeBase)
+
+
 class KeystoneBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Keystone services.
@@ -260,3 +260,68 @@ class KeystoneServiceReadShort(BaseNodeRead, KeystoneBase):
 
 
 KeystoneServiceQuery = create_query_model("KeystoneServiceQuery", KeystoneBase)
+
+
+class NetworkBase(ServiceBase, extra=Extra.ignore):
+    """Model derived from ServiceBase to inherit attributes common to all
+    services. It adds the basic attributes for Network services.
+
+    Validation: type value is exactly ServiceType.openstack_nova.
+    """
+
+    @validator("name")
+    def check_name(cls, v):
+        if v != ServiceName.OPENSTACK_CINDER:
+            raise ValueError(f"Not valid name: {v}")
+        return v
+
+    @validator("type")
+    def check_type(cls, v):
+        if v != ServiceType.BLOCK_STORAGE:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class NetworkServiceCreate(BaseNodeCreate, NetworkBase):
+    """Model to create a Network Service.
+
+    Class without id (which is populated by the database). Expected as
+    input when performing a POST request.
+    """
+
+
+class NetworkServiceUpdate(NetworkServiceCreate):
+    """Model to update a Network service.
+
+    Class without id (which is populated by the database). Expected as
+    input when performing a PUT request.
+
+    Default to None mandatory attributes.
+    """
+
+    endpoint: Optional[AnyHttpUrl] = Field(
+        default=None, description="URL of the IaaS service."
+    )
+
+
+class NetworkServiceRead(BaseNodeRead, NetworkBase):
+    """Model to read Network service data retrieved from DB.
+
+    Class to read data retrieved from the database. Expected as output
+    when performing a generic REST request. It contains all the non-
+    sensible data written in the database.
+
+    Add the *uid* attribute, which is the item unique identifier in the
+    database.
+    """
+
+
+class NetworkServiceReadPublic(BaseNodeRead, NetworkBase):
+    pass
+
+
+class NetworkServiceReadShort(BaseNodeRead, NetworkBase):
+    pass
+
+
+NetworkServiceQuery = create_query_model("NetworkServiceQuery", NetworkBase)
