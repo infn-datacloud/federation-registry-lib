@@ -35,10 +35,6 @@ class Project(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
-    public_network_name = StringProperty()
-    private_network_name = StringProperty()
-    private_network_proxy_host = StringProperty()
-    private_network_proxy_user = StringProperty()
 
     user_group = RelationshipFrom(
         "..user_group.models.UserGroup", "COUPLED_WITH", cardinality=ZeroOrOne

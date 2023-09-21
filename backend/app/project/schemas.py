@@ -10,14 +10,6 @@ class ProjectBase(BaseNode):
 
     name: str = Field(description="Project name in the provider.")
     uuid: UUID4 = Field(description="Project UUID in the provider.")
-    public_network_name: Optional[str] = Field(default=None, description="")  # TODO
-    private_network_name: Optional[str] = Field(default=None, description="")  # TODO
-    private_network_proxy_host: Optional[str] = Field(
-        default=None, description=""
-    )  # TODO
-    private_network_proxy_user: Optional[str] = Field(
-        default=None, description=""
-    )  # TODO
 
 
 class ProjectCreate(BaseNodeCreate, ProjectBase):
