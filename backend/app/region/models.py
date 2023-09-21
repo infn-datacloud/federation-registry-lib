@@ -1,4 +1,5 @@
 from neomodel import (
+    One,
     RelationshipFrom,
     RelationshipTo,
     StringProperty,
@@ -29,7 +30,7 @@ class Region(StructuredNode):
         "..location.models.Location", "LOCATED_AT", cardinality=ZeroOrOne
     )
     provider = RelationshipFrom(
-        "..provider.models.Provider", "DIVIDED_INTO", cardinality=ZeroOrOne
+        "..provider.models.Provider", "DIVIDED_INTO", cardinality=One
     )
     services = RelationshipTo(
         "..service.models.Service", "SUPPLY", cardinality=ZeroOrMore

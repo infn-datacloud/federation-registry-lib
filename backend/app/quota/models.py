@@ -19,19 +19,6 @@ class Quota(StructuredNode):
     Attributes:
         name (str): Quota name (type).
         description (str): Brief description.
-        tot_limit (float | None): The max quantity of a resource to
-            be granted to the user group in total. TODO
-        instance_limit (float | None): The max quantity of a resource
-            to be granted to each VM/Container instance. TODO
-        user_limit (float | None): The max quantity of a resource to
-            be granted to user. TODO
-        tot_guaranteed (float): The guaranteed quantity of a
-            resource to be granted to the user group in total. TODO
-        instance_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to each VM/Container
-            instance. TODO
-        user_guaranteed (float): The guaranteed quantity
-            of a resource to be granted to user. TODO
     """
 
     uid = UniqueIdProperty()

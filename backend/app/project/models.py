@@ -36,9 +36,6 @@ class Project(StructuredNode):
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
 
-    user_group = RelationshipFrom(
-        "..user_group.models.UserGroup", "COUPLED_WITH", cardinality=ZeroOrOne
-    )
     sla = RelationshipFrom(
         "..sla.models.SLA",
         "REFER_TO",

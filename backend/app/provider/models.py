@@ -2,6 +2,7 @@ from app.auth_method.models import AuthMethod
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
+    OneOrMore,
     RelationshipTo,
     StringProperty,
     StructuredNode,
@@ -39,7 +40,7 @@ class Provider(StructuredNode):
         cardinality=ZeroOrMore,
     )
     region = RelationshipTo(
-        "..region.models.Region", "DIVIDED_INTO", cardinality=ZeroOrMore
+        "..region.models.Region", "DIVIDED_INTO", cardinality=OneOrMore
     )
     identity_providers = RelationshipTo(
         "..identity_provider.models.IdentityProvider",
