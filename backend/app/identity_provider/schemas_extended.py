@@ -32,11 +32,11 @@ class IdentityProviderReadExtended(IdentityProviderRead):
     """Model to extend the Identity Provider data read from the DB with the
     lists of related items for authenticated users."""
 
-    user_groups: List[UserGroupRead] = Field(
-        default_factory=list, description="List of owned user groups."
-    )
     providers: List[ProviderReadExtended] = Field(
         default_factory=list, description="List of supported providers."
+    )
+    user_groups: List[UserGroupRead] = Field(
+        default_factory=list, description="List of owned user groups."
     )
 
 
@@ -44,9 +44,9 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
     """Model to extend the Identity Provider data read from the DB with the
     lists of related items for non-authenticated users."""
 
-    user_groups: List[UserGroupReadPublic] = Field(
-        default_factory=list, description="List of owned user groups."
-    )
     providers: List[ProviderReadExtendedPublic] = Field(
         default_factory=list, description="List of supported providers."
+    )
+    user_groups: List[UserGroupReadPublic] = Field(
+        default_factory=list, description="List of owned user groups."
     )

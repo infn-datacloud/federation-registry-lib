@@ -23,7 +23,7 @@ from app.service.schemas import (
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 
 class RegionReadExtended(RegionRead):
@@ -44,38 +44,32 @@ class RegionReadExtendedPublic(RegionReadPublic):
     provider: ProviderReadPublic = Field(description="Provider")
 
 
-class ExtendWithProject(BaseModel):
-    """Model to extend a Quota with the project owning it."""
+class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
+    """Model to extend the Num CPUs Quota data read from the DB with the lists
+    of related items."""
 
     project: ProjectRead
 
 
-class ExtendWithProjectPublic(BaseModel):
-    """Model to extend a Quota with the project owning it."""
+class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
+    """Model to extend the Num CPUs Quota data read from the DB with the lists
+    of related items."""
 
     project: ProjectReadPublic
 
 
-class BlockStorageQuotaReadExtended(BlockStorageQuotaRead, ExtendWithProject):
+class ComputeQuotaReadExtended(ComputeQuotaRead):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
 
+    project: ProjectRead
 
-class BlockStorageQuotaReadExtendedPublic(
-    BlockStorageQuotaReadPublic, ExtendWithProjectPublic
-):
+
+class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     """Model to extend the Num CPUs Quota data read from the DB with the lists
     of related items."""
 
-
-class ComputeQuotaReadExtended(ComputeQuotaRead, ExtendWithProject):
-    """Model to extend the Num CPUs Quota data read from the DB with the lists
-    of related items."""
-
-
-class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic, ExtendWithProjectPublic):
-    """Model to extend the Num CPUs Quota data read from the DB with the lists
-    of related items."""
+    project: ProjectReadPublic
 
 
 class BlockStorageServiceReadExtended(BlockStorageServiceRead):

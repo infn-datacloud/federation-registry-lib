@@ -10,6 +10,8 @@ from app.service.schemas import (
     ComputeServiceReadPublic,
     KeystoneServiceRead,
     KeystoneServiceReadPublic,
+    NetworkServiceRead,
+    NetworkServiceReadPublic,
 )
 from pydantic import Field
 
@@ -22,7 +24,12 @@ class RegionReadExtended(RegionRead):
     )
     provider: ProviderRead = Field(description="Provider")
     services: List[
-        Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]
+        Union[
+            BlockStorageServiceRead,
+            ComputeServiceRead,
+            KeystoneServiceRead,
+            NetworkServiceRead,
+        ]
     ] = Field(default_factory=list, description="List of hosted Services.")
 
 
@@ -36,7 +43,8 @@ class RegionReadExtendedPublic(RegionReadPublic):
     services: List[
         Union[
             BlockStorageServiceReadPublic,
-            KeystoneServiceReadPublic,
             ComputeServiceReadPublic,
+            KeystoneServiceReadPublic,
+            NetworkServiceReadPublic,
         ]
     ] = Field(default_factory=list, description="List of hosted Services.")

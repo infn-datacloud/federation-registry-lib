@@ -1,22 +1,42 @@
+from typing import List, Union
+
 from app.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
-from app.quota.schemas import QuotaRead, QuotaReadPublic
-from app.service.schemas import ServiceRead, ServiceReadPublic
+from app.quota.schemas import (
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
+)
+from app.service.schemas import (
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
+)
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from pydantic import Field
 
 
-class QuotaReadExtended(QuotaRead):
-    service: ServiceRead
+class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
+    service: BlockStorageServiceRead
 
 
-class QuotaReadExtendedPublic(QuotaReadPublic):
-    service: ServiceReadPublic
+class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
+    service: BlockStorageServiceReadPublic
+
+
+class ComputeQuotaReadExtended(ComputeQuotaRead):
+    service: ComputeServiceRead
+
+
+class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
+    service: ComputeServiceReadPublic
 
 
 class ProjectReadExtended(ProjectRead):
@@ -24,10 +44,12 @@ class ProjectReadExtended(ProjectRead):
     related items."""
 
     provider: ProviderRead = Field(description="Provider owning this project")
-    #quotas: List[QuotaRead] = Field(
-    #    default_factory=list,
-    #    description="List of quotas owned by this Project.",
-    #)
+    quotas: List[
+        Union[BlockStorageQuotaReadExtended, ComputeQuotaReadExtended]
+    ] = Field(
+        default_factory=list,
+        description="List of quotas owned by this Project.",
+    )
 
 
 class ProjectReadExtendedPublic(ProjectReadPublic):
@@ -35,10 +57,12 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     related items."""
 
     provider: ProviderReadPublic = Field(description="Provider owning this project")
-    #quotas: List[QuotaReadExtendedPublic] = Field(
-    #    default_factory=list,
-    #    description="List of quotas owned by this Project.",
-    #)
+    quotas: List[
+        Union[BlockStorageQuotaReadExtendedPublic, ComputeQuotaReadExtendedPublic]
+    ] = Field(
+        default_factory=list,
+        description="List of quotas owned by this Project.",
+    )
 
 
 class UserGroupReadExtended(UserGroupRead):

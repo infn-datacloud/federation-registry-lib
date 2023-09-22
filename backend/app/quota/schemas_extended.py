@@ -5,44 +5,56 @@ from app.quota.schemas import (
     BlockStorageQuotaReadPublic,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
-    QuotaRead,
-    QuotaReadPublic,
 )
+from app.region.schemas import RegionRead, RegionReadPublic
 from app.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
 )
+from pydantic import Field
 
 
-class ProjectReadExtended(ProjectRead):
+class RegionReadExtended(RegionRead):
     provider: ProviderRead
 
 
-class QuotaReadExtended(QuotaRead):
-    project: ProjectReadExtended
-
-
-class ProjectReadExtendedPublic(ProjectReadPublic):
+class RegionReadExtendedPublic(RegionReadPublic):
     provider: ProviderReadPublic
 
 
-class QuotaReadExtendedPublic(QuotaReadPublic):
-    project: ProjectReadExtendedPublic
+class BlockStorageServiceReadExtended(BlockStorageServiceRead):
+    region: RegionReadExtended = Field(description="Region hosting this service")
 
 
-class ComputeQuotaReadExtended(ComputeQuotaRead, QuotaReadExtended):
-    service: ComputeServiceRead
+class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
+    region: RegionReadExtended = Field(description="Region hosting this service")
 
 
-class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic, QuotaReadExtendedPublic):
-    service: ComputeServiceReadPublic
+class ComputeServiceReadExtended(ComputeServiceRead):
+    region: RegionReadExtended = Field(description="Region hosting this service")
 
 
-class BlockStorageQuotaReadExtended(BlockStorageQuotaRead, QuotaReadExtended):
-    service: BlockStorageServiceRead
+class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
+    region: RegionReadExtended = Field(description="Region hosting this service")
 
 
-class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic, QuotaReadExtendedPublic):
-    service: BlockStorageServiceReadPublic
+class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
+    project: ProjectRead
+    service: BlockStorageServiceReadExtended
+
+
+class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
+    project: ProjectReadPublic
+    service: BlockStorageServiceReadExtendedPublic
+
+
+class ComputeQuotaReadExtended(ComputeQuotaRead):
+    project: ProjectRead
+    service: ComputeServiceReadExtended
+
+
+class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
+    project: ProjectReadPublic
+    service: ComputeServiceReadExtendedPublic

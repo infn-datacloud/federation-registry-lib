@@ -5,8 +5,6 @@ from app.identity_provider.schemas import (
     IdentityProviderReadPublic,
 )
 from app.project.schemas import ProjectRead, ProjectReadPublic
-from app.query import create_subquery_model
-from app.service.schemas import ServiceQuery
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from pydantic import Field
@@ -52,7 +50,3 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
         default_factory=list,
         description="List of SLAs involving this User Group.",
     )
-
-
-ServiceSubQuery = create_subquery_model(ServiceQuery)
-# QuotaSubQuery = create_subquery_model(QuotaQuery)
