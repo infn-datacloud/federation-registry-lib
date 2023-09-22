@@ -8,7 +8,7 @@ from app.image.schemas import (
     ImageUpdate,
 )
 from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
-from app.provider.models import Provider
+from app.service.models import ComputeService
 
 
 class CRUDImage(
@@ -26,10 +26,10 @@ class CRUDImage(
     """"""
 
     def create(
-        self, *, obj_in: ImageCreate, provider: Provider, force: bool = False
+        self, *, obj_in: ImageCreate, service: ComputeService, force: bool = False
     ) -> Image:
         db_obj = super().create(obj_in=obj_in, force=force)
-        db_obj.provider.connect(provider)
+        db_obj.services.connect(service)
         return db_obj
 
 

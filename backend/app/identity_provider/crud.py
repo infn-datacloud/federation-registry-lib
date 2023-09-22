@@ -47,7 +47,7 @@ class CRUDIdentityProvider(
 
     def remove(self, *, db_obj: IdentityProvider) -> bool:
         for item in db_obj.user_groups.all():
-            user_group.remove(item)
+            user_group.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
 

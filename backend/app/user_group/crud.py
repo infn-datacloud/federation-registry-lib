@@ -42,7 +42,7 @@ class CRUDUserGroup(
 
     def remove(self, *, db_obj: UserGroup) -> bool:
         for item in db_obj.slas.all():
-            sla.remove(item)
+            sla.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
 

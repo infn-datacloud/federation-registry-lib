@@ -13,7 +13,7 @@ from app.location.schemas_extended import (
     LocationReadExtended,
     LocationReadExtendedPublic,
 )
-from app.provider.models import Provider
+from app.region.models import Region
 
 
 class CRUDLocation(
@@ -34,12 +34,12 @@ class CRUDLocation(
         self,
         *,
         obj_in: LocationCreate,
-        provider: Optional[Provider] = None,
+        region: Optional[Region] = None,
         force: bool = False
     ) -> Location:
         db_obj = super().create(obj_in=obj_in, force=force)
-        if provider is not None:
-            db_obj.providers.connect(provider)
+        if region is not None:
+            db_obj.regions.connect(region)
         return db_obj
 
 

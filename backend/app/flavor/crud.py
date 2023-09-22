@@ -8,7 +8,7 @@ from app.flavor.schemas import (
     FlavorUpdate,
 )
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
-from app.provider.models import Provider
+from app.service.models import ComputeService
 
 
 class CRUDFlavor(
@@ -26,10 +26,10 @@ class CRUDFlavor(
     """"""
 
     def create(
-        self, *, obj_in: FlavorCreate, provider: Provider, force: bool = False
+        self, *, obj_in: FlavorCreate, service: ComputeService, force: bool = False
     ) -> Flavor:
         db_obj = super().create(obj_in=obj_in, force=force)
-        db_obj.provider.connect(provider)
+        db_obj.services.connect(service)
         return db_obj
 
 

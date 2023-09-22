@@ -25,8 +25,6 @@ from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtendedPublic,
     ComputeQuotaReadExtended,
     ComputeQuotaReadExtendedPublic,
-    QuotaReadExtended,
-    QuotaReadExtendedPublic,
 )
 from app.service.models import Service
 
@@ -39,8 +37,8 @@ class CRUDQuota(
         QuotaRead,
         QuotaReadPublic,
         QuotaReadShort,
-        QuotaReadExtended,
-        QuotaReadExtendedPublic,
+        None,
+        None,
     ]
 ):
     """"""
@@ -53,42 +51,27 @@ class CRUDQuota(
         service: Service,
         force: bool = False
     ) -> Quota:
-        if isinstance(obj_in, ComputeQuotaCreate):
-            db_obj = nova_quota.create(obj_in=obj_in, force=force)
         if isinstance(obj_in, BlockStorageQuotaCreate):
-            db_obj = cinder_quota.create(obj_in=obj_in, force=force)
+            db_obj = block_storage_quota.create(obj_in=obj_in, force=force)
+        elif isinstance(obj_in, ComputeQuotaCreate):
+            db_obj = nova_quota.create(obj_in=obj_in, force=force)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
         return db_obj
 
     def remove(self, *, db_obj: Quota) -> bool:
-        if isinstance(db_obj, ComputeQuota):
-            return nova_quota.remove(db_obj=db_obj)
         if isinstance(db_obj, BlockStorageQuota):
-            return cinder_quota.remove(db_obj=db_obj)
+            return block_storage_quota.remove(db_obj=db_obj)
+        elif isinstance(db_obj, ComputeQuota):
+            return nova_quota.remove(db_obj=db_obj)
 
     def update(
         self, *, db_obj: Quota, obj_in: Union[QuotaUpdate, Dict[str, Any]]
     ) -> Optional[Quota]:
-        if isinstance(db_obj, ComputeQuota):
-            return nova_quota.update(db_obj=db_obj, obj_in=obj_in)
         if isinstance(db_obj, BlockStorageQuota):
-            return cinder_quota.update(db_obj=db_obj, obj_in=obj_in)
-
-
-class CRUDComputeQuota(
-    CRUDBase[
-        ComputeQuota,
-        ComputeQuotaCreate,
-        ComputeQuotaUpdate,
-        ComputeQuotaRead,
-        ComputeQuotaReadPublic,
-        ComputeQuotaReadShort,
-        ComputeQuotaReadExtended,
-        ComputeQuotaReadExtendedPublic,
-    ]
-):
-    """"""
+            return block_storage_quota.update(db_obj=db_obj, obj_in=obj_in)
+        elif isinstance(db_obj, ComputeQuota):
+            return nova_quota.update(db_obj=db_obj, obj_in=obj_in)
 
 
 class CRUDBlockStorageQuota(
@@ -106,14 +89,38 @@ class CRUDBlockStorageQuota(
     """"""
 
 
+class CRUDComputeQuota(
+    CRUDBase[
+        ComputeQuota,
+        ComputeQuotaCreate,
+        ComputeQuotaUpdate,
+        ComputeQuotaRead,
+        ComputeQuotaReadPublic,
+        ComputeQuotaReadShort,
+        ComputeQuotaReadExtended,
+        ComputeQuotaReadExtendedPublic,
+    ]
+):
+    """"""
+
+
 quota = CRUDQuota(
     model=Quota,
     create_schema=QuotaCreate,
     read_schema=QuotaRead,
     read_public_schema=QuotaReadPublic,
     read_short_schema=QuotaReadShort,
-    read_extended_schema=QuotaReadExtended,
-    read_extended_public_schema=QuotaReadExtendedPublic,
+    read_extended_schema=None,
+    read_extended_public_schema=None,
+)
+block_storage_quota = CRUDBlockStorageQuota(
+    model=BlockStorageQuota,
+    create_schema=BlockStorageQuotaCreate,
+    read_schema=BlockStorageQuotaRead,
+    read_public_schema=BlockStorageQuotaReadPublic,
+    read_short_schema=BlockStorageQuotaReadShort,
+    read_extended_schema=BlockStorageQuotaReadExtended,
+    read_extended_public_schema=BlockStorageQuotaReadExtendedPublic,
 )
 nova_quota = CRUDComputeQuota(
     model=ComputeQuota,
@@ -123,13 +130,4 @@ nova_quota = CRUDComputeQuota(
     read_short_schema=ComputeQuotaReadShort,
     read_extended_schema=ComputeQuotaReadExtended,
     read_extended_public_schema=ComputeQuotaReadExtendedPublic,
-)
-cinder_quota = CRUDBlockStorageQuota(
-    model=BlockStorageQuota,
-    create_schema=BlockStorageQuotaCreate,
-    read_schema=BlockStorageQuotaRead,
-    read_public_schema=BlockStorageQuotaReadPublic,
-    read_short_schema=BlockStorageQuotaReadShort,
-    read_extended_schema=BlockStorageQuotaReadExtended,
-    read_extended_public_schema=BlockStorageQuotaReadExtendedPublic,
 )

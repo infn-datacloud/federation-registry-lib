@@ -17,6 +17,7 @@ from app.provider.schemas_extended import (
     ProviderReadExtended,
     ProviderReadExtendedPublic,
 )
+from app.region.crud import region
 from app.service.crud import service
 
 
@@ -55,15 +56,15 @@ class CRUDProvider(
         return db_obj
 
     def remove(self, *, db_obj: Provider) -> bool:
-        for item in db_obj.flavors.all():
-            flavor.remove(db_obj=item)
-        for item in db_obj.images.all():
-            image.remove(db_obj=item)
         for item in db_obj.projects.all():
             project.remove(db_obj=item)
-        for item in db_obj.services.all():
-            service.remove(db_obj=item)
-        return super().remove(db_obj=db_obj)
+        for item in db_obj.regions.all():
+            region.remove(db_obj=item)
+        result = super().remove(db_obj=db_obj)
+        for item in db_obj.identity_providers.all():
+            if len(item.providers.all()) == 0:
+                identity_provider.remove(db_obj=item)
+        return result
 
 
 provider = CRUDProvider(
