@@ -1,10 +1,10 @@
 from neomodel import (
     FloatProperty,
+    OneOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
-    ZeroOrMore,
 )
 
 
@@ -30,5 +30,5 @@ class Location(StructuredNode):
     longitude = FloatProperty()
 
     regions = RelationshipFrom(
-        "..region.models.Region", "LOCATED_AT", cardinality=ZeroOrMore
+        "..region.models.Region", "LOCATED_AT", cardinality=OneOrMore
     )

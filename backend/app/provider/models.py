@@ -39,7 +39,7 @@ class Provider(StructuredNode):
         "BOOK_PROJECT_FOR_SLA",
         cardinality=ZeroOrMore,
     )
-    region = RelationshipTo(
+    regions = RelationshipTo(
         "..region.models.Region", "DIVIDED_INTO", cardinality=OneOrMore
     )
     identity_providers = RelationshipTo(

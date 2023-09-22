@@ -1,5 +1,6 @@
 from app.auth_method.models import AuthMethod
 from neomodel import (
+    OneOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -31,7 +32,7 @@ class IdentityProvider(StructuredNode):
     providers = RelationshipFrom(
         "..provider.models.Provider",
         "ALLOW_AUTH_THROUGH",
-        cardinality=ZeroOrMore,
+        cardinality=OneOrMore,
         model=AuthMethod,
     )
     user_groups = RelationshipFrom(
