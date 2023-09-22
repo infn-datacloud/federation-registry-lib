@@ -4,31 +4,15 @@ from typing import Dict, List, Optional, Tuple
 
 import yaml
 from logger import logger
-from models.cmdb.identity_provider import AuthMethodWrite, IdentityProviderWrite
+from models.cmdb.identity_provider import IdentityProviderWrite
 from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
-from models.config import IDP, Config, Limits, URLs
+from models.config import ConfigIn, ConfigOut, IdentityProvider, Project, URLs
 from pydantic import AnyHttpUrl
 
 
-def get_identity_providers(
-    idp_list: List[IDP],
-) -> List[IdentityProviderWrite]:
-    logger.info("Retrieve provider authorized identity providers")
-    identity_providers = []
-    for idp in idp_list:
-        identity_providers.append(
-            IdentityProviderWrite(
-                endpoint=idp.endpoint,
-                group_claim=idp.group_claim,
-                relationship=AuthMethodWrite(idp_name=idp.name, protocol=idp.protocol),
-            )
-        )
-    return identity_providers
-
-
 def choose_idp(
-    *, identity_providers: List[IDP], preferred_idp_list: List[AnyHttpUrl]
-) -> IDP:
+    *, identity_providers: List[IdentityProvider], preferred_idp_list: List[AnyHttpUrl]
+) -> IdentityProvider:
     for idp_url in preferred_idp_list:
         for chosen_idp in identity_providers:
             if idp_url == chosen_idp.endpoint:
@@ -47,47 +31,36 @@ def generate_token(*, endpoint: AnyHttpUrl) -> str:
     return token_cmd.stdout.strip("\n")
 
 
-def load_config(*, base_path: str = ".", fname: str = ".config.yaml") -> Config:
+def get_identity_providers(
+    idp_list: List[IdentityProvider],
+) -> List[IdentityProviderWrite]:
+    logger.info("Retrieve provider authorized identity providers")
+    identity_providers = []
+    for idp in idp_list:
+        identity_providers.append(
+            IdentityProviderWrite(
+                endpoint=idp.endpoint,
+                group_claim=idp.group_claim,
+                relationship={"idp_name": idp.name, "protocol": idp.protocol},
+            )
+        )
+    return identity_providers
+
+
+def load_config(*, base_path: str = ".", fname: str = ".config.yaml") -> ConfigOut:
     logger.info("Loading configuration")
     with open(os.path.join(base_path, fname)) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     logger.info("Configuration loaded")
-    return Config(**config)
-
-
-def build_cmdb_urls(*, config: Config) -> URLs:
-    return URLs(
-        flavors=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.flavors}/flavors/"
-        ),
-        identity_providers=os.path.join(
-            config.cmdb.base_url,
-            f"api/{config.cmdb.api_ver.identity_providers}/identity_providers/",
-        ),
-        images=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.images}/images/"
-        ),
-        locations=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.locations}/locations/"
-        ),
-        projects=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.projects}/projects/"
-        ),
-        providers=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.providers}/providers/"
-        ),
-        quotas=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.quotas}/quotas"
-        ),
-        services=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.services}/services/"
-        ),
-        slas=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.slas}/slas/"
-        ),
-        user_groups=os.path.join(
-            config.cmdb.base_url, f"api/{config.cmdb.api_ver.user_groups}/user_groups/"
-        ),
+    conf = ConfigIn(**config)
+    d = {}
+    for k, v in conf.cmdb.api_ver.dict().items():
+        d[k] = os.path.join(conf.cmdb.base_url, "api", f"{v}", f"{k}")
+    urls = URLs(**d)
+    return ConfigOut(
+        cmdb_urls=urls,
+        oidc_agent_accounts=conf.oidc_agent_accounts,
+        openstack=conf.openstack,
     )
 
 
@@ -101,22 +74,51 @@ def get_read_write_headers(*, token: str) -> Tuple[Dict[str, str], Dict[str, str
     return (read_header, write_header)
 
 
-def get_per_user_quotas(
-    per_user_limits: Limits,
-    compute_service: AnyHttpUrl,
-    block_storage_service: AnyHttpUrl,
-) -> Tuple[Optional[ComputeQuotaWrite], Optional[BlockStorageQuotaWrite]]:
-    cq = None
-    bsq = None
-    if per_user_limits is not None:
-        if per_user_limits.compute is not None:
-            cq = ComputeQuotaWrite(
-                **per_user_limits.compute.dict(exclude_none=True),
-                service=compute_service,
+def get_per_user_compute_quotas(
+    *, project: Project, curr_region: str
+) -> Optional[ComputeQuotaWrite]:
+    if len(project.per_region_props) > 0:
+        region_props = next(
+            filter(lambda x: x.region_name == curr_region, project.per_region_props),
+            None,
+        )
+        if region_props is not None:
+            if region_props.per_user_limits is not None:
+                if region_props.per_user_limits.compute is not None:
+                    return ComputeQuotaWrite(
+                        **region_props.per_user_limits.compute.dict(exclude_none=True),
+                        project=project.id,
+                    )
+    if project.per_user_limits is not None:
+        if project.per_user_limits.compute is not None:
+            return ComputeQuotaWrite(
+                **project.per_user_limits.compute.dict(exclude_none=True),
+                project=project.id,
             )
-        if per_user_limits.block_storage is not None:
-            bsq = BlockStorageQuotaWrite(
-                **per_user_limits.block_storage.dict(exclude_none=True),
-                service=block_storage_service,
+    return None
+
+
+def get_per_user_block_storage_quotas(
+    *, project: Project, curr_region: str
+) -> Optional[BlockStorageQuotaWrite]:
+    if len(project.per_region_props) > 0:
+        region_props = next(
+            filter(lambda x: x.region_name == curr_region, project.per_region_props),
+            None,
+        )
+        if region_props is not None:
+            if region_props.per_user_limits is not None:
+                if region_props.per_user_limits.block_storage is not None:
+                    return BlockStorageQuotaWrite(
+                        **region_props.per_user_limits.block_storage.dict(
+                            exclude_none=True
+                        ),
+                        project=project.id,
+                    )
+    if project.per_user_limits is not None:
+        if project.per_user_limits.block_storage is not None:
+            return BlockStorageQuotaWrite(
+                **project.per_user_limits.block_storage.dict(exclude_none=True),
+                project=project.id,
             )
-    return (cq, bsq)
+    return None

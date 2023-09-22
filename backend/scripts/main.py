@@ -1,16 +1,9 @@
 from cruds.provider import ProviderCRUD
 from providers.opnstk import get_provider
-from utils import (
-    build_cmdb_urls,
-    choose_idp,
-    generate_token,
-    get_read_write_headers,
-    load_config,
-)
+from utils import choose_idp, generate_token, get_read_write_headers, load_config
 
 if __name__ == "__main__":
     config = load_config()
-    cmdb_urls = build_cmdb_urls(config=config)
 
     tokens = {}
     providers = []
@@ -37,7 +30,7 @@ if __name__ == "__main__":
         token=tokens[chosen_idp.endpoint]
     )
     crud = ProviderCRUD(
-        cmdb_urls=cmdb_urls, read_headers=read_header, write_headers=write_header
+        cmdb_urls=config.cmdb_urls, read_headers=read_header, write_headers=write_header
     )
     for provider in providers:
         crud.create_or_update(item=provider)
