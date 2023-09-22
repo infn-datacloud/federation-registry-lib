@@ -59,7 +59,7 @@ class CRUDProvider(
         for item in db_obj.projects.all():
             project.remove(db_obj=item)
         for item in db_obj.regions.all():
-            region.remove(db_obj=item)
+            region.remove(db_obj=item, from_provider=True)
         result = super().remove(db_obj=db_obj)
         for item in db_obj.identity_providers.all():
             if len(item.providers.all()) == 0:
