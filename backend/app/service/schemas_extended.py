@@ -18,8 +18,8 @@ from app.service.schemas import (
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    KeystoneServiceRead,
-    KeystoneServiceReadPublic,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
@@ -128,15 +128,15 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadExtendedPublic
 
 
-class KeystoneServiceReadExtended(KeystoneServiceRead):
-    """Model to extend the Keystone Service data read from the DB with the
+class IdentityServiceReadExtended(IdentityServiceRead):
+    """Model to extend the Identity Service data read from the DB with the
     lists of related items for authenticated users."""
 
     region: RegionReadExtended
 
 
-class KeystoneServiceReadExtendedPublic(KeystoneServiceReadPublic):
-    """Model to extend the Keystone Service data read from the DB with the
+class IdentityServiceReadExtendedPublic(IdentityServiceReadPublic):
+    """Model to extend the Identity Service data read from the DB with the
     lists of related items for non-authenticated users."""
 
     region: RegionReadExtendedPublic

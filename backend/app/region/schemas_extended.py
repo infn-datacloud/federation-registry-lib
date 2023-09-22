@@ -8,8 +8,8 @@ from app.service.schemas import (
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    KeystoneServiceRead,
-    KeystoneServiceReadPublic,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
@@ -27,7 +27,7 @@ class RegionReadExtended(RegionRead):
         Union[
             BlockStorageServiceRead,
             ComputeServiceRead,
-            KeystoneServiceRead,
+            IdentityServiceRead,
             NetworkServiceRead,
         ]
     ] = Field(default_factory=list, description="List of hosted Services.")
@@ -44,7 +44,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
         Union[
             BlockStorageServiceReadPublic,
             ComputeServiceReadPublic,
-            KeystoneServiceReadPublic,
+            IdentityServiceReadPublic,
             NetworkServiceReadPublic,
         ]
     ] = Field(default_factory=list, description="List of hosted Services.")

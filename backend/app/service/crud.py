@@ -9,7 +9,7 @@ from app.region.models import Region
 from app.service.models import (
     BlockStorageService,
     ComputeService,
-    KeystoneService,
+    IdentityService,
     NetworkService,
     Service,
 )
@@ -24,11 +24,11 @@ from app.service.schemas import (
     ComputeServiceReadPublic,
     ComputeServiceReadShort,
     ComputeServiceUpdate,
-    KeystoneServiceCreate,
-    KeystoneServiceRead,
-    KeystoneServiceReadPublic,
-    KeystoneServiceReadShort,
-    KeystoneServiceUpdate,
+    IdentityServiceCreate,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
+    IdentityServiceReadShort,
+    IdentityServiceUpdate,
     NetworkServiceCreate,
     NetworkServiceRead,
     NetworkServiceReadPublic,
@@ -45,8 +45,8 @@ from app.service.schemas_extended import (
     BlockStorageServiceReadExtendedPublic,
     ComputeServiceReadExtended,
     ComputeServiceReadExtendedPublic,
-    KeystoneServiceReadExtended,
-    KeystoneServiceReadExtendedPublic,
+    IdentityServiceReadExtended,
+    IdentityServiceReadExtendedPublic,
     NetworkServiceReadExtended,
     NetworkServiceReadExtendedPublic,
 )
@@ -73,7 +73,7 @@ class CRUDService(
             db_obj = block_storage_service.create(obj_in=obj_in, force=force)
         elif isinstance(obj_in, ComputeServiceCreate):
             db_obj = compute_service.create(obj_in=obj_in, force=force)
-        elif isinstance(obj_in, KeystoneServiceCreate):
+        elif isinstance(obj_in, IdentityServiceCreate):
             db_obj = identity_service.create(obj_in=obj_in, force=force)
         elif isinstance(obj_in, NetworkServiceCreate):
             db_obj = network_service.create(obj_in=obj_in, force=force)
@@ -85,7 +85,7 @@ class CRUDService(
             return block_storage_service.remove(db_obj=db_obj)
         elif isinstance(db_obj, ComputeService):
             return compute_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, KeystoneService):
+        elif isinstance(db_obj, IdentityService):
             return identity_service.remove(db_obj=db_obj)
         elif isinstance(db_obj, NetworkService):
             return network_service.remove(db_obj=db_obj)
@@ -97,7 +97,7 @@ class CRUDService(
             return block_storage_service.update(db_obj=db_obj, obj_in=obj_in)
         elif isinstance(db_obj, ComputeService):
             return compute_service.update(db_obj=db_obj, obj_in=obj_in)
-        elif isinstance(db_obj, KeystoneService):
+        elif isinstance(db_obj, IdentityService):
             return identity_service.update(db_obj=db_obj, obj_in=obj_in)
         elif isinstance(db_obj, NetworkService):
             return network_service.update(db_obj=db_obj, obj_in=obj_in)
@@ -150,16 +150,16 @@ class CRUDComputeService(
         return result
 
 
-class CRUDKeystoneService(
+class CRUDIdentityService(
     CRUDBase[
-        KeystoneService,
-        KeystoneServiceCreate,
-        KeystoneServiceUpdate,
-        KeystoneServiceRead,
-        KeystoneServiceReadPublic,
-        KeystoneServiceReadShort,
-        KeystoneServiceReadExtended,
-        KeystoneServiceReadExtendedPublic,
+        IdentityService,
+        IdentityServiceCreate,
+        IdentityServiceUpdate,
+        IdentityServiceRead,
+        IdentityServiceReadPublic,
+        IdentityServiceReadShort,
+        IdentityServiceReadExtended,
+        IdentityServiceReadExtendedPublic,
     ]
 ):
     """"""
@@ -214,14 +214,14 @@ block_storage_service = CRUDBlockStorageService(
     read_extended_schema=BlockStorageServiceReadExtended,
     read_extended_public_schema=BlockStorageServiceReadExtendedPublic,
 )
-identity_service = CRUDKeystoneService(
-    model=KeystoneService,
-    create_schema=KeystoneServiceCreate,
-    read_schema=KeystoneServiceRead,
-    read_public_schema=KeystoneServiceReadPublic,
-    read_short_schema=KeystoneServiceReadShort,
-    read_extended_schema=KeystoneServiceReadExtended,
-    read_extended_public_schema=KeystoneServiceReadExtendedPublic,
+identity_service = CRUDIdentityService(
+    model=IdentityService,
+    create_schema=IdentityServiceCreate,
+    read_schema=IdentityServiceRead,
+    read_public_schema=IdentityServiceReadPublic,
+    read_short_schema=IdentityServiceReadShort,
+    read_extended_schema=IdentityServiceReadExtended,
+    read_extended_public_schema=IdentityServiceReadExtendedPublic,
 )
 network_service = CRUDNetworkService(
     model=NetworkService,

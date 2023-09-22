@@ -49,12 +49,12 @@ from app.service.crud import service
 from app.service.schemas import (
     BlockStorageServiceCreate,
     ComputeServiceCreate,
-    KeystoneServiceCreate,
+    IdentityServiceCreate,
 )
 from app.service.schemas_extended import (
     BlockStorageServiceReadExtended,
     ComputeServiceReadExtended,
-    KeystoneServiceReadExtended,
+    IdentityServiceReadExtended,
 )
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -381,7 +381,9 @@ def add_project_to_provider(
 @router.post(
     "/{provider_uid}/services/",
     response_model=Union[
-        BlockStorageServiceReadExtended, KeystoneServiceReadExtended, ComputeServiceReadExtended
+        BlockStorageServiceReadExtended,
+        IdentityServiceReadExtended,
+        ComputeServiceReadExtended,
     ],
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(check_write_access), Depends(valid_service_endpoint)],
@@ -394,7 +396,7 @@ def add_project_to_provider(
         no other items with the given *name* or *uuid*.",
 )
 def add_service_to_provider(
-    item: Union[BlockStorageServiceCreate, KeystoneServiceCreate, ComputeServiceCreate],
+    item: Union[BlockStorageServiceCreate, IdentityServiceCreate, ComputeServiceCreate],
     provider: Provider = Depends(valid_provider_id),
 ):
     return service.create(obj_in=item, provider=provider, force=True)

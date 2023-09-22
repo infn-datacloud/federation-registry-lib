@@ -22,17 +22,17 @@ from app.service.schemas import (
     ComputeServiceRead,
     ComputeServiceReadPublic,
     ComputeServiceReadShort,
-    KeystoneServiceRead,
-    KeystoneServiceReadPublic,
-    KeystoneServiceReadShort,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
+    IdentityServiceReadShort,
 )
 from app.service.schemas_extended import (
     BlockStorageServiceReadExtended,
     BlockStorageServiceReadExtendedPublic,
     ComputeServiceReadExtended,
     ComputeServiceReadExtendedPublic,
-    KeystoneServiceReadExtended,
-    KeystoneServiceReadExtendedPublic,
+    IdentityServiceReadExtended,
+    IdentityServiceReadExtendedPublic,
 )
 from app.user_group.api.dependencies import (
     valid_user_group_id,
@@ -247,27 +247,29 @@ def get_user_group_providers(
         List[
             Union[
                 BlockStorageServiceReadExtended,
-                KeystoneServiceReadExtended,
+                IdentityServiceReadExtended,
                 ComputeServiceReadExtended,
             ]
         ],
-        List[Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]],
+        List[Union[BlockStorageServiceRead, IdentityServiceRead, ComputeServiceRead]],
         List[
             Union[
-                BlockStorageServiceReadShort, KeystoneServiceReadShort, ComputeServiceReadShort
+                BlockStorageServiceReadShort,
+                IdentityServiceReadShort,
+                ComputeServiceReadShort,
             ]
         ],
         List[
             Union[
                 BlockStorageServiceReadExtendedPublic,
-                KeystoneServiceReadExtendedPublic,
+                IdentityServiceReadExtendedPublic,
                 ComputeServiceReadExtendedPublic,
             ]
         ],
         List[
             Union[
                 BlockStorageServiceReadPublic,
-                KeystoneServiceReadPublic,
+                IdentityServiceReadPublic,
                 ComputeServiceReadPublic,
             ]
         ],

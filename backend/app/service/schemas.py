@@ -197,9 +197,9 @@ class ComputeServiceReadShort(BaseNodeRead, ComputeBase):
 ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeBase)
 
 
-class KeystoneBase(ServiceBase, extra=Extra.ignore):
+class IdentityBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Keystone services.
+    services. It adds the basic attributes for Identity services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
@@ -217,16 +217,16 @@ class KeystoneBase(ServiceBase, extra=Extra.ignore):
         return v
 
 
-class KeystoneServiceCreate(BaseNodeCreate, KeystoneBase):
-    """Model to create a Keystone Service.
+class IdentityServiceCreate(BaseNodeCreate, IdentityBase):
+    """Model to create a Identity Service.
 
     Class without id (which is populated by the database). Expected as
     input when performing a POST request.
     """
 
 
-class KeystoneServiceUpdate(KeystoneServiceCreate):
-    """Model to update a Keystone service.
+class IdentityServiceUpdate(IdentityServiceCreate):
+    """Model to update a Identity service.
 
     Class without id (which is populated by the database). Expected as
     input when performing a PUT request.
@@ -239,8 +239,8 @@ class KeystoneServiceUpdate(KeystoneServiceCreate):
     )
 
 
-class KeystoneServiceRead(BaseNodeRead, KeystoneBase):
-    """Model to read Keystone service data retrieved from DB.
+class IdentityServiceRead(BaseNodeRead, IdentityBase):
+    """Model to read Identity service data retrieved from DB.
 
     Class to read data retrieved from the database. Expected as output
     when performing a generic REST request. It contains all the non-
@@ -251,15 +251,15 @@ class KeystoneServiceRead(BaseNodeRead, KeystoneBase):
     """
 
 
-class KeystoneServiceReadPublic(BaseNodeRead, KeystoneBase):
+class IdentityServiceReadPublic(BaseNodeRead, IdentityBase):
     pass
 
 
-class KeystoneServiceReadShort(BaseNodeRead, KeystoneBase):
+class IdentityServiceReadShort(BaseNodeRead, IdentityBase):
     pass
 
 
-KeystoneServiceQuery = create_query_model("KeystoneServiceQuery", KeystoneBase)
+IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityBase)
 
 
 class NetworkBase(ServiceBase, extra=Extra.ignore):

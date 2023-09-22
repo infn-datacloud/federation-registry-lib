@@ -19,9 +19,9 @@ from app.service.schemas import (
     ComputeServiceCreate,
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    KeystoneServiceCreate,
-    KeystoneServiceRead,
-    KeystoneServiceReadPublic,
+    IdentityServiceCreate,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
@@ -54,7 +54,7 @@ class RegionReadExtended(RegionRead):
         Union[
             BlockStorageServiceRead,
             ComputeServiceRead,
-            KeystoneServiceRead,
+            IdentityServiceRead,
             NetworkServiceRead,
         ]
     ] = Field(default_factory=list, description="List of hosted Services.")
@@ -68,7 +68,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
         Union[
             BlockStorageServiceReadPublic,
             ComputeServiceReadPublic,
-            KeystoneServiceReadPublic,
+            IdentityServiceReadPublic,
             NetworkServiceReadPublic,
         ]
     ] = Field(default_factory=list, description="List of hosted Services.")
@@ -137,5 +137,5 @@ class ProviderCreateExtended(ProviderCreate):
         default_factory=list, description="List of owned Projects."
     )
     services: List[
-        Union[BlockStorageServiceCreate, KeystoneServiceCreate, ComputeServiceCreate]
+        Union[BlockStorageServiceCreate, IdentityServiceCreate, ComputeServiceCreate]
     ] = Field(default_factory=list, description="List of hosted Services.")

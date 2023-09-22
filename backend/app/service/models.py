@@ -58,7 +58,7 @@ class ComputeService(Service):
     )
 
 
-class KeystoneService(Service):
+class IdentityService(Service):
     pass
 
 

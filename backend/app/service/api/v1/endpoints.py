@@ -24,10 +24,10 @@ from app.service.schemas import (
     ComputeServiceReadPublic,
     ComputeServiceReadShort,
     ComputeServiceUpdate,
-    KeystoneServiceRead,
-    KeystoneServiceReadPublic,
-    KeystoneServiceReadShort,
-    KeystoneServiceUpdate,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
+    IdentityServiceReadShort,
+    IdentityServiceUpdate,
     ServiceQuery,
 )
 from app.service.schemas_extended import (
@@ -35,8 +35,8 @@ from app.service.schemas_extended import (
     BlockStorageServiceReadExtendedPublic,
     ComputeServiceReadExtended,
     ComputeServiceReadExtendedPublic,
-    KeystoneServiceReadExtended,
-    KeystoneServiceReadExtendedPublic,
+    IdentityServiceReadExtended,
+    IdentityServiceReadExtendedPublic,
 )
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
@@ -51,27 +51,29 @@ router = APIRouter(prefix="/services", tags=["services"])
         List[
             Union[
                 BlockStorageServiceReadExtended,
-                KeystoneServiceReadExtended,
+                IdentityServiceReadExtended,
                 ComputeServiceReadExtended,
             ]
         ],
-        List[Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]],
+        List[Union[BlockStorageServiceRead, IdentityServiceRead, ComputeServiceRead]],
         List[
             Union[
-                BlockStorageServiceReadShort, KeystoneServiceReadShort, ComputeServiceReadShort
+                BlockStorageServiceReadShort,
+                IdentityServiceReadShort,
+                ComputeServiceReadShort,
             ]
         ],
         List[
             Union[
                 BlockStorageServiceReadExtendedPublic,
-                KeystoneServiceReadExtendedPublic,
+                IdentityServiceReadExtendedPublic,
                 ComputeServiceReadExtendedPublic,
             ]
         ],
         List[
             Union[
                 BlockStorageServiceReadPublic,
-                KeystoneServiceReadPublic,
+                IdentityServiceReadPublic,
                 ComputeServiceReadPublic,
             ]
         ],
@@ -102,19 +104,19 @@ def get_services(
     "/{service_uid}",
     response_model=Union[
         BlockStorageServiceReadExtended,
-        KeystoneServiceReadExtended,
+        IdentityServiceReadExtended,
         ComputeServiceReadExtended,
         BlockStorageServiceRead,
-        KeystoneServiceRead,
+        IdentityServiceRead,
         ComputeServiceRead,
         BlockStorageServiceReadShort,
-        KeystoneServiceReadShort,
+        IdentityServiceReadShort,
         ComputeServiceReadShort,
         BlockStorageServiceReadExtendedPublic,
-        KeystoneServiceReadExtendedPublic,
+        IdentityServiceReadExtendedPublic,
         ComputeServiceReadExtendedPublic,
         BlockStorageServiceReadPublic,
-        KeystoneServiceReadPublic,
+        IdentityServiceReadPublic,
         ComputeServiceReadPublic,
     ],
     summary="Read a specific service",
@@ -137,7 +139,7 @@ def get_service(
     "/{service_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[
-        Union[BlockStorageServiceRead, KeystoneServiceRead, ComputeServiceRead]
+        Union[BlockStorageServiceRead, IdentityServiceRead, ComputeServiceRead]
     ],
     dependencies=[Depends(check_write_access), Depends(validate_new_service_values)],
     summary="Edit a specific service",
@@ -151,7 +153,9 @@ def get_service(
         no other items with the given *endpoint*.",
 )
 def put_service(
-    update_data: Union[BlockStorageServiceUpdate, KeystoneServiceUpdate, ComputeServiceUpdate],
+    update_data: Union[
+        BlockStorageServiceUpdate, IdentityServiceUpdate, ComputeServiceUpdate
+    ],
     response: Response,
     item: Service = Depends(valid_service_id),
 ):
