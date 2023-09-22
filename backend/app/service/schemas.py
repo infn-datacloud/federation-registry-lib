@@ -271,13 +271,13 @@ class NetworkBase(ServiceBase, extra=Extra.ignore):
 
     @validator("name")
     def check_name(cls, v):
-        if v != ServiceName.OPENSTACK_CINDER:
+        if v != ServiceName.OPENSTACK_NEUTRON:
             raise ValueError(f"Not valid name: {v}")
         return v
 
     @validator("type")
     def check_type(cls, v):
-        if v != ServiceType.BLOCK_STORAGE:
+        if v != ServiceType.NETWORK:
             raise ValueError(f"Not valid type: {v}")
         return v
 

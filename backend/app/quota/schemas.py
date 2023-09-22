@@ -54,13 +54,16 @@ class QuotaReadShort(BaseNodeRead, QuotaBase):
 QuotaQuery = create_query_model("QuotaQuery", QuotaBase)
 
 
-class ComputeBase(QuotaBase, extra=Extra.ignore):
+class ComputeQuotaBase(QuotaBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Compute services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
+    type: ServiceType = Field(
+        default=ServiceType.COMPUTE, description="Block storage type"
+    )
     cores: Optional[int] = Field(default=None, description="")
     fixed_ips: Optional[int] = Field(default=None, description="")
     public_ips: Optional[int] = Field(default=None, description="")
@@ -74,7 +77,7 @@ class ComputeBase(QuotaBase, extra=Extra.ignore):
         return v
 
 
-class ComputeQuotaCreate(BaseNodeCreate, ComputeBase):
+class ComputeQuotaCreate(BaseNodeCreate, ComputeQuotaBase):
     pass
 
 
@@ -82,28 +85,31 @@ class ComputeQuotaUpdate(ComputeQuotaCreate):
     pass
 
 
-class ComputeQuotaRead(BaseNodeRead, ComputeBase):
+class ComputeQuotaRead(BaseNodeRead, ComputeQuotaBase):
     pass
 
 
-class ComputeQuotaReadPublic(BaseNodeRead, ComputeBase):
+class ComputeQuotaReadPublic(BaseNodeRead, ComputeQuotaBase):
     pass
 
 
-class ComputeQuotaReadShort(BaseNodeRead, ComputeBase):
+class ComputeQuotaReadShort(BaseNodeRead, ComputeQuotaBase):
     pass
 
 
-ComputeQuotaQuery = create_query_model("ComputeQuotaQuery", ComputeBase)
+ComputeQuotaQuery = create_query_model("ComputeQuotaQuery", ComputeQuotaBase)
 
 
-class BlockStorageBase(QuotaBase, extra=Extra.ignore):
+class BlockStorageQuotaBase(QuotaBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for BlockStorage services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
+    type: ServiceType = Field(
+        default=ServiceType.BLOCK_STORAGE, description="Block storage type"
+    )
     gigabytes: Optional[int] = Field(default=None, description="")
     per_volume_gigabytes: Optional[int] = Field(default=None, description="")
     volumes: Optional[int] = Field(default=None, description="")
@@ -115,7 +121,7 @@ class BlockStorageBase(QuotaBase, extra=Extra.ignore):
         return v
 
 
-class BlockStorageQuotaCreate(BaseNodeCreate, BlockStorageBase):
+class BlockStorageQuotaCreate(BaseNodeCreate, BlockStorageQuotaBase):
     pass
 
 
@@ -123,16 +129,18 @@ class BlockStorageQuotaUpdate(BlockStorageQuotaCreate):
     pass
 
 
-class BlockStorageQuotaRead(BaseNodeRead, BlockStorageBase):
+class BlockStorageQuotaRead(BaseNodeRead, BlockStorageQuotaBase):
     pass
 
 
-class BlockStorageQuotaReadPublic(BaseNodeRead, BlockStorageBase):
+class BlockStorageQuotaReadPublic(BaseNodeRead, BlockStorageQuotaBase):
     pass
 
 
-class BlockStorageQuotaReadShort(BaseNodeRead, BlockStorageBase):
+class BlockStorageQuotaReadShort(BaseNodeRead, BlockStorageQuotaBase):
     pass
 
 
-BlockStorageQuotaQuery = create_query_model("BlockStorageQuotaQuery", BlockStorageBase)
+BlockStorageQuotaQuery = create_query_model(
+    "BlockStorageQuotaQuery", BlockStorageQuotaBase
+)
