@@ -1,15 +1,14 @@
 from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
+from app.auth_method.schemas import AuthMethodCreate
 from app.identity_provider.api.dependencies import (
-    valid_identity_provider_endpoint,
     valid_identity_provider_id,
     validate_new_identity_provider_values,
 )
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
-    IdentityProviderCreate,
     IdentityProviderQuery,
     IdentityProviderRead,
     IdentityProviderReadPublic,
@@ -21,6 +20,8 @@ from app.identity_provider.schemas_extended import (
     IdentityProviderReadExtendedPublic,
 )
 from app.project.schemas_extended import UserGroupReadExtended
+from app.provider.api.dependencies import valid_provider_id
+from app.provider.models import Provider
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.user_group.api.dependencies import is_unique_user_group
 from app.user_group.crud import user_group
@@ -60,24 +61,6 @@ def get_identity_providers(
     return identity_provider.choose_out_schema(
         items=items, auth=auth, short=size.short, with_conn=size.with_conn
     )
-
-
-@db.write_transaction
-@router.post(
-    "/",
-    status_code=status.HTTP_201_CREATED,
-    response_model=IdentityProviderReadExtended,
-    dependencies=[
-        Depends(check_write_access),
-        Depends(valid_identity_provider_endpoint),
-    ],
-    summary="Create location",
-    description="Create a location. \
-        At first validate new location values checking there are \
-        no other items with the given *name*.",
-)
-def post_location(item: IdentityProviderCreate):
-    return identity_provider.create(obj_in=item, force=True)
 
 
 @db.read_transaction
@@ -155,6 +138,61 @@ def delete_identity_providers(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
+
+
+@db.write_transaction
+@router.put(
+    "/{identity_provider_uid}/providers/{provider_uid}",
+    response_model=Optional[IdentityProviderReadExtended],
+    dependencies=[Depends(check_write_access)],
+    summary="Connect provider to identity provider",
+    description="Connect a provider to a specific identity \
+        provider knowing their *uid*s. \
+        If no entity matches the given *uid*s, the endpoint \
+        raises a `not found` error.",
+)
+def connect_provider_to_identity_providers(
+    data: AuthMethodCreate,
+    response: Response,
+    item: IdentityProvider = Depends(valid_identity_provider_id),
+    provider: Provider = Depends(valid_provider_id),
+):
+    if item.providers.is_connected(provider):
+        db_item = item.providers.relationship(provider)
+        if all(
+            [
+                db_item.__getattribute__(k) == v
+                for k, v in data.dict(exclude_unset=True).items()
+            ]
+        ):
+            response.status_code = status.HTTP_304_NOT_MODIFIED
+            return None
+        item.providers.disconnect(provider)
+    item.providers.connect(provider, data.dict())
+    return item
+
+
+@db.write_transaction
+@router.delete(
+    "/{identity_provider_uid}/providers/{provider_uid}",
+    response_model=Optional[IdentityProviderReadExtended],
+    dependencies=[Depends(check_write_access)],
+    summary="Disconnect provider from identity provider",
+    description="Disconnect a provider from a specific identity \
+        provider knowing their *uid*s. \
+        If no entity matches the given *uid*s, the endpoint \
+        raises a `not found` error.",
+)
+def disconnect_provider_from_identity_providers(
+    response: Response,
+    item: IdentityProvider = Depends(valid_provider_id),
+    provider: Provider = Depends(valid_provider_id),
+):
+    if not item.providers.is_connected(provider):
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+        return None
+    item.providers.disconnect(provider)
+    return item
 
 
 @db.write_transaction
