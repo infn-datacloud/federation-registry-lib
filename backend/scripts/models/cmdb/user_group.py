@@ -1,5 +1,6 @@
+from app.sla.schemas import SLACreate
 from app.user_group.schemas import UserGroupCreate, UserGroupQuery, UserGroupRead
-from pydantic import AnyHttpUrl, BaseModel
+from pydantic import BaseModel
 
 
 class Representation(BaseModel):
@@ -8,7 +9,7 @@ class Representation(BaseModel):
 
 
 class UserGroupWrite(UserGroupCreate, Representation):
-    identity_provider: AnyHttpUrl
+    sla: SLACreate
 
 
 class UserGroupRead(UserGroupRead, Representation):

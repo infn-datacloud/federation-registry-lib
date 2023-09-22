@@ -1,19 +1,39 @@
-from app.service.schemas import ServiceCreate, ServiceQuery, ServiceRead
-from pydantic import BaseModel
+from typing import List
+
+from app.provider.schemas_extended import (
+    ComputeServiceCreateExtended,
+    NetworkServiceCreateExtended,
+)
+from app.service.schemas import BlockStorageServiceCreate
+from models.cmdb.flavor import FlavorWrite
+from models.cmdb.image import ImageWrite
+from models.cmdb.network import NetworkWrite
+from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
+from pydantic import Field
 
 
-class Representation(BaseModel):
-    def __str__(self) -> str:
-        return f"{self.endpoint}"
+class ComputeServiceWrite(ComputeServiceCreateExtended):
+    flavors: List[FlavorWrite] = Field(
+        default_factory=list,
+        description="List of flavors accessible through this service",
+    )
+    images: List[ImageWrite] = Field(
+        default_factory=list,
+        description="List of images accessible through this service",
+    )
+    quotas: List[ComputeQuotaWrite] = Field(
+        default_factory=list, description="List of quotas to apply on this service"
+    )
 
 
-class ServiceWrite(ServiceCreate, Representation):
-    pass
+class BlockStorageServiceWrite(BlockStorageServiceCreate):
+    quotas: List[BlockStorageQuotaWrite] = Field(
+        default_factory=list, description="List of quotas to apply on this service"
+    )
 
 
-class ServiceRead(ServiceRead, Representation):
-    pass
-
-
-class ServiceQuery(ServiceQuery, Representation):
-    pass
+class NetworkServiceWrite(NetworkServiceCreateExtended):
+    networks: List[NetworkWrite] = Field(
+        default_factory=list,
+        description="List of networks accessible through this service",
+    )

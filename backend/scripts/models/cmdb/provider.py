@@ -1,12 +1,8 @@
-from typing import List, Optional
+from typing import List
 
 from app.provider.schemas import ProviderQuery
 from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
-from models.cmdb.flavor import FlavorWrite
-from models.cmdb.image import ImageWrite
-from models.cmdb.location import LocationWrite
-from models.cmdb.project import ProjectWrite
-from models.cmdb.service import ServiceWrite
+from models.cmdb.region import RegionWrite
 from pydantic import BaseModel, Field
 
 
@@ -16,19 +12,17 @@ class Representation(BaseModel):
 
 
 class ProviderWrite(ProviderCreateExtended, Representation):
-    location: Optional[LocationWrite] = Field(
-        default=None, description="Provider location"
+    regions: List[RegionWrite] = Field(
+        default_factory=list, description="List of regions"
     )
-    flavors: List[FlavorWrite] = Field(
-        default_factory=list, description="List of flavors"
-    )
-    images: List[ImageWrite] = Field(default_factory=list, description="List of images")
-    projects: List[ProjectWrite] = Field(
-        default_factory=list, description="List of projects"
-    )
-    services: List[ServiceWrite] = Field(
-        default_factory=list, description="List of services"
-    )
+    # flavors: List[FlavorWrite] = Field(
+    #    default_factory=list, description="List of flavors"
+    # )
+    # images: List[ImageWrite] = Field(default_factory=list,
+    #  description="List of images")
+    # projects: List[ProjectWrite] = Field(
+    #    default_factory=list, description="List of projects"
+    # )
 
 
 class ProviderRead(ProviderReadExtended, Representation):

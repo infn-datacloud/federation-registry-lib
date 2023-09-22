@@ -1,6 +1,5 @@
 from app.sla.schemas import SLACreate, SLAQuery, SLARead
-from models.cmdb.user_group import UserGroupWrite
-from pydantic import BaseModel, Field
+from pydantic import UUID4, BaseModel, Field
 
 
 class Representation(BaseModel):
@@ -9,9 +8,7 @@ class Representation(BaseModel):
 
 
 class SLAWrite(SLACreate, Representation):
-    user_group: UserGroupWrite = Field(
-        description="List of user groups having access to this SLA",
-    )
+    project: UUID4 = Field(description="Project UUID")
 
 
 class SLARead(SLARead, Representation):

@@ -6,7 +6,7 @@ from app.quota.schemas import (
     QuotaRead,
 )
 from app.service.enum import ServiceType
-from pydantic import AnyHttpUrl, BaseModel, Field
+from pydantic import UUID4, AnyHttpUrl, BaseModel, Field
 
 
 class Representation(BaseModel):
@@ -21,11 +21,13 @@ class QuotaWrite(QuotaCreate, Representation):
 class ComputeQuotaWrite(ComputeQuotaCreate, Representation):
     type: ServiceType = Field(default=ServiceType.COMPUTE)
     service: AnyHttpUrl = Field(default=None, description="")
+    project: UUID4 = Field(description="Project UUID")
 
 
 class BlockStorageQuotaWrite(BlockStorageQuotaCreate, Representation):
     type: ServiceType = Field(default=ServiceType.BLOCK_STORAGE)
     service: AnyHttpUrl = Field(default=None, description="")
+    project: UUID4 = Field(description="Project UUID")
 
 
 class QuotaRead(QuotaRead, Representation):
