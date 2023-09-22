@@ -44,7 +44,7 @@ class Image(StructuredNode):
     creation_time = DateTimeProperty()
     is_public = BooleanProperty(default=True)
 
-    service = RelationshipFrom(
+    services = RelationshipFrom(
         "..service.models.ComputeService",
         "AVAILABLE_VM_IMAGE",
         cardinality=OneOrMore,

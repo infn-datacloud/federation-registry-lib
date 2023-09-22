@@ -32,7 +32,7 @@ class Network(StructuredNode):
     proxy_ip = StringProperty()
     proxy_user = StringProperty()
 
-    service = RelationshipFrom(
+    services = RelationshipFrom(
         "..service.models.NetworkService",
         "AVAILABLE_NETWORK",
         cardinality=OneOrMore,
