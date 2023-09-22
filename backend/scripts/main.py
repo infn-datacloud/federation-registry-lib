@@ -20,7 +20,7 @@ if __name__ == "__main__":
             tokens[chosen_idp.endpoint] = generate_token(endpoint=chosen_idp.endpoint)
 
         provider = get_provider(
-            config=conf, chosen_idp=chosen_idp, token=tokens[chosen_idp.endpoint]
+            obj_in=conf, chosen_idp=chosen_idp, token=tokens[chosen_idp.endpoint]
         )
         providers.append(provider)
 

@@ -39,6 +39,11 @@
               "type": "string",
               "default": "v1"
             },
+            "networks": {
+              "description": "Networks API endpoint version to use",
+              "type": "string",
+              "default": "v1"
+            },
             "projects": {
               "description": "Projects API endpoint version to use",
               "type": "string",
@@ -46,6 +51,11 @@
             },
             "providers": {
               "description": "Providers API endpoint version to use",
+              "type": "string",
+              "default": "v1"
+            },
+            "regions": {
+              "description": "Regions API endpoint version to use",
               "type": "string",
               "default": "v1"
             },

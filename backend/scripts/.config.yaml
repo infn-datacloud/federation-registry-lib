@@ -2,15 +2,6 @@ cmdb:
   base_url: http://localhost:8000/
   api_ver:
     flavors: v1
-    identity_providers: v1
-    images: v1
-    locations: v1
-    projects: v1
-    providers: v1
-    quotas: v1
-    services: v1
-    slas: v1
-    user_groups: v1
 
 oidc_agent_accounts:
   - https://iam.cloud.infn.it/
