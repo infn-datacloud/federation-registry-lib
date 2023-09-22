@@ -3,30 +3,41 @@ from typing import List
 from logger import logger
 from models.cmdb.flavor import FlavorWrite
 from models.cmdb.image import ImageWrite
+from models.cmdb.network import NetworkWrite
 from models.cmdb.project import ProjectWrite
 from models.cmdb.provider import ProviderWrite
 from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
-from models.cmdb.service import ServiceWrite
+from models.cmdb.region import RegionWrite
+from models.cmdb.service import (
+    BlockStorageServiceWrite,
+    ComputeServiceWrite,
+    IdentityServiceWrite,
+    NetworkServiceWrite,
+)
 from models.cmdb.sla import SLAWrite
 from models.cmdb.user_group import UserGroupWrite
-from models.config import IDP, Openstack
+from models.config import IdentityProvider, Openstack
 from openstack import connect
 from openstack.connection import Connection
-from utils import get_identity_providers, get_per_user_quotas
+from utils import (
+    get_identity_providers,
+    get_per_user_block_storage_quotas,
+    get_per_user_compute_quotas,
+)
 
 
 def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaWrite:
     logger.info("Retrieve current project accessible block storage quotas")
     quota = conn.block_storage.get_quota_set(conn.current_project_id)
     data = quota.to_dict()
-    return BlockStorageQuotaWrite(**data, service=conn.block_storage.get_endpoint())
+    return BlockStorageQuotaWrite(**data, project=conn.current_project_id)
 
 
 def get_compute_quotas(conn: Connection) -> ComputeQuotaWrite:
     logger.info("Retrieve current project accessible compute quotas")
     quota = conn.compute.get_quota_set(conn.current_project_id)
     data = quota.to_dict()
-    return ComputeQuotaWrite(**data, service=conn.compute.get_endpoint())
+    return ComputeQuotaWrite(**data, project=conn.current_project_id)
 
 
 def get_flavors(conn: Connection) -> List[FlavorWrite]:
@@ -79,10 +90,35 @@ def get_images(conn: Connection) -> List[ImageWrite]:
     return images
 
 
+def get_networks(conn: Connection) -> List[NetworkWrite]:
+    logger.info("Retrieve current project accessible images")
+    networks = []
+    for network in conn.network.networks():
+        # is_public = True
+        # projects = []
+        # if network.visibility in ["private", "shared"]:
+        #    projects = [network.owner_id]
+        #    is_public = False
+        # if network.visibility == "shared":
+        #    members = list(conn.network.members(network))
+        #    for member in members:
+        #        if member.status == "accepted":
+        #            projects.append(member.id)
+        data = network.to_dict()
+        data["uuid"] = data.pop("id")
+        if data.get("description") is None:
+            data["description"] = ""
+        # data["version"] = data.pop("os_version")
+        # data["distribution"] = data.pop("os_distro")
+        # data["is_public"] = is_public
+        # data.pop("visibility")
+        networks.append(NetworkWrite(**data))  # , projects=projects))
+    return networks
+
+
 def get_project(conn: Connection) -> ProjectWrite:
     logger.info("Retrieve current project data")
-    curr_proj_id = conn.current_project.get("id")
-    project = conn.identity.get_project(curr_proj_id)
+    project = conn.identity.get_project(conn.current_project_id)
     data = project.to_dict()
     data["uuid"] = data.pop("id")
     if data.get("description") is None:
@@ -90,103 +126,158 @@ def get_project(conn: Connection) -> ProjectWrite:
     return ProjectWrite(**data)
 
 
-def get_services(conn: Connection) -> List[ServiceWrite]:
-    logger.info("Retrieve current region accessible services")
-    return [
-        ServiceWrite(
-            endpoint=conn.auth.get("auth_url"),
-            type=conn.identity.service_type,
-            name="org.openstack.keystone",
-            region=conn.identity.region_name,
-        ),
-        ServiceWrite(
-            endpoint=conn.compute.get_endpoint(),
-            type=conn.compute.service_type,
-            name="org.openstack.nova",
-            region=conn.compute.region_name,
-        ),
-        ServiceWrite(
-            endpoint=conn.block_storage.get_endpoint(),
-            type=conn.block_storage.service_type,
-            name="org.openstack.cinder",
-            region=conn.block_storage.region_name,
-        ),
-    ]
-
-
-def get_provider(*, config: Openstack, chosen_idp: IDP, token: str) -> ProviderWrite:
+def get_provider(
+    *, obj_in: Openstack, chosen_idp: IdentityProvider, token: str
+) -> ProviderWrite:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
     provider = ProviderWrite(
-        name=config.name,
-        is_public=config.is_public,
-        support_emails=config.support_emails,
-        location=config.location,
-        status=config.status,
-        identity_providers=get_identity_providers(config.identity_providers),
+        name=obj_in.name,
+        is_public=obj_in.is_public,
+        support_emails=obj_in.support_emails,
+        status=obj_in.status,
+        identity_providers=get_identity_providers(obj_in.identity_providers),
     )
 
-    for sla in config.slas:
-        project = sla.project
-        if project.id is not None:
-            logger.info(
-                f"Connecting to openstack instance with project ID: {project.id}"
+    for conf_region in obj_in.regions:
+        region = RegionWrite(**conf_region.dict())
+
+        for conf_sla in obj_in.slas:
+            if conf_sla.project.id is not None:
+                logger.info(
+                    "Connecting to openstack region: "
+                    f"{obj_in.name} - {conf_region.name}."
+                )
+                logger.info(f"Accessing with project ID: {conf_sla.project.id}")
+            else:
+                logger.info(
+                    "Connecting to openstack region: "
+                    f"{obj_in.name} - {conf_region.name}."
+                )
+                logger.info(
+                    "Accessing with project name and domain: "
+                    f"{conf_sla.project.name} - {conf_sla.project.domain}"
+                )
+            conn = connect(
+                auth_url=obj_in.auth_url,
+                auth_type="v3oidcaccesstoken",
+                identity_provider=chosen_idp.name,
+                protocol=chosen_idp.protocol,
+                access_token=token,
+                project_id=conf_sla.project.id,
+                project_name=conf_sla.project.name,
+                project_domain_name=conf_sla.project.domain,
+                region_name=conf_region.name,
             )
-        else:
-            logger.info(
-                "Connecting to openstack instance with project"
-                f"name and domain: {project.name} - {project.domain}"
+            if conf_sla.project.id is None:
+                conf_sla.project.id = conn.current_project_id
+            logger.info(f"Connected. Project ID: {conf_sla.project.id}")
+
+            # Create SLA and user group.
+            # Attach SLA to User group.
+            # Append user group to corresponding identity provider.
+            sla = SLAWrite(
+                doc_uuid=conf_sla.doc_uuid,
+                start_date=conf_sla.start_date,
+                end_date=conf_sla.end_date,
+                project=conn.current_project_id,
             )
-        conn = connect(
-            auth_url=config.auth_url,
-            auth_type="v3oidcaccesstoken",
-            identity_provider=chosen_idp.name,
-            protocol=chosen_idp.protocol,
-            access_token=token,
-            project_id=project.id,
-            project_name=project.name,
-            project_domain_name=project.domain,
-        )
+            user_group = UserGroupWrite(name=conf_sla.project.group.name, sla=sla)
+            for i, idp in enumerate(provider.identity_providers):
+                if idp.endpoint == conf_sla.project.group.idp:
+                    provider.identity_providers[i].user_groups.append(user_group)
 
-        proj = get_project(conn)
-        compute_quota = get_compute_quotas(conn)
-        block_storage_quota = get_block_storage_quotas(conn)
-        per_user_comp_quota, per_user_blk_sto_quota = get_per_user_quotas(
-            per_user_limits=project.per_user_limits,
-            compute_service=compute_quota.service,
-            block_storage_service=block_storage_quota.service,
-        )
-        proj.quotas.append(compute_quota)
-        proj.quotas.append(block_storage_quota)
-        if per_user_comp_quota is not None:
-            proj.quotas.append(per_user_comp_quota)
-        if per_user_blk_sto_quota is not None:
-            proj.quotas.append(per_user_blk_sto_quota)
-        user_group = UserGroupWrite(
-            name=project.group.name, identity_provider=project.group.idp
-        )
-        proj.sla = SLAWrite(**sla.dict(), user_group=user_group)
-        provider.projects.append(proj)
+            # Create region's compute service.
+            # Retrieve flavors, images and current project corresponding quotas.
+            # Add them to the compute service.
+            compute_service = ComputeServiceWrite(
+                endpoint=conn.compute.get_endpoint(),
+                type=conn.compute.service_type,
+                name="org.openstack.nova",
+            )
+            compute_service.flavors = get_flavors(conn)
+            compute_service.images = get_images(conn)
+            compute_service.quotas = [get_compute_quotas(conn)]
+            q = get_per_user_compute_quotas(
+                project=conf_sla.project, curr_region=region.name
+            )
+            if q is not None:
+                compute_service.quotas.append(q)
 
-        flavors = get_flavors(conn)
-        uuids = [j.uuid for j in provider.flavors]
-        for i in flavors:
-            if i.uuid not in uuids:
-                provider.flavors.append(i)
+            for i, region_service in enumerate(region.compute_services):
+                if region_service.endpoint == compute_service.endpoint:
+                    uuids = [j.uuid for j in region_service.flavors]
+                    region.compute_services[i].flavors += list(
+                        filter(lambda x: x.uuid not in uuids, compute_service.flavors)
+                    )
+                    uuids = [j.uuid for j in region_service.images]
+                    region.compute_services[i].images += list(
+                        filter(lambda x: x.uuid not in uuids, compute_service.images)
+                    )
+                    region.compute_services[i].quotas += compute_service.quotas
+                    break
+            else:
+                region.compute_services.append(compute_service)
 
-        images = get_images(conn)
-        uuids = [j.uuid for j in provider.images]
-        for i in images:
-            if i.uuid not in uuids:
-                provider.images.append(i)
+            # Retrieve project's block storage service.
+            # Retrieve current project corresponding quotas.
+            # Add them to the block storage service.
+            block_storage_service = BlockStorageServiceWrite(
+                endpoint=conn.block_storage.get_endpoint(),
+                type=conn.block_storage.service_type,
+                name="org.openstack.cinder",
+            )
+            block_storage_service.quotas = [get_block_storage_quotas(conn)]
+            q = get_per_user_block_storage_quotas(
+                project=conf_sla.project, curr_region=region.name
+            )
+            if q is not None:
+                block_storage_service.quotas.append(q)
 
-        services = get_services(conn)
-        endpoints = [j.endpoint for j in provider.services]
-        for i in services:
-            if i.endpoint not in endpoints:
-                provider.services.append(i)
+            for i, region_service in enumerate(region.block_storage_services):
+                if region_service.endpoint == block_storage_service.endpoint:
+                    region.block_storage_services[
+                        i
+                    ].quotas += block_storage_service.quotas
+                    break
+            else:
+                region.block_storage_services.append(block_storage_service)
 
-        conn.close()
-        logger.info("Connection closed")
+            # Retrieve region's network service.
+            network_service = NetworkServiceWrite(
+                endpoint=conn.network.get_endpoint(),
+                type=conn.network.service_type,
+                name="org.openstack.neutron",
+            )
+            network_service.networks = get_networks(conn)
+            for i, region_service in enumerate(region.network_services):
+                if region_service.endpoint == network_service.endpoint:
+                    uuids = [j.uuid for j in region_service.networks]
+                    region.network_services[i].networks += list(
+                        filter(lambda x: x.uuid not in uuids, network_service.networks)
+                    )
+                    break
+            else:
+                region.network_services.append(network_service)
+
+            # Retrieve provider's identity service.
+            identity_service = IdentityServiceWrite(
+                endpoint=obj_in.auth_url,
+                type=conn.identity.service_type,
+                name="org.openstack.keystone",
+            )
+            for region_service in region.identity_services:
+                if region_service.endpoint == identity_service.endpoint:
+                    break
+            else:
+                region.block_storage_services.append(block_storage_service)
+
+            # Create project entity
+            provider.projects.append(get_project(conn))
+
+            conn.close()
+            logger.info("Connection closed")
+
+        provider.regions.append(region)
 
     return provider

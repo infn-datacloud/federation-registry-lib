@@ -3,6 +3,7 @@ from typing import List
 from app.provider.schemas_extended import (
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
+    IdentityServiceCreate as IdentityServiceWrite,
 )
 from app.service.schemas import BlockStorageServiceCreate
 from models.cmdb.flavor import FlavorWrite
