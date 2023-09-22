@@ -21,7 +21,7 @@ openstack:
     is_public: false
     support_emails:
       - giovanni.savarese@ba.infn.it
-    region:
+    regions:
       - name: RegionOne
         location:
           site: INFN Bari
@@ -68,12 +68,12 @@ openstack:
     block_storage_vol_types:
       gold: my type1
       silver: muy-type2
-    region:
-      - name: cnaf
+    regions:
+      - name: tier1
         location:
           site: INFN CNAF
           country: Italy
-      - name: bari
+      - name: sdds
         location:
           site: INFN Bari
           country: Italy
@@ -105,7 +105,7 @@ openstack:
             block_storage:
               gigabytes: 2
           per_region_props: # in alternativa se i parametri variano a seconda della region
-            - region_name: bari
+            - region_name: sdds
               default_public_net: pluto
               default_private_net: pippo
               private_net_proxy:
@@ -118,7 +118,7 @@ openstack:
                   public_ips: 2
                 block_storage:
                   gigabytes: 2
-            - region_name: cnaf
+            - region_name: tier1
               default_public_net: john
               default_private_net: dave
               private_net_proxy:

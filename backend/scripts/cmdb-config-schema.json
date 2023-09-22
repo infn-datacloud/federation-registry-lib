@@ -164,7 +164,7 @@
             "minItems": 1,
             "uniqueItems": true
           },
-          "region": {
+          "regions": {
             "description": "Provider regions to integrate in the CMDB",
             "type": "array",
             "items": {
