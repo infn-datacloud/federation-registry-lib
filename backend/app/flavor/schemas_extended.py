@@ -34,8 +34,8 @@ class FlavorReadExtended(FlavorRead):
         description="Projects having access to this flavor. "
         "Empty list if the flavor is public"
     )
-    service: ComputeServiceReadExtended = Field(
-        description="ComputeService owning this Flavor."
+    services: List[ComputeServiceReadExtended] = Field(
+        default_factory=list, description="ComputeService owning this Flavor."
     )
 
 
@@ -47,6 +47,6 @@ class FlavorReadExtendedPublic(FlavorReadPublic):
         description="Projects having access to this flavor. "
         "Empty list if the flavor is public"
     )
-    service: ComputeServiceReadExtendedPublic = Field(
-        description="ComputeService owning this Flavor."
+    service: List[ComputeServiceReadExtendedPublic] = Field(
+        default_factory=list, description="ComputeService owning this Flavor."
     )

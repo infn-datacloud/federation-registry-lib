@@ -1,6 +1,6 @@
 from neomodel import (
     BooleanProperty,
-    One,
+    OneOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -35,7 +35,7 @@ class Network(StructuredNode):
     service = RelationshipFrom(
         "..service.models.NetworkService",
         "AVAILABLE_NETWORK",
-        cardinality=One,
+        cardinality=OneOrMore,
     )
     projects = RelationshipFrom(
         "..project.models.Project",

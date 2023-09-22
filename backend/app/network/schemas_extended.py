@@ -35,7 +35,9 @@ class NetworkReadExtended(NetworkRead):
         description="List of accessible project. "
         "For private networks at most one item",
     )
-    service: NetworkServiceReadExtended = Field(description="Network service")
+    services: List[NetworkServiceReadExtended] = Field(
+        default_factory=list, description="Network service"
+    )
 
 
 class NetworkReadExtendedPublic(NetworkReadPublic):
@@ -47,4 +49,6 @@ class NetworkReadExtendedPublic(NetworkReadPublic):
         description="List of accessible project. "
         "For private networks at most one item",
     )
-    service: NetworkServiceReadExtendedPublic = Field(description="Network service")
+    services: List[NetworkServiceReadExtendedPublic] = Field(
+        default_factory=list, description="Network service"
+    )

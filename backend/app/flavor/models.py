@@ -1,7 +1,7 @@
 from neomodel import (
     BooleanProperty,
     IntegerProperty,
-    One,
+    OneOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -48,7 +48,7 @@ class Flavor(StructuredNode):
     service = RelationshipFrom(
         "..service.models.ComputeService",
         "AVAILABLE_VM_FLAVOR",
-        cardinality=One,
+        cardinality=OneOrMore,
     )
     projects = RelationshipFrom(
         "..project.models.Project",

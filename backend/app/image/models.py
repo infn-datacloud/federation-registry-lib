@@ -1,7 +1,7 @@
 from neomodel import (
     BooleanProperty,
     DateTimeProperty,
-    One,
+    OneOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -47,7 +47,7 @@ class Image(StructuredNode):
     service = RelationshipFrom(
         "..service.models.ComputeService",
         "AVAILABLE_VM_IMAGE",
-        cardinality=One,
+        cardinality=OneOrMore,
     )
     projects = RelationshipFrom(
         "..project.models.Project",
