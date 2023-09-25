@@ -59,8 +59,9 @@ def load_config(*, base_path: str = ".", fname: str = ".config.yaml") -> ConfigO
     urls = URLs(**d)
     return ConfigOut(
         cmdb_urls=urls,
-        oidc_agent_accounts=conf.oidc_agent_accounts,
+        trusted_idps=conf.trusted_idps,
         openstack=conf.openstack,
+        kubernetes=conf.kubernetes
     )
 
 

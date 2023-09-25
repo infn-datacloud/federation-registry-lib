@@ -132,8 +132,7 @@ kubernetes:
     is_public: false
     support_emails:
       - marica.antonacci@ba.infn.it
-    # regions: optional
-    auth_url: ... # Endpoint k8s
+    auth_url: https://test.k8s.infn.it/
     identity_providers:
       - name: infn-cloud
         protocol: openid

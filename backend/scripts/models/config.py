@@ -1,7 +1,9 @@
-from typing import List, Optional, Union
+from typing import List, Optional
 
+from app.auth_method.schemas import AuthMethodBase
 from app.identity_provider.schemas import IdentityProviderBase
 from app.location.schemas import LocationBase
+from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderBase
 from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase
 from app.region.schemas import RegionBase
@@ -10,9 +12,37 @@ from app.user_group.schemas import UserGroupBase
 from pydantic import AnyHttpUrl, BaseModel, Field, root_validator, validator
 
 
-class IdentityProvider(IdentityProviderBase):
-    name: str = Field(description="Identity provider name used to authenticate")
-    protocol: str = Field(description="Protocol used to authenticate")
+class APIVersions(BaseModel):
+    flavors: str = Field(default="v1", description="Flavors API version to use")
+    identity_providers: str = Field(
+        default="v1", description="Identity providers API version to use"
+    )
+    images: str = Field(default="v1", description="Images API version to use")
+    locations: str = Field(default="v1", description="Locations API version to use")
+    networks: str = Field(default="v1", description="Networks API version to use")
+    projects: str = Field(default="v1", description="Projects API version to use")
+    providers: str = Field(default="v1", description="Providers API version to use")
+    regions: str = Field(default="v1", description="Regions API version to use")
+    quotas: str = Field(default="v1", description="Quotas API version to use")
+    services: str = Field(default="v1", description="Services API version to use")
+    slas: str = Field(default="v1", description="SLAs API version to use")
+    user_groups: str = Field(default="v1", description="User groups API version to use")
+
+
+class CMDB(BaseModel):
+    base_url: AnyHttpUrl = Field(description="CMDB base URL")
+    api_ver: APIVersions = Field(description="API versions")
+
+
+class UserGroup(UserGroupBase):
+    slas: List[SLABase] = Field(description="SLAs")
+
+
+class TrustedIDPs(IdentityProviderBase):
+    endpoint: AnyHttpUrl = Field(alias="issuer")
+    user_groups: List[UserGroup] = Field(
+        default_factory=list, description="User groups"
+    )
 
 
 class Limits(BaseModel):
@@ -40,16 +70,12 @@ class Limits(BaseModel):
         return v
 
 
-class UserGroup(UserGroupBase):
-    idp: Union[str, AnyHttpUrl] = Field(description="Identity provider name or URL")
-
-
 class PrivateNetProxy(BaseModel):
     ip: str = Field(description="Proxy IP address")
     user: str = Field(description="Username to use when performing ssh operations")
 
 
-class RegionProps(BaseModel):
+class PerRegionProps(BaseModel):
     region_name: str = Field(description="Region name")
     default_public_net: Optional[str] = Field(
         default=None, description="Name of the default public network"
@@ -66,11 +92,18 @@ class RegionProps(BaseModel):
     )
 
 
+class AuthMethod(AuthMethodBase):
+    idp_name: str = Field(
+        alias="name", description="Identity provider name used to authenticate"
+    )
+    endpoint: AnyHttpUrl = Field(description="Identity Provider URL")
+
+
+class BlockStorageVolMap(BaseModel):
+    ...
+
+
 class Project(BaseModel):
-    id: Optional[str] = Field(default=None, description="Project unique ID")
-    name: Optional[str] = Field(default=None, description="Project name")
-    domain: Optional[str] = Field(default=None, description="Project domain name")
-    group: UserGroup = Field(description="User group having access to this project")
     default_public_net: Optional[str] = Field(
         default=None, description="Name of the default public network"
     )
@@ -84,11 +117,20 @@ class Project(BaseModel):
         default=None,
         description="Quota limitations to apply to users owning this project",
     )
-    per_region_props: List[RegionProps] = Field(
+    per_region_props: List[PerRegionProps] = Field(
         default_factory=list, description="Region specific properties"
     )
-    # _region: Optional[str] = Field(default=None,
-    # description="Service region to use to access to this project")
+    sla: str = Field(description="SLA document uuid")
+
+
+class K8sNameSpace(Project):
+    name: str = Field(default=None, description="Namespace string")
+
+
+class OsProject(Project):
+    id: Optional[str] = Field(default=None, description="Project unique ID")
+    name: Optional[str] = Field(default=None, description="Project name")
+    domain: Optional[str] = Field(default=None, description="Project domain name")
 
     @root_validator
     def check_id_or_name_and_domain(cls, values):
@@ -102,52 +144,50 @@ class Project(BaseModel):
         return values
 
 
-class SLA(SLABase):
-    project: Project = Field(description="Linked project")
-
-
 class Region(RegionBase):
-    location: LocationBase = Field(description="Location details")
+    location: Optional[LocationBase] = Field(
+        default=None, description="Location details"
+    )
 
 
-class Openstack(ProviderBase):
-    auth_url: str = Field(description="Identity service endpoint")
-    identity_providers: List[IdentityProvider] = Field(
+class Provider(ProviderBase):
+    auth_url: AnyHttpUrl = Field(description="Identity service endpoint")
+    block_storage_vol_types: Optional[BlockStorageVolMap] = Field(default=None)
+    identity_providers: List[AuthMethod] = Field(
         description="List of supported identity providers"
     )
-    regions: List[Region] = Field(description="List of hosted regions")
-    slas: List[SLA] = Field(description="List of SLAs belonged by this provider")
+    image_tags: List[str] = Field(default_factory=list)
+    network_tags: List[str] = Field(default_factory=list)
 
 
-class APIVersions(BaseModel):
-    flavors: str = Field(default="v1", description="Flavors API version to use")
-    identity_providers: str = Field(
-        default="v1", description="Identity providers API version to use"
+class Openstack(Provider):
+    projects: List[OsProject] = Field(
+        description="List of SLAs belonged by this provider"
     )
-    images: str = Field(default="v1", description="Images API version to use")
-    locations: str = Field(default="v1", description="Locations API version to use")
-    networks: str = Field(default="v1", description="Networks API version to use")
-    projects: str = Field(default="v1", description="Projects API version to use")
-    providers: str = Field(default="v1", description="Providers API version to use")
-    regions: str = Field(default="v1", description="Regions API version to use")
-    quotas: str = Field(default="v1", description="Quotas API version to use")
-    services: str = Field(default="v1", description="Services API version to use")
-    slas: str = Field(default="v1", description="SLAs API version to use")
-    user_groups: str = Field(default="v1", description="User groups API version to use")
+    regions: List[Region] = Field(description="List of hosted regions")
+    type: ProviderType = Field(default="openstack", description="Provider type")
 
 
-class CMDB(BaseModel):
-    base_url: AnyHttpUrl = Field(description="CMDB base URL")
-    api_ver: APIVersions = Field(description="API versions")
+class Kubernetes(Provider):
+    projects: List[K8sNameSpace] = Field(description="list fo name")
+    regions: List[Region] = Field(
+        default_factory=list, description="List of hosted regions"
+    )
+    type: ProviderType = Field(default="kubernetes", description="Provider type")
 
 
 class ConfigIn(BaseModel):
     cmdb: CMDB = Field(description="CMDB configuration parameters")
-    oidc_agent_accounts: List[AnyHttpUrl] = Field(
+    trusted_idps: List[TrustedIDPs] = Field(
         description="List of OIDC-Agent supported identity providers endpoints"
     )
     openstack: List[Openstack] = Field(
-        description="List of openstack providers to integrate in the CMDB"
+        default_factory=list,
+        description="List of openstack providers to integrate in the CMDB",
+    )
+    kubernetes: List[Kubernetes] = Field(
+        default_factory=list,
+        description="List of openstack providers to integrate in the CMDB",
     )
 
 
@@ -168,9 +208,14 @@ class URLs(BaseModel):
 
 class ConfigOut(BaseModel):
     cmdb_urls: URLs = Field(description="CMDB endpoints to use")
-    oidc_agent_accounts: List[AnyHttpUrl] = Field(
+    trusted_idps: List[TrustedIDPs] = Field(
         description="List of OIDC-Agent supported identity providers endpoints"
     )
     openstack: List[Openstack] = Field(
-        description="List of openstack providers to integrate in the CMDB"
+        default_factory=list,
+        description="List of openstack providers to integrate in the CMDB",
+    )
+    kubernetes: List[Kubernetes] = Field(
+        default_factory=list,
+        description="List of openstack providers to integrate in the CMDB",
     )
