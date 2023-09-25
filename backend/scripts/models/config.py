@@ -10,7 +10,7 @@ from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase
 from app.region.schemas import RegionBase
 from app.sla.schemas import SLABase
 from app.user_group.schemas import UserGroupBase
-from pydantic import AnyHttpUrl, BaseModel, Field, root_validator, validator
+from pydantic import UUID4, AnyHttpUrl, BaseModel, Field, root_validator, validator
 
 
 class APIVersions(BaseModel):
@@ -122,7 +122,7 @@ class Project(BaseModel):
     per_region_props: List[PerRegionProps] = Field(
         default_factory=list, description="Region specific properties"
     )
-    sla: str = Field(description="SLA document uuid")
+    sla: UUID4 = Field(description="SLA document uuid")
 
 
 class K8sNameSpace(Project):
@@ -130,7 +130,7 @@ class K8sNameSpace(Project):
 
 
 class OsProject(Project):
-    id: Optional[str] = Field(default=None, description="Project unique ID")
+    id: Optional[UUID4] = Field(default=None, description="Project unique ID")
     name: Optional[str] = Field(default=None, description="Project name")
     domain: Optional[str] = Field(default=None, description="Project domain name")
 
@@ -197,6 +197,7 @@ class TrustedIDPOut(IdentityProviderBase):
     user_groups: List[UserGroup] = Field(
         default_factory=list, description="User groups"
     )
+    relationship: Optional[AuthMethodBase] = Field(default=None, description="")
     token: str = Field(description="Access token")
 
     @root_validator(pre=True)

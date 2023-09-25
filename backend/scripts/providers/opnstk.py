@@ -16,7 +16,7 @@ from models.cmdb.service import (
 )
 from models.cmdb.sla import SLAWrite
 from models.cmdb.user_group import UserGroupWrite
-from models.config import IdentityProvider, Openstack
+from models.config import Openstack, TrustedIDPOut
 from openstack import connect
 from openstack.connection import Connection
 from utils import (
@@ -127,52 +127,75 @@ def get_project(conn: Connection) -> ProjectWrite:
 
 
 def get_provider(
-    *, obj_in: Openstack, chosen_idp: IdentityProvider, token: str
+    *, os_conf: Openstack, trusted_idps: List[TrustedIDPOut]
 ) -> ProviderWrite:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
+    prov_trusted_idps = get_identity_providers(
+        provider_idps=os_conf.identity_providers, trusted_idps=trusted_idps
+    )
     provider = ProviderWrite(
-        name=obj_in.name,
-        is_public=obj_in.is_public,
-        support_emails=obj_in.support_emails,
-        status=obj_in.status,
-        identity_providers=get_identity_providers(obj_in.identity_providers),
+        name=os_conf.name,
+        type=os_conf.type,
+        is_public=os_conf.is_public,
+        support_emails=os_conf.support_emails,
+        status=os_conf.status,
+        identity_providers=prov_trusted_idps,
     )
 
-    for conf_region in obj_in.regions:
-        region = RegionWrite(**conf_region.dict())
+    for region_conf in os_conf.regions:
+        region = RegionWrite(**region_conf.dict())
 
-        for conf_sla in obj_in.slas:
-            if conf_sla.project.id is not None:
-                logger.info(
-                    "Connecting to openstack region: "
-                    f"{obj_in.name} - {conf_region.name}."
+        for project_conf in os_conf.projects:
+            token = None
+            name = None
+            protocol = None
+            issuer = None
+            for trusted_idp in prov_trusted_idps:
+                for user_group in trusted_idp.user_groups:
+                    if project_conf.sla in [sla.doc_uuid for sla in user_group.slas]:
+                        token = trusted_idp.token
+                        name = trusted_idp.relationship.idp_name
+                        protocol = trusted_idp.relationship.protocol
+                        issuer = trusted_idp.endpoint
+                        break
+            if token is None:
+                logger.error(
+                    "Configuration error: Project's SLA document ID "
+                    f"{project_conf.sla} does not match any of the SLAs "
+                    "in the Trusted Identity Provider list."
+                    f"Skipping project {project_conf.id}."
                 )
-                logger.info(f"Accessing with project ID: {conf_sla.project.id}")
+                continue
+
+            logger.info(
+                f"Connecting through IDP {issuer} to openstack {os_conf.name} and "
+                f"region {region_conf.name}."
+            )
+            if project_conf.id is not None:
+                logger.info(f"Accessing with project ID: {project_conf.id}")
             else:
                 logger.info(
-                    "Connecting to openstack region: "
-                    f"{obj_in.name} - {conf_region.name}."
-                )
-                logger.info(
                     "Accessing with project name and domain: "
-                    f"{conf_sla.project.name} - {conf_sla.project.domain}"
+                    f"{project_conf.name} - {project_conf.domain}"
                 )
-            conn = connect(
-                auth_url=obj_in.auth_url,
-                auth_type="v3oidcaccesstoken",
-                identity_provider=chosen_idp.name,
-                protocol=chosen_idp.protocol,
-                access_token=token,
-                project_id=conf_sla.project.id,
-                project_name=conf_sla.project.name,
-                project_domain_name=conf_sla.project.domain,
-                region_name=conf_region.name,
-            )
-            if conf_sla.project.id is None:
-                conf_sla.project.id = conn.current_project_id
-            logger.info(f"Connected. Project ID: {conf_sla.project.id}")
 
+            conn = connect(
+                auth_url=os_conf.auth_url,
+                auth_type="v3oidcaccesstoken",
+                identity_provider=name,
+                protocol=protocol,
+                access_token=token,
+                project_id=project_conf.id,
+                project_name=project_conf.name,
+                project_domain_name=project_conf.domain,
+                region_name=region_conf.name,
+            )
+            if project_conf.id is None:
+                project_conf.id = conn.current_project_id
+            logger.info(f"Connected. Project ID: {project_conf.id}")
+
+            conf_sla = None
             # Create SLA and user group.
             # Attach SLA to User group.
             # Append user group to corresponding identity provider.
@@ -276,7 +299,7 @@ def get_provider(
 
             # Retrieve provider's identity service.
             identity_service = IdentityServiceWrite(
-                endpoint=obj_in.auth_url,
+                endpoint=os_conf.auth_url,
                 type=conn.identity.service_type,
                 name="org.openstack.keystone",
             )

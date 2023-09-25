@@ -3,7 +3,6 @@ from typing import Dict, List, Optional, Tuple
 
 import yaml
 from logger import logger
-from models.cmdb.identity_provider import IdentityProviderWrite
 from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
 from models.config import AuthMethod, ConfigIn, ConfigOut, Project, TrustedIDPOut, URLs
 from pydantic import AnyHttpUrl
@@ -20,18 +19,16 @@ def choose_idp(
 
 
 def get_identity_providers(
-    idp_list: List[AuthMethod],
-) -> List[IdentityProviderWrite]:
-    logger.info("Retrieve provider authorized identity providers")
+    *, provider_idps: List[AuthMethod], trusted_idps: List[TrustedIDPOut]
+) -> List[TrustedIDPOut]:
+    logger.info("Retrieve and merge identity providers data.")
+    logger.info("Include also user groups and related SLAs.")
     identity_providers = []
-    for idp in idp_list:
-        identity_providers.append(
-            IdentityProviderWrite(
-                endpoint=idp.endpoint,
-                group_claim=idp.group_claim,
-                relationship={"idp_name": idp.name, "protocol": idp.protocol},
-            )
-        )
+    for idp in provider_idps:
+        for trusted_idp in trusted_idps:
+            if idp.endpoint == trusted_idp.endpoint:
+                trusted_idp.relationship = idp
+                identity_providers.append(trusted_idp)
     return identity_providers
 
 
@@ -39,24 +36,23 @@ def load_config(*, base_path: str = ".", fname: str = ".config.yaml") -> ConfigO
     logger.info("Loading configuration")
     with open(os.path.join(base_path, fname)) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-    logger.info("Configuration loaded")
     conf = ConfigIn(**config)
 
     d = {}
     for k, v in conf.cmdb.api_ver.dict().items():
         d[k] = os.path.join(conf.cmdb.base_url, "api", f"{v}", f"{k}")
     urls = URLs(**d)
-
     idps = []
     for idp in conf.trusted_idps:
         idps.append(TrustedIDPOut(**idp.dict(), endpoint=idp.issuer))
-
-    return ConfigOut(
+    conf = ConfigOut(
         cmdb_urls=urls,
         trusted_idps=idps,
         openstack=conf.openstack,
         kubernetes=conf.kubernetes,
     )
+    logger.info("Configuration loaded")
+    return conf
 
 
 def get_read_write_headers(*, token: str) -> Tuple[Dict[str, str], Dict[str, str]]:
