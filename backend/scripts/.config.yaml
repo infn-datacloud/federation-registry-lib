@@ -3,8 +3,37 @@ cmdb:
   api_ver:
     flavors: v1
 
-oidc_agent_accounts:
-  - https://iam.cloud.infn.it/
+trusted_idps:
+  - issuer: https://iam.cloud.infn.it/
+    group_claim: groups
+    user_groups:
+      - name: test
+        slas:
+          - doc_uuid: edfda059a23c439f8ffc06edd484e1a0
+            start_date: 2023-09-10
+            end_date: 2024-09-25
+          - doc_uuid: c2bb880f0aa443a49abcbbbe2e96b48b
+            start_date: 2023-10-11
+            end_date: 2023-10-25
+      - name: prova
+        slas:
+          - doc_uuid: cdfda059a23c439f8ffc06edd484e1a0
+            start_date: 2023-09-11
+            end_date: 2023-10-25
+      - name: pippo
+        slas:
+          - doc_uuid: bdfda059a23c439f8ffc06edd484e1a0
+            start_date: 2024-09-10
+            end_date: 2026-10-25
+
+  - issuer: https://aai.egi.eu/realmqualcosaoidc?
+    group_claim: groups
+    user_groups:
+      - name: pippo
+        slas:
+          - doc_uuid: adfda029a23c439f8ffc06edd484e1a1
+            start_date: 2023-02-10
+            end_date: 2024-09-26
 
 openstack:
   - name: recas-ba
@@ -22,33 +51,14 @@ openstack:
       - name: infn-cloud
         protocol: openid
         endpoint: https://iam.cloud.infn.it/
-        group_claim: groups
-    slas:
-      - doc_uuid: edfda059a23c439f8ffc06edd484e1a0
-        start_date: 2023-09-10
-        end_date: 2023-09-25
-        project:
-          name: infn-cloud-ops
-          domain: default
-          group:
-            name: test
-            idp: https://iam.cloud.infn.it/
-      - doc_uuid: bdfda059a23c439f8ffc06edd484e1a0
-        start_date: 2023-09-11
-        end_date: 2024-09-25
-        project:
-          id: edfda059a23c439f8ffc06edd484efa0
-          group:
-            name: prova
-            idp: https://iam.cloud.infn.it/
-      - doc_uuid: cdfda059a23c439f8ffc06edd484e1a0
-        start_date: 2023-09-11
-        end_date: 2023-10-25
-        project:
-          id: 83be7870dbb54d4a988f89ea77e9e2b9
-          group:
-            name: pippo
-            idp: https://iam.cloud.infn.it/
+    projects:
+      - name: infn-cloud-ops
+        domain: default
+        sla: edfda059a23c439f8ffc06edd484e1a0
+      - id: edfda059a23c439f8ffc06edd484efa0
+        sla: bdfda059a23c439f8ffc06edd484e1a0
+      - id: 83be7870dbb54d4a988f89ea77e9e2b9
+        sla: cdfda059a23c439f8ffc06edd484e1a0
 
   - name: backbone
     status: active
@@ -73,52 +83,61 @@ openstack:
       - endpoint: https://iam.cloud.infn.it/
         name: infn-cc
         protocol: openid
-        group_claim: groups
-    slas:
-      - doc_uuid: c2bb880f0aa443a49abcbbbe2e96b48b
-        start_date: 2023-10-11
-        end_date: 2023-10-25
-        project:
-          id: 12bb88070aa443a494bcbbbe2e96b48b
-          group:
-            name: test
-            idp: https://iam.cloud.infn.it/
-          default_public_net: pluto
-          default_private_net: pippo
-          private_net_proxy:
-            ip: 10.1.21.3
-            user: topolino
-          per_user_limits:
-            compute:
-              cores: 2
-              ram: 2
-              public_ips: 2
-            block_storage:
-              gigabytes: 2
-          per_region_props: # in alternativa se i parametri variano a seconda della region
-            - region_name: sdds
-              default_public_net: pluto
-              default_private_net: pippo
-              private_net_proxy:
-                ip: 0.21.1.1
-                user: topolino
-              per_user_limits:
-                compute:
-                  cores: 2
-                  ram: 2
-                  public_ips: 2
-                block_storage:
-                  gigabytes: 2
-            - region_name: tier1
-              default_public_net: john
-              default_private_net: dave
-              private_net_proxy:
-                ip: 0.21.1.1
-                user: jenny
-              per_user_limits:
-                compute:
-                  cores: 3
-                  ram: 2
-                  public_ips: 4
-                block_storage:
-                  gigabytes: 2
+    projects:
+      - id: 12bb88070aa443a494bcbbbe2e96b48b
+        sla: c2bb880f0aa443a49abcbbbe2e96b48b
+        default_public_net: pluto
+        default_private_net: pippo
+        private_net_proxy:
+          ip: 10.1.21.3
+          user: topolino
+        per_user_limits:
+          compute:
+            cores: 2
+            ram: 2
+            public_ips: 2
+          block_storage:
+            gigabytes: 2
+        per_region_props: # in alternativa se i parametri variano a seconda della region
+          - region_name: sdds
+            default_public_net: pluto
+            default_private_net: pippo
+            private_net_proxy:
+              ip: 0.21.1.1
+              user: topolino
+            per_user_limits:
+              compute:
+                cores: 2
+                ram: 2
+                public_ips: 2
+              block_storage:
+                gigabytes: 2
+          - region_name: tier1
+            default_public_net: john
+            default_private_net: dave
+            private_net_proxy:
+              ip: 0.21.1.1
+              user: jenny
+            per_user_limits:
+              compute:
+                cores: 3
+                ram: 2
+                public_ips: 4
+              block_storage:
+                gigabytes: 2
+
+kubernetes:
+  - name: recas-ba
+    status: maintenance
+    is_public: false
+    support_emails:
+      - marica.antonacci@ba.infn.it
+    # regions: optional
+    auth_url: ... # Endpoint k8s
+    identity_providers:
+      - name: infn-cloud
+        protocol: openid
+        endpoint: https://iam.cloud.infn.it/
+    projects:
+      - name: infn-cloud-ops-ns
+        sla: edfda059a23c439f8ffc06edd484e1a0
