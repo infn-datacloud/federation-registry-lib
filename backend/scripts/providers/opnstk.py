@@ -20,6 +20,7 @@ from models.config import Openstack, TrustedIDPOut
 from openstack import connect
 from openstack.connection import Connection
 from utils import (
+    choose_idp,
     get_identity_providers,
     get_per_user_block_storage_quotas,
     get_per_user_compute_quotas,
@@ -147,30 +148,16 @@ def get_provider(
         region = RegionWrite(**region_conf.dict())
 
         for project_conf in os_conf.projects:
-            token = None
-            name = None
-            protocol = None
-            issuer = None
-            for trusted_idp in prov_trusted_idps:
-                for user_group in trusted_idp.user_groups:
-                    if project_conf.sla in [sla.doc_uuid for sla in user_group.slas]:
-                        token = trusted_idp.token
-                        name = trusted_idp.relationship.idp_name
-                        protocol = trusted_idp.relationship.protocol
-                        issuer = trusted_idp.endpoint
-                        break
-            if token is None:
-                logger.error(
-                    "Configuration error: Project's SLA document ID "
-                    f"{project_conf.sla} does not match any of the SLAs "
-                    "in the Trusted Identity Provider list."
-                    f"Skipping project {project_conf.id}."
-                )
+            chosen_idp = choose_idp(
+                project_sla=project_conf.sla, idp_list=prov_trusted_idps
+            )
+            if chosen_idp is None:
+                logger.error(f"Skipping project {project_conf.id}.")
                 continue
 
             logger.info(
-                f"Connecting through IDP {issuer} to openstack {os_conf.name} and "
-                f"region {region_conf.name}."
+                f"Connecting through IDP {chosen_idp.issuer} to openstack "
+                f"{os_conf.name} and region {region_conf.name}."
             )
             if project_conf.id is not None:
                 logger.info(f"Accessing with project ID: {project_conf.id}")
@@ -183,9 +170,9 @@ def get_provider(
             conn = connect(
                 auth_url=os_conf.auth_url,
                 auth_type="v3oidcaccesstoken",
-                identity_provider=name,
-                protocol=protocol,
-                access_token=token,
+                identity_provider=chosen_idp.name,
+                protocol=chosen_idp.protocol,
+                access_token=chosen_idp.token,
                 project_id=project_conf.id,
                 project_name=project_conf.name,
                 project_domain_name=project_conf.domain,

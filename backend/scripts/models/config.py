@@ -246,3 +246,10 @@ class ConfigOut(BaseModel):
         default_factory=list,
         description="List of openstack providers to integrate in the CMDB",
     )
+
+
+class ChosenIDP(BaseModel):
+    token: str
+    issuer: AnyHttpUrl
+    name: str
+    protocol: str

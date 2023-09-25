@@ -4,18 +4,36 @@ from typing import Dict, List, Optional, Tuple
 import yaml
 from logger import logger
 from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
-from models.config import AuthMethod, ConfigIn, ConfigOut, Project, TrustedIDPOut, URLs
-from pydantic import AnyHttpUrl
+from models.config import (
+    AuthMethod,
+    ChosenIDP,
+    ConfigIn,
+    ConfigOut,
+    Project,
+    TrustedIDPOut,
+    URLs,
+)
+from pydantic import UUID4
 
 
 def choose_idp(
-    *, identity_providers: List[AuthMethod], preferred_idp_list: List[AnyHttpUrl]
-) -> AuthMethod:
-    for idp_url in preferred_idp_list:
-        for chosen_idp in identity_providers:
-            if idp_url == chosen_idp.endpoint:
-                logger.info(f"Chosen identity provider: {chosen_idp.endpoint}")
-                return chosen_idp
+    *, project_sla: UUID4, idp_list: List[TrustedIDPOut]
+) -> Optional[ChosenIDP]:
+    for trusted_idp in idp_list:
+        for user_group in trusted_idp.user_groups:
+            if project_sla in [sla.doc_uuid for sla in user_group.slas]:
+                return ChosenIDP(
+                    token=trusted_idp.token,
+                    name=trusted_idp.relationship.idp_name,
+                    protocol=trusted_idp.relationship.protocol,
+                    issuer=trusted_idp.endpoint,
+                )
+    logger.error(
+        "Configuration error: Project's SLA document ID "
+        f"{project_sla} does not match any of the SLAs "
+        "in the Trusted Identity Provider list."
+    )
+    return None
 
 
 def get_identity_providers(
