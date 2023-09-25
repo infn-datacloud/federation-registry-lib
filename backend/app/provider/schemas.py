@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
-from app.provider.enum import Status
+from app.provider.enum import ProviderStatus, ProviderType
 from app.query import create_query_model
 from pydantic import EmailStr, Field
 
@@ -10,11 +10,12 @@ class ProviderBase(BaseNode):
     """Model with Provider basic attributes."""
 
     name: str = Field(description="Provider name.")
+    type: ProviderType = Field(description="Provider type.")
+    status: ProviderStatus = Field(description="Provider status")
     is_public: bool = Field(default=False, description="It is a public provider.")
     support_emails: List[EmailStr] = Field(
         default_factory=list, description="Contact emails."
     )
-    status: Status = Field(description="Provider status")
 
 
 class ProviderCreate(BaseNodeCreate, ProviderBase):
@@ -35,6 +36,10 @@ class ProviderUpdate(ProviderCreate):
     """
 
     name: Optional[str] = Field(default=None, description="Provider name.")
+    type: Optional[ProviderType] = Field(default=None, description="Provider type.")
+    status: Optional[ProviderStatus] = Field(
+        default=None, description="Provider status."
+    )
 
 
 class ProviderRead(BaseNodeRead, ProviderBase):
