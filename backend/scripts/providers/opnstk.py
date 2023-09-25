@@ -14,8 +14,6 @@ from models.cmdb.service import (
     IdentityServiceWrite,
     NetworkServiceWrite,
 )
-from models.cmdb.sla import SLAWrite
-from models.cmdb.user_group import UserGroupWrite
 from models.config import Openstack, TrustedIDPOut
 from openstack import connect
 from openstack.connection import Connection
@@ -167,13 +165,16 @@ def get_provider(
                     f"{project_conf.name} - {project_conf.domain}"
                 )
 
+            proj_id = None
+            if project_conf.id is not None:
+                proj_id = project_conf.id.hex
             conn = connect(
                 auth_url=os_conf.auth_url,
                 auth_type="v3oidcaccesstoken",
                 identity_provider=chosen_idp.name,
                 protocol=chosen_idp.protocol,
                 access_token=chosen_idp.token,
-                project_id=project_conf.id,
+                project_id=proj_id,
                 project_name=project_conf.name,
                 project_domain_name=project_conf.domain,
                 region_name=region_conf.name,
@@ -181,35 +182,6 @@ def get_provider(
             if project_conf.id is None:
                 project_conf.id = conn.current_project_id
             logger.info(f"Connected. Project ID: {project_conf.id}")
-
-            conf_sla = None
-            # Create SLA and user group.
-            # Attach SLA to User group.
-            # Append user group to corresponding identity provider.
-            sla = SLAWrite(
-                doc_uuid=conf_sla.doc_uuid,
-                start_date=conf_sla.start_date,
-                end_date=conf_sla.end_date,
-                project=conn.current_project_id,
-            )
-            for i, idp in enumerate(provider.identity_providers):
-                if idp.endpoint == conf_sla.project.group.idp:
-                    for j, users in enumerate(
-                        provider.identity_providers[i].user_groups
-                    ):
-                        if users.name == conf_sla.project.group.name:
-                            provider.identity_providers[i].user_groups[j].slas.append(
-                                sla
-                            )
-                            break
-                    else:
-                        user_group = UserGroupWrite(
-                            name=conf_sla.project.group.name, sla=sla
-                        )
-                        provider.identity_providers[i].user_groups.append(user_group)
-            else:
-                # TODO raise configuration error
-                pass
 
             # Create region's compute service.
             # Retrieve flavors, images and current project corresponding quotas.
@@ -223,7 +195,7 @@ def get_provider(
             compute_service.images = get_images(conn)
             compute_service.quotas = [get_compute_quotas(conn)]
             q = get_per_user_compute_quotas(
-                project=conf_sla.project, curr_region=region.name
+                project=project_conf, curr_region=region.name
             )
             if q is not None:
                 compute_service.quotas.append(q)
@@ -253,7 +225,7 @@ def get_provider(
             )
             block_storage_service.quotas = [get_block_storage_quotas(conn)]
             q = get_per_user_block_storage_quotas(
-                project=conf_sla.project, curr_region=region.name
+                project=project_conf, curr_region=region.name
             )
             if q is not None:
                 block_storage_service.quotas.append(q)
