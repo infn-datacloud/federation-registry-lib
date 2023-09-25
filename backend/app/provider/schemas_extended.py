@@ -1,17 +1,23 @@
 from typing import List, Optional, Union
 
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
-from app.flavor.schemas import FlavorCreate
+from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
 from app.identity_provider.schemas import (
     IdentityProviderCreate,
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from app.image.schemas import ImageCreate
+from app.image.schemas import ImageCreate, ImageRead, ImageReadPublic
 from app.location.schemas import LocationCreate, LocationRead, LocationReadPublic
-from app.network.schemas import NetworkCreate
+from app.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
 from app.project.schemas import ProjectCreate, ProjectRead
 from app.provider.schemas import ProviderCreate, ProviderRead, ProviderReadPublic
+from app.quota.schemas import (
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
+)
 from app.region.schemas import RegionCreate, RegionRead, RegionReadPublic
 from app.service.schemas import (
     BlockStorageServiceCreate,
@@ -27,8 +33,17 @@ from app.service.schemas import (
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
-from app.user_group.schemas import UserGroupCreate
+from app.sla.schemas import SLARead, SLAReadPublic
+from app.user_group.schemas import UserGroupCreate, UserGroupRead, UserGroupReadPublic
 from pydantic import Field
+
+
+class UserGroupReadExtended(UserGroupRead):
+    slas: List[SLARead] = Field(default_factory=list, description="List of SLA")
+
+
+class UserGroupReadExtendedPublic(UserGroupReadPublic):
+    slas: List[SLAReadPublic] = Field(default_factory=list, description="List of SLA")
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
@@ -37,6 +52,9 @@ class IdentityProviderReadExtended(IdentityProviderRead):
 
     relationship: AuthMethodRead = Field(
         description="Authentication method used by the Provider"
+    )
+    user_groups: List[UserGroupReadExtended] = Field(
+        default_factory=list, description="List of owned users"
     )
 
 
@@ -47,6 +65,57 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
     relationship: AuthMethodRead = Field(
         description="Authentication method used by the Provider"
     )
+    user_groups: List[UserGroupReadExtendedPublic] = Field(
+        default_factory=list, description="List of owned users"
+    )
+
+
+class BlockStorageServiceReadExtended(BlockStorageServiceRead):
+    quotas: List[BlockStorageQuotaRead] = Field(
+        default_factory=list, description="List of quotas"
+    )
+
+
+class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
+    quotas: List[BlockStorageQuotaReadPublic] = Field(
+        default_factory=list, description="List of quotas"
+    )
+
+
+class ComputeServiceReadExtended(ComputeServiceRead):
+    flavors: List[FlavorRead] = Field(
+        default_factory=list, description="List of owned flavors"
+    )
+    images: List[ImageRead] = Field(
+        default_factory=list, description="List of owned images"
+    )
+    quotas: List[ComputeQuotaRead] = Field(
+        default_factory=list, description="List of quotas"
+    )
+
+
+class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
+    flavors: List[FlavorReadPublic] = Field(
+        default_factory=list, description="List of owned flavors"
+    )
+    images: List[ImageReadPublic] = Field(
+        default_factory=list, description="List of owned images"
+    )
+    quotas: List[ComputeQuotaReadPublic] = Field(
+        default_factory=list, description="List of quotas"
+    )
+
+
+class NetworkServiceReadExtended(NetworkServiceRead):
+    networks: List[NetworkRead] = Field(
+        default_factory=list, description="List of owned networks"
+    )
+
+
+class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
+    networks: List[NetworkReadPublic] = Field(
+        default_factory=list, description="List of owned networks"
+    )
 
 
 class RegionReadExtended(RegionRead):
@@ -55,10 +124,10 @@ class RegionReadExtended(RegionRead):
     )
     services: List[
         Union[
-            BlockStorageServiceRead,
-            ComputeServiceRead,
+            BlockStorageServiceReadExtended,
+            ComputeServiceReadExtended,
             IdentityServiceRead,
-            NetworkServiceRead,
+            NetworkServiceReadExtended,
         ]
     ] = Field(default_factory=list, description="List of hosted Services.")
 
@@ -69,10 +138,10 @@ class RegionReadExtendedPublic(RegionReadPublic):
     )
     services: List[
         Union[
-            BlockStorageServiceReadPublic,
-            ComputeServiceReadPublic,
+            BlockStorageServiceReadExtendedPublic,
+            ComputeServiceReadExtendedPublic,
             IdentityServiceReadPublic,
-            NetworkServiceReadPublic,
+            NetworkServiceReadExtendedPublic,
         ]
     ] = Field(default_factory=list, description="List of hosted Services.")
 

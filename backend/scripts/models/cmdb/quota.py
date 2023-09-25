@@ -1,38 +1,44 @@
 from app.quota.schemas import (
+    BlockStorageQuotaBase,
     BlockStorageQuotaCreate,
+    BlockStorageQuotaQuery,
+    ComputeQuotaBase,
     ComputeQuotaCreate,
-    QuotaCreate,
-    QuotaQuery,
-    QuotaRead,
+    ComputeQuotaQuery,
 )
 from app.service.enum import ServiceType
-from pydantic import UUID4, AnyHttpUrl, BaseModel, Field
+from pydantic import UUID4, AnyHttpUrl, Field
 
 
-class Representation(BaseModel):
-    def __str__(self) -> str:
-        return f"{self.type}"
-
-
-class QuotaWrite(QuotaCreate, Representation):
-    pass
-
-
-class ComputeQuotaWrite(ComputeQuotaCreate, Representation):
-    type: ServiceType = Field(default=ServiceType.COMPUTE)
+class ComputeQuotaWrite(ComputeQuotaCreate):
+    type: ServiceType = Field(default=ServiceType.COMPUTE, alias="_id")
     service: AnyHttpUrl = Field(default=None, description="")
     project: UUID4 = Field(description="Project UUID")
 
+    class Config:
+        allow_population_by_field_name = True
 
-class BlockStorageQuotaWrite(BlockStorageQuotaCreate, Representation):
-    type: ServiceType = Field(default=ServiceType.BLOCK_STORAGE)
+
+class BlockStorageQuotaWrite(BlockStorageQuotaCreate):
+    type: ServiceType = Field(default=ServiceType.BLOCK_STORAGE, alias="_id")
     service: AnyHttpUrl = Field(default=None, description="")
     project: UUID4 = Field(description="Project UUID")
 
+    class Config:
+        allow_population_by_field_name = True
 
-class QuotaRead(QuotaRead, Representation):
-    pass
+
+class BlockStorageQuotaRead(BlockStorageQuotaBase):
+    ...
 
 
-class QuotaQuery(QuotaQuery, Representation):
-    pass
+class BlockStorageQuotaQuery(BlockStorageQuotaQuery):
+    ...
+
+
+class ComputeQuotaRead(ComputeQuotaBase):
+    ...
+
+
+class ComputeQuotaQuery(ComputeQuotaQuery):
+    ...

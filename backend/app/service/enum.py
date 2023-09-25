@@ -7,11 +7,13 @@ class ServiceName(Enum):
     OPENSTACK_NOVA: str = "org.openstack.nova"
     OPENSTACK_CINDER: str = "org.openstack.cinder"
     OPENSTACK_KEYSTONE: str = "org.openstack.keystone"
+    OPENSTACK_NEUTRON: str = "org.openstack.neutron"
 
 
 class ServiceType(Enum):
     """Possible IaaS services types."""
 
-    IDENTITY: str = "identity"
-    COMPUTE: str = "compute"
     BLOCK_STORAGE: str = "block-storage"
+    COMPUTE: str = "compute"
+    IDENTITY: str = "identity"
+    NETWORK: str = "network"

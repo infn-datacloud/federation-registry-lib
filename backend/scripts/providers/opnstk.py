@@ -182,10 +182,24 @@ def get_provider(
                 end_date=conf_sla.end_date,
                 project=conn.current_project_id,
             )
-            user_group = UserGroupWrite(name=conf_sla.project.group.name, sla=sla)
             for i, idp in enumerate(provider.identity_providers):
                 if idp.endpoint == conf_sla.project.group.idp:
-                    provider.identity_providers[i].user_groups.append(user_group)
+                    for j, users in enumerate(
+                        provider.identity_providers[i].user_groups
+                    ):
+                        if users.name == conf_sla.project.group.name:
+                            provider.identity_providers[i].user_groups[j].slas.append(
+                                sla
+                            )
+                            break
+                    else:
+                        user_group = UserGroupWrite(
+                            name=conf_sla.project.group.name, sla=sla
+                        )
+                        provider.identity_providers[i].user_groups.append(user_group)
+            else:
+                # TODO raise configuration error
+                pass
 
             # Create region's compute service.
             # Retrieve flavors, images and current project corresponding quotas.

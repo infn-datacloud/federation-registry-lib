@@ -30,14 +30,12 @@ class CRUDUserGroup(
     """"""
 
     def create(
-        self,
-        *,
-        obj_in: UserGroupCreate,
-        identity_provider: IdentityProvider,
-        force: bool = False
+        self, *, obj_in: UserGroupCreate, identity_provider: IdentityProvider
     ) -> UserGroup:
-        db_obj = super().create(obj_in=obj_in, force=force)
-        db_obj.identity_provider.connect(identity_provider)
+        db_obj = identity_provider.user_groups.get_or_none(name=obj_in.name)
+        if db_obj is None:
+            db_obj = super().create(obj_in=obj_in)
+            db_obj.identity_provider.connect(identity_provider)
         return db_obj
 
     def remove(self, *, db_obj: UserGroup) -> bool:

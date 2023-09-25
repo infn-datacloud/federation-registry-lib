@@ -32,5 +32,4 @@ if __name__ == "__main__":
     crud = ProviderCRUD(
         cmdb_urls=config.cmdb_urls, read_headers=read_header, write_headers=write_header
     )
-    for provider in providers:
-        crud.create_or_update(item=provider)
+    update_providers = crud.synchronize(items=providers)

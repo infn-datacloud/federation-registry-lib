@@ -15,6 +15,7 @@ from app.identity_provider.schemas_extended import (
     IdentityProviderReadExtendedPublic,
 )
 from app.provider.models import Provider
+from app.provider.schemas_extended import IdentityProviderCreateExtended
 from app.user_group.crud import user_group
 
 
@@ -35,7 +36,7 @@ class CRUDIdentityProvider(
     def create(
         self,
         *,
-        obj_in: IdentityProviderCreate,
+        obj_in: IdentityProviderCreateExtended,
         provider: Optional[Provider] = None,
         relationship: AuthMethodCreate = None,
         force: bool = False
@@ -43,6 +44,8 @@ class CRUDIdentityProvider(
         db_obj = super().create(obj_in=obj_in, force=force)
         if provider is not None and relationship is not None:
             db_obj.providers.connect(provider, relationship.dict())
+        for item in obj_in.user_groups:
+            user_group.create(obj_in=item, identity_provider=db_obj)
         return db_obj
 
     def remove(self, *, db_obj: IdentityProvider) -> bool:

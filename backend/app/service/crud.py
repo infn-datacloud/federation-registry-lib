@@ -4,6 +4,10 @@ from app.crud import CRUDBase
 from app.flavor.crud import flavor
 from app.image.crud import image
 from app.network.crud import network
+from app.provider.schemas_extended import (
+    ComputeServiceCreateExtended,
+    NetworkServiceCreateExtended,
+)
 from app.quota.crud import quota
 from app.region.models import Region
 from app.service.models import (
@@ -70,14 +74,15 @@ class CRUDService(
         self, *, obj_in: ServiceCreate, region: Region, force: bool = False
     ) -> Service:
         if isinstance(obj_in, BlockStorageServiceCreate):
-            db_obj = block_storage_service.create(obj_in=obj_in, force=force)
+            db_obj = block_storage_service.create(
+                obj_in=obj_in, region=region, force=force
+            )
         elif isinstance(obj_in, ComputeServiceCreate):
-            db_obj = compute_service.create(obj_in=obj_in, force=force)
+            db_obj = compute_service.create(obj_in=obj_in, region=region, force=force)
         elif isinstance(obj_in, IdentityServiceCreate):
-            db_obj = identity_service.create(obj_in=obj_in, force=force)
+            db_obj = identity_service.create(obj_in=obj_in, region=region, force=force)
         elif isinstance(obj_in, NetworkServiceCreate):
-            db_obj = network_service.create(obj_in=obj_in, force=force)
-        db_obj.region.connect(region)
+            db_obj = network_service.create(obj_in=obj_in, region=region, force=force)
         return db_obj
 
     def remove(self, *, db_obj: Service) -> bool:
@@ -117,6 +122,13 @@ class CRUDBlockStorageService(
 ):
     """"""
 
+    def create(
+        self, *, obj_in: BlockStorageServiceCreate, region: Region, force: bool = False
+    ) -> BlockStorageService:
+        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj.region.connect(region)
+        return db_obj
+
     def remove(self, *, db_obj: BlockStorageService) -> bool:
         for item in db_obj.quotas.all():
             quota.remove(db_obj=item)
@@ -136,6 +148,17 @@ class CRUDComputeService(
     ]
 ):
     """"""
+
+    def create(
+        self, *, obj_in: ComputeServiceCreateExtended, region: Region, force: bool = False
+    ) -> ComputeService:
+        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj.region.connect(region)
+        for item in obj_in.flavors:
+            flavor.create(obj_in=item, service=db_obj, force=True)
+        for item in obj_in.images:
+            image.create(obj_in=item, service=db_obj, force=True)
+        return db_obj
 
     def remove(self, *, db_obj: ComputeService) -> bool:
         for item in db_obj.quotas.all():
@@ -164,6 +187,13 @@ class CRUDIdentityService(
 ):
     """"""
 
+    def create(
+        self, *, obj_in: IdentityServiceCreate, region: Region, force: bool = False
+    ) -> IdentityService:
+        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj.region.connect(region)
+        return db_obj
+
 
 class CRUDNetworkService(
     CRUDBase[
@@ -178,6 +208,15 @@ class CRUDNetworkService(
     ]
 ):
     """"""
+
+    def create(
+        self, *, obj_in: NetworkServiceCreateExtended, region: Region, force: bool = False
+    ) -> NetworkService:
+        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj.region.connect(region)
+        for item in obj_in.networks:
+            network.create(obj_in=item, service=db_obj, force=True)
+        return db_obj
 
     def remove(self, *, db_obj: NetworkService) -> bool:
         result = super().remove(db_obj=db_obj)

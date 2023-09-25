@@ -1,19 +1,18 @@
 from app.sla.schemas import SLACreate, SLAQuery, SLARead
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, Field
 
 
-class Representation(BaseModel):
-    def __str__(self) -> str:
-        return f"{self.doc_uuid}"
-
-
-class SLAWrite(SLACreate, Representation):
+class SLAWrite(SLACreate):
+    doc_uuid: UUID4 = Field(alias="_id")
     project: UUID4 = Field(description="Project UUID")
 
+    class Config:
+        allow_population_by_field_name = True
 
-class SLARead(SLARead, Representation):
+
+class SLARead(SLARead):
     pass
 
 
-class SLAQuery(SLAQuery, Representation):
+class SLAQuery(SLAQuery):
     pass

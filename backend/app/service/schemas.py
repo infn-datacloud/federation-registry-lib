@@ -12,10 +12,6 @@ class ServiceBase(BaseNode, extra=Extra.allow):
     endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
     type: ServiceType = Field(description="Service type.")
     name: ServiceName = Field(description="Service name.")
-    region: Optional[str] = Field(
-        default=None,
-        description="When dealing with openstack service region is essential",
-    )
 
 
 class ServiceCreate(BaseNodeCreate, ServiceBase):
@@ -71,6 +67,8 @@ class BlockStorageBase(ServiceBase, extra=Extra.ignore):
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
+
+    type: ServiceType = Field(default=ServiceType.BLOCK_STORAGE)
 
     @validator("name")
     def check_name(cls, v):
@@ -139,6 +137,8 @@ class ComputeBase(ServiceBase, extra=Extra.ignore):
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
+    type: ServiceType = Field(default=ServiceType.COMPUTE)
+
     @validator("name")
     def check_name(cls, v):
         if v != ServiceName.OPENSTACK_NOVA:
@@ -204,6 +204,8 @@ class IdentityBase(ServiceBase, extra=Extra.ignore):
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
+    type: ServiceType = Field(default=ServiceType.IDENTITY)
+
     @validator("name")
     def check_name(cls, v):
         if v != ServiceName.OPENSTACK_KEYSTONE:
@@ -268,6 +270,8 @@ class NetworkBase(ServiceBase, extra=Extra.ignore):
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
+
+    type: ServiceType = Field(default=ServiceType.NETWORK)
 
     @validator("name")
     def check_name(cls, v):

@@ -1,6 +1,7 @@
 from app.crud import CRUDBase
 from app.location.crud import location
 from app.provider.models import Provider
+from app.provider.schemas_extended import RegionCreateExtended
 from app.region.models import Region
 from app.region.schemas import (
     RegionCreate,
@@ -10,7 +11,13 @@ from app.region.schemas import (
     RegionUpdate,
 )
 from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
-from app.service.crud import service
+from app.service.crud import (
+    block_storage_service,
+    compute_service,
+    identity_service,
+    network_service,
+    service,
+)
 
 
 class CRUDRegion(
@@ -28,10 +35,20 @@ class CRUDRegion(
     """"""
 
     def create(
-        self, *, obj_in: RegionCreate, provider: Provider, force: bool = False
+        self, *, obj_in: RegionCreateExtended, provider: Provider, force: bool = False
     ) -> Region:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.provider.connect(provider)
+        if obj_in.location is not None:
+            location.create(obj_in=obj_in.location, region=db_obj)
+        for item in obj_in.block_storage_services:
+            block_storage_service.create(obj_in=item, region=db_obj, force=True)
+        for item in obj_in.compute_services:
+            compute_service.create(obj_in=item, region=db_obj, force=True)
+        for item in obj_in.identity_services:
+            identity_service.create(obj_in=item, region=db_obj, force=True)
+        for item in obj_in.network_services:
+            network_service.create(obj_in=item, region=db_obj, force=True)
         return db_obj
 
     def remove(self, *, db_obj: Region, from_provider: bool = False) -> bool:

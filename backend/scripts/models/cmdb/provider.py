@@ -2,32 +2,27 @@ from typing import List
 
 from app.provider.schemas import ProviderQuery
 from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
+from models.cmdb.identity_provider import IdentityProviderWrite
 from models.cmdb.region import RegionWrite
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 
-class Representation(BaseModel):
-    def __str__(self) -> str:
-        return f"{self.name}"
-
-
-class ProviderWrite(ProviderCreateExtended, Representation):
+class ProviderWrite(ProviderCreateExtended):
+    name: str = Field(alias="_id")
     regions: List[RegionWrite] = Field(
         default_factory=list, description="List of regions"
     )
-    # flavors: List[FlavorWrite] = Field(
-    #    default_factory=list, description="List of flavors"
-    # )
-    # images: List[ImageWrite] = Field(default_factory=list,
-    #  description="List of images")
-    # projects: List[ProjectWrite] = Field(
-    #    default_factory=list, description="List of projects"
-    # )
+    identity_providers: List[IdentityProviderWrite] = Field(
+        default_factory=list, description="List of supported identity providers"
+    )
+
+    class Config:
+        allow_population_by_field_name = True
 
 
-class ProviderRead(ProviderReadExtended, Representation):
+class ProviderRead(ProviderReadExtended):
     pass
 
 
-class ProviderQuery(ProviderQuery, Representation):
+class ProviderQuery(ProviderQuery):
     pass

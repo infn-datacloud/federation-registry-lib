@@ -1,28 +1,23 @@
 from typing import List
 
 from app.network.schemas import NetworkCreate, NetworkQuery, NetworkRead
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, Field
 
 
-class Representation(BaseModel):
-    def __str__(self) -> str:
-        if self.name is not None:
-            return f"{self.name}"
-        if self.uuid is not None:
-            return f"{self.uuid}"
-        return super().__str__()
-
-
-class NetworkWrite(NetworkCreate, Representation):
+class NetworkWrite(NetworkCreate):
+    name: str = Field(alias="_id")
     projects: List[UUID4] = Field(
         default_factory=list,
         description="List of projects UUIDs which have access to this network",
     )
 
+    class Config:
+        allow_population_by_field_name = True
 
-class NetworkRead(NetworkRead, Representation):
+
+class NetworkRead(NetworkRead):
     pass
 
 
-class NetworkQuery(NetworkQuery, Representation):
+class NetworkQuery(NetworkQuery):
     pass
