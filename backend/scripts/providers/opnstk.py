@@ -1,3 +1,4 @@
+import copy
 import os
 from typing import List
 
@@ -15,14 +16,7 @@ from models.cmdb.service import (
     IdentityServiceWrite,
     NetworkServiceWrite,
 )
-from models.config import (
-    SLA,
-    AuthMethod,
-    Openstack,
-    OsProject,
-    TrustedIDPOut,
-    UserGroup,
-)
+from models.config import AuthMethod, Openstack, OsProject, TrustedIDPOut
 from openstack import connect
 from openstack.connection import Connection
 from utils import get_per_user_block_storage_quotas, get_per_user_compute_quotas
@@ -132,23 +126,20 @@ def get_correct_idp_and_user_group_for_project(
         for user_group in trusted_idp.user_groups:
             for sla in user_group.slas:
                 if sla.doc_uuid == project_conf.sla:
-                    for auth_method in os_conf_auth_methods:
-                        if auth_method.endpoint == trusted_idp.endpoint:
-                            sla = SLA(
-                                **sla.dict(exclude={"projects"}),
-                                projects=[project_conf.id],
-                            )
-                            user_group = UserGroup(
-                                **user_group.dict(exclude={"slas"}), slas=[sla]
-                            )
-                            trusted_idp = TrustedIDPOut(
-                                **trusted_idp.dict(
-                                    exclude={"user_groups", "relationship"}
-                                ),
-                                user_groups=[user_group],
-                                relationship=auth_method,
-                            )
-                            return trusted_idp
+                    print(trusted_idp.endpoint, user_group.name, sla.doc_uuid)
+                    print(
+                        project_conf.id,
+                        sla.projects,
+                        project_conf.id not in sla.projects,
+                    )
+                    if project_conf.id not in sla.projects:
+                        sla.projects.append(project_conf.id)
+                        for auth_method in os_conf_auth_methods:
+                            if auth_method.endpoint == trusted_idp.endpoint:
+                                trusted_idp.relationship = auth_method
+                                return trusted_idp
+                    return trusted_idp
+
     logger.error(
         "Configuration error: No matching Identity Provider "
         f"for project {project_conf.id}"
@@ -161,6 +152,7 @@ def get_provider(
 ) -> ProviderWrite:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
+    trust_idps = copy.deepcopy(trusted_idps)
     provider = ProviderWrite(
         name=os_conf.name,
         type=os_conf.type,
@@ -175,35 +167,12 @@ def get_provider(
         for project_conf in os_conf.projects:
             trusted_idp = get_correct_idp_and_user_group_for_project(
                 os_conf_auth_methods=os_conf.identity_providers,
-                trusted_idps=trusted_idps,
+                trusted_idps=trust_idps,
                 project_conf=project_conf,
             )
             if trusted_idp is None:
                 logger.error(f"Skipping project {project_conf.id}.")
                 continue
-
-            for i, idp in enumerate(provider.identity_providers):
-                if idp.endpoint == trusted_idp.endpoint:
-                    for j, user_group in enumerate(idp.user_groups):
-                        if user_group.name == trusted_idp.user_groups[0].name:
-                            for k, sla in enumerate(user_group.slas):
-                                if (
-                                    sla.doc_uuid
-                                    == trusted_idp.user_groups[0].slas[0].doc_uuid
-                                ):
-                                    provider.identity_providers[i].user_groups[j].slas[
-                                        k
-                                    ].projects += (
-                                        trusted_idp.user_groups[0].slas[0].projects
-                                    )
-                            else:
-                                idp.user_groups[0].slas += trusted_idp.user_groups[
-                                    0
-                                ].slas
-                    else:
-                        idp.user_groups += trusted_idp.user_groups
-            else:
-                provider.identity_providers.append(trusted_idp)
 
             logger.info(
                 f"Connecting through IDP {trusted_idp.endpoint} to openstack "
@@ -319,5 +288,17 @@ def get_provider(
             logger.info("Connection closed")
 
         provider.regions.append(region)
+
+    for idp in trust_idps:
+        for user_group in idp.user_groups:
+            user_group.slas = list(
+                filter(lambda sla: len(sla.projects) > 0, user_group.slas)
+            )
+        idp.user_groups = list(
+            filter(lambda user_group: len(user_group.slas) > 0, idp.user_groups)
+        )
+    provider.identity_providers = list(
+        filter(lambda idp: len(idp.user_groups) > 0, trust_idps)
+    )
 
     return provider
