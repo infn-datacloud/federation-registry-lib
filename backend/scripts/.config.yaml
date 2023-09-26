@@ -25,8 +25,13 @@ trusted_idps:
           - doc_uuid: bdfda059a23c439f8ffc06edd484e1a0
             start_date: 2024-09-10
             end_date: 2026-10-25
+      - name: pluto
+        slas:
+          - doc_uuid: e11e6aa1feb54ef1bca634fa1038a2a2
+            start_date: 2024-09-10
+            end_date: 2026-10-25
 
-  - issuer: https://aai.egi.eu/realmqualcosaoidc?
+  - issuer: https://aai.egi.eu/oidc/
     group_claim: groups
     user_groups:
       - name: pippo
@@ -59,6 +64,22 @@ openstack:
         sla: bdfda059a23c439f8ffc06edd484e1a0
       - id: 83be7870dbb54d4a988f89ea77e9e2b9
         sla: cdfda059a23c439f8ffc06edd484e1a0
+
+  - name: cloud-veneto
+    status: active
+    is_public: false
+    regions:
+      - name: regionOne
+    auth_url: https://keystone-cv.pd.infn.it/v3
+    identity_providers:
+      - name: infn-cc
+        protocol: openid
+        endpoint: https://iam.cloud.infn.it/
+    projects:
+      - id: 511e6aa1fdb54ef7bca634fa1038a2a2
+        sla: e11e6aa1feb54ef1bca634fa1038a2a2
+        default_public_net: INFN-WAN
+        default_private_net: ML-INFN-wan
 
   - name: backbone
     status: active
@@ -98,7 +119,7 @@ openstack:
             public_ips: 2
           block_storage:
             gigabytes: 2
-        per_region_props: # in alternativa se i parametri variano a seconda della region
+        per_region_props:
           - region_name: sdds
             default_public_net: pluto
             default_private_net: pippo
@@ -125,18 +146,17 @@ openstack:
                 public_ips: 4
               block_storage:
                 gigabytes: 2
-
-kubernetes:
-  - name: recas-ba
-    status: maintenance
-    is_public: false
-    support_emails:
-      - marica.antonacci@ba.infn.it
-    auth_url: https://test.k8s.infn.it/
-    identity_providers:
-      - name: infn-cloud
-        protocol: openid
-        endpoint: https://iam.cloud.infn.it/
-    projects:
-      - name: infn-cloud-ops-ns
-        sla: edfda059a23c439f8ffc06edd484e1a0
+# kubernetes:
+#   - name: recas-ba
+#     status: maintenance
+#     is_public: false
+#     support_emails:
+#       - marica.antonacci@ba.infn.it
+#     auth_url: https://test.k8s.infn.it/
+#     identity_providers:
+#       - name: infn-cloud
+#         protocol: openid
+#         endpoint: https://iam.cloud.infn.it/
+#     projects:
+#       - name: infn-cloud-ops-ns
+#         sla: adfda029a23c439f8ffc06edd484e1a1
