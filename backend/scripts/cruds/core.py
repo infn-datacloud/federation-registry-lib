@@ -11,6 +11,8 @@ ReadSchema = TypeVar("ReadSchema", bound=BaseModel)
 QuerySchema = TypeVar("QuerySchema", bound=BaseModel)
 WriteSchema = TypeVar("WriteSchema", bound=BaseModel)
 
+TIMEOUT = 5  # s
+
 
 class ConnectionException(Exception):
     def __init__(self, resp: requests.Response, item_repr: str) -> None:
@@ -111,6 +113,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
             url=self.get_multi_url,
             params={"with_conn": with_conn},
             headers=self.read_headers,
+            timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_200_OK:
             return [self.read_schema(**i) for i in resp.json()]
@@ -126,6 +129,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
             url=self.connect_url.format(parent_uid=parent_uid, uid=uid),
             headers=self.write_headers,
             json=jsonable_encoder(conn_data, by_alias=False),
+            timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_200_OK:
             logger.info("Successfully connected")
@@ -150,6 +154,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
             json=jsonable_encoder(data, by_alias=False),
             headers=self.write_headers,
             params=params,
+            timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_201_CREATED:
             logger.info(f"{self.type}={str_item} successfully created")
@@ -165,6 +170,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         resp = requests.delete(
             url=self.connect_url.format(parent_uid=parent_uid, uid=uid),
             headers=self.write_headers,
+            timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_200_OK:
             logger.info("Successfully disconnected")
@@ -179,7 +185,9 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
         logger.info(f"Removing {self.type}={str_item}.")
 
         resp = requests.delete(
-            url=self.item_url.format(uid=item.uid), headers=self.write_headers
+            url=self.item_url.format(uid=item.uid),
+            headers=self.write_headers,
+            timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_204_NO_CONTENT:
             return None
@@ -197,6 +205,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
             url=self.get_multi_url,
             params={**data.dict(exclude_unset=True), "with_conn": with_conn},
             headers=self.read_headers,
+            timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_200_OK:
             if len(resp.json()) == 0:
@@ -219,6 +228,7 @@ class BasicCRUD(Generic[WriteSchema, ReadSchema, QuerySchema]):
             url=self.item_url.format(uid=str(uid)),
             json=jsonable_encoder(new_data, by_alias=False),
             headers=self.write_headers,
+            timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_200_OK:
             logger.info(f"{self.type}={new_data} successfully updated")

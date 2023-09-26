@@ -25,6 +25,8 @@ from utils import (
     get_per_user_compute_quotas,
 )
 
+TIMEOUT = 2  # s
+
 
 def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaWrite:
     logger.info("Retrieve current project accessible block storage quotas")
@@ -54,7 +56,7 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
             data["description"] = ""
         extra = data.pop("extra_specs")
         if extra:
-            data["gpus"] = extra.get("gpu_number", 0)
+            data["gpus"] = int(extra.get("gpu_number", 0))
             data["gpu_model"] = extra.get("gpu_model") if data["gpus"] > 0 else None
             data["gpu_vendor"] = extra.get("gpu_vendor") if data["gpus"] > 0 else None
             data["local_storage"] = extra.get(
@@ -171,6 +173,7 @@ def get_provider(
                 project_name=project_conf.name,
                 project_domain_name=project_conf.domain,
                 region_name=region_conf.name,
+                timeout=TIMEOUT,
             )
             if project_conf.id is None:
                 project_conf.id = conn.current_project_id
