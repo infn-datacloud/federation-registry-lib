@@ -1,5 +1,8 @@
+from typing import List
+
 from app.crud import CRUDBase
 from app.location.crud import location
+from app.project.models import Project
 from app.provider.models import Provider
 from app.provider.schemas_extended import RegionCreateExtended
 from app.region.models import Region
@@ -35,16 +38,25 @@ class CRUDRegion(
     """"""
 
     def create(
-        self, *, obj_in: RegionCreateExtended, provider: Provider, force: bool = False
+        self,
+        *,
+        obj_in: RegionCreateExtended,
+        provider: Provider,
+        projects: List[Project],
+        force: bool = False
     ) -> Region:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.provider.connect(provider)
         if obj_in.location is not None:
             location.create(obj_in=obj_in.location, region=db_obj)
         for item in obj_in.block_storage_services:
-            block_storage_service.create(obj_in=item, region=db_obj, force=True)
+            block_storage_service.create(
+                obj_in=item, region=db_obj, projects=projects, force=True
+            )
         for item in obj_in.compute_services:
-            compute_service.create(obj_in=item, region=db_obj, force=True)
+            compute_service.create(
+                obj_in=item, region=db_obj, projects=projects, force=True
+            )
         for item in obj_in.identity_services:
             identity_service.create(obj_in=item, region=db_obj, force=True)
         for item in obj_in.network_services:

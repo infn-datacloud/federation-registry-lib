@@ -42,7 +42,9 @@ class CRUDProvider(
                 obj_in=item, provider=db_obj, relationship=item.relationship
             )
         for item in obj_in.regions:
-            region.create(obj_in=item, provider=db_obj, force=True)
+            region.create(
+                obj_in=item, provider=db_obj, projects=db_obj.projects.all(), force=True
+            )
         return db_obj
 
     def remove(self, *, db_obj: Provider) -> bool:

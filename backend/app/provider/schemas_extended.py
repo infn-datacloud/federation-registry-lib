@@ -13,8 +13,10 @@ from app.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
 from app.project.schemas import ProjectCreate, ProjectRead
 from app.provider.schemas import ProviderCreate, ProviderRead, ProviderReadPublic
 from app.quota.schemas import (
+    BlockStorageQuotaCreate,
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
+    ComputeQuotaCreate,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
 )
@@ -35,7 +37,7 @@ from app.service.schemas import (
 )
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupCreate, UserGroupRead, UserGroupReadPublic
-from pydantic import Field
+from pydantic import UUID4, Field
 
 
 class UserGroupReadExtended(UserGroupRead):
@@ -191,6 +193,20 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
     )
 
 
+class BlockStorageQuotaCreateExtended(BlockStorageQuotaCreate):
+    project: Union[UUID4, int] = Field(description="Project UUID")
+
+
+class ComputeQuotaCreateExtended(ComputeQuotaCreate):
+    project: Union[UUID4, int] = Field(description="Project UUID")
+
+
+class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
+    quotas: List[BlockStorageQuotaCreateExtended] = Field(
+        default_factory=list, description="List or related quotas"
+    )
+
+
 class ComputeServiceCreateExtended(ComputeServiceCreate):
     flavors: List[FlavorCreate] = Field(
         default_factory=list,
@@ -199,6 +215,9 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
     images: List[ImageCreate] = Field(
         default_factory=list,
         description="List of images accessible through this service",
+    )
+    quotas: List[ComputeQuotaCreateExtended] = Field(
+        default_factory=list, description="List or related quotas"
     )
 
 
@@ -213,7 +232,7 @@ class RegionCreateExtended(RegionCreate):
     location: Optional[LocationCreate] = Field(
         default=None, description="Geographical site"
     )
-    block_storage_services: List[BlockStorageServiceCreate] = Field(
+    block_storage_services: List[BlockStorageServiceCreateExtended] = Field(
         default_factory=list, description="Block storage service"
     )
     compute_services: List[ComputeServiceCreateExtended] = Field(

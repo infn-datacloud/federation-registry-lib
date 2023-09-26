@@ -1,14 +1,16 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from app.crud import CRUDBase
 from app.flavor.crud import flavor
 from app.image.crud import image
 from app.network.crud import network
+from app.project.models import Project
 from app.provider.schemas_extended import (
+    BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
 )
-from app.quota.crud import quota
+from app.quota.crud import block_storage_quota, compute_quota, quota
 from app.region.models import Region
 from app.service.models import (
     BlockStorageService,
@@ -123,10 +125,20 @@ class CRUDBlockStorageService(
     """"""
 
     def create(
-        self, *, obj_in: BlockStorageServiceCreate, region: Region, force: bool = False
+        self,
+        *,
+        obj_in: BlockStorageServiceCreateExtended,
+        region: Region,
+        projects: List[Project],
+        force: bool = False
     ) -> BlockStorageService:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.region.connect(region)
+        for item in obj_in.quotas:
+            db_proj = list(filter(lambda x: x.uuid == str(item.project), projects))[0]
+            block_storage_quota.create(
+                obj_in=item, service=db_obj, project=db_proj, force=True
+            )
         return db_obj
 
     def remove(self, *, db_obj: BlockStorageService) -> bool:
@@ -150,7 +162,12 @@ class CRUDComputeService(
     """"""
 
     def create(
-        self, *, obj_in: ComputeServiceCreateExtended, region: Region, force: bool = False
+        self,
+        *,
+        obj_in: ComputeServiceCreateExtended,
+        region: Region,
+        projects: List[Project],
+        force: bool = False
     ) -> ComputeService:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.region.connect(region)
@@ -158,6 +175,11 @@ class CRUDComputeService(
             flavor.create(obj_in=item, service=db_obj, force=True)
         for item in obj_in.images:
             image.create(obj_in=item, service=db_obj, force=True)
+        for item in obj_in.quotas:
+            db_proj = list(filter(lambda x: x.uuid == str(item.project), projects))[0]
+            compute_quota.create(
+                obj_in=item, service=db_obj, project=db_proj, force=True
+            )
         return db_obj
 
     def remove(self, *, db_obj: ComputeService) -> bool:
@@ -210,7 +232,11 @@ class CRUDNetworkService(
     """"""
 
     def create(
-        self, *, obj_in: NetworkServiceCreateExtended, region: Region, force: bool = False
+        self,
+        *,
+        obj_in: NetworkServiceCreateExtended,
+        region: Region,
+        force: bool = False
     ) -> NetworkService:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.region.connect(region)

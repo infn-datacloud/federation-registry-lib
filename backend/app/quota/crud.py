@@ -26,7 +26,7 @@ from app.quota.schemas_extended import (
     ComputeQuotaReadExtended,
     ComputeQuotaReadExtendedPublic,
 )
-from app.service.models import Service
+from app.service.models import BlockStorageService, ComputeService, Service
 
 
 class CRUDQuota(
@@ -54,16 +54,14 @@ class CRUDQuota(
         if isinstance(obj_in, BlockStorageQuotaCreate):
             db_obj = block_storage_quota.create(obj_in=obj_in, force=force)
         elif isinstance(obj_in, ComputeQuotaCreate):
-            db_obj = nova_quota.create(obj_in=obj_in, force=force)
-        db_obj.service.connect(service)
-        db_obj.project.connect(project)
+            db_obj = compute_quota.create(obj_in=obj_in, force=force)
         return db_obj
 
     def remove(self, *, db_obj: Quota) -> bool:
         if isinstance(db_obj, BlockStorageQuota):
             return block_storage_quota.remove(db_obj=db_obj)
         elif isinstance(db_obj, ComputeQuota):
-            return nova_quota.remove(db_obj=db_obj)
+            return compute_quota.remove(db_obj=db_obj)
 
     def update(
         self, *, db_obj: Quota, obj_in: Union[QuotaUpdate, Dict[str, Any]]
@@ -71,7 +69,7 @@ class CRUDQuota(
         if isinstance(db_obj, BlockStorageQuota):
             return block_storage_quota.update(db_obj=db_obj, obj_in=obj_in)
         elif isinstance(db_obj, ComputeQuota):
-            return nova_quota.update(db_obj=db_obj, obj_in=obj_in)
+            return compute_quota.update(db_obj=db_obj, obj_in=obj_in)
 
 
 class CRUDBlockStorageQuota(
@@ -88,6 +86,19 @@ class CRUDBlockStorageQuota(
 ):
     """"""
 
+    def create(
+        self,
+        *,
+        obj_in: BlockStorageQuotaCreate,
+        service: BlockStorageService,
+        project: Project,
+        force: bool = False
+    ) -> BlockStorageQuota:
+        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj.service.connect(service)
+        db_obj.project.connect(project)
+        return db_obj
+
 
 class CRUDComputeQuota(
     CRUDBase[
@@ -102,6 +113,19 @@ class CRUDComputeQuota(
     ]
 ):
     """"""
+
+    def create(
+        self,
+        *,
+        obj_in: ComputeQuotaCreate,
+        service: ComputeService,
+        project: Project,
+        force: bool = False
+    ) -> ComputeQuota:
+        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj.service.connect(service)
+        db_obj.project.connect(project)
+        return db_obj
 
 
 quota = CRUDQuota(
@@ -122,7 +146,7 @@ block_storage_quota = CRUDBlockStorageQuota(
     read_extended_schema=BlockStorageQuotaReadExtended,
     read_extended_public_schema=BlockStorageQuotaReadExtendedPublic,
 )
-nova_quota = CRUDComputeQuota(
+compute_quota = CRUDComputeQuota(
     model=ComputeQuota,
     create_schema=ComputeQuotaCreate,
     read_schema=ComputeQuotaRead,
