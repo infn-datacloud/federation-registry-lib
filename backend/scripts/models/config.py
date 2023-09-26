@@ -130,20 +130,7 @@ class K8sNameSpace(Project):
 
 
 class OsProject(Project):
-    id: Optional[UUID4] = Field(default=None, description="Project unique ID")
-    name: Optional[str] = Field(default=None, description="Project name")
-    domain: Optional[str] = Field(default=None, description="Project domain name")
-
-    @root_validator
-    def check_id_or_name_and_domain(cls, values):
-        if values.get("id") is not None:
-            values["name"] = None
-            values["domain"] = None
-        else:
-            assert (
-                values["name"] is not None and values["domain"] is not None
-            ), "If ID is None, both 'name' and 'domain' must be set"
-        return values
+    id: UUID4 = Field(default=None, description="Project unique ID")
 
 
 class Region(RegionBase):

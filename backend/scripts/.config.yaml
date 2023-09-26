@@ -57,8 +57,7 @@ openstack:
         protocol: openid
         endpoint: https://iam.cloud.infn.it/
     projects:
-      - name: infn-cloud-ops
-        domain: default
+      - id: a8b324a0f4f349d28e98e4e78b11bacc
         sla: edfda059a23c439f8ffc06edd484e1a0
       - id: edfda059a23c439f8ffc06edd484efa0
         sla: bdfda059a23c439f8ffc06edd484e1a0

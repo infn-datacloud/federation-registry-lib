@@ -436,6 +436,11 @@
         "description": "Project details",
         "type": "object",
         "properties": {
+          "id": {
+            "description": "Project UUID",
+            "type": "string",
+            "format": "uuid"
+          },
           "sla": {
             "description": "Corresponding SLA",
             "type": "string",
@@ -482,33 +487,7 @@
             "minItems": 2
           }
         },
-        "required": ["sla"],
-        "oneOf": [
-          {
-            "properties": {
-              "id": {
-                "description": "Project UUID",
-                "type": "string",
-                "format": "uuid"
-              }
-            },
-            "required": ["id"]
-          },
-          {
-            "properties": {
-              "name": {
-                "description": "Project name",
-                "type": "string"
-              },
-              "domain": {
-                "description": "Project domain",
-                "type": "string",
-                "default": "default"
-              }
-            },
-            "required": ["name"]
-          }
-        ]
+        "required": ["id", "sla"]
       },
       "minItems": 1,
       "uniqueItems": true

@@ -150,15 +150,9 @@ def get_provider(
 
             logger.info(
                 f"Connecting through IDP {chosen_idp.issuer} to openstack "
-                f"{os_conf.name} and region {region_conf.name}."
+                f"'{os_conf.name}' and region '{region_conf.name}'."
+                f"Accessing with project ID: {project_conf.id}"
             )
-            if project_conf.id is not None:
-                logger.info(f"Accessing with project ID: {project_conf.id}")
-            else:
-                logger.info(
-                    "Accessing with project name and domain: "
-                    f"{project_conf.name} - {project_conf.domain}"
-                )
 
             proj_id = None
             if project_conf.id is not None:
@@ -170,14 +164,10 @@ def get_provider(
                 protocol=chosen_idp.protocol,
                 access_token=chosen_idp.token,
                 project_id=proj_id,
-                project_name=project_conf.name,
-                project_domain_name=project_conf.domain,
                 region_name=region_conf.name,
                 timeout=TIMEOUT,
             )
-            if project_conf.id is None:
-                project_conf.id = conn.current_project_id
-            logger.info(f"Connected. Project ID: {project_conf.id}")
+            logger.info("Connected.")
 
             # Create region's compute service.
             # Retrieve flavors, images and current project corresponding quotas.
