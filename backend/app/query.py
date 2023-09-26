@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, get_origin
 
 from app.models import BaseNodeQuery
 from pydantic import BaseModel, Field, create_model, root_validator
@@ -67,6 +67,8 @@ def create_query_model(model_name: str, base_model: BaseModel):
 
     d = {}
     for k, v in base_model.__fields__.items():
+        if get_origin(v.type_):
+            continue
         if v.shape == SHAPE_LIST:
             continue
         elif issubclass(v.type_, str) or issubclass(v.type_, Enum):

@@ -1,6 +1,7 @@
 from neomodel import (
     DateProperty,
     One,
+    OneOrMore,
     RelationshipFrom,
     RelationshipTo,
     StringProperty,
@@ -34,6 +35,6 @@ class SLA(StructuredNode):
     user_group = RelationshipFrom(
         "..user_group.models.UserGroup", "AGREE", cardinality=One
     )
-    project = RelationshipTo(
-        "..project.models.Project", "REFER_TO", cardinality=One
+    projects = RelationshipTo(
+        "..project.models.Project", "REFER_TO", cardinality=OneOrMore
     )

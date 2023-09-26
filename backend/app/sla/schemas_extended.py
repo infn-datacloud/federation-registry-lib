@@ -87,7 +87,9 @@ class SLAReadExtended(SLARead):
     """Model to extend the SLA data read from the DB with the lists of related
     items for authenticated users."""
 
-    project: ProjectReadExtended = Field(description="Involved Project.")
+    projects: List[ProjectReadExtended] = Field(
+        default_factory=list, description="Involved Projects."
+    )
     user_group: UserGroupReadExtended = Field(description="Involved User Group.")
 
 
@@ -95,5 +97,7 @@ class SLAReadExtendedPublic(SLAReadPublic):
     """Model to extend the SLA data read from the DB with the lists of related
     items for non-authenticated users."""
 
-    project: ProjectReadExtendedPublic = Field(description="Involved Project.")
+    projects: List[ProjectReadExtendedPublic] = Field(
+        default_factory=list, description="Involved Projects."
+    )
     user_group: UserGroupReadExtendedPublic = Field(description="Involved User Group.")

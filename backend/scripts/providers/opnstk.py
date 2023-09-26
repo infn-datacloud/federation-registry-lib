@@ -43,7 +43,7 @@ def get_compute_quotas(conn: Connection) -> ComputeQuotaWrite:
 def get_flavors(conn: Connection) -> List[FlavorWrite]:
     logger.info("Retrieve current project accessible flavors")
     flavors = []
-    for flavor in conn.compute.flavors():
+    for flavor in conn.compute.flavors(is_disabled=False):
         projects = []
         if not flavor.is_public:
             for i in conn.compute.get_flavor_access(flavor):
@@ -55,11 +55,12 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
         extra = data.pop("extra_specs")
         if extra:
             data["gpus"] = extra.get("gpu_number", 0)
-            data["gpu_model"] = extra.get("gpu_model")
-            data["gpu_vendor"] = extra.get("gpu_vendor")
+            data["gpu_model"] = extra.get("gpu_model") if data["gpus"] > 0 else None
+            data["gpu_vendor"] = extra.get("gpu_vendor") if data["gpus"] > 0 else None
             data["local_storage"] = extra.get(
                 "aggregate_instance_extra_specs:local_storage"
             )
+            data["infiniband"] = extra.get("infiniband", False)
         flavors.append(FlavorWrite(**data, projects=projects))
     return flavors
 
@@ -67,7 +68,7 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
 def get_images(conn: Connection) -> List[ImageWrite]:
     logger.info("Retrieve current project accessible images")
     images = []
-    for image in conn.image.images():
+    for image in conn.image.images(status="active"):
         is_public = True
         projects = []
         if image.visibility in ["private", "shared"]:
@@ -82,37 +83,28 @@ def get_images(conn: Connection) -> List[ImageWrite]:
         data["uuid"] = data.pop("id")
         if data.get("description") is None:
             data["description"] = ""
-        data["version"] = data.pop("os_version")
-        data["distribution"] = data.pop("os_distro")
         data["is_public"] = is_public
-        data.pop("visibility")
         images.append(ImageWrite(**data, projects=projects))
     return images
 
 
 def get_networks(conn: Connection) -> List[NetworkWrite]:
-    logger.info("Retrieve current project accessible images")
+    logger.info("Retrieve current project accessible networks")
     networks = []
-    for network in conn.network.networks():
-        # is_public = True
-        # projects = []
-        # if network.visibility in ["private", "shared"]:
-        #    projects = [network.owner_id]
-        #    is_public = False
-        # if network.visibility == "shared":
-        #    members = list(conn.network.members(network))
-        #    for member in members:
-        #        if member.status == "accepted":
-        #            projects.append(member.id)
+    for network in conn.network.networks(status="active"):
+        is_public = True
+        projects = []
+        if not network.is_shared:
+            is_public = False
+            projects.append(conn.current_project_id)
         data = network.to_dict()
         data["uuid"] = data.pop("id")
         if data.get("description") is None:
             data["description"] = ""
-        # data["version"] = data.pop("os_version")
-        # data["distribution"] = data.pop("os_distro")
-        # data["is_public"] = is_public
-        # data.pop("visibility")
-        networks.append(NetworkWrite(**data))  # , projects=projects))
+        data["is_public"] = is_public
+        if data.get("is_default") is None:
+            data["is_default"] = False
+        networks.append(NetworkWrite(**data, projects=projects))
     return networks
 
 

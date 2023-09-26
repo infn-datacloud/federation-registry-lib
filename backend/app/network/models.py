@@ -1,5 +1,7 @@
 from neomodel import (
+    ArrayProperty,
     BooleanProperty,
+    IntegerProperty,
     OneOrMore,
     RelationshipFrom,
     StringProperty,
@@ -26,11 +28,13 @@ class Network(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
-    public = BooleanProperty(default=False)
-    external = BooleanProperty(default=False)
-    preferred = BooleanProperty(default=False)
+    is_public = BooleanProperty(default=False)
+    is_router_external = BooleanProperty(default=False)
+    is_default = BooleanProperty(default=False)
+    mtu = IntegerProperty()
     proxy_ip = StringProperty()
     proxy_user = StringProperty()
+    tags = ArrayProperty(StringProperty())
 
     services = RelationshipFrom(
         "..service.models.NetworkService",

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
@@ -10,11 +10,12 @@ class NetworkBase(BaseNode):
 
     name: str = Field(description="Network name in the provider.")
     uuid: UUID4 = Field(description="Network UUID in the provider.")
-    public: bool = Field(default=False, description="Public or private network type")
-    external: bool = Field(default=False, description="External network")
-    preferred: bool = Field(
+    is_public: bool = Field(default=False, description="Public or private network type")
+    is_router_external: bool = Field(default=False, description="External network")
+    is_default: bool = Field(
         default=False, description="Main network to use when creating a VM or docker"
     )
+    mtu: Optional[int] = Field(default=None, description="Metric transmission unit")
     proxy_ip: Optional[str] = Field(
         default=None,
         description="Proxy IP address to use to access to private networks",
@@ -22,6 +23,7 @@ class NetworkBase(BaseNode):
     proxy_user: Optional[str] = Field(
         default=None, description="Proxy username to use to access to private networks"
     )
+    tags: List[str] = Field(default_factory=list, description="List of network tags")
 
 
 class NetworkCreate(BaseNodeCreate, NetworkBase):

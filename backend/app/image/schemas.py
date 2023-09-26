@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 from app.image.enum import ImageOS
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
@@ -12,20 +11,21 @@ class ImageBase(BaseNode):
 
     name: str = Field(description="Image name in the provider.")
     uuid: UUID4 = Field(description="Image UUID in the provider.")
-    os: Optional[ImageOS] = Field(default=None, description="Image Operating System.")
-    distribution: Optional[str] = Field(
+    os_type: Optional[ImageOS] = Field(
+        default=None, description="Image Operating System."
+    )
+    os_distro: Optional[str] = Field(
         default=None, description="Operating system distribution type."
     )
-    version: Optional[str] = Field(default=None, description="Distribution version.")
+    os_version: Optional[str] = Field(default=None, description="Distribution version.")
     architecture: Optional[str] = Field(
         default=None, description="Operating system architecture."
     )
+    kernel_id: Optional[str] = Field(default=None, description="Kernel version")
     cuda_support: bool = Field(default=False, description="Enable CUDA support.")
     gpu_driver: bool = Field(default=False, description="Enable GPU driver support.")
-    creation_time: Optional[datetime] = Field(
-        default=None, description="Image creation time."
-    )
     is_public: bool = Field(default=True, description="Public available")
+    tags: List[str] = Field(default_factory=list, description="List of tags")
 
 
 class ImageCreate(BaseNodeCreate, ImageBase):

@@ -1,6 +1,6 @@
 from neomodel import (
+    ArrayProperty,
     BooleanProperty,
-    DateTimeProperty,
     OneOrMore,
     RelationshipFrom,
     StringProperty,
@@ -35,14 +35,17 @@ class Image(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
-    os = StringProperty()
-    distribution = StringProperty()
-    version = StringProperty()
+    os_type = StringProperty()
+    os_distro = StringProperty()
+    os_version = StringProperty()
     architecture = StringProperty()
+    kernel_id = StringProperty()
+    # TODO Understand what does it mean
     cuda_support = BooleanProperty(default=False)
+    # TODO Understand what does it mean
     gpu_driver = BooleanProperty(default=False)
-    creation_time = DateTimeProperty()
     is_public = BooleanProperty(default=True)
+    tags = ArrayProperty(StringProperty())
 
     services = RelationshipFrom(
         "..service.models.ComputeService",

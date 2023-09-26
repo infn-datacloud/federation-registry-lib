@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
@@ -9,19 +9,24 @@ class FlavorBase(BaseNode):
     """Model with Flavor basic attributes."""
 
     name: str = Field(description="Flavor name in the provider.")
-    uuid: UUID4 = Field(description="Flavor UUID in the provider.")
-    vcpus: int = Field(default=0, ge=0, description="Number of virtual CPUs")
-    ram: int = Field(default=0, ge=0, description="Reserved RAM size (MB)")
+    uuid: Union[UUID4, int] = Field(description="Flavor UUID in the provider.")
     disk: int = Field(default=0, ge=0, description="Reserved disk size (GB)")
+    is_public: bool = Field(default=True, description="Public available")
+    ram: int = Field(default=0, ge=0, description="Reserved RAM size (MB)")
+    vcpus: int = Field(default=0, ge=0, description="Number of virtual CPUs")
     swap: int = Field(default=0, ge=0, description="Reserved swap disk size (GB)")
-    infiniband_support: bool = Field(default=False, description="")  # TODO
+    ephemeral: int = Field(
+        default=0, ge=0, description="Size of the ephemeral disk (GB)"
+    )
+    infiniband: bool = Field(
+        default=False, description="MPI: parallel multi-process enabled"
+    )
     gpus: int = Field(default=0, ge=0, description="Number of GPUs")
     gpu_model: Optional[str] = Field(default=None, description="GPU model name")
     gpu_vendor: Optional[str] = Field(default=None, description="GPU vendor name")
     local_storage: Optional[str] = Field(
         default=None, description="Local storage presence"
     )
-    is_public: bool = Field(default=True, description="Public available")
 
     @root_validator
     def check_gpu_values(cls, values: Dict[str, Any]):

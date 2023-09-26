@@ -34,16 +34,17 @@ class Flavor(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
-    vcpus = IntegerProperty(default=0)
-    ram = IntegerProperty(default=0)
     disk = IntegerProperty(default=0)
+    is_public = BooleanProperty(default=True)
+    ram = IntegerProperty(default=0)
+    vcpus = IntegerProperty(default=0)
     swap = IntegerProperty(default=0)
-    infiniband_support = BooleanProperty(default=False)
+    ephemeral = IntegerProperty(default=0)
+    infiniband = BooleanProperty(default=False)
     gpus = IntegerProperty(default=0)
     gpu_model = StringProperty()
     gpu_vendor = StringProperty()
     local_storage = StringProperty()
-    is_public = BooleanProperty(default=True)
 
     services = RelationshipFrom(
         "..service.models.ComputeService",
