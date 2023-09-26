@@ -1,3 +1,5 @@
+from typing import List
+
 from app.crud import CRUDBase
 from app.project.models import Project
 from app.project.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
@@ -24,13 +26,14 @@ class CRUDSLA(
         self,
         *,
         obj_in: SLACreate,
-        project: Project,
+        projects: List[Project],
         user_group: UserGroup,
         force: bool = False
     ) -> SLA:
         db_obj = super().create(obj_in=obj_in, force=force)
-        db_obj.project.connect(project)
         db_obj.user_group.connect(user_group)
+        for i in projects:
+            db_obj.projects.connect(i)
         return db_obj
 
 

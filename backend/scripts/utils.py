@@ -1,53 +1,10 @@
 import os
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import yaml
 from logger import logger
 from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
-from models.config import (
-    AuthMethod,
-    ChosenIDP,
-    ConfigIn,
-    ConfigOut,
-    Project,
-    TrustedIDPOut,
-    URLs,
-)
-from pydantic import UUID4
-
-
-def choose_idp(
-    *, project_sla: UUID4, idp_list: List[TrustedIDPOut]
-) -> Optional[ChosenIDP]:
-    for trusted_idp in idp_list:
-        for user_group in trusted_idp.user_groups:
-            if project_sla in [sla.doc_uuid for sla in user_group.slas]:
-                return ChosenIDP(
-                    token=trusted_idp.token,
-                    name=trusted_idp.relationship.idp_name,
-                    protocol=trusted_idp.relationship.protocol,
-                    issuer=trusted_idp.endpoint,
-                )
-    logger.error(
-        "Configuration error: Project's SLA document ID "
-        f"{project_sla} does not match any of the SLAs "
-        "in the Trusted Identity Provider list."
-    )
-    return None
-
-
-def get_identity_providers(
-    *, provider_idps: List[AuthMethod], trusted_idps: List[TrustedIDPOut]
-) -> List[TrustedIDPOut]:
-    logger.info("Retrieve and merge identity providers data.")
-    logger.info("Include also user groups and related SLAs.")
-    identity_providers = []
-    for idp in provider_idps:
-        for trusted_idp in trusted_idps:
-            if idp.endpoint == trusted_idp.endpoint:
-                trusted_idp.relationship = idp
-                identity_providers.append(trusted_idp)
-    return identity_providers
+from models.config import ConfigIn, ConfigOut, Project, TrustedIDPOut, URLs
 
 
 def load_config(*, base_path: str = ".", fname: str = ".config.yaml") -> ConfigOut:

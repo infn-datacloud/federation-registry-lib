@@ -1,9 +1,13 @@
+from typing import List
+
 from app.crud import CRUDBase
 from app.identity_provider.models import IdentityProvider
+from app.project.models import Project
 from app.project.schemas_extended import (
     UserGroupReadExtended,
     UserGroupReadExtendedPublic,
 )
+from app.provider.schemas_extended import UserGroupCreateExtended
 from app.sla.crud import sla
 from app.user_group.models import UserGroup
 from app.user_group.schemas import (
@@ -30,12 +34,20 @@ class CRUDUserGroup(
     """"""
 
     def create(
-        self, *, obj_in: UserGroupCreate, identity_provider: IdentityProvider
+        self,
+        *,
+        obj_in: UserGroupCreateExtended,
+        identity_provider: IdentityProvider,
+        projects: List[Project]
     ) -> UserGroup:
         db_obj = identity_provider.user_groups.get_or_none(name=obj_in.name)
         if db_obj is None:
             db_obj = super().create(obj_in=obj_in)
             db_obj.identity_provider.connect(identity_provider)
+        for item in obj_in.slas:
+            projs = [str(i) for i in item.projects]
+            db_projs = list(filter(lambda x: x.uuid in projs, projects))
+            sla.create(obj_in=item, user_group=db_obj, projects=db_projs, force=True)
         return db_obj
 
     def remove(self, *, db_obj: UserGroup) -> bool:

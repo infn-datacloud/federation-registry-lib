@@ -1,10 +1,14 @@
+from typing import List
+
 from app.sla.schemas import SLACreate, SLAQuery, SLARead
 from pydantic import UUID4, Field
 
 
 class SLAWrite(SLACreate):
     doc_uuid: UUID4 = Field(alias="_id")
-    project: UUID4 = Field(description="Project UUID")
+    projects: List[UUID4] = Field(
+        default_factory=list, description="List of project UUID"
+    )
 
     class Config:
         allow_population_by_field_name = True

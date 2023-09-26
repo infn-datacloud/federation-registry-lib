@@ -15,15 +15,17 @@ from models.cmdb.service import (
     IdentityServiceWrite,
     NetworkServiceWrite,
 )
-from models.config import Openstack, TrustedIDPOut
+from models.config import (
+    SLA,
+    AuthMethod,
+    Openstack,
+    OsProject,
+    TrustedIDPOut,
+    UserGroup,
+)
 from openstack import connect
 from openstack.connection import Connection
-from utils import (
-    choose_idp,
-    get_identity_providers,
-    get_per_user_block_storage_quotas,
-    get_per_user_compute_quotas,
-)
+from utils import get_per_user_block_storage_quotas, get_per_user_compute_quotas
 
 TIMEOUT = 2  # s
 
@@ -120,50 +122,101 @@ def get_project(conn: Connection) -> ProjectWrite:
     return ProjectWrite(**data)
 
 
+def get_correct_idp_and_user_group_for_project(
+    *,
+    trusted_idps: List[TrustedIDPOut],
+    os_conf_auth_methods: List[AuthMethod],
+    project_conf: OsProject,
+) -> TrustedIDPOut:
+    for trusted_idp in trusted_idps:
+        for user_group in trusted_idp.user_groups:
+            for sla in user_group.slas:
+                if sla.doc_uuid == project_conf.sla:
+                    for auth_method in os_conf_auth_methods:
+                        if auth_method.endpoint == trusted_idp.endpoint:
+                            sla = SLA(
+                                **sla.dict(exclude={"projects"}),
+                                projects=[project_conf.id],
+                            )
+                            user_group = UserGroup(
+                                **user_group.dict(exclude={"slas"}), slas=[sla]
+                            )
+                            trusted_idp = TrustedIDPOut(
+                                **trusted_idp.dict(
+                                    exclude={"user_groups", "relationship"}
+                                ),
+                                user_groups=[user_group],
+                                relationship=auth_method,
+                            )
+                            return trusted_idp
+    logger.error(
+        "Configuration error: No matching Identity Provider "
+        f"for project {project_conf.id}"
+    )
+    raise
+
+
 def get_provider(
     *, os_conf: Openstack, trusted_idps: List[TrustedIDPOut]
 ) -> ProviderWrite:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
-    prov_trusted_idps = get_identity_providers(
-        provider_idps=os_conf.identity_providers, trusted_idps=trusted_idps
-    )
     provider = ProviderWrite(
         name=os_conf.name,
         type=os_conf.type,
         is_public=os_conf.is_public,
         support_emails=os_conf.support_emails,
         status=os_conf.status,
-        identity_providers=prov_trusted_idps,
     )
 
     for region_conf in os_conf.regions:
         region = RegionWrite(**region_conf.dict())
 
         for project_conf in os_conf.projects:
-            chosen_idp = choose_idp(
-                project_sla=project_conf.sla, idp_list=prov_trusted_idps
+            trusted_idp = get_correct_idp_and_user_group_for_project(
+                os_conf_auth_methods=os_conf.identity_providers,
+                trusted_idps=trusted_idps,
+                project_conf=project_conf,
             )
-            if chosen_idp is None:
+            if trusted_idp is None:
                 logger.error(f"Skipping project {project_conf.id}.")
                 continue
 
+            for i, idp in enumerate(provider.identity_providers):
+                if idp.endpoint == trusted_idp.endpoint:
+                    for j, user_group in enumerate(idp.user_groups):
+                        if user_group.name == trusted_idp.user_groups[0].name:
+                            for k, sla in enumerate(user_group.slas):
+                                if (
+                                    sla.doc_uuid
+                                    == trusted_idp.user_groups[0].slas[0].doc_uuid
+                                ):
+                                    provider.identity_providers[i].user_groups[j].slas[
+                                        k
+                                    ].projects += (
+                                        trusted_idp.user_groups[0].slas[0].projects
+                                    )
+                            else:
+                                idp.user_groups[0].slas += trusted_idp.user_groups[
+                                    0
+                                ].slas
+                    else:
+                        idp.user_groups += trusted_idp.user_groups
+            else:
+                provider.identity_providers.append(trusted_idp)
+
             logger.info(
-                f"Connecting through IDP {chosen_idp.issuer} to openstack "
+                f"Connecting through IDP {trusted_idp.endpoint} to openstack "
                 f"'{os_conf.name}' and region '{region_conf.name}'."
                 f"Accessing with project ID: {project_conf.id}"
             )
-
-            proj_id = None
-            if project_conf.id is not None:
-                proj_id = project_conf.id.hex
             conn = connect(
                 auth_url=os_conf.auth_url,
                 auth_type="v3oidcaccesstoken",
-                identity_provider=chosen_idp.name,
-                protocol=chosen_idp.protocol,
-                access_token=chosen_idp.token,
-                project_id=proj_id,
+                identity_provider=trusted_idp.relationship.idp_name,
+                protocol=trusted_idp.relationship.protocol,
+                access_token=trusted_idp.token,
+                project_id=project_conf.id.hex,
                 region_name=region_conf.name,
                 timeout=TIMEOUT,
             )

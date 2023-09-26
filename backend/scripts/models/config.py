@@ -35,8 +35,14 @@ class CMDB(BaseModel):
     api_ver: APIVersions = Field(description="API versions")
 
 
+class SLA(SLABase):
+    projects: List[UUID4] = Field(
+        default_factory=list, description="List of project uuids"
+    )
+
+
 class UserGroup(UserGroupBase):
-    slas: List[SLABase] = Field(description="SLAs")
+    slas: List[SLA] = Field(description="SLAs")
 
 
 class TrustedIDPIn(BaseModel):
@@ -201,7 +207,7 @@ class TrustedIDPOut(IdentityProviderBase):
                 stdout=subprocess.PIPE,
                 text=True,
             )
-        values["token"] = token_cmd.stdout.strip("\n")
+            values["token"] = token_cmd.stdout.strip("\n")
         return values
 
 
@@ -233,10 +239,3 @@ class ConfigOut(BaseModel):
         default_factory=list,
         description="List of openstack providers to integrate in the CMDB",
     )
-
-
-class ChosenIDP(BaseModel):
-    token: str
-    issuer: AnyHttpUrl
-    name: str
-    protocol: str

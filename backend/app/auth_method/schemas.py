@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Field
 
 
 class AuthMethodBase(BaseModel):
@@ -18,7 +18,6 @@ class AuthMethodBase(BaseModel):
 
     class Config:
         validate_assignment = True
-        extra = Extra.ignore
 
 
 class AuthMethodCreate(AuthMethodBase):

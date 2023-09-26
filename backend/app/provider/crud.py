@@ -39,7 +39,10 @@ class CRUDProvider(
             project.create(obj_in=item, provider=db_obj, force=True)
         for item in obj_in.identity_providers:
             identity_provider.create(
-                obj_in=item, provider=db_obj, relationship=item.relationship
+                obj_in=item,
+                provider=db_obj,
+                relationship=item.relationship,
+                projects=db_obj.projects.all(),
             )
         for item in obj_in.regions:
             region.create(

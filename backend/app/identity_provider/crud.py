@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from app.auth_method.schemas import AuthMethodCreate
 from app.crud import CRUDBase
@@ -14,6 +14,7 @@ from app.identity_provider.schemas_extended import (
     IdentityProviderReadExtended,
     IdentityProviderReadExtendedPublic,
 )
+from app.project.models import Project
 from app.provider.models import Provider
 from app.provider.schemas_extended import IdentityProviderCreateExtended
 from app.user_group.crud import user_group
@@ -37,6 +38,7 @@ class CRUDIdentityProvider(
         self,
         *,
         obj_in: IdentityProviderCreateExtended,
+        projects: List[Project],
         provider: Optional[Provider] = None,
         relationship: AuthMethodCreate = None,
         force: bool = False
@@ -45,7 +47,7 @@ class CRUDIdentityProvider(
         if provider is not None and relationship is not None:
             db_obj.providers.connect(provider, relationship.dict())
         for item in obj_in.user_groups:
-            user_group.create(obj_in=item, identity_provider=db_obj)
+            user_group.create(obj_in=item, identity_provider=db_obj, projects=projects)
         return db_obj
 
     def remove(self, *, db_obj: IdentityProvider) -> bool:

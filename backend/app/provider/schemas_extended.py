@@ -35,7 +35,7 @@ from app.service.schemas import (
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
-from app.sla.schemas import SLARead, SLAReadPublic
+from app.sla.schemas import SLACreate, SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupCreate, UserGroupRead, UserGroupReadPublic
 from pydantic import UUID4, Field
 
@@ -180,6 +180,18 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     )
 
 
+class SLACreateExtended(SLACreate):
+    projects: List[UUID4] = Field(
+        default_factory=list, description="List of projects UUID"
+    )
+
+
+class UserGroupCreateExtended(UserGroupCreate):
+    slas: List[SLACreateExtended] = Field(
+        default_factory=list, description="List of SLAs"
+    )
+
+
 class IdentityProviderCreateExtended(IdentityProviderCreate):
     """Model to extend the Identity Provider data used to create a new instance
     in the DB with the authentication method details."""
@@ -187,7 +199,7 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
     relationship: AuthMethodCreate = Field(
         description="Authentication method used by the Provider"
     )
-    user_groups: List[UserGroupCreate] = Field(
+    user_groups: List[UserGroupCreateExtended] = Field(
         default_factory=list,
         description="List of user groups belonging to this identity provider",
     )
