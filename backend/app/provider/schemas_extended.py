@@ -194,11 +194,11 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
 
 
 class BlockStorageQuotaCreateExtended(BlockStorageQuotaCreate):
-    project: Union[UUID4, int] = Field(description="Project UUID")
+    project: UUID4 = Field(description="Project UUID")
 
 
 class ComputeQuotaCreateExtended(ComputeQuotaCreate):
-    project: Union[UUID4, int] = Field(description="Project UUID")
+    project: UUID4 = Field(description="Project UUID")
 
 
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
