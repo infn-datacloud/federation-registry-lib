@@ -268,7 +268,9 @@ def get_provider(
                 region.identity_services.append(identity_service)
 
             # Create project entity
-            provider.projects.append(get_project(conn))
+            project = get_project(conn)
+            if project.uuid not in [i.uuid for i in provider.projects]:
+                provider.projects.append(project)
 
             conn.close()
             logger.info("Connection closed")
