@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from logger import logger
@@ -216,10 +217,13 @@ def get_provider(
                 region.compute_services.append(compute_service)
 
             # Retrieve project's block storage service.
+            # Remove last part which corresponds to the project ID.
             # Retrieve current project corresponding quotas.
             # Add them to the block storage service.
+            endpoint = conn.block_storage.get_endpoint()
+            endpoint = os.path.dirname(endpoint)
             block_storage_service = BlockStorageServiceWrite(
-                endpoint=conn.block_storage.get_endpoint(),
+                endpoint=endpoint,
                 type=conn.block_storage.service_type,
                 name="org.openstack.cinder",
             )
@@ -266,7 +270,7 @@ def get_provider(
                 if region_service.endpoint == identity_service.endpoint:
                     break
             else:
-                region.block_storage_services.append(block_storage_service)
+                region.identity_services.append(identity_service)
 
             # Create project entity
             provider.projects.append(get_project(conn))
