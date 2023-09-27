@@ -11,6 +11,7 @@ from app.provider.schemas_extended import (
     RegionCreateExtended,
 )
 from app.service.api.dependencies import valid_service_endpoint
+from app.sla.crud import sla
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
@@ -115,17 +116,23 @@ def valid_identity_provider_list(
             data = idp.dict(exclude={"relationship", "user_groups"}, exclude_unset=True)
             for k, v in data.items():
                 if db_item.__getattribute__(k) != v:
-                    msg = f"Identity Provider with URL '{idp.endpoint}' "
-                    msg += "already exists, but with different attributes. "
-                    msg += f"Received: {idp.dict()}. Stored: {db_item}"
+                    msg = f"Identity Provider '{idp.endpoint}' already exists with "
+                    msg += f"different attributes. Received: {data}. Stored: {db_item}"
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST, detail=msg
                     )
 
         for group in idp.user_groups:
-            # TODO SLA doc uuid can't be referenced by different
-            # existing groups and new groups
-            ...
+            for s in group.slas:
+                db_item = sla.get(doc_uuid=s.doc_uuid)
+                if db_item is not None:
+                    db_group = db_item.user_group.single()
+                    db_idp = db_group.identity_provider.single()
+                    if db_group.name != group.name or db_idp.endpoint != idp.endpoint:
+                        msg = f"SLA {s.doc_uuid} already used by another group"
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST, detail=msg
+                        )
 
 
 def valid_region_list(regions: List[RegionCreateExtended]) -> None:

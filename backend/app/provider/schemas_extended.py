@@ -423,8 +423,13 @@ class ProviderCreateExtended(ProviderCreate):
     def check_referenced_projects_exist(cls, values):
         projects = [i.uuid for i in values.get("projects", [])]
         for identity_provider in values.get("identity_providers", []):
+            seen = set()
             for user_group in identity_provider.user_groups:
                 for sla in user_group.slas:
+                    assert (
+                        sla.doc_uuid not in seen
+                    ), f"SLA {sla.doc_uuid} already used by another user group"
+                    seen.add(sla.doc_uuid)
                     for project in sla.projects:
                         msg = f"SLA {sla.doc_uuid} project {project} "
                         msg += "not in this provider: {projects}"
