@@ -30,8 +30,10 @@ class CRUDSLA(
         user_group: UserGroup,
         force: bool = False
     ) -> SLA:
-        db_obj = super().create(obj_in=obj_in, force=force)
-        db_obj.user_group.connect(user_group)
+        db_obj = user_group.slas.get_or_none(doc_uuid=obj_in.doc_uuid)
+        if db_obj is None:
+            db_obj = super().create(obj_in=obj_in, force=force)
+            db_obj.user_group.connect(user_group)
         for i in projects:
             db_obj.projects.connect(i)
         return db_obj
