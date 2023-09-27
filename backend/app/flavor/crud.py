@@ -1,3 +1,5 @@
+from typing import List
+
 from app.crud import CRUDBase
 from app.flavor.models import Flavor
 from app.flavor.schemas import (
@@ -8,6 +10,7 @@ from app.flavor.schemas import (
     FlavorUpdate,
 )
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
+from app.project.models import Project
 from app.service.models import ComputeService
 
 
@@ -26,10 +29,17 @@ class CRUDFlavor(
     """"""
 
     def create(
-        self, *, obj_in: FlavorCreate, service: ComputeService, force: bool = False
+        self,
+        *,
+        obj_in: FlavorCreate,
+        service: ComputeService,
+        projects: List[Project],
+        force: bool = False
     ) -> Flavor:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.services.connect(service)
+        for project in projects:
+            db_obj.projects.connect(project)
         return db_obj
 
 

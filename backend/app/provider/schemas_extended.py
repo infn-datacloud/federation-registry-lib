@@ -213,6 +213,26 @@ class ComputeQuotaCreateExtended(ComputeQuotaCreate):
     project: UUID4 = Field(description="Project UUID")
 
 
+class FlavorCreateExtended(FlavorCreate):
+    projects: List[UUID4] = Field(
+        default_factory=list,
+        description="List of projects having access to the private flavor",
+    )
+
+
+class ImageCreateExtended(ImageCreate):
+    projects: List[UUID4] = Field(
+        default_factory=list,
+        description="List of projects having access to the private image",
+    )
+
+
+class NetworkCreateExtended(NetworkCreate):
+    project: Optional[UUID4] = Field(
+        default=None, description="Project having access to a private net"
+    )
+
+
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
     quotas: List[BlockStorageQuotaCreateExtended] = Field(
         default_factory=list, description="List or related quotas"
@@ -220,11 +240,11 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
 
 
 class ComputeServiceCreateExtended(ComputeServiceCreate):
-    flavors: List[FlavorCreate] = Field(
+    flavors: List[FlavorCreateExtended] = Field(
         default_factory=list,
         description="List of flavors accessible through this service",
     )
-    images: List[ImageCreate] = Field(
+    images: List[ImageCreateExtended] = Field(
         default_factory=list,
         description="List of images accessible through this service",
     )
@@ -234,7 +254,7 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
 
 
 class NetworkServiceCreateExtended(NetworkServiceCreate):
-    networks: List[NetworkCreate] = Field(
+    networks: List[NetworkCreateExtended] = Field(
         default_factory=list,
         description="List of networks accessible through this service",
     )

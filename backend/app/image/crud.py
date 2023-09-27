@@ -1,3 +1,5 @@
+from typing import List
+
 from app.crud import CRUDBase
 from app.image.models import Image
 from app.image.schemas import (
@@ -8,6 +10,7 @@ from app.image.schemas import (
     ImageUpdate,
 )
 from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
+from app.project.models import Project
 from app.service.models import ComputeService
 
 
@@ -26,10 +29,17 @@ class CRUDImage(
     """"""
 
     def create(
-        self, *, obj_in: ImageCreate, service: ComputeService, force: bool = False
+        self,
+        *,
+        obj_in: ImageCreate,
+        service: ComputeService,
+        projects: List[Project],
+        force: bool = False
     ) -> Image:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.services.connect(service)
+        for project in projects:
+            db_obj.projects.connect(project)
         return db_obj
 
 

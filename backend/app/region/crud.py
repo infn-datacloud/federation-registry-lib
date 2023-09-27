@@ -60,7 +60,9 @@ class CRUDRegion(
         for item in obj_in.identity_services:
             identity_service.create(obj_in=item, region=db_obj, force=True)
         for item in obj_in.network_services:
-            network_service.create(obj_in=item, region=db_obj, force=True)
+            network_service.create(
+                obj_in=item, region=db_obj, projects=projects, force=True
+            )
         return db_obj
 
     def remove(self, *, db_obj: Region, from_provider: bool = False) -> bool:

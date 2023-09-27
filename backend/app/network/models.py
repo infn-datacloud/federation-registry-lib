@@ -7,7 +7,7 @@ from neomodel import (
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
-    ZeroOrMore,
+    ZeroOrOne,
 )
 
 
@@ -28,7 +28,7 @@ class Network(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
-    is_public = BooleanProperty(default=False)
+    is_shared = BooleanProperty(default=False)
     is_router_external = BooleanProperty(default=False)
     is_default = BooleanProperty(default=False)
     mtu = IntegerProperty()
@@ -41,8 +41,8 @@ class Network(StructuredNode):
         "AVAILABLE_NETWORK",
         cardinality=OneOrMore,
     )
-    projects = RelationshipFrom(
+    project = RelationshipFrom(
         "..project.models.Project",
         "CAN_USE_NETWORK",
-        cardinality=ZeroOrMore,
+        cardinality=ZeroOrOne,
     )

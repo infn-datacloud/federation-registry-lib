@@ -10,7 +10,10 @@ class NetworkBase(BaseNode):
 
     name: str = Field(description="Network name in the provider.")
     uuid: UUID4 = Field(description="Network UUID in the provider.")
-    is_public: bool = Field(default=False, description="Public or private network type")
+    is_shared: bool = Field(
+        default=False,
+        description="Public (accessible to all projects) or private network type",
+    )
     is_router_external: bool = Field(default=False, description="External network")
     is_default: bool = Field(
         default=False, description="Main network to use when creating a VM or docker"

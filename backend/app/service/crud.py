@@ -135,9 +135,11 @@ class CRUDBlockStorageService(
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.region.connect(region)
         for item in obj_in.quotas:
-            db_proj = list(filter(lambda x: x.uuid == str(item.project), projects))[0]
+            db_project = list(filter(lambda x: x.uuid == str(item.project), projects))[
+                0
+            ]
             block_storage_quota.create(
-                obj_in=item, service=db_obj, project=db_proj, force=True
+                obj_in=item, service=db_obj, project=db_project, force=True
             )
         return db_obj
 
@@ -172,13 +174,19 @@ class CRUDComputeService(
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.region.connect(region)
         for item in obj_in.flavors:
-            flavor.create(obj_in=item, service=db_obj, force=True)
+            item_projects = [str(i) for i in item.projects]
+            db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
+            flavor.create(obj_in=item, service=db_obj, projects=db_projects, force=True)
         for item in obj_in.images:
-            image.create(obj_in=item, service=db_obj, force=True)
+            item_projects = [str(i) for i in item.projects]
+            db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
+            image.create(obj_in=item, service=db_obj, projects=db_projects, force=True)
         for item in obj_in.quotas:
-            db_proj = list(filter(lambda x: x.uuid == str(item.project), projects))[0]
+            db_project = list(filter(lambda x: x.uuid == str(item.project), projects))[
+                0
+            ]
             compute_quota.create(
-                obj_in=item, service=db_obj, project=db_proj, force=True
+                obj_in=item, service=db_obj, project=db_project, force=True
             )
         return db_obj
 
@@ -236,12 +244,19 @@ class CRUDNetworkService(
         *,
         obj_in: NetworkServiceCreateExtended,
         region: Region,
+        projects: List[Project],
         force: bool = False
     ) -> NetworkService:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.region.connect(region)
         for item in obj_in.networks:
-            network.create(obj_in=item, service=db_obj, force=True)
+            db_project = None
+            db_projects = list(filter(lambda x: x.uuid == str(item.project), projects))
+            if len(db_projects) == 1:
+                db_project = db_projects[0]
+            if len(db_projects) > 1:
+                raise
+            network.create(obj_in=item, service=db_obj, project=db_project, force=True)
         return db_obj
 
     def remove(self, *, db_obj: NetworkService) -> bool:

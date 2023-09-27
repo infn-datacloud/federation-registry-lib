@@ -8,6 +8,7 @@ from app.network.schemas import (
     NetworkUpdate,
 )
 from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
+from app.project.models import Project
 from app.service.models import NetworkService
 
 
@@ -26,10 +27,17 @@ class CRUDNetwork(
     """"""
 
     def create(
-        self, *, obj_in: NetworkCreate, service: NetworkService, force: bool = False
+        self,
+        *,
+        obj_in: NetworkCreate,
+        service: NetworkService,
+        project: Project,
+        force: bool = False
     ) -> Network:
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.services.connect(service)
+        if project is not None:
+            db_obj.project.connect(project)
         return db_obj
 
 

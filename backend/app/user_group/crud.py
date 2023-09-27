@@ -45,9 +45,9 @@ class CRUDUserGroup(
             db_obj = super().create(obj_in=obj_in)
             db_obj.identity_provider.connect(identity_provider)
         for item in obj_in.slas:
-            projs = [str(i) for i in item.projects]
-            db_projs = list(filter(lambda x: x.uuid in projs, projects))
-            sla.create(obj_in=item, user_group=db_obj, projects=db_projs, force=True)
+            item_projects = [str(i) for i in item.projects]
+            db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
+            sla.create(obj_in=item, user_group=db_obj, projects=db_projects, force=True)
         return db_obj
 
     def remove(self, *, db_obj: UserGroup) -> bool:

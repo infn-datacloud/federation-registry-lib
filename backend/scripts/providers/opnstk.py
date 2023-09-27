@@ -90,19 +90,16 @@ def get_networks(conn: Connection) -> List[NetworkWrite]:
     logger.info("Retrieve current project accessible networks")
     networks = []
     for network in conn.network.networks(status="active"):
-        is_public = True
-        projects = []
+        project = None
         if not network.is_shared:
-            is_public = False
-            projects.append(conn.current_project_id)
+            project = conn.current_project_id
         data = network.to_dict()
         data["uuid"] = data.pop("id")
         if data.get("description") is None:
             data["description"] = ""
-        data["is_public"] = is_public
         if data.get("is_default") is None:
             data["is_default"] = False
-        networks.append(NetworkWrite(**data, projects=projects))
+        networks.append(NetworkWrite(**data, project=project))
     return networks
 
 
@@ -126,12 +123,6 @@ def get_correct_idp_and_user_group_for_project(
         for user_group in trusted_idp.user_groups:
             for sla in user_group.slas:
                 if sla.doc_uuid == project_conf.sla:
-                    print(trusted_idp.endpoint, user_group.name, sla.doc_uuid)
-                    print(
-                        project_conf.id,
-                        sla.projects,
-                        project_conf.id not in sla.projects,
-                    )
                     if project_conf.id not in sla.projects:
                         sla.projects.append(project_conf.id)
                         for auth_method in os_conf_auth_methods:
@@ -176,7 +167,7 @@ def get_provider(
 
             logger.info(
                 f"Connecting through IDP {trusted_idp.endpoint} to openstack "
-                f"'{os_conf.name}' and region '{region_conf.name}'."
+                f"'{os_conf.name}' and region '{region_conf.name}'. "
                 f"Accessing with project ID: {project_conf.id}"
             )
             conn = connect(
@@ -289,6 +280,8 @@ def get_provider(
 
         provider.regions.append(region)
 
+    # Filter on IDPs and user groups with SLAs
+    # belonging to at least one project
     for idp in trust_idps:
         for user_group in idp.user_groups:
             user_group.slas = list(
