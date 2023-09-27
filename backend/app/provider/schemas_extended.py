@@ -432,25 +432,59 @@ class ProviderCreateExtended(ProviderCreate):
                     seen.add(sla.doc_uuid)
                     for project in sla.projects:
                         msg = f"SLA {sla.doc_uuid} project {project} "
-                        msg += "not in this provider: {projects}"
+                        msg += f"not in this provider: {projects}"
                         assert project in projects, msg
 
         for region in values.get("regions", []):
+            for service in region.block_storage_services:
+                d = {}
+                for quota in service.quotas:
+                    if quota.project is not None:
+                        msg = f"Block storage quota's project {quota.project} "
+                        msg += f"not in this provider: {projects}"
+                        assert quota.project in projects, msg
+
+                        msg = "Multiple block storage quotas on same "
+                        msg += f"project {quota.project}"
+                        q = d.get(quota.project)
+                        if q is None:
+                            d[quota.project] = [1, quota.per_user]
+                        else:
+                            q[0] += 1
+                            assert q[0] <= 2 and q[1] != quota.per_user, msg
+
             for service in region.compute_services:
                 for flavor in service.flavors:
                     for project in flavor.projects:
-                        msg = f"Flavor {flavor.name} project {project} "
-                        msg += "not in this provider: {projects}"
+                        msg = f"Flavor {flavor.name}'s project {project} "
+                        msg += f"not in this provider: {projects}"
                         assert project in projects, msg
                 for image in service.images:
                     for project in image.projects:
-                        msg = f"Flavor {image.name} project {project} "
-                        msg += "not in this provider: {projects}"
+                        msg = f"Image {image.name}'s project {project} "
+                        msg += f"not in this provider: {projects}"
                         assert project in projects, msg
+
+                d = {}
+                for quota in service.quotas:
+                    if quota.project is not None:
+                        msg = f"Compute quota's project {project} "
+                        msg += f"not in this provider: {projects}"
+                        assert quota.project in projects, msg
+
+                        msg = f"Multiple compute quotas on same project {quota.project}"
+                        q = d.get(quota.project)
+                        if q is None:
+                            d[quota.project] = [1, quota.per_user]
+                        else:
+                            q[0] += 1
+                            assert q[0] <= 2 and q[1] != quota.per_user, msg
+
             for service in region.network_services:
                 for network in service.networks:
                     if network.project is not None:
-                        msg = f"Network {network.name} project {project} "
-                        msg += "not in this provider: {projects}"
+                        msg = f"Network {network.name}'s project {network.project} "
+                        msg += f"not in this provider: {projects}"
                         assert network.project in projects, msg
+
         return values
