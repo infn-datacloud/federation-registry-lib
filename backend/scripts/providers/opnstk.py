@@ -144,13 +144,8 @@ def get_provider(
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
     trust_idps = copy.deepcopy(trusted_idps)
-    provider = ProviderWrite(
-        name=os_conf.name,
-        type=os_conf.type,
-        is_public=os_conf.is_public,
-        support_emails=os_conf.support_emails,
-        status=os_conf.status,
-    )
+    regions = []
+    projects = []
 
     for region_conf in os_conf.regions:
         region = RegionWrite(**region_conf.dict())
@@ -272,13 +267,13 @@ def get_provider(
 
             # Create project entity
             project = get_project(conn)
-            if project.uuid not in [i.uuid for i in provider.projects]:
-                provider.projects.append(project)
+            if project.uuid not in [i.uuid for i in projects]:
+                projects.append(project)
 
             conn.close()
             logger.info("Connection closed")
 
-        provider.regions.append(region)
+        regions.append(region)
 
     # Filter on IDPs and user groups with SLAs
     # belonging to at least one project
@@ -290,8 +285,29 @@ def get_provider(
         idp.user_groups = list(
             filter(lambda user_group: len(user_group.slas) > 0, idp.user_groups)
         )
-    provider.identity_providers = list(
-        filter(lambda idp: len(idp.user_groups) > 0, trust_idps)
-    )
+    identity_providers = list(filter(lambda idp: len(idp.user_groups) > 0, trust_idps))
 
-    return provider
+    # Remove from flavors and images' projects the ones
+    # that have not been imported in the CMDB
+    projects_uuid = [i.uuid for i in projects]
+    for region in regions:
+        for service in region.compute_services:
+            for flavor in service.flavors:
+                flavor.projects = list(
+                    filter(lambda x: x in projects_uuid, flavor.projects)
+                )
+            for image in service.images:
+                image.projects = list(
+                    filter(lambda x: x in projects_uuid, image.projects)
+                )
+
+    return ProviderWrite(
+        name=os_conf.name,
+        type=os_conf.type,
+        is_public=os_conf.is_public,
+        support_emails=os_conf.support_emails,
+        status=os_conf.status,
+        identity_providers=identity_providers,
+        projects=projects,
+        regions=regions,
+    )

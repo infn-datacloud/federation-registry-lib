@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
@@ -37,7 +37,7 @@ from app.service.schemas import (
 )
 from app.sla.schemas import SLACreate, SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupCreate, UserGroupRead, UserGroupReadPublic
-from pydantic import UUID4, Field
+from pydantic import UUID4, Field, root_validator, validator
 
 
 class UserGroupReadExtended(UserGroupRead):
@@ -180,16 +180,53 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     )
 
 
+# CREATE CLASSES
+
+
+def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
+    """Find duplicate items in a list.
+
+    Optionally filter items by attribute
+    """
+    if attr:
+        values = [j.__getattribute__(attr) for j in items]
+    else:
+        values = items
+    seen = set()
+    dupes = [x for x in values if x in seen or seen.add(x)]
+    if attr:
+        assert (
+            len(dupes) == 0
+        ), f"There are multiple items with identical {attr}: {','.join(dupes)}"
+    else:
+        assert len(dupes) == 0, f"There are multiple identical items: {','.join(dupes)}"
+
+
 class SLACreateExtended(SLACreate):
     projects: List[UUID4] = Field(
         default_factory=list, description="List of projects UUID"
     )
 
+    @validator("projects")
+    def validate_projects(cls, v):
+        find_duplicates(v)
+        return v
+
+    @root_validator
+    def start_date_before_end_date(cls, values):
+        start = values.get("start_date")
+        end = values.get("end_date")
+        assert start < end, f"Start date {start} greater than end date {end}"
+        return values
+
 
 class UserGroupCreateExtended(UserGroupCreate):
-    slas: List[SLACreateExtended] = Field(
-        default_factory=list, description="List of SLAs"
-    )
+    slas: List[SLACreateExtended] = Field(description="List of SLAs")
+
+    @validator("slas")
+    def validate_slas(cls, v):
+        find_duplicates(v, "doc_uuid")
+        return v
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
@@ -200,9 +237,13 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         description="Authentication method used by the Provider"
     )
     user_groups: List[UserGroupCreateExtended] = Field(
-        default_factory=list,
-        description="List of user groups belonging to this identity provider",
+        description="List of user groups belonging to this identity provider"
     )
+
+    @validator("user_groups")
+    def validate_user_groups(cls, v):
+        find_duplicates(v, "name")
+        return v
 
 
 class BlockStorageQuotaCreateExtended(BlockStorageQuotaCreate):
@@ -219,6 +260,19 @@ class FlavorCreateExtended(FlavorCreate):
         description="List of projects having access to the private flavor",
     )
 
+    @validator("projects")
+    def validate_projects(cls, v):
+        find_duplicates(v)
+        return v
+
+    @root_validator
+    def project_require_if_private_flavor(cls, values):
+        if not values.get("is_public"):
+            assert len(
+                values.get("projects", [])
+            ), "Projects are mandatory for private flavors"
+        return values
+
 
 class ImageCreateExtended(ImageCreate):
     projects: List[UUID4] = Field(
@@ -226,11 +280,30 @@ class ImageCreateExtended(ImageCreate):
         description="List of projects having access to the private image",
     )
 
+    @validator("projects")
+    def validate_projects(cls, v):
+        find_duplicates(v)
+        return v
+
+    @root_validator
+    def project_require_if_private_image(cls, values):
+        if not values.get("is_public"):
+            assert len(
+                values.get("projects", [])
+            ), "Projects are mandatory for private images"
+        return values
+
 
 class NetworkCreateExtended(NetworkCreate):
     project: Optional[UUID4] = Field(
         default=None, description="Project having access to a private net"
     )
+
+    @root_validator
+    def project_require_if_private_net(cls, values):
+        if not values.get("is_shared"):
+            assert values.get("project") is not None
+        return values
 
 
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
@@ -252,12 +325,29 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
         default_factory=list, description="List or related quotas"
     )
 
+    @validator("flavors")
+    def validate_flavors(cls, v):
+        find_duplicates(v, "uuid")
+        find_duplicates(v, "name")
+        return v
+
+    @validator("images")
+    def validate_images(cls, v):
+        find_duplicates(v, "uuid")
+        find_duplicates(v, "name")
+        return v
+
 
 class NetworkServiceCreateExtended(NetworkServiceCreate):
     networks: List[NetworkCreateExtended] = Field(
         default_factory=list,
         description="List of networks accessible through this service",
     )
+
+    @validator("networks")
+    def validate_networks(cls, v):
+        find_duplicates(v, "uuid")
+        return v
 
 
 class RegionCreateExtended(RegionCreate):
@@ -277,14 +367,31 @@ class RegionCreateExtended(RegionCreate):
         default_factory=list, description="Network service"
     )
 
+    @validator("block_storage_services")
+    def validate_block_storage_services(cls, v):
+        find_duplicates(v, "endpoint")
+        return v
+
+    @validator("compute_services")
+    def validate_compute_services(cls, v):
+        find_duplicates(v, "endpoint")
+        return v
+
+    @validator("identity_services")
+    def validate_identity_services(cls, v):
+        find_duplicates(v, "endpoint")
+        return v
+
+    @validator("network_services")
+    def validate_network_services(cls, v):
+        find_duplicates(v, "endpoint")
+        return v
+
 
 class ProviderCreateExtended(ProviderCreate):
     """Model to extend the Provider data used to create a new instance in the
     DB with the lists of related items."""
 
-    regions: List[RegionCreateExtended] = Field(
-        default_factory=list, description="Provider regions."
-    )
     identity_providers: List[IdentityProviderCreateExtended] = Field(
         default_factory=list,
         description="List of supported identity providers.",
@@ -292,3 +399,53 @@ class ProviderCreateExtended(ProviderCreate):
     projects: List[ProjectCreate] = Field(
         default_factory=list, description="List of owned Projects."
     )
+    regions: List[RegionCreateExtended] = Field(
+        default_factory=list, description="Provider regions."
+    )
+
+    @validator("identity_providers")
+    def validate_identity_providers(cls, v: List[IdentityProviderCreateExtended]):
+        find_duplicates(v, "endpoint")
+        return v
+
+    @validator("projects")
+    def validate_projects(cls, v):
+        find_duplicates(v, "uuid")
+        find_duplicates(v, "name")
+        return v
+
+    @validator("regions")
+    def validate_regions(cls, v):
+        find_duplicates(v, "name")
+        return v
+
+    @root_validator
+    def check_referenced_projects_exist(cls, values):
+        projects = [i.uuid for i in values.get("projects", [])]
+        for identity_provider in values.get("identity_providers", []):
+            for user_group in identity_provider.user_groups:
+                for sla in user_group.slas:
+                    for project in sla.projects:
+                        msg = f"SLA {sla.doc_uuid} project {project} "
+                        msg += "not in this provider: {projects}"
+                        assert project in projects, msg
+
+        for region in values.get("regions", []):
+            for service in region.compute_services:
+                for flavor in service.flavors:
+                    for project in flavor.projects:
+                        msg = f"Flavor {flavor.name} project {project} "
+                        msg += "not in this provider: {projects}"
+                        assert project in projects, msg
+                for image in service.images:
+                    for project in image.projects:
+                        msg = f"Flavor {image.name} project {project} "
+                        msg += "not in this provider: {projects}"
+                        assert project in projects, msg
+            for service in region.network_services:
+                for network in service.networks:
+                    if network.project is not None:
+                        msg = f"Network {network.name} project {project} "
+                        msg += "not in this provider: {projects}"
+                        assert network.project in projects, msg
+        return values

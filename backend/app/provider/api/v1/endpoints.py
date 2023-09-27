@@ -2,31 +2,21 @@ from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
 from app.auth_method.schemas import AuthMethodCreate
-from app.flavor.api.dependencies import valid_flavor_name, valid_flavor_uuid
-from app.flavor.crud import flavor
-from app.flavor.schemas import FlavorCreate
-from app.flavor.schemas_extended import FlavorReadExtended
-from app.identity_provider.api.dependencies import valid_identity_provider_id
+from app.identity_provider.api.dependencies import (
+    valid_identity_provider_endpoint,
+    valid_identity_provider_id,
+)
+from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
-from app.image.api.dependencies import valid_image_name, valid_image_uuid
-from app.image.crud import image
-from app.image.schemas import ImageCreate
-from app.image.schemas_extended import ImageReadExtended
-from app.location.api.dependencies import valid_location_id
-from app.location.models import Location
+from app.identity_provider.schemas import IdentityProviderCreate
+from app.identity_provider.schemas_extended import IdentityProviderReadExtended
 from app.project.api.dependencies import valid_project_name, valid_project_uuid
 from app.project.crud import project
 from app.project.schemas import ProjectCreate
 from app.project.schemas_extended import ProjectReadExtended
 from app.provider.api.dependencies import (
-    is_unique_provider,
-    valid_flavor_list,
-    valid_identity_provider_list,
-    valid_image_list,
-    valid_location,
-    valid_project_list,
+    valid_provider,
     valid_provider_id,
-    valid_service_list,
     validate_new_provider_values,
 )
 from app.provider.crud import provider
@@ -98,16 +88,7 @@ def get_providers(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=ProviderReadExtended,
-    dependencies=[
-        Depends(check_write_access),
-        Depends(is_unique_provider),
-        Depends(valid_flavor_list),
-        Depends(valid_identity_provider_list),
-        Depends(valid_image_list),
-        Depends(valid_location),
-        Depends(valid_project_list),
-        Depends(valid_service_list),
-    ],
+    dependencies=[Depends(check_write_access), Depends(valid_provider)],
     summary="Create provider",
     description="Create a provider and its related entities: \
         flavors, identity providers, images, location, \
@@ -193,29 +174,48 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
         )
 
 
+# @db.write_transaction
+# @router.post(
+#    "/{provider_uid}/flavors/",
+#    response_model=FlavorReadExtended,
+#    status_code=status.HTTP_201_CREATED,
+#    dependencies=[
+#        Depends(check_write_access),
+#        Depends(valid_flavor_name),
+#        Depends(valid_flavor_uuid),
+#    ],
+#    summary="Add new flavor to provider",
+#    description="Create a flavor and connect it to a \
+#        provider knowing it *uid*. \
+#        If no entity matches the given *uid*, the endpoint \
+#        raises a `not found` error. \
+#        At first validate new flavor values checking there are \
+#        no other items with the given *name* or *uuid*.",
+# )
+# def add_flavor_to_provider(
+#    item: FlavorCreate,
+#    provider: Provider = Depends(valid_provider_id),
+# ):
+#    return flavor.create(obj_in=item, provider=provider, force=True)
+#
+
+
 @db.write_transaction
 @router.post(
-    "/{provider_uid}/flavors/",
-    response_model=FlavorReadExtended,
+    "/{provider_uid}/identity_providers/",
     status_code=status.HTTP_201_CREATED,
+    response_model=IdentityProviderReadExtended,
     dependencies=[
         Depends(check_write_access),
-        Depends(valid_flavor_name),
-        Depends(valid_flavor_uuid),
+        Depends(valid_identity_provider_endpoint),
     ],
-    summary="Add new flavor to provider",
-    description="Create a flavor and connect it to a \
-        provider knowing it *uid*. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error. \
-        At first validate new flavor values checking there are \
-        no other items with the given *name* or *uuid*.",
+    summary="Create location",
+    description="Create a location. \
+        At first validate new location values checking there are \
+        no other items with the given *name*.",
 )
-def add_flavor_to_provider(
-    item: FlavorCreate,
-    provider: Provider = Depends(valid_provider_id),
-):
-    return flavor.create(obj_in=item, provider=provider, force=True)
+def post_location(item: IdentityProviderCreate):
+    return identity_provider.create(obj_in=item, force=True)
 
 
 @db.write_transaction
@@ -273,83 +273,29 @@ def disconnect_provider_from_identity_providers(
     return item
 
 
-@db.write_transaction
-@router.post(
-    "/{provider_uid}/images/",
-    response_model=ImageReadExtended,
-    status_code=status.HTTP_201_CREATED,
-    dependencies=[
-        Depends(check_write_access),
-        Depends(valid_image_name),
-        Depends(valid_image_uuid),
-    ],
-    summary="Add new image to provider",
-    description="Create a image and connect it to a \
-        provider knowing it *uid*. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error. \
-        At first validate new image values checking there are \
-        no other items with the given *name* or *uuid*.",
-)
-def add_image_to_provider(
-    item: ImageCreate,
-    provider: Provider = Depends(valid_provider_id),
-):
-    return image.create(obj_in=item, provider=provider, force=True)
-
-
-@db.write_transaction
-@router.put(
-    "/{provider_uid}/locations/{location_uid}",
-    response_model=Optional[ProviderReadExtended],
-    dependencies=[Depends(check_write_access)],
-    summary="Connect provider to location",
-    description="Connect a provider to a specific location \
-        knowing their *uid*s. \
-        If the provider already has a \
-        current location and the new one is different, \
-        the endpoint replaces it with the new one, otherwise \
-        it leaves the entity unchanged and returns a \
-        `not modified` message. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
-)
-def connect_provider_to_location(
-    response: Response,
-    item: Provider = Depends(valid_provider_id),
-    location: Location = Depends(valid_location_id),
-):
-    if item.location.single() is None:
-        item.location.connect(location)
-    elif not item.location.is_connected(location):
-        item.location.replace(location)
-    else:
-        response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    return item
-
-
-@db.write_transaction
-@router.delete(
-    "/{provider_uid}/locations/{location_uid}",
-    response_model=Optional[ProviderReadExtended],
-    dependencies=[Depends(check_write_access)],
-    summary="Disconnect provider from location",
-    description="Disconnect a provider from a specific location \
-        knowing their *uid*s. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
-)
-def disconnect_provider_from_location(
-    response: Response,
-    item: Provider = Depends(valid_provider_id),
-    location: Location = Depends(valid_location_id),
-):
-    if not item.location.is_connected(location):
-        response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    item.location.disconnect(location)
-    return item
+# @db.write_transaction
+# @router.post(
+#    "/{provider_uid}/images/",
+#    response_model=ImageReadExtended,
+#    status_code=status.HTTP_201_CREATED,
+#    dependencies=[
+#        Depends(check_write_access),
+#        Depends(valid_image_name),
+#        Depends(valid_image_uuid),
+#    ],
+#    summary="Add new image to provider",
+#    description="Create a image and connect it to a \
+#        provider knowing it *uid*. \
+#        If no entity matches the given *uid*, the endpoint \
+#        raises a `not found` error. \
+#        At first validate new image values checking there are \
+#        no other items with the given *name* or *uuid*.",
+# )
+# def add_image_to_provider(
+#    item: ImageCreate,
+#    provider: Provider = Depends(valid_provider_id),
+# ):
+#    return image.create(obj_in=item, provider=provider, force=True)
 
 
 @db.write_transaction

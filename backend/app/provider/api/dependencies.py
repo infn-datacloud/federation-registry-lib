@@ -1,11 +1,15 @@
-from typing import Any, List, Union
+from typing import List, Union
 
 from app.identity_provider.crud import identity_provider
 from app.location.crud import location
 from app.provider.crud import provider
 from app.provider.models import Provider
 from app.provider.schemas import ProviderUpdate
-from app.provider.schemas_extended import ProviderCreateExtended
+from app.provider.schemas_extended import (
+    IdentityProviderCreateExtended,
+    ProviderCreateExtended,
+    RegionCreateExtended,
+)
 from app.service.api.dependencies import valid_service_endpoint
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
@@ -33,9 +37,7 @@ def valid_provider_id(provider_uid: UUID4) -> Provider:
     return item
 
 
-def is_unique_provider(
-    item: Union[ProviderCreateExtended, ProviderUpdate]
-) -> None:
+def is_unique_provider(item: Union[ProviderCreateExtended, ProviderUpdate]) -> None:
     """Check there are no other providers with the same name.
 
     Args:
@@ -50,10 +52,13 @@ def is_unique_provider(
 
     db_item = provider.get(name=item.name)
     if db_item is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Provider with name '{item.name}' already registered",
-        )
+        if db_item.type == item.type:
+            msg = f"{db_item.type.capitalize()} provider with name "
+            msg += f"'{item.name}' already registered"
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=msg,
+            )
 
 
 def validate_new_provider_values(
@@ -78,100 +83,20 @@ def validate_new_provider_values(
         is_unique_provider(update_data)
 
 
-def find_duplicates(items: List[Any], attr: str) -> None:
-    seen = set()
-    values = [j.__getattribute__(attr) for j in items]
-    dupes = [x for x in values if x in seen or seen.add(x)]
-    if len(dupes) > 0:
-        duplicates = ",".join(dupes)
-        msg = f"There are multiple items with identical {attr}: "
-        msg += f"{duplicates}"
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=msg,
-        )
+def valid_provider(item: ProviderCreateExtended) -> None:
+    """Validate projects, identity providers and regions."""
+    is_unique_provider(item)
+    valid_identity_provider_list(item.identity_providers)
+    valid_region_list(item.regions)
 
 
-def valid_flavor_list(item: ProviderCreateExtended) -> None:
-    """Check there are no flavors with the same uuid and name, in the flavor
-    list of the received provider.
-
-    Args:
-        item (ProviderCreateExtended): provider data.
-
-    Returns:
-        None
-
-    Raises:
-        BadRequestError: multiple items with identical name or uuid.
-    """
-
-    find_duplicates(item.flavors, "name")
-    find_duplicates(item.flavors, "uuid")
-
-
-def valid_image_list(item: ProviderCreateExtended) -> None:
-    """Check there are no images with the same uuid and name, in the image list
-    of the received provider.
-
-    Args:
-        item (ProviderCreateExtended): provider data.
-
-    Returns:
-        None
-
-    Raises:
-        BadRequestError: multiple items with identical name or uuid.
-    """
-
-    find_duplicates(item.images, "name")
-    find_duplicates(item.images, "uuid")
-
-
-def valid_project_list(item: ProviderCreateExtended) -> None:
-    """Check there are no projects with the same uuid and name, in the project
-    list of the received provider.
-
-    Args:
-        item (ProviderCreateExtended): provider data.
-
-    Returns:
-        None
-
-    Raises:
-        BadRequestError: multiple items with identical name or uuid.
-    """
-
-    find_duplicates(item.projects, "name")
-    find_duplicates(item.projects, "uuid")
-
-
-def valid_service_list(item: ProviderCreateExtended) -> None:
-    """Check there are no services with the same endpoint, in the service list
-    of the received provider. Moreover, check there are no other services in
-    the DB with the same endpoint.
-
-    Args:
-        item (ProviderCreateExtended): provider data.
-
-    Returns:
-        None
-
-    Raises:
-        BadRequestError: multiple items with identical name or uuid,
-            or DB entity with given endpoint already exists.
-    """
-
-    find_duplicates(item.services, "endpoint")
-    for i in item.services:
-        valid_service_endpoint(i)
-
-
-def valid_identity_provider_list(item: ProviderCreateExtended) -> None:
+def valid_identity_provider_list(
+    identity_providers: List[IdentityProviderCreateExtended],
+) -> None:
     """Check there are no identity providers with the same endpoint, in the
-    identity provider list of the received provider. Moreover, check that if
-    there is another identity provider in the DB with the same endpoint, it
-    matches the given attributes.
+    identity provider list of the received provider. Check that all items have
+    a corresponding relationship Check that if there is another identity
+    provider in the DB with the same endpoint, it matches the given attributes.
 
     Args:
         item (ProviderCreateExtended): provider data.
@@ -184,47 +109,48 @@ def valid_identity_provider_list(item: ProviderCreateExtended) -> None:
             or DB entity with given endpoint already exists but has
             different attributes.
     """
-
-    find_duplicates(item.identity_providers, "endpoint")
-    for i in item.identity_providers:
-        db_item = identity_provider.get(endpoint=i.endpoint)
+    for idp in identity_providers:
+        db_item = identity_provider.get(endpoint=idp.endpoint)
         if db_item is not None:
-            for k, v in i.dict(
-                exclude={"relationship"}, exclude_unset=True
-            ).items():
+            data = idp.dict(exclude={"relationship", "user_groups"}, exclude_unset=True)
+            for k, v in data.items():
                 if db_item.__getattribute__(k) != v:
-                    msg = f"Identity Provider with URL '{i.endpoint}' "
+                    msg = f"Identity Provider with URL '{idp.endpoint}' "
                     msg += "already exists, but with different attributes. "
-                    msg += f"Received: {i.dict()}. Stored: {db_item}"
+                    msg += f"Received: {idp.dict()}. Stored: {db_item}"
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST, detail=msg
                     )
 
+        for group in idp.user_groups:
+            # TODO SLA doc uuid can't be referenced by different
+            # existing groups and new groups
+            ...
 
-def valid_location(item: ProviderCreateExtended) -> None:
-    """Check that if there is another location in the DB with the same name, it
-    matches the given attributes.
 
-    Args:
-        item (ProviderCreateExtended): provider data.
+def valid_region_list(regions: List[RegionCreateExtended]) -> None:
+    """"""
+    for region in regions:
+        if region.location is not None:
+            db_item = location.get(site=region.location.site)
+            if db_item is not None:
+                for k, v in region.location.dict(exclude_unset=True).items():
+                    if db_item.__getattribute__(k) != v:
+                        msg = f"Location with site '{region.location.site}' "
+                        msg += "already exists, but with different attributes. "
+                        msg += f"Received: {region.location.dict()}. Stored: {db_item}"
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST, detail=msg
+                        )
 
-    Returns:
-        None
+        for service in region.block_storage_services:
+            valid_service_endpoint(service)
 
-    Raises:
-        BadRequestError: DB entity with given name already exists
-            but has different attributes.
-    """
+        for service in region.compute_services:
+            valid_service_endpoint(service)
 
-    loc = item.location
-    if loc is not None:
-        db_item = location.get(site=loc.site)
-        if db_item is not None:
-            for k, v in loc.dict(exclude_unset=True).items():
-                if db_item.__getattribute__(k) != v:
-                    msg = f"Location with site '{loc.site}' "
-                    msg += "already exists, but with different attributes. "
-                    msg += f"Received: {loc.dict()}. Stored: {db_item}"
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST, detail=msg
-                    )
+        for service in region.identity_services:
+            valid_service_endpoint(service)
+
+        for service in region.network_services:
+            valid_service_endpoint(service)
