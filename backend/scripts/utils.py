@@ -3,7 +3,7 @@ from typing import Dict, Tuple
 
 import yaml
 from logger import logger
-from models.config import ConfigIn, ConfigOut, TrustedIDPOut, URLs
+from models.config import ConfigIn, ConfigOut, URLs
 
 
 def load_config(*, base_path: str = ".", fname: str = ".config.yaml") -> ConfigOut:
@@ -16,12 +16,9 @@ def load_config(*, base_path: str = ".", fname: str = ".config.yaml") -> ConfigO
     for k, v in conf.cmdb.api_ver.dict().items():
         d[k] = os.path.join(conf.cmdb.base_url, "api", f"{v}", f"{k}")
     urls = URLs(**d)
-    idps = []
-    for idp in conf.trusted_idps:
-        idps.append(TrustedIDPOut(**idp.dict()))
     conf = ConfigOut(
         cmdb_urls=urls,
-        trusted_idps=idps,
+        trusted_idps=conf.trusted_idps,
         openstack=conf.openstack,
         kubernetes=conf.kubernetes,
     )
