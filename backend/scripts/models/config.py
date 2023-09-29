@@ -34,15 +34,31 @@ class CMDB(BaseModel):
     api_ver: APIVersions = Field(description="API versions")
 
 
-class TrustedIDPIn(IdentityProviderBase):
+class TrustedIDP(IdentityProviderBase):
     issuer: AnyHttpUrl = Field(description="issuer url")
+    token: str = Field(description="Access token")
     user_groups: List[UserGroupWrite] = Field(
         default_factory=list, description="User groups"
     )
+    relationship: Optional[AuthMethodBase] = Field(default=None, description="")
 
     @root_validator(pre=True)
     def rename_issuer_to_endpoint(cls, values):
         values["endpoint"] = values.get("issuer")
+        # Generate token
+        if values.get("token") is None:
+            token_cmd = subprocess.run(
+                [
+                    "docker",
+                    "exec",
+                    "catalog-api-oidc-agent-1",
+                    "oidc-token",
+                    values.get("endpoint"),
+                ],
+                stdout=subprocess.PIPE,
+                text=True,
+            )
+            values["token"] = token_cmd.stdout.strip("\n")
         return values
 
 
@@ -170,7 +186,7 @@ class Kubernetes(Provider):
 
 class ConfigIn(BaseModel):
     cmdb: CMDB = Field(description="CMDB configuration parameters")
-    trusted_idps: List[TrustedIDPIn] = Field(
+    trusted_idps: List[TrustedIDP] = Field(
         description="List of OIDC-Agent supported identity providers endpoints"
     )
     openstack: List[Openstack] = Field(
@@ -181,31 +197,6 @@ class ConfigIn(BaseModel):
         default_factory=list,
         description="List of openstack providers to integrate in the CMDB",
     )
-
-
-class TrustedIDPOut(IdentityProviderBase):
-    user_groups: List[UserGroupWrite] = Field(
-        default_factory=list, description="User groups"
-    )
-    relationship: Optional[AuthMethodBase] = Field(default=None, description="")
-    token: str = Field(description="Access token")
-
-    @root_validator(pre=True)
-    def generate_token(cls, values):
-        if values.get("token") is None:
-            token_cmd = subprocess.run(
-                [
-                    "docker",
-                    "exec",
-                    "catalog-api-oidc-agent-1",
-                    "oidc-token",
-                    values.get("endpoint"),
-                ],
-                stdout=subprocess.PIPE,
-                text=True,
-            )
-            values["token"] = token_cmd.stdout.strip("\n")
-        return values
 
 
 class URLs(BaseModel):
@@ -225,7 +216,7 @@ class URLs(BaseModel):
 
 class ConfigOut(BaseModel):
     cmdb_urls: URLs = Field(description="CMDB endpoints to use")
-    trusted_idps: List[TrustedIDPOut] = Field(
+    trusted_idps: List[TrustedIDP] = Field(
         description="List of OIDC-Agent supported identity providers endpoints"
     )
     openstack: List[Openstack] = Field(

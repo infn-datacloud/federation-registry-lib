@@ -16,13 +16,7 @@ from models.cmdb.service import (
     IdentityServiceWrite,
     NetworkServiceWrite,
 )
-from models.config import (
-    AuthMethod,
-    Openstack,
-    OsProject,
-    PrivateNetProxy,
-    TrustedIDPOut,
-)
+from models.config import AuthMethod, Openstack, OsProject, PrivateNetProxy, TrustedIDP
 from openstack import connect
 from openstack.connection import Connection
 
@@ -134,10 +128,10 @@ def get_project(conn: Connection) -> ProjectWrite:
 
 def get_correct_idp_and_user_group_for_project(
     *,
-    trusted_idps: List[TrustedIDPOut],
+    trusted_idps: List[TrustedIDP],
     os_conf_auth_methods: List[AuthMethod],
     project_conf: OsProject,
-) -> TrustedIDPOut:
+) -> TrustedIDP:
     for trusted_idp in trusted_idps:
         for user_group in trusted_idp.user_groups:
             for sla in user_group.slas:
@@ -158,7 +152,7 @@ def get_correct_idp_and_user_group_for_project(
 
 
 def get_provider(
-    *, os_conf: Openstack, trusted_idps: List[TrustedIDPOut]
+    *, os_conf: Openstack, trusted_idps: List[TrustedIDP]
 ) -> ProviderWrite:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
