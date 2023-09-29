@@ -42,7 +42,7 @@ class TrustedIDPIn(IdentityProviderBase):
 
     @root_validator(pre=True)
     def rename_issuer_to_endpoint(cls, values):
-        values["endpoint"] = values.pop("issuer")
+        values["endpoint"] = values.get("issuer")
         return values
 
 

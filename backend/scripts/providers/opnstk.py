@@ -1,6 +1,6 @@
 import copy
 import os
-from typing import List
+from typing import List, Optional
 
 from logger import logger
 from models.cmdb.flavor import FlavorWrite
@@ -16,10 +16,15 @@ from models.cmdb.service import (
     IdentityServiceWrite,
     NetworkServiceWrite,
 )
-from models.config import AuthMethod, Openstack, OsProject, TrustedIDPOut
+from models.config import (
+    AuthMethod,
+    Openstack,
+    OsProject,
+    PrivateNetProxy,
+    TrustedIDPOut,
+)
 from openstack import connect
 from openstack.connection import Connection
-from utils import get_per_user_block_storage_quotas, get_per_user_compute_quotas
 
 TIMEOUT = 2  # s
 
@@ -86,7 +91,13 @@ def get_images(conn: Connection, tags: List[str] = []) -> List[ImageWrite]:
     return images
 
 
-def get_networks(conn: Connection, tags: List[str] = []) -> List[NetworkWrite]:
+def get_networks(
+    conn: Connection,
+    default_private_net: Optional[str] = None,
+    default_public_net: Optional[str] = None,
+    proxy: Optional[PrivateNetProxy] = None,
+    tags: List[str] = [],
+) -> List[NetworkWrite]:
     logger.info("Retrieve current project accessible networks")
     networks = []
     for network in conn.network.networks(status="active", tags=tags):
@@ -98,7 +109,15 @@ def get_networks(conn: Connection, tags: List[str] = []) -> List[NetworkWrite]:
         if data.get("description") is None:
             data["description"] = ""
         if data.get("is_default") is None:
-            data["is_default"] = False
+            if (network.is_shared and default_public_net == network.name) or (
+                not network.is_shared and default_private_net == network.name
+            ):
+                data["is_default"] = True
+            else:
+                data["is_default"] = False
+        if proxy is not None:
+            data["proxy_ip"] = proxy.ip
+            data["proxy_user"] = proxy.user
         networks.append(NetworkWrite(**data, project=project))
     return networks
 
@@ -156,6 +175,23 @@ def get_provider(
         region = RegionWrite(**region_conf.dict())
 
         for project_conf in os_conf.projects:
+            default_private_net = project_conf.default_private_net
+            default_public_net = project_conf.default_public_net
+            proxy = project_conf.private_net_proxy
+            per_user_limits = project_conf.per_user_limits
+            region_props = next(
+                filter(
+                    lambda x: x.region_name == region.name,
+                    project_conf.per_region_props,
+                ),
+                None,
+            )
+            if region_props is not None:
+                default_private_net = region_props.default_private_net
+                default_public_net = region_props.default_public_net
+                proxy = region_props.private_net_proxy
+                per_user_limits = region_props.per_user_limits
+
             trusted_idp = get_correct_idp_and_user_group_for_project(
                 os_conf_auth_methods=os_conf.identity_providers,
                 trusted_idps=trust_idps,
@@ -193,11 +229,13 @@ def get_provider(
             compute_service.flavors = get_flavors(conn)
             compute_service.images = get_images(conn, tags=os_conf.image_tags)
             compute_service.quotas = [get_compute_quotas(conn)]
-            q = get_per_user_compute_quotas(
-                project=project_conf, curr_region=region.name
-            )
-            if q is not None:
-                compute_service.quotas.append(q)
+            if per_user_limits is not None and per_user_limits.compute is not None:
+                compute_service.quotas.append(
+                    ComputeQuotaWrite(
+                        **per_user_limits.compute.dict(exclude_none=True),
+                        project=project_conf.id,
+                    )
+                )
 
             for i, region_service in enumerate(region.compute_services):
                 if region_service.endpoint == compute_service.endpoint:
@@ -226,11 +264,16 @@ def get_provider(
                 name="org.openstack.cinder",
             )
             block_storage_service.quotas = [get_block_storage_quotas(conn)]
-            q = get_per_user_block_storage_quotas(
-                project=project_conf, curr_region=region.name
-            )
-            if q is not None:
-                block_storage_service.quotas.append(q)
+            if (
+                per_user_limits is not None
+                and per_user_limits.block_storage is not None
+            ):
+                block_storage_service.quotas.append(
+                    BlockStorageQuotaWrite(
+                        **per_user_limits.block_storage.dict(exclude_none=True),
+                        project=project_conf.id,
+                    )
+                )
 
             for i, region_service in enumerate(region.block_storage_services):
                 if region_service.endpoint == block_storage_service.endpoint:
@@ -247,7 +290,13 @@ def get_provider(
                 type=conn.network.service_type,
                 name="org.openstack.neutron",
             )
-            network_service.networks = get_networks(conn, tags=os_conf.network_tags)
+            network_service.networks = get_networks(
+                conn,
+                default_private_net=default_private_net,
+                default_public_net=default_public_net,
+                proxy=proxy,
+                tags=os_conf.network_tags,
+            )
             for i, region_service in enumerate(region.network_services):
                 if region_service.endpoint == network_service.endpoint:
                     uuids = [j.uuid for j in region_service.networks]
