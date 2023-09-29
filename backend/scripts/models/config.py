@@ -151,8 +151,6 @@ class Provider(ProviderBase):
     identity_providers: List[AuthMethod] = Field(
         description="List of supported identity providers"
     )
-    image_tags: List[str] = Field(default_factory=list)
-    network_tags: List[str] = Field(default_factory=list)
 
 
 class Openstack(Provider):
@@ -161,6 +159,12 @@ class Openstack(Provider):
     )
     regions: List[Region] = Field(description="List of hosted regions")
     type: ProviderType = Field(default="openstack", description="Provider type")
+    image_tags: List[str] = Field(
+        default_factory=list, description="List of image tags to filter"
+    )
+    network_tags: List[str] = Field(
+        default_factory=list, description="List of network tags to filter"
+    )
 
 
 class Kubernetes(Provider):

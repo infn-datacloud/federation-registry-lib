@@ -44,8 +44,7 @@ openstack:
   - name: recas-ba
     status: active
     is_public: false
-    support_emails:
-      - giovanni.savarese@ba.infn.it
+    support_emails: [giovanni.savarese@ba.infn.it, marica.antonacci@ba.infn.it]
     regions:
       - name: RegionOne
         location:
@@ -85,7 +84,8 @@ openstack:
     is_public: false
     support_emails:
       - giovanni.savarese@ba.infn.it
-    image_tags: ["a", "b"]
+    image_tags: [infn-cloud]
+    network_tags: [infn-cloud]
     block_storage_vol_types:
       gold: my type1
       silver: muy-type2

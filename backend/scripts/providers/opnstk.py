@@ -63,10 +63,10 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
     return flavors
 
 
-def get_images(conn: Connection) -> List[ImageWrite]:
+def get_images(conn: Connection, tags: List[str] = []) -> List[ImageWrite]:
     logger.info("Retrieve current project accessible images")
     images = []
-    for image in conn.image.images(status="active"):
+    for image in conn.image.images(status="active", tags=tags):
         is_public = True
         projects = []
         if image.visibility in ["private", "shared"]:
@@ -86,10 +86,10 @@ def get_images(conn: Connection) -> List[ImageWrite]:
     return images
 
 
-def get_networks(conn: Connection) -> List[NetworkWrite]:
+def get_networks(conn: Connection, tags: List[str] = []) -> List[NetworkWrite]:
     logger.info("Retrieve current project accessible networks")
     networks = []
-    for network in conn.network.networks(status="active"):
+    for network in conn.network.networks(status="active", tags=tags):
         project = None
         if not network.is_shared:
             project = conn.current_project_id
@@ -186,7 +186,7 @@ def get_provider(
                 name="org.openstack.nova",
             )
             compute_service.flavors = get_flavors(conn)
-            compute_service.images = get_images(conn)
+            compute_service.images = get_images(conn, tags=os_conf.image_tags)
             compute_service.quotas = [get_compute_quotas(conn)]
             q = get_per_user_compute_quotas(
                 project=project_conf, curr_region=region.name
@@ -242,7 +242,7 @@ def get_provider(
                 type=conn.network.service_type,
                 name="org.openstack.neutron",
             )
-            network_service.networks = get_networks(conn)
+            network_service.networks = get_networks(conn, tags=os_conf.network_tags)
             for i, region_service in enumerate(region.network_services):
                 if region_service.endpoint == network_service.endpoint:
                     uuids = [j.uuid for j in region_service.networks]

@@ -170,6 +170,9 @@
           "image_tags": {
             "$ref": "#/$defs/image_tags"
           },
+          "network_tags": {
+            "$ref": "#/$defs/network_tags"
+          },
           "block_storage_vol_types": {
             "$ref": "#/$defs/block_storage_vol_types"
           },
@@ -346,6 +349,15 @@
       "type": "array",
       "items": {
         "description": "Image required tag",
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "network_tags": {
+      "description": "List of tags to use to filter networks",
+      "type": "array",
+      "items": {
+        "description": "Network required tag",
         "type": "string"
       },
       "minItems": 1

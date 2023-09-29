@@ -31,10 +31,12 @@ class FlavorBase(BaseNode):
     @root_validator
     def check_gpu_values(cls, values: Dict[str, Any]):
         if values.get("gpus") == 0:
-            if values.get("gpu_model") is not None:
-                raise ValueError("'GPU model' must be None if 'Num GPUs' is 0")
-            if values.get("gpu_vendor") is not None:
-                raise ValueError("'GPU vendor' must be None if 'Num GPUs' is 0")
+            assert (
+                values.get("gpu_model") is None
+            ), "'GPU model' must be None if 'Num GPUs' is 0"
+            assert (
+                values.get("gpu_vendor") is None
+            ), "'GPU vendor' must be None if 'Num GPUs' is 0"
         return values
 
 
