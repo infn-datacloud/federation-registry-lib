@@ -8,8 +8,7 @@ from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderBase
 from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase
 from app.region.schemas import RegionBase
-from app.sla.schemas import SLABase
-from app.user_group.schemas import UserGroupBase
+from models.cmdb.user_group import UserGroupWrite
 from pydantic import UUID4, AnyHttpUrl, BaseModel, Field, root_validator, validator
 
 
@@ -35,22 +34,16 @@ class CMDB(BaseModel):
     api_ver: APIVersions = Field(description="API versions")
 
 
-class SLA(SLABase):
-    projects: List[UUID4] = Field(
-        default_factory=list, description="List of project uuids"
-    )
-
-
-class UserGroup(UserGroupBase):
-    slas: List[SLA] = Field(description="SLAs")
-
-
-class TrustedIDPIn(BaseModel):
-    group_claim: str = Field(description="")
-    issuer: AnyHttpUrl = Field()
-    user_groups: List[UserGroup] = Field(
+class TrustedIDPIn(IdentityProviderBase):
+    issuer: AnyHttpUrl = Field(description="issuer url")
+    user_groups: List[UserGroupWrite] = Field(
         default_factory=list, description="User groups"
     )
+
+    @root_validator(pre=True)
+    def rename_issuer_to_endpoint(cls, values):
+        values["endpoint"] = values.pop("issuer")
+        return values
 
 
 class Limits(BaseModel):
@@ -191,7 +184,7 @@ class ConfigIn(BaseModel):
 
 
 class TrustedIDPOut(IdentityProviderBase):
-    user_groups: List[UserGroup] = Field(
+    user_groups: List[UserGroupWrite] = Field(
         default_factory=list, description="User groups"
     )
     relationship: Optional[AuthMethodBase] = Field(default=None, description="")
