@@ -326,7 +326,7 @@
     "status": {
       "description": "Provider status",
       "type": "string",
-      "enum": ["active", "maintenance", "removed"],
+      "enum": ["active", "maintenance", "deprecate"],
       "default": "active"
     },
     "is_public": {

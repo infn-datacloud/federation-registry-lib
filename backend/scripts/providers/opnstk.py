@@ -143,6 +143,11 @@ def get_provider(
 ) -> ProviderWrite:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
+    if os_conf.status.value != "active":
+        return ProviderWrite(
+            name=os_conf.name, type=os_conf.type, status=os_conf.status
+        )
+
     trust_idps = copy.deepcopy(trusted_idps)
     regions = []
     projects = []
