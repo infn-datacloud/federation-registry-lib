@@ -1,6 +1,7 @@
 import copy
 import os
-from threading import Lock, Thread
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
 from typing import List, Optional
 
 from logger import logger
@@ -331,26 +332,18 @@ def get_provider(
     projects: List[ProjectWrite] = []
 
     for region_conf in os_conf.regions:
-        threads = []
         region = RegionWrite(**region_conf.dict())
+        thread_pool = ThreadPoolExecutor(max_workers=len(os_conf.projects))
         for project_conf in os_conf.projects:
-            threads.append(
-                Thread(
-                    target=get_per_project_details,
-                    kwargs={
-                        "os_conf": os_conf,
-                        "project_conf": project_conf,
-                        "region": region,
-                        "trusted_idps": trust_idps,
-                        "projects": projects,
-                    },
-                )
+            thread_pool.submit(
+                get_per_project_details,
+                os_conf=os_conf,
+                project_conf=project_conf,
+                region=region,
+                trusted_idps=trust_idps,
+                projects=projects,
             )
-        for t in threads:
-            t.start()
-        for t in threads:
-            t.join()
-
+        thread_pool.shutdown(wait=True)
         regions.append(region)
 
     # Filter on IDPs and user groups with SLAs
