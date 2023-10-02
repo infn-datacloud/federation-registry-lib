@@ -10,7 +10,8 @@ trusted_idps:
 
 openstack:
   - name: cloud-veneto
-    status: maintenance
+    regions:
+      - name: regionOne
     auth_url: https://keystone-cv.pd.infn.it/v3
     identity_providers:
       - name: infn-cc
