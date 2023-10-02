@@ -70,7 +70,9 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
 def get_images(conn: Connection, tags: List[str] = []) -> List[ImageWrite]:
     logger.info("Retrieve current project accessible images")
     images = []
-    for image in conn.image.images(status="active", tags=tags):
+    for image in conn.image.images(
+        status="active", tag=None if len(tags) == 0 else tags
+    ):
         is_public = True
         projects = []
         if image.visibility in ["private", "shared"]:
@@ -99,7 +101,9 @@ def get_networks(
 ) -> List[NetworkWrite]:
     logger.info("Retrieve current project accessible networks")
     networks = []
-    for network in conn.network.networks(status="active", tags=tags):
+    for network in conn.network.networks(
+        status="active", tag=None if len(tags) == 0 else tags
+    ):
         project = None
         if not network.is_shared:
             project = conn.current_project_id
