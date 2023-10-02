@@ -166,7 +166,9 @@ class Openstack(Provider):
     projects: List[OsProject] = Field(
         description="List of SLAs belonged by this provider"
     )
-    regions: List[Region] = Field(description="List of hosted regions")
+    regions: List[Region] = Field(
+        default_factory=list, description="List of hosted regions"
+    )
     type: ProviderType = Field(default="openstack", description="Provider type")
     image_tags: List[str] = Field(
         default_factory=list, description="List of image tags to filter"
@@ -184,21 +186,6 @@ class Kubernetes(Provider):
     type: ProviderType = Field(default="kubernetes", description="Provider type")
 
 
-class ConfigIn(BaseModel):
-    cmdb: CMDB = Field(description="CMDB configuration parameters")
-    trusted_idps: List[TrustedIDP] = Field(
-        description="List of OIDC-Agent supported identity providers endpoints"
-    )
-    openstack: List[Openstack] = Field(
-        default_factory=list,
-        description="List of openstack providers to integrate in the CMDB",
-    )
-    kubernetes: List[Kubernetes] = Field(
-        default_factory=list,
-        description="List of openstack providers to integrate in the CMDB",
-    )
-
-
 class URLs(BaseModel):
     flavors: AnyHttpUrl = Field(description="Flavors endpoint")
     identity_providers: AnyHttpUrl = Field(description="Identity Providers endpoint")
@@ -214,7 +201,7 @@ class URLs(BaseModel):
     user_groups: AnyHttpUrl = Field(description="User Groups endpoint")
 
 
-class ConfigOut(BaseModel):
+class Config(BaseModel):
     cmdb_urls: URLs = Field(description="CMDB endpoints to use")
     trusted_idps: List[TrustedIDP] = Field(
         description="List of OIDC-Agent supported identity providers endpoints"

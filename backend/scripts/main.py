@@ -1,3 +1,4 @@
+import os
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from typing import List
@@ -6,9 +7,10 @@ from cruds.provider import ProviderCRUD
 from models.cmdb.provider import ProviderWrite
 from models.config import Openstack, TrustedIDP
 from providers.opnstk import get_provider
-from utils import get_read_write_headers, load_config
+from utils import get_read_write_headers, load_cmdb_config, load_config
 
-MAX_WORKERS = 5
+MAX_WORKERS = 7
+data_lock = Lock()
 
 
 def add_os_provider_to_list(
@@ -20,19 +22,24 @@ def add_os_provider_to_list(
 
 
 if __name__ == "__main__":
-    config = load_config()
+    base_path = "."
+    cmdb_urls = load_cmdb_config(base_path=base_path)
 
     providers = []
-    data_lock = Lock()
     thread_pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 
-    for os_conf in config.openstack:
-        thread_pool.submit(
-            add_os_provider_to_list,
-            os_conf=os_conf,
-            trusted_idps=config.trusted_idps,
-            providers=providers,
-        )
+    yaml_files = list(
+        filter(lambda x: x.endswith(".config.yaml"), os.listdir(base_path))
+    )
+    for file in yaml_files:
+        config = load_config(fname=file, cmdb_urls=cmdb_urls)
+        for os_conf in config.openstack:
+            thread_pool.submit(
+                add_os_provider_to_list,
+                os_conf=os_conf,
+                trusted_idps=config.trusted_idps,
+                providers=providers,
+            )
 
     thread_pool.shutdown(wait=True)
 
