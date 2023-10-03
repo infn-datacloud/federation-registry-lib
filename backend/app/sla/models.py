@@ -30,7 +30,7 @@ class SLA(StructuredNode):
     description = StringProperty(default="")
     start_date = DateProperty(required=True)
     end_date = DateProperty(required=True)
-    doc_uuid = StringProperty()
+    doc_uuid = StringProperty(required=True)
 
     user_group = RelationshipFrom(
         "..user_group.models.UserGroup", "AGREE", cardinality=One
