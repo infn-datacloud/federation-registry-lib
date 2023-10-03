@@ -64,6 +64,6 @@ class ProviderCRUD(BasicCRUD[ProviderWrite, ProviderRead, ProviderQuery]):
                 )
             updated_items.append(new_data)
         # Delete no-more tracked items
-        for db_item in db_items:
+        for db_item in db_items.values():
             self.remove(item=db_item)
         return updated_items

@@ -45,6 +45,6 @@ class SLACRUD(BasicCRUD[SLAWrite, SLARead, SLAQuery]):
                 updated_item = self.update(new_data=item, uid=db_item.uid)
                 new_data = db_item if updated_item is None else updated_item
             updated_items.append(new_data)
-        for db_item in db_items:
-            self.remove(item=db_item)
+        for db_sla in db_items.values():
+            self.remove(item=db_sla)
         return updated_items

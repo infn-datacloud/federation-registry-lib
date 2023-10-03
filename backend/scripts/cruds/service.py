@@ -143,7 +143,7 @@ class ComputeServiceCRUD(
                     items=item.quotas, parent=new_data, projects=projects
                 )
             updated_items.append(new_data)
-        for db_item in db_items:
+        for db_item in db_items.values():
             self.remove(item=db_item)
         return updated_items
 
@@ -184,7 +184,7 @@ class IdentityServiceCRUD(
                 updated_item = self.update(new_data=item, uid=db_item.uid)
                 new_data = db_item if updated_item is None else updated_item
             updated_items.append(new_data)
-        for db_item in db_items:
+        for db_item in db_items.values():
             self.remove(item=db_item)
         return updated_items
 
@@ -237,6 +237,6 @@ class NetworkServiceCRUD(
                     items=item.networks, parent=new_data, project=projects
                 )
             updated_items.append(new_data)
-        for db_item in db_items:
+        for db_item in db_items.values():
             self.remove(item=db_item)
         return updated_items

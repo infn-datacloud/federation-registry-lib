@@ -50,6 +50,6 @@ class UserGroupCRUD(BasicCRUD[UserGroupWrite, UserGroupRead, UserGroupQuery]):
                     items=item.slas, parent=new_data, projects=projects
                 )
             updated_items.append(new_data)
-        for db_item in db_items:
+        for db_item in db_items.values():
             self.remove(item=db_item)
         return updated_items

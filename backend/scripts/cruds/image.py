@@ -42,7 +42,7 @@ class ImageCRUD(BasicCRUD[ImageWrite, ImageRead, ImageQuery]):
                 updated_item = self.update(new_data=item, uid=db_item.uid)
                 new_data = db_item if updated_item is None else updated_item
             updated_items.append(new_data)
-        for db_item in db_items:
+        for db_item in db_items.values():
             self.remove(item=db_item)
         db_projects = {p.uuid: p for p in projects}
         for project_uuid in item.projects:

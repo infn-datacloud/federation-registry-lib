@@ -52,7 +52,7 @@ class IdentityProviderCRUD(
                     items=item.user_groups, parent=new_data, projects=parent.projects
                 )
             updated_items.append(new_data)
-        for db_item in db_items:
+        for db_item in db_items.values():
             self.disconnect(item=db_item)
             # TODO Verify to delete all orphan idps
         return updated_items
