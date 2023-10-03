@@ -11,7 +11,9 @@ class ProviderBase(BaseNode):
 
     name: str = Field(description="Provider name.")
     type: ProviderType = Field(description="Provider type.")
-    status: ProviderStatus = Field(description="Provider status")
+    status: ProviderStatus = Field(
+        default=ProviderStatus.ACTIVE, description="Provider status"
+    )
     is_public: bool = Field(default=False, description="It is a public provider.")
     support_emails: List[EmailStr] = Field(
         default_factory=list, description="Contact emails."
@@ -37,9 +39,6 @@ class ProviderUpdate(ProviderCreate):
 
     name: Optional[str] = Field(default=None, description="Provider name.")
     type: Optional[ProviderType] = Field(default=None, description="Provider type.")
-    status: Optional[ProviderStatus] = Field(
-        default=None, description="Provider status."
-    )
 
 
 class ProviderRead(BaseNodeRead, ProviderBase):
