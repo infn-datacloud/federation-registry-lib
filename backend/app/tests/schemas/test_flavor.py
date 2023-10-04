@@ -6,11 +6,11 @@ from pydantic import ValidationError
 def test_create_schema():
     create_random_flavor()
     create_random_flavor(default=True)
-    create_random_flavor(with_projects=True)
+    create_random_flavor(is_public=False)
 
 
 def test_invalid_schema():
-    a = create_random_flavor(with_projects=True)
+    a = create_random_flavor(is_public=False)
     with pytest.raises(ValidationError):
         a.gpus = 0
     with pytest.raises(ValidationError):

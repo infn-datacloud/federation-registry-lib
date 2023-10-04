@@ -11,7 +11,7 @@ class NetworkBase(BaseNode):
     name: str = Field(description="Network name in the provider.")
     uuid: UUID4 = Field(description="Network UUID in the provider.")
     is_shared: bool = Field(
-        default=False,
+        default=True,
         description="Public (accessible to all projects) or private network type",
     )
     is_router_external: bool = Field(default=False, description="External network")

@@ -311,6 +311,8 @@ class NetworkCreateExtended(NetworkCreate):
     def project_require_if_private_net(cls, values):
         if not values.get("is_shared"):
             assert values.get("project") is not None
+        else:
+            assert values.get("project") is None
         return values
 
 

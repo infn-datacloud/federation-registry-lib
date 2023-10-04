@@ -6,11 +6,11 @@ from pydantic import ValidationError
 def test_create_schema():
     create_random_image()
     create_random_image(default=True)
-    create_random_image(with_projects=True)
+    create_random_image(is_public=False)
 
 
 def test_invalid_schema():
-    a = create_random_image(with_projects=True)
+    a = create_random_image(is_public=False)
     with pytest.raises(ValidationError):
         a.projects = []
     with pytest.raises(ValidationError):
