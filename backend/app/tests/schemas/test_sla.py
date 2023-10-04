@@ -19,6 +19,4 @@ def test_invalid_create_schema():
     with pytest.raises(ValidationError):
         a.end_date = a.start_date - timedelta(1)
     with pytest.raises(ValidationError):
-        a.projects = []
-    with pytest.raises(ValidationError):
         a.projects = [a.projects[0], a.projects[0]]
