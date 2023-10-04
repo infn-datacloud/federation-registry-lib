@@ -203,13 +203,12 @@ def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
 
 
 class SLACreateExtended(SLACreate):
-    projects: List[UUID4] = Field(
-        default_factory=list, description="List of projects UUID"
-    )
+    projects: List[UUID4] = Field(description="List of projects UUID")
 
     @validator("projects")
     def validate_projects(cls, v):
         find_duplicates(v)
+        assert len(v), "Projects list can't be empty"
         return v
 
     @root_validator
