@@ -295,6 +295,10 @@ class ImageCreateExtended(ImageCreate):
             assert len(
                 values.get("projects", [])
             ), "Projects are mandatory for private images"
+        else:
+            assert not len(
+                values.get("projects", [])
+            ), "Public images do not have linked projects"
         return values
 
 
