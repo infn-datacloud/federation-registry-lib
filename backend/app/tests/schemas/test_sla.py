@@ -8,10 +8,12 @@ from pydantic import ValidationError
 def test_create_schema():
     create_random_sla()
     create_random_sla(default=True)
+    create_random_sla(with_projects=True)
+    create_random_sla(default=True, with_projects=True)
 
 
 def test_invalid_create_schema():
-    a = create_random_sla()
+    a = create_random_sla(with_projects=True)
     with pytest.raises(ValidationError):
         a.doc_uuid = None
     with pytest.raises(ValidationError):
