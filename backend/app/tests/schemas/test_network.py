@@ -9,8 +9,12 @@ def test_create_schema():
     create_random_network(is_shared=False)
 
 
-def test_invalid_schema():
+def test_invalid_create_schema():
     a = create_random_network(is_shared=False)
+    with pytest.raises(ValidationError):
+        a.uuid = None
+    with pytest.raises(ValidationError):
+        a.name = None
     with pytest.raises(ValidationError):
         a.project = None
     with pytest.raises(ValidationError):

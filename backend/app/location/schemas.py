@@ -53,12 +53,15 @@ class LocationRead(BaseNodeRead, LocationBase):
     database. Add the *country_code* attribute.
     """
 
-    country_code: str
+    country_code: Optional[str] = Field(
+        default=None, description="Country code with 3 char"
+    )
 
     @root_validator(pre=True)
     def get_country_code(cls, values: Dict) -> Dict:
         matches = countries.search_fuzzy(values["country"])
-        values["country_code"] = matches[0].alpha_3
+        if len(matches > 0):
+            values["country_code"] = matches[0].alpha_3
         return values
 
 
