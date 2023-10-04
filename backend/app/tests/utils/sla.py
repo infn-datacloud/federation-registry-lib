@@ -44,4 +44,4 @@ def validate_sla_attrs(*, obj_in: SLACreateExtended, db_item: SLA) -> None:
     assert db_item.doc_uuid == str(obj_in.doc_uuid)
     assert len(db_item.projects) == len(obj_in.projects)
     for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
-        assert db_proj == proj_in
+        assert db_proj.uuid == str(proj_in)

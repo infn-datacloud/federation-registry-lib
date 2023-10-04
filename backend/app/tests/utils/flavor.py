@@ -67,7 +67,7 @@ def create_random_update_flavor_data() -> FlavorUpdate:
 def validate_flavor_attrs(*, obj_in: FlavorCreateExtended, db_item: Flavor) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
-    assert db_item.uuid == obj_in.uuid
+    assert db_item.uuid == str(obj_in.uuid)
     assert db_item.disk == obj_in.disk
     assert db_item.is_public == obj_in.is_public
     assert db_item.ram == obj_in.ram
@@ -81,4 +81,4 @@ def validate_flavor_attrs(*, obj_in: FlavorCreateExtended, db_item: Flavor) -> N
     assert db_item.local_storage == obj_in.local_storage
     assert len(db_item.projects) == len(obj_in.projects)
     for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
-        assert db_proj == proj_in
+        assert db_proj.uuid == str(proj_in)

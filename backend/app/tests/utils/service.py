@@ -53,15 +53,9 @@ def create_random_compute_service(
     if not default:
         kwargs = {"description": random_lower_string()}
     if with_flavors:
-        kwargs["flavors"] = [
-            create_random_flavor(),
-            create_random_flavor(projects=projects),
-        ]
+        kwargs["flavors"] = [create_random_flavor(projects=projects)]
     if with_images:
-        kwargs["images"] = [
-            create_random_image(),
-            create_random_image(projects=projects),
-        ]
+        kwargs["images"] = [create_random_image(projects=projects)]
     if len(projects):
         kwargs["quotas"] = [create_random_compute_quota(project=projects[0])]
     return ComputeServiceCreateExtended(endpoint=endpoint, name=name, **kwargs)

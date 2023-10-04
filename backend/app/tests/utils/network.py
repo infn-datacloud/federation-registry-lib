@@ -62,7 +62,7 @@ def create_random_update_network_data() -> NetworkUpdate:
 def validate_network_attrs(*, obj_in: NetworkCreateExtended, db_item: Network) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
-    assert db_item.uuid == obj_in.uuid
+    assert db_item.uuid == str(obj_in.uuid)
     assert db_item.is_shared == obj_in.is_shared
     assert db_item.is_router_external == obj_in.is_router_external
     assert db_item.is_default == obj_in.is_default
@@ -70,7 +70,7 @@ def validate_network_attrs(*, obj_in: NetworkCreateExtended, db_item: Network) -
     assert db_item.proxy_ip == obj_in.proxy_ip
     assert db_item.proxy_user == obj_in.proxy_user
     assert db_item.tags == obj_in.tags
-    if db_item.project:
-        assert db_item.project == obj_in.project
+    if db_item.project.single():
+        assert db_item.project.single().uuid == str(obj_in.project)
     else:
         assert not obj_in.project
