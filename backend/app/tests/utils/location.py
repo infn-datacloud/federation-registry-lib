@@ -1,26 +1,22 @@
 from random import choice, randrange
 
-from app.location.crud import location
 from app.location.models import Location
 from app.location.schemas import LocationCreate, LocationUpdate
 from app.tests.utils.utils import random_lower_string
 from pycountry import countries
 
 
-def create_random_location() -> Location:
-    description = random_lower_string()
-    name = random_lower_string()
+def create_random_location(*, default: bool = False) -> LocationCreate:
+    site = random_lower_string()
     country = random_country()
-    latitude = random_latitude()
-    longitude = random_longitude()
-    item_in = LocationCreate(
-        description=description,
-        name=name,
-        country=country,
-        latitude=latitude,
-        longitude=longitude,
-    )
-    return location.create(obj_in=item_in)
+    kwargs = {}
+    if not default:
+        kwargs = {
+            "description": random_lower_string(),
+            "latitude": random_latitude(),
+            "longitude": random_longitude(),
+        }
+    return LocationCreate(site=site, country=country, **kwargs)
 
 
 def create_random_update_location_data() -> LocationUpdate:
@@ -48,3 +44,11 @@ def random_latitude() -> float:
 
 def random_longitude() -> float:
     return float(randrange(-90, 90))
+
+
+def validate_location_attrs(*, obj_in: LocationCreate, db_item: Location) -> None:
+    assert db_item.description == obj_in.description
+    assert db_item.site == obj_in.site
+    assert db_item.country == obj_in.country
+    assert db_item.latitude == obj_in.latitude
+    assert db_item.longitude == obj_in.longitude

@@ -1,6 +1,6 @@
 import string
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from random import choices, getrandbits, randint, randrange
 
 from pydantic import AnyHttpUrl
@@ -33,6 +33,11 @@ def random_bool() -> bool:
 def random_datetime() -> datetime:
     d = randint(1, int(time.time()))
     return datetime.fromtimestamp(d, tz=timezone.utc)
+
+
+def random_date() -> date:
+    d = randint(1, int(time.time()))
+    return date.fromtimestamp(d)
 
 
 def random_url() -> AnyHttpUrl:

@@ -1,20 +1,35 @@
-from app.tests.utils.identity_provider import create_random_identity_provider
+from typing import List
+
+from app.provider.schemas_extended import UserGroupCreateExtended
+from app.tests.utils.sla import create_random_sla, validate_sla_attrs
 from app.tests.utils.utils import random_lower_string
-from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
-from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
+from app.user_group.schemas import UserGroupUpdate
+from pydantic import UUID4
 
 
-def create_random_user_group() -> UserGroup:
+def create_random_user_group(
+    *, default: bool = False, projects: List[UUID4] = []
+) -> UserGroupCreateExtended:
     name = random_lower_string()
-    description = random_lower_string()
-    item_in = UserGroupCreate(name=name, description=description)
-    return user_group.create(
-        obj_in=item_in, identity_provider=create_random_identity_provider()
-    )
+    slas = [create_random_sla(projects=projects)]
+    kwargs = {}
+    if not default:
+        kwargs = {"description": random_lower_string()}
+    return UserGroupCreateExtended(name=name, slas=slas, **kwargs)
 
 
 def create_random_update_user_group_data() -> UserGroupUpdate:
     name = random_lower_string()
     description = random_lower_string()
     return UserGroupUpdate(name=name, description=description)
+
+
+def validate_user_group_attrs(
+    *, obj_in: UserGroupCreateExtended, db_item: UserGroup
+) -> None:
+    assert db_item.description == db_item.description
+    assert db_item.name == obj_in.name
+    assert len(db_item.slas) == len(obj_in.slas)
+    for db_sla, sla_in in zip(db_item.slas, obj_in.slas):
+        validate_sla_attrs(obj_in=sla_in, db_item=db_sla)

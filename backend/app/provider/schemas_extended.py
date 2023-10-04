@@ -470,6 +470,7 @@ class ProviderCreateExtended(ProviderCreate):
                         sla.doc_uuid not in seen
                     ), f"SLA {sla.doc_uuid} already used by another user group"
                     seen.add(sla.doc_uuid)
+
                     for project in sla.projects:
                         msg = f"SLA {sla.doc_uuid} project {project} "
                         msg += f"not in this provider: {projects}"
