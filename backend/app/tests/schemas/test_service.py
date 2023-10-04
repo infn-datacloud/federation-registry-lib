@@ -1,4 +1,5 @@
 import copy
+from uuid import uuid4
 
 import pytest
 from app.service.enum import ServiceName, ServiceType
@@ -12,10 +13,11 @@ from pydantic import ValidationError
 
 
 def test_create_schema():
+    projects = [uuid4()]
     create_random_block_storage_service()
     create_random_block_storage_service(default=True)
-    create_random_block_storage_service(with_quotas=True)
-    item = create_random_block_storage_service(default=True, with_quotas=True)
+    create_random_block_storage_service(projects=projects)
+    item = create_random_block_storage_service(default=True, projects=projects)
 
     q1 = item.quotas[0]
     q2 = copy.deepcopy(q1)
@@ -24,14 +26,14 @@ def test_create_schema():
 
     create_random_compute_service()
     create_random_compute_service(default=True)
-    create_random_compute_service(with_quotas=True)
-    create_random_compute_service(default=True, with_quotas=True)
+    create_random_compute_service(projects=projects)
+    create_random_compute_service(default=True, projects=projects)
     create_random_compute_service(with_flavors=True)
     create_random_compute_service(default=True, with_flavors=True)
     create_random_compute_service(with_images=True)
     create_random_compute_service(default=True, with_images=True)
     item = create_random_compute_service(
-        with_flavors=True, with_images=True, with_quotas=True
+        projects=projects, with_flavors=True, with_images=True
     )
 
     q1 = item.quotas[0]
@@ -49,7 +51,8 @@ def test_create_schema():
 
 
 def test_invalid_create_schema():
-    a = create_random_block_storage_service(with_quotas=True)
+    projects = [uuid4()]
+    a = create_random_block_storage_service(projects=projects)
     with pytest.raises(ValidationError):
         a.type = ServiceType.COMPUTE.value
     with pytest.raises(ValidationError):
@@ -68,7 +71,7 @@ def test_invalid_create_schema():
         a.quotas = [a.quotas[0], a.quotas[0]]
 
     a = create_random_compute_service(
-        with_flavors=True, with_images=True, with_quotas=True
+        with_flavors=True, with_images=True, projects=projects
     )
     with pytest.raises(ValidationError):
         a.type = ServiceType.BLOCK_STORAGE.value

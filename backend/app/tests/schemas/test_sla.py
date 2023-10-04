@@ -1,4 +1,5 @@
 from datetime import timedelta
+from uuid import uuid4
 
 import pytest
 from app.tests.utils.sla import create_random_sla
@@ -6,14 +7,15 @@ from pydantic import ValidationError
 
 
 def test_create_schema():
+    projects = [uuid4()]
     create_random_sla()
     create_random_sla(default=True)
-    create_random_sla(with_projects=True)
-    create_random_sla(default=True, with_projects=True)
+    create_random_sla(projects=projects)
+    create_random_sla(default=True, projects=projects)
 
 
 def test_invalid_create_schema():
-    a = create_random_sla(with_projects=True)
+    a = create_random_sla(projects=[uuid4()])
     with pytest.raises(ValidationError):
         a.doc_uuid = None
     with pytest.raises(ValidationError):
