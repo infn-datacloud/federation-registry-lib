@@ -323,6 +323,20 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
         default_factory=list, description="List or related quotas"
     )
 
+    @validator("quotas")
+    def max_two_quotas_on_same_project(cls, v: List[BlockStorageQuotaCreateExtended]):
+        d = {}
+        for quota in v:
+            if quota.project is not None:
+                msg = f"Multiple quotas on same project {quota.project}"
+                q = d.get(quota.project)
+                if q is None:
+                    d[quota.project] = [1, quota.per_user]
+                else:
+                    q[0] += 1
+                    assert q[0] <= 2 and q[1] != quota.per_user, msg
+        return v
+
 
 class ComputeServiceCreateExtended(ComputeServiceCreate):
     flavors: List[FlavorCreateExtended] = Field(
@@ -347,6 +361,20 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
     def validate_images(cls, v):
         find_duplicates(v, "uuid")
         find_duplicates(v, "name")
+        return v
+
+    @validator("quotas")
+    def max_two_quotas_on_same_project(cls, v: List[BlockStorageQuotaCreateExtended]):
+        d = {}
+        for quota in v:
+            if quota.project is not None:
+                msg = f"Multiple quotas on same project {quota.project}"
+                q = d.get(quota.project)
+                if q is None:
+                    d[quota.project] = [1, quota.per_user]
+                else:
+                    q[0] += 1
+                    assert q[0] <= 2 and q[1] != quota.per_user, msg
         return v
 
 
@@ -434,8 +462,8 @@ class ProviderCreateExtended(ProviderCreate):
     @root_validator
     def check_referenced_projects_exist(cls, values):
         projects = [i.uuid for i in values.get("projects", [])]
+        seen = set()
         for identity_provider in values.get("identity_providers", []):
-            seen = set()
             for user_group in identity_provider.user_groups:
                 for sla in user_group.slas:
                     assert (
@@ -449,21 +477,11 @@ class ProviderCreateExtended(ProviderCreate):
 
         for region in values.get("regions", []):
             for service in region.block_storage_services:
-                d = {}
                 for quota in service.quotas:
                     if quota.project is not None:
                         msg = f"Block storage quota's project {quota.project} "
                         msg += f"not in this provider: {projects}"
                         assert quota.project in projects, msg
-
-                        msg = "Multiple block storage quotas on same "
-                        msg += f"project {quota.project}"
-                        q = d.get(quota.project)
-                        if q is None:
-                            d[quota.project] = [1, quota.per_user]
-                        else:
-                            q[0] += 1
-                            assert q[0] <= 2 and q[1] != quota.per_user, msg
 
             for service in region.compute_services:
                 for flavor in service.flavors:
@@ -476,21 +494,11 @@ class ProviderCreateExtended(ProviderCreate):
                         msg = f"Image {image.name}'s project {project} "
                         msg += f"not in this provider: {projects}"
                         assert project in projects, msg
-
-                d = {}
                 for quota in service.quotas:
                     if quota.project is not None:
                         msg = f"Compute quota's project {project} "
                         msg += f"not in this provider: {projects}"
                         assert quota.project in projects, msg
-
-                        msg = f"Multiple compute quotas on same project {quota.project}"
-                        q = d.get(quota.project)
-                        if q is None:
-                            d[quota.project] = [1, quota.per_user]
-                        else:
-                            q[0] += 1
-                            assert q[0] <= 2 and q[1] != quota.per_user, msg
 
             for service in region.network_services:
                 for network in service.networks:
