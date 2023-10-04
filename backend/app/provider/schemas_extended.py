@@ -226,6 +226,7 @@ class UserGroupCreateExtended(UserGroupCreate):
     @validator("slas")
     def validate_slas(cls, v):
         find_duplicates(v, "doc_uuid")
+        assert len(v), "SLA list can't be empty"
         return v
 
 
