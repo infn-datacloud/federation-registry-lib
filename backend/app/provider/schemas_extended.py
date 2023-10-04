@@ -271,6 +271,10 @@ class FlavorCreateExtended(FlavorCreate):
             assert len(
                 values.get("projects", [])
             ), "Projects are mandatory for private flavors"
+        else:
+            assert not len(
+                values.get("projects", [])
+            ), "Public flavors do not have linked projects"
         return values
 
 
