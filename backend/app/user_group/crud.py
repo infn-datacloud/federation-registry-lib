@@ -47,7 +47,8 @@ class CRUDUserGroup(
         for item in obj_in.slas:
             item_projects = [str(i) for i in item.projects]
             db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
-            sla.create(obj_in=item, user_group=db_obj, projects=db_projects)
+            if len(db_projects) > 0:
+                sla.create(obj_in=item, user_group=db_obj, projects=db_projects)
         return db_obj
 
     def remove(self, *, db_obj: UserGroup) -> bool:

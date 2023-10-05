@@ -135,12 +135,11 @@ class CRUDBlockStorageService(
         db_obj = super().create(obj_in=obj_in, force=force)
         db_obj.region.connect(region)
         for item in obj_in.quotas:
-            db_project = list(filter(lambda x: x.uuid == str(item.project), projects))[
-                0
-            ]
-            block_storage_quota.create(
-                obj_in=item, service=db_obj, project=db_project, force=True
-            )
+            db_projects = list(filter(lambda x: x.uuid == str(item.project), projects))
+            if len(db_projects) == 1:
+                block_storage_quota.create(
+                    obj_in=item, service=db_obj, project=db_projects[0], force=True
+                )
         return db_obj
 
     def remove(self, *, db_obj: BlockStorageService) -> bool:
@@ -182,12 +181,11 @@ class CRUDComputeService(
             db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
             image.create(obj_in=item, service=db_obj, projects=db_projects, force=True)
         for item in obj_in.quotas:
-            db_project = list(filter(lambda x: x.uuid == str(item.project), projects))[
-                0
-            ]
-            compute_quota.create(
-                obj_in=item, service=db_obj, project=db_project, force=True
-            )
+            db_projects = list(filter(lambda x: x.uuid == str(item.project), projects))
+            if len(db_projects) == 1:
+                compute_quota.create(
+                    obj_in=item, service=db_obj, project=db_projects[0], force=True
+                )
         return db_obj
 
     def remove(self, *, db_obj: ComputeService) -> bool:
