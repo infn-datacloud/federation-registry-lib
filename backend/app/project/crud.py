@@ -35,7 +35,7 @@ class CRUDProject(
         return db_obj
 
     def remove(self, *, db_obj: Project) -> bool:
-        for item in db_obj.quotas.all():
+        for item in db_obj.quotas:
             quota.remove(db_obj=item)
         item = db_obj.sla.single()
         if item is not None:

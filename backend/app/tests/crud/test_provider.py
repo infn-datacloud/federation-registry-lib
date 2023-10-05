@@ -178,10 +178,21 @@ def test_get_items_with_skip(setup_and_teardown_db: Generator) -> None:
 #     assert item.support_emails == item_update.support_emails
 
 
-# def test_delete_item(setup_and_teardown_db: Generator) -> None:
-#     item_in = create_random_provider()
-#     item = provider.create(obj_in=item_in)
-#     result = provider.remove(db_obj=item)
-#     item = provider.get(uid=item.uid)
-#     assert result is True
-#     assert item is None
+def test_delete_item(setup_and_teardown_db: Generator) -> None:
+    item_in = create_random_provider()
+    item = provider.create(obj_in=item_in)
+    result = provider.remove(db_obj=item)
+    assert result
+    item = provider.get(uid=item.uid)
+    assert not item
+
+
+def test_delete_item_with_relationships(setup_and_teardown_db: Generator) -> None:
+    item_in = create_random_provider(
+        with_identity_providers=True, with_projects=True, with_regions=True
+    )
+    item = provider.create(obj_in=item_in)
+    result = provider.remove(db_obj=item)
+    assert result
+    item = provider.get(uid=item.uid)
+    assert not item

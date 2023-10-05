@@ -143,7 +143,7 @@ class CRUDBlockStorageService(
         return db_obj
 
     def remove(self, *, db_obj: BlockStorageService) -> bool:
-        for item in db_obj.quotas.all():
+        for item in db_obj.quotas:
             quota.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
@@ -189,15 +189,15 @@ class CRUDComputeService(
         return db_obj
 
     def remove(self, *, db_obj: ComputeService) -> bool:
-        for item in db_obj.quotas.all():
+        for item in db_obj.quotas:
             quota.remove(db_obj=item)
-        result = super().remove(db_obj=db_obj)
-        for item in db_obj.flavors.all():
-            if len(item.services.all()) == 0:
+        for item in db_obj.flavors:
+            if len(item.services) == 1:
                 flavor.remove(db_obj=item)
-        for item in db_obj.images.all():
-            if len(item.services.all()) == 0:
+        for item in db_obj.images:
+            if len(item.services) == 1:
                 image.remove(db_obj=item)
+        result = super().remove(db_obj=db_obj)
         return result
 
 
@@ -252,16 +252,14 @@ class CRUDNetworkService(
             db_projects = list(filter(lambda x: x.uuid == str(item.project), projects))
             if len(db_projects) == 1:
                 db_project = db_projects[0]
-            if len(db_projects) > 1:
-                raise
             network.create(obj_in=item, service=db_obj, project=db_project, force=True)
         return db_obj
 
     def remove(self, *, db_obj: NetworkService) -> bool:
-        result = super().remove(db_obj=db_obj)
-        for item in db_obj.networks.all():
-            if len(item.services.all()) == 0:
+        for item in db_obj.networks:
+            if len(item.services) == 1:
                 network.remove(db_obj=item)
+        result = super().remove(db_obj=db_obj)
         return result
 
 

@@ -70,16 +70,16 @@ class CRUDRegion(
         # abort region deletion in favor of provider deletion.
         if not from_provider:
             item = db_obj.provider.single()
-            if len(item.regions.all()) == 1:
+            if len(item.regions) == 1:
                 return False
 
-        for item in db_obj.services.all():
+        for item in db_obj.services:
             service.remove(db_obj=item)
-        result = super().remove(db_obj=db_obj)
         item = db_obj.location.single()
         if item is not None:
-            if len(item.regions.all()) == 0:
+            if len(item.regions) == 1:
                 location.remove(db_obj=item)
+        result = super().remove(db_obj=db_obj)
         return result
 
 
