@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.identity_provider.models import IdentityProvider
@@ -40,10 +40,8 @@ class CRUDUserGroup(
         identity_provider: IdentityProvider,
         projects: List[Project]
     ) -> UserGroup:
-        db_obj = identity_provider.user_groups.get_or_none(name=obj_in.name)
-        if db_obj is None:
-            db_obj = super().create(obj_in=obj_in)
-            db_obj.identity_provider.connect(identity_provider)
+        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj.identity_provider.connect(identity_provider)
         for item in obj_in.slas:
             item_projects = [str(i) for i in item.projects]
             db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
@@ -55,6 +53,30 @@ class CRUDUserGroup(
         for item in db_obj.slas:
             sla.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
+
+    def update(
+        self,
+        *,
+        db_obj: UserGroup,
+        obj_in: Union[UserGroupCreateExtended, UserGroupUpdate],
+        projects: List[Project] = [],
+        force: bool = False
+    ) -> Optional[UserGroup]:
+        if force:
+            db_items = {db_item.doc_uuid: db_item for db_item in db_obj.slas}
+            for item in obj_in.slas:
+                db_item = db_items.pop(str(item.doc_uuid), None)
+                item_projects = [str(i) for i in item.projects]
+                db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
+                if db_item is None:
+                    sla.create(obj_in=item, projects=db_projects, user_group=db_obj)
+                else:
+                    sla.update(
+                        db_obj=db_item, obj_in=item, projects=db_projects, force=force
+                    )
+            for db_item in db_items.values():
+                sla.remove(db_obj=db_item)
+        return super().update(db_obj=db_obj, obj_in=obj_in, force=force)
 
 
 user_group = CRUDUserGroup(

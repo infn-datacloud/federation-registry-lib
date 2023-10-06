@@ -29,14 +29,9 @@ class CRUDFlavor(
     """"""
 
     def create(
-        self,
-        *,
-        obj_in: FlavorCreate,
-        service: ComputeService,
-        projects: List[Project],
-        force: bool = False
+        self, *, obj_in: FlavorCreate, service: ComputeService, projects: List[Project]
     ) -> Flavor:
-        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.services.connect(service)
         for project in projects:
             db_obj.projects.connect(project)

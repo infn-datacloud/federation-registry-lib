@@ -29,14 +29,9 @@ class CRUDImage(
     """"""
 
     def create(
-        self,
-        *,
-        obj_in: ImageCreate,
-        service: ComputeService,
-        projects: List[Project],
-        force: bool = False
+        self, *, obj_in: ImageCreate, service: ComputeService, projects: List[Project]
     ) -> Image:
-        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.services.connect(service)
         for project in projects:
             db_obj.projects.connect(project)

@@ -92,9 +92,8 @@ class CRUDBlockStorageQuota(
         obj_in: BlockStorageQuotaCreate,
         service: BlockStorageService,
         project: Project,
-        force: bool = False
     ) -> BlockStorageQuota:
-        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
         return db_obj
@@ -115,14 +114,9 @@ class CRUDComputeQuota(
     """"""
 
     def create(
-        self,
-        *,
-        obj_in: ComputeQuotaCreate,
-        service: ComputeService,
-        project: Project,
-        force: bool = False
+        self, *, obj_in: ComputeQuotaCreate, service: ComputeService, project: Project
     ) -> ComputeQuota:
-        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
         return db_obj

@@ -159,23 +159,90 @@ def test_get_items_with_skip(setup_and_teardown_db: Generator) -> None:
     assert len(stored_items) == 1
 
 
-# def test_update_item(setup_and_teardown_db: Generator) -> None:
-#     item = create_random_provider()
-#     item_update = create_random_update_provider_data()
-#     item2 = provider.update(db_obj=item, obj_in=item_update)
-#     assert item2.uid == item.uid
-#     assert item.description == item_update.description
-#     assert item.name == item_update.name
-#     assert item.is_public == item_update.is_public
-#     assert item.support_emails == item_update.support_emails
+def test_patch_item(setup_and_teardown_db: Generator) -> None:
+    item_in = create_random_provider()
+    item = provider.create(obj_in=item_in)
+    item_in = create_random_provider()
+    item = provider.update(db_obj=item, obj_in=item_in)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
 
-#     item_update = create_random_update_provider_data()
-#     item2 = provider.update(db_obj=item, obj_in=item_update.dict())
-#     assert item2.uid == item.uid
-#     assert item.description == item_update.description
-#     assert item.name == item_update.name
-#     assert item.is_public == item_update.is_public
-#     assert item.support_emails == item_update.support_emails
+
+def test_forced_update_item_with_projects(setup_and_teardown_db: Generator) -> None:
+    item_in = create_random_provider(with_projects=True)
+    item = provider.create(obj_in=item_in)
+    item_in = create_random_provider()
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    item_in = create_random_provider(with_projects=True)
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    item_in = create_random_provider(with_projects=True)
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    projects = item_in.projects
+    item_in = create_random_provider()
+    item_in.projects = projects
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+
+def test_forced_update_item_with_projects_and_identity_providers(
+    setup_and_teardown_db: Generator,
+) -> None:
+    item_in = create_random_provider(with_projects=True, with_identity_providers=True)
+    item = provider.create(obj_in=item_in)
+    item_in = create_random_provider()
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    item_in = create_random_provider(with_projects=True, with_identity_providers=True)
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    item_in = create_random_provider(with_projects=True, with_identity_providers=True)
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    projects = item_in.projects
+    identity_providers = item_in.identity_providers
+    item_in = create_random_provider()
+    item_in.projects = projects
+    item_in.identity_providers = identity_providers
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+
+def test_forced_update_item_with_projects_and_regions(
+    setup_and_teardown_db: Generator,
+) -> None:
+    item_in = create_random_provider(with_projects=True, with_regions=True)
+    item = provider.create(obj_in=item_in)
+    item_in = create_random_provider(with_projects=True, with_regions=True)
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    item_in = create_random_provider()
+    item = provider.create(obj_in=item_in)
+    item_in = create_random_provider(with_projects=True, with_regions=True)
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    item_in = create_random_provider(with_projects=True, with_regions=True)
+    item = provider.create(obj_in=item_in)
+    item_in = create_random_provider()
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
+
+    projects = item_in.projects
+    regions = item_in.regions
+    item_in = create_random_provider()
+    item_in.projects = projects
+    item_in.regions = regions
+    item = provider.update(db_obj=item, obj_in=item_in, force=True)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

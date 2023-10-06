@@ -27,14 +27,9 @@ class CRUDNetwork(
     """"""
 
     def create(
-        self,
-        *,
-        obj_in: NetworkCreate,
-        service: NetworkService,
-        project: Project,
-        force: bool = False
+        self, *, obj_in: NetworkCreate, service: NetworkService, project: Project
     ) -> Network:
-        db_obj = super().create(obj_in=obj_in, force=force)
+        db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.services.connect(service)
         if project is not None:
             db_obj.project.connect(project)

@@ -1,5 +1,3 @@
-from typing import Optional
-
 from app.crud import CRUDBase
 from app.location.models import Location
 from app.location.schemas import (
@@ -30,16 +28,9 @@ class CRUDLocation(
 ):
     """"""
 
-    def create(
-        self,
-        *,
-        obj_in: LocationCreate,
-        region: Optional[Region] = None,
-        force: bool = False
-    ) -> Location:
-        db_obj = super().create(obj_in=obj_in, force=force)
-        if region is not None:
-            db_obj.regions.connect(region)
+    def create(self, *, obj_in: LocationCreate, region: Region) -> Location:
+        db_obj = super().create(obj_in=obj_in, force=False)
+        db_obj.regions.connect(region)
         return db_obj
 
 

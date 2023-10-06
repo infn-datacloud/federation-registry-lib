@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.project.models import Project
@@ -23,20 +23,31 @@ class CRUDSLA(
     """"""
 
     def create(
-        self,
-        *,
-        obj_in: SLACreate,
-        projects: List[Project],
-        user_group: UserGroup,
-        force: bool = False
+        self, *, obj_in: SLACreate, projects: List[Project], user_group: UserGroup
     ) -> SLA:
-        db_obj = user_group.slas.get_or_none(doc_uuid=obj_in.doc_uuid)
-        if db_obj is None:
-            db_obj = super().create(obj_in=obj_in, force=force)
-            db_obj.user_group.connect(user_group)
+        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj.user_group.connect(user_group)
         for i in projects:
             db_obj.projects.connect(i)
         return db_obj
+
+    def update(
+        self,
+        *,
+        db_obj: SLA,
+        obj_in: Union[SLACreate, SLAUpdate],
+        projects: List[Project] = [],
+        force: bool = False,
+    ) -> Optional[SLA]:
+        if force:
+            db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
+            for db_proj in projects:
+                db_item = db_items.pop(str(db_proj.uuid), None)
+                if not db_item:
+                    db_obj.projects.connect(db_proj)
+            for db_item in db_items.values():
+                db_obj.projects.disconnect(db_item)
+        return super().update(db_obj=db_obj, obj_in=obj_in, force=force)
 
 
 sla = CRUDSLA(
