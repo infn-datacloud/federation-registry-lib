@@ -59,6 +59,7 @@ class CRUDIdentityProvider(
         projects: List[Project] = [],
         force: bool = False
     ) -> Optional[IdentityProvider]:
+        edit = False
         if force:
             db_items = {db_item.name: db_item for db_item in db_obj.user_groups}
             for item in obj_in.user_groups:
@@ -67,13 +68,21 @@ class CRUDIdentityProvider(
                     user_group.create(
                         obj_in=item, identity_provider=db_obj, projects=projects
                     )
+                    edit = True
                 else:
-                    user_group.update(
+                    updated_data = user_group.update(
                         db_obj=db_item, obj_in=item, projects=projects, force=force
                     )
+                    if not edit and updated_data is not None:
+                        edit = True
             for db_item in db_items.values():
                 user_group.remove(db_obj=db_item)
-        return super().update(db_obj=db_obj, obj_in=obj_in, force=force)
+                edit = True
+
+        updated_data = super().update(
+            db_obj=db_obj, obj_in=IdentityProviderUpdate.parse_obj(obj_in), force=force
+        )
+        return db_obj if edit else updated_data
 
 
 identity_provider = CRUDIdentityProvider(

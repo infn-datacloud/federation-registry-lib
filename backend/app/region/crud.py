@@ -89,23 +89,31 @@ class CRUDRegion(
         projects: List[Project] = [],
         force: bool = False
     ) -> Optional[Region]:
+        edit = False
         if force:
             # Location
             item = obj_in.location
-            if item is not None:
+            db_loc = db_obj.location.single()
+            if db_loc:
+                db_obj.location.disconnect(db_loc)
+                edit = True
+            if item:
                 db_item = location.get(site=item.site)
-                if db_item is None:
+                if not db_item:
                     location.create(obj_in=item, region=db_obj)
+                    edit = True
                 else:
-                    location.update(db_obj=db_item, obj_in=item, force=force)
+                    updated_data = location.update(
+                        db_obj=db_item, obj_in=item, force=force
+                    )
                     db_obj.location.connect(db_item)
-            else:
-                db_item = db_obj.location.single()
-                if db_item:
-                    if len(db_item.regions) == 1:
-                        location.remove(db_item)
-                    else:
-                        db_obj.location.disconnect(db_item)
+                    edit = updated_data is not None
+            if (
+                db_loc
+                and not db_obj.location.is_connected(db_loc)
+                and len(db_loc.regions) == 0
+            ):
+                location.remove(db_obj=db_loc)
 
             # Block Storage Service
             db_items = {
@@ -116,13 +124,19 @@ class CRUDRegion(
             for item in obj_in.block_storage_services:
                 db_item = db_items.pop(item.endpoint, None)
                 if db_item is None:
-                    block_storage_service.create(obj_in=item, region=db_obj)
+                    block_storage_service.create(
+                        obj_in=item, region=db_obj, projects=projects
+                    )
+                    edit = True
                 else:
-                    block_storage_service.update(
+                    updated_data = block_storage_service.update(
                         db_obj=db_item, obj_in=item, projects=projects, force=force
                     )
-            for db_item in db_items:
+                    if not edit and updated_data is not None:
+                        edit = True
+            for db_item in db_items.values():
                 block_storage_service.remove(db_obj=db_item)
+                edit = True
 
             # Compute Service
             db_items = {
@@ -133,13 +147,19 @@ class CRUDRegion(
             for item in obj_in.compute_services:
                 db_item = db_items.pop(item.endpoint, None)
                 if db_item is None:
-                    compute_service.create(obj_in=item, region=db_obj)
+                    compute_service.create(
+                        obj_in=item, region=db_obj, projects=projects
+                    )
+                    edit = True
                 else:
-                    compute_service.update(
+                    updated_data = compute_service.update(
                         db_obj=db_item, obj_in=item, projects=projects, force=force
                     )
-            for db_item in db_items:
+                    if not edit and updated_data is not None:
+                        edit = True
+            for db_item in db_items.values():
                 compute_service.remove(db_obj=db_item)
+                edit = True
 
             # Identity Service
             db_items = {
@@ -151,10 +171,16 @@ class CRUDRegion(
                 db_item = db_items.pop(item.endpoint, None)
                 if db_item is None:
                     identity_service.create(obj_in=item, region=db_obj)
+                    edit = True
                 else:
-                    identity_service.update(db_obj=db_item, obj_in=item, force=force)
-            for db_item in db_items:
+                    updated_data = identity_service.update(
+                        db_obj=db_item, obj_in=item, force=force
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+            for db_item in db_items.values():
                 identity_service.remove(db_obj=db_item)
+                edit = True
 
             # Network Service
             db_items = {
@@ -165,14 +191,24 @@ class CRUDRegion(
             for item in obj_in.network_services:
                 db_item = db_items.pop(item.endpoint, None)
                 if db_item is None:
-                    network_service.create(obj_in=item, region=db_obj)
+                    network_service.create(
+                        obj_in=item, region=db_obj, projects=projects
+                    )
+                    edit = True
                 else:
-                    network_service.update(
+                    updated_data = network_service.update(
                         db_obj=db_item, obj_in=item, projects=projects, force=force
                     )
-            for db_item in db_items:
+                    if not edit and updated_data is not None:
+                        edit = True
+            for db_item in db_items.values():
                 network_service.remove(db_obj=db_item)
-        return super().update(db_obj=db_obj, obj_in=obj_in, force=force)
+            edit = True
+
+        update_data = super().update(
+            db_obj=db_obj, obj_in=RegionUpdate.parse_obj(obj_in), force=force
+        )
+        return db_obj if edit else update_data
 
 
 region = CRUDRegion(

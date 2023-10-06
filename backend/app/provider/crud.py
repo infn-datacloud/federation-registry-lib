@@ -61,6 +61,7 @@ class CRUDProvider(
         obj_in: Union[ProviderCreateExtended, ProviderUpdate],
         force: bool = False
     ) -> Optional[Provider]:
+        edit = False
         if force:
             # Projects
             db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
@@ -68,10 +69,16 @@ class CRUDProvider(
                 db_item = db_items.pop(str(item.uuid), None)
                 if not db_item:
                     project.create(obj_in=item, provider=db_obj)
+                    edit = True
                 else:
-                    project.update(db_obj=db_item, obj_in=item, force=force)
+                    updated_data = project.update(
+                        db_obj=db_item, obj_in=item, force=force
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
             for db_item in db_items.values():
                 project.remove(db_obj=db_item)
+                edit = True
 
             # Identity providers
             db_items = {
@@ -81,18 +88,22 @@ class CRUDProvider(
                 db_item = db_items.pop(item.endpoint, None)
                 if not db_item:
                     identity_provider.create(obj_in=item, provider=db_obj)
+                    edit = True
                 else:
-                    identity_provider.update(
+                    updated_data = identity_provider.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=db_obj.projects.all(),
                         force=force,
                     )
+                    if not edit and updated_data is not None:
+                        edit = True
             for db_item in db_items.values():
                 if len(db_item.providers) <= 1:
                     identity_provider.remove(db_obj=db_item)
                 else:
                     db_obj.identity_providers.disconnect(db_item)
+                edit = True
 
             # Regions
             db_items = {db_item.name: db_item for db_item in db_obj.regions}
@@ -100,18 +111,24 @@ class CRUDProvider(
                 db_item = db_items.pop(item.name, None)
                 if db_item is None:
                     region.create(obj_in=item, provider=db_obj)
+                    edit = True
                 else:
-                    region.update(
+                    updated_data = region.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=db_obj.projects.all(),
                         force=force,
                     )
+                    if not edit and updated_data is not None:
+                        edit = True
             for db_item in db_items.values():
                 region.remove(db_obj=db_item, from_provider=True)
-        return super().update(
+                edit = True
+
+        updated_data = super().update(
             db_obj=db_obj, obj_in=ProviderUpdate.parse_obj(obj_in), force=force
         )
+        return db_obj if edit else updated_data
 
 
 provider = CRUDProvider(

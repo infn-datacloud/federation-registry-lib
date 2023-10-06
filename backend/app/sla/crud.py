@@ -39,15 +39,22 @@ class CRUDSLA(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[SLA]:
+        edit = False
         if force:
             db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
             for db_proj in projects:
                 db_item = db_items.pop(str(db_proj.uuid), None)
                 if not db_item:
                     db_obj.projects.connect(db_proj)
+                    edit = True
             for db_item in db_items.values():
                 db_obj.projects.disconnect(db_item)
-        return super().update(db_obj=db_obj, obj_in=obj_in, force=force)
+                edit = True
+
+        updated_data = super().update(
+            db_obj=db_obj, obj_in=SLAUpdate.parse_obj(obj_in), force=force
+        )
+        return db_obj if edit else updated_data
 
 
 sla = CRUDSLA(

@@ -1,6 +1,5 @@
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 
-from fastapi.encoders import jsonable_encoder
 from neomodel import StructuredNode
 from pydantic import BaseModel
 
@@ -95,13 +94,17 @@ class CRUDBase(
         return db_obj
 
     def update(
-        self, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]
+        self,
+        *,
+        db_obj: ModelType,
+        obj_in: Union[UpdateSchemaType, Dict[str, Any]],
+        force: bool = False,
     ) -> Optional[ModelType]:
         obj_data = db_obj.__dict__
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
-            update_data = jsonable_encoder(obj_in.dict(exclude_unset=True))
+            update_data = obj_in.dict(exclude_unset=not force)
 
         if all([obj_data.get(k) == v for k, v in update_data.items()]):
             return None
