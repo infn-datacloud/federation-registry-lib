@@ -13,7 +13,7 @@ from pydantic import UUID4
 
 
 def create_random_identity_provider(
-    *, default: bool = False, projects: List[UUID4] = []
+    *, default: bool = False, projects: List[UUID4]
 ) -> IdentityProviderCreateExtended:
     endpoint = random_url()
     group_claim = random_lower_string()
