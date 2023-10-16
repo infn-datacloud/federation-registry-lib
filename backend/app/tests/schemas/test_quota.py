@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 from app.quota.enum import QuotaType
 from app.tests.utils.quota import (
@@ -8,15 +10,17 @@ from pydantic import ValidationError
 
 
 def test_create_schema():
-    create_random_block_storage_quota()
-    create_random_block_storage_quota(default=True)
+    project = uuid4()
+    create_random_block_storage_quota(project=project)
+    create_random_block_storage_quota(default=True, project=project)
 
-    create_random_compute_quota()
-    create_random_compute_quota(default=True)
+    create_random_compute_quota(project=project)
+    create_random_compute_quota(default=True, project=project)
 
 
 def test_invalid_create_schema():
-    a = create_random_block_storage_quota()
+    project = uuid4()
+    a = create_random_block_storage_quota(project=project)
     with pytest.raises(ValidationError):
         a.type = QuotaType.COMPUTE.value
     with pytest.raises(ValidationError):
@@ -28,7 +32,7 @@ def test_invalid_create_schema():
     with pytest.raises(ValidationError):
         a.volumes = -1
 
-    a = create_random_compute_quota()
+    a = create_random_compute_quota(project=project)
     with pytest.raises(ValidationError):
         a.type = QuotaType.BLOCK_STORAGE.value
     with pytest.raises(ValidationError):

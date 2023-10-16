@@ -1,7 +1,11 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from app.crud import CRUDBase
 from app.project.models import Project
+from app.provider.schemas_extended import (
+    BlockStorageQuotaCreateExtended,
+    ComputeQuotaCreateExtended,
+)
 from app.quota.models import BlockStorageQuota, ComputeQuota, Quota
 from app.quota.schemas import (
     BlockStorageQuotaCreate,
@@ -49,7 +53,7 @@ class CRUDQuota(
         obj_in: QuotaCreate,
         project: Project,
         service: Service,
-        force: bool = False
+        force: bool = False,
     ) -> Quota:
         if isinstance(obj_in, BlockStorageQuotaCreate):
             db_obj = block_storage_quota.create(obj_in=obj_in, force=force)
@@ -98,6 +102,28 @@ class CRUDBlockStorageQuota(
         db_obj.project.connect(project)
         return db_obj
 
+    def update(
+        self,
+        *,
+        db_obj: BlockStorageQuota,
+        obj_in: Union[BlockStorageQuotaCreateExtended, BlockStorageQuotaUpdate],
+        projects: List[Project] = [],
+        force: bool = False,
+    ) -> Optional[BlockStorageQuota]:
+        edit = False
+        if force:
+            db_projects = {db_item.uuid: db_item for db_item in projects}
+            db_proj = db_obj.project.single()
+            if obj_in.project != db_proj.uuid:
+                db_item = db_projects.get(obj_in.project)
+                db_obj.project.reconnect(db_proj, db_item)
+                edit = True
+
+        updated_data = super().update(
+            db_obj=db_obj, obj_in=BlockStorageQuotaUpdate.parse_obj(obj_in), force=force
+        )
+        return db_obj if edit else updated_data
+
 
 class CRUDComputeQuota(
     CRUDBase[
@@ -114,12 +140,38 @@ class CRUDComputeQuota(
     """"""
 
     def create(
-        self, *, obj_in: ComputeQuotaCreate, service: ComputeService, project: Project
+        self,
+        *,
+        obj_in: ComputeQuotaCreate,
+        service: ComputeService,
+        project: Project,
     ) -> ComputeQuota:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
         return db_obj
+
+    def update(
+        self,
+        *,
+        db_obj: ComputeQuota,
+        obj_in: Union[ComputeQuotaCreateExtended, ComputeQuotaUpdate],
+        projects: List[Project] = [],
+        force: bool = False,
+    ) -> Optional[ComputeQuota]:
+        edit = False
+        if force:
+            db_projects = {db_item.uuid: db_item for db_item in projects}
+            db_proj = db_obj.project.single()
+            if obj_in.project != db_proj.uuid:
+                db_item = db_projects.get(obj_in.project)
+                db_obj.project.reconnect(db_proj, db_item)
+                edit = True
+
+        updated_data = super().update(
+            db_obj=db_obj, obj_in=ComputeQuotaUpdate.parse_obj(obj_in), force=force
+        )
+        return db_obj if edit else updated_data
 
 
 quota = CRUDQuota(

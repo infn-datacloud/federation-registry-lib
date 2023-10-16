@@ -1,6 +1,3 @@
-from typing import Optional
-from uuid import uuid4
-
 from app.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
     ComputeQuotaCreateExtended,
@@ -13,13 +10,11 @@ from app.tests.utils.utils import (
     random_non_negative_float,
     random_non_negative_int,
 )
-from pydantic import UUID4
 
 
 def create_random_block_storage_quota(
-    *, default: bool = False, project: Optional[UUID4] = None
+    *, default: bool = False, project: str
 ) -> BlockStorageQuotaCreateExtended:
-    project = project if project is not None else uuid4()
     kwargs = {}
     if not default:
         kwargs = {
@@ -33,9 +28,8 @@ def create_random_block_storage_quota(
 
 
 def create_random_compute_quota(
-    *, default: bool = False, project: Optional[UUID4] = None
+    *, default: bool = False, project: str
 ) -> ComputeQuotaCreateExtended:
-    project = project if project is not None else uuid4()
     kwargs = {}
     if not default:
         kwargs = {
