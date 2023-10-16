@@ -9,11 +9,10 @@ from app.tests.utils.utils import (
     random_lower_string,
     random_non_negative_int,
 )
-from pydantic import UUID4
 
 
 def create_random_network(
-    *, default: bool = False, project: Optional[UUID4] = None
+    *, default: bool = False, project: Optional[str] = None
 ) -> NetworkCreateExtended:
     name = random_lower_string()
     uuid = uuid4()

@@ -1,15 +1,16 @@
 from typing import List, Optional
+from uuid import UUID
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import UUID4, Field
+from pydantic import Field, validator
 
 
 class NetworkBase(BaseNode):
     """Model with Network basic attributes."""
 
     name: str = Field(description="Network name in the provider.")
-    uuid: UUID4 = Field(description="Network UUID in the provider.")
+    uuid: str = Field(description="Network UUID in the provider.")
     is_shared: bool = Field(
         default=True,
         description="Public (accessible to all projects) or private network type",
@@ -27,6 +28,12 @@ class NetworkBase(BaseNode):
         default=None, description="Proxy username to use to access to private networks"
     )
     tags: List[str] = Field(default_factory=list, description="List of network tags")
+
+    @validator("uuid", pre=True)
+    def to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
 
 class NetworkCreate(BaseNodeCreate, NetworkBase):
@@ -49,7 +56,7 @@ class NetworkUpdate(NetworkCreate):
     name: Optional[str] = Field(
         default=None, description="Network name in the provider."
     )
-    uuid: Optional[UUID4] = Field(
+    uuid: Optional[str] = Field(
         default=None, description="Network UUID in the provider."
     )
 
