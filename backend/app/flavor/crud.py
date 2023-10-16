@@ -34,7 +34,7 @@ class CRUDFlavor(
         *,
         obj_in: FlavorCreate,
         service: ComputeService,
-        projects: List[Project] = []
+        projects: List[Project] = [],
     ) -> Flavor:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.services.connect(service)
@@ -48,26 +48,38 @@ class CRUDFlavor(
         db_obj: Flavor,
         obj_in: Union[FlavorCreateExtended, FlavorUpdate],
         projects: List[Project] = [],
-        force: bool = False
+        force: bool = False,
     ) -> Optional[Flavor]:
         edit = False
         if force:
-            db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
-            db_projects = {db_item.uuid: db_item for db_item in projects}
-            for proj in obj_in.projects:
-                db_item = db_items.pop(proj, None)
-                if not db_item:
-                    db_item = db_projects.get(proj)
-                    db_obj.projects.connect(db_item)
-                    edit = True
-            for db_item in db_items.values():
-                db_obj.projects.disconnect(db_item)
-                edit = True
-
+            edit = self.__update_projects(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
         updated_data = super().update(
             db_obj=db_obj, obj_in=FlavorUpdate.parse_obj(obj_in), force=force
         )
         return db_obj if edit else updated_data
+
+    def __update_projects(
+        self,
+        *,
+        obj_in: FlavorCreateExtended,
+        db_obj: Flavor,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
+        db_projects = {db_item.uuid: db_item for db_item in provider_projects}
+        for proj in obj_in.projects:
+            db_item = db_items.pop(proj, None)
+            if not db_item:
+                db_item = db_projects.get(proj)
+                db_obj.projects.connect(db_item)
+                edit = True
+        for db_item in db_items.values():
+            db_obj.projects.disconnect(db_item)
+            edit = True
+        return edit
 
 
 flavor = CRUDFlavor(

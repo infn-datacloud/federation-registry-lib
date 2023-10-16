@@ -42,22 +42,34 @@ class CRUDSLA(
     ) -> Optional[SLA]:
         edit = False
         if force:
-            db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
-            db_projects = {db_item.uuid: db_item for db_item in projects}
-            for proj in obj_in.projects:
-                db_item = db_items.pop(proj, None)
-                if not db_item:
-                    db_item = db_projects.get(proj)
-                    db_obj.projects.connect(db_item)
-                    edit = True
-            for db_item in db_items.values():
-                db_obj.projects.disconnect(db_item)
-                edit = True
-
+            edit = self.__update_projects(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
         updated_data = super().update(
             db_obj=db_obj, obj_in=SLAUpdate.parse_obj(obj_in), force=force
         )
         return db_obj if edit else updated_data
+
+    def __update_projects(
+        self,
+        *,
+        obj_in: SLACreateExtended,
+        db_obj: SLA,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
+        db_projects = {db_item.uuid: db_item for db_item in provider_projects}
+        for proj in obj_in.projects:
+            db_item = db_items.pop(proj, None)
+            if not db_item:
+                db_item = db_projects.get(proj)
+                db_obj.projects.connect(db_item)
+                edit = True
+        for db_item in db_items.values():
+            db_obj.projects.disconnect(db_item)
+            edit = True
+        return edit
 
 
 sla = CRUDSLA(

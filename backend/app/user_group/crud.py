@@ -63,27 +63,41 @@ class CRUDUserGroup(
     ) -> Optional[UserGroup]:
         edit = False
         if force:
-            db_items = {db_item.doc_uuid: db_item for db_item in db_obj.slas}
-            for item in obj_in.slas:
-                db_item = db_items.pop(str(item.doc_uuid), None)
-                db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
-                if db_item is None:
-                    sla.create(obj_in=item, projects=db_projects, user_group=db_obj)
-                    edit = True
-                else:
-                    updated_data = sla.update(
-                        db_obj=db_item, obj_in=item, projects=db_projects, force=force
-                    )
-                    if not edit and updated_data is not None:
-                        edit = True
-            for db_item in db_items.values():
-                sla.remove(db_obj=db_item)
-                edit = True
-
+            edit = self.__update_slas(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
         updated_data = super().update(
             db_obj=db_obj, obj_in=UserGroupUpdate.parse_obj(obj_in), force=force
         )
         return db_obj if edit else updated_data
+
+    def __update_slas(
+        self,
+        *,
+        obj_in: UserGroupCreateExtended,
+        db_obj: UserGroup,
+        provider_projects: List[Project]
+    ) -> bool:
+        edit = False
+        db_items = {db_item.doc_uuid: db_item for db_item in db_obj.slas}
+        for item in obj_in.slas:
+            db_item = db_items.pop(str(item.doc_uuid), None)
+            db_projects = list(
+                filter(lambda x: x.uuid in item.projects, provider_projects)
+            )
+            if db_item is None:
+                sla.create(obj_in=item, projects=db_projects, user_group=db_obj)
+                edit = True
+            else:
+                updated_data = sla.update(
+                    db_obj=db_item, obj_in=item, projects=db_projects, force=True
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            sla.remove(db_obj=db_item)
+            edit = True
+        return edit
 
 
 user_group = CRUDUserGroup(

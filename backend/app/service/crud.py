@@ -129,12 +129,12 @@ class CRUDBlockStorageService(
         *,
         obj_in: BlockStorageServiceCreateExtended,
         region: Region,
-        projects: List[Project],
+        projects: List[Project] = [],
     ) -> BlockStorageService:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.region.connect(region)
         for item in obj_in.quotas:
-            db_projects = list(filter(lambda x: x.uuid == str(item.project), projects))
+            db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
                 block_storage_quota.create(
                     obj_in=item, service=db_obj, project=db_projects[0]
@@ -145,6 +145,55 @@ class CRUDBlockStorageService(
         for item in db_obj.quotas:
             quota.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
+
+    def update(
+        self,
+        *,
+        db_obj: BlockStorageService,
+        obj_in: Union[BlockStorageServiceCreateExtended, BlockStorageServiceUpdate],
+        projects: List[Project] = [],
+        force: bool = False,
+    ) -> Optional[BlockStorageService]:
+        edit = False
+        if force:
+            edit = self.__update_quotas(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
+        update_data = super().update(
+            db_obj=db_obj,
+            obj_in=BlockStorageServiceUpdate.parse_obj(obj_in),
+            force=force,
+        )
+        return db_obj if edit else update_data
+
+    def __update_quotas(
+        self,
+        *,
+        db_obj: BlockStorageService,
+        obj_in: BlockStorageServiceCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        # TODO
+        # db_items = {db_item.endpoint: db_item for db_item in db_obj.quotas}
+        # for item in obj_in.quotas:
+        #     db_item = db_items.pop(item.endpoint, None)
+        #     if db_item is None:
+        #         block_storage_service.create(
+        #             obj_in=item, region=db_obj, projects=provider_projects
+        #         )
+        #         edit = True
+        #     else:
+        #         updated_data = block_storage_service.update(
+        #             db_obj=db_item, obj_in=item, projects=provider_projects,
+        #               force=True
+        #         )
+        #         if not edit and updated_data is not None:
+        #             edit = True
+        # for db_item in db_items.values():
+        #     block_storage_service.remove(db_obj=db_item)
+        #     edit = True
+        return edit
 
 
 class CRUDComputeService(
@@ -166,20 +215,18 @@ class CRUDComputeService(
         *,
         obj_in: ComputeServiceCreateExtended,
         region: Region,
-        projects: List[Project],
+        projects: List[Project] = [],
     ) -> ComputeService:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.region.connect(region)
         for item in obj_in.flavors:
-            item_projects = [str(i) for i in item.projects]
-            db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
+            db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
             flavor.create(obj_in=item, service=db_obj, projects=db_projects)
         for item in obj_in.images:
-            item_projects = [str(i) for i in item.projects]
-            db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
+            db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
             image.create(obj_in=item, service=db_obj, projects=db_projects)
         for item in obj_in.quotas:
-            db_projects = list(filter(lambda x: x.uuid == str(item.project), projects))
+            db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
                 compute_quota.create(
                     obj_in=item, service=db_obj, project=db_projects[0]
@@ -197,6 +244,118 @@ class CRUDComputeService(
                 image.remove(db_obj=item)
         result = super().remove(db_obj=db_obj)
         return result
+
+    def update(
+        self,
+        *,
+        db_obj: ComputeService,
+        obj_in: Union[ComputeServiceCreateExtended, ComputeServiceUpdate],
+        projects: List[Project] = [],
+        force: bool = False,
+    ) -> Optional[ComputeService]:
+        edit = False
+        if force:
+            edit = (
+                edit
+                or self.__update_flavors(
+                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+                )
+                or self.__update_images(
+                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+                )
+                or self.__update_quotas(
+                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+                )
+            )
+        updated_data = super().update(
+            db_obj=db_obj, obj_in=ComputeServiceUpdate.parse_obj(obj_in), force=force
+        )
+        return db_obj if edit else updated_data
+
+    def __update_flavors(
+        self,
+        *,
+        db_obj: ComputeService,
+        obj_in: ComputeServiceCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        db_items = {db_item.uuid: db_item for db_item in db_obj.flavors}
+        for item in obj_in.flavors:
+            db_item = db_items.pop(item.uuid, None)
+            db_projects = list(
+                filter(lambda x: x.uuid in item.projects, provider_projects)
+            )
+            if db_item is None:
+                flavor.create(obj_in=item, service=db_obj, projects=db_projects)
+                edit = True
+            else:
+                updated_data = flavor.update(
+                    db_obj=db_item, obj_in=item, projects=db_projects
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            flavor.remove(db_obj=db_item)
+            edit = True
+        return edit
+
+    def __update_images(
+        self,
+        *,
+        db_obj: ComputeService,
+        obj_in: ComputeServiceCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        db_items = {db_item.uuid: db_item for db_item in db_obj.images}
+        for item in obj_in.images:
+            db_item = db_items.pop(item.uuid, None)
+            db_projects = list(
+                filter(lambda x: x.uuid in item.projects, provider_projects)
+            )
+            if db_item is None:
+                image.create(obj_in=item, service=db_obj, projects=db_projects)
+                edit = True
+            else:
+                updated_data = image.update(
+                    db_obj=db_item, obj_in=item, projects=db_projects
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            image.remove(db_obj=db_item)
+            edit = True
+        return edit
+
+    def __update_quotas(
+        self,
+        *,
+        db_obj: ComputeService,
+        obj_in: ComputeServiceCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        # TODO
+        # db_items = {db_item.endpoint: db_item for db_item in db_obj.quotas}
+        # for item in obj_in.quotas:
+        #     db_item = db_items.pop(item.endpoint, None)
+        #     if db_item is None:
+        #         compute_service.create(
+        #             obj_in=item, region=db_obj, projects=provider_projects
+        #         )
+        #         edit = True
+        #     else:
+        #         updated_data = compute_service.update(
+        #             db_obj=db_item, obj_in=item, projects=provider_projects,
+        #            force=True
+        #         )
+        #         if not edit and updated_data is not None:
+        #             edit = True
+        # for db_item in db_items.values():
+        #     compute_service.remove(db_obj=db_item)
+        #     edit = True
+        return edit
 
 
 class CRUDIdentityService(
@@ -245,7 +404,7 @@ class CRUDNetworkService(
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.region.connect(region)
         for item in obj_in.networks:
-            db_projects = list(filter(lambda x: x.uuid == str(item.project), projects))
+            db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             db_project = None
             if len(db_projects) == 1:
                 db_project = db_projects[0]
@@ -269,29 +428,42 @@ class CRUDNetworkService(
     ) -> Optional[NetworkService]:
         edit = False
         if force:
-            # Networks
-            db_items = {db_item.uuid: db_item for db_item in db_obj.networks}
-            for item in obj_in.networks:
-                db_item = db_items.pop(str(item.uuid), None)
-                db_projects = list(filter(lambda x: x.uuid == item.project, projects))
-                if db_item is None:
-                    project = None if len(db_projects) == 0 else db_projects[0]
-                    network.create(obj_in=item, service=db_obj, project=project)
-                    edit = True
-                else:
-                    updated_data = network.update(
-                        db_obj=db_item, obj_in=item, projects=db_projects
-                    )
-                    if not edit and updated_data is not None:
-                        edit = True
-            for db_item in db_items.values():
-                network.remove(db_obj=db_item)
-                edit = True
-
+            edit = self.__update_networks(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
         updated_data = super().update(
             db_obj=db_obj, obj_in=NetworkServiceUpdate.parse_obj(obj_in), force=force
         )
         return db_obj if edit else updated_data
+
+    def __update_networks(
+        self,
+        *,
+        db_obj: NetworkService,
+        obj_in: NetworkServiceCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        db_items = {db_item.uuid: db_item for db_item in db_obj.networks}
+        for item in obj_in.networks:
+            db_item = db_items.pop(item.uuid, None)
+            db_projects = list(
+                filter(lambda x: x.uuid == item.project, provider_projects)
+            )
+            if db_item is None:
+                project = None if len(db_projects) == 0 else db_projects[0]
+                network.create(obj_in=item, service=db_obj, project=project)
+                edit = True
+            else:
+                updated_data = network.update(
+                    db_obj=db_item, obj_in=item, projects=db_projects
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            network.remove(db_obj=db_item)
+            edit = True
+        return edit
 
 
 service = CRUDService(

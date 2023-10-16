@@ -87,128 +87,176 @@ class CRUDRegion(
         db_obj: Region,
         obj_in: Union[RegionCreateExtended, RegionUpdate],
         projects: List[Project] = [],
-        force: bool = False
+        force: bool = False,
     ) -> Optional[Region]:
         edit = False
         if force:
-            # Location
-            item = obj_in.location
-            db_loc = db_obj.location.single()
-            if db_loc:
-                db_obj.location.disconnect(db_loc)
-                edit = True
-            if item:
-                db_item = location.get(site=item.site)
-                if not db_item:
-                    location.create(obj_in=item, region=db_obj)
-                    edit = True
-                else:
-                    updated_data = location.update(
-                        db_obj=db_item, obj_in=item, force=force
-                    )
-                    db_obj.location.connect(db_item)
-                    edit = updated_data is not None
-            if (
-                db_loc
-                and not db_obj.location.is_connected(db_loc)
-                and len(db_loc.regions) == 0
-            ):
-                location.remove(db_obj=db_loc)
-
-            # Block Storage Service
-            db_items = {
-                db_item.endpoint: db_item
-                for db_item in db_obj.services
-                if isinstance(db_item, BlockStorageService)
-            }
-            for item in obj_in.block_storage_services:
-                db_item = db_items.pop(item.endpoint, None)
-                if db_item is None:
-                    block_storage_service.create(
-                        obj_in=item, region=db_obj, projects=projects
-                    )
-                    edit = True
-                else:
-                    updated_data = block_storage_service.update(
-                        db_obj=db_item, obj_in=item, projects=projects, force=force
-                    )
-                    if not edit and updated_data is not None:
-                        edit = True
-            for db_item in db_items.values():
-                block_storage_service.remove(db_obj=db_item)
-                edit = True
-
-            # Compute Service
-            db_items = {
-                db_item.endpoint: db_item
-                for db_item in db_obj.services
-                if isinstance(db_item, ComputeService)
-            }
-            for item in obj_in.compute_services:
-                db_item = db_items.pop(item.endpoint, None)
-                if db_item is None:
-                    compute_service.create(
-                        obj_in=item, region=db_obj, projects=projects
-                    )
-                    edit = True
-                else:
-                    updated_data = compute_service.update(
-                        db_obj=db_item, obj_in=item, projects=projects, force=force
-                    )
-                    if not edit and updated_data is not None:
-                        edit = True
-            for db_item in db_items.values():
-                compute_service.remove(db_obj=db_item)
-                edit = True
-
-            # Identity Service
-            db_items = {
-                db_item.endpoint: db_item
-                for db_item in db_obj.services
-                if isinstance(db_item, IdentityService)
-            }
-            for item in obj_in.identity_services:
-                db_item = db_items.pop(item.endpoint, None)
-                if db_item is None:
-                    identity_service.create(obj_in=item, region=db_obj)
-                    edit = True
-                else:
-                    updated_data = identity_service.update(
-                        db_obj=db_item, obj_in=item, force=force
-                    )
-                    if not edit and updated_data is not None:
-                        edit = True
-            for db_item in db_items.values():
-                identity_service.remove(db_obj=db_item)
-                edit = True
-
-            # Network Service
-            db_items = {
-                db_item.endpoint: db_item
-                for db_item in db_obj.services
-                if isinstance(db_item, NetworkService)
-            }
-            for item in obj_in.network_services:
-                db_item = db_items.pop(item.endpoint, None)
-                if db_item is None:
-                    network_service.create(
-                        obj_in=item, region=db_obj, projects=projects
-                    )
-                    edit = True
-                else:
-                    updated_data = network_service.update(
-                        db_obj=db_item, obj_in=item, projects=projects, force=force
-                    )
-                    if not edit and updated_data is not None:
-                        edit = True
-            for db_item in db_items.values():
-                network_service.remove(db_obj=db_item)
-            edit = True
-
+            edit = (
+                edit
+                or self.__update_location(db_obj=db_obj, obj_in=obj_in)
+                or self.__update_block_storage_services(
+                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+                )
+                or self.__update_compute_services(
+                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+                )
+                or self.__update_identity_services(db_obj=db_obj, obj_in=obj_in)
+                or self.__update_network_services(
+                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+                )
+            )
         update_data = super().update(
             db_obj=db_obj, obj_in=RegionUpdate.parse_obj(obj_in), force=force
         )
         return db_obj if edit else update_data
+
+    def __update_location(
+        self, *, db_obj: Region, obj_in: RegionCreateExtended
+    ) -> bool:
+        edit = False
+        item = obj_in.location
+        db_loc = db_obj.location.single()
+        if db_loc:
+            db_obj.location.disconnect(db_loc)
+            edit = True
+        if item:
+            db_item = location.get(site=item.site)
+            if not db_item:
+                location.create(obj_in=item, region=db_obj)
+                edit = True
+            else:
+                updated_data = location.update(db_obj=db_item, obj_in=item, force=True)
+                db_obj.location.connect(db_item)
+                edit = updated_data is not None
+        if (
+            db_loc
+            and not db_obj.location.is_connected(db_loc)
+            and len(db_loc.regions) == 0
+        ):
+            location.remove(db_obj=db_loc)
+            edit = True
+        return edit
+
+    def __update_block_storage_services(
+        self,
+        *,
+        db_obj: Region,
+        obj_in: RegionCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        db_items = {
+            db_item.endpoint: db_item
+            for db_item in db_obj.services
+            if isinstance(db_item, BlockStorageService)
+        }
+        for item in obj_in.block_storage_services:
+            db_item = db_items.pop(item.endpoint, None)
+            if db_item is None:
+                block_storage_service.create(
+                    obj_in=item, region=db_obj, projects=provider_projects
+                )
+                edit = True
+            else:
+                updated_data = block_storage_service.update(
+                    db_obj=db_item, obj_in=item, projects=provider_projects, force=True
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            block_storage_service.remove(db_obj=db_item)
+            edit = True
+        return edit
+
+    def __update_compute_services(
+        self,
+        *,
+        db_obj: Region,
+        obj_in: RegionCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        db_items = {
+            db_item.endpoint: db_item
+            for db_item in db_obj.services
+            if isinstance(db_item, ComputeService)
+        }
+        for item in obj_in.compute_services:
+            db_item = db_items.pop(item.endpoint, None)
+            if db_item is None:
+                compute_service.create(
+                    obj_in=item, region=db_obj, projects=provider_projects
+                )
+                edit = True
+            else:
+                updated_data = compute_service.update(
+                    db_obj=db_item, obj_in=item, projects=provider_projects, force=True
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            compute_service.remove(db_obj=db_item)
+            edit = True
+        return edit
+
+    def __update_identity_services(
+        self,
+        *,
+        db_obj: Region,
+        obj_in: RegionCreateExtended,
+    ) -> bool:
+        edit = False
+        db_items = {
+            db_item.endpoint: db_item
+            for db_item in db_obj.services
+            if isinstance(db_item, IdentityService)
+        }
+        for item in obj_in.identity_services:
+            db_item = db_items.pop(item.endpoint, None)
+            if db_item is None:
+                identity_service.create(obj_in=item, region=db_obj)
+                edit = True
+            else:
+                updated_data = identity_service.update(
+                    db_obj=db_item, obj_in=item, force=True
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            identity_service.remove(db_obj=db_item)
+            edit = True
+        return edit
+
+    def __update_network_services(
+        self,
+        *,
+        db_obj: Region,
+        obj_in: RegionCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        edit = False
+        db_items = {
+            db_item.endpoint: db_item
+            for db_item in db_obj.services
+            if isinstance(db_item, NetworkService)
+        }
+        for item in obj_in.network_services:
+            db_item = db_items.pop(item.endpoint, None)
+            if db_item is None:
+                network_service.create(
+                    obj_in=item, region=db_obj, projects=provider_projects
+                )
+                edit = True
+            else:
+                updated_data = network_service.update(
+                    db_obj=db_item, obj_in=item, projects=provider_projects, force=True
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            network_service.remove(db_obj=db_item)
+        edit = True
+        return edit
 
 
 region = CRUDRegion(

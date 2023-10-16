@@ -62,24 +62,9 @@ class CRUDIdentityProvider(
     ) -> Optional[IdentityProvider]:
         edit = False
         if force:
-            db_items = {db_item.name: db_item for db_item in db_obj.user_groups}
-            for item in obj_in.user_groups:
-                db_item = db_items.pop(item.name, None)
-                if db_item is None:
-                    user_group.create(
-                        obj_in=item, identity_provider=db_obj, projects=projects
-                    )
-                    edit = True
-                else:
-                    updated_data = user_group.update(
-                        db_obj=db_item, obj_in=item, projects=projects, force=force
-                    )
-                    if not edit and updated_data is not None:
-                        edit = True
-            for db_item in db_items.values():
-                user_group.remove(db_obj=db_item)
-                edit = True
-
+            edit = self.__update_user_groups(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
             if provider is not None:
                 rel = db_obj.providers.relationship(provider)
                 if (
@@ -93,6 +78,33 @@ class CRUDIdentityProvider(
             db_obj=db_obj, obj_in=IdentityProviderUpdate.parse_obj(obj_in), force=force
         )
         return db_obj if edit else updated_data
+
+    def __update_user_groups(
+        self,
+        *,
+        obj_in: IdentityProviderCreateExtended,
+        db_obj: IdentityProvider,
+        provider_projects: List[Project]
+    ) -> bool:
+        edit = False
+        db_items = {db_item.name: db_item for db_item in db_obj.user_groups}
+        for item in obj_in.user_groups:
+            db_item = db_items.pop(item.name, None)
+            if db_item is None:
+                user_group.create(
+                    obj_in=item, identity_provider=db_obj, projects=provider_projects
+                )
+                edit = True
+            else:
+                updated_data = user_group.update(
+                    db_obj=db_item, obj_in=item, projects=provider_projects, force=True
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            user_group.remove(db_obj=db_item)
+            edit = True
+        return edit
 
 
 identity_provider = CRUDIdentityProvider(
