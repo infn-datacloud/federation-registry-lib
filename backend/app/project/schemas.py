@@ -1,15 +1,22 @@
 from typing import Optional
+from uuid import UUID
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import UUID4, Field
+from pydantic import Field, validator
 
 
 class ProjectBase(BaseNode):
     """Model with Project basic attributes."""
 
     name: str = Field(description="Project name in the provider.")
-    uuid: UUID4 = Field(description="Project UUID in the provider.")
+    uuid: str = Field(description="Project UUID in the provider.")
+
+    @validator("uuid", pre=True)
+    def to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
 
 class ProjectCreate(BaseNodeCreate, ProjectBase):
@@ -32,7 +39,7 @@ class ProjectUpdate(ProjectCreate):
     name: Optional[str] = Field(
         default=None, description="Project name in the provider."
     )
-    uuid: Optional[UUID4] = Field(
+    uuid: Optional[str] = Field(
         default=None, description="Project UUID in the provider."
     )
 
