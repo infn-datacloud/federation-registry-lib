@@ -1,4 +1,5 @@
 from typing import Any, List, Optional, Union
+from uuid import UUID
 
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
@@ -203,12 +204,13 @@ def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
 
 
 class SLACreateExtended(SLACreate):
-    projects: List[UUID4] = Field(
+    projects: List[str] = Field(
         default_factory=list, description="List of projects UUID"
     )
 
-    @validator("projects")
+    @validator("projects", pre=True)
     def validate_projects(cls, v):
+        v = [i.hex if isinstance(i, UUID) else i for i in v]
         find_duplicates(v)
         return v
 

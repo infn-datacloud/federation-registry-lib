@@ -5,11 +5,10 @@ from app.provider.schemas_extended import SLACreateExtended
 from app.sla.models import SLA
 from app.sla.schemas import SLAUpdate
 from app.tests.utils.utils import random_date, random_datetime, random_lower_string
-from pydantic import UUID4
 
 
 def create_random_sla(
-    *, default: bool = False, projects: List[UUID4] = []
+    *, default: bool = False, projects: List[str]
 ) -> SLACreateExtended:
     doc_uuid = uuid4()
     d1 = random_date()
@@ -44,4 +43,4 @@ def validate_sla_attrs(*, obj_in: SLACreateExtended, db_item: SLA) -> None:
     assert db_item.doc_uuid == str(obj_in.doc_uuid)
     assert len(db_item.projects) == len(obj_in.projects)
     for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
-        assert db_proj.uuid == str(proj_in)
+        assert db_proj.uuid == proj_in

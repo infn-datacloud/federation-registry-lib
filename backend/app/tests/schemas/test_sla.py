@@ -8,8 +8,6 @@ from pydantic import ValidationError
 
 def test_create_schema():
     projects = [uuid4()]
-    create_random_sla()
-    create_random_sla(default=True)
     create_random_sla(projects=projects)
     create_random_sla(default=True, projects=projects)
 

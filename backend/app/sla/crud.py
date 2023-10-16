@@ -3,6 +3,7 @@ from typing import List, Optional, Union
 from app.crud import CRUDBase
 from app.project.models import Project
 from app.project.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
+from app.provider.schemas_extended import SLACreateExtended
 from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLARead, SLAReadPublic, SLAReadShort, SLAUpdate
 from app.user_group.models import UserGroup
@@ -35,17 +36,19 @@ class CRUDSLA(
         self,
         *,
         db_obj: SLA,
-        obj_in: Union[SLACreate, SLAUpdate],
+        obj_in: Union[SLACreateExtended, SLAUpdate],
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[SLA]:
         edit = False
         if force:
             db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
-            for db_proj in projects:
-                db_item = db_items.pop(str(db_proj.uuid), None)
+            db_projects = {db_item.uuid: db_item for db_item in projects}
+            for proj in obj_in.projects:
+                db_item = db_items.pop(proj, None)
                 if not db_item:
-                    db_obj.projects.connect(db_proj)
+                    db_item = db_projects.get(proj)
+                    db_obj.projects.connect(db_item)
                     edit = True
             for db_item in db_items.values():
                 db_obj.projects.disconnect(db_item)
