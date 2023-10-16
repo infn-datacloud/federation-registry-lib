@@ -57,6 +57,7 @@ class CRUDIdentityProvider(
         db_obj: IdentityProvider,
         obj_in: Union[IdentityProviderCreateExtended, IdentityProviderUpdate],
         projects: List[Project] = [],
+        provider: Optional[Provider] = None,
         force: bool = False
     ) -> Optional[IdentityProvider]:
         edit = False
@@ -78,6 +79,15 @@ class CRUDIdentityProvider(
             for db_item in db_items.values():
                 user_group.remove(db_obj=db_item)
                 edit = True
+
+            if provider is not None:
+                rel = db_obj.providers.relationship(provider)
+                if (
+                    rel.protocol != obj_in.relationship.protocol
+                    or rel.idp_name != obj_in.idp_name
+                ):
+                    db_obj.providers.replace(provider, obj_in.relationship.dict())
+                    edit = True
 
         updated_data = super().update(
             db_obj=db_obj, obj_in=IdentityProviderUpdate.parse_obj(obj_in), force=force

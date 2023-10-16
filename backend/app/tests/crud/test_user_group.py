@@ -12,14 +12,14 @@ from app.user_group.crud import user_group
 
 def test_create_item(db_idp: IdentityProvider) -> None:
     """Create a User Group belonging to a specific Identity Provider with no
-    assigned SLA."""
+    assigned SLAs."""
     item_in = create_random_user_group()
     item = user_group.create(obj_in=item_in, identity_provider=db_idp)
     validate_user_group_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_idp: IdentityProvider) -> None:
-    """Create a User Group, with default values when possible,  belonging to a
+    """Create a User Group, with default values when possible, belonging to a
     specific Identity Provider with no assigned SLA."""
     item_in = create_random_user_group(default=True)
     item = user_group.create(obj_in=item_in, identity_provider=db_idp)
@@ -28,7 +28,7 @@ def test_create_item_default_values(db_idp: IdentityProvider) -> None:
 
 def test_create_item_with_projects(db_idp: IdentityProvider) -> None:
     """Create a User Group belonging to a specific Identity Provider with an
-    assigned SLA for each received project."""
+    SLA for each received project."""
     provider = db_idp.providers.all()[0]
     item_in = create_random_user_group(projects=[i.uuid for i in provider.projects])
     item = user_group.create(
