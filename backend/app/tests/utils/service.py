@@ -71,7 +71,7 @@ def create_random_identity_service(*, default: bool = False) -> IdentityServiceC
 
 
 def create_random_network_service(
-    *, default: bool = False, with_networks: bool = True, projects: List[UUID4] = []
+    *, default: bool = False, with_networks: bool = False, projects: List[str] = []
 ) -> NetworkServiceCreateExtended:
     endpoint = random_url()
     name = ServiceName.OPENSTACK_NEUTRON.value

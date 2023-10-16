@@ -53,7 +53,7 @@ def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_get_items(db_compute_serv: ComputeService) -> None:
-    """Retrieve multiple flavors.
+    """Retrieve multiple Flavors.
 
     Filter GET operations specifying a target uid.
     """

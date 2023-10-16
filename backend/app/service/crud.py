@@ -240,7 +240,7 @@ class CRUDNetworkService(
         *,
         obj_in: NetworkServiceCreateExtended,
         region: Region,
-        projects: List[Project],
+        projects: List[Project] = [],
     ) -> NetworkService:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.region.connect(region)
@@ -258,6 +258,40 @@ class CRUDNetworkService(
                 network.remove(db_obj=item)
         result = super().remove(db_obj=db_obj)
         return result
+
+    def update(
+        self,
+        *,
+        db_obj: NetworkService,
+        obj_in: Union[NetworkServiceCreateExtended, NetworkServiceUpdate],
+        projects: List[Project] = [],
+        force: bool = False,
+    ) -> Optional[NetworkService]:
+        edit = False
+        if force:
+            # Networks
+            db_items = {db_item.uuid: db_item for db_item in db_obj.networks}
+            for item in obj_in.networks:
+                db_item = db_items.pop(str(item.uuid), None)
+                db_projects = list(filter(lambda x: x.uuid == item.project, projects))
+                if db_item is None:
+                    project = None if len(db_projects) == 0 else db_projects[0]
+                    network.create(obj_in=item, service=db_obj, project=project)
+                    edit = True
+                else:
+                    updated_data = network.update(
+                        db_obj=db_item, obj_in=item, projects=db_projects
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+            for db_item in db_items.values():
+                network.remove(db_obj=db_item)
+                edit = True
+
+        updated_data = super().update(
+            db_obj=db_obj, obj_in=NetworkServiceUpdate.parse_obj(obj_in), force=force
+        )
+        return db_obj if edit else updated_data
 
 
 service = CRUDService(
