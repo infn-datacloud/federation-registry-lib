@@ -7,11 +7,10 @@ from app.image.models import Image
 from app.image.schemas import ImageUpdate
 from app.provider.schemas_extended import ImageCreateExtended
 from app.tests.utils.utils import random_bool, random_datetime, random_lower_string
-from pydantic import UUID4
 
 
 def create_random_image(
-    *, default: bool = False, projects: List[UUID4] = []
+    *, default: bool = False, projects: List[str] = []
 ) -> ImageCreateExtended:
     name = random_lower_string()
     uuid = uuid4()
@@ -78,4 +77,4 @@ def validate_image_attrs(*, obj_in: ImageCreateExtended, db_item: Image) -> None
     assert db_item.tags == obj_in.tags
     assert len(db_item.projects) == len(obj_in.projects)
     for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
-        assert db_proj.uuid == str(proj_in)
+        assert db_proj.uuid == proj_in

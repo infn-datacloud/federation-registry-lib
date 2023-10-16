@@ -1,168 +1,204 @@
-from typing import Generator
 from uuid import uuid4
 
 from app.image.crud import image
-from app.image.schemas import ImageCreate
-from app.tests.utils.image import (
-    create_random_image,
-    create_random_update_image_data,
-    random_os,
-)
-from app.tests.utils.provider import create_random_provider
-from app.tests.utils.utils import random_bool, random_datetime, random_lower_string
+from app.project.crud import project
+from app.service.models import ComputeService
+from app.tests.utils.image import create_random_image, validate_image_attrs
+from app.tests.utils.project import create_random_project
 
 
-def test_create_item(setup_and_teardown_db: Generator) -> None:
-    description = random_lower_string()
-    name = random_lower_string()
-    uuid = uuid4()
-    os = random_os()
-    distribution = random_lower_string()
-    version = random_lower_string()
-    architecture = random_lower_string()
-    cuda_support = random_bool()
-    gpu_driver = random_bool()
-    creation_time = random_datetime()
-    item_in = ImageCreate(
-        description=description,
-        name=name,
-        uuid=uuid,
-        os=os,
-        distribution=distribution,
-        version=version,
-        architecture=architecture,
-        cuda_support=cuda_support,
-        gpu_driver=gpu_driver,
-        creation_time=creation_time,
+def test_create_item(db_compute_serv: ComputeService) -> None:
+    """Create an Image belonging to a specific Compute Service."""
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    validate_image_attrs(obj_in=item_in, db_item=item)
+
+
+def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
+    """Create an Image, with default values when possible, belonging to a
+    specific Compute Service."""
+    item_in = create_random_image(default=True)
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    validate_image_attrs(obj_in=item_in, db_item=item)
+
+
+def test_create_item_private(db_compute_serv: ComputeService) -> None:
+    """Create a private Image belonging to a specific Compute Service.
+
+    Private Images requires a list of allowed projects.
+    """
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    item_in = create_random_image(projects=[i.uuid for i in db_provider.projects])
+    item = image.create(
+        obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
     )
-    provider = create_random_provider()
-    item = image.create(obj_in=item_in, provider=provider)
-    assert item.description == description
-    assert item.name == name
-    assert item.uuid == str(uuid)
-    assert item.os == os
-    assert item.distribution == distribution
-    assert item.version == version
-    assert item.architecture == architecture
-    assert item.cuda_support == cuda_support
-    assert item.gpu_driver == gpu_driver
-    assert item.creation_time == creation_time
-    item_provider = item.provider.single()
-    assert item_provider is not None
-    assert item_provider.uid == provider.uid
+    validate_image_attrs(obj_in=item_in, db_item=item)
 
 
-def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
-    name = random_lower_string()
-    uuid = uuid4()
-    os = random_os()
-    distribution = random_lower_string()
-    version = random_lower_string()
-    architecture = random_lower_string()
-    item_in = ImageCreate(
-        name=name,
-        uuid=uuid,
-        os=os,
-        distribution=distribution,
-        version=version,
-        architecture=architecture,
-    )
-    provider = create_random_provider()
-    item = image.create(obj_in=item_in, provider=provider)
-    assert item.description == ""
-    assert item.name == name
-    assert item.uuid == str(uuid)
-    assert item.os == os
-    assert item.distribution == distribution
-    assert item.version == version
-    assert item.architecture == architecture
-    assert item.cuda_support is False
-    assert item.gpu_driver is False
-    assert item.creation_time is None
-    item_provider = item.provider.single()
-    assert item_provider is not None
-    assert item_provider.uid == provider.uid
+def test_get_item(db_compute_serv: ComputeService) -> None:
+    """Retrieve an Image from its UID."""
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    item = image.get(uid=item.uid)
+    validate_image_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(setup_and_teardown_db: Generator) -> None:
-    item = create_random_image()
-    stored_item = image.get(uid=item.uid)
-    assert stored_item
-    assert item.uid == stored_item.uid
-    assert item.description == stored_item.description
-    assert item.name == stored_item.name
-    assert item.uuid == stored_item.uuid
-    assert item.os == stored_item.os
-    assert item.distribution == stored_item.distribution
-    assert item.version == stored_item.version
-    assert item.architecture == stored_item.architecture
-    assert item.cuda_support == stored_item.cuda_support
-    assert item.gpu_driver == stored_item.gpu_driver
-    assert item.creation_time == stored_item.creation_time
+def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
+    """Try to retrieve a not existing Image."""
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    item = image.get(uid=uuid4())
+    assert not item
 
 
-def test_get_items(setup_and_teardown_db: Generator) -> None:
-    item = create_random_image()
-    item2 = create_random_image()
+def test_get_items(db_compute_serv: ComputeService) -> None:
+    """Retrieve multiple images.
+
+    Filter GET operations specifying a target uid.
+    """
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    item_in2 = create_random_image()
+    item2 = image.create(obj_in=item_in2, service=db_compute_serv)
+
     stored_items = image.get_multi()
     assert len(stored_items) == 2
+
+    stored_items = image.get_multi(uid=item.uid)
+    assert len(stored_items) == 1
+    validate_image_attrs(obj_in=item_in, db_item=stored_items[0])
+
+    stored_items = image.get_multi(uid=item2.uid)
+    assert len(stored_items) == 1
+    validate_image_attrs(obj_in=item_in2, db_item=stored_items[0])
+
+
+def test_get_items_with_limit(db_compute_serv: ComputeService) -> None:
+    """Test the 'limit' attribute in GET operations."""
+    item_in = create_random_image()
+    image.create(obj_in=item_in, service=db_compute_serv)
+    item_in2 = create_random_image()
+    image.create(obj_in=item_in2, service=db_compute_serv)
+
+    stored_items = image.get_multi(limit=0)
+    assert len(stored_items) == 0
 
     stored_items = image.get_multi(limit=1)
     assert len(stored_items) == 1
 
-    stored_items = image.get_multi(uid=item.uid)
-    assert len(stored_items) == 1
-    assert stored_items[0].uid == item.uid
-    assert stored_items[0].description == item.description
-    assert stored_items[0].name == item.name
-    assert stored_items[0].uuid == item.uuid
-    assert stored_items[0].os == item.os
-    assert stored_items[0].distribution == item.distribution
-    assert stored_items[0].version == item.version
-    assert stored_items[0].architecture == item.architecture
-    assert stored_items[0].cuda_support == item.cuda_support
-    assert stored_items[0].gpu_driver == item.gpu_driver
-    assert stored_items[0].creation_time == item.creation_time
+    stored_items = image.get_multi(limit=None)
+    assert len(stored_items) == 2
+
+
+def test_get_sorted_items(db_compute_serv: ComputeService) -> None:
+    """Test the 'sort' attribute in GET operations."""
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    item_in2 = create_random_image()
+    item2 = image.create(obj_in=item_in2, service=db_compute_serv)
 
     sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+
     stored_items = image.get_multi(sort="uid")
-    assert stored_items[0].uid == sorted_items[0].uid
-    assert stored_items[1].uid == sorted_items[1].uid
+    assert sorted_items[0].uid == stored_items[0].uid
+    assert sorted_items[1].uid == stored_items[1].uid
+
     stored_items = image.get_multi(sort="-uid")
-    assert stored_items[0].uid == sorted_items[1].uid
-    assert stored_items[1].uid == sorted_items[0].uid
+    assert sorted_items[1].uid == stored_items[0].uid
+    assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_update_item(setup_and_teardown_db: Generator) -> None:
-    item = create_random_image()
-    item_update = create_random_update_image_data()
-    item2 = image.update(db_obj=item, obj_in=item_update)
-    assert item2.uid == item.uid
-    assert item2.description == item_update.description
-    assert item2.os == item_update.os
-    assert item2.distribution == item_update.distribution
-    assert item2.version == item_update.version
-    assert item2.architecture == item_update.architecture
-    assert item2.cuda_support == item_update.cuda_support
-    assert item2.gpu_driver == item_update.gpu_driver
-    assert item2.creation_time == item_update.creation_time
+def test_get_items_with_skip(db_compute_serv: ComputeService) -> None:
+    """Test the 'skip' attribute in GET operations."""
+    item_in = create_random_image()
+    image.create(obj_in=item_in, service=db_compute_serv)
+    item_in2 = create_random_image()
+    image.create(obj_in=item_in2, service=db_compute_serv)
 
-    item_update = create_random_update_image_data()
-    item2 = image.update(db_obj=item, obj_in=item_update.dict())
-    assert item2.uid == item.uid
-    assert item2.description == item_update.description
-    assert item2.os == item_update.os
-    assert item2.distribution == item_update.distribution
-    assert item2.version == item_update.version
-    assert item2.architecture == item_update.architecture
-    assert item2.cuda_support == item_update.cuda_support
-    assert item2.gpu_driver == item_update.gpu_driver
-    assert item2.creation_time == item_update.creation_time
+    stored_items = image.get_multi(skip=0)
+    assert len(stored_items) == 2
+
+    stored_items = image.get_multi(skip=1)
+    assert len(stored_items) == 1
 
 
-def test_delete_item(setup_and_teardown_db: Generator) -> None:
-    item = create_random_image()
-    item2 = image.remove(db_obj=item)
-    item3 = image.get(uid=item.uid)
-    assert item2 is True
-    assert item3 is None
+def test_patch_item(db_compute_serv: ComputeService) -> None:
+    """Update the attributes of an existing Image.
+
+    Do not update linked projects and compute service.
+    """
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    item_in = create_random_image()
+    item = image.update(db_obj=item, obj_in=item_in)
+    validate_image_attrs(obj_in=item_in, db_item=item)
+
+
+def test_forced_update_item(db_compute_serv: ComputeService) -> None:
+    """Update the attributes and relationships of an existing Image.
+
+    At first update a Image with a set of linked projects, updating its
+    attributes and removing all linked projects.
+
+    Update a Image with no projects, changing its attributes and linking
+    a new project.
+
+    Update a Image with a set of linked projects, changing both its
+    attributes and replacing the linked projects with new ones.
+
+    Update a Image with a set of linked projects, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    project1 = db_provider.projects.all()[0]
+    item_in = create_random_image(projects=[project1.uuid])
+    item = image.create(
+        obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
+    )
+    item_in = create_random_image()
+    item = image.update(db_obj=item, obj_in=item_in, force=True)
+    validate_image_attrs(obj_in=item_in, db_item=item)
+
+    item_in = create_random_image(projects=[project1.uuid])
+    item = image.update(
+        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+    )
+    validate_image_attrs(obj_in=item_in, db_item=item)
+
+    project2 = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_image(projects=[project2.uuid])
+    item = image.update(
+        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+    )
+    validate_image_attrs(obj_in=item_in, db_item=item)
+
+    item_in = create_random_image(projects=item_in.projects)
+    item = image.update(db_obj=item, obj_in=item_in, force=True)
+    validate_image_attrs(obj_in=item_in, db_item=item)
+
+
+def test_delete_item(db_compute_serv: ComputeService) -> None:
+    """Delete an existing public Image."""
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    result = image.remove(db_obj=item)
+    assert result
+    item = image.get(uid=item.uid)
+    assert not item
+
+
+def test_delete_item_with_relationships(db_compute_serv: ComputeService) -> None:
+    """Delete an existing private Image."""
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    item_in = create_random_image(projects=[i.uuid for i in db_provider.projects])
+    item = image.create(
+        obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
+    )
+    result = image.remove(db_obj=item)
+    assert result
+    item = image.get(uid=item.uid)
+    assert not item

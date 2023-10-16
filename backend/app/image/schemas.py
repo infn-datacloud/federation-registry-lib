@@ -1,16 +1,17 @@
 from typing import List, Optional
+from uuid import UUID
 
 from app.image.enum import ImageOS
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import UUID4, Field
+from pydantic import Field, validator
 
 
 class ImageBase(BaseNode):
     """Model with Image basic attributes."""
 
     name: str = Field(description="Image name in the provider.")
-    uuid: UUID4 = Field(description="Image UUID in the provider.")
+    uuid: str = Field(description="Image UUID in the provider.")
     os_type: Optional[ImageOS] = Field(
         default=None, description="Image Operating System."
     )
@@ -26,6 +27,12 @@ class ImageBase(BaseNode):
     gpu_driver: bool = Field(default=False, description="Enable GPU driver support.")
     is_public: bool = Field(default=True, description="Public available")
     tags: List[str] = Field(default_factory=list, description="List of tags")
+
+    @validator("uuid", pre=True)
+    def to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
 
 class ImageCreate(BaseNodeCreate, ImageBase):
@@ -46,9 +53,7 @@ class ImageUpdate(ImageCreate):
     """
 
     name: Optional[str] = Field(default=None, description="Image name in the provider.")
-    uuid: Optional[UUID4] = Field(
-        default=None, description="Image UUID in the provider."
-    )
+    uuid: Optional[str] = Field(default=None, description="Image UUID in the provider.")
 
 
 class ImageRead(BaseNodeRead, ImageBase):
