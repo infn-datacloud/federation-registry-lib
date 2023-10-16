@@ -10,11 +10,10 @@ from app.tests.utils.utils import (
     random_non_negative_int,
     random_positive_int,
 )
-from pydantic import UUID4
 
 
 def create_random_flavor(
-    *, default: bool = False, projects: List[UUID4] = []
+    *, default: bool = False, projects: List[str] = []
 ) -> FlavorCreateExtended:
     name = random_lower_string()
     uuid = uuid4()

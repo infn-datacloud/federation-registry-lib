@@ -1,15 +1,16 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
+from uuid import UUID
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import UUID4, Field, root_validator
+from pydantic import Field, root_validator, validator
 
 
 class FlavorBase(BaseNode):
     """Model with Flavor basic attributes."""
 
     name: str = Field(description="Flavor name in the provider.")
-    uuid: Union[UUID4, int] = Field(description="Flavor UUID in the provider.")
+    uuid: str = Field(description="Flavor UUID in the provider.")
     disk: int = Field(default=0, ge=0, description="Reserved disk size (GB)")
     is_public: bool = Field(default=True, description="Public available")
     ram: int = Field(default=0, ge=0, description="Reserved RAM size (MB)")
@@ -27,6 +28,12 @@ class FlavorBase(BaseNode):
     local_storage: Optional[str] = Field(
         default=None, description="Local storage presence"
     )
+
+    @validator("uuid", pre=True)
+    def to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
     @root_validator
     def check_gpu_values(cls, values: Dict[str, Any]):
@@ -63,7 +70,7 @@ class FlavorUpdate(FlavorCreate):
     name: Optional[str] = Field(
         default=None, description="Flavor name in the provider."
     )
-    uuid: Optional[UUID4] = Field(
+    uuid: Optional[str] = Field(
         default=None, description="Flavor UUID in the provider."
     )
 

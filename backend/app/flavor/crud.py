@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.flavor.models import Flavor
@@ -11,6 +11,7 @@ from app.flavor.schemas import (
 )
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.project.models import Project
+from app.provider.schemas_extended import FlavorCreateExtended
 from app.service.models import ComputeService
 
 
@@ -29,13 +30,44 @@ class CRUDFlavor(
     """"""
 
     def create(
-        self, *, obj_in: FlavorCreate, service: ComputeService, projects: List[Project]
+        self,
+        *,
+        obj_in: FlavorCreate,
+        service: ComputeService,
+        projects: List[Project] = []
     ) -> Flavor:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.services.connect(service)
         for project in projects:
             db_obj.projects.connect(project)
         return db_obj
+
+    def update(
+        self,
+        *,
+        db_obj: Flavor,
+        obj_in: Union[FlavorCreateExtended, FlavorUpdate],
+        projects: List[Project] = [],
+        force: bool = False
+    ) -> Optional[Flavor]:
+        edit = False
+        if force:
+            db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
+            db_projects = {db_item.uuid: db_item for db_item in projects}
+            for proj in obj_in.projects:
+                db_item = db_items.pop(proj, None)
+                if not db_item:
+                    db_item = db_projects.get(proj)
+                    db_obj.projects.connect(db_item)
+                    edit = True
+            for db_item in db_items.values():
+                db_obj.projects.disconnect(db_item)
+                edit = True
+
+        updated_data = super().update(
+            db_obj=db_obj, obj_in=FlavorUpdate.parse_obj(obj_in), force=force
+        )
+        return db_obj if edit else updated_data
 
 
 flavor = CRUDFlavor(
