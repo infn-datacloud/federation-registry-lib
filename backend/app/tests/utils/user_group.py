@@ -5,18 +5,18 @@ from app.tests.utils.sla import create_random_sla, validate_sla_attrs
 from app.tests.utils.utils import random_lower_string
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupUpdate
-from pydantic import UUID4
 
 
 def create_random_user_group(
-    *, default: bool = False, projects: List[UUID4] = []
+    *, default: bool = False, projects: List[str] = []
 ) -> UserGroupCreateExtended:
     name = random_lower_string()
-    slas = [create_random_sla(projects=projects)]
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
-    return UserGroupCreateExtended(name=name, slas=slas, **kwargs)
+    if len(projects):
+        kwargs["slas"] = [create_random_sla(projects=projects)]
+    return UserGroupCreateExtended(name=name, **kwargs)
 
 
 def create_random_update_user_group_data() -> UserGroupUpdate:

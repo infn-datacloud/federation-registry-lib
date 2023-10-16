@@ -38,13 +38,12 @@ class CRUDUserGroup(
         *,
         obj_in: UserGroupCreateExtended,
         identity_provider: IdentityProvider,
-        projects: List[Project]
+        projects: List[Project] = []
     ) -> UserGroup:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.identity_provider.connect(identity_provider)
         for item in obj_in.slas:
-            item_projects = [str(i) for i in item.projects]
-            db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
+            db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
             if len(db_projects) > 0:
                 sla.create(obj_in=item, user_group=db_obj, projects=db_projects)
         return db_obj
@@ -67,8 +66,7 @@ class CRUDUserGroup(
             db_items = {db_item.doc_uuid: db_item for db_item in db_obj.slas}
             for item in obj_in.slas:
                 db_item = db_items.pop(str(item.doc_uuid), None)
-                item_projects = [str(i) for i in item.projects]
-                db_projects = list(filter(lambda x: x.uuid in item_projects, projects))
+                db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
                 if db_item is None:
                     sla.create(obj_in=item, projects=db_projects, user_group=db_obj)
                     edit = True
