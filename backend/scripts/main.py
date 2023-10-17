@@ -3,19 +3,21 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from typing import List
 
-from cruds.provider import ProviderCRUD
-from models.cmdb.provider import ProviderWrite
-from models.config import Openstack, TrustedIDP
+from app.provider.schemas_extended import ProviderCreateExtended
+from models.provider import Openstack, TrustedIDP
 from providers.opnstk import get_provider
-from utils import get_read_write_headers, load_cmdb_config, load_config
+from utils import load_cmdb_config, load_config, update_database
 
 MAX_WORKERS = 7
 data_lock = Lock()
 
 
 def add_os_provider_to_list(
-    os_conf: Openstack, trusted_idps: List[TrustedIDP], providers: List[ProviderWrite]
+    os_conf: Openstack,
+    trusted_idps: List[TrustedIDP],
+    providers: List[ProviderCreateExtended],
 ):
+    """Add Openstack providers to the provider lists."""
     provider = get_provider(os_conf=os_conf, trusted_idps=trusted_idps)
     with data_lock:
         providers.append(provider)
@@ -23,16 +25,19 @@ def add_os_provider_to_list(
 
 if __name__ == "__main__":
     base_path = "."
+    # Load CMDB configuration
     cmdb_urls = load_cmdb_config(base_path=base_path)
 
     providers = []
     thread_pool = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 
+    # Read all yaml files containing providers configurations.
+    # Multithreading read.
     yaml_files = list(
         filter(lambda x: x.endswith(".config.yaml"), os.listdir(base_path))
     )
     for file in yaml_files:
-        config = load_config(fname=file, cmdb_urls=cmdb_urls)
+        config = load_config(fname=file)
         for os_conf in config.openstack:
             thread_pool.submit(
                 add_os_provider_to_list,
@@ -40,13 +45,9 @@ if __name__ == "__main__":
                 trusted_idps=config.trusted_idps,
                 providers=providers,
             )
-
     thread_pool.shutdown(wait=True)
 
-    read_header, write_header = get_read_write_headers(
-        token=config.trusted_idps[0].token
+    # Update the CMDB
+    update_database(
+        cmdb_urls=cmdb_urls, token=config.trusted_idps[0].token, items=providers
     )
-    crud = ProviderCRUD(
-        cmdb_urls=config.cmdb_urls, read_headers=read_header, write_headers=write_header
-    )
-    update_providers = crud.synchronize(items=providers)
