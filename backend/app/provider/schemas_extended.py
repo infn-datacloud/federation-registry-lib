@@ -38,7 +38,7 @@ from app.service.schemas import (
 )
 from app.sla.schemas import SLACreate, SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupCreate, UserGroupRead, UserGroupReadPublic
-from pydantic import UUID4, Field, root_validator, validator
+from pydantic import Field, root_validator, validator
 
 
 class UserGroupReadExtended(UserGroupRead):
@@ -223,12 +223,14 @@ class SLACreateExtended(SLACreate):
 
 
 class UserGroupCreateExtended(UserGroupCreate):
-    slas: List[SLACreateExtended] = Field(description="List of SLAs")
+    slas: List[SLACreateExtended] = Field(
+        default_factory=list, description="List of SLAs"
+    )
 
     @validator("slas")
     def validate_slas(cls, v):
         find_duplicates(v, "doc_uuid")
-        assert len(v), "SLA list can't be empty"
+        # assert len(v), "SLA list can't be empty"
         return v
 
 
@@ -240,32 +242,46 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         description="Authentication method used by the Provider"
     )
     user_groups: List[UserGroupCreateExtended] = Field(
-        description="List of user groups belonging to this identity provider"
+        default_factory=list,
+        description="List of user groups belonging to this identity provider",
     )
 
     @validator("user_groups")
     def validate_user_groups(cls, v):
         find_duplicates(v, "name")
-        assert len(v), "Identity provider's user group list can't be empty"
+        # assert len(v), "Identity provider's user group list can't be empty"
         return v
 
 
 class BlockStorageQuotaCreateExtended(BlockStorageQuotaCreate):
-    project: UUID4 = Field(description="Project UUID")
+    project: str = Field(description="Project UUID")
+
+    @validator("project", pre=True)
+    def to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
 
 class ComputeQuotaCreateExtended(ComputeQuotaCreate):
-    project: UUID4 = Field(description="Project UUID")
+    project: str = Field(description="Project UUID")
+
+    @validator("project", pre=True)
+    def to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
 
 class FlavorCreateExtended(FlavorCreate):
-    projects: List[UUID4] = Field(
+    projects: List[str] = Field(
         default_factory=list,
         description="List of projects having access to the private flavor",
     )
 
-    @validator("projects")
+    @validator("projects", pre=True)
     def validate_projects(cls, v):
+        v = [i.hex if isinstance(i, UUID) else i for i in v]
         find_duplicates(v)
         return v
 
@@ -283,13 +299,14 @@ class FlavorCreateExtended(FlavorCreate):
 
 
 class ImageCreateExtended(ImageCreate):
-    projects: List[UUID4] = Field(
+    projects: List[str] = Field(
         default_factory=list,
         description="List of projects having access to the private image",
     )
 
-    @validator("projects")
+    @validator("projects", pre=True)
     def validate_projects(cls, v):
+        v = [i.hex if isinstance(i, UUID) else i for i in v]
         find_duplicates(v)
         return v
 
@@ -307,9 +324,15 @@ class ImageCreateExtended(ImageCreate):
 
 
 class NetworkCreateExtended(NetworkCreate):
-    project: Optional[UUID4] = Field(
+    project: Optional[str] = Field(
         default=None, description="Project having access to a private net"
     )
+
+    @validator("project", pre=True)
+    def to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
     @root_validator
     def project_require_if_private_net(cls, values):
