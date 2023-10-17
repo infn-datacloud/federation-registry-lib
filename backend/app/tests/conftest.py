@@ -9,8 +9,8 @@ from app.provider.crud import provider
 from app.provider.models import Provider
 from app.region.crud import region
 from app.region.models import Region
-from app.service.crud import block_storage_service, compute_service
-from app.service.models import ComputeService
+from app.service.crud import block_storage_service, compute_service, network_service
+from app.service.models import ComputeService, NetworkService
 from app.tests.utils.identity_provider import create_random_identity_provider
 from app.tests.utils.project import create_random_project
 from app.tests.utils.provider import create_random_provider
@@ -18,6 +18,7 @@ from app.tests.utils.region import create_random_region
 from app.tests.utils.service import (
     create_random_block_storage_service,
     create_random_compute_service,
+    create_random_network_service,
 )
 from app.tests.utils.user_group import create_random_user_group
 from app.user_group.crud import user_group
@@ -91,6 +92,13 @@ def db_block_storage_serv(db_region: Region) -> ComputeService:
 def db_compute_serv(db_region: Region) -> ComputeService:
     item_in = create_random_compute_service()
     item = compute_service.create(obj_in=item_in, region=db_region)
+    yield item
+
+
+@pytest.fixture
+def db_network_serv(db_region: Region) -> NetworkService:
+    item_in = create_random_network_service()
+    item = network_service.create(obj_in=item_in, region=db_region)
     yield item
 
 
