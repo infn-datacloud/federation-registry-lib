@@ -4,21 +4,28 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from typing import List, Optional
 
-from logger import logger
-from models.cmdb.flavor import FlavorWrite
-from models.cmdb.image import ImageWrite
-from models.cmdb.network import NetworkWrite
-from models.cmdb.project import ProjectWrite
-from models.cmdb.provider import ProviderWrite
-from models.cmdb.quota import BlockStorageQuotaWrite, ComputeQuotaWrite
-from models.cmdb.region import RegionWrite
-from models.cmdb.service import (
-    BlockStorageServiceWrite,
-    ComputeServiceWrite,
-    IdentityServiceWrite,
-    NetworkServiceWrite,
+from app.provider.schemas_extended import (
+    BlockStorageQuotaCreateExtended,
+    BlockStorageServiceCreateExtended,
+    ComputeQuotaCreateExtended,
+    ComputeServiceCreateExtended,
+    FlavorCreateExtended,
+    IdentityServiceCreate,
+    ImageCreateExtended,
+    NetworkCreateExtended,
+    NetworkServiceCreateExtended,
+    ProjectCreate,
+    ProviderCreateExtended,
+    RegionCreateExtended,
 )
-from models.config import AuthMethod, Openstack, OsProject, PrivateNetProxy, TrustedIDP
+from logger import logger
+from models.provider import (
+    AuthMethod,
+    Openstack,
+    OsProject,
+    PrivateNetProxy,
+    TrustedIDP,
+)
 from openstack import connect
 from openstack.connection import Connection
 
@@ -28,21 +35,21 @@ projects_lock = Lock()
 region_lock = Lock()
 
 
-def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaWrite:
+def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaCreateExtended:
     logger.info("Retrieve current project accessible block storage quotas")
     quota = conn.block_storage.get_quota_set(conn.current_project_id)
     data = quota.to_dict()
-    return BlockStorageQuotaWrite(**data, project=conn.current_project_id)
+    return BlockStorageQuotaCreateExtended(**data, project=conn.current_project_id)
 
 
-def get_compute_quotas(conn: Connection) -> ComputeQuotaWrite:
+def get_compute_quotas(conn: Connection) -> ComputeQuotaCreateExtended:
     logger.info("Retrieve current project accessible compute quotas")
     quota = conn.compute.get_quota_set(conn.current_project_id)
     data = quota.to_dict()
-    return ComputeQuotaWrite(**data, project=conn.current_project_id)
+    return ComputeQuotaCreateExtended(**data, project=conn.current_project_id)
 
 
-def get_flavors(conn: Connection) -> List[FlavorWrite]:
+def get_flavors(conn: Connection) -> List[FlavorCreateExtended]:
     logger.info("Retrieve current project accessible flavors")
     flavors = []
     for flavor in conn.compute.flavors(is_disabled=False):
@@ -63,11 +70,11 @@ def get_flavors(conn: Connection) -> List[FlavorWrite]:
                 "aggregate_instance_extra_specs:local_storage"
             )
             data["infiniband"] = extra.get("infiniband", False)
-        flavors.append(FlavorWrite(**data, projects=projects))
+        flavors.append(FlavorCreateExtended(**data, projects=projects))
     return flavors
 
 
-def get_images(conn: Connection, tags: List[str] = []) -> List[ImageWrite]:
+def get_images(conn: Connection, tags: List[str] = []) -> List[ImageCreateExtended]:
     logger.info("Retrieve current project accessible images")
     images = []
     for image in conn.image.images(
@@ -88,7 +95,7 @@ def get_images(conn: Connection, tags: List[str] = []) -> List[ImageWrite]:
         if data.get("description") is None:
             data["description"] = ""
         data["is_public"] = is_public
-        images.append(ImageWrite(**data, projects=projects))
+        images.append(ImageCreateExtended(**data, projects=projects))
     return images
 
 
@@ -98,7 +105,7 @@ def get_networks(
     default_public_net: Optional[str] = None,
     proxy: Optional[PrivateNetProxy] = None,
     tags: List[str] = [],
-) -> List[NetworkWrite]:
+) -> List[NetworkCreateExtended]:
     logger.info("Retrieve current project accessible networks")
     networks = []
     for network in conn.network.networks(
@@ -121,18 +128,18 @@ def get_networks(
         if proxy is not None:
             data["proxy_ip"] = proxy.ip
             data["proxy_user"] = proxy.user
-        networks.append(NetworkWrite(**data, project=project))
+        networks.append(NetworkCreateExtended(**data, project=project))
     return networks
 
 
-def get_project(conn: Connection) -> ProjectWrite:
+def get_project(conn: Connection) -> ProjectCreate:
     logger.info("Retrieve current project data")
     project = conn.identity.get_project(conn.current_project_id)
     data = project.to_dict()
     data["uuid"] = data.pop("id")
     if data.get("description") is None:
         data["description"] = ""
-    return ProjectWrite(**data)
+    return ProjectCreate(**data)
 
 
 def get_correct_idp_and_user_group_for_project(
@@ -163,9 +170,9 @@ def get_correct_idp_and_user_group_for_project(
 def get_per_project_details(
     os_conf: Openstack,
     project_conf: OsProject,
-    region: RegionWrite,
+    region: RegionCreateExtended,
     trusted_idps: List[TrustedIDP],
-    projects: List[ProjectWrite],
+    projects: List[ProjectCreate],
 ):
     default_private_net = project_conf.default_private_net
     default_public_net = project_conf.default_public_net
@@ -214,7 +221,7 @@ def get_per_project_details(
     # Create region's compute service.
     # Retrieve flavors, images and current project corresponding quotas.
     # Add them to the compute service.
-    compute_service = ComputeServiceWrite(
+    compute_service = ComputeServiceCreateExtended(
         endpoint=conn.compute.get_endpoint(),
         type=conn.compute.service_type,
         name="org.openstack.nova",
@@ -224,7 +231,7 @@ def get_per_project_details(
     compute_service.quotas = [get_compute_quotas(conn)]
     if per_user_limits is not None and per_user_limits.compute is not None:
         compute_service.quotas.append(
-            ComputeQuotaWrite(
+            ComputeQuotaCreateExtended(
                 **per_user_limits.compute.dict(exclude_none=True),
                 project=project_conf.id,
             )
@@ -252,7 +259,7 @@ def get_per_project_details(
     # Add them to the block storage service.
     endpoint = conn.block_storage.get_endpoint()
     endpoint = os.path.dirname(endpoint)
-    block_storage_service = BlockStorageServiceWrite(
+    block_storage_service = BlockStorageServiceCreateExtended(
         endpoint=endpoint,
         type=conn.block_storage.service_type,
         name="org.openstack.cinder",
@@ -260,7 +267,7 @@ def get_per_project_details(
     block_storage_service.quotas = [get_block_storage_quotas(conn)]
     if per_user_limits is not None and per_user_limits.block_storage is not None:
         block_storage_service.quotas.append(
-            BlockStorageQuotaWrite(
+            BlockStorageQuotaCreateExtended(
                 **per_user_limits.block_storage.dict(exclude_none=True),
                 project=project_conf.id,
             )
@@ -275,7 +282,7 @@ def get_per_project_details(
             region.block_storage_services.append(block_storage_service)
 
     # Retrieve region's network service.
-    network_service = NetworkServiceWrite(
+    network_service = NetworkServiceCreateExtended(
         endpoint=conn.network.get_endpoint(),
         type=conn.network.service_type,
         name="org.openstack.neutron",
@@ -299,7 +306,7 @@ def get_per_project_details(
             region.network_services.append(network_service)
 
     # Retrieve provider's identity service.
-    identity_service = IdentityServiceWrite(
+    identity_service = IdentityServiceCreate(
         endpoint=os_conf.auth_url,
         type=conn.identity.service_type,
         name="org.openstack.keystone",
@@ -323,20 +330,20 @@ def get_per_project_details(
 
 def get_provider(
     *, os_conf: Openstack, trusted_idps: List[TrustedIDP]
-) -> ProviderWrite:
+) -> ProviderCreateExtended:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
     if os_conf.status.value != "active":
-        return ProviderWrite(
+        return ProviderCreateExtended(
             name=os_conf.name, type=os_conf.type, status=os_conf.status
         )
 
     trust_idps = copy.deepcopy(trusted_idps)
-    regions: List[RegionWrite] = []
-    projects: List[ProjectWrite] = []
+    regions: List[RegionCreateExtended] = []
+    projects: List[ProjectCreate] = []
 
     for region_conf in os_conf.regions:
-        region = RegionWrite(**region_conf.dict())
+        region = RegionCreateExtended(**region_conf.dict())
         thread_pool = ThreadPoolExecutor(max_workers=len(os_conf.projects))
         for project_conf in os_conf.projects:
             thread_pool.submit(
@@ -376,7 +383,7 @@ def get_provider(
                     filter(lambda x: x in projects_uuid, image.projects)
                 )
 
-    return ProviderWrite(
+    return ProviderCreateExtended(
         name=os_conf.name,
         type=os_conf.type,
         is_public=os_conf.is_public,
