@@ -63,12 +63,13 @@ class CRUDProvider(
     ) -> Optional[Provider]:
         edit = False
         if force:
-            edit = (
-                edit
-                or self.__update_projects(db_obj=db_obj, obj_in=obj_in)
-                or self.__update_identity_providers(db_obj=db_obj, obj_in=obj_in)
-                or self.__update_regions(db_obj=db_obj, obj_in=obj_in)
+            projects_updated = self.__update_projects(db_obj=db_obj, obj_in=obj_in)
+            idps_updated = self.__update_identity_providers(
+                db_obj=db_obj, obj_in=obj_in
             )
+            regions_updated = self.__update_regions(db_obj=db_obj, obj_in=obj_in)
+            edit = projects_updated or idps_updated or regions_updated
+
         updated_data = super().update(
             db_obj=db_obj, obj_in=ProviderUpdate.parse_obj(obj_in), force=force
         )

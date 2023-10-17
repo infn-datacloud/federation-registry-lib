@@ -69,7 +69,7 @@ class CRUDIdentityProvider(
                 rel = db_obj.providers.relationship(provider)
                 if (
                     rel.protocol != obj_in.relationship.protocol
-                    or rel.idp_name != obj_in.idp_name
+                    or rel.idp_name != obj_in.relationship.idp_name
                 ):
                     db_obj.providers.replace(provider, obj_in.relationship.dict())
                     edit = True

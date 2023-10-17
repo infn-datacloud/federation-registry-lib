@@ -2,23 +2,25 @@ from typing import Generator
 from uuid import uuid4
 
 from app.provider.crud import provider
-from app.service.enum import ServiceType
 from app.tests.utils.provider import create_random_provider, validate_provider_attrs
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
+    """Create a Provider."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     validate_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
+    """Create a Provider, with default values when possible."""
     item_in = create_random_provider(default=True)
     item = provider.create(obj_in=item_in)
     validate_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects(setup_and_teardown_db: Generator) -> None:
+    """Create a Provider, with linked projects."""
     item_in = create_random_provider(with_projects=True)
     item = provider.create(obj_in=item_in)
     validate_provider_attrs(obj_in=item_in, db_item=item)
@@ -27,6 +29,7 @@ def test_create_item_with_projects(setup_and_teardown_db: Generator) -> None:
 def test_create_item_with_projects_and_identity_providers(
     setup_and_teardown_db: Generator,
 ) -> None:
+    """Create a Provider, with linked projects and identity providers."""
     item_in = create_random_provider(with_projects=True, with_identity_providers=True)
     item = provider.create(obj_in=item_in)
     validate_provider_attrs(obj_in=item_in, db_item=item)
@@ -35,12 +38,15 @@ def test_create_item_with_projects_and_identity_providers(
 def test_create_item_with_projects_and_regions(
     setup_and_teardown_db: Generator,
 ) -> None:
+    """Create a Provider, with linked projects and regions."""
     item_in = create_random_provider(with_projects=True, with_regions=True)
     item = provider.create(obj_in=item_in)
     validate_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_everything(setup_and_teardown_db: Generator) -> None:
+    """Create a Provider, with linked projects, identity providers and
+    regions."""
     item_in = create_random_provider(
         with_projects=True, with_identity_providers=True, with_regions=True
     )
@@ -51,37 +57,23 @@ def test_create_item_with_everything(setup_and_teardown_db: Generator) -> None:
 def test_create_item_with_identity_providers(
     setup_and_teardown_db: Generator,
 ) -> None:
+    """Create a Provider, with identity providers and no projects."""
     item_in = create_random_provider(with_identity_providers=True)
     item = provider.create(obj_in=item_in)
-    assert len(item.identity_providers) == len(item_in.identity_providers)
-    for db_idp, idp_in in zip(item.identity_providers, item_in.identity_providers):
-        assert len(db_idp.user_groups) == len(idp_in.user_groups)
-        for db_group in db_idp.user_groups:
-            assert len(db_group.slas) == 0
+    validate_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_regions(
     setup_and_teardown_db: Generator,
 ) -> None:
+    """Create a Provider, with regions and no projects."""
     item_in = create_random_provider(with_regions=True)
     item = provider.create(obj_in=item_in)
-    assert len(item.regions) == len(item_in.regions)
-    for db_reg, reg_in in zip(item.regions, item_in.regions):
-        db_block_storage_services = list(
-            filter(lambda x: x.type == ServiceType.BLOCK_STORAGE.value, db_reg.services)
-        )
-        assert len(db_block_storage_services) == len(reg_in.block_storage_services)
-        for db_serv in db_block_storage_services:
-            assert len(db_serv.quotas) == 0
-        db_compute_services = list(
-            filter(lambda x: x.type == ServiceType.COMPUTE.value, db_reg.services)
-        )
-        assert len(db_compute_services) == len(reg_in.compute_services)
-        for db_serv in db_compute_services:
-            assert len(db_serv.quotas) == 0
+    validate_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:
+    """Retrieve a Provider from its UID."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     item = provider.get(uid=item.uid)
@@ -89,6 +81,7 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
 
 
 def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
+    """Try to retrieve a not existing Provider."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     item = provider.get(uid=uuid4())
@@ -96,6 +89,10 @@ def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
 
 
 def test_get_items(setup_and_teardown_db: Generator) -> None:
+    """Retrieve multiple Providers.
+
+    Filter GET operations specifying a target uid.
+    """
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     item_in2 = create_random_provider()
@@ -114,6 +111,7 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
 
 def test_get_items_with_limit(setup_and_teardown_db: Generator) -> None:
+    """Test the 'limit' attribute in GET operations."""
     item_in = create_random_provider()
     provider.create(obj_in=item_in)
     item_in2 = create_random_provider()
@@ -130,6 +128,7 @@ def test_get_items_with_limit(setup_and_teardown_db: Generator) -> None:
 
 
 def test_get_sorted_items(setup_and_teardown_db: Generator) -> None:
+    """Test the 'sort' attribute in GET operations."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     item_in2 = create_random_provider()
@@ -147,6 +146,7 @@ def test_get_sorted_items(setup_and_teardown_db: Generator) -> None:
 
 
 def test_get_items_with_skip(setup_and_teardown_db: Generator) -> None:
+    """Test the 'skip' attribute in GET operations."""
     item_in = create_random_provider()
     provider.create(obj_in=item_in)
     item_in2 = create_random_provider()
@@ -160,6 +160,10 @@ def test_get_items_with_skip(setup_and_teardown_db: Generator) -> None:
 
 
 def test_patch_item(setup_and_teardown_db: Generator) -> None:
+    """Update the attributes of an existing Provider.
+
+    Do not update linked projects, identity providers and regions.
+    """
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider()
@@ -168,6 +172,21 @@ def test_patch_item(setup_and_teardown_db: Generator) -> None:
 
 
 def test_forced_update_item_with_projects(setup_and_teardown_db: Generator) -> None:
+    """Update the attributes and relationships of an existing Provider.
+
+    At first update a Provider with a set of projects, updating its
+    attributes and removing the existing projects.
+
+    Update a Provider with no projects, changing its attributes and
+    linking new projects.
+
+    Update a Provider with a set of projects, changing both its
+    attributes and replacing the existing projects with a new ones.
+
+    Update a Provider with a set of projects, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
     item_in = create_random_provider(with_projects=True)
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider()
@@ -192,6 +211,23 @@ def test_forced_update_item_with_projects(setup_and_teardown_db: Generator) -> N
 def test_forced_update_item_with_projects_and_identity_providers(
     setup_and_teardown_db: Generator,
 ) -> None:
+    """Update the attributes and relationships of an existing Provider.
+
+    At first update a Provider with a set of identity providers,
+    updating its attributes and removing the existing identity
+    providers.
+
+    Update a Provider with no identity providers, changing its
+    attributes and linking new identity providers.
+
+    Update a Provider with a set of identity providers, changing both
+    its attributes and replacing the existing identity providers with a
+    new ones.
+
+    Update a Provider with a set of identity providers, changing only
+    its attributes leaving untouched its connections (this is different
+    from the previous test because the flag force is set to True).
+    """
     item_in = create_random_provider(with_projects=True, with_identity_providers=True)
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider()
@@ -218,6 +254,21 @@ def test_forced_update_item_with_projects_and_identity_providers(
 def test_forced_update_item_with_projects_and_regions(
     setup_and_teardown_db: Generator,
 ) -> None:
+    """Update the attributes and relationships of an existing Provider.
+
+    At first update a Provider with a set of regions, updating its
+    attributes and removing the existing regions.
+
+    Update a Provider with no regions, changing its attributes and
+    linking new regions.
+
+    Update a Provider with a set of regions, changing both its
+    attributes and replacing the existing regions with a new ones.
+
+    Update a Provider with a set of regions, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
     item_in = create_random_provider(with_projects=True, with_regions=True)
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider(with_projects=True, with_regions=True)
@@ -246,6 +297,7 @@ def test_forced_update_item_with_projects_and_regions(
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:
+    """Delete an existing Provider."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     result = provider.remove(db_obj=item)
@@ -255,6 +307,11 @@ def test_delete_item(setup_and_teardown_db: Generator) -> None:
 
 
 def test_delete_item_with_relationships(setup_and_teardown_db: Generator) -> None:
+    """Delete an existing Provider.
+
+    On cascade delete projects and regions. Delete identity providers
+    only if no other providers use them.
+    """
     item_in = create_random_provider(
         with_identity_providers=True, with_projects=True, with_regions=True
     )
