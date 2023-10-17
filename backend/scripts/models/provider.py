@@ -6,38 +6,16 @@ from app.identity_provider.schemas import IdentityProviderBase
 from app.location.schemas import LocationBase
 from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderBase
+from app.provider.schemas_extended import UserGroupCreateExtended
 from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase
 from app.region.schemas import RegionBase
-from models.cmdb.user_group import UserGroupWrite
 from pydantic import UUID4, AnyHttpUrl, BaseModel, Field, root_validator, validator
-
-
-class APIVersions(BaseModel):
-    flavors: str = Field(default="v1", description="Flavors API version to use")
-    identity_providers: str = Field(
-        default="v1", description="Identity providers API version to use"
-    )
-    images: str = Field(default="v1", description="Images API version to use")
-    locations: str = Field(default="v1", description="Locations API version to use")
-    networks: str = Field(default="v1", description="Networks API version to use")
-    projects: str = Field(default="v1", description="Projects API version to use")
-    providers: str = Field(default="v1", description="Providers API version to use")
-    regions: str = Field(default="v1", description="Regions API version to use")
-    quotas: str = Field(default="v1", description="Quotas API version to use")
-    services: str = Field(default="v1", description="Services API version to use")
-    slas: str = Field(default="v1", description="SLAs API version to use")
-    user_groups: str = Field(default="v1", description="User groups API version to use")
-
-
-class CMDB(BaseModel):
-    base_url: AnyHttpUrl = Field(description="CMDB base URL")
-    api_ver: APIVersions = Field(description="API versions")
 
 
 class TrustedIDP(IdentityProviderBase):
     issuer: AnyHttpUrl = Field(description="issuer url")
     token: str = Field(description="Access token")
-    user_groups: List[UserGroupWrite] = Field(
+    user_groups: List[UserGroupCreateExtended] = Field(
         default_factory=list, description="User groups"
     )
     relationship: Optional[AuthMethodBase] = Field(default=None, description="")
@@ -163,13 +141,13 @@ class Provider(ProviderBase):
 
 
 class Openstack(Provider):
+    type: ProviderType = Field(default="openstack", description="Provider type")
     projects: List[OsProject] = Field(
         description="List of SLAs belonged by this provider"
     )
     regions: List[Region] = Field(
         default_factory=list, description="List of hosted regions"
     )
-    type: ProviderType = Field(default="openstack", description="Provider type")
     image_tags: List[str] = Field(
         default_factory=list, description="List of image tags to filter"
     )
@@ -177,32 +155,38 @@ class Openstack(Provider):
         default_factory=list, description="List of network tags to filter"
     )
 
+    @validator("type")
+    def type_fixed(cls, v):
+        assert v == ProviderType.OS
+        return v
+
+    @validator("regions")
+    def default_region(cls, v):
+        if len(v) == 0:
+            v.append(Region(name="RegionOne"))
+        return v
+
 
 class Kubernetes(Provider):
-    projects: List[K8sNameSpace] = Field(description="list fo name")
+    type: ProviderType = Field(default="kubernetes", description="Provider type")
+    projects: List[K8sNameSpace] = Field(description="List of names")
     regions: List[Region] = Field(
         default_factory=list, description="List of hosted regions"
     )
-    type: ProviderType = Field(default="kubernetes", description="Provider type")
+
+    @validator("type")
+    def type_fixed(cls, v):
+        assert v == ProviderType.K8S
+        return v
+
+    @validator("regions")
+    def default_region(cls, v):
+        if len(v) == 0:
+            v.append(Region(name="default"))
+        return v
 
 
-class URLs(BaseModel):
-    flavors: AnyHttpUrl = Field(description="Flavors endpoint")
-    identity_providers: AnyHttpUrl = Field(description="Identity Providers endpoint")
-    images: AnyHttpUrl = Field(description="Images endpoint")
-    locations: AnyHttpUrl = Field(description="Locations endpoint")
-    networks: AnyHttpUrl = Field(description="Networks endpoint")
-    projects: AnyHttpUrl = Field(description="Projects endpoint")
-    providers: AnyHttpUrl = Field(description="Providers endpoint")
-    regions: AnyHttpUrl = Field(description="Regions endpoint")
-    quotas: AnyHttpUrl = Field(description="Quotas endpoint")
-    services: AnyHttpUrl = Field(description="Services endpoint")
-    slas: AnyHttpUrl = Field(description="SLAs endpoint")
-    user_groups: AnyHttpUrl = Field(description="User Groups endpoint")
-
-
-class Config(BaseModel):
-    cmdb_urls: URLs = Field(description="CMDB endpoints to use")
+class SiteConfig(BaseModel):
     trusted_idps: List[TrustedIDP] = Field(
         description="List of OIDC-Agent supported identity providers endpoints"
     )
