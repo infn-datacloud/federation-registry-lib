@@ -1,12 +1,16 @@
 import os
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import yaml
+from app.provider.schemas_extended import ProviderCreateExtended
+from crud import CRUD
 from logger import logger
-from models.config import CMDB, Config, Region, URLs
+from models.cmdb import CMDB, URLs
+from models.provider import SiteConfig
 
 
-def load_cmdb_config(*, base_path: str = ".") -> Config:
+def load_cmdb_config(*, base_path: str = ".") -> SiteConfig:
+    """Load CMDB configuration."""
     logger.info("Loading CMDB configuration")
     with open(os.path.join(base_path, ".cmdb-config.yaml")) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
@@ -17,24 +21,21 @@ def load_cmdb_config(*, base_path: str = ".") -> Config:
     return URLs(**d)
 
 
-def load_config(*, fname: str, cmdb_urls: CMDB) -> Config:
-    logger.info("Loading configuration")
+def load_config(*, fname: str) -> SiteConfig:
+    """Load provider configuration from yaml file."""
+    logger.info(f"Loading provider configuration from {fname}")
 
     with open(fname) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-        config = Config(cmdb_urls=cmdb_urls, **config)
-        for os_conf in config.openstack:
-            if len(os_conf.regions) == 0:
-                os_conf.regions.append(Region(name="RegionOne"))
-        for k8s_conf in config.kubernetes:
-            if len(k8s_conf.regions) == 0:
-                k8s_conf.regions.append(Region(name="default"))
+        config = SiteConfig(**config)
 
     logger.info("Configuration loaded")
+    logger.debug(f"{repr(config)}")
     return config
 
 
 def get_read_write_headers(*, token: str) -> Tuple[Dict[str, str], Dict[str, str]]:
+    """From an access token, create the read and write headers."""
     read_header = {"authorization": f"Bearer {token}"}
     write_header = {
         **read_header,
@@ -42,3 +43,24 @@ def get_read_write_headers(*, token: str) -> Tuple[Dict[str, str], Dict[str, str
         "content-type": "application/json",
     }
     return (read_header, write_header)
+
+
+def update_database(
+    *, cmdb_urls: URLs, items: List[ProviderCreateExtended], token: str
+) -> None:
+    """Use the read and write headers to create, update or remove providers
+    from the CMDB."""
+    read_header, write_header = get_read_write_headers(token=token)
+    crud = CRUD(
+        url=cmdb_urls.providers, read_headers=read_header, write_headers=write_header
+    )
+
+    db_items = {db_item.name: db_item for db_item in crud.read(with_conn=True)}
+    for item in items:
+        db_item = db_items.pop(item.name, None)
+        if db_item is None:
+            crud.create(data=item)
+        else:
+            crud.update(new_data=item, uid=db_item.uid)
+    for db_item in db_items.values():
+        crud.remove(item=db_item)
