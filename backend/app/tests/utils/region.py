@@ -17,7 +17,6 @@ from app.tests.utils.service import (
     validate_network_service_attrs,
 )
 from app.tests.utils.utils import random_lower_string
-from pydantic import UUID4
 
 
 def create_random_region(
@@ -27,7 +26,7 @@ def create_random_region(
     with_compute_services: bool = False,
     with_identity_services: bool = False,
     with_network_services: bool = False,
-    projects: List[UUID4] = [],
+    projects: List[str] = [],
 ) -> RegionCreateExtended:
     name = random_lower_string()
     kwargs = {}

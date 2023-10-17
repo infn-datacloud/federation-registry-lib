@@ -91,20 +91,27 @@ class CRUDRegion(
     ) -> Optional[Region]:
         edit = False
         if force:
-            edit = (
-                edit
-                or self.__update_location(db_obj=db_obj, obj_in=obj_in)
-                or self.__update_block_storage_services(
-                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
-                )
-                or self.__update_compute_services(
-                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
-                )
-                or self.__update_identity_services(db_obj=db_obj, obj_in=obj_in)
-                or self.__update_network_services(
-                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
-                )
+            locations_updated = self.__update_location(db_obj=db_obj, obj_in=obj_in)
+            bsto_serv_updated = self.__update_block_storage_services(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
+            comp_serv_updated = self.__update_compute_services(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
+            idp_serv_updated = self.__update_identity_services(
+                db_obj=db_obj, obj_in=obj_in
+            )
+            net_serv_updated = self.__update_network_services(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
+            edit = (
+                locations_updated
+                or bsto_serv_updated
+                or comp_serv_updated
+                or idp_serv_updated
+                or net_serv_updated
+            )
+
         update_data = super().update(
             db_obj=db_obj, obj_in=RegionUpdate.parse_obj(obj_in), force=force
         )
