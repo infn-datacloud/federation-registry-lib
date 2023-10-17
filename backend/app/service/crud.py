@@ -174,25 +174,62 @@ class CRUDBlockStorageService(
         provider_projects: List[Project],
     ) -> bool:
         edit = False
-        # TODO
-        # db_items = {db_item.endpoint: db_item for db_item in db_obj.quotas}
-        # for item in obj_in.quotas:
-        #     db_item = db_items.pop(item.endpoint, None)
-        #     if db_item is None:
-        #         block_storage_service.create(
-        #             obj_in=item, region=db_obj, projects=provider_projects
-        #         )
-        #         edit = True
-        #     else:
-        #         updated_data = block_storage_service.update(
-        #             db_obj=db_item, obj_in=item, projects=provider_projects,
-        #               force=True
-        #         )
-        #         if not edit and updated_data is not None:
-        #             edit = True
-        # for db_item in db_items.values():
-        #     block_storage_service.remove(db_obj=db_item)
-        #     edit = True
+
+        db_items_per_user = {
+            db_item.project.single().uuid: db_item
+            for db_item in filter(lambda x: x.per_user, db_obj.quotas)
+        }
+        db_items_total = {
+            db_item.project.single().uuid: db_item
+            for db_item in filter(lambda x: not x.per_user, db_obj.quotas)
+        }
+        db_projects = {db_item.uuid: db_item for db_item in provider_projects}
+
+        for item in obj_in.quotas:
+            if item.per_user:
+                db_item = db_items_per_user.pop(item.project, None)
+                if db_item is None:
+                    block_storage_quota.create(
+                        obj_in=item,
+                        service=db_obj,
+                        project=db_projects.get(item.project),
+                    )
+                    edit = True
+                else:
+                    updated_data = block_storage_quota.update(
+                        db_obj=db_item,
+                        obj_in=item,
+                        projects=provider_projects,
+                        force=True,
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+            else:
+                db_item = db_items_total.pop(item.project, None)
+                if db_item is None:
+                    block_storage_quota.create(
+                        obj_in=item,
+                        service=db_obj,
+                        project=db_projects.get(item.project),
+                    )
+                    edit = True
+                else:
+                    updated_data = block_storage_quota.update(
+                        db_obj=db_item,
+                        obj_in=item,
+                        projects=provider_projects,
+                        force=True,
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+
+        for db_item in db_items_per_user.values():
+            block_storage_quota.remove(db_obj=db_item)
+            edit = True
+        for db_item in db_items_total.values():
+            block_storage_quota.remove(db_obj=db_item)
+            edit = True
+
         return edit
 
 
@@ -255,18 +292,17 @@ class CRUDComputeService(
     ) -> Optional[ComputeService]:
         edit = False
         if force:
-            edit = (
-                edit
-                or self.__update_flavors(
-                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
-                )
-                or self.__update_images(
-                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
-                )
-                or self.__update_quotas(
-                    db_obj=db_obj, obj_in=obj_in, provider_projects=projects
-                )
+            flavors_updated = self.__update_flavors(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
+            images_updated = self.__update_images(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
+            quotas_updated = self.__update_quotas(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
+            edit = flavors_updated or images_updated or quotas_updated
+
         updated_data = super().update(
             db_obj=db_obj, obj_in=ComputeServiceUpdate.parse_obj(obj_in), force=force
         )
@@ -336,25 +372,62 @@ class CRUDComputeService(
         provider_projects: List[Project],
     ) -> bool:
         edit = False
-        # TODO
-        # db_items = {db_item.endpoint: db_item for db_item in db_obj.quotas}
-        # for item in obj_in.quotas:
-        #     db_item = db_items.pop(item.endpoint, None)
-        #     if db_item is None:
-        #         compute_service.create(
-        #             obj_in=item, region=db_obj, projects=provider_projects
-        #         )
-        #         edit = True
-        #     else:
-        #         updated_data = compute_service.update(
-        #             db_obj=db_item, obj_in=item, projects=provider_projects,
-        #            force=True
-        #         )
-        #         if not edit and updated_data is not None:
-        #             edit = True
-        # for db_item in db_items.values():
-        #     compute_service.remove(db_obj=db_item)
-        #     edit = True
+
+        db_items_per_user = {
+            db_item.project.single().uuid: db_item
+            for db_item in filter(lambda x: x.per_user, db_obj.quotas)
+        }
+        db_items_total = {
+            db_item.project.single().uuid: db_item
+            for db_item in filter(lambda x: not x.per_user, db_obj.quotas)
+        }
+        db_projects = {db_item.uuid: db_item for db_item in provider_projects}
+
+        for item in obj_in.quotas:
+            if item.per_user:
+                db_item = db_items_per_user.pop(item.project, None)
+                if db_item is None:
+                    compute_quota.create(
+                        obj_in=item,
+                        service=db_obj,
+                        project=db_projects.get(item.project),
+                    )
+                    edit = True
+                else:
+                    updated_data = compute_quota.update(
+                        db_obj=db_item,
+                        obj_in=item,
+                        projects=provider_projects,
+                        force=True,
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+            else:
+                db_item = db_items_total.pop(item.project, None)
+                if db_item is None:
+                    compute_quota.create(
+                        obj_in=item,
+                        service=db_obj,
+                        project=db_projects.get(item.project),
+                    )
+                    edit = True
+                else:
+                    updated_data = compute_quota.update(
+                        db_obj=db_item,
+                        obj_in=item,
+                        projects=provider_projects,
+                        force=True,
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+
+        for db_item in db_items_per_user.values():
+            compute_quota.remove(db_obj=db_item)
+            edit = True
+        for db_item in db_items_total.values():
+            compute_quota.remove(db_obj=db_item)
+            edit = True
+
         return edit
 
 

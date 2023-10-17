@@ -24,11 +24,10 @@ from app.tests.utils.quota import (
     validate_compute_quota_attrs,
 )
 from app.tests.utils.utils import random_lower_string, random_url
-from pydantic import UUID4
 
 
 def create_random_block_storage_service(
-    *, default: bool = False, projects: List[UUID4] = []
+    *, default: bool = False, projects: List[str] = []
 ) -> BlockStorageServiceCreateExtended:
     endpoint = random_url()
     name = ServiceName.OPENSTACK_CINDER.value
@@ -45,7 +44,7 @@ def create_random_compute_service(
     default: bool = False,
     with_flavors: bool = False,
     with_images: bool = False,
-    projects: List[UUID4] = [],
+    projects: List[str] = [],
 ) -> ComputeServiceCreateExtended:
     endpoint = random_url()
     name = ServiceName.OPENSTACK_NOVA.value
