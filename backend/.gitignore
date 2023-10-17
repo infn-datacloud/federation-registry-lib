@@ -1,6 +1,7 @@
 # Python Build
 **/__pycache__
 **/.pytest_cache
+**/*.pyc
 
 # Tests and coverage
 **/.coverage*
