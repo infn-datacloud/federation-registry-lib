@@ -144,15 +144,15 @@ class Provider(ProviderBase):
     identity_providers: List[AuthMethod] = Field(
         description="List of supported identity providers"
     )
+    regions: List[Region] = Field(
+        default_factory=list, description="List of hosted regions"
+    )
 
 
 class Openstack(Provider):
     type: ProviderType = Field(default="openstack", description="Provider type")
     projects: List[Project] = Field(
         description="List of Projects belonged by this provider"
-    )
-    regions: List[Region] = Field(
-        default_factory=list, description="List of hosted regions"
     )
     image_tags: List[str] = Field(
         default_factory=list, description="List of image tags to filter"
@@ -176,9 +176,6 @@ class Openstack(Provider):
 class Kubernetes(Provider):
     type: ProviderType = Field(default="kubernetes", description="Provider type")
     projects: List[Project] = Field(description="List of names")
-    regions: List[Region] = Field(
-        default_factory=list, description="List of hosted regions"
-    )
 
     @validator("type")
     def type_fixed(cls, v):

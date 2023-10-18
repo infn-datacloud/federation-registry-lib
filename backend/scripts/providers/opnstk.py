@@ -19,6 +19,7 @@ from app.provider.schemas_extended import (
     ProviderCreateExtended,
     RegionCreateExtended,
 )
+from app.service.enum import ServiceName
 from logger import logger
 from models.provider import AuthMethod, Openstack, PrivateNetProxy, Project, TrustedIDP
 from openstack import connect
@@ -34,6 +35,7 @@ def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaCreateExtende
     logger.info("Retrieve current project accessible block storage quotas")
     quota = conn.block_storage.get_quota_set(conn.current_project_id)
     data = quota.to_dict()
+    logger.debug(f"Block storage service data={data}")
     return BlockStorageQuotaCreateExtended(**data, project=conn.current_project_id)
 
 
@@ -41,6 +43,7 @@ def get_compute_quotas(conn: Connection) -> ComputeQuotaCreateExtended:
     logger.info("Retrieve current project accessible compute quotas")
     quota = conn.compute.get_quota_set(conn.current_project_id)
     data = quota.to_dict()
+    logger.debug(f"Compute service data={data}")
     return ComputeQuotaCreateExtended(**data, project=conn.current_project_id)
 
 
@@ -48,6 +51,7 @@ def get_flavors(conn: Connection) -> List[FlavorCreateExtended]:
     logger.info("Retrieve current project accessible flavors")
     flavors = []
     for flavor in conn.compute.flavors(is_disabled=False):
+        logger.debug(f"Flavor received data={repr(flavor)}")
         projects = []
         if not flavor.is_public:
             for i in conn.compute.get_flavor_access(flavor):
@@ -65,6 +69,7 @@ def get_flavors(conn: Connection) -> List[FlavorCreateExtended]:
                 "aggregate_instance_extra_specs:local_storage"
             )
             data["infiniband"] = extra.get("infiniband", False)
+        logger.debug(f"Flavor manipulated data={data}")
         flavors.append(FlavorCreateExtended(**data, projects=projects))
     return flavors
 
@@ -75,6 +80,7 @@ def get_images(conn: Connection, tags: List[str] = []) -> List[ImageCreateExtend
     for image in conn.image.images(
         status="active", tag=None if len(tags) == 0 else tags
     ):
+        logger.debug(f"Image received data={repr(image)}")
         is_public = True
         projects = []
         if image.visibility in ["private", "shared"]:
@@ -90,6 +96,7 @@ def get_images(conn: Connection, tags: List[str] = []) -> List[ImageCreateExtend
         if data.get("description") is None:
             data["description"] = ""
         data["is_public"] = is_public
+        logger.debug(f"Image manipulated data={data}")
         images.append(ImageCreateExtended(**data, projects=projects))
     return images
 
@@ -106,6 +113,7 @@ def get_networks(
     for network in conn.network.networks(
         status="active", tag=None if len(tags) == 0 else tags
     ):
+        logger.debug(f"Network received data={repr(network)}")
         project = None
         if not network.is_shared:
             project = conn.current_project_id
@@ -123,6 +131,7 @@ def get_networks(
         if proxy is not None:
             data["proxy_ip"] = proxy.ip
             data["proxy_user"] = proxy.user
+        logger.debug(f"Network manipulated data={data}")
         networks.append(NetworkCreateExtended(**data, project=project))
     return networks
 
@@ -130,10 +139,12 @@ def get_networks(
 def get_project(conn: Connection) -> ProjectCreate:
     logger.info("Retrieve current project data")
     project = conn.identity.get_project(conn.current_project_id)
+    logger.debug(f"Project received data={repr(project)}")
     data = project.to_dict()
     data["uuid"] = data.pop("id")
     if data.get("description") is None:
         data["description"] = ""
+    logger.debug(f"Project manipulated data={data}")
     return ProjectCreate(**data)
 
 
@@ -217,7 +228,7 @@ def get_per_project_details(
     # Retrieve flavors, images and current project corresponding quotas.
     # Add them to the compute service.
     compute_service = ComputeServiceCreateExtended(
-        endpoint=conn.compute.get_endpoint(), name="org.openstack.nova"
+        endpoint=conn.compute.get_endpoint(), name=ServiceName.OPENSTACK_NOVA
     )
     compute_service.flavors = get_flavors(conn)
     compute_service.images = get_images(conn, tags=os_conf.image_tags)
@@ -253,7 +264,7 @@ def get_per_project_details(
     endpoint = conn.block_storage.get_endpoint()
     endpoint = os.path.dirname(endpoint)
     block_storage_service = BlockStorageServiceCreateExtended(
-        endpoint=endpoint, name="org.openstack.cinder"
+        endpoint=endpoint, name=ServiceName.OPENSTACK_CINDER
     )
     block_storage_service.quotas = [get_block_storage_quotas(conn)]
     if per_user_limits is not None and per_user_limits.block_storage is not None:
@@ -275,7 +286,7 @@ def get_per_project_details(
     # Retrieve region's network service.
     network_service = NetworkServiceCreateExtended(
         endpoint=conn.network.get_endpoint(),
-        name="org.openstack.neutron",
+        name=ServiceName.OPENSTACK_NEUTRON,
     )
     network_service.networks = get_networks(
         conn,
@@ -298,7 +309,7 @@ def get_per_project_details(
     # Retrieve provider's identity service.
     identity_service = IdentityServiceCreate(
         endpoint=os_conf.auth_url,
-        name="org.openstack.keystone",
+        name=ServiceName.OPENSTACK_KEYSTONE,
     )
     with region_lock:
         for region_service in region.identity_services:
@@ -323,6 +334,7 @@ def get_provider(
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
     if os_conf.status != ProviderStatus.ACTIVE:
+        logger.info(f"Provider={os_conf.name} not active: {os_conf.status}")
         return ProviderCreateExtended(
             name=os_conf.name,
             type=os_conf.type,

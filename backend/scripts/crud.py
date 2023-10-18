@@ -2,12 +2,11 @@ import os
 from typing import Any, Dict, List, Optional
 
 import requests
-from app.provider.schemas_extended import ProviderCreateExtended as ProviderWrite
-from app.provider.schemas_extended import ProviderReadExtended as ProviderRead
+from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
 from fastapi import status
 from fastapi.encoders import jsonable_encoder
 from logger import logger
-from pydantic import UUID4, AnyHttpUrl
+from pydantic import AnyHttpUrl
 
 TIMEOUT = 5  # s
 
@@ -26,9 +25,10 @@ class CRUD:
         self.list_url = url
         self.item_url = os.path.join(url, "{uid}")
 
-    def read(self, *, with_conn: bool = False) -> List[ProviderRead]:
+    def read(self, *, with_conn: bool = False) -> List[ProviderReadExtended]:
         """Retrieve all instances of this type."""
         logger.info(f"Looking for all {self.type}s")
+        logger.debug(f"Url={self.list_url}")
 
         resp = requests.get(
             url=self.list_url,
@@ -37,7 +37,8 @@ class CRUD:
             timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_200_OK:
-            return [ProviderRead(**i) for i in resp.json()]
+            logger.debug(f"{resp.json()}")
+            return [ProviderReadExtended(**i) for i in resp.json()]
 
         logger.error("GET operation failed")
         logger.error(f"Status code: {resp.status_code}")
@@ -47,13 +48,13 @@ class CRUD:
     def create(
         self,
         *,
-        data: ProviderWrite,
+        data: ProviderCreateExtended,
         params: Optional[Dict[str, Any]] = None,
-    ) -> ProviderRead:
+    ) -> ProviderReadExtended:
         """Create new instance."""
         logger.info(f"Creating new {self.type}={data.name}")
-        logger.debug("New Data:")
-        logger.debug(f"{data}")
+        logger.debug(f"Url={self.list_url}")
+        logger.debug(f"New Data={data}")
 
         resp = requests.post(
             url=self.list_url,
@@ -64,16 +65,18 @@ class CRUD:
         )
         if resp.status_code == status.HTTP_201_CREATED:
             logger.info("Created")
-            return ProviderRead(**resp.json())
+            logger.debug(f"{resp.json()}")
+            return ProviderReadExtended(**resp.json())
 
         logger.error(f"Failed to create {self.type}={data.name}")
         logger.error(f"Status code: {resp.status_code}")
         logger.error(f"Message: {resp.text}")
         raise Exception(f"Failed to create {self.type}={data.name}")
 
-    def remove(self, *, item: ProviderRead) -> None:
+    def remove(self, *, item: ProviderReadExtended) -> None:
         """Remove item."""
         logger.info(f"Removing {self.type}={item.name}.")
+        logger.debug(f"Url={self.item_url.format(uid=item.uid)}")
 
         resp = requests.delete(
             url=self.item_url.format(uid=item.uid),
@@ -89,19 +92,24 @@ class CRUD:
         logger.error(f"Message: {resp.text}")
         raise Exception(f"Failed to remove {self.type}={item.name}")
 
-    def update(self, *, new_data: ProviderWrite, uid: UUID4) -> Optional[ProviderRead]:
+    def update(
+        self, *, new_data: ProviderCreateExtended, old_data: ProviderReadExtended
+    ) -> Optional[ProviderReadExtended]:
         """Update existing instance."""
-        logger.info(f"Trying to update {self.type}={new_data.name}.")
+        logger.info(f"Updating {self.type}={new_data.name}.")
+        logger.debug(f"Url={self.item_url.format(uid=old_data.uid)}")
+        logger.debug(f"New Data={new_data}")
 
         resp = requests.put(
-            url=self.item_url.format(uid=str(uid)),
+            url=self.item_url.format(uid=old_data.uid),
             json=jsonable_encoder(new_data),
             headers=self.write_headers,
             timeout=TIMEOUT,
         )
         if resp.status_code == status.HTTP_200_OK:
-            logger.info(f"{self.type}={new_data} successfully updated")
-            return ProviderRead(**resp.json())
+            logger.info(f"{self.type}={new_data.name} successfully updated")
+            logger.debug(f"{resp.json()}")
+            return ProviderReadExtended(**resp.json())
 
         if resp.status_code == status.HTTP_304_NOT_MODIFIED:
             logger.info(

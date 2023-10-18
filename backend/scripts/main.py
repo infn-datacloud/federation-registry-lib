@@ -1,9 +1,11 @@
+import logging
 import os
 from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from typing import List
 
 from app.provider.schemas_extended import ProviderCreateExtended
+from logger import logger
 from models.provider import Openstack, TrustedIDP
 from providers.opnstk import get_provider
 from utils import load_cmdb_config, load_config, update_database
@@ -25,6 +27,8 @@ def add_os_provider_to_list(
 
 if __name__ == "__main__":
     base_path = "."
+    logger.setLevel(logging.DEBUG)
+
     # Load CMDB configuration
     cmdb_urls = load_cmdb_config(base_path=base_path)
 

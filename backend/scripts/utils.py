@@ -15,16 +15,19 @@ def load_cmdb_config(*, base_path: str = ".") -> SiteConfig:
     with open(os.path.join(base_path, ".cmdb-config.yaml")) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     config = CMDB(**config)
+    logger.debug(f"{repr(config)}")
+
     d = {}
     for k, v in config.api_ver.dict().items():
         d[k] = os.path.join(config.base_url, "api", f"{v}", f"{k}")
-    return URLs(**d)
+    urls = URLs(**d)
+    logger.debug(f"{repr(urls)}")
+    return urls
 
 
 def load_config(*, fname: str) -> SiteConfig:
     """Load provider configuration from yaml file."""
     logger.info(f"Loading provider configuration from {fname}")
-
     with open(fname) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
         config = SiteConfig(**config)
@@ -55,12 +58,13 @@ def update_database(
         url=cmdb_urls.providers, read_headers=read_header, write_headers=write_header
     )
 
+    logger.info("Retrieving data from CMDB")
     db_items = {db_item.name: db_item for db_item in crud.read(with_conn=True)}
     for item in items:
         db_item = db_items.pop(item.name, None)
         if db_item is None:
             crud.create(data=item)
         else:
-            crud.update(new_data=item, uid=db_item.uid)
+            crud.update(new_data=item, old_data=db_item)
     for db_item in db_items.values():
         crud.remove(item=db_item)
