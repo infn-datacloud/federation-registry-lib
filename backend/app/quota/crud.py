@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.project.models import Project
@@ -6,7 +6,7 @@ from app.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
     ComputeQuotaCreateExtended,
 )
-from app.quota.models import BlockStorageQuota, ComputeQuota, Quota
+from app.quota.models import BlockStorageQuota, ComputeQuota
 from app.quota.schemas import (
     BlockStorageQuotaCreate,
     BlockStorageQuotaRead,
@@ -18,11 +18,6 @@ from app.quota.schemas import (
     ComputeQuotaReadPublic,
     ComputeQuotaReadShort,
     ComputeQuotaUpdate,
-    QuotaCreate,
-    QuotaRead,
-    QuotaReadPublic,
-    QuotaReadShort,
-    QuotaUpdate,
 )
 from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtended,
@@ -30,50 +25,7 @@ from app.quota.schemas_extended import (
     ComputeQuotaReadExtended,
     ComputeQuotaReadExtendedPublic,
 )
-from app.service.models import BlockStorageService, ComputeService, Service
-
-
-class CRUDQuota(
-    CRUDBase[
-        Quota,
-        QuotaCreate,
-        QuotaUpdate,
-        QuotaRead,
-        QuotaReadPublic,
-        QuotaReadShort,
-        None,
-        None,
-    ]
-):
-    """"""
-
-    def create(
-        self,
-        *,
-        obj_in: QuotaCreate,
-        project: Project,
-        service: Service,
-        force: bool = False,
-    ) -> Quota:
-        if isinstance(obj_in, BlockStorageQuotaCreate):
-            db_obj = block_storage_quota.create(obj_in=obj_in, force=force)
-        elif isinstance(obj_in, ComputeQuotaCreate):
-            db_obj = compute_quota.create(obj_in=obj_in, force=force)
-        return db_obj
-
-    def remove(self, *, db_obj: Quota) -> bool:
-        if isinstance(db_obj, BlockStorageQuota):
-            return block_storage_quota.remove(db_obj=db_obj)
-        elif isinstance(db_obj, ComputeQuota):
-            return compute_quota.remove(db_obj=db_obj)
-
-    def update(
-        self, *, db_obj: Quota, obj_in: Union[QuotaUpdate, Dict[str, Any]]
-    ) -> Optional[Quota]:
-        if isinstance(db_obj, BlockStorageQuota):
-            return block_storage_quota.update(db_obj=db_obj, obj_in=obj_in)
-        elif isinstance(db_obj, ComputeQuota):
-            return compute_quota.update(db_obj=db_obj, obj_in=obj_in)
+from app.service.models import BlockStorageService, ComputeService
 
 
 class CRUDBlockStorageQuota(
@@ -174,15 +126,6 @@ class CRUDComputeQuota(
         return db_obj if edit else updated_data
 
 
-quota = CRUDQuota(
-    model=Quota,
-    create_schema=QuotaCreate,
-    read_schema=QuotaRead,
-    read_public_schema=QuotaReadPublic,
-    read_short_schema=QuotaReadShort,
-    read_extended_schema=None,
-    read_extended_public_schema=None,
-)
 block_storage_quota = CRUDBlockStorageQuota(
     model=BlockStorageQuota,
     create_schema=BlockStorageQuotaCreate,

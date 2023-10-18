@@ -9,7 +9,8 @@ from app.project.schemas import (
 )
 from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.provider.models import Provider
-from app.quota.crud import quota
+from app.quota.crud import block_storage_quota, compute_quota
+from app.quota.models import BlockStorageQuota, ComputeQuota
 from app.sla.crud import sla
 
 
@@ -34,7 +35,10 @@ class CRUDProject(
 
     def remove(self, *, db_obj: Project) -> bool:
         for item in db_obj.quotas:
-            quota.remove(db_obj=item)
+            if isinstance(item, BlockStorageQuota):
+                block_storage_quota.remove(db_obj=item)
+            elif isinstance(item, ComputeQuota):
+                compute_quota.remove(db_obj=item)
         item = db_obj.sla.single()
         if item is not None:
             sla.remove(db_obj=item)

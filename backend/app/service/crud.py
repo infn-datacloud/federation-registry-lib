@@ -10,7 +10,7 @@ from app.provider.schemas_extended import (
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
 )
-from app.quota.crud import block_storage_quota, compute_quota, quota
+from app.quota.crud import block_storage_quota, compute_quota
 from app.region.models import Region
 from app.service.models import (
     BlockStorageService,
@@ -143,7 +143,7 @@ class CRUDBlockStorageService(
 
     def remove(self, *, db_obj: BlockStorageService) -> bool:
         for item in db_obj.quotas:
-            quota.remove(db_obj=item)
+            block_storage_quota.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
     def update(
@@ -272,7 +272,7 @@ class CRUDComputeService(
 
     def remove(self, *, db_obj: ComputeService) -> bool:
         for item in db_obj.quotas:
-            quota.remove(db_obj=item)
+            compute_quota.remove(db_obj=item)
         for item in db_obj.flavors:
             if len(item.services) == 1:
                 flavor.remove(db_obj=item)

@@ -5,7 +5,7 @@ from app.project.api.dependencies import valid_project_id
 from app.project.models import Project
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import valid_quota_id
-from app.quota.crud import quota
+from app.quota.crud import block_storage_quota, compute_quota
 from app.quota.models import BlockStorageQuota, ComputeQuota
 from app.quota.schemas import (
     BlockStorageQuotaCreate,
@@ -32,36 +32,36 @@ from app.service.models import Service
 from fastapi import APIRouter, Body, Depends, HTTPException, Response, status
 from neomodel import db
 
-router = APIRouter(prefix="/quotas", tags=["quotas"])
+router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
 
 
 @db.read_transaction
 @router.get(
     "/",
     response_model=Union[
-        List[Union[ComputeQuotaReadExtended, BlockStorageQuotaReadExtended]],
-        List[Union[ComputeQuotaRead, BlockStorageQuotaRead]],
-        List[Union[ComputeQuotaReadShort, BlockStorageQuotaReadShort]],
-        List[Union[ComputeQuotaReadExtendedPublic, BlockStorageQuotaReadExtendedPublic]],
-        List[Union[ComputeQuotaReadPublic, BlockStorageQuotaReadPublic]],
+        List[ComputeQuotaReadExtended],
+        List[ComputeQuotaRead],
+        List[ComputeQuotaReadShort],
+        List[ComputeQuotaReadExtendedPublic],
+        List[ComputeQuotaReadPublic],
     ],
-    summary="Read all quotas",
-    description="Retrieve all quotas stored in the database. \
+    summary="Read all compute quotas",
+    description="Retrieve all compute quotas stored in the database. \
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
-def get_quotas(
+def get_compute_quotas(
     auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
-    item: Union[ComputeQuotaQuery, BlockStorageQuotaQuery] = Depends(),
+    item: ComputeQuotaQuery = Depends(),
 ):
-    items = quota.get_multi(
+    items = compute_quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = quota.paginate(items=items, page=page.page, size=page.size)
-    return quota.choose_out_schema(
+    items = compute_quota.paginate(items=items, page=page.page, size=page.size)
+    return compute_quota.choose_out_schema(
         items=items, auth=auth, short=size.short, with_conn=size.with_conn
     )
 
@@ -70,19 +70,19 @@ def get_quotas(
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
-    response_model=Union[ComputeQuotaReadExtended, BlockStorageQuotaReadExtended],
+    response_model=ComputeQuotaReadExtended,
     dependencies=[Depends(check_write_access)],
-    summary="Create quota",
-    description="Create a quota and connect it to its related entities: \
+    summary="Create compute quota",
+    description="Create a compute quota and connect it to its related entities: \
         project and service. \
         At first verify that target project and service exist. \
         Then verify project does not already have an equal quota type and \
         check service and project belong to the same provider.",
 )
-def post_quota(
+def post_compute_quota(
     project: Project = Depends(valid_project_id),
     service: Service = Depends(valid_service_id),
-    item: Union[ComputeQuotaCreate, BlockStorageQuotaCreate] = Body(),
+    item: ComputeQuotaCreate = Body(),
 ):
     # Check project does not have duplicated quota types
     # for q in project.quotas.all():
@@ -98,7 +98,9 @@ def post_quota(
         msg += f"'{serv_prov.name}' do not match."
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
-    return quota.create(obj_in=item, project=project, service=service, force=True)
+    return compute_quota.create(
+        obj_in=item, project=project, service=service, force=True
+    )
 
 
 @db.read_transaction
@@ -106,27 +108,22 @@ def post_quota(
     "/{quota_uid}",
     response_model=Union[
         ComputeQuotaReadExtended,
-        BlockStorageQuotaReadExtended,
         ComputeQuotaRead,
-        BlockStorageQuotaRead,
         ComputeQuotaReadShort,
-        BlockStorageQuotaReadShort,
         ComputeQuotaReadExtendedPublic,
-        BlockStorageQuotaReadExtendedPublic,
         ComputeQuotaReadPublic,
-        BlockStorageQuotaReadPublic,
     ],
     summary="Read a specific quota",
     description="Retrieve a specific quota using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_quota(
+def get_compute_quota(
     auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
-    item: Union[ComputeQuotaCreate, BlockStorageQuotaCreate] = Depends(valid_quota_id),
+    item: ComputeQuotaCreate = Depends(valid_quota_id),
 ):
-    return quota.choose_out_schema(
+    return compute_quota.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
     )[0]
 
@@ -135,7 +132,7 @@ def get_quota(
 @router.patch(
     "/{quota_uid}",
     status_code=status.HTTP_200_OK,
-    response_model=Optional[Union[ComputeQuotaRead, BlockStorageQuotaRead]],
+    response_model=Optional[ComputeQuotaRead],
     dependencies=[Depends(check_write_access)],
     summary="Edit a specific quota",
     description="Update attribute values of a specific quota. \
@@ -145,12 +142,12 @@ def get_quota(
         current ones, the database entity is left unchanged \
         and the endpoint returns the `not modified` message.",
 )
-def put_quota(
-    update_data: Union[ComputeQuotaUpdate, BlockStorageQuotaUpdate],
+def put_compute_quota(
+    update_data: ComputeQuotaUpdate,
     response: Response,
-    item: Union[ComputeQuota, BlockStorageQuota] = Depends(valid_quota_id),
+    item: ComputeQuota = Depends(valid_quota_id),
 ):
-    db_item = quota.update(db_obj=item, obj_in=update_data)
+    db_item = compute_quota.update(db_obj=item, obj_in=update_data)
     if db_item is None:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -167,8 +164,148 @@ def put_quota(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def delete_quotas(item: Union[ComputeQuota, BlockStorageQuota] = Depends(valid_quota_id)):
-    if not quota.remove(db_obj=item):
+def delete_compute_quotas(item: ComputeQuota = Depends(valid_quota_id)):
+    if not compute_quota.remove(db_obj=item):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete item",
+        )
+
+
+router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quotas"])
+
+
+@db.read_transaction
+@router.get(
+    "/",
+    response_model=Union[
+        List[BlockStorageQuotaReadExtended],
+        List[BlockStorageQuotaRead],
+        List[BlockStorageQuotaReadShort],
+        List[BlockStorageQuotaReadExtendedPublic],
+        List[BlockStorageQuotaReadPublic],
+    ],
+    summary="Read all quotas",
+    description="Retrieve all quotas stored in the database. \
+        It is possible to filter on quotas attributes and other \
+        common query parameters.",
+)
+def get_block_storage_quotas(
+    auth: bool = Depends(check_read_access),
+    comm: DbQueryCommonParams = Depends(),
+    page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
+    item: BlockStorageQuotaQuery = Depends(),
+):
+    items = block_storage_quota.get_multi(
+        **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
+    )
+    items = block_storage_quota.paginate(items=items, page=page.page, size=page.size)
+    return block_storage_quota.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
+
+
+@db.write_transaction
+@router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=BlockStorageQuotaReadExtended,
+    dependencies=[Depends(check_write_access)],
+    summary="Create quota",
+    description="Create a quota and connect it to its related entities: \
+        project and service. \
+        At first verify that target project and service exist. \
+        Then verify project does not already have an equal quota type and \
+        check service and project belong to the same provider.",
+)
+def post_block_storage_quota(
+    project: Project = Depends(valid_project_id),
+    service: Service = Depends(valid_service_id),
+    item: BlockStorageQuotaCreate = Body(),
+):
+    # Check project does not have duplicated quota types
+    # for q in project.quotas.all():
+    #     if q.type == item.type and q.service.single() == service:
+    #         msg = f"Project '{project.name}' already has a quota "
+    #         msg += f"with type '{item.type}' on service '{service.endpoint}'."
+    #         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
+    # Check Project provider and service provider are equals
+    proj_prov = project.provider.single()
+    serv_prov = service.provider.single()
+    if proj_prov != serv_prov:
+        msg = f"Project provider '{proj_prov.name}' and service provider "
+        msg += f"'{serv_prov.name}' do not match."
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
+
+    return block_storage_quota.create(
+        obj_in=item, project=project, service=service, force=True
+    )
+
+
+@db.read_transaction
+@router.get(
+    "/{quota_uid}",
+    response_model=Union[
+        BlockStorageQuotaReadExtended,
+        BlockStorageQuotaRead,
+        BlockStorageQuotaReadShort,
+        BlockStorageQuotaReadExtendedPublic,
+        BlockStorageQuotaReadPublic,
+    ],
+    summary="Read a specific quota",
+    description="Retrieve a specific quota using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
+def get_block_storage_quota(
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: BlockStorageQuotaCreate = Depends(valid_quota_id),
+):
+    return block_storage_quota.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
+
+
+@db.write_transaction
+@router.patch(
+    "/{quota_uid}",
+    status_code=status.HTTP_200_OK,
+    response_model=Optional[BlockStorageQuotaRead],
+    dependencies=[Depends(check_write_access)],
+    summary="Edit a specific quota",
+    description="Update attribute values of a specific quota. \
+        The target quota is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message.",
+)
+def put_block_storage_quota(
+    update_data: BlockStorageQuotaUpdate,
+    response: Response,
+    item: BlockStorageQuota = Depends(valid_quota_id),
+):
+    db_item = block_storage_quota.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
+
+
+@db.write_transaction
+@router.delete(
+    "/{quota_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
+    summary="Delete a specific quota",
+    description="Delete a specific quota using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
+def delete_block_storage_quotas(item: BlockStorageQuota = Depends(valid_quota_id)):
+    if not block_storage_quota.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
