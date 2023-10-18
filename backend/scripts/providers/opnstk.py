@@ -19,13 +19,7 @@ from app.provider.schemas_extended import (
     RegionCreateExtended,
 )
 from logger import logger
-from models.provider import (
-    AuthMethod,
-    Openstack,
-    OsProject,
-    PrivateNetProxy,
-    TrustedIDP,
-)
+from models.provider import AuthMethod, Openstack, PrivateNetProxy, Project, TrustedIDP
 from openstack import connect
 from openstack.connection import Connection
 
@@ -146,7 +140,7 @@ def get_correct_idp_and_user_group_for_project(
     *,
     trusted_idps: List[TrustedIDP],
     os_conf_auth_methods: List[AuthMethod],
-    project_conf: OsProject,
+    project_conf: Project,
 ) -> TrustedIDP:
     for trusted_idp in trusted_idps:
         for user_group in trusted_idp.user_groups:
@@ -169,7 +163,7 @@ def get_correct_idp_and_user_group_for_project(
 
 def get_per_project_details(
     os_conf: Openstack,
-    project_conf: OsProject,
+    project_conf: Project,
     region: RegionCreateExtended,
     trusted_idps: List[TrustedIDP],
     projects: List[ProjectCreate],

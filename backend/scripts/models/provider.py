@@ -1,5 +1,6 @@
 import subprocess
 from typing import List, Optional
+from uuid import UUID
 
 from app.auth_method.schemas import AuthMethodBase
 from app.identity_provider.schemas import IdentityProviderBase
@@ -9,7 +10,7 @@ from app.provider.schemas import ProviderBase
 from app.provider.schemas_extended import UserGroupCreateExtended
 from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase
 from app.region.schemas import RegionBase
-from pydantic import UUID4, AnyHttpUrl, BaseModel, Field, root_validator, validator
+from pydantic import AnyHttpUrl, BaseModel, Field, root_validator, validator
 
 
 class TrustedIDP(IdentityProviderBase):
@@ -99,6 +100,7 @@ class BlockStorageVolMap(BaseModel):
 
 
 class Project(BaseModel):
+    id: str = Field(default=None, description="Project unique ID or name")
     default_public_net: Optional[str] = Field(
         default=None, description="Name of the default public network"
     )
@@ -115,15 +117,19 @@ class Project(BaseModel):
     per_region_props: List[PerRegionProps] = Field(
         default_factory=list, description="Region specific properties"
     )
-    sla: UUID4 = Field(description="SLA document uuid")
+    sla: str = Field(description="SLA document uuid")
 
+    @validator("sla", pre=True)
+    def sla_to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
-class K8sNameSpace(Project):
-    name: str = Field(default=None, description="Namespace string")
-
-
-class OsProject(Project):
-    id: UUID4 = Field(default=None, description="Project unique ID")
+    @validator("id", pre=True)
+    def id_to_string(cls, v):
+        if isinstance(v, UUID):
+            return v.hex
+        return v
 
 
 class Region(RegionBase):
@@ -142,8 +148,8 @@ class Provider(ProviderBase):
 
 class Openstack(Provider):
     type: ProviderType = Field(default="openstack", description="Provider type")
-    projects: List[OsProject] = Field(
-        description="List of SLAs belonged by this provider"
+    projects: List[Project] = Field(
+        description="List of Projects belonged by this provider"
     )
     regions: List[Region] = Field(
         default_factory=list, description="List of hosted regions"
@@ -169,7 +175,7 @@ class Openstack(Provider):
 
 class Kubernetes(Provider):
     type: ProviderType = Field(default="kubernetes", description="Provider type")
-    projects: List[K8sNameSpace] = Field(description="List of names")
+    projects: List[Project] = Field(description="List of names")
     regions: List[Region] = Field(
         default_factory=list, description="List of hosted regions"
     )
