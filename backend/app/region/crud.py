@@ -19,7 +19,6 @@ from app.service.crud import (
     compute_service,
     identity_service,
     network_service,
-    service,
 )
 from app.service.models import (
     BlockStorageService,
@@ -73,7 +72,14 @@ class CRUDRegion(
                 return False
 
         for item in db_obj.services:
-            service.remove(db_obj=item)
+            if isinstance(db_obj, BlockStorageService):
+                return block_storage_service.remove(db_obj=item)
+            elif isinstance(db_obj, ComputeService):
+                return compute_service.remove(db_obj=item)
+            elif isinstance(db_obj, IdentityService):
+                return identity_service.remove(db_obj=item)
+            elif isinstance(db_obj, NetworkService):
+                return network_service.remove(db_obj=item)
         item = db_obj.location.single()
         if item is not None:
             if len(item.regions) == 1:

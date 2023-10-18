@@ -35,11 +35,17 @@ from app.provider.schemas_extended import (
 )
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_endpoint
-from app.service.crud import service
+from app.service.crud import (
+    block_storage_service,
+    compute_service,
+    identity_service,
+    network_service,
+)
 from app.service.schemas import (
     BlockStorageServiceCreate,
     ComputeServiceCreate,
     IdentityServiceCreate,
+    NetworkServiceCreate,
 )
 from app.service.schemas_extended import (
     BlockStorageServiceReadExtended,
@@ -342,7 +348,19 @@ def add_project_to_provider(
         no other items with the given *name* or *uuid*.",
 )
 def add_service_to_provider(
-    item: Union[BlockStorageServiceCreate, IdentityServiceCreate, ComputeServiceCreate],
+    item: Union[
+        BlockStorageServiceCreate,
+        IdentityServiceCreate,
+        ComputeServiceCreate,
+        NetworkServiceCreate,
+    ],
     provider: Provider = Depends(valid_provider_id),
 ):
-    return service.create(obj_in=item, provider=provider, force=True)
+    if isinstance(item, BlockStorageServiceCreate):
+        return block_storage_service.create(obj_in=item, provider=provider, force=True)
+    if isinstance(item, ComputeServiceCreate):
+        return compute_service.create(obj_in=item, provider=provider, force=True)
+    if isinstance(item, IdentityServiceCreate):
+        return identity_service.create(obj_in=item, provider=provider, force=True)
+    if isinstance(item, NetworkServiceCreate):
+        return network_service.create(obj_in=item, provider=provider, force=True)

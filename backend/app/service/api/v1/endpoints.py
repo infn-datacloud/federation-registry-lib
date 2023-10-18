@@ -13,7 +13,7 @@ from app.identity_provider.schemas_extended import (
 )
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.service.api.dependencies import valid_service_id, validate_new_service_values
-from app.service.crud import service
+from app.service.crud import block_storage_service
 from app.service.models import Service
 from app.service.schemas import (
     BlockStorageServiceRead,
@@ -90,11 +90,11 @@ def get_services(
     size: SchemaSize = Depends(),
     item: ServiceQuery = Depends(),
 ):
-    items = service.get_multi(
+    items = block_storage_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = service.paginate(items=items, page=page.page, size=page.size)
-    return service.choose_out_schema(
+    items = block_storage_service.paginate(items=items, page=page.page, size=page.size)
+    return block_storage_service.choose_out_schema(
         items=items, auth=auth, short=size.short, with_conn=size.with_conn
     )
 
@@ -129,7 +129,7 @@ def get_service(
     size: SchemaSize = Depends(),
     item: Service = Depends(valid_service_id),
 ):
-    return service.choose_out_schema(
+    return block_storage_service.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
     )[0]
 
@@ -159,7 +159,7 @@ def put_service(
     response: Response,
     item: Service = Depends(valid_service_id),
 ):
-    db_item = service.update(db_obj=item, obj_in=update_data)
+    db_item = block_storage_service.update(db_obj=item, obj_in=update_data)
     if db_item is None:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -178,7 +178,7 @@ def put_service(
         On cascade, delete related quotas.",
 )
 def delete_services(item: Service = Depends(valid_service_id)):
-    if not service.remove(db_obj=item):
+    if not block_storage_service.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.flavor.crud import flavor
@@ -17,7 +17,6 @@ from app.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
-    Service,
 )
 from app.service.schemas import (
     BlockStorageServiceCreate,
@@ -40,11 +39,6 @@ from app.service.schemas import (
     NetworkServiceReadPublic,
     NetworkServiceReadShort,
     NetworkServiceUpdate,
-    ServiceCreate,
-    ServiceRead,
-    ServiceReadPublic,
-    ServiceReadShort,
-    ServiceUpdate,
 )
 from app.service.schemas_extended import (
     BlockStorageServiceReadExtended,
@@ -56,58 +50,6 @@ from app.service.schemas_extended import (
     NetworkServiceReadExtended,
     NetworkServiceReadExtendedPublic,
 )
-
-
-class CRUDService(
-    CRUDBase[
-        Service,
-        ServiceCreate,
-        ServiceUpdate,
-        ServiceRead,
-        ServiceReadPublic,
-        ServiceReadShort,
-        None,
-        None,
-    ]
-):
-    """"""
-
-    def create(
-        self, *, obj_in: ServiceCreate, region: Region, force: bool = False
-    ) -> Service:
-        if isinstance(obj_in, BlockStorageServiceCreate):
-            db_obj = block_storage_service.create(
-                obj_in=obj_in, region=region, force=force
-            )
-        elif isinstance(obj_in, ComputeServiceCreate):
-            db_obj = compute_service.create(obj_in=obj_in, region=region, force=force)
-        elif isinstance(obj_in, IdentityServiceCreate):
-            db_obj = identity_service.create(obj_in=obj_in, region=region, force=force)
-        elif isinstance(obj_in, NetworkServiceCreate):
-            db_obj = network_service.create(obj_in=obj_in, region=region, force=force)
-        return db_obj
-
-    def remove(self, *, db_obj: Service) -> bool:
-        if isinstance(db_obj, BlockStorageService):
-            return block_storage_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, ComputeService):
-            return compute_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, IdentityService):
-            return identity_service.remove(db_obj=db_obj)
-        elif isinstance(db_obj, NetworkService):
-            return network_service.remove(db_obj=db_obj)
-
-    def update(
-        self, *, db_obj: Service, obj_in: Union[ServiceUpdate, Dict[str, Any]]
-    ) -> Optional[Service]:
-        if isinstance(db_obj, BlockStorageService):
-            return block_storage_service.update(db_obj=db_obj, obj_in=obj_in)
-        elif isinstance(db_obj, ComputeService):
-            return compute_service.update(db_obj=db_obj, obj_in=obj_in)
-        elif isinstance(db_obj, IdentityService):
-            return identity_service.update(db_obj=db_obj, obj_in=obj_in)
-        elif isinstance(db_obj, NetworkService):
-            return network_service.update(db_obj=db_obj, obj_in=obj_in)
 
 
 class CRUDBlockStorageService(
@@ -539,15 +481,6 @@ class CRUDNetworkService(
         return edit
 
 
-service = CRUDService(
-    model=Service,
-    create_schema=ServiceCreate,
-    read_schema=ServiceRead,
-    read_public_schema=ServiceReadPublic,
-    read_short_schema=ServiceReadShort,
-    read_extended_schema=None,
-    read_extended_public_schema=None,
-)
 compute_service = CRUDComputeService(
     model=ComputeService,
     create_schema=ComputeServiceCreate,
