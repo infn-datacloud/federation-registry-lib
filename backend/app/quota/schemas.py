@@ -9,7 +9,7 @@ from pydantic import Extra, Field, validator
 class QuotaBase(BaseNode, extra=Extra.allow):
     """Model with Quota basic attributes."""
 
-    type: QuotaType = Field(description="Service type.")
+    type: QuotaType = Field(description="Quota type.")
     per_user: bool = Field(default=False, description="Quota to apply for each user")
 
 

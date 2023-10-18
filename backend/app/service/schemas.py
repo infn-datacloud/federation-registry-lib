@@ -68,7 +68,9 @@ class BlockStorageBase(ServiceBase, extra=Extra.ignore):
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
-    type: ServiceType = Field(default=ServiceType.BLOCK_STORAGE)
+    type: ServiceType = Field(
+        default=ServiceType.BLOCK_STORAGE, description="Service type."
+    )
 
     @validator("name")
     def check_name(cls, v):
@@ -137,7 +139,7 @@ class ComputeBase(ServiceBase, extra=Extra.ignore):
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
-    type: ServiceType = Field(default=ServiceType.COMPUTE)
+    type: ServiceType = Field(default=ServiceType.COMPUTE, description="Service type.")
 
     @validator("name")
     def check_name(cls, v):
@@ -204,7 +206,7 @@ class IdentityBase(ServiceBase, extra=Extra.ignore):
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
-    type: ServiceType = Field(default=ServiceType.IDENTITY)
+    type: ServiceType = Field(default=ServiceType.IDENTITY, description="Service type.")
 
     @validator("name")
     def check_name(cls, v):
@@ -271,7 +273,7 @@ class NetworkBase(ServiceBase, extra=Extra.ignore):
     Validation: type value is exactly ServiceType.openstack_nova.
     """
 
-    type: ServiceType = Field(default=ServiceType.NETWORK)
+    type: ServiceType = Field(default=ServiceType.NETWORK, description="Service type.")
 
     @validator("name")
     def check_name(cls, v):
