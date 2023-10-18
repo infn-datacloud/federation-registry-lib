@@ -110,9 +110,9 @@ class BlockStorageQuotaBase(QuotaBase, extra=Extra.ignore):
     type: QuotaType = Field(
         default=QuotaType.BLOCK_STORAGE, description="Block storage type"
     )
-    gigabytes: Optional[int] = Field(default=None, ge=0, description="")
-    per_volume_gigabytes: Optional[int] = Field(default=None, ge=0, description="")
-    volumes: Optional[int] = Field(default=None, ge=0, description="")
+    gigabytes: Optional[int] = Field(default=None, ge=-1, description="")
+    per_volume_gigabytes: Optional[int] = Field(default=None, ge=-1, description="")
+    volumes: Optional[int] = Field(default=None, ge=-1, description="")
 
     @validator("type", check_fields=False)
     def check_type(cls, v):

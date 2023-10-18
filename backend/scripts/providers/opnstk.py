@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from typing import List, Optional
 
+from app.provider.enum import ProviderStatus
 from app.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
     BlockStorageServiceCreateExtended,
@@ -206,7 +207,7 @@ def get_per_project_details(
         identity_provider=trusted_idp.relationship.idp_name,
         protocol=trusted_idp.relationship.protocol,
         access_token=trusted_idp.token,
-        project_id=project_conf.id.hex,
+        project_id=project_conf.id,
         region_name=region.name,
         timeout=TIMEOUT,
     )
@@ -216,9 +217,7 @@ def get_per_project_details(
     # Retrieve flavors, images and current project corresponding quotas.
     # Add them to the compute service.
     compute_service = ComputeServiceCreateExtended(
-        endpoint=conn.compute.get_endpoint(),
-        type=conn.compute.service_type,
-        name="org.openstack.nova",
+        endpoint=conn.compute.get_endpoint(), name="org.openstack.nova"
     )
     compute_service.flavors = get_flavors(conn)
     compute_service.images = get_images(conn, tags=os_conf.image_tags)
@@ -254,9 +253,7 @@ def get_per_project_details(
     endpoint = conn.block_storage.get_endpoint()
     endpoint = os.path.dirname(endpoint)
     block_storage_service = BlockStorageServiceCreateExtended(
-        endpoint=endpoint,
-        type=conn.block_storage.service_type,
-        name="org.openstack.cinder",
+        endpoint=endpoint, name="org.openstack.cinder"
     )
     block_storage_service.quotas = [get_block_storage_quotas(conn)]
     if per_user_limits is not None and per_user_limits.block_storage is not None:
@@ -278,7 +275,6 @@ def get_per_project_details(
     # Retrieve region's network service.
     network_service = NetworkServiceCreateExtended(
         endpoint=conn.network.get_endpoint(),
-        type=conn.network.service_type,
         name="org.openstack.neutron",
     )
     network_service.networks = get_networks(
@@ -302,7 +298,6 @@ def get_per_project_details(
     # Retrieve provider's identity service.
     identity_service = IdentityServiceCreate(
         endpoint=os_conf.auth_url,
-        type=conn.identity.service_type,
         name="org.openstack.keystone",
     )
     with region_lock:
@@ -327,9 +322,13 @@ def get_provider(
 ) -> ProviderCreateExtended:
     """Generate an Openstack virtual provider, reading information from a real
     openstack instance."""
-    if os_conf.status.value != "active":
+    if os_conf.status != ProviderStatus.ACTIVE:
         return ProviderCreateExtended(
-            name=os_conf.name, type=os_conf.type, status=os_conf.status
+            name=os_conf.name,
+            type=os_conf.type,
+            is_public=os_conf.is_public,
+            support_emails=os_conf.support_emails,
+            status=os_conf.status,
         )
 
     trust_idps = copy.deepcopy(trusted_idps)
