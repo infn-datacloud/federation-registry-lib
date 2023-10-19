@@ -22,7 +22,7 @@ class IdentityProviderCreate(BaseNodeCreate, IdentityProviderBase):
     """
 
 
-class IdentityProviderUpdate(IdentityProviderCreate):
+class IdentityProviderUpdate(BaseNodeCreate, IdentityProviderBase):
     """Model to update a Identity Provider.
 
     Class without id (which is populated by the database). Expected as

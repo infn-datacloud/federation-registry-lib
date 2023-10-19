@@ -43,7 +43,7 @@ class ImageCreate(BaseNodeCreate, ImageBase):
     """
 
 
-class ImageUpdate(ImageCreate):
+class ImageUpdate(BaseNodeCreate, ImageBase):
     """Model to update an Image.
 
     Class without id (which is populated by the database). Expected as

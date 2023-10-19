@@ -31,7 +31,7 @@ class SLACreate(BaseNodeCreate, SLABase):
     """
 
 
-class SLAUpdate(SLACreate):
+class SLAUpdate(BaseNodeCreate, SLABase):
     """Model to update an SLA.
 
     Class without id (which is populated by the database). Expected as

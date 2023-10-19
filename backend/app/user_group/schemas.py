@@ -22,7 +22,7 @@ class UserGroupCreate(BaseNodeCreate, UserGroupBase):
     """
 
 
-class UserGroupUpdate(UserGroupCreate):
+class UserGroupUpdate(BaseNodeCreate, UserGroupBase):
     """Model to update a User Group.
 
     Class without id (which is populated by the database). Expected as

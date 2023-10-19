@@ -27,7 +27,7 @@ class ProjectCreate(BaseNodeCreate, ProjectBase):
     """
 
 
-class ProjectUpdate(ProjectCreate):
+class ProjectUpdate(BaseNodeCreate, ProjectBase):
     """Model to update a Project.
 
     Class without id (which is populated by the database). Expected as

@@ -58,7 +58,7 @@ class FlavorCreate(BaseNodeCreate, FlavorBase):
     """
 
 
-class FlavorUpdate(FlavorCreate):
+class FlavorUpdate(BaseNodeCreate, FlavorBase):
     """Model to update a Flavor.
 
     Class without id (which is populated by the database). Expected as

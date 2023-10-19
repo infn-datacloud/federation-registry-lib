@@ -32,7 +32,7 @@ class LocationCreate(BaseNodeCreate, LocationBase):
     """
 
 
-class LocationUpdate(LocationCreate):
+class LocationUpdate(BaseNodeCreate, LocationBase):
     """Model to update a Location.
 
     Class without id (which is populated by the database). Expected as

@@ -65,7 +65,7 @@ class ServiceReadShort(BaseNodeRead, ServiceBase):
 ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
 
 
-class BlockStorageBase(ServiceBase, extra=Extra.ignore):
+class BlockStorageServiceBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for BlockStorage services.
 
@@ -84,7 +84,7 @@ class BlockStorageBase(ServiceBase, extra=Extra.ignore):
         return v
 
 
-class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageBase):
+class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageServiceBase):
     """Model to create a BlockStorage Service.
 
     Class without id (which is populated by the database). Expected as
@@ -92,7 +92,7 @@ class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageBase):
     """
 
 
-class BlockStorageServiceUpdate(BlockStorageServiceCreate):
+class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
     """Model to update a BlockStorage service.
 
     Class without id (which is populated by the database). Expected as
@@ -109,7 +109,7 @@ class BlockStorageServiceUpdate(BlockStorageServiceCreate):
     )
 
 
-class BlockStorageServiceRead(BaseNodeRead, BlockStorageBase):
+class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
     """Model to read BlockStorage service data retrieved from DB.
 
     Class to read data retrieved from the database. Expected as output
@@ -121,20 +121,20 @@ class BlockStorageServiceRead(BaseNodeRead, BlockStorageBase):
     """
 
 
-class BlockStorageServiceReadPublic(BaseNodeRead, BlockStorageBase):
+class BlockStorageServiceReadPublic(BaseNodeRead, BlockStorageServiceBase):
     pass
 
 
-class BlockStorageServiceReadShort(BaseNodeRead, BlockStorageBase):
+class BlockStorageServiceReadShort(BaseNodeRead, BlockStorageServiceBase):
     pass
 
 
 BlockStorageServiceQuery = create_query_model(
-    "BlockStorageServiceQuery", BlockStorageBase
+    "BlockStorageServiceQuery", BlockStorageServiceBase
 )
 
 
-class ComputeBase(ServiceBase, extra=Extra.ignore):
+class ComputeServiceBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Compute services.
 
@@ -151,7 +151,7 @@ class ComputeBase(ServiceBase, extra=Extra.ignore):
         return v
 
 
-class ComputeServiceCreate(BaseNodeCreate, ComputeBase):
+class ComputeServiceCreate(BaseNodeCreate, ComputeServiceBase):
     """Model to create a Compute Service.
 
     Class without id (which is populated by the database). Expected as
@@ -159,7 +159,7 @@ class ComputeServiceCreate(BaseNodeCreate, ComputeBase):
     """
 
 
-class ComputeServiceUpdate(ComputeServiceCreate):
+class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
     """Model to update a Compute service.
 
     Class without id (which is populated by the database). Expected as
@@ -176,7 +176,7 @@ class ComputeServiceUpdate(ComputeServiceCreate):
     )
 
 
-class ComputeServiceRead(BaseNodeRead, ComputeBase):
+class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
     """Model to read Compute service data retrieved from DB.
 
     Class to read data retrieved from the database. Expected as output
@@ -188,18 +188,18 @@ class ComputeServiceRead(BaseNodeRead, ComputeBase):
     """
 
 
-class ComputeServiceReadPublic(BaseNodeRead, ComputeBase):
+class ComputeServiceReadPublic(BaseNodeRead, ComputeServiceBase):
     pass
 
 
-class ComputeServiceReadShort(BaseNodeRead, ComputeBase):
+class ComputeServiceReadShort(BaseNodeRead, ComputeServiceBase):
     pass
 
 
-ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeBase)
+ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeServiceBase)
 
 
-class IdentityBase(ServiceBase, extra=Extra.ignore):
+class IdentityServiceBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Identity services.
 
@@ -216,7 +216,7 @@ class IdentityBase(ServiceBase, extra=Extra.ignore):
         return v
 
 
-class IdentityServiceCreate(BaseNodeCreate, IdentityBase):
+class IdentityServiceCreate(BaseNodeCreate, IdentityServiceBase):
     """Model to create a Identity Service.
 
     Class without id (which is populated by the database). Expected as
@@ -224,7 +224,7 @@ class IdentityServiceCreate(BaseNodeCreate, IdentityBase):
     """
 
 
-class IdentityServiceUpdate(IdentityServiceCreate):
+class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
     """Model to update a Identity service.
 
     Class without id (which is populated by the database). Expected as
@@ -241,7 +241,7 @@ class IdentityServiceUpdate(IdentityServiceCreate):
     )
 
 
-class IdentityServiceRead(BaseNodeRead, IdentityBase):
+class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
     """Model to read Identity service data retrieved from DB.
 
     Class to read data retrieved from the database. Expected as output
@@ -253,18 +253,18 @@ class IdentityServiceRead(BaseNodeRead, IdentityBase):
     """
 
 
-class IdentityServiceReadPublic(BaseNodeRead, IdentityBase):
+class IdentityServiceReadPublic(BaseNodeRead, IdentityServiceBase):
     pass
 
 
-class IdentityServiceReadShort(BaseNodeRead, IdentityBase):
+class IdentityServiceReadShort(BaseNodeRead, IdentityServiceBase):
     pass
 
 
-IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityBase)
+IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityServiceBase)
 
 
-class NetworkBase(ServiceBase, extra=Extra.ignore):
+class NetworkServiceBase(ServiceBase, extra=Extra.ignore):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Network services.
 
@@ -281,7 +281,7 @@ class NetworkBase(ServiceBase, extra=Extra.ignore):
         return v
 
 
-class NetworkServiceCreate(BaseNodeCreate, NetworkBase):
+class NetworkServiceCreate(BaseNodeCreate, NetworkServiceBase):
     """Model to create a Network Service.
 
     Class without id (which is populated by the database). Expected as
@@ -289,7 +289,7 @@ class NetworkServiceCreate(BaseNodeCreate, NetworkBase):
     """
 
 
-class NetworkServiceUpdate(NetworkServiceCreate):
+class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
     """Model to update a Network service.
 
     Class without id (which is populated by the database). Expected as
@@ -306,7 +306,7 @@ class NetworkServiceUpdate(NetworkServiceCreate):
     )
 
 
-class NetworkServiceRead(BaseNodeRead, NetworkBase):
+class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
     """Model to read Network service data retrieved from DB.
 
     Class to read data retrieved from the database. Expected as output
@@ -318,12 +318,12 @@ class NetworkServiceRead(BaseNodeRead, NetworkBase):
     """
 
 
-class NetworkServiceReadPublic(BaseNodeRead, NetworkBase):
+class NetworkServiceReadPublic(BaseNodeRead, NetworkServiceBase):
     pass
 
 
-class NetworkServiceReadShort(BaseNodeRead, NetworkBase):
+class NetworkServiceReadShort(BaseNodeRead, NetworkServiceBase):
     pass
 
 
-NetworkServiceQuery = create_query_model("NetworkServiceQuery", NetworkBase)
+NetworkServiceQuery = create_query_model("NetworkServiceQuery", NetworkServiceBase)

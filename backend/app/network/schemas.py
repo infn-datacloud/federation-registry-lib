@@ -44,7 +44,7 @@ class NetworkCreate(BaseNodeCreate, NetworkBase):
     """
 
 
-class NetworkUpdate(NetworkCreate):
+class NetworkUpdate(BaseNodeCreate, NetworkBase):
     """Model to update a Network.
 
     Class without id (which is populated by the database). Expected as

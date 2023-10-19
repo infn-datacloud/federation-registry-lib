@@ -28,7 +28,7 @@ class ProviderCreate(BaseNodeCreate, ProviderBase):
     """
 
 
-class ProviderUpdate(ProviderCreate):
+class ProviderUpdate(BaseNodeCreate, ProviderBase):
     """Model to update a Provider.
 
     Class without id (which is populated by the database). Expected as

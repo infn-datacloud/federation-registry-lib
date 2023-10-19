@@ -19,7 +19,7 @@ class RegionCreate(BaseNodeCreate, RegionBase):
     """
 
 
-class RegionUpdate(RegionCreate):
+class RegionUpdate(BaseNodeCreate, RegionBase):
     """Model to update a Region.
 
     Class without id (which is populated by the database). Expected as
