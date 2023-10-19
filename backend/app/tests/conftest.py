@@ -7,19 +7,28 @@ from app.main import app
 from app.project.crud import project
 from app.provider.crud import provider
 from app.provider.models import Provider
+from app.quota.crud import block_storage_quota, compute_quota
+from app.quota.models import BlockStorageQuota, ComputeQuota
 from app.region.crud import region
 from app.region.models import Region
 from app.service.crud import block_storage_service, compute_service, network_service
-from app.service.models import ComputeService, NetworkService
+from app.service.models import BlockStorageService, ComputeService, NetworkService
+from app.sla.crud import sla
+from app.sla.models import SLA
 from app.tests.utils.identity_provider import create_random_identity_provider
 from app.tests.utils.project import create_random_project
 from app.tests.utils.provider import create_random_provider
+from app.tests.utils.quota import (
+    create_random_block_storage_quota,
+    create_random_compute_quota,
+)
 from app.tests.utils.region import create_random_region
 from app.tests.utils.service import (
     create_random_block_storage_service,
     create_random_compute_service,
     create_random_network_service,
 )
+from app.tests.utils.sla import create_random_sla
 from app.tests.utils.user_group import create_random_user_group
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
@@ -73,6 +82,17 @@ def db_group(db_idp: IdentityProvider) -> UserGroup:
 
 
 @pytest.fixture
+def db_sla(db_group: UserGroup) -> SLA:
+    db_idp = db_group.identity_provider.single()
+    db_provider = db_idp.providers.all()[0]
+    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
+    item = sla.create(
+        obj_in=item_in, user_group=db_group, projects=db_provider.projects
+    )
+    yield item
+
+
+@pytest.fixture
 def db_region(db_provider: Provider) -> Region:
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
@@ -99,6 +119,32 @@ def db_compute_serv(db_region: Region) -> ComputeService:
 def db_network_serv(db_region: Region) -> NetworkService:
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
+    yield item
+
+
+@pytest.fixture
+def db_block_storage_quota(
+    db_block_storage_serv: BlockStorageService,
+) -> BlockStorageQuota:
+    db_region = db_block_storage_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_block_storage_quota(project=db_project.uuid)
+    item = block_storage_quota.create(
+        obj_in=item_in, service=db_block_storage_serv, project=db_project
+    )
+    yield item
+
+
+@pytest.fixture
+def db_compute_quota(db_compute_serv: ComputeService) -> ComputeQuota:
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_compute_quota(project=db_project.uuid)
+    item = compute_quota.create(
+        obj_in=item_in, service=db_compute_serv, project=db_project
+    )
     yield item
 
 

@@ -2,22 +2,34 @@ from uuid import uuid4
 
 from app.project.crud import project
 from app.provider.models import Provider
-from app.tests.utils.project import create_random_project, validate_project_attrs
+from app.quota.crud import block_storage_quota, compute_quota
+from app.quota.models import BlockStorageQuota, ComputeQuota
+from app.sla.crud import sla
+from app.sla.models import SLA
+from app.tests.utils.project import (
+    create_random_project,
+    create_random_project_patch,
+    validate_project_attrs,
+)
 
 
 def test_create_item(db_provider: Provider) -> None:
+    """Create a Project belonging to a specific Provider."""
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
     validate_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_provider: Provider) -> None:
+    """Create a Project, with default values when possible, belonging to a
+    specific Provider."""
     item_in = create_random_project(default=True)
     item = project.create(obj_in=item_in, provider=db_provider)
     validate_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_provider: Provider) -> None:
+    """Retrieve a Project from its UID."""
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
     item = project.get(uid=item.uid)
@@ -25,6 +37,7 @@ def test_get_item(db_provider: Provider) -> None:
 
 
 def test_get_non_existing_item(db_provider: Provider) -> None:
+    """Try to retrieve a not existing Project."""
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
     item = project.get(uid=uuid4())
@@ -32,6 +45,7 @@ def test_get_non_existing_item(db_provider: Provider) -> None:
 
 
 def test_get_items(db_provider: Provider) -> None:
+    """Retrieve multiple Projects."""
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
     item_in2 = create_random_project()
@@ -50,6 +64,7 @@ def test_get_items(db_provider: Provider) -> None:
 
 
 def test_get_items_with_limit(db_provider: Provider) -> None:
+    """Test the 'limit' attribute in GET operations."""
     item_in = create_random_project()
     project.create(obj_in=item_in, provider=db_provider)
     item_in2 = create_random_project()
@@ -66,6 +81,7 @@ def test_get_items_with_limit(db_provider: Provider) -> None:
 
 
 def test_get_sorted_items(db_provider: Provider) -> None:
+    """Test the 'sort' attribute in GET operations."""
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
     item_in2 = create_random_project()
@@ -83,6 +99,7 @@ def test_get_sorted_items(db_provider: Provider) -> None:
 
 
 def test_get_items_with_skip(db_provider: Provider) -> None:
+    """Test the 'skip' attribute in GET operations."""
     item_in = create_random_project()
     project.create(obj_in=item_in, provider=db_provider)
     item_in2 = create_random_project()
@@ -96,14 +113,37 @@ def test_get_items_with_skip(db_provider: Provider) -> None:
 
 
 def test_patch_item(db_provider: Provider) -> None:
+    """Update the attributes of an existing Project, without updating its
+    relationships."""
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
-    item_in = create_random_project()
-    item = project.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_project_patch()
+    item = project.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
     validate_project_attrs(obj_in=item_in, db_item=item)
 
 
-def test_forced_update_item(db_provider: Provider) -> None:
+def test_patch_item_with_defaults(db_provider: Provider) -> None:
+    """Try to update the attributes of an existing Project, without updating
+    its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
+    """
+    item_in = create_random_project()
+    item = project.create(obj_in=item_in, provider=db_provider)
+    patch_in = create_random_project_patch(default=True)
+    assert not project.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_project_patch(default=True)
+    patch_in.description = ""
+    item = project.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
+    validate_project_attrs(obj_in=item_in, db_item=item)
+
+
+def test_force_update_item(db_provider: Provider) -> None:
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
     item_in = create_random_project()
@@ -111,10 +151,59 @@ def test_forced_update_item(db_provider: Provider) -> None:
     validate_project_attrs(obj_in=item_in, db_item=item)
 
 
+def test_force_update_item_with_defaults(db_provider: Provider) -> None:
+    item_in = create_random_project()
+    item = project.create(obj_in=item_in, provider=db_provider)
+    item_in = create_random_project(default=True)
+    item = project.update(db_obj=item, obj_in=item_in, force=True)
+    validate_project_attrs(obj_in=item_in, db_item=item)
+
+
 def test_delete_item(db_provider: Provider) -> None:
+    """Delete an existing Project."""
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
     result = project.remove(db_obj=item)
     assert result
     item = project.get(uid=item.uid)
+    assert not item
+    assert db_provider
+
+
+def test_delete_item_with_proprietary_sla(db_sla: SLA) -> None:
+    """Delete an existing Project and its SLA."""
+    item = db_sla.projects.all()[0]
+    result = project.remove(db_obj=item)
+    assert result
+    item = project.get(uid=item.uid)
+    assert not item
+    item = sla.get(uid=db_sla.uid)
+    assert not item
+
+
+# TODO tests deletion of project linked to a SLA related to multiple projects.
+# The deletion delete the project but not the SLA.
+
+
+def test_delete_item_with_block_storage_quotas(
+    db_block_storage_quota: BlockStorageQuota,
+) -> None:
+    """Delete an existing Project and its BlockStorage Quotas."""
+    item = db_block_storage_quota.project.single()
+    result = project.remove(db_obj=item)
+    assert result
+    item = project.get(uid=item.uid)
+    assert not item
+    item = block_storage_quota.get(uid=db_block_storage_quota.uid)
+    assert not item
+
+
+def test_delete_item_with_compute_quotas(db_compute_quota: ComputeQuota) -> None:
+    """Delete an existing Project and its Compute Quotas."""
+    item = db_compute_quota.project.single()
+    result = project.remove(db_obj=item)
+    assert result
+    item = project.get(uid=item.uid)
+    assert not item
+    item = compute_quota.get(uid=db_compute_quota.uid)
     assert not item

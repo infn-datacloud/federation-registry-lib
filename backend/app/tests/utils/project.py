@@ -14,26 +14,18 @@ def create_random_project(default: bool = False) -> ProjectCreate:
     return ProjectCreate(name=name, uuid=uuid, **kwargs)
 
 
-def create_random_update_project_data() -> ProjectUpdate:
+def create_random_project_patch(default: bool = False) -> ProjectUpdate:
+    if default:
+        return ProjectUpdate()
     description = random_lower_string()
     name = random_lower_string()
     uuid = uuid4()
-    public_network_name = random_lower_string()
-    private_network_name = random_lower_string()
-    private_network_proxy_host = random_lower_string()
-    private_network_proxy_user = random_lower_string()
-    return ProjectUpdate(
-        description=description,
-        name=name,
-        uuid=uuid,
-        public_network_name=public_network_name,
-        private_network_name=private_network_name,
-        private_network_proxy_host=private_network_proxy_host,
-        private_network_proxy_user=private_network_proxy_user,
-    )
+    return ProjectUpdate(description=description, name=name, uuid=uuid)
 
 
-def validate_project_attrs(*, obj_in: ProjectCreate, db_item: Project) -> None:
+def validate_project_attrs(
+    *, obj_in: ProjectCreate, db_item: Project
+) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
-    assert db_item.uuid == str(obj_in.uuid)
+    assert db_item.uuid == obj_in.uuid
