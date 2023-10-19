@@ -2,7 +2,13 @@ from typing import Optional
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from app.service.enum import ServiceName, ServiceType
+from app.service.enum import (
+    BlockStorageServiceName,
+    ComputeServiceName,
+    IdentityServiceName,
+    NetworkServiceName,
+    ServiceType,
+)
 from pydantic import AnyHttpUrl, Extra, Field, validator
 
 
@@ -11,7 +17,6 @@ class ServiceBase(BaseNode, extra=Extra.allow):
 
     endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
     type: ServiceType = Field(description="Service type.")
-    name: ServiceName = Field(description="Service name.")
 
 
 class ServiceCreate(BaseNodeCreate, ServiceBase):
@@ -35,7 +40,6 @@ class ServiceUpdate(ServiceCreate):
         default=None, description="URL of the IaaS service."
     )
     type: Optional[ServiceType] = Field(default=None, description="Service type.")
-    name: Optional[ServiceName] = Field(default=None, description="Service name.")
 
 
 class ServiceRead(BaseNodeRead, ServiceBase):
@@ -71,12 +75,7 @@ class BlockStorageBase(ServiceBase, extra=Extra.ignore):
     type: ServiceType = Field(
         default=ServiceType.BLOCK_STORAGE, description="Service type."
     )
-
-    @validator("name")
-    def check_name(cls, v):
-        if v != ServiceName.OPENSTACK_CINDER:
-            raise ValueError(f"Not valid name: {v}")
-        return v
+    name: BlockStorageServiceName = Field(description="Service name.")
 
     @validator("type")
     def check_type(cls, v):
@@ -104,6 +103,9 @@ class BlockStorageServiceUpdate(BlockStorageServiceCreate):
 
     endpoint: Optional[AnyHttpUrl] = Field(
         default=None, description="URL of the IaaS service."
+    )
+    name: Optional[BlockStorageServiceName] = Field(
+        default=None, description="Service name."
     )
 
 
@@ -140,12 +142,7 @@ class ComputeBase(ServiceBase, extra=Extra.ignore):
     """
 
     type: ServiceType = Field(default=ServiceType.COMPUTE, description="Service type.")
-
-    @validator("name")
-    def check_name(cls, v):
-        if v != ServiceName.OPENSTACK_NOVA:
-            raise ValueError(f"Not valid name: {v}")
-        return v
+    name: ComputeServiceName = Field(description="Service name.")
 
     @validator("type")
     def check_type(cls, v):
@@ -173,6 +170,9 @@ class ComputeServiceUpdate(ComputeServiceCreate):
 
     endpoint: Optional[AnyHttpUrl] = Field(
         default=None, description="URL of the IaaS service."
+    )
+    name: Optional[ComputeServiceName] = Field(
+        default=None, description="Service name."
     )
 
 
@@ -207,12 +207,7 @@ class IdentityBase(ServiceBase, extra=Extra.ignore):
     """
 
     type: ServiceType = Field(default=ServiceType.IDENTITY, description="Service type.")
-
-    @validator("name")
-    def check_name(cls, v):
-        if v != ServiceName.OPENSTACK_KEYSTONE:
-            raise ValueError(f"Not valid name: {v}")
-        return v
+    name: IdentityServiceName = Field(description="Service name.")
 
     @validator("type")
     def check_type(cls, v):
@@ -240,6 +235,9 @@ class IdentityServiceUpdate(IdentityServiceCreate):
 
     endpoint: Optional[AnyHttpUrl] = Field(
         default=None, description="URL of the IaaS service."
+    )
+    name: Optional[IdentityServiceName] = Field(
+        default=None, description="Service name."
     )
 
 
@@ -274,12 +272,7 @@ class NetworkBase(ServiceBase, extra=Extra.ignore):
     """
 
     type: ServiceType = Field(default=ServiceType.NETWORK, description="Service type.")
-
-    @validator("name")
-    def check_name(cls, v):
-        if v != ServiceName.OPENSTACK_NEUTRON:
-            raise ValueError(f"Not valid name: {v}")
-        return v
+    name: NetworkServiceName = Field(description="Service name.")
 
     @validator("type")
     def check_type(cls, v):
@@ -307,6 +300,9 @@ class NetworkServiceUpdate(NetworkServiceCreate):
 
     endpoint: Optional[AnyHttpUrl] = Field(
         default=None, description="URL of the IaaS service."
+    )
+    name: Optional[NetworkServiceName] = Field(
+        default=None, description="Service name."
     )
 
 

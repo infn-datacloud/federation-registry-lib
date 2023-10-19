@@ -1,12 +1,27 @@
 from enum import Enum
 
 
-class ServiceName(Enum):
-    """Possible IaaS services names."""
+class BlockStorageServiceName(Enum):
+    """Possible IaaS block storage services names."""
+
+    OPENSTACK_CINDER: str = "org.openstack.cinder"
+
+
+class ComputeServiceName(Enum):
+    """Possible IaaS compute services names."""
 
     OPENSTACK_NOVA: str = "org.openstack.nova"
-    OPENSTACK_CINDER: str = "org.openstack.cinder"
+
+
+class IdentityServiceName(Enum):
+    """Possible IaaS identity services names."""
+
     OPENSTACK_KEYSTONE: str = "org.openstack.keystone"
+
+
+class NetworkServiceName(Enum):
+    """Possible IaaS network services names."""
+
     OPENSTACK_NEUTRON: str = "org.openstack.neutron"
 
 

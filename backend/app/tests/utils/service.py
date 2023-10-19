@@ -6,7 +6,13 @@ from app.provider.schemas_extended import (
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
 )
-from app.service.enum import ServiceName, ServiceType
+from app.service.enum import (
+    BlockStorageServiceName,
+    ComputeServiceName,
+    IdentityServiceName,
+    NetworkServiceName,
+    ServiceType,
+)
 from app.service.models import (
     BlockStorageService,
     ComputeService,
@@ -30,7 +36,7 @@ def create_random_block_storage_service(
     *, default: bool = False, projects: List[str] = []
 ) -> BlockStorageServiceCreateExtended:
     endpoint = random_url()
-    name = ServiceName.OPENSTACK_CINDER.value
+    name = BlockStorageServiceName.OPENSTACK_CINDER.value
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
@@ -47,7 +53,7 @@ def create_random_compute_service(
     projects: List[str] = [],
 ) -> ComputeServiceCreateExtended:
     endpoint = random_url()
-    name = ServiceName.OPENSTACK_NOVA.value
+    name = ComputeServiceName.OPENSTACK_NOVA.value
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
@@ -62,7 +68,7 @@ def create_random_compute_service(
 
 def create_random_identity_service(*, default: bool = False) -> IdentityServiceCreate:
     endpoint = random_url()
-    name = ServiceName.OPENSTACK_KEYSTONE.value
+    name = IdentityServiceName.OPENSTACK_KEYSTONE.value
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
@@ -73,7 +79,7 @@ def create_random_network_service(
     *, default: bool = False, with_networks: bool = False, projects: List[str] = []
 ) -> NetworkServiceCreateExtended:
     endpoint = random_url()
-    name = ServiceName.OPENSTACK_NEUTRON.value
+    name = NetworkServiceName.OPENSTACK_NEUTRON.value
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}

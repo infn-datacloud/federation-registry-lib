@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 from pycountry import countries
-from pydantic import Field, root_validator
+from pydantic import Field, root_validator, validator
 
 
 class LocationBase(BaseNode):
@@ -17,6 +17,11 @@ class LocationBase(BaseNode):
     longitude: Optional[float] = Field(
         default=None, ge=-90, le=90, description="Longitude coordinate."
     )
+
+    @validator("country")
+    def is_known_country(cls, v) -> str:
+        assert v in [i.name for i in countries]
+        return v
 
 
 class LocationCreate(BaseNodeCreate, LocationBase):

@@ -19,7 +19,12 @@ from app.provider.schemas_extended import (
     ProviderCreateExtended,
     RegionCreateExtended,
 )
-from app.service.enum import ServiceName
+from app.service.enum import (
+    BlockStorageServiceName,
+    ComputeServiceName,
+    IdentityServiceName,
+    NetworkServiceName,
+)
 from logger import logger
 from models.provider import AuthMethod, Openstack, PrivateNetProxy, Project, TrustedIDP
 from openstack import connect
@@ -228,7 +233,7 @@ def get_per_project_details(
     # Retrieve flavors, images and current project corresponding quotas.
     # Add them to the compute service.
     compute_service = ComputeServiceCreateExtended(
-        endpoint=conn.compute.get_endpoint(), name=ServiceName.OPENSTACK_NOVA
+        endpoint=conn.compute.get_endpoint(), name=ComputeServiceName.OPENSTACK_NOVA
     )
     compute_service.flavors = get_flavors(conn)
     compute_service.images = get_images(conn, tags=os_conf.image_tags)
@@ -264,7 +269,7 @@ def get_per_project_details(
     endpoint = conn.block_storage.get_endpoint()
     endpoint = os.path.dirname(endpoint)
     block_storage_service = BlockStorageServiceCreateExtended(
-        endpoint=endpoint, name=ServiceName.OPENSTACK_CINDER
+        endpoint=endpoint, name=BlockStorageServiceName.OPENSTACK_CINDER
     )
     block_storage_service.quotas = [get_block_storage_quotas(conn)]
     if per_user_limits is not None and per_user_limits.block_storage is not None:
@@ -286,7 +291,7 @@ def get_per_project_details(
     # Retrieve region's network service.
     network_service = NetworkServiceCreateExtended(
         endpoint=conn.network.get_endpoint(),
-        name=ServiceName.OPENSTACK_NEUTRON,
+        name=NetworkServiceName.OPENSTACK_NEUTRON,
     )
     network_service.networks = get_networks(
         conn,
@@ -309,7 +314,7 @@ def get_per_project_details(
     # Retrieve provider's identity service.
     identity_service = IdentityServiceCreate(
         endpoint=os_conf.auth_url,
-        name=ServiceName.OPENSTACK_KEYSTONE,
+        name=IdentityServiceName.OPENSTACK_KEYSTONE,
     )
     with region_lock:
         for region_service in region.identity_services:

@@ -41,7 +41,7 @@ def random_date() -> date:
 
 
 def random_url() -> AnyHttpUrl:
-    return AnyHttpUrl(random_lower_string(), scheme="http")
+    return "http://" + random_lower_string() + ".com"
 
 
 def random_float() -> float:
