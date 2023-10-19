@@ -38,28 +38,38 @@ def create_random_flavor(
     return FlavorCreateExtended(name=name, uuid=uuid, **kwargs)
 
 
-def create_random_update_flavor_data() -> FlavorUpdate:
-    description = random_lower_string()
+def create_random_flavor_patch(default: bool = False) -> FlavorUpdate:
+    if default:
+        return FlavorUpdate()
     name = random_lower_string()
     uuid = uuid4()
-    num_vcpus = random_non_negative_int()
-    num_gpus = random_non_negative_int()
-    ram = random_non_negative_int()
+    description = random_lower_string()
     disk = random_non_negative_int()
+    is_public = random_bool()
+    ram = random_non_negative_int()
+    vcpus = random_non_negative_int()
+    swap = random_non_negative_int()
+    ephemeral = random_non_negative_int()
     infiniband_support = random_bool()
+    gpus = random_positive_int()
     gpu_model = random_lower_string()
     gpu_vendor = random_lower_string()
+    local_storage = random_lower_string()
     return FlavorUpdate(
         description=description,
         name=name,
         uuid=uuid,
-        num_vcpus=num_vcpus,
-        num_gpus=num_gpus,
-        ram=ram,
         disk=disk,
+        is_public=is_public,
+        ram=ram,
+        vcpus=vcpus,
+        swap=swap,
+        ephemeral=ephemeral,
         infiniband_support=infiniband_support,
+        gpus=gpus,
         gpu_model=gpu_model,
         gpu_vendor=gpu_vendor,
+        local_storage=local_storage,
     )
 
 

@@ -3,20 +3,24 @@ from uuid import uuid4
 from app.flavor.crud import flavor
 from app.project.crud import project
 from app.service.models import ComputeService
-from app.tests.utils.flavor import create_random_flavor, validate_flavor_attrs
+from app.tests.utils.flavor import (
+    create_random_flavor,
+    create_random_flavor_patch,
+    validate_flavor_attrs,
+)
 from app.tests.utils.project import create_random_project
 
 
 def test_create_item(db_compute_serv: ComputeService) -> None:
-    """Create a Flavor belonging to a specific Compute Service."""
+    """Create a public Flavor belonging to a specific Compute Service."""
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
     validate_flavor_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
-    """Create a Flavor, with default values when possible, belonging to a
-    specific Compute Service."""
+    """Create a public Flavor, with default values when possible, belonging to
+    a specific Compute Service."""
     item_in = create_random_flavor(default=True)
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
     validate_flavor_attrs(obj_in=item_in, db_item=item)
@@ -53,10 +57,7 @@ def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_get_items(db_compute_serv: ComputeService) -> None:
-    """Retrieve multiple Flavors.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple Flavors."""
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
     item_in2 = create_random_flavor()
@@ -124,15 +125,40 @@ def test_get_items_with_skip(db_compute_serv: ComputeService) -> None:
 
 
 def test_patch_item(db_compute_serv: ComputeService) -> None:
-    """Update the attributes of an existing Flavor.
+    """Update the attributes of an existing Flavor, without updating its
+    relationships."""
+    item_in = create_random_flavor()
+    item = flavor.create(obj_in=item_in, service=db_compute_serv)
+    patch_in = create_random_flavor_patch()
+    patch_in.is_public = item.is_public
+    item = flavor.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_flavor_attrs(obj_in=item_in, db_item=item)
 
-    Do not update linked projects and compute service.
+
+def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
+    """Try to update the attributes of an existing Project, without updating
+    its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
     """
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
-    item_in = create_random_flavor()
-    item = flavor.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_flavor_patch(default=True)
+    assert not flavor.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_flavor_patch(default=True)
+    patch_in.description = ""
+    patch_in.is_public = item.is_public
+    item = flavor.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_flavor_attrs(obj_in=item_in, db_item=item)
+
+
+# TODO try to patch flavor setting it as private when there are no projects
+# or public when it has related projects
 
 
 def test_forced_update_item(db_compute_serv: ComputeService) -> None:
@@ -188,17 +214,23 @@ def test_delete_item(db_compute_serv: ComputeService) -> None:
     assert result
     item = flavor.get(uid=item.uid)
     assert not item
+    assert db_compute_serv
 
 
 def test_delete_item_with_relationships(db_compute_serv: ComputeService) -> None:
-    """Delete an existing private Flavor."""
+    """Delete an existing private Flavor.
+
+    Do not delete linked projects
+    """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
     item_in = create_random_flavor(projects=[i.uuid for i in db_provider.projects])
     item = flavor.create(
         obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
     )
+    num_db_project = len(db_provider.projects)
     result = flavor.remove(db_obj=item)
     assert result
     item = flavor.get(uid=item.uid)
     assert not item
+    assert len(db_provider.projects) == num_db_project
