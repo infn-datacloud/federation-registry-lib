@@ -33,28 +33,30 @@ def create_random_network(
     return NetworkCreateExtended(name=name, uuid=uuid, **kwargs)
 
 
-def create_random_update_network_data() -> NetworkUpdate:
+def create_random_network_patch(default: bool = False) -> NetworkUpdate:
+    if default:
+        return NetworkUpdate()
     description = random_lower_string()
     name = random_lower_string()
     uuid = uuid4()
-    num_vcpus = random_non_negative_int()
-    num_gpus = random_non_negative_int()
-    ram = random_non_negative_int()
-    disk = random_non_negative_int()
-    infiniband_support = random_bool()
-    gpu_model = random_lower_string()
-    gpu_vendor = random_lower_string()
+    is_shared = random_bool()
+    is_router_external = random_bool()
+    is_default = random_bool()
+    mtu = random_non_negative_int()
+    proxy_ip = random_lower_string()
+    proxy_user = random_non_negative_int()
+    tags = [random_lower_string()]
     return NetworkUpdate(
         description=description,
         name=name,
         uuid=uuid,
-        num_vcpus=num_vcpus,
-        num_gpus=num_gpus,
-        ram=ram,
-        disk=disk,
-        infiniband_support=infiniband_support,
-        gpu_model=gpu_model,
-        gpu_vendor=gpu_vendor,
+        is_shared=is_shared,
+        is_router_external=is_router_external,
+        is_default=is_default,
+        mtu=mtu,
+        proxy_ip=proxy_ip,
+        proxy_user=proxy_user,
+        tags=tags,
     )
 
 

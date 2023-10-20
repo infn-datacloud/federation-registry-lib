@@ -3,7 +3,11 @@ from uuid import uuid4
 from app.network.crud import network
 from app.project.crud import project
 from app.service.models import NetworkService
-from app.tests.utils.network import create_random_network, validate_network_attrs
+from app.tests.utils.network import (
+    create_random_network,
+    create_random_network_patch,
+    validate_network_attrs,
+)
 from app.tests.utils.project import create_random_project
 
 
@@ -52,10 +56,7 @@ def test_get_non_existing_item(db_network_serv: NetworkService) -> None:
 
 
 def test_get_items(db_network_serv: NetworkService) -> None:
-    """Retrieve multiple networks.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple networks."""
     item_in = create_random_network()
     item = network.create(obj_in=item_in, service=db_network_serv)
     item_in2 = create_random_network()
@@ -123,15 +124,40 @@ def test_get_items_with_skip(db_network_serv: NetworkService) -> None:
 
 
 def test_patch_item(db_network_serv: NetworkService) -> None:
-    """Update the attributes of an existing Network.
+    """Update the attributes of an existing Network, without updating its
+    relationships."""
+    item_in = create_random_network()
+    item = network.create(obj_in=item_in, service=db_network_serv)
+    patch_in = create_random_network_patch()
+    patch_in.is_shared = item.is_shared
+    item = network.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_network_attrs(obj_in=item_in, db_item=item)
 
-    Do not update linked projects and network service.
+
+def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
+    """Try to update the attributes of an existing Network, without updating
+    its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
     """
     item_in = create_random_network()
     item = network.create(obj_in=item_in, service=db_network_serv)
-    item_in = create_random_network()
-    item = network.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_network_patch(default=True)
+    assert not network.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_network_patch(default=True)
+    patch_in.description = ""
+    patch_in.is_shared = item.is_shared
+    item = network.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_network_attrs(obj_in=item_in, db_item=item)
+
+
+# TODO try to patch network setting it as private when there are no projects
+# or public when it has related projects
 
 
 def test_forced_update_item(db_network_serv: NetworkService) -> None:
@@ -185,16 +211,22 @@ def test_delete_item(db_network_serv: NetworkService) -> None:
     assert result
     item = network.get(uid=item.uid)
     assert not item
+    assert db_network_serv
 
 
 def test_delete_item_with_relationships(db_network_serv: NetworkService) -> None:
-    """Delete an existing private Network."""
+    """Delete an existing private Network.
+
+    Do not delete linked projects
+    """
     db_region = db_network_serv.region.single()
     db_provider = db_region.provider.single()
     project = db_provider.projects.all()[0]
     item_in = create_random_network(project=project.uuid)
     item = network.create(obj_in=item_in, service=db_network_serv, project=project)
+    num_db_project = len(db_provider.projects)
     result = network.remove(db_obj=item)
     assert result
     item = network.get(uid=item.uid)
     assert not item
+    assert len(db_provider.projects) == num_db_project

@@ -129,7 +129,7 @@ def test_patch_item(db_compute_serv: ComputeService) -> None:
     relationships."""
     item_in = create_random_image()
     item = image.create(obj_in=item_in, service=db_compute_serv)
-    patch_in = create_random_image()
+    patch_in = create_random_image_patch()
     patch_in.is_public = item.is_public
     item = image.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
@@ -157,7 +157,7 @@ def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
     validate_image_attrs(obj_in=item_in, db_item=item)
 
 
-# TODO try to patch flavor setting it as private when there are no projects
+# TODO try to patch image setting it as private when there are no projects
 # or public when it has related projects
 
 
@@ -218,7 +218,10 @@ def test_delete_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_delete_item_with_relationships(db_compute_serv: ComputeService) -> None:
-    """Delete an existing private Image."""
+    """Delete an existing private Image.
+
+    Do not delete linked projects
+    """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
     item_in = create_random_image(projects=[i.uuid for i in db_provider.projects])

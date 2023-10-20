@@ -46,7 +46,7 @@ class CRUDNetwork(
         self,
         *,
         db_obj: Network,
-        obj_in: Union[NetworkCreateExtended, NetworkUpdate],
+        obj_in: Union[NetworkUpdate, NetworkCreateExtended],
         projects: List[Project] = [],
         force: bool = False
     ) -> Optional[Network]:
@@ -62,9 +62,10 @@ class CRUDNetwork(
                 db_obj.project.replace(db_item)
                 edit = True
 
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=NetworkUpdate.parse_obj(obj_in), force=force
-        )
+        if isinstance(obj_in, NetworkCreateExtended):
+            obj_in = NetworkUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
 
