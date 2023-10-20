@@ -1,14 +1,12 @@
 from uuid import uuid4
 
 from app.identity_provider.crud import identity_provider
-from app.project.crud import project
 from app.provider.models import Provider
 from app.tests.utils.identity_provider import (
     create_random_identity_provider,
     create_random_update_identity_provider,
     validate_identity_provider_attrs,
 )
-from app.tests.utils.project import create_random_project
 
 
 def test_create_item(db_provider: Provider) -> None:
@@ -27,15 +25,13 @@ def test_create_item_default_values(db_provider: Provider) -> None:
     validate_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
-def test_create_item_with_projects(db_provider: Provider) -> None:
+def test_create_item_with_projects(db_provider_with_project: Provider) -> None:
     """Create an Identity Provider accepted by a specific Provider with a User
     Group for each received project."""
-    proj = create_random_project()
-    project.create(obj_in=proj, provider=db_provider)
     item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider.projects]
+        projects=[i.uuid for i in db_provider_with_project.projects]
     )
-    item = identity_provider.create(obj_in=item_in, provider=db_provider)
+    item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
     validate_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
@@ -142,7 +138,7 @@ def test_patch_item(db_provider: Provider) -> None:
 
 
 def test_forced_update_item_with_projects_and_user_groups(
-    db_provider: Provider,
+    db_provider_with_project: Provider,
 ) -> None:
     """Update the attributes and relationships of an existing Identity
     Provider.
@@ -166,12 +162,10 @@ def test_forced_update_item_with_projects_and_user_groups(
     changing only the attributes of the relationship with a target
     provider, leaving untouched the user groups.
     """
-    proj = create_random_project()
-    project.create(obj_in=proj, provider=db_provider)
     item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider.projects]
+        projects=[i.uuid for i in db_provider_with_project.projects]
     )
-    item = identity_provider.create(obj_in=item_in, provider=db_provider)
+    item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
 
     auth_data = item_in.relationship
     item_in = create_random_identity_provider()
@@ -181,22 +175,28 @@ def test_forced_update_item_with_projects_and_user_groups(
 
     auth_data = item_in.relationship
     item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider.projects]
+        projects=[i.uuid for i in db_provider_with_project.projects]
     )
     item_in.relationship = auth_data
 
     item = identity_provider.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+        db_obj=item,
+        obj_in=item_in,
+        projects=db_provider_with_project.projects,
+        force=True,
     )
     validate_identity_provider_attrs(obj_in=item_in, db_item=item)
 
     auth_data = item_in.relationship
     item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider.projects]
+        projects=[i.uuid for i in db_provider_with_project.projects]
     )
     item_in.relationship = auth_data
     item = identity_provider.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+        db_obj=item,
+        obj_in=item_in,
+        projects=db_provider_with_project.projects,
+        force=True,
     )
     validate_identity_provider_attrs(obj_in=item_in, db_item=item)
 
@@ -210,14 +210,14 @@ def test_forced_update_item_with_projects_and_user_groups(
 
     user_groups = item_in.user_groups
     item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider.projects]
+        projects=[i.uuid for i in db_provider_with_project.projects]
     )
     item_in.user_groups = user_groups
     item = identity_provider.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider.projects,
-        provider=db_provider,
+        projects=db_provider_with_project.projects,
+        provider=db_provider_with_project,
         force=True,
     )
     validate_identity_provider_attrs(obj_in=item_in, db_item=item)
@@ -233,17 +233,15 @@ def test_delete_item(db_provider: Provider) -> None:
     assert not item
 
 
-def test_delete_item_with_relationships(db_provider: Provider) -> None:
+def test_delete_item_with_relationships(db_provider_with_project: Provider) -> None:
     """Delete an existing Identity Provider.
 
     On cascade delete linked User Groups.
     """
-    proj = create_random_project()
-    project.create(obj_in=proj, provider=db_provider)
     item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider.projects],
+        projects=[i.uuid for i in db_provider_with_project.projects],
     )
-    item = identity_provider.create(obj_in=item_in, provider=db_provider)
+    item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
     result = identity_provider.remove(db_obj=item)
     assert result
     item = identity_provider.get(uid=item.uid)

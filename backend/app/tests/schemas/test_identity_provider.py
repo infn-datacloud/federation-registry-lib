@@ -11,10 +11,8 @@ from app.identity_provider.schemas_extended import (
     IdentityProviderReadExtended,
     IdentityProviderReadExtendedPublic,
 )
-from app.project.crud import project
 from app.provider.models import Provider
 from app.tests.utils.identity_provider import create_random_identity_provider
-from app.tests.utils.project import create_random_project
 from pydantic import ValidationError
 
 
@@ -40,10 +38,10 @@ def test_invalid_create_schema():
         a.user_groups = [a.user_groups[0], a.user_groups[0]]
 
 
-def test_read_schema(db_provider: Provider):
+def test_read_schema(db_provider_with_project: Provider):
     """Create a valid 'Read' Schema."""
     obj_in = create_random_identity_provider()
-    db_obj = identity_provider.create(obj_in=obj_in, provider=db_provider)
+    db_obj = identity_provider.create(obj_in=obj_in, provider=db_provider_with_project)
     IdentityProviderRead.from_orm(db_obj)
     IdentityProviderReadPublic.from_orm(db_obj)
     IdentityProviderReadShort.from_orm(db_obj)
@@ -51,19 +49,7 @@ def test_read_schema(db_provider: Provider):
     IdentityProviderReadExtendedPublic.from_orm(db_obj)
 
     obj_in = create_random_identity_provider(default=True)
-    db_obj = identity_provider.create(obj_in=obj_in, provider=db_provider)
-    IdentityProviderRead.from_orm(db_obj)
-    IdentityProviderReadPublic.from_orm(db_obj)
-    IdentityProviderReadShort.from_orm(db_obj)
-    IdentityProviderReadExtended.from_orm(db_obj)
-    IdentityProviderReadExtendedPublic.from_orm(db_obj)
-
-    project_in = create_random_project()
-    project.create(obj_in=project_in, provider=db_provider)
-    obj_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider.projects]
-    )
-    db_obj = identity_provider.create(obj_in=obj_in, provider=db_provider)
+    db_obj = identity_provider.create(obj_in=obj_in, provider=db_provider_with_project)
     IdentityProviderRead.from_orm(db_obj)
     IdentityProviderReadPublic.from_orm(db_obj)
     IdentityProviderReadShort.from_orm(db_obj)
@@ -71,9 +57,19 @@ def test_read_schema(db_provider: Provider):
     IdentityProviderReadExtendedPublic.from_orm(db_obj)
 
     obj_in = create_random_identity_provider(
-        default=True, projects=[i.uuid for i in db_provider.projects]
+        projects=[i.uuid for i in db_provider_with_project.projects]
     )
-    db_obj = identity_provider.create(obj_in=obj_in, provider=db_provider)
+    db_obj = identity_provider.create(obj_in=obj_in, provider=db_provider_with_project)
+    IdentityProviderRead.from_orm(db_obj)
+    IdentityProviderReadPublic.from_orm(db_obj)
+    IdentityProviderReadShort.from_orm(db_obj)
+    IdentityProviderReadExtended.from_orm(db_obj)
+    IdentityProviderReadExtendedPublic.from_orm(db_obj)
+
+    obj_in = create_random_identity_provider(
+        default=True, projects=[i.uuid for i in db_provider_with_project.projects]
+    )
+    db_obj = identity_provider.create(obj_in=obj_in, provider=db_provider_with_project)
     IdentityProviderRead.from_orm(db_obj)
     IdentityProviderReadPublic.from_orm(db_obj)
     IdentityProviderReadShort.from_orm(db_obj)

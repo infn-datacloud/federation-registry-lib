@@ -69,11 +69,16 @@ def db_provider(setup_and_teardown_db: Generator) -> Provider:
 
 
 @pytest.fixture
-def db_idp(db_provider: Provider) -> IdentityProvider:
+def db_provider_with_project(db_provider: Provider) -> Provider:
     item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
+    project.create(obj_in=item_in, provider=db_provider)
+    yield db_provider
+
+
+@pytest.fixture
+def db_idp(db_provider_with_project: Provider) -> IdentityProvider:
     item_in = create_random_identity_provider()
-    item = identity_provider.create(obj_in=item_in, provider=db_provider)
+    item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
     yield item
 
 
@@ -96,11 +101,9 @@ def db_sla(db_group: UserGroup) -> SLA:
 
 
 @pytest.fixture
-def db_region(db_provider: Provider) -> Region:
-    item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
+def db_region(db_provider_with_project: Provider) -> Region:
     item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider)
+    item = region.create(obj_in=item_in, provider=db_provider_with_project)
     yield item
 
 
