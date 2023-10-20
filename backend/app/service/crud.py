@@ -101,11 +101,11 @@ class CRUDBlockStorageService(
             edit = self.__update_quotas(
                 db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
-        update_data = super().update(
-            db_obj=db_obj,
-            obj_in=BlockStorageServiceUpdate.parse_obj(obj_in),
-            force=force,
-        )
+
+        if isinstance(obj_in, BlockStorageServiceCreateExtended):
+            obj_in = BlockStorageServiceUpdate.parse_obj(obj_in)
+
+        update_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else update_data
 
     def __update_quotas(
@@ -245,9 +245,10 @@ class CRUDComputeService(
             )
             edit = flavors_updated or images_updated or quotas_updated
 
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=ComputeServiceUpdate.parse_obj(obj_in), force=force
-        )
+        if isinstance(obj_in, ComputeServiceCreateExtended):
+            obj_in = ComputeServiceUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
     def __update_flavors(
@@ -446,9 +447,11 @@ class CRUDNetworkService(
             edit = self.__update_networks(
                 db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=NetworkServiceUpdate.parse_obj(obj_in), force=force
-        )
+
+        if isinstance(obj_in, NetworkServiceCreateExtended):
+            obj_in = NetworkServiceUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
     def __update_networks(

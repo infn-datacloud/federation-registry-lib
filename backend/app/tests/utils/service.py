@@ -19,7 +19,13 @@ from app.service.models import (
     IdentityService,
     NetworkService,
 )
-from app.service.schemas import IdentityServiceCreate, ServiceUpdate
+from app.service.schemas import (
+    BlockStorageServiceUpdate,
+    ComputeServiceUpdate,
+    IdentityServiceCreate,
+    IdentityServiceUpdate,
+    NetworkServiceUpdate,
+)
 from app.tests.utils.flavor import create_random_flavor, validate_flavor_attrs
 from app.tests.utils.image import create_random_image, validate_image_attrs
 from app.tests.utils.network import create_random_network, validate_network_attrs
@@ -36,7 +42,7 @@ def create_random_block_storage_service(
     *, default: bool = False, projects: List[str] = []
 ) -> BlockStorageServiceCreateExtended:
     endpoint = random_url()
-    name = BlockStorageServiceName.OPENSTACK_CINDER.value
+    name = random_block_storage_service_name()
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
@@ -53,7 +59,7 @@ def create_random_compute_service(
     projects: List[str] = [],
 ) -> ComputeServiceCreateExtended:
     endpoint = random_url()
-    name = ComputeServiceName.OPENSTACK_NOVA.value
+    name = random_compute_service_name()
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
@@ -68,7 +74,7 @@ def create_random_compute_service(
 
 def create_random_identity_service(*, default: bool = False) -> IdentityServiceCreate:
     endpoint = random_url()
-    name = IdentityServiceName.OPENSTACK_KEYSTONE.value
+    name = random_identity_service_name()
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
@@ -79,7 +85,7 @@ def create_random_network_service(
     *, default: bool = False, with_networks: bool = False, projects: List[str] = []
 ) -> NetworkServiceCreateExtended:
     endpoint = random_url()
-    name = NetworkServiceName.OPENSTACK_NEUTRON.value
+    name = random_network_service_name()
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
@@ -89,14 +95,70 @@ def create_random_network_service(
     return NetworkServiceCreateExtended(endpoint=endpoint, name=name, **kwargs)
 
 
-def create_random_update_service_data() -> ServiceUpdate:
+def create_random_block_storage_service_patch(
+    default: bool = False,
+) -> BlockStorageServiceUpdate:
+    if default:
+        return BlockStorageServiceUpdate()
     description = random_lower_string()
     endpoint = random_url()
-    return ServiceUpdate(description=description, endpoint=endpoint)
+    name = random_block_storage_service_name()
+    return BlockStorageServiceUpdate(
+        description=description, endpoint=endpoint, name=name
+    )
+
+
+def create_random_compute_service_patch(
+    default: bool = False,
+) -> ComputeServiceUpdate:
+    if default:
+        return ComputeServiceUpdate()
+    description = random_lower_string()
+    endpoint = random_url()
+    name = random_compute_service_name()
+    return ComputeServiceUpdate(description=description, endpoint=endpoint, name=name)
+
+
+def create_random_identity_service_patch(
+    default: bool = False,
+) -> IdentityServiceUpdate:
+    if default:
+        return IdentityServiceUpdate()
+    description = random_lower_string()
+    endpoint = random_url()
+    name = random_identity_service_name()
+    return IdentityServiceUpdate(description=description, endpoint=endpoint, name=name)
+
+
+def create_random_network_service_patch(
+    default: bool = False,
+) -> NetworkServiceUpdate:
+    if default:
+        return NetworkServiceUpdate()
+    description = random_lower_string()
+    endpoint = random_url()
+    name = random_network_service_name()
+    return NetworkServiceUpdate(description=description, endpoint=endpoint, name=name)
 
 
 def random_service_type() -> str:
     return choice([i.value for i in ServiceType])
+
+
+def random_block_storage_service_name() -> str:
+    return choice([i.value for i in BlockStorageServiceName])
+
+
+def random_compute_service_name() -> str:
+    return choice([i.value for i in ComputeServiceName])
+
+
+def random_identity_service_name() -> str:
+    return choice([i.value for i in IdentityServiceName])
+
+
+def random_network_service_name() -> str:
+    return choice([i.value for i in NetworkServiceName])
 
 
 def validate_block_storage_service_attrs(

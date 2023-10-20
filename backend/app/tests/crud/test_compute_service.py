@@ -1,9 +1,13 @@
 from uuid import uuid4
 
+from app.flavor.crud import flavor
+from app.image.crud import image
+from app.quota.crud import compute_quota
 from app.region.models import Region
 from app.service.crud import compute_service
 from app.tests.utils.service import (
     create_random_compute_service,
+    create_random_compute_service_patch,
     validate_compute_service_attrs,
 )
 
@@ -81,10 +85,7 @@ def test_get_non_existing_item(db_region: Region) -> None:
 
 
 def test_get_items(db_region: Region) -> None:
-    """Retrieve multiple Compute Services.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple Compute Services."""
     item_in = create_random_compute_service()
     item = compute_service.create(obj_in=item_in, region=db_region)
     item_in2 = create_random_compute_service()
@@ -152,14 +153,33 @@ def test_get_items_with_skip(db_region: Region) -> None:
 
 
 def test_patch_item(db_region: Region) -> None:
-    """Update the attributes of an existing Compute Service.
+    """Update the attributes of an existing Compute Service, without updating
+    its relationships."""
+    item_in = create_random_compute_service()
+    item = compute_service.create(obj_in=item_in, region=db_region)
+    patch_in = create_random_compute_service_patch()
+    item = compute_service.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_compute_service_attrs(obj_in=item_in, db_item=item)
 
-    Do not update linked projects and compute service.
+
+def test_patch_item_with_defaults(db_region: Region) -> None:
+    """Try to update the attributes of an existing Compute Service, without
+    updating its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
     """
     item_in = create_random_compute_service()
     item = compute_service.create(obj_in=item_in, region=db_region)
-    item_in = create_random_compute_service()
-    item = compute_service.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_compute_service_patch(default=True)
+    assert not compute_service.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_compute_service_patch(default=True)
+    patch_in.description = ""
+    item = compute_service.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_compute_service_attrs(obj_in=item_in, db_item=item)
 
 
@@ -234,13 +254,12 @@ def test_delete_item(db_region: Region) -> None:
     assert result
     item = compute_service.get(uid=item.uid)
     assert not item
+    assert db_region
 
 
 def test_delete_item_with_relationships(db_region: Region) -> None:
-    """Delete an existing Compute Service.
-
-    On cascade delete linked quotas, flavors and images.
-    """
+    """Delete an existing Compute Service and its linked flavors, images and
+    quotas."""
     db_provider = db_region.provider.single()
     item_in = create_random_compute_service(
         with_flavors=True,
@@ -250,7 +269,17 @@ def test_delete_item_with_relationships(db_region: Region) -> None:
     item = compute_service.create(
         obj_in=item_in, region=db_region, projects=db_provider.projects
     )
+    db_flavor = item.flavors.all()[0]
+    db_image = item.images.all()[0]
+    db_quota = item.quotas.all()[0]
+
     result = compute_service.remove(db_obj=item)
     assert result
     item = compute_service.get(uid=item.uid)
+    assert not item
+    item = flavor.get(uid=db_flavor.uid)
+    assert not item
+    item = image.get(uid=db_image.uid)
+    assert not item
+    item = compute_quota.get(uid=db_quota.uid)
     assert not item

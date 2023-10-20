@@ -1,9 +1,11 @@
 from uuid import uuid4
 
+from app.network.crud import network
 from app.region.models import Region
 from app.service.crud import network_service
 from app.tests.utils.service import (
     create_random_network_service,
+    create_random_network_service_patch,
     validate_network_service_attrs,
 )
 
@@ -48,10 +50,7 @@ def test_get_non_existing_item(db_region: Region) -> None:
 
 
 def test_get_items(db_region: Region) -> None:
-    """Retrieve multiple Network Services.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple Network Services."""
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
     item_in2 = create_random_network_service()
@@ -119,11 +118,33 @@ def test_get_items_with_skip(db_region: Region) -> None:
 
 
 def test_patch_item(db_region: Region) -> None:
-    """Update the attributes of an existing Network Service."""
+    """Update the attributes of an existing Network Service, without updating
+    its relationships."""
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
+    patch_in = create_random_network_service_patch()
+    item = network_service.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_network_service_attrs(obj_in=item_in, db_item=item)
+
+
+def test_patch_item_with_defaults(db_region: Region) -> None:
+    """Try to update the attributes of an existing Network Service, without
+    updating its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
+    """
     item_in = create_random_network_service()
-    item = network_service.update(db_obj=item, obj_in=item_in)
+    item = network_service.create(obj_in=item_in, region=db_region)
+    patch_in = create_random_network_service_patch(default=True)
+    assert not network_service.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_network_service_patch(default=True)
+    patch_in.description = ""
+    item = network_service.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_network_service_attrs(obj_in=item_in, db_item=item)
 
 
@@ -183,16 +204,18 @@ def test_delete_item(db_region: Region) -> None:
     assert result
     item = network_service.get(uid=item.uid)
     assert not item
+    assert db_region
 
 
 def test_delete_item_with_relationships(db_region: Region) -> None:
-    """Delete an existing Network Service.
-
-    On cascade delete linked networks.
-    """
+    """Delete an existing Network Service and its linked quotas."""
     item_in = create_random_network_service(with_networks=True)
     item = network_service.create(obj_in=item_in, region=db_region)
+    db_network = item.networks.all()[0]
+
     result = network_service.remove(db_obj=item)
     assert result
     item = network_service.get(uid=item.uid)
+    assert not item
+    item = network.get(uid=db_network.uid)
     assert not item

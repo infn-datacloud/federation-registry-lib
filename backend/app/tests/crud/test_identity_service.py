@@ -4,6 +4,7 @@ from app.region.models import Region
 from app.service.crud import identity_service
 from app.tests.utils.service import (
     create_random_identity_service,
+    create_random_identity_service_patch,
     validate_identity_service_attrs,
 )
 
@@ -40,10 +41,7 @@ def test_get_non_existing_item(db_region: Region) -> None:
 
 
 def test_get_items(db_region: Region) -> None:
-    """Retrieve multiple Identity Services.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple Identity Services."""
     item_in = create_random_identity_service()
     item = identity_service.create(obj_in=item_in, region=db_region)
     item_in2 = create_random_identity_service()
@@ -114,8 +112,29 @@ def test_patch_item(db_region: Region) -> None:
     """Update the attributes of an existing Identity Service."""
     item_in = create_random_identity_service()
     item = identity_service.create(obj_in=item_in, region=db_region)
+    patch_in = create_random_identity_service_patch()
+    item = identity_service.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_identity_service_attrs(obj_in=item_in, db_item=item)
+
+
+def test_patch_item_with_defaults(db_region: Region) -> None:
+    """Try to update the attributes of an existing Identity Service, without
+    updating its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
+    """
     item_in = create_random_identity_service()
-    item = identity_service.update(db_obj=item, obj_in=item_in)
+    item = identity_service.create(obj_in=item_in, region=db_region)
+    patch_in = create_random_identity_service_patch(default=True)
+    assert not identity_service.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_identity_service_patch(default=True)
+    patch_in.description = ""
+    item = identity_service.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
@@ -137,3 +156,4 @@ def test_delete_item(db_region: Region) -> None:
     assert result
     item = identity_service.get(uid=item.uid)
     assert not item
+    assert db_region

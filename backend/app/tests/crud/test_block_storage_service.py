@@ -1,9 +1,11 @@
 from uuid import uuid4
 
+from app.quota.crud import block_storage_quota
 from app.region.models import Region
 from app.service.crud import block_storage_service
 from app.tests.utils.service import (
     create_random_block_storage_service,
+    create_random_block_storage_service_patch,
     validate_block_storage_service_attrs,
 )
 
@@ -53,10 +55,7 @@ def test_get_non_existing_item(db_region: Region) -> None:
 
 
 def test_get_items(db_region: Region) -> None:
-    """Retrieve multiple BlockStorage Services.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple BlockStorage Services."""
     item_in = create_random_block_storage_service()
     item = block_storage_service.create(obj_in=item_in, region=db_region)
     item_in2 = create_random_block_storage_service()
@@ -124,14 +123,33 @@ def test_get_items_with_skip(db_region: Region) -> None:
 
 
 def test_patch_item(db_region: Region) -> None:
-    """Update the attributes of an existing BlockStorage Service.
+    """Update the attributes of an existing BlockStorage Service, without
+    updating its relationships."""
+    item_in = create_random_block_storage_service()
+    item = block_storage_service.create(obj_in=item_in, region=db_region)
+    patch_in = create_random_block_storage_service_patch()
+    item = block_storage_service.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
-    Do not update linked projects and compute service.
+
+def test_patch_item_with_defaults(db_region: Region) -> None:
+    """Try to update the attributes of an existing BlockStorage Service,
+    without updating its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
     """
     item_in = create_random_block_storage_service()
     item = block_storage_service.create(obj_in=item_in, region=db_region)
-    item_in = create_random_block_storage_service()
-    item = block_storage_service.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_block_storage_service_patch(default=True)
+    assert not block_storage_service.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_block_storage_service_patch(default=True)
+    patch_in.description = ""
+    item = block_storage_service.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
@@ -198,13 +216,11 @@ def test_delete_item(db_region: Region) -> None:
     assert result
     item = block_storage_service.get(uid=item.uid)
     assert not item
+    assert db_region
 
 
 def test_delete_item_with_relationships(db_region: Region) -> None:
-    """Delete an existing BlockStorage Service.
-
-    On cascade delete linked quotas.
-    """
+    """Delete an existing BlockStorage Service and its linked quotas."""
     db_provider = db_region.provider.single()
     item_in = create_random_block_storage_service(
         projects=[i.uuid for i in db_provider.projects]
@@ -212,7 +228,11 @@ def test_delete_item_with_relationships(db_region: Region) -> None:
     item = block_storage_service.create(
         obj_in=item_in, region=db_region, projects=db_provider.projects
     )
+    db_quota = item.quotas.all()[0]
+
     result = block_storage_service.remove(db_obj=item)
     assert result
     item = block_storage_service.get(uid=item.uid)
+    assert not item
+    item = block_storage_quota.get(uid=db_quota.uid)
     assert not item
