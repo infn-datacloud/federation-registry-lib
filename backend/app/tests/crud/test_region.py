@@ -1,8 +1,17 @@
 from uuid import uuid4
 
+from app.location.crud import location
+from app.location.models import Location
 from app.project.crud import project
 from app.provider.models import Provider
 from app.region.crud import region
+from app.service.crud import (
+    block_storage_service,
+    compute_service,
+    identity_service,
+    network_service,
+)
+from app.service.enum import ServiceType
 from app.tests.utils.project import create_random_project
 from app.tests.utils.region import create_random_region, validate_region_attrs
 
@@ -27,6 +36,35 @@ def test_create_item_with_location(db_provider: Provider) -> None:
     item_in = create_random_region(with_location=True)
     item = region.create(obj_in=item_in, provider=db_provider)
     validate_region_attrs(obj_in=item_in, db_item=item)
+
+
+def test_create_item_with_already_existing_location(db_location: Location) -> None:
+    """Create a Region belonging to a specific Provider with an already
+    existing Location.
+
+    At first the new region points to a location with same site name but
+    different attributes.
+
+    In the latter the new location equals the existing one.
+
+    Verify that no new locations have been created but all regions point
+    to the same.
+    """
+    db_region = db_location.regions.all()[0]
+    db_provider = db_region.provider.single()
+
+    item_in = create_random_region(with_location=True)
+    item_in.location.site = db_location.site
+    item = region.create(obj_in=item_in, provider=db_provider)
+    validate_region_attrs(obj_in=item_in, db_item=item)
+
+    loc_in = item_in.location
+    item_in = create_random_region()
+    item_in.location = loc_in
+    item = region.create(obj_in=item_in, provider=db_provider)
+    validate_region_attrs(obj_in=item_in, db_item=item)
+
+    assert len(location.get_multi()) == 1
 
 
 def test_create_item_with_projects_and_block_storage_services(
@@ -139,10 +177,7 @@ def test_get_non_existing_item(db_provider: Provider) -> None:
 
 
 def test_get_items(db_provider: Provider) -> None:
-    """Retrieve multiple Regions.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple Regions."""
     item_in = create_random_region()
     item = region.create(obj_in=item_in, provider=db_provider)
     item_in2 = create_random_region()
@@ -210,10 +245,8 @@ def test_get_items_with_skip(db_provider: Provider) -> None:
 
 
 def test_patch_item(db_provider: Provider) -> None:
-    """Update the attributes of an existing Region.
-
-    Do not update linked services and location.
-    """
+    """Update the attributes of an existing Region, without updating its
+    relationships."""
     item_in = create_random_region()
     item = region.create(obj_in=item_in, provider=db_provider)
     item_in = create_random_region()
@@ -227,7 +260,7 @@ def test_forced_update_item_with_location(db_provider: Provider) -> None:
     At first update a Region with a location, updating its attributes
     and removing the location.
 
-    Update a Region with no projects, changing its attributes and
+    Update a Region with no location, changing its attributes and
     linking a new location.
 
     Update a Region with a location, changing both its attributes and
@@ -251,9 +284,9 @@ def test_forced_update_item_with_location(db_provider: Provider) -> None:
     item = region.update(db_obj=item, obj_in=item_in, force=True)
     validate_region_attrs(obj_in=item_in, db_item=item)
 
-    location = item_in.location
+    loc_in = item_in.location
     item_in = create_random_region()
-    item_in.location = location
+    item_in.location = loc_in
     item = region.update(db_obj=item, obj_in=item_in, force=True)
     validate_region_attrs(obj_in=item_in, db_item=item)
 
@@ -481,13 +514,14 @@ def test_delete_item(db_provider: Provider) -> None:
     assert result
     item = region.get(uid=item.uid)
     assert not item
+    assert db_provider
 
 
 def test_delete_item_with_relationships(db_provider: Provider) -> None:
     """Delete an existing Region.
 
     On Cascade delete all linked services. Delete location only if there
-    are no more regions linked to it
+    are no more regions linked to it.
     """
     item_in = create_random_region()
     item = region.create(obj_in=item_in, provider=db_provider)
@@ -500,10 +534,25 @@ def test_delete_item_with_relationships(db_provider: Provider) -> None:
         projects=[i.uuid for i in db_provider.projects],
     )
     item = region.create(obj_in=item_in, provider=db_provider)
+    db_location = item.location.single()
+    db_services = item.services.all()
+
     result = region.remove(db_obj=item)
     assert result
     item = region.get(uid=item.uid)
     assert not item
+    item = location.get(uid=db_location.uid)
+    assert not item
+    for db_service in db_services:
+        if db_service.type == ServiceType.BLOCK_STORAGE:
+            item = block_storage_service.get(uid=db_service.uid)
+        if db_service.type == ServiceType.COMPUTE:
+            item = compute_service.get(uid=db_service.uid)
+        if db_service.type == ServiceType.IDENTITY:
+            item = identity_service.get(uid=db_service.uid)
+        if db_service.type == ServiceType.NETWORK:
+            item = network_service.get(uid=db_service.uid)
+        assert item is None
 
 
 def test_failed_delete_item(db_provider: Provider) -> None:

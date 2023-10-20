@@ -19,15 +19,17 @@ def create_random_location(*, default: bool = False) -> LocationCreate:
     return LocationCreate(site=site, country=country, **kwargs)
 
 
-def create_random_update_location_data() -> LocationUpdate:
+def create_random_location_patch(default: bool = False) -> LocationUpdate:
+    if default:
+        return LocationUpdate()
     description = random_lower_string()
-    name = random_lower_string()
+    site = random_lower_string()
     country = random_country()
     latitude = random_latitude()
     longitude = random_longitude()
     return LocationUpdate(
         description=description,
-        name=name,
+        site=site,
         country=country,
         latitude=latitude,
         longitude=longitude,

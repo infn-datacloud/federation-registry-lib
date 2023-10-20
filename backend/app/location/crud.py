@@ -29,7 +29,13 @@ class CRUDLocation(
     """"""
 
     def create(self, *, obj_in: LocationCreate, region: Region) -> Location:
-        db_obj = super().create(obj_in=obj_in, force=False)
+        db_obj = self.get(site=obj_in.site)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in, force=True)
+        else:
+            updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
+            if updated_data:
+                db_obj = updated_data
         db_obj.regions.connect(region)
         return db_obj
 

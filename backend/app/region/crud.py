@@ -81,9 +81,8 @@ class CRUDRegion(
             elif isinstance(db_obj, NetworkService):
                 return network_service.remove(db_obj=item)
         item = db_obj.location.single()
-        if item is not None:
-            if len(item.regions) == 1:
-                location.remove(db_obj=item)
+        if item and len(item.regions) == 1:
+            location.remove(db_obj=item)
         result = super().remove(db_obj=db_obj)
         return result
 
@@ -127,27 +126,23 @@ class CRUDRegion(
         self, *, db_obj: Region, obj_in: RegionCreateExtended
     ) -> bool:
         edit = False
-        item = obj_in.location
+        loc_in = obj_in.location
         db_loc = db_obj.location.single()
-        if db_loc:
+
+        if db_loc and (not loc_in or db_loc.site != loc_in.site):
             db_obj.location.disconnect(db_loc)
             edit = True
-        if item:
-            db_item = location.get(site=item.site)
-            if not db_item:
-                location.create(obj_in=item, region=db_obj)
-                edit = True
-            else:
-                updated_data = location.update(db_obj=db_item, obj_in=item, force=True)
-                db_obj.location.connect(db_item)
-                edit = updated_data is not None
-        if (
-            db_loc
-            and not db_obj.location.is_connected(db_loc)
-            and len(db_loc.regions) == 0
+
+        # No previous and new location or new location differs from existing one
+        if (not db_loc and loc_in) or (
+            db_loc and loc_in and db_loc.site != loc_in.site
         ):
-            location.remove(db_obj=db_loc)
+            location.create(obj_in=loc_in, region=db_obj)
             edit = True
+        elif db_loc and loc_in and db_loc.site == loc_in.site:
+            updated_data = location.update(db_obj=db_loc, obj_in=loc_in, force=True)
+            edit = updated_data is not None
+
         return edit
 
     def __update_block_storage_services(

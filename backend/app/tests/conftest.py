@@ -3,6 +3,8 @@ from typing import Generator
 import pytest
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
+from app.location.crud import location
+from app.location.models import Location
 from app.main import app
 from app.project.crud import project
 from app.provider.crud import provider
@@ -16,6 +18,7 @@ from app.service.models import BlockStorageService, ComputeService, NetworkServi
 from app.sla.crud import sla
 from app.sla.models import SLA
 from app.tests.utils.identity_provider import create_random_identity_provider
+from app.tests.utils.location import create_random_location
 from app.tests.utils.project import create_random_project
 from app.tests.utils.provider import create_random_provider
 from app.tests.utils.quota import (
@@ -98,6 +101,13 @@ def db_region(db_provider: Provider) -> Region:
     item = project.create(obj_in=item_in, provider=db_provider)
     item_in = create_random_region()
     item = region.create(obj_in=item_in, provider=db_provider)
+    yield item
+
+
+@pytest.fixture
+def db_location(db_region: Region) -> Location:
+    item_in = create_random_location()
+    item = location.create(obj_in=item_in, region=db_region)
     yield item
 
 

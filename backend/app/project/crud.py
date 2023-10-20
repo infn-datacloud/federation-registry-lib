@@ -40,7 +40,7 @@ class CRUDProject(
             elif isinstance(item, ComputeQuota):
                 compute_quota.remove(db_obj=item)
         item = db_obj.sla.single()
-        if item and len(item.projects.all()) == 1:
+        if item and len(item.projects) == 1:
             sla.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
