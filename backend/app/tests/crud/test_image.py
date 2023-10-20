@@ -3,7 +3,11 @@ from uuid import uuid4
 from app.image.crud import image
 from app.project.crud import project
 from app.service.models import ComputeService
-from app.tests.utils.image import create_random_image, validate_image_attrs
+from app.tests.utils.image import (
+    create_random_image,
+    create_random_image_patch,
+    validate_image_attrs,
+)
 from app.tests.utils.project import create_random_project
 
 
@@ -53,10 +57,7 @@ def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_get_items(db_compute_serv: ComputeService) -> None:
-    """Retrieve multiple images.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple images."""
     item_in = create_random_image()
     item = image.create(obj_in=item_in, service=db_compute_serv)
     item_in2 = create_random_image()
@@ -124,15 +125,40 @@ def test_get_items_with_skip(db_compute_serv: ComputeService) -> None:
 
 
 def test_patch_item(db_compute_serv: ComputeService) -> None:
-    """Update the attributes of an existing Image.
+    """Update the attributes of an existing Image, without updating its
+    relationships."""
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    patch_in = create_random_image()
+    patch_in.is_public = item.is_public
+    item = image.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_image_attrs(obj_in=item_in, db_item=item)
 
-    Do not update linked projects and compute service.
+
+def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
+    """Try to update the attributes of an existing Image, without updating its
+    relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
     """
     item_in = create_random_image()
     item = image.create(obj_in=item_in, service=db_compute_serv)
-    item_in = create_random_image()
-    item = image.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_image_patch(default=True)
+    assert not image.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_image_patch(default=True)
+    patch_in.description = ""
+    patch_in.is_public = item.is_public
+    item = image.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_image_attrs(obj_in=item_in, db_item=item)
+
+
+# TODO try to patch flavor setting it as private when there are no projects
+# or public when it has related projects
 
 
 def test_forced_update_item(db_compute_serv: ComputeService) -> None:
@@ -188,6 +214,7 @@ def test_delete_item(db_compute_serv: ComputeService) -> None:
     assert result
     item = image.get(uid=item.uid)
     assert not item
+    assert db_compute_serv
 
 
 def test_delete_item_with_relationships(db_compute_serv: ComputeService) -> None:
@@ -198,7 +225,9 @@ def test_delete_item_with_relationships(db_compute_serv: ComputeService) -> None
     item = image.create(
         obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
     )
+    num_db_project = len(db_provider.projects)
     result = image.remove(db_obj=item)
     assert result
     item = image.get(uid=item.uid)
     assert not item
+    assert len(db_provider.projects) == num_db_project

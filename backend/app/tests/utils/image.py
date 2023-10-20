@@ -6,7 +6,7 @@ from app.image.enum import ImageOS
 from app.image.models import Image
 from app.image.schemas import ImageUpdate
 from app.provider.schemas_extended import ImageCreateExtended
-from app.tests.utils.utils import random_bool, random_datetime, random_lower_string
+from app.tests.utils.utils import random_bool, random_lower_string
 
 
 def create_random_image(
@@ -33,28 +33,34 @@ def create_random_image(
     return ImageCreateExtended(name=name, uuid=uuid, **kwargs)
 
 
-def create_random_update_image_data() -> ImageUpdate:
+def create_random_image_patch(default: bool = False) -> ImageUpdate:
+    if default:
+        return ImageUpdate()
     description = random_lower_string()
     name = random_lower_string()
     uuid = uuid4()
-    os = random_os_type()
-    distribution = random_lower_string()
-    version = random_lower_string()
+    os_type = random_os_type()
+    os_distro = random_lower_string()
+    os_version = random_lower_string()
     architecture = random_lower_string()
+    is_public = random_bool()
+    kernel_id = random_lower_string()
     cuda_support = random_bool()
     gpu_driver = random_bool()
-    creation_time = random_datetime()
+    tags = [random_lower_string()]
     return ImageUpdate(
         description=description,
         name=name,
         uuid=uuid,
-        os=os,
-        distribution=distribution,
-        version=version,
+        os_type=os_type,
+        os_distro=os_distro,
+        os_version=os_version,
         architecture=architecture,
+        is_public=is_public,
+        kernel_id=kernel_id,
         cuda_support=cuda_support,
         gpu_driver=gpu_driver,
-        creation_time=creation_time,
+        tags=tags,
     )
 
 

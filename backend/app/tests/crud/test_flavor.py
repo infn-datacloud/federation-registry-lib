@@ -138,8 +138,8 @@ def test_patch_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
-    """Try to update the attributes of an existing Project, without updating
-    its relationships, with default values.
+    """Try to update the attributes of an existing Flavor, without updating its
+    relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.

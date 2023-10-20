@@ -41,9 +41,9 @@ def create_random_flavor(
 def create_random_flavor_patch(default: bool = False) -> FlavorUpdate:
     if default:
         return FlavorUpdate()
+    description = random_lower_string()
     name = random_lower_string()
     uuid = uuid4()
-    description = random_lower_string()
     disk = random_non_negative_int()
     is_public = random_bool()
     ram = random_non_negative_int()

@@ -46,7 +46,7 @@ class CRUDImage(
         self,
         *,
         db_obj: Image,
-        obj_in: Union[ImageCreateExtended, ImageUpdate],
+        obj_in: Union[ImageUpdate, ImageCreateExtended],
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[Image]:
@@ -55,9 +55,11 @@ class CRUDImage(
             edit = self.__update_projects(
                 db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=ImageUpdate.parse_obj(obj_in), force=force
-        )
+
+        if isinstance(obj_in, ImageCreateExtended):
+            obj_in = ImageUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
     def __update_projects(
