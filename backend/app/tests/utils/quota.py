@@ -3,11 +3,10 @@ from app.provider.schemas_extended import (
     ComputeQuotaCreateExtended,
 )
 from app.quota.models import BlockStorageQuota, ComputeQuota
-from app.quota.schemas import QuotaUpdate
+from app.quota.schemas import BlockStorageQuotaUpdate, ComputeQuotaUpdate
 from app.tests.utils.utils import (
     random_bool,
     random_lower_string,
-    random_non_negative_float,
     random_non_negative_int,
 )
 
@@ -44,22 +43,43 @@ def create_random_compute_quota(
     return ComputeQuotaCreateExtended(project=project, **kwargs)
 
 
-def create_random_update_quota_data() -> QuotaUpdate:
+def create_random_block_storage_quota_patch(
+    default: bool = False,
+) -> BlockStorageQuotaUpdate:
+    if default:
+        return BlockStorageQuotaUpdate()
     description = random_lower_string()
-    tot_limit = random_non_negative_float()
-    instance_limit = random_non_negative_float()
-    user_limit = random_non_negative_float()
-    tot_guaranteed = random_non_negative_float()
-    instance_guaranteed = random_non_negative_float()
-    user_guaranteed = random_non_negative_float()
-    return QuotaUpdate(
+    per_user = random_bool()
+    gigabytes = random_non_negative_int()
+    per_volume_gigabytes = random_non_negative_int()
+    volumes = random_non_negative_int()
+    return BlockStorageQuotaUpdate(
         description=description,
-        tot_limit=tot_limit,
-        instance_limit=instance_limit,
-        user_limit=user_limit,
-        tot_guaranteed=tot_guaranteed,
-        instance_guaranteed=instance_guaranteed,
-        user_guaranteed=user_guaranteed,
+        per_user=per_user,
+        gigabytes=gigabytes,
+        per_volume_gigabytes=per_volume_gigabytes,
+        volumes=volumes,
+    )
+
+
+def create_random_compute_quota_patch(default: bool = False) -> ComputeQuotaUpdate:
+    if default:
+        return ComputeQuotaUpdate()
+    description = random_lower_string()
+    per_user = random_bool()
+    cores = random_non_negative_int()
+    fixed_ips = random_non_negative_int()
+    public_ips = random_non_negative_int()
+    instances = random_non_negative_int()
+    ram = random_non_negative_int()
+    return ComputeQuotaUpdate(
+        description=description,
+        per_user=per_user,
+        cores=cores,
+        fixed_ips=fixed_ips,
+        public_ips=public_ips,
+        instances=instances,
+        ram=ram,
     )
 
 

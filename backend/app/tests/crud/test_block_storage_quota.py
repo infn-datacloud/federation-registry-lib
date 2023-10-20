@@ -6,6 +6,7 @@ from app.service.models import BlockStorageService
 from app.tests.utils.project import create_random_project
 from app.tests.utils.quota import (
     create_random_block_storage_quota,
+    create_random_block_storage_quota_patch,
     validate_block_storage_quota_attrs,
 )
 
@@ -63,10 +64,7 @@ def test_get_non_existing_item(db_block_storage_serv: BlockStorageService) -> No
 
 
 def test_get_items(db_block_storage_serv: BlockStorageService) -> None:
-    """Retrieve multiple BlockStorage Quotas.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple BlockStorage Quotas."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
@@ -162,9 +160,28 @@ def test_get_items_with_skip(db_block_storage_serv: BlockStorageService) -> None
 
 
 def test_patch_item(db_block_storage_serv: BlockStorageService) -> None:
-    """Update the attributes of an existing BlockStorage Quota.
+    """Update the attributes of an existing BlockStorage Quota, do not update
+    linked relationships."""
+    db_region = db_block_storage_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_block_storage_quota(project=db_project.uuid)
+    item = block_storage_quota.create(
+        obj_in=item_in, service=db_block_storage_serv, project=db_project
+    )
+    patch_in = create_random_block_storage_quota_patch()
+    item = block_storage_quota.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
-    Do not update linked projects and block_storage service.
+
+def test_patch_item_with_defaults(db_block_storage_serv: BlockStorageService) -> None:
+    """Try to update the attributes of an existing BlockStorage Quota, without
+    updating its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
     """
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
@@ -173,8 +190,13 @@ def test_patch_item(db_block_storage_serv: BlockStorageService) -> None:
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
     )
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item = block_storage_quota.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_block_storage_quota_patch(default=True)
+    assert not block_storage_quota.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_block_storage_quota_patch(default=True)
+    patch_in.description = ""
+    item = block_storage_quota.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
 
@@ -213,7 +235,10 @@ def test_forced_update_item(db_block_storage_serv: BlockStorageService) -> None:
 
 
 def test_delete_item(db_block_storage_serv: BlockStorageService) -> None:
-    """Delete an existing BlockStorage Quota."""
+    """Delete an existing BlockStorage Quota.
+
+    Do not delete related projects.
+    """
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
@@ -221,23 +246,9 @@ def test_delete_item(db_block_storage_serv: BlockStorageService) -> None:
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
     )
+    num_db_project = len(db_provider.projects)
     result = block_storage_quota.remove(db_obj=item)
     assert result
     item = block_storage_quota.get(uid=item.uid)
     assert not item
-
-    # Update a BlockStorage Quota with no projects, changing its attributes and
-    # linking a new project.
-
-    # Update a BlockStorage Quota with a set of linked projects, changing both its
-    # attributes and replacing the linked projects with new ones.
-
-    # item_in = create_random_block_storage_quota()
-    # item = block_storage_quota.update(db_obj=item, obj_in=item_in, force=True)
-    # validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
-
-    # item_in = create_random_block_storage_quota(project=project1.uuid)
-    # item = block_storage_quota.update(
-    #     db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
-    # )
-    # validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    assert len(db_provider.projects) == num_db_project

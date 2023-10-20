@@ -6,6 +6,7 @@ from app.service.models import ComputeService
 from app.tests.utils.project import create_random_project
 from app.tests.utils.quota import (
     create_random_compute_quota,
+    create_random_compute_quota_patch,
     validate_compute_quota_attrs,
 )
 
@@ -62,10 +63,7 @@ def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_get_items(db_compute_serv: ComputeService) -> None:
-    """Retrieve multiple Compute Quotas.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple Compute Quotas."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
@@ -153,9 +151,28 @@ def test_get_items_with_skip(db_compute_serv: ComputeService) -> None:
 
 
 def test_patch_item(db_compute_serv: ComputeService) -> None:
-    """Update the attributes of an existing Compute Quota.
+    """Update the attributes of an existing Compute Quota, do not update linked
+    relationships."""
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_compute_quota(project=db_project.uuid)
+    item = compute_quota.create(
+        obj_in=item_in, service=db_compute_serv, project=db_project
+    )
+    patch_in = create_random_compute_quota_patch()
+    item = compute_quota.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_compute_quota_attrs(obj_in=item_in, db_item=item)
 
-    Do not update linked projects and compute service.
+
+def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
+    """Try to update the attributes of an existing Compute Quota, without
+    updating its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
     """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
@@ -164,8 +181,13 @@ def test_patch_item(db_compute_serv: ComputeService) -> None:
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
     )
-    item_in = create_random_compute_quota(project=db_project.uuid)
-    item = compute_quota.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_compute_quota_patch(default=True)
+    assert not compute_quota.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_compute_quota_patch(default=True)
+    patch_in.description = ""
+    item = compute_quota.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
@@ -202,7 +224,10 @@ def test_forced_update_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_delete_item(db_compute_serv: ComputeService) -> None:
-    """Delete an existing Compute Quota."""
+    """Delete an existing Compute Quota.
+
+    Do not delete related projects.
+    """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
@@ -210,7 +235,9 @@ def test_delete_item(db_compute_serv: ComputeService) -> None:
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
     )
+    num_db_project = len(db_provider.projects)
     result = compute_quota.remove(db_obj=item)
     assert result
     item = compute_quota.get(uid=item.uid)
     assert not item
+    assert len(db_provider.projects) == num_db_project

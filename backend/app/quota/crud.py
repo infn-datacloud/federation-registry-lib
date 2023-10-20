@@ -71,9 +71,10 @@ class CRUDBlockStorageQuota(
                 db_obj.project.reconnect(db_proj, db_item)
                 edit = True
 
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=BlockStorageQuotaUpdate.parse_obj(obj_in), force=force
-        )
+        if isinstance(obj_in, BlockStorageQuotaCreateExtended):
+            obj_in = BlockStorageQuotaUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
 
@@ -120,9 +121,10 @@ class CRUDComputeQuota(
                 db_obj.project.reconnect(db_proj, db_item)
                 edit = True
 
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=ComputeQuotaUpdate.parse_obj(obj_in), force=force
-        )
+        if isinstance(obj_in, ComputeQuotaCreateExtended):
+            obj_in = ComputeQuotaUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
 
