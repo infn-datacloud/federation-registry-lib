@@ -123,16 +123,15 @@ def valid_identity_provider(
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
     for group in item.user_groups:
-        for s in group.slas:
-            db_item = sla.get(doc_uuid=s.doc_uuid)
-            if db_item is not None:
-                db_group = db_item.user_group.single()
-                db_idp = db_group.identity_provider.single()
-                if db_group.name != group.name or db_idp.endpoint != item.endpoint:
-                    msg = f"SLA {s.doc_uuid} already used by another group"
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST, detail=msg
-                    )
+        db_item = sla.get(doc_uuid=group.sla.doc_uuid)
+        if db_item is not None:
+            db_group = db_item.user_group.single()
+            db_idp = db_group.identity_provider.single()
+            if db_group.name != group.name or db_idp.endpoint != item.endpoint:
+                msg = f"SLA {group.sla.doc_uuid} already used by another group"
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, detail=msg
+                )
 
 
 def valid_region(item: RegionCreateExtended) -> None:

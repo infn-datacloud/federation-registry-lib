@@ -504,7 +504,7 @@ class ProviderCreateExtended(ProviderCreate):
                         assert project in projects, msg
                 for quota in service.quotas:
                     if quota.project is not None:
-                        msg = f"Compute quota's project {project} "
+                        msg = f"Compute quota's project {quota.project} "
                         msg += f"not in this provider: {projects}"
                         assert quota.project in projects, msg
 
