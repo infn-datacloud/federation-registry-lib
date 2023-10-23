@@ -4,7 +4,7 @@ from uuid import UUID
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import Field, validator
+from pydantic import Field, root_validator, validator
 
 
 class SLABase(BaseNode):
@@ -30,6 +30,13 @@ class SLACreate(BaseNodeCreate, SLABase):
     Class without id (which is populated by the database). Expected as
     input when performing a POST request.
     """
+
+    @root_validator
+    def start_date_before_end_date(cls, values):
+        start = values.get("start_date")
+        end = values.get("end_date")
+        assert start < end, f"Start date {start} greater than end date {end}"
+        return values
 
 
 class SLAUpdate(BaseNodeCreate, SLABase):

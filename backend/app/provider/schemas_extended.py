@@ -212,13 +212,6 @@ class SLACreateExtended(SLACreate):
             return v.hex
         return v
 
-    @root_validator
-    def start_date_before_end_date(cls, values):
-        start = values.get("start_date")
-        end = values.get("end_date")
-        assert start < end, f"Start date {start} greater than end date {end}"
-        return values
-
 
 class UserGroupCreateExtended(UserGroupCreate):
     sla: SLACreateExtended = Field(description="SLA related to this provider")
