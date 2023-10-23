@@ -58,7 +58,7 @@ class CRUDProvider(
         self,
         *,
         db_obj: Provider,
-        obj_in: Union[ProviderCreateExtended, ProviderUpdate],
+        obj_in: Union[ProviderUpdate, ProviderCreateExtended],
         force: bool = False
     ) -> Optional[Provider]:
         edit = False
@@ -70,9 +70,10 @@ class CRUDProvider(
             regions_updated = self.__update_regions(db_obj=db_obj, obj_in=obj_in)
             edit = projects_updated or idps_updated or regions_updated
 
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=ProviderUpdate.parse_obj(obj_in), force=force
-        )
+        if isinstance(obj_in, ProviderCreateExtended):
+            obj_in = ProviderUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
     def __update_projects(

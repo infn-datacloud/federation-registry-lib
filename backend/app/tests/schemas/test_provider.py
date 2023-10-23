@@ -17,14 +17,16 @@ def test_create_schema():
     """Create a valid 'Create' Schema."""
     create_random_provider()
     create_random_provider(default=True)
-    create_random_provider(with_identity_providers=True)
-    create_random_provider(default=True, with_identity_providers=True)
     create_random_provider(with_projects=True)
     create_random_provider(default=True, with_projects=True)
+    create_random_provider(with_projects=True, with_identity_providers=True)
+    create_random_provider(
+        default=True, with_projects=True, with_identity_providers=True
+    )
     create_random_provider(with_regions=True)
     create_random_provider(default=True, with_regions=True)
     create_random_provider(
-        with_identity_providers=True, with_projects=True, with_regions=True
+        with_projects=True, with_identity_providers=True, with_regions=True
     )
     create_random_provider(
         default=True,
@@ -67,7 +69,7 @@ def test_invalid_create_schema():
     with pytest.raises(ValidationError):
         # Project referenced by an SLA is not in the provider projects.
         idp = a.identity_providers[0]
-        idp.user_groups[0].slas[0].projects = [uuid4()]
+        idp.user_groups[0].sla.project = uuid4()
         a.identity_providers = [idp]
     with pytest.raises(ValidationError):
         # Project referenced by a Block Storage Quota is not in the provider projects.
@@ -130,7 +132,7 @@ def test_read_schema():
     ProviderReadExtended.from_orm(db_obj)
     ProviderReadExtendedPublic.from_orm(db_obj)
 
-    obj_in = create_random_provider(with_identity_providers=True)
+    obj_in = create_random_provider(with_projects=True, with_identity_providers=True)
     db_obj = provider.create(obj_in=obj_in)
     ProviderRead.from_orm(db_obj)
     ProviderReadPublic.from_orm(db_obj)
@@ -138,7 +140,9 @@ def test_read_schema():
     ProviderReadExtended.from_orm(db_obj)
     ProviderReadExtendedPublic.from_orm(db_obj)
 
-    obj_in = create_random_provider(default=True, with_identity_providers=True)
+    obj_in = create_random_provider(
+        default=True, with_projects=True, with_identity_providers=True
+    )
     db_obj = provider.create(obj_in=obj_in)
     ProviderRead.from_orm(db_obj)
     ProviderReadPublic.from_orm(db_obj)

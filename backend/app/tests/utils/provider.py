@@ -51,16 +51,22 @@ def create_random_provider(
     return ProviderCreateExtended(name=name, type=type, **kwargs)
 
 
-def create_random_update_provider_data() -> ProviderUpdate:
+def create_random_provider_patch(*, default: bool = False) -> ProviderUpdate:
+    if default:
+        return ProviderUpdate()
     description = random_lower_string()
     name = random_lower_string()
+    type = random_type()
     is_public = random_bool()
-    support_email = [random_email()]
+    support_emails = [random_email()]
+    status = random_status()
     return ProviderUpdate(
         description=description,
         name=name,
+        type=type,
         is_public=is_public,
-        support_email=support_email,
+        support_emails=support_emails,
+        status=status,
     )
 
 

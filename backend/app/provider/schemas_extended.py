@@ -484,10 +484,11 @@ class ProviderCreateExtended(ProviderCreate):
                 ), f"SLA {user_group.sla.doc_uuid} already used by another user group"
                 seen.add(user_group.sla.doc_uuid)
 
-                for project in user_group.sla.projects:
-                    msg = f"SLA {user_group.sla.doc_uuid} project {project} "
-                    msg += f"not in this provider: {projects}"
-                    assert project in projects, msg
+                msg = (
+                    f"SLA {user_group.sla.doc_uuid}'s project {user_group.sla.project} "
+                )
+                msg += f"not in this provider: {projects}"
+                assert user_group.sla.project in projects, msg
 
         for region in values.get("regions", []):
             for service in region.block_storage_services:

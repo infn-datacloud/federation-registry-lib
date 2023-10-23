@@ -1,8 +1,15 @@
 from typing import Generator
 from uuid import uuid4
 
+from app.identity_provider.crud import identity_provider
+from app.project.crud import project
 from app.provider.crud import provider
-from app.tests.utils.provider import create_random_provider, validate_provider_attrs
+from app.region.crud import region
+from app.tests.utils.provider import (
+    create_random_provider,
+    create_random_provider_patch,
+    validate_provider_attrs,
+)
 
 
 def test_create_item(setup_and_teardown_db: Generator) -> None:
@@ -54,15 +61,6 @@ def test_create_item_with_everything(setup_and_teardown_db: Generator) -> None:
     validate_provider_attrs(obj_in=item_in, db_item=item)
 
 
-def test_create_item_with_identity_providers(
-    setup_and_teardown_db: Generator,
-) -> None:
-    """Create a Provider, with identity providers and no projects."""
-    item_in = create_random_provider(with_identity_providers=True)
-    item = provider.create(obj_in=item_in)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
-
-
 def test_create_item_with_regions(
     setup_and_teardown_db: Generator,
 ) -> None:
@@ -89,10 +87,7 @@ def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
 
 
 def test_get_items(setup_and_teardown_db: Generator) -> None:
-    """Retrieve multiple Providers.
-
-    Filter GET operations specifying a target uid.
-    """
+    """Retrieve multiple Providers."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     item_in2 = create_random_provider()
@@ -160,14 +155,33 @@ def test_get_items_with_skip(setup_and_teardown_db: Generator) -> None:
 
 
 def test_patch_item(setup_and_teardown_db: Generator) -> None:
-    """Update the attributes of an existing Provider.
+    """Update the attributes of an existing Provider, without updating its
+    relationships."""
+    item_in = create_random_provider()
+    item = provider.create(obj_in=item_in)
+    patch_in = create_random_provider_patch()
+    item = provider.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_provider_attrs(obj_in=item_in, db_item=item)
 
-    Do not update linked projects, identity providers and regions.
+
+def test_patch_item_with_defaults(setup_and_teardown_db: Generator) -> None:
+    """Try to update the attributes of an existing Provider, without updating
+    its relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
     """
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
-    item_in = create_random_provider()
-    item = provider.update(db_obj=item, obj_in=item_in)
+    patch_in = create_random_provider_patch(default=True)
+    assert not provider.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_provider_patch(default=True)
+    patch_in.description = ""
+    item = provider.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_provider_attrs(obj_in=item_in, db_item=item)
 
 
@@ -320,3 +334,6 @@ def test_delete_item_with_relationships(setup_and_teardown_db: Generator) -> Non
     assert result
     item = provider.get(uid=item.uid)
     assert not item
+    assert not len(region.get_multi())
+    assert not len(project.get_multi())
+    assert not len(identity_provider.get_multi())
