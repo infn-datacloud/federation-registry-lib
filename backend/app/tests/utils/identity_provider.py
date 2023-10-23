@@ -12,29 +12,34 @@ from app.tests.utils.utils import random_lower_string, random_url
 
 
 def create_random_identity_provider(
-    *, default: bool = False, projects: List[str] = []
+    *, default: bool = False, projects: List[str]
 ) -> IdentityProviderCreateExtended:
     endpoint = random_url()
     group_claim = random_lower_string()
     relationship = random_relationship()
+    user_groups = []
+    for p in projects:
+        user_groups.append(create_random_user_group(project=p))
     kwargs = {}
     if not default:
         kwargs = {"description": random_lower_string()}
-    if len(projects):
-        kwargs["user_groups"] = [create_random_user_group(projects=projects)]
     return IdentityProviderCreateExtended(
-        endpoint=endpoint, group_claim=group_claim, relationship=relationship, **kwargs
+        endpoint=endpoint,
+        group_claim=group_claim,
+        relationship=relationship,
+        user_groups=user_groups,
+        **kwargs
     )
 
 
-def create_random_update_identity_provider(
+def create_random_identity_provider_patch(
     *, default: bool = False
 ) -> IdentityProviderUpdate:
+    if default:
+        return IdentityProviderUpdate()
     endpoint = random_url()
     group_claim = random_lower_string()
-    kwargs = {}
-    if not default:
-        kwargs = {"description": random_lower_string()}
+    kwargs = {"description": random_lower_string()}
     return IdentityProviderUpdate(endpoint=endpoint, group_claim=group_claim, **kwargs)
 
 

@@ -204,14 +204,12 @@ def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
 
 
 class SLACreateExtended(SLACreate):
-    projects: List[str] = Field(
-        default_factory=list, description="List of projects UUID"
-    )
+    project: str = Field(description="Project UUID")
 
-    @validator("projects", pre=True)
+    @validator("project", pre=True)
     def validate_projects(cls, v):
-        v = [i.hex if isinstance(i, UUID) else i for i in v]
-        find_duplicates(v)
+        if isinstance(v, UUID):
+            return v.hex
         return v
 
     @root_validator
@@ -223,15 +221,7 @@ class SLACreateExtended(SLACreate):
 
 
 class UserGroupCreateExtended(UserGroupCreate):
-    slas: List[SLACreateExtended] = Field(
-        default_factory=list, description="List of SLAs"
-    )
-
-    @validator("slas")
-    def validate_slas(cls, v):
-        find_duplicates(v, "doc_uuid")
-        # assert len(v), "SLA list can't be empty"
-        return v
+    sla: SLACreateExtended = Field(description="SLA related to this provider")
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
@@ -242,14 +232,13 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         description="Authentication method used by the Provider"
     )
     user_groups: List[UserGroupCreateExtended] = Field(
-        default_factory=list,
         description="List of user groups belonging to this identity provider",
     )
 
     @validator("user_groups")
     def validate_user_groups(cls, v):
         find_duplicates(v, "name")
-        # assert len(v), "Identity provider's user group list can't be empty"
+        assert len(v), "Identity provider's user group list can't be empty"
         return v
 
 
@@ -490,16 +479,15 @@ class ProviderCreateExtended(ProviderCreate):
         seen = set()
         for identity_provider in values.get("identity_providers", []):
             for user_group in identity_provider.user_groups:
-                for sla in user_group.slas:
-                    assert (
-                        sla.doc_uuid not in seen
-                    ), f"SLA {sla.doc_uuid} already used by another user group"
-                    seen.add(sla.doc_uuid)
+                assert (
+                    user_group.sla.doc_uuid not in seen
+                ), f"SLA {user_group.sla.doc_uuid} already used by another user group"
+                seen.add(user_group.sla.doc_uuid)
 
-                    for project in sla.projects:
-                        msg = f"SLA {sla.doc_uuid} project {project} "
-                        msg += f"not in this provider: {projects}"
-                        assert project in projects, msg
+                for project in user_group.sla.projects:
+                    msg = f"SLA {user_group.sla.doc_uuid} project {project} "
+                    msg += f"not in this provider: {projects}"
+                    assert project in projects, msg
 
         for region in values.get("regions", []):
             for service in region.block_storage_services:

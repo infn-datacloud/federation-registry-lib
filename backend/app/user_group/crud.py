@@ -42,10 +42,15 @@ class CRUDUserGroup(
     ) -> UserGroup:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.identity_provider.connect(identity_provider)
-        for item in obj_in.slas:
-            db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
-            if len(db_projects) > 0:
-                sla.create(obj_in=item, user_group=db_obj, projects=db_projects)
+        for db_project in projects:
+            if db_project.uuid == obj_in.sla.project:
+                db_sla = db_project.sla.single()
+                if db_sla is not None:
+                    if len(db_sla.projects.all()) == 1:
+                        sla.remove(db_obj=db_sla)
+                    else:
+                        db_project.sla.disconnect(db_sla)
+                sla.create(obj_in=obj_in.sla, user_group=db_obj, project=db_project)
         return db_obj
 
     def remove(self, *, db_obj: UserGroup) -> bool:
@@ -57,7 +62,7 @@ class CRUDUserGroup(
         self,
         *,
         db_obj: UserGroup,
-        obj_in: Union[UserGroupCreateExtended, UserGroupUpdate],
+        obj_in: Union[UserGroupUpdate, UserGroupCreateExtended],
         projects: List[Project] = [],
         force: bool = False
     ) -> Optional[UserGroup]:
@@ -66,9 +71,11 @@ class CRUDUserGroup(
             edit = self.__update_slas(
                 db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=UserGroupUpdate.parse_obj(obj_in), force=force
-        )
+
+        if isinstance(obj_in, UserGroupCreateExtended):
+            obj_in = UserGroupUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
     def __update_slas(
@@ -80,23 +87,23 @@ class CRUDUserGroup(
     ) -> bool:
         edit = False
         db_items = {db_item.doc_uuid: db_item for db_item in db_obj.slas}
-        for item in obj_in.slas:
-            db_item = db_items.pop(str(item.doc_uuid), None)
-            db_projects = list(
-                filter(lambda x: x.uuid in item.projects, provider_projects)
-            )
-            if db_item is None:
-                sla.create(obj_in=item, projects=db_projects, user_group=db_obj)
-                edit = True
-            else:
-                updated_data = sla.update(
-                    db_obj=db_item, obj_in=item, projects=db_projects, force=True
-                )
-                if not edit and updated_data is not None:
-                    edit = True
-        for db_item in db_items.values():
-            sla.remove(db_obj=db_item)
+        db_projects = list(
+            filter(lambda x: x.uuid in obj_in.sla.project, provider_projects)
+        )
+        db_project = db_projects[0]
+        db_item = db_items.pop(obj_in.sla.doc_uuid, None)
+        if not db_item:
+            sla.create(obj_in=obj_in.sla, project=db_project, user_group=db_obj)
             edit = True
+        else:
+            updated_data = sla.update(
+                db_obj=db_item, obj_in=obj_in.sla, projects=db_projects, force=True
+            )
+            if not edit and updated_data is not None:
+                edit = True
+        # for db_item in db_items.values():
+        #     sla.remove(db_obj=db_item)
+        #     edit = True
         return edit
 
 

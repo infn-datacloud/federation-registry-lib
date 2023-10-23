@@ -15,7 +15,6 @@ from app.region.crud import region
 from app.region.models import Region
 from app.service.crud import block_storage_service, compute_service, network_service
 from app.service.models import BlockStorageService, ComputeService, NetworkService
-from app.sla.crud import sla
 from app.sla.models import SLA
 from app.tests.utils.identity_provider import create_random_identity_provider
 from app.tests.utils.location import create_random_location
@@ -31,9 +30,6 @@ from app.tests.utils.service import (
     create_random_compute_service,
     create_random_network_service,
 )
-from app.tests.utils.sla import create_random_sla
-from app.tests.utils.user_group import create_random_user_group
-from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from fastapi.testclient import TestClient
 from neomodel import clear_neo4j_database, db
@@ -77,27 +73,21 @@ def db_provider_with_project(db_provider: Provider) -> Provider:
 
 @pytest.fixture
 def db_idp(db_provider_with_project: Provider) -> IdentityProvider:
-    item_in = create_random_identity_provider()
+    item_in = create_random_identity_provider(
+        projects=[i.uuid for i in db_provider_with_project.projects]
+    )
     item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
     yield item
 
 
 @pytest.fixture
 def db_group(db_idp: IdentityProvider) -> UserGroup:
-    item_in = create_random_user_group()
-    item = user_group.create(obj_in=item_in, identity_provider=db_idp)
-    yield item
+    yield db_idp.user_groups.all()[0]
 
 
 @pytest.fixture
 def db_sla(db_group: UserGroup) -> SLA:
-    db_idp = db_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
-    yield item
+    yield db_group.slas.all()[0]
 
 
 @pytest.fixture

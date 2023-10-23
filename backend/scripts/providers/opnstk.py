@@ -18,6 +18,8 @@ from app.provider.schemas_extended import (
     ProjectCreate,
     ProviderCreateExtended,
     RegionCreateExtended,
+    SLACreateExtended,
+    UserGroupCreateExtended,
 )
 from app.service.enum import (
     BlockStorageServiceName,
@@ -370,13 +372,17 @@ def get_provider(
     # Filter on IDPs and user groups with SLAs
     # belonging to at least one project
     for idp in trust_idps:
+        user_groups = []
         for user_group in idp.user_groups:
-            user_group.slas = list(
-                filter(lambda sla: len(sla.projects) > 0, user_group.slas)
-            )
-        idp.user_groups = list(
-            filter(lambda user_group: len(user_group.slas) > 0, idp.user_groups)
-        )
+            for sla in user_group.slas:
+                if len(sla.projects) == 1:
+                    project = sla.projects[0]
+                    new_sla = SLACreateExtended(**sla.dict(), project=project)
+                    new_group = UserGroupCreateExtended(
+                        **user_group.dict(), sla=new_sla
+                    )
+                    user_groups.append(new_group)
+        idp.user_groups = user_groups
     identity_providers = list(filter(lambda idp: len(idp.user_groups) > 0, trust_idps))
 
     # Remove from flavors and images' projects the ones

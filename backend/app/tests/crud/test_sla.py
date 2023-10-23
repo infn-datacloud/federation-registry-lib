@@ -3,7 +3,11 @@ from uuid import uuid4
 from app.project.crud import project
 from app.sla.crud import sla
 from app.tests.utils.project import create_random_project
-from app.tests.utils.sla import create_random_sla, validate_sla_attrs
+from app.tests.utils.sla import (
+    create_random_sla,
+    create_random_sla_patch,
+    validate_sla_attrs,
+)
 from app.user_group.models import UserGroup
 
 
@@ -12,24 +16,20 @@ def test_create_item(db_group: UserGroup) -> None:
     existing projects."""
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
     validate_sla_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_group: UserGroup) -> None:
     """Create an SLA, with default values when possible, belonging to a
-    specific user group and pointing to an existing projects."""
+    specific user group and pointing to existing projects."""
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(
-        default=True, projects=[i.uuid for i in db_provider.projects]
-    )
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_sla(default=True, project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
     validate_sla_attrs(obj_in=item_in, db_item=item)
 
 
@@ -37,10 +37,9 @@ def test_get_item(db_group: UserGroup) -> None:
     """Retrieve an SLA from its UID."""
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
     item = sla.get(uid=item.uid)
     validate_sla_attrs(obj_in=item_in, db_item=item)
 
@@ -49,10 +48,9 @@ def test_get_non_existing_item(db_group: UserGroup) -> None:
     """Try to retrieve a not existing SLA."""
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
     item = sla.get(uid=uuid4())
     assert not item
 
@@ -64,14 +62,10 @@ def test_get_items(db_group: UserGroup) -> None:
     """
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
-    item_in2 = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item2 = sla.create(
-        obj_in=item_in2, user_group=db_group, projects=db_provider.projects
-    )
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
+
     stored_items = sla.get_multi()
     assert len(stored_items) == 2
 
@@ -79,19 +73,14 @@ def test_get_items(db_group: UserGroup) -> None:
     assert len(stored_items) == 1
     validate_sla_attrs(obj_in=item_in, db_item=stored_items[0])
 
-    stored_items = sla.get_multi(uid=item2.uid)
-    assert len(stored_items) == 1
-    validate_sla_attrs(obj_in=item_in2, db_item=stored_items[0])
-
 
 def test_get_items_with_limit(db_group: UserGroup) -> None:
     """Test the 'limit' attribute in GET operations."""
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    sla.create(obj_in=item_in, user_group=db_group, projects=db_provider.projects)
-    item_in2 = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    sla.create(obj_in=item_in2, user_group=db_group, projects=db_provider.projects)
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_sla(project=db_project.uuid)
+    sla.create(obj_in=item_in, user_group=db_group, project=db_project)
 
     stored_items = sla.get_multi(limit=0)
     assert len(stored_items) == 0
@@ -107,14 +96,12 @@ def test_get_sorted_items(db_group: UserGroup) -> None:
     """Test the 'sort' attribute in GET operations."""
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
-    item_in2 = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item2 = sla.create(
-        obj_in=item_in2, user_group=db_group, projects=db_provider.projects
-    )
+    db_project = db_provider.projects.all()[0]
+    item = db_project.sla.single()
+
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in2 = create_random_sla(project=db_project.uuid)
+    item2 = sla.create(obj_in=item_in2, user_group=db_group, project=db_project)
 
     sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
 
@@ -131,10 +118,9 @@ def test_get_items_with_skip(db_group: UserGroup) -> None:
     """Test the 'skip' attribute in GET operations."""
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    sla.create(obj_in=item_in, user_group=db_group, projects=db_provider.projects)
-    item_in2 = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    sla.create(obj_in=item_in2, user_group=db_group, projects=db_provider.projects)
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_sla(project=db_project.uuid)
+    sla.create(obj_in=item_in, user_group=db_group, project=db_project)
 
     stored_items = sla.get_multi(skip=0)
     assert len(stored_items) == 2
@@ -150,12 +136,35 @@ def test_patch_item(db_group: UserGroup) -> None:
     """
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
-    item_in = create_random_sla(projects=[i.uuid for i in db_provider.projects])
-    item = sla.update(db_obj=item, obj_in=item_in)
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
+    patch_in = create_random_sla_patch()
+    item = sla.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_sla_attrs(obj_in=item_in, db_item=item)
+
+
+def test_patch_item_with_defaults(db_group: UserGroup) -> None:
+    """Try to update the attributes of an existing SLA, without updating its
+    relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
+    """
+    db_idp = db_group.identity_provider.single()
+    db_provider = db_idp.providers.all()[0]
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
+    patch_in = create_random_sla_patch(default=True)
+    assert not sla.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_sla_patch(default=True)
+    patch_in.description = ""
+    item = sla.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
     validate_sla_attrs(obj_in=item_in, db_item=item)
 
 
@@ -172,19 +181,16 @@ def test_forced_update(db_group: UserGroup) -> None:
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
     db_project = db_provider.projects.all()[0]
-    item_in = create_random_sla(projects=[db_project.uuid])
-    item = sla.create(
-        obj_in=item_in, user_group=db_group, projects=db_provider.projects
-    )
-    item_in = create_random_sla(projects=[db_project.uuid])
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
+    item_in = create_random_sla(project=db_project.uuid)
     item = sla.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
     validate_sla_attrs(obj_in=item_in, db_item=item)
 
-    project_in = create_random_project()
-    db_project = project.create(obj_in=project_in, provider=db_provider)
-    item_in = create_random_sla(projects=[db_project.uuid])
+    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    item_in = create_random_sla(project=db_project.uuid)
     item = sla.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
@@ -194,9 +200,10 @@ def test_forced_update(db_group: UserGroup) -> None:
 def test_delete_item(db_group: UserGroup) -> None:
     """Delete an existing SLA."""
     db_idp = db_group.identity_provider.single()
-    provider = db_idp.providers.all()[0]
-    item_in = create_random_sla(projects=[i.uuid for i in provider.projects])
-    item = sla.create(obj_in=item_in, user_group=db_group, projects=provider.projects)
+    db_provider = db_idp.providers.all()[0]
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
     result = sla.remove(db_obj=item)
     assert result
     item = sla.get(uid=item.uid)

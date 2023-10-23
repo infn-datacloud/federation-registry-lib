@@ -24,30 +24,41 @@ class CRUDSLA(
     """"""
 
     def create(
-        self, *, obj_in: SLACreate, projects: List[Project], user_group: UserGroup
+        self, *, obj_in: SLACreate, project: Project, user_group: UserGroup
     ) -> SLA:
         db_obj = super().create(obj_in=obj_in, force=True)
         db_obj.user_group.connect(user_group)
-        for i in projects:
-            db_obj.projects.connect(i)
+        db_obj.projects.connect(project)
         return db_obj
 
     def update(
         self,
         *,
         db_obj: SLA,
-        obj_in: Union[SLACreateExtended, SLAUpdate],
+        obj_in: Union[SLAUpdate, SLACreateExtended],
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[SLA]:
         edit = False
         if force:
-            edit = self.__update_projects(
-                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            provider_projects = {db_item.uuid: db_item for db_item in projects}
+            old_projects_same_provider = list(
+                filter(lambda x: x in db_obj.projects, projects)
             )
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=SLAUpdate.parse_obj(obj_in), force=force
-        )
+            db_project = provider_projects.get(obj_in.project)
+            if len(old_projects_same_provider) == 0:
+                db_obj.projects.connect(db_project)
+                edit = True
+            else:
+                old_project = old_projects_same_provider[0]
+                if old_project.uuid != obj_in.project:
+                    db_obj.projects.reconnect(old_project, db_project)
+                    edit = True
+
+        if isinstance(obj_in, SLACreateExtended):
+            obj_in = SLAUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
     def __update_projects(

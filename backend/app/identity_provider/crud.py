@@ -36,14 +36,29 @@ class CRUDIdentityProvider(
     def create(
         self, *, obj_in: IdentityProviderCreateExtended, provider: Provider
     ) -> IdentityProvider:
-        db_obj = super().create(obj_in=obj_in, force=False)
+        db_obj = self.get(endpoint=obj_in.endpoint)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in, force=True)
+        else:
+            updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
+            if updated_data:
+                db_obj = updated_data
         db_obj.providers.connect(provider, obj_in.relationship.dict())
+
         for item in obj_in.user_groups:
-            user_group.create(
-                obj_in=item,
-                identity_provider=db_obj,
-                projects=provider.projects.all(),
-            )
+            db_user_group = db_obj.user_groups.get_or_none(name=item.name)
+            if db_user_group:
+                user_group.update(
+                    db_obj=db_user_group,
+                    obj_in=item,
+                    projects=provider.projects,
+                    force=True,
+                )
+            else:
+                user_group.create(
+                    obj_in=item, identity_provider=db_obj, projects=provider.projects
+                )
+
         return db_obj
 
     def remove(self, *, db_obj: IdentityProvider) -> bool:
@@ -55,7 +70,7 @@ class CRUDIdentityProvider(
         self,
         *,
         db_obj: IdentityProvider,
-        obj_in: Union[IdentityProviderCreateExtended, IdentityProviderUpdate],
+        obj_in: Union[IdentityProviderUpdate, IdentityProviderCreateExtended],
         projects: List[Project] = [],
         provider: Optional[Provider] = None,
         force: bool = False
@@ -74,9 +89,10 @@ class CRUDIdentityProvider(
                     db_obj.providers.replace(provider, obj_in.relationship.dict())
                     edit = True
 
-        updated_data = super().update(
-            db_obj=db_obj, obj_in=IdentityProviderUpdate.parse_obj(obj_in), force=force
-        )
+        if isinstance(obj_in, IdentityProviderCreateExtended):
+            obj_in = IdentityProviderUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
 
     def __update_user_groups(

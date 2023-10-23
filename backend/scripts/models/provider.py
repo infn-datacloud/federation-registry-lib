@@ -7,16 +7,47 @@ from app.identity_provider.schemas import IdentityProviderBase
 from app.location.schemas import LocationBase
 from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderBase
-from app.provider.schemas_extended import UserGroupCreateExtended
+from app.provider.schemas_extended import find_duplicates
 from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase
 from app.region.schemas import RegionBase
+from app.sla.schemas import SLABase
+from app.user_group.schemas import UserGroupBase
 from pydantic import AnyHttpUrl, BaseModel, Field, root_validator, validator
+
+
+class SLA(SLABase):
+    projects: List[str] = Field(
+        default_factory=list, description="List of projects UUID"
+    )
+
+    @validator("projects", pre=True)
+    def validate_projects(cls, v):
+        v = [i.hex if isinstance(i, UUID) else i for i in v]
+        find_duplicates(v)
+        return v
+
+    @root_validator
+    def start_date_before_end_date(cls, values):
+        start = values.get("start_date")
+        end = values.get("end_date")
+        assert start < end, f"Start date {start} greater than end date {end}"
+        return values
+
+
+class UserGroup(UserGroupBase):
+    slas: List[SLA] = Field(default_factory=list, description="List of SLAs")
+
+    @validator("slas")
+    def validate_slas(cls, v):
+        find_duplicates(v, "doc_uuid")
+        assert len(v), "SLA list can't be empty"
+        return v
 
 
 class TrustedIDP(IdentityProviderBase):
     issuer: AnyHttpUrl = Field(description="issuer url")
     token: str = Field(description="Access token")
-    user_groups: List[UserGroupCreateExtended] = Field(
+    user_groups: List[UserGroup] = Field(
         default_factory=list, description="User groups"
     )
     relationship: Optional[AuthMethodBase] = Field(default=None, description="")

@@ -14,14 +14,14 @@ class SLAReadExtended(SLARead):
     """Model to extend the SLA data read from the DB with the lists of related
     items."""
 
-    project: ProjectRead = Field(description="Involved Project.")
+    projects: List[ProjectRead] = Field(description="Involved Projects.")
 
 
 class SLAReadExtendedPublic(SLAReadPublic):
     """Model to extend the SLA data read from the DB with the lists of related
     items."""
 
-    project: ProjectReadPublic = Field(description="Involved Project.")
+    projects: List[ProjectReadPublic] = Field(description="Involved Projects.")
 
 
 class UserGroupReadExtended(UserGroupRead):

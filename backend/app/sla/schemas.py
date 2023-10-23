@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 from uuid import UUID
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
@@ -39,6 +40,18 @@ class SLAUpdate(BaseNodeCreate, SLABase):
 
     Default to None mandatory attributes.
     """
+
+    start_date: Optional[date] = Field(
+        default=None, description="Starting date of validity for this SLA."
+    )
+    end_date: Optional[date] = Field(
+        default=None,
+        description="End of life date for this SLA. \
+            If not set it lasts forever.",
+    )
+    doc_uuid: Optional[str] = Field(
+        default=None, description="UUID of the corresponding document."
+    )
 
 
 class SLARead(BaseNodeRead, SLABase):
