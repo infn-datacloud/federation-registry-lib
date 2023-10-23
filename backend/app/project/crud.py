@@ -29,7 +29,7 @@ class CRUDProject(
     """"""
 
     def create(self, *, obj_in: ProjectCreate, provider: Provider) -> Project:
-        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj = super().create(obj_in=obj_in)
         db_obj.provider.connect(provider)
         return db_obj
 

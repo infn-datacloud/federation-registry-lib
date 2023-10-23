@@ -83,12 +83,10 @@ class CRUDBase(
         end = skip + limit
         return items[start:end]
 
-    def create(self, *, obj_in: CreateSchemaType, force: bool = False) -> ModelType:
+    def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in = self.create_schema.parse_obj(obj_in)
         obj_in_data = obj_in.dict(exclude_none=True)
         db_obj = None
-        if not force:
-            db_obj = self.model.nodes.get_or_none(**obj_in_data)
         if db_obj is None:
             db_obj = self.model.create(obj_in_data)[0]
         return db_obj

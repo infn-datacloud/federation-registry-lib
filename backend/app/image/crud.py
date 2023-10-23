@@ -36,7 +36,7 @@ class CRUDImage(
         service: ComputeService,
         projects: List[Project] = [],
     ) -> Image:
-        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj = super().create(obj_in=obj_in)
         db_obj.services.connect(service)
         for project in projects:
             db_obj.projects.connect(project)

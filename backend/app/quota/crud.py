@@ -49,7 +49,7 @@ class CRUDBlockStorageQuota(
         service: BlockStorageService,
         project: Project,
     ) -> BlockStorageQuota:
-        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj = super().create(obj_in=obj_in)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
         return db_obj
@@ -99,7 +99,7 @@ class CRUDComputeQuota(
         service: ComputeService,
         project: Project,
     ) -> ComputeQuota:
-        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj = super().create(obj_in=obj_in)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
         return db_obj

@@ -40,7 +40,7 @@ class CRUDUserGroup(
         identity_provider: IdentityProvider,
         projects: List[Project] = []
     ) -> UserGroup:
-        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj = super().create(obj_in=obj_in)
         db_obj.identity_provider.connect(identity_provider)
         for db_project in projects:
             if db_project.uuid == obj_in.sla.project:

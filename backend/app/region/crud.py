@@ -43,7 +43,7 @@ class CRUDRegion(
     """"""
 
     def create(self, *, obj_in: RegionCreateExtended, provider: Provider) -> Region:
-        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj = super().create(obj_in=obj_in)
         db_obj.provider.connect(provider)
         if obj_in.location is not None:
             location.create(obj_in=obj_in.location, region=db_obj)

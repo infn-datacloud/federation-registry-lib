@@ -34,7 +34,7 @@ class CRUDProvider(
     """"""
 
     def create(self, *, obj_in: ProviderCreateExtended) -> Provider:
-        db_obj = super().create(obj_in=obj_in, force=True)
+        db_obj = super().create(obj_in=obj_in)
         for item in obj_in.projects:
             project.create(obj_in=item, provider=db_obj)
         for item in obj_in.identity_providers:
