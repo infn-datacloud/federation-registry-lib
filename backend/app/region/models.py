@@ -11,10 +11,11 @@ from neomodel import (
 
 
 class Region(StructuredNode):
-    """Associated Region class.
+    """Region owned by a Provider.
 
-    Relationship linking a user group to a provider.
-    This link correspond to a "Region/tenant" entity.
+    A Region is used to split a provider resources and limit projects access.
+    A Region can have a specific geographical location and supplies
+    different services (compute, block storage, network...).
 
     Attributes:
         uid (uuid): AssociatedRegion unique ID.

@@ -11,14 +11,16 @@ from neomodel import (
 
 
 class Quota(StructuredNode):
-    """Associated Project class.
+    """Resource limitations for Projects on Services.
 
-    Relationship linking a user group to a provider.
-    This link correspond to a "project/tenant" entity.
+    Common attributes to all quota types.
+    Any quota belongs to a only a project.
 
     Attributes:
-        name (str): Quota name (type).
+        uid (int): Quota unique ID.
         description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
     """
 
     uid = UniqueIdProperty()
@@ -31,7 +33,39 @@ class Quota(StructuredNode):
     )
 
 
+class BlockStorageQuota(Quota):
+    """Resource limitations for Projects on Block Storage Services.
+
+    Block Storage quota limitations apply on a Block Storage Service.
+
+    Attributes:
+        gigabytes (int): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int): Number of max usable gigabytes per volume (GiB).
+        volumes (int): Number of max volumes a user group can create.
+    """
+
+    gigabytes = IntegerProperty()
+    per_volume_gigabytes = IntegerProperty()
+    volumes = IntegerProperty()
+
+    service = RelationshipTo(
+        "..service.models.BlockStorageService", "APPLY_TO", cardinality=One
+    )
+
+
 class ComputeQuota(Quota):
+    """Resource limitations for Projects on Compute Services.
+
+    Compute quota limitations apply on a Compute Service.
+
+    Attributes:
+        cores (int): Number of max usable cores.
+        fixed_ips (int): Number of max fixed IPs.
+        public_ips (int): Number of max usable IPs.
+        instance (int): Number of max VM instances.
+        ram (int): Number of max usable RAM (MiB).
+    """
+
     cores = IntegerProperty()
     fixed_ips = IntegerProperty()
     public_ips = IntegerProperty()
@@ -40,14 +74,4 @@ class ComputeQuota(Quota):
 
     service = RelationshipTo(
         "..service.models.ComputeService", "APPLY_TO", cardinality=One
-    )
-
-
-class BlockStorageQuota(Quota):
-    gigabytes = IntegerProperty()
-    per_volume_gigabytes = IntegerProperty()
-    volumes = IntegerProperty()
-
-    service = RelationshipTo(
-        "..service.models.BlockStorageService", "APPLY_TO", cardinality=One
     )

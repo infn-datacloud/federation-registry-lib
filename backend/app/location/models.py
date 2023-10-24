@@ -9,9 +9,9 @@ from neomodel import (
 
 
 class Location(StructuredNode):
-    """Location class.
+    """Site geographical Location.
 
-    Providers can have a Geographical location.
+    Providers or single Regions can have a Geographical location.
 
     Attributes:
         uid (int): Location unique ID.

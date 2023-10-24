@@ -12,16 +12,30 @@ from neomodel import (
 
 
 class Network(StructuredNode):
-    """Virtual Machine Network class.
+    """Virtual Machine Network owned by a Provider.
 
-    A VM/Docker Network has a number of CPUs and GPUs.
-    It has a fixed RAM and disk size. It can be supported
-    by multiple providers and can be accessible to a
-    subset of user groups.
+    A VM Network is uniquely identified in the Provider by its uuid.
+    It has a name and a set of parameters such as the MTU.
+    A Network can be public (shared) or private.
+    If it is public it has no relationships, otherwise it is connected
+    only to the Project who has access.
+    When a Project has multiple private or public networks, it is mandatory
+    to specify which is the default one.
+    For VM using private networks, to access to the VM, users need to use a Proxy.
+    To use the Proxy they require the proxy IP and the username to use to access.
 
     Attributes:
         uid (int): Network unique ID.
         description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        is_shared (bool): Public or private Network.
+        is_router_external (bool): Network with access to the outside.
+        is_default (bool): Network to use as default.
+        mtu (int): Metric transmission unit (B).
+        proxy_ip (str): Proxy IP address.
+        proxy_user (str): Proxy username.
+        tags (list of str): List of tags associated to this Network.
     """
 
     uid = UniqueIdProperty()

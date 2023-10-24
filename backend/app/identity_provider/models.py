@@ -10,18 +10,19 @@ from neomodel import (
 
 
 class IdentityProvider(StructuredNode):
-    """Identity Provider class.
+    """Identity Provider.
 
-    An identity provider is used to authenticate operations.
+    An Identity Provider is used to authenticate operations.
+    It has multiple User Groups and can be used by multiple Providers.
     It is reachable at a specific endpoint and can be accessed
-    by a set of services.
+    by a set of services owned by an authorized Provider.
 
     Attributes:
-        uid (int): IdentityProvider unique ID.
+        uid (int): Identity Provider unique ID.
         description (str): Brief description.
-        endpoint (str): URL of the IdentityProvider.
+        endpoint (str): URL of the Identity Provider.
         group_claim (str): value of the key from which retrieve
-            the user group name from a authentication token.
+            the user group name from an authentication token.
     """
 
     uid = UniqueIdProperty()

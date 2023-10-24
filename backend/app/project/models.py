@@ -2,6 +2,7 @@ from typing import List
 
 from app.flavor.models import Flavor
 from app.image.models import Image
+from app.network.models import Network
 from neomodel import (
     One,
     RelationshipFrom,
@@ -15,20 +16,21 @@ from neomodel import (
 
 
 class Project(StructuredNode):
-    """Associated Project class.
+    """Project owned by a Provider.
 
-    Relationship linking a user group to a provider.
-    This link correspond to a "project/tenant" entity.
+    A project/tenant/namespace is uniquely identified in the
+    Provider by its uuid.
+    It has a name and can access all public flavors, images
+    and networks plus the private flavors, images and networks.
+    It has a set of quotas limiting the resources it can use on
+    a specific service of the hosting Provider.
+    A project should always be pointed by an SLA.
 
     Attributes:
         uid (uuid): AssociatedProject unique ID.
         description (str): Brief description.
         name (str): Name of the project in the Provider.
         uuid (uuid): Project Unique ID in the Provider.
-        public_network_name (str): TODO
-        private_network_name (str): TODO
-        private_network_proxy_host (str): TODO
-        private_network_proxy_user (str): TODO
     """
 
     uid = UniqueIdProperty()
@@ -70,14 +72,16 @@ class Project(StructuredNode):
     query_prefix = """
         MATCH (p:Project)
         WHERE (id(p)=$self)
-        MATCH (p)-[:BOOK_PROJECT_FOR_SLA]-(q)
+        MATCH (p)-[:USE_SERVICE_WITH]-(q)
+        WHERE q.type = compute
+        MATCH (q)-[:APPLY_TO]-(s)
         """
 
     def public_flavors(self) -> List[Flavor]:
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
-                MATCH (q)-[:AVAILABLE_VM_FLAVOR]->(u)
+                MATCH (s)-[:AVAILABLE_VM_FLAVOR]->(u)
                 WHERE u.is_public = True
                 RETURN u
             """
@@ -88,9 +92,23 @@ class Project(StructuredNode):
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
-                MATCH (q)-[:AVAILABLE_VM_IMAGE]->(u)
+                MATCH (s)-[:AVAILABLE_VM_IMAGE]->(u)
                 WHERE u.is_public = True
                 RETURN u
             """
         )
         return [Image.inflate(row[0]) for row in results]
+
+    def public_networks(self) -> List[Network]:
+        results, columns = self.cypher(
+            f"""
+                {self.query_prefix}
+                MATCH (s)-[:SUPPLY]-(r)
+                MATCH (r)-[:SUPPLY]-(n)
+                WHERE n.type = network
+                MATCH (n)-[:AVAILABLE_NETWORK]->(u)
+                WHERE u.is_shared = True
+                RETURN u
+            """
+        )
+        return [Network.inflate(row[0]) for row in results]

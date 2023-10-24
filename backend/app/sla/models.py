@@ -11,19 +11,20 @@ from neomodel import (
 
 
 class SLA(StructuredNode):
-    """Service Level Agreement class.
+    """Service Level Agreement between a Project and a User Group.
 
-    A SLA has a start and end date. It defines the
-    services a user group can use when accessing to
-    a specific provider resources.
+    An SLA defines the services and the resources a single User Group can use on
+    one or multiple providers. Usually it is a document signed by the
+    user group leader and
+    the site admin.
+    An SLA has a start and end date (which must be greater then the start date).
 
     Attributes:
         uid (int): SLA unique ID.
         description (str): Brief description.
+        doc_uuid (str): Unique ID of the document with the SLA details.
         start_date (datetime): SLA validity start date.
         end_date (datetime): SLA validity end date.
-        doc_uuid (UUID): UUID of the document with
-            the SLA details
     """
 
     uid = UniqueIdProperty()

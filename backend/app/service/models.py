@@ -10,21 +10,19 @@ from neomodel import (
 
 
 class Service(StructuredNode):
-    """Service class.
+    """Service supplied by a Provider on a specific Region.
 
-    A Service manages a specific amount of resource types
-    defined by a set of quotas and belonging to an SLA.
-    It is accessible through an endpoint.
+    Common attributes to all service types.
+    Any service is accessible through an endpoint, which is unique in the DB.
 
-    TODO: Authentication
-    through IAM can be accepted. It can accept multiple
-    authentication methods. It can be public or private.
+    TODO: function using cypher to retrieve IDPs?
 
     Attributes:
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
+        name (str): Service name.
     """
 
     uid = UniqueIdProperty()
@@ -37,12 +35,25 @@ class Service(StructuredNode):
 
 
 class BlockStorageService(Service):
+    """Service managing Block Storage resources.
+
+    A Block Storage Service, for each project, support a set of quotas
+    managing the block storage resources.
+    """
+
     quotas = RelationshipFrom(
         "..quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
 
 
 class ComputeService(Service):
+    """Service managing Compute resources.
+
+    A Compute Service, for each project, support a set of quotas
+    managing the block storage resources. A Compute Service provides
+    public and private Flavors and Images.
+    """
+
     flavors = RelationshipTo(
         "..flavor.models.Flavor",
         "AVAILABLE_VM_FLAVOR",
@@ -59,10 +70,15 @@ class ComputeService(Service):
 
 
 class IdentityService(Service):
-    pass
+    """Service managing user access to the Provider."""
 
 
 class NetworkService(Service):
+    """Service managing Network resources.
+
+    A Network Service provides public and private Networks.
+    """
+
     networks = RelationshipTo(
         "..network.models.Network",
         "AVAILABLE_NETWORK",

@@ -15,18 +15,18 @@ from neomodel import (
 
 
 class UserGroup(StructuredNode):
-    """User Group class.
+    """User Group owned by an Identity Provider.
 
-    Node containing the user group name and a brief description.
-    A UserGroup has access to a set of images and flavors. It
-    has access for each provider to only one project. For each
-    provider it can have a SLA defining the services and the
-    resources it can access.
+    A User Group has a name which could not be unique
+    (different Identity Providers can have same user group names).
+    A User Group can be involved into multiple SLAs.
+    A UserGroup has access, through its SLAs and Projects to a set of
+    images, flavors, networks and quotas.
 
     Attributes:
-        uid (int): UserGroup unique ID.
+        uid (int): User Group unique ID.
         description (str): Brief description.
-        name (str): UserGroup name.
+        name (str): User Group name.
     """
 
     uid = UniqueIdProperty()

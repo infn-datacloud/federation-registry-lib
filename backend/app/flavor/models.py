@@ -11,23 +11,32 @@ from neomodel import (
 
 
 class Flavor(StructuredNode):
-    """Virtual Machine Flavor class.
+    """Virtual Machine Flavor owned by a Provider.
 
-    A VM/Docker Flavor has a number of CPUs and GPUs.
-    It has a fixed RAM and disk size. It can be supported
-    by multiple providers and can be accessible to a
-    subset of user groups.
+    A VM Flavor is uniquely identified in the Provider by its uuid.
+    It has a name and a set of parameters such as number of CPUs and GPUs,
+    fixed RAM and disk size and more.
+    A Flavor can be public or private.
+    If it is public it has no relationships, otherwise it is connected to
+    all and only the Projects who have access.
 
     Attributes:
-        uid (int): Flavor unique ID.
+        uid (str): Flavor unique ID.
         description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider
+        disk (int): Reserved disk size (GiB)
+        is_public (bool): Public or private Flavor.
+        ram (int): Reserved RAM (MiB)
         vcpus (int): Number of Virtual CPUs.
+        swap (int): Swap size (GiB).
+        ephemeral (int): Ephemeral disk size (GiB).
+        swap (int): Swap size (GiB).
+        infiniband (bool): MPI - parallel multi-process enabled.
         gpus (int): Number of GPUs.
-        ram (int): Reserved RAM (MB)
-        disk (int): Reserved disk size (GB)
-        infiniband_support (bool): TODO
         gpu_model (str | None): GPU model name.
         gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
     """
 
     uid = UniqueIdProperty()

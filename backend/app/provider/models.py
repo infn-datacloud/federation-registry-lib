@@ -11,18 +11,25 @@ from neomodel import (
 
 
 class Provider(StructuredNode):
-    """Provider class.
+    """Provider (openstack, kubernetes...).
 
-    A Provider has a list of maintainers, can be public
-    and has a geographical localization. It support a set
-    of images and flavors. It is involved in a set of SLA
-    allowing user groups to access its own resources.
+    A Provider has a name which could not be unique, providers with
+    same name must have different type; for example a site
+    provides different providers with same name but one is an openstack instance
+    the other is a kubernetes cluster.
+    It has a list of maintainers, can be public or private.
+    The provider status is used to notify users if the provider is available or not.
+    It is divided into Regions (at least one).
+    It allows authentication through multiple Identity Providers.
+    It support multiple Projects.
 
     Attributes:
         uid (int): Provider unique ID.
         description (str): Brief description.
-        name (str): Provider name (type).
-        is_public (bool): Public or private provider.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str): Provider status.
+        is_public (bool): Public or private Provider.
         support_email (list of str): List of maintainers emails.
     """
 

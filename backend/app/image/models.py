@@ -11,24 +11,29 @@ from neomodel import (
 
 
 class Image(StructuredNode):
-    """Virtual Machine Image class.
+    """Virtual Machine Image owned by a Provider.
 
-    A VM/Docker Image is defined by: OS, distribution,
-    version and architecture. It can support cuda or gpus.
-    It has a creation time. It can be supported by multiple
-    providers and can be accessible to a subset of user
-    groups.
+    A VM Image is uniquely identified in the Provider by its uuid.
+    It has a name and a set of parameters such as OS type, OS distribution,
+    OS version and architecture. It can support cuda and gpus.
+    An Image can be public or private.
+    If it is public it has no relationships, otherwise it is connected to
+    all and only the Projects who have access.
 
     Attributes:
         uid (int): Image unique ID.
         description (str): Brief description.
-        os (str): Image Operating System.
-        distribution (str): OS distribution.
-        version (str): Distribution version.
+        name (str): Image name in the Provider.
+        uuid (str): Image unique ID in the Provider
+        os_type (str): OS type.
+        os_distro (str): OS distribution.
+        os_version (str): Distribution version.
         architecture (str): OS architecture.
+        kernel_id (str): Kernel version.
         cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs.
-        creation_time (datetime): Image creation time.
+        gpu_driver (str): Support for GPUs drivers.
+        is_public (bool): Public or private Image.
+        tags (list of str): List of tags associated to this Image.
     """
 
     uid = UniqueIdProperty()
