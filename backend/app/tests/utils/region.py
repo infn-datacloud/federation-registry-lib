@@ -5,7 +5,10 @@ from app.provider.schemas_extended import RegionCreateExtended
 from app.region.models import Region
 from app.region.schemas import RegionUpdate
 from app.service.enum import ServiceType
-from app.tests.utils.location import create_random_location, validate_location_attrs
+from app.tests.utils.location import (
+    create_random_location,
+    validate_create_location_attrs,
+)
 from app.tests.utils.service import (
     create_random_block_storage_service,
     create_random_compute_service,
@@ -76,7 +79,7 @@ def validate_region_attrs(*, obj_in: RegionCreateExtended, db_item: Region) -> N
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
     if db_item.location.single():
-        validate_location_attrs(
+        validate_create_location_attrs(
             obj_in=obj_in.location, db_item=db_item.location.single()
         )
     else:

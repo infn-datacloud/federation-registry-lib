@@ -106,9 +106,23 @@ def db_region(db_provider_with_project: Provider) -> Region:
 
 
 @pytest.fixture
+def db_region2(db_provider_with_project: Provider) -> Region:
+    item_in = create_random_region()
+    item = region.create(obj_in=item_in, provider=db_provider_with_project)
+    yield item
+
+
+@pytest.fixture
 def db_location(db_region: Region) -> Location:
     item_in = create_random_location()
     item = location.create(obj_in=item_in, region=db_region)
+    yield item
+
+
+@pytest.fixture
+def db_location2(db_region2: Region) -> Location:
+    item_in = create_random_location()
+    item = location.create(obj_in=item_in, region=db_region2)
     yield item
 
 

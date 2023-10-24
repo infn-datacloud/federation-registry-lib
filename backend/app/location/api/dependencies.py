@@ -4,10 +4,9 @@ from app.location.crud import location
 from app.location.models import Location
 from app.location.schemas import LocationCreate, LocationUpdate
 from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 
-def valid_location_id(location_uid: UUID4) -> Location:
+def valid_location_id(location_uid: str) -> Location:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
@@ -20,7 +19,7 @@ def valid_location_id(location_uid: UUID4) -> Location:
         NotFoundError: DB entity with given uid not found.
     """
 
-    item = location.get(uid=str(location_uid).replace("-", ""))
+    item = location.get(uid=location_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

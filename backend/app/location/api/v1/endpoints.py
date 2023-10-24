@@ -3,13 +3,11 @@ from typing import List, Optional, Union
 from app.auth.dependencies import check_read_access, check_write_access
 from app.location.api.dependencies import (
     valid_location_id,
-    valid_location_site,
     validate_new_location_values,
 )
 from app.location.crud import location
 from app.location.models import Location
 from app.location.schemas import (
-    LocationCreate,
     LocationQuery,
     LocationRead,
     LocationReadPublic,
@@ -23,6 +21,9 @@ from app.location.schemas_extended import (
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
+
+# from app.region.models import Region
+# from app.region.api.dependencies import valid_region_id
 
 router = APIRouter(prefix="/locations", tags=["locations"])
 
@@ -56,21 +57,6 @@ def get_locations(
     return location.choose_out_schema(
         items=items, auth=auth, short=size.short, with_conn=size.with_conn
     )
-
-
-@db.write_transaction
-@router.post(
-    "/",
-    status_code=status.HTTP_201_CREATED,
-    response_model=LocationReadExtended,
-    dependencies=[Depends(check_write_access), Depends(valid_location_site)],
-    summary="Create location",
-    description="Create a location. \
-        At first validate new location values checking there are \
-        no other items with the given *site*.",
-)
-def post_location(item: LocationCreate):
-    return location.create(obj_in=item, force=True)
 
 
 @db.read_transaction
@@ -134,7 +120,9 @@ def put_location(
     description="Delete a specific location using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
+        raises a `not found` error. \
+        If the deletion procedure fails, raises a `internal \
+        server` error",
 )
 def delete_location(item: Location = Depends(valid_location_id)):
     if not location.remove(db_obj=item):
@@ -142,3 +130,57 @@ def delete_location(item: Location = Depends(valid_location_id)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
         )
+
+
+# @db.write_transaction
+# @router.put(
+#     "/{location_uid}/regions/{region_uid}",
+#     response_model=Optional[LocationReadExtended],
+#     dependencies=[Depends(check_write_access)],
+#     summary="Connect location to region",
+#     description="Connect a location to a specific region \
+#         knowing their *uid*s. \
+#         If the location already has a \
+#         current region and the new one is different, \
+#         the endpoint replaces it with the new one, otherwise \
+#         it leaves the entity unchanged and returns a \
+#         `not modified` message. \
+#         If no entity matches the given *uid*s, the endpoint \
+#         raises a `not found` error.",
+# )
+# def connect_location_to_region(
+#     response: Response,
+#     item: Location = Depends(valid_location_id),
+#     r_egion: Region = Depends(valid_region_id),
+# ):
+#     if item.region.single() is None:
+#         item.region.connect(region)
+#     elif not item.region.is_connected(region):
+#         item.region.replace(region)
+#     else:
+#         response.status_code = status.HTTP_304_NOT_MODIFIED
+#         return None
+#     return item
+
+
+# @db.write_transaction
+# @router.delete(
+#     "/{location_uid}/regions/{region_uid}",
+#     response_model=Optional[LocationReadExtended],
+#     dependencies=[Depends(check_write_access)],
+#     summary="Disconnect location from region",
+#     description="Disconnect a location from a specific region \
+#         knowing their *uid*s. \
+#         If no entity matches the given *uid*s, the endpoint \
+#         raises a `not found` error.",
+# )
+# def disconnect_location_from_region(
+#     response: Response,
+#     item: Location = Depends(valid_location_id),
+#     r_egion: Region = Depends(valid_region_id),
+# ):
+#     if not item.region.is_connected(region):
+#         response.status_code = status.HTTP_304_NOT_MODIFIED
+#         return None
+#     item.region.disconnect(region)
+#     return item

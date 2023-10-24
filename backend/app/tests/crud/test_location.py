@@ -6,7 +6,7 @@ from app.region.models import Region
 from app.tests.utils.location import (
     create_random_location,
     create_random_location_patch,
-    validate_location_attrs,
+    validate_create_location_attrs,
 )
 
 
@@ -14,7 +14,7 @@ def test_create_item(db_region: Region) -> None:
     """Create a Location belonging to a specific Region."""
     item_in = create_random_location()
     item = location.create(obj_in=item_in, region=db_region)
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_region: Region) -> None:
@@ -22,7 +22,7 @@ def test_create_item_default_values(db_region: Region) -> None:
     specific Region."""
     item_in = create_random_location(default=True)
     item = location.create(obj_in=item_in, region=db_region)
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_when_site_already_exists(db_location: Location) -> None:
@@ -44,7 +44,7 @@ def test_create_when_site_already_exists(db_location: Location) -> None:
     item_in = create_random_location()
     item_in.site = db_location.site
     item = location.create(obj_in=item_in, region=db_region)
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_location(default=True)
     item_in.site = item.site
@@ -52,10 +52,10 @@ def test_create_when_site_already_exists(db_location: Location) -> None:
     item_in.description = item.description
     item_in.latitude = item.latitude
     item_in.longitude = item.longitude
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
     item = location.create(obj_in=item_in, region=db_region)
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_region: Region) -> None:
@@ -63,7 +63,7 @@ def test_get_item(db_region: Region) -> None:
     item_in = create_random_location()
     item = location.create(obj_in=item_in, region=db_region)
     item = location.get(uid=item.uid)
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_region: Region) -> None:
@@ -86,11 +86,11 @@ def test_get_items(db_region: Region) -> None:
 
     stored_items = location.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_location_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_location_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = location.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_location_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_location_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_region: Region) -> None:
@@ -151,7 +151,7 @@ def test_patch_item(db_region: Region) -> None:
     item = location.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_region: Region) -> None:
@@ -170,7 +170,7 @@ def test_patch_item_with_defaults(db_region: Region) -> None:
     patch_in.description = ""
     item = location.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item(db_region: Region) -> None:
@@ -178,7 +178,7 @@ def test_forced_update_item(db_region: Region) -> None:
     item = location.create(obj_in=item_in, region=db_region)
     item_in = create_random_location()
     item = location.update(db_obj=item, obj_in=item_in, force=True)
-    validate_location_attrs(obj_in=item_in, db_item=item)
+    validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_region: Region) -> None:

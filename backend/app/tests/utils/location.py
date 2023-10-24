@@ -1,7 +1,14 @@
 from random import choice, randrange
+from typing import Union
 
 from app.location.models import Location
-from app.location.schemas import LocationCreate, LocationUpdate
+from app.location.schemas import (
+    LocationCreate,
+    LocationRead,
+    LocationReadShort,
+    LocationUpdate,
+)
+from app.location.schemas_extended import LocationReadExtended
 from app.tests.utils.utils import random_lower_string
 from pycountry import countries
 
@@ -54,3 +61,23 @@ def validate_location_attrs(*, obj_in: LocationCreate, db_item: Location) -> Non
     assert db_item.country == obj_in.country
     assert db_item.latitude == obj_in.latitude
     assert db_item.longitude == obj_in.longitude
+
+
+def validate_create_location_attrs(
+    *, obj_in: LocationCreate, db_item: Location
+) -> None:
+    validate_location_attrs(obj_in=obj_in, db_item=db_item)
+
+
+def validate_read_location_attrs(
+    *,
+    obj_out: Union[LocationRead, LocationReadShort, LocationReadExtended],
+    db_item: Location
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_location_attrs(obj_in=obj_out, db_item=db_item)
+
+    if isinstance(obj_out, LocationReadExtended):
+        assert len(db_item.regions) == len(obj_out.regions)
+        for db_reg, reg_out in zip(db_item.regions, obj_out.regions):
+            assert db_reg.uid == reg_out.uid
