@@ -6,7 +6,7 @@ from app.service.models import NetworkService
 from app.tests.utils.network import (
     create_random_network,
     create_random_network_patch,
-    validate_network_attrs,
+    validate_create_network_attrs,
 )
 from app.tests.utils.project import create_random_project
 
@@ -15,7 +15,7 @@ def test_create_item(db_network_serv: NetworkService) -> None:
     """Create a Network belonging to a specific Network Service."""
     item_in = create_random_network()
     item = network.create(obj_in=item_in, service=db_network_serv)
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_network_serv: NetworkService) -> None:
@@ -23,7 +23,7 @@ def test_create_item_default_values(db_network_serv: NetworkService) -> None:
     specific Network Service."""
     item_in = create_random_network(default=True)
     item = network.create(obj_in=item_in, service=db_network_serv)
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_private(db_network_serv: NetworkService) -> None:
@@ -36,7 +36,7 @@ def test_create_item_private(db_network_serv: NetworkService) -> None:
     project = db_provider.projects.all()[0]
     item_in = create_random_network(project=project.uuid)
     item = network.create(obj_in=item_in, service=db_network_serv, project=project)
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_network_serv: NetworkService) -> None:
@@ -44,7 +44,7 @@ def test_get_item(db_network_serv: NetworkService) -> None:
     item_in = create_random_network()
     item = network.create(obj_in=item_in, service=db_network_serv)
     item = network.get(uid=item.uid)
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_network_serv: NetworkService) -> None:
@@ -67,11 +67,11 @@ def test_get_items(db_network_serv: NetworkService) -> None:
 
     stored_items = network.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_network_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_network_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = network.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_network_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_network_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_network_serv: NetworkService) -> None:
@@ -133,7 +133,7 @@ def test_patch_item(db_network_serv: NetworkService) -> None:
     item = network.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
@@ -153,7 +153,7 @@ def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
     patch_in.is_shared = item.is_shared
     item = network.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
 # TODO try to patch network setting it as private when there are no projects
@@ -183,24 +183,24 @@ def test_forced_update_item(db_network_serv: NetworkService) -> None:
     item = network.create(obj_in=item_in, service=db_network_serv, project=project1)
     item_in = create_random_network()
     item = network.update(db_obj=item, obj_in=item_in, force=True)
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_network(project=project1.uuid)
     item = network.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
     project2 = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_network(project=project2.uuid)
     item = network.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_network(project=item_in.project)
     item = network.update(db_obj=item, obj_in=item_in, force=True)
-    validate_network_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_network_serv: NetworkService) -> None:

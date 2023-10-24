@@ -111,7 +111,9 @@ def put_network(
     description="Delete a specific network using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
+        raises a `not found` error. \
+        If the deletion procedure fails, raises a `internal \
+        server` error",
 )
 def delete_networks(item: Network = Depends(valid_network_id)):
     if not network.remove(db_obj=item):

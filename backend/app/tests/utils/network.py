@@ -1,8 +1,14 @@
-from typing import Optional
+from typing import Optional, Union
 from uuid import uuid4
 
 from app.network.models import Network
-from app.network.schemas import NetworkUpdate
+from app.network.schemas import (
+    NetworkBase,
+    NetworkRead,
+    NetworkReadShort,
+    NetworkUpdate,
+)
+from app.network.schemas_extended import NetworkReadExtended
 from app.provider.schemas_extended import NetworkCreateExtended
 from app.tests.utils.utils import (
     random_bool,
@@ -60,7 +66,7 @@ def create_random_network_patch(default: bool = False) -> NetworkUpdate:
     )
 
 
-def validate_network_attrs(*, obj_in: NetworkCreateExtended, db_item: Network) -> None:
+def validate_network_attrs(*, obj_in: NetworkBase, db_item: Network) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
     assert db_item.uuid == obj_in.uuid
@@ -71,7 +77,33 @@ def validate_network_attrs(*, obj_in: NetworkCreateExtended, db_item: Network) -
     assert db_item.proxy_ip == obj_in.proxy_ip
     assert db_item.proxy_user == obj_in.proxy_user
     assert db_item.tags == obj_in.tags
-    if db_item.project.single():
-        assert db_item.project.single().uuid == obj_in.project
+
+
+def validate_create_network_attrs(
+    *, obj_in: NetworkCreateExtended, db_item: Network
+) -> None:
+    validate_network_attrs(obj_in=obj_in, db_item=db_item)
+    db_project = db_item.project.single()
+    if db_project:
+        assert db_project.uuid == obj_in.project
     else:
         assert not obj_in.project
+
+
+def validate_read_network_attrs(
+    *,
+    obj_out: Union[NetworkRead, NetworkReadShort, NetworkReadExtended],
+    db_item: Network
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_network_attrs(obj_in=obj_out, db_item=db_item)
+
+    if isinstance(obj_out, NetworkReadExtended):
+        db_project = db_item.project.single()
+        if db_project:
+            assert db_project.uid == obj_out.project.uid
+        else:
+            assert not obj_out.project
+        assert len(db_item.services) == len(obj_out.services)
+        for db_serv, serv_out in zip(db_item.services, obj_out.services):
+            assert db_serv.uid == serv_out.uid

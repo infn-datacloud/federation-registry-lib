@@ -28,7 +28,7 @@ from app.service.schemas import (
 )
 from app.tests.utils.flavor import create_random_flavor, validate_create_flavor_attrs
 from app.tests.utils.image import create_random_image, validate_create_image_attrs
-from app.tests.utils.network import create_random_network, validate_network_attrs
+from app.tests.utils.network import create_random_network, validate_create_network_attrs
 from app.tests.utils.quota import (
     create_random_block_storage_quota,
     create_random_compute_quota,
@@ -209,4 +209,4 @@ def validate_network_service_attrs(
     assert db_item.type == obj_in.type
     assert len(db_item.networks) == len(obj_in.networks)
     for db_net, net_in in zip(db_item.networks, obj_in.networks):
-        validate_network_attrs(db_item=db_net, obj_in=net_in)
+        validate_create_network_attrs(db_item=db_net, obj_in=net_in)

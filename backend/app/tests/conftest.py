@@ -10,6 +10,7 @@ from app.image.crud import image
 from app.location.crud import location
 from app.location.models import Location
 from app.main import app
+from app.network.crud import network
 from app.project.crud import project
 from app.provider.crud import provider
 from app.provider.models import Provider
@@ -24,6 +25,7 @@ from app.tests.utils.flavor import create_random_flavor
 from app.tests.utils.identity_provider import create_random_identity_provider
 from app.tests.utils.image import create_random_image
 from app.tests.utils.location import create_random_location
+from app.tests.utils.network import create_random_network
 from app.tests.utils.project import create_random_project
 from app.tests.utils.provider import create_random_provider
 from app.tests.utils.quota import (
@@ -164,6 +166,23 @@ def db_private_image(db_compute_serv: ComputeService) -> Flavor:
 def db_network_serv(db_region: Region) -> NetworkService:
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
+    yield item
+
+
+@pytest.fixture
+def db_public_network(db_network_serv: NetworkService) -> Flavor:
+    item_in = create_random_network()
+    item = network.create(obj_in=item_in, service=db_network_serv)
+    yield item
+
+
+@pytest.fixture
+def db_private_network(db_network_serv: NetworkService) -> Flavor:
+    db_region = db_network_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_network(project=db_project.uuid)
+    item = network.create(obj_in=item_in, service=db_network_serv, project=db_project)
     yield item
 
 
