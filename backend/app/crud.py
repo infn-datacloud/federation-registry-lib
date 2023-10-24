@@ -127,11 +127,11 @@ class CRUDBase(
     def choose_out_schema(
         self, *, items: List[ModelType], auth: bool, short: bool, with_conn: bool
     ) -> Union[
-        ReadPublicSchemaType,
-        ReadShortSchemaType,
-        ReadSchemaType,
-        ReadExtendedPublicSchemaType,
-        ReadExtendedSchemaType,
+        List[ReadPublicSchemaType],
+        List[ReadShortSchemaType],
+        List[ReadSchemaType],
+        List[ReadExtendedPublicSchemaType],
+        List[ReadExtendedSchemaType],
     ]:
         if auth:
             if with_conn:
