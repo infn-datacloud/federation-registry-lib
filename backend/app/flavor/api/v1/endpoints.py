@@ -111,7 +111,9 @@ def put_flavor(
     description="Delete a specific flavor using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
+        raises a `not found` error. \
+        If the deletion procedure fails, raises a `internal \
+        server` error",
 )
 def delete_flavors(item: Flavor = Depends(valid_flavor_id)):
     if not flavor.remove(db_obj=item):

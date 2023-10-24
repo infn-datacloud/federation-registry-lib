@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Union
 from uuid import uuid4
 
 from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorUpdate
+from app.flavor.schemas import FlavorRead, FlavorReadShort, FlavorUpdate
+from app.flavor.schemas_extended import FlavorReadExtended
 from app.provider.schemas_extended import FlavorCreateExtended
 from app.tests.utils.utils import (
     random_bool,
@@ -76,7 +77,7 @@ def create_random_flavor_patch(default: bool = False) -> FlavorUpdate:
 def validate_flavor_attrs(*, obj_in: FlavorCreateExtended, db_item: Flavor) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
-    assert db_item.uuid == str(obj_in.uuid)
+    assert db_item.uuid == obj_in.uuid
     assert db_item.disk == obj_in.disk
     assert db_item.is_public == obj_in.is_public
     assert db_item.ram == obj_in.ram
@@ -88,6 +89,27 @@ def validate_flavor_attrs(*, obj_in: FlavorCreateExtended, db_item: Flavor) -> N
     assert db_item.gpu_model == obj_in.gpu_model
     assert db_item.gpu_vendor == obj_in.gpu_vendor
     assert db_item.local_storage == obj_in.local_storage
+
+
+def validate_create_flavor_attrs(
+    *, obj_in: FlavorCreateExtended, db_item: Flavor
+) -> None:
+    validate_flavor_attrs(obj_in=obj_in, db_item=db_item)
     assert len(db_item.projects) == len(obj_in.projects)
     for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
-        assert db_proj.uuid == str(proj_in)
+        assert db_proj.uuid == proj_in
+
+
+def validate_read_flavor_attrs(
+    *, obj_out: Union[FlavorRead, FlavorReadShort, FlavorReadExtended], db_item: Flavor
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_flavor_attrs(obj_in=obj_out, db_item=db_item)
+
+    if isinstance(obj_out, FlavorReadExtended):
+        assert len(db_item.projects) == len(obj_out.projects)
+        for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
+            assert db_proj.uid == proj_out.uid
+        assert len(db_item.services) == len(obj_out.services)
+        for db_serv, serv_out in zip(db_item.services, obj_out.services):
+            assert db_serv.uid == serv_out.uid

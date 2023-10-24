@@ -1,6 +1,9 @@
-from typing import Generator
+import subprocess
+from typing import Dict, Generator
 
 import pytest
+from app.flavor.crud import flavor
+from app.flavor.models import Flavor
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
 from app.location.crud import location
@@ -16,6 +19,7 @@ from app.region.models import Region
 from app.service.crud import block_storage_service, compute_service, network_service
 from app.service.models import BlockStorageService, ComputeService, NetworkService
 from app.sla.models import SLA
+from app.tests.utils.flavor import create_random_flavor
 from app.tests.utils.identity_provider import create_random_identity_provider
 from app.tests.utils.location import create_random_location
 from app.tests.utils.project import create_random_project
@@ -119,6 +123,24 @@ def db_compute_serv(db_region: Region) -> ComputeService:
 
 
 @pytest.fixture
+def db_public_flavor(db_compute_serv: ComputeService) -> Flavor:
+    item_in = create_random_flavor()
+    item = flavor.create(obj_in=item_in, service=db_compute_serv)
+    yield item
+
+
+@pytest.fixture
+def db_private_flavor(db_compute_serv: ComputeService) -> Flavor:
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    item_in = create_random_flavor(projects=[i.uuid for i in db_provider.projects])
+    item = flavor.create(
+        obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
+    )
+    yield item
+
+
+@pytest.fixture
 def db_network_serv(db_region: Region) -> NetworkService:
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
@@ -155,3 +177,35 @@ def db_compute_quota(db_compute_serv: ComputeService) -> ComputeQuota:
 def client(setup_and_teardown_db: Generator) -> Generator:
     with TestClient(app) as c:
         yield c
+
+
+@pytest.fixture
+def token() -> str:
+    issuer = "https://iam.cloud.infn.it/"
+    token_cmd = subprocess.run(
+        [
+            "docker",
+            "exec",
+            "catalog-api-oidc-agent-1",
+            "oidc-token",
+            issuer,
+        ],
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    yield token_cmd.stdout.strip("\n")
+
+
+@pytest.fixture
+def read_header(token: str) -> Dict:
+    return {"authorization": f"Bearer {token}"}
+
+
+@pytest.fixture
+def write_header(read_header: Dict) -> Dict:
+    return {
+        **read_header,
+        "accept": "application/json",
+        "content-type": "application/json",
+    }
+    return (read_header, write_header)

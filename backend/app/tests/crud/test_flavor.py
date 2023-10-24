@@ -6,7 +6,7 @@ from app.service.models import ComputeService
 from app.tests.utils.flavor import (
     create_random_flavor,
     create_random_flavor_patch,
-    validate_flavor_attrs,
+    validate_create_flavor_attrs,
 )
 from app.tests.utils.project import create_random_project
 
@@ -15,7 +15,7 @@ def test_create_item(db_compute_serv: ComputeService) -> None:
     """Create a public Flavor belonging to a specific Compute Service."""
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
@@ -23,7 +23,7 @@ def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
     a specific Compute Service."""
     item_in = create_random_flavor(default=True)
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_private(db_compute_serv: ComputeService) -> None:
@@ -37,7 +37,7 @@ def test_create_item_private(db_compute_serv: ComputeService) -> None:
     item = flavor.create(
         obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
     )
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_compute_serv: ComputeService) -> None:
@@ -45,7 +45,7 @@ def test_get_item(db_compute_serv: ComputeService) -> None:
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
     item = flavor.get(uid=item.uid)
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
@@ -68,11 +68,11 @@ def test_get_items(db_compute_serv: ComputeService) -> None:
 
     stored_items = flavor.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_flavor_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_flavor_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = flavor.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_flavor_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_flavor_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_compute_serv: ComputeService) -> None:
@@ -134,7 +134,7 @@ def test_patch_item(db_compute_serv: ComputeService) -> None:
     item = flavor.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
@@ -154,7 +154,7 @@ def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
     patch_in.is_public = item.is_public
     item = flavor.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
 # TODO try to patch flavor setting it as private when there are no projects
@@ -186,24 +186,24 @@ def test_forced_update_item(db_compute_serv: ComputeService) -> None:
     )
     item_in = create_random_flavor()
     item = flavor.update(db_obj=item, obj_in=item_in, force=True)
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_flavor(projects=[project1.uuid])
     item = flavor.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
     project2 = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_flavor(projects=[project2.uuid])
     item = flavor.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_flavor(projects=item_in.projects)
     item = flavor.update(db_obj=item, obj_in=item_in, force=True)
-    validate_flavor_attrs(obj_in=item_in, db_item=item)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_compute_serv: ComputeService) -> None:
