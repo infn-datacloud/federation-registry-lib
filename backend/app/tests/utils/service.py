@@ -27,7 +27,7 @@ from app.service.schemas import (
     NetworkServiceUpdate,
 )
 from app.tests.utils.flavor import create_random_flavor, validate_create_flavor_attrs
-from app.tests.utils.image import create_random_image, validate_image_attrs
+from app.tests.utils.image import create_random_image, validate_create_image_attrs
 from app.tests.utils.network import create_random_network, validate_network_attrs
 from app.tests.utils.quota import (
     create_random_block_storage_quota,
@@ -185,7 +185,7 @@ def validate_compute_service_attrs(
         validate_create_flavor_attrs(db_item=db_flav, obj_in=flav_in)
     assert len(db_item.images) == len(obj_in.images)
     for db_img, img_in in zip(db_item.images, obj_in.images):
-        validate_image_attrs(db_item=db_img, obj_in=img_in)
+        validate_create_image_attrs(db_item=db_img, obj_in=img_in)
     assert len(db_item.quotas) == len(obj_in.quotas)
     for db_quota, quota_in in zip(db_item.quotas, obj_in.quotas):
         validate_compute_quota_attrs(db_item=db_quota, obj_in=quota_in)
