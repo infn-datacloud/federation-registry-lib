@@ -71,7 +71,7 @@ def random_os_type() -> str:
 def validate_image_attrs(*, obj_in: ImageCreateExtended, db_item: Image) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
-    assert db_item.uuid == str(obj_in.uuid)
+    assert db_item.uuid == obj_in.uuid
     assert db_item.is_public == obj_in.is_public
     assert db_item.os_type == obj_in.os_type
     assert db_item.os_distro == obj_in.os_distro

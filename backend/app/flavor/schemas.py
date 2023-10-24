@@ -1,9 +1,8 @@
 from typing import Any, Dict, Optional
-from uuid import UUID
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import Field, root_validator, validator
+from pydantic import Field, root_validator
 
 
 class FlavorBase(BaseNode):
@@ -28,12 +27,6 @@ class FlavorBase(BaseNode):
     local_storage: Optional[str] = Field(
         default=None, description="Local storage presence"
     )
-
-    @validator("uuid", pre=True)
-    def to_string(cls, v):
-        if isinstance(v, UUID):
-            return v.hex
-        return v
 
     @root_validator
     def check_gpu_values(cls, values: Dict[str, Any]):

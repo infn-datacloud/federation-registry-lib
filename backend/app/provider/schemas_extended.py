@@ -206,12 +206,6 @@ def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
 class SLACreateExtended(SLACreate):
     project: str = Field(description="Project UUID")
 
-    @validator("project", pre=True)
-    def validate_projects(cls, v):
-        if isinstance(v, UUID):
-            return v.hex
-        return v
-
 
 class UserGroupCreateExtended(UserGroupCreate):
     sla: SLACreateExtended = Field(description="SLA related to this provider")
@@ -238,21 +232,9 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
 class BlockStorageQuotaCreateExtended(BlockStorageQuotaCreate):
     project: str = Field(description="Project UUID")
 
-    @validator("project", pre=True)
-    def to_string(cls, v):
-        if isinstance(v, UUID):
-            return v.hex
-        return v
-
 
 class ComputeQuotaCreateExtended(ComputeQuotaCreate):
     project: str = Field(description="Project UUID")
-
-    @validator("project", pre=True)
-    def to_string(cls, v):
-        if isinstance(v, UUID):
-            return v.hex
-        return v
 
 
 class FlavorCreateExtended(FlavorCreate):
@@ -309,12 +291,6 @@ class NetworkCreateExtended(NetworkCreate):
     project: Optional[str] = Field(
         default=None, description="Project having access to a private net"
     )
-
-    @validator("project", pre=True)
-    def to_string(cls, v):
-        if isinstance(v, UUID):
-            return v.hex
-        return v
 
     @root_validator
     def project_require_if_private_net(cls, values):

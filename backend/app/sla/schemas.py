@@ -1,10 +1,9 @@
 from datetime import date
 from typing import Optional
-from uuid import UUID
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import Field, root_validator, validator
+from pydantic import Field, root_validator
 
 
 class SLABase(BaseNode):
@@ -16,12 +15,6 @@ class SLABase(BaseNode):
             If not set it lasts forever.",
     )
     doc_uuid: str = Field(description="UUID of the corresponding document.")
-
-    @validator("doc_uuid", pre=True)
-    def to_string(cls, v):
-        if isinstance(v, UUID):
-            return v.hex
-        return v
 
 
 class SLACreate(BaseNodeCreate, SLABase):

@@ -1,10 +1,9 @@
 from typing import List, Optional
-from uuid import UUID
 
 from app.image.enum import ImageOS
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import Field, validator
+from pydantic import Field
 
 
 class ImageBase(BaseNode):
@@ -27,12 +26,6 @@ class ImageBase(BaseNode):
     gpu_driver: bool = Field(default=False, description="Enable GPU driver support.")
     is_public: bool = Field(default=True, description="Public available")
     tags: List[str] = Field(default_factory=list, description="List of tags")
-
-    @validator("uuid", pre=True)
-    def to_string(cls, v):
-        if isinstance(v, UUID):
-            return v.hex
-        return v
 
 
 class ImageCreate(BaseNodeCreate, ImageBase):

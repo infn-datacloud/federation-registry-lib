@@ -1,9 +1,8 @@
 from typing import List, Optional
-from uuid import UUID
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import Field, validator
+from pydantic import Field
 
 
 class NetworkBase(BaseNode):
@@ -28,12 +27,6 @@ class NetworkBase(BaseNode):
         default=None, description="Proxy username to use to access to private networks"
     )
     tags: List[str] = Field(default_factory=list, description="List of network tags")
-
-    @validator("uuid", pre=True)
-    def to_string(cls, v):
-        if isinstance(v, UUID):
-            return v.hex
-        return v
 
 
 class NetworkCreate(BaseNodeCreate, NetworkBase):

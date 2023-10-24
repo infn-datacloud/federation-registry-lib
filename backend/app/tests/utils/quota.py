@@ -93,7 +93,7 @@ def validate_block_storage_quota_attrs(
     assert db_item.per_volume_gigabytes == obj_in.per_volume_gigabytes
     assert db_item.volumes == obj_in.volumes
     if db_item.project.single():
-        assert db_item.project.single().uuid == str(obj_in.project)
+        assert db_item.project.single().uuid == obj_in.project
     else:
         assert not obj_in.project
 
@@ -110,6 +110,6 @@ def validate_compute_quota_attrs(
     assert db_item.instances == obj_in.instances
     assert db_item.ram == obj_in.ram
     if db_item.project.single():
-        assert db_item.project.single().uuid == str(obj_in.project)
+        assert db_item.project.single().uuid == obj_in.project
     else:
         assert not obj_in.project

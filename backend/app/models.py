@@ -1,13 +1,21 @@
 from enum import Enum
 from typing import Dict
+from uuid import UUID
 
 from neo4j.data import DateTime
 from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
-from pydantic import UUID4, BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, root_validator
 
 
 class BaseNode(BaseModel):
     description: str = Field(default="", description="Brief item description")
+
+    @root_validator(pre=True)
+    def get_str_from_uuid(cls, data: Dict) -> Dict:
+        """Get hex attribute from UUID values from all the enumeration field
+        values."""
+        uuid_fields = {k: v.hex for k, v in data.items() if isinstance(v, UUID)}
+        return {**data, **uuid_fields}
 
 
 class BaseNodeCreate(BaseModel):
@@ -39,7 +47,7 @@ class BaseNodeRead(BaseModel):
     Always validate assignments.
     """
 
-    uid: UUID4 = Field(description="Database item's unique identifier")
+    uid: str = Field(description="Database item's unique identifier")
 
     @root_validator(pre=True)
     def get_relations(cls, data: Dict) -> Dict:
