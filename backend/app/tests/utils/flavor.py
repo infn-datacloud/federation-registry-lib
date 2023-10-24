@@ -2,7 +2,7 @@ from typing import List, Union
 from uuid import uuid4
 
 from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorRead, FlavorReadShort, FlavorUpdate
+from app.flavor.schemas import FlavorBase, FlavorRead, FlavorReadShort, FlavorUpdate
 from app.flavor.schemas_extended import FlavorReadExtended
 from app.provider.schemas_extended import FlavorCreateExtended
 from app.tests.utils.utils import (
@@ -74,7 +74,7 @@ def create_random_flavor_patch(default: bool = False) -> FlavorUpdate:
     )
 
 
-def validate_flavor_attrs(*, obj_in: FlavorCreateExtended, db_item: Flavor) -> None:
+def validate_flavor_attrs(*, obj_in: FlavorBase, db_item: Flavor) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
     assert db_item.uuid == obj_in.uuid

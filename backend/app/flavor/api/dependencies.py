@@ -90,7 +90,8 @@ def validate_new_flavor_values(
     update_data: FlavorUpdate, item: Flavor = Depends(valid_flavor_id)
 ) -> None:
     """Check given data are valid ones. Check there are no other flavors,
-    belonging to the same service, with the same uuid and name.
+    belonging to the same service, with the same uuid and name. Avoid to change
+    flavor visibility.
 
     Args:
         update_data (FlavorUpdate): new data.

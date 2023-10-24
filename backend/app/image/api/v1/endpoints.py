@@ -111,7 +111,9 @@ def put_image(
     description="Delete a specific image using its *uid*. \
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
+        raises a `not found` error. \
+        If the deletion procedure fails, raises a `internal \
+        server` error",
 )
 def delete_images(item: Image = Depends(valid_image_id)):
     if not image.remove(db_obj=item):

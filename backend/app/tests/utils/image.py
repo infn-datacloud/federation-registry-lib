@@ -1,10 +1,11 @@
 from random import choice
-from typing import List
+from typing import List, Union
 from uuid import uuid4
 
 from app.image.enum import ImageOS
 from app.image.models import Image
-from app.image.schemas import ImageUpdate
+from app.image.schemas import ImageBase, ImageRead, ImageReadShort, ImageUpdate
+from app.image.schemas_extended import ImageReadExtended
 from app.provider.schemas_extended import ImageCreateExtended
 from app.tests.utils.utils import random_bool, random_lower_string
 
@@ -68,7 +69,7 @@ def random_os_type() -> str:
     return choice([i.value for i in ImageOS])
 
 
-def validate_image_attrs(*, obj_in: ImageCreateExtended, db_item: Image) -> None:
+def validate_image_attrs(*, obj_in: ImageBase, db_item: Image) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
     assert db_item.uuid == obj_in.uuid
@@ -81,6 +82,25 @@ def validate_image_attrs(*, obj_in: ImageCreateExtended, db_item: Image) -> None
     assert db_item.cuda_support == obj_in.cuda_support
     assert db_item.gpu_driver == obj_in.gpu_driver
     assert db_item.tags == obj_in.tags
+
+
+def validate_create_image_attrs(*, obj_in: ImageCreateExtended, db_item: Image) -> None:
+    validate_image_attrs(obj_in=obj_in, db_item=db_item)
     assert len(db_item.projects) == len(obj_in.projects)
     for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
         assert db_proj.uuid == proj_in
+
+
+def validate_read_image_attrs(
+    *, obj_out: Union[ImageRead, ImageReadShort, ImageReadExtended], db_item: Image
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_image_attrs(obj_in=obj_out, db_item=db_item)
+
+    if isinstance(obj_out, ImageReadExtended):
+        assert len(db_item.projects) == len(obj_out.projects)
+        for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
+            assert db_proj.uid == proj_out.uid
+        assert len(db_item.services) == len(obj_out.services)
+        for db_serv, serv_out in zip(db_item.services, obj_out.services):
+            assert db_serv.uid == serv_out.uid

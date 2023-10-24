@@ -6,6 +6,7 @@ from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
+from app.image.crud import image
 from app.location.crud import location
 from app.location.models import Location
 from app.main import app
@@ -21,6 +22,7 @@ from app.service.models import BlockStorageService, ComputeService, NetworkServi
 from app.sla.models import SLA
 from app.tests.utils.flavor import create_random_flavor
 from app.tests.utils.identity_provider import create_random_identity_provider
+from app.tests.utils.image import create_random_image
 from app.tests.utils.location import create_random_location
 from app.tests.utils.project import create_random_project
 from app.tests.utils.provider import create_random_provider
@@ -135,6 +137,24 @@ def db_private_flavor(db_compute_serv: ComputeService) -> Flavor:
     db_provider = db_region.provider.single()
     item_in = create_random_flavor(projects=[i.uuid for i in db_provider.projects])
     item = flavor.create(
+        obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
+    )
+    yield item
+
+
+@pytest.fixture
+def db_public_image(db_compute_serv: ComputeService) -> Flavor:
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv)
+    yield item
+
+
+@pytest.fixture
+def db_private_image(db_compute_serv: ComputeService) -> Flavor:
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    item_in = create_random_image(projects=[i.uuid for i in db_provider.projects])
+    item = image.create(
         obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
     )
     yield item

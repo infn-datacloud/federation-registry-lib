@@ -1,15 +1,14 @@
-from typing import Union
+from typing import List, Union
 
 from app.image.crud import image
 from app.image.models import Image
 from app.image.schemas import ImageCreate, ImageUpdate
-from app.provider.api.dependencies import valid_provider_id
-from app.provider.models import Provider
+from app.service.api.dependencies import valid_service_id
+from app.service.models import ComputeService
 from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 
-def valid_image_id(image_uid: UUID4) -> Image:
+def valid_image_id(image_uid: str) -> Image:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
@@ -22,7 +21,7 @@ def valid_image_id(image_uid: UUID4) -> Image:
         NotFoundError: DB entity with given uid not found.
     """
 
-    item = image.get(uid=str(image_uid).replace("-", ""))
+    item = image.get(uid=image_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -33,10 +32,10 @@ def valid_image_id(image_uid: UUID4) -> Image:
 
 def valid_image_name(
     item: Union[ImageCreate, ImageUpdate],
-    provider: Provider = Depends(valid_provider_id),
+    services: List[ComputeService],
 ) -> None:
-    """Check there are no other images, belonging to the same provider, with
-    the same name.
+    """Check there are no other images, belonging to the same service, with the
+    same name.
 
     Args:
         item (ImageCreate | ImageUpdate): new data.
@@ -46,23 +45,25 @@ def valid_image_name(
 
     Raises:
         BadRequestError: DB entity with identical name,
-            belonging to the same provider, already exists.
+            belonging to the same service, already exists.
     """
 
-    db_item = provider.images.get_or_none(name=item.name)
-    if db_item is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Image with name '{item.name}' already registered",
-        )
+    for service in services:
+        service = valid_service_id(service.uid)
+        db_item = service.images.get_or_none(name=item.name)
+        if db_item is not None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Image with name '{item.name}' already registered",
+            )
 
 
 def valid_image_uuid(
     item: Union[ImageCreate, ImageUpdate],
-    provider: Provider = Depends(valid_provider_id),
+    services: List[ComputeService] = Depends(valid_service_id),
 ) -> None:
-    """Check there are no other images, belonging to the same provider, with
-    the same uuid.
+    """Check there are no other images, belonging to the same service, with the
+    same uuid.
 
     Args:
         item (ImageCreate | ImageUpdate): new data.
@@ -72,21 +73,25 @@ def valid_image_uuid(
 
     Raises:
         BadRequestError: DB entity with identical uuid,
-            belonging to the same provider, already exists.
+            belonging to the same service, already exists.
     """
-    db_item = provider.images.get_or_none(uuid=item.uuid)
-    if db_item is not None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Image with uuid '{item.uuid}' already registered",
-        )
+
+    for service in services:
+        service = valid_service_id(service.uid)
+        db_item = service.images.get_or_none(uuid=item.uuid)
+        if db_item is not None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Image with uuid '{item.uuid}' already registered",
+            )
 
 
 def validate_new_image_values(
     update_data: ImageUpdate, item: Image = Depends(valid_image_id)
 ) -> None:
     """Check given data are valid ones. Check there are no other images,
-    belonging to the same provider, with the same uuid and name.
+    belonging to the same service, with the same uuid and name. Avoid to change
+    image visibility.
 
     Args:
         update_data (ImageUpdate): new data.
@@ -98,13 +103,18 @@ def validate_new_image_values(
     Raises:
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with identical name or uuid,
-            belonging to the same provider, already exists.
+            belonging to the same service, already exists.
     """
 
     if update_data.name != item.name:
-        valid_image_name(item=update_data, provider=item.provider.single())
-    if str(update_data.uuid) != item.uuid:
-        valid_image_uuid(item=update_data, provider=item.provider.single())
+        valid_image_name(item=update_data, services=item.services.all())
+    if update_data.uuid != item.uuid:
+        valid_image_uuid(item=update_data, services=item.services.all())
+    if update_data.is_public != item.is_public:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Image visibility can't be changed",
+        )
 
 
 def is_private_image(item: Image = Depends(valid_image_id)) -> Image:
