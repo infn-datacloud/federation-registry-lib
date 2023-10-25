@@ -11,7 +11,7 @@ class SchemaSize(BaseModel):
     """Model to add query attribute related to data response size."""
 
     short: bool = Field(
-        default=True, description="Show a shortened version of the item."
+        default=False, description="Show a shortened version of the item."
     )
     with_conn: bool = Field(
         default=False,
@@ -71,6 +71,8 @@ def create_query_model(model_name: str, base_model: BaseModel):
             continue
         if v.shape == SHAPE_LIST:
             continue
+        elif issubclass(v.type_, bool):
+            d[k] = (Optional[v.type_], None)
         elif issubclass(v.type_, str) or issubclass(v.type_, Enum):
             t = (Optional[str], None)
             d[k] = t

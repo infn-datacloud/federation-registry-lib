@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.network.models import Network
-from app.network.schemas import NetworkRead, NetworkReadShort
+from app.network.schemas import NetworkBase, NetworkRead, NetworkReadShort
 from app.network.schemas_extended import NetworkReadExtended
 from app.tests.utils.network import (
     create_random_network_patch,
@@ -54,17 +54,18 @@ def test_read_networks_with_target_params(
     passed as query attributes."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/networks/",
-        params={"uid": db_public_network.uid},
-        headers=read_header,
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert len(content) == 1
-    validate_read_network_attrs(
-        obj_out=NetworkRead(**content[0]), db_item=db_public_network
-    )
+    for k in NetworkBase.__fields__.keys():
+        response = client.get(
+            f"{settings.API_V1_STR}/networks/",
+            params={k: db_public_network.__getattribute__(k)},
+            headers=read_header,
+        )
+        assert response.status_code == status.HTTP_200_OK
+        content = response.json()
+        assert len(content) == 1
+        validate_read_network_attrs(
+            obj_out=NetworkRead(**content[0]), db_item=db_public_network
+        )
 
 
 def test_read_networks_with_limit(

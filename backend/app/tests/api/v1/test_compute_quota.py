@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.quota.models import ComputeQuota
-from app.quota.schemas import ComputeQuotaRead, ComputeQuotaReadShort
+from app.quota.schemas import ComputeQuotaBase, ComputeQuotaRead, ComputeQuotaReadShort
 from app.quota.schemas_extended import ComputeQuotaReadExtended
 from app.tests.utils.compute_quota import (
     create_random_compute_quota_patch,
@@ -25,9 +25,7 @@ def test_read_compute_quotas(
     """Execute GET operations to read all compute_quotas."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", headers=read_header
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", headers=read_header)
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
@@ -57,17 +55,18 @@ def test_read_compute_quotas_with_target_params(
     attributes passed as query attributes."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/",
-        params={"uid": db_compute_quota.uid},
-        headers=read_header,
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert len(content) == 1
-    validate_read_compute_quota_attrs(
-        obj_out=ComputeQuotaRead(**content[0]), db_item=db_compute_quota
-    )
+    for k in ComputeQuotaBase.__fields__.keys():
+        response = client.get(
+            f"{settings.API_V1_STR}/compute_quotas/",
+            params={k: db_compute_quota.__getattribute__(k)},
+            headers=read_header,
+        )
+        assert response.status_code == status.HTTP_200_OK
+        content = response.json()
+        assert len(content) == 1
+        validate_read_compute_quota_attrs(
+            obj_out=ComputeQuotaRead(**content[0]), db_item=db_compute_quota
+        )
 
 
 def test_read_compute_quotas_with_limit(

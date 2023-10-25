@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.image.models import Image
-from app.image.schemas import ImageRead, ImageReadShort
+from app.image.schemas import ImageBase, ImageRead, ImageReadShort
 from app.image.schemas_extended import ImageReadExtended
 from app.tests.utils.image import (
     create_random_image_patch,
@@ -54,15 +54,18 @@ def test_read_images_with_target_params(
     passed as query attributes."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/images/",
-        params={"uid": db_public_image.uid},
-        headers=read_header,
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert len(content) == 1
-    validate_read_image_attrs(obj_out=ImageRead(**content[0]), db_item=db_public_image)
+    for k in ImageBase.__fields__.keys():
+        response = client.get(
+            f"{settings.API_V1_STR}/images/",
+            params={k: db_public_image.__getattribute__(k)},
+            headers=read_header,
+        )
+        assert response.status_code == status.HTTP_200_OK
+        content = response.json()
+        assert len(content) == 1
+        validate_read_image_attrs(
+            obj_out=ImageRead(**content[0]), db_item=db_public_image
+        )
 
 
 def test_read_images_with_limit(

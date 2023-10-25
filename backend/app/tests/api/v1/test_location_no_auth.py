@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.location.models import Location
-from app.location.schemas import LocationReadPublic
+from app.location.schemas import LocationBase, LocationReadPublic
 from app.location.schemas_extended import LocationReadExtendedPublic
 from app.tests.utils.location import (
     create_random_location_patch,
@@ -52,15 +52,17 @@ def test_read_locations_with_target_params(
     attributes passed as query attributes."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"uid": db_location.uid}
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert len(content) == 1
-    validate_read_public_location_attrs(
-        obj_out=LocationReadPublic(**content[0]), db_item=db_location
-    )
+    for k in LocationBase.__fields__.keys():
+        response = client.get(
+            f"{settings.API_V1_STR}/locations/",
+            params={k: db_location.__getattribute__(k)},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        content = response.json()
+        assert len(content) == 1
+        validate_read_public_location_attrs(
+            obj_out=LocationReadPublic(**content[0]), db_item=db_location
+        )
 
 
 def test_read_locations_with_limit(

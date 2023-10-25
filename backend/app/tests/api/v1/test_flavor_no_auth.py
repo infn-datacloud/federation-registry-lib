@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorReadPublic
+from app.flavor.schemas import FlavorBase, FlavorReadPublic
 from app.flavor.schemas_extended import FlavorReadExtendedPublic
 from app.tests.utils.flavor import (
     create_random_flavor_patch,
@@ -52,15 +52,17 @@ def test_read_flavors_with_target_params(
     passed as query attributes."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"uid": db_public_flavor.uid}
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert len(content) == 1
-    validate_read_public_flavor_attrs(
-        obj_out=FlavorReadPublic(**content[0]), db_item=db_public_flavor
-    )
+    for k in FlavorBase.__fields__.keys():
+        response = client.get(
+            f"{settings.API_V1_STR}/flavors/",
+            params={k: db_public_flavor.__getattribute__(k)},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        content = response.json()
+        assert len(content) == 1
+        validate_read_public_flavor_attrs(
+            obj_out=FlavorReadPublic(**content[0]), db_item=db_public_flavor
+        )
 
 
 def test_read_flavors_with_limit(

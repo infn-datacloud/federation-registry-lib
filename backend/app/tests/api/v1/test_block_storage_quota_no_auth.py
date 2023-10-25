@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.quota.models import BlockStorageQuota
-from app.quota.schemas import BlockStorageQuotaReadPublic
+from app.quota.schemas import BlockStorageQuotaBase, BlockStorageQuotaReadPublic
 from app.quota.schemas_extended import BlockStorageQuotaReadExtendedPublic
 from app.tests.utils.block_storage_quota import (
     create_random_block_storage_quota_patch,
@@ -53,17 +53,18 @@ def test_read_block_storage_quotas_with_target_params(
     specific attributes passed as query attributes."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/block_storage_quotas/",
-        params={"uid": db_block_storage_quota.uid},
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert len(content) == 1
-    validate_read_public_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaReadPublic(**content[0]),
-        db_item=db_block_storage_quota,
-    )
+    for k in BlockStorageQuotaBase.__fields__.keys():
+        response = client.get(
+            f"{settings.API_V1_STR}/block_storage_quotas/",
+            params={k: db_block_storage_quota.__getattribute__(k)},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        content = response.json()
+        assert len(content) == 1
+        validate_read_public_block_storage_quota_attrs(
+            obj_out=BlockStorageQuotaReadPublic(**content[0]),
+            db_item=db_block_storage_quota,
+        )
 
 
 def test_read_block_storage_quotas_with_limit(

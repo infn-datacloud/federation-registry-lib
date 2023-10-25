@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.quota.models import ComputeQuota
-from app.quota.schemas import ComputeQuotaReadPublic
+from app.quota.schemas import ComputeQuotaBase, ComputeQuotaReadPublic
 from app.quota.schemas_extended import ComputeQuotaReadExtendedPublic
 from app.tests.utils.compute_quota import (
     create_random_compute_quota_patch,
@@ -53,17 +53,18 @@ def test_read_compute_quotas_with_target_params(
     attributes passed as query attributes."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/",
-        params={"uid": db_compute_quota.uid},
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert len(content) == 1
-    validate_read_public_compute_quota_attrs(
-        obj_out=ComputeQuotaReadPublic(**content[0]),
-        db_item=db_compute_quota,
-    )
+    for k in ComputeQuotaBase.__fields__.keys():
+        response = client.get(
+            f"{settings.API_V1_STR}/compute_quotas/",
+            params={k: db_compute_quota.__getattribute__(k)},
+        )
+        assert response.status_code == status.HTTP_200_OK
+        content = response.json()
+        assert len(content) == 1
+        validate_read_public_compute_quota_attrs(
+            obj_out=ComputeQuotaReadPublic(**content[0]),
+            db_item=db_compute_quota,
+        )
 
 
 def test_read_compute_quotas_with_limit(
@@ -75,16 +76,12 @@ def test_read_compute_quotas_with_limit(
     output items."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", params={"limit": 0}
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"limit": 0})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", params={"limit": 1}
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"limit": 1})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
@@ -151,30 +148,22 @@ def test_read_compute_quotas_with_skip(
     entries."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 0}
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 0})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 1}
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 1})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 2}
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 2})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 3}
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 3})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
@@ -191,9 +180,7 @@ def test_read_compute_quotas_with_pagination(
     """
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", params={"size": 1}
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"size": 1})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
@@ -211,9 +198,7 @@ def test_read_compute_quotas_with_pagination(
     assert content[0]["uid"] == next_page_uid
 
     # Page greater than 0 but size equals None, does nothing
-    response = client.get(
-        f"{settings.API_V1_STR}/compute_quotas/", params={"page": 1}
-    )
+    response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"page": 1})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
