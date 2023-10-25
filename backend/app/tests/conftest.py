@@ -12,6 +12,7 @@ from app.location.models import Location
 from app.main import app
 from app.network.crud import network
 from app.project.crud import project
+from app.project.models import Project
 from app.provider.crud import provider
 from app.provider.models import Provider
 from app.quota.crud import block_storage_quota, compute_quota
@@ -84,19 +85,34 @@ def db_provider(setup_and_teardown_db: Generator) -> Provider:
 
 
 @pytest.fixture
-def db_provider_with_project(db_provider: Provider) -> Provider:
-    """Provider with a single project."""
+def db_project(db_provider: Provider) -> Project:
+    """Project owned by a provider."""
     item_in = create_random_project()
-    project.create(obj_in=item_in, provider=db_provider)
-    yield db_provider
+    db_project = project.create(obj_in=item_in, provider=db_provider)
+    yield db_project
 
 
 @pytest.fixture
-def db_provider_with_multiple_projects(db_provider_with_project: Provider) -> Provider:
-    """Provider with multiple projects."""
+def db_provider_with_project(db_project: Project) -> Provider:
+    """Provider with a single project."""
+    yield db_project.provider.single()
+
+
+@pytest.fixture
+def db_project2(db_provider_with_project: Provider) -> Project:
+    """Project owned by a provider.
+
+    It's the second project owned by the same provider.
+    """
     item_in = create_random_project()
-    project.create(obj_in=item_in, provider=db_provider_with_project)
-    yield db_provider_with_project
+    db_project = project.create(obj_in=item_in, provider=db_provider_with_project)
+    yield db_project
+
+
+@pytest.fixture
+def db_provider_with_multiple_projects(db_project2: Project) -> Provider:
+    """Provider with multiple projects."""
+    yield db_project2.provider.single()
 
 
 @pytest.fixture

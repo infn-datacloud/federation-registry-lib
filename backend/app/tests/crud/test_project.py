@@ -9,7 +9,7 @@ from app.sla.models import SLA
 from app.tests.utils.project import (
     create_random_project,
     create_random_project_patch,
-    validate_project_attrs,
+    validate_create_project_attrs,
 )
 
 
@@ -17,7 +17,7 @@ def test_create_item(db_provider: Provider) -> None:
     """Create a Project belonging to a specific Provider."""
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
-    validate_project_attrs(obj_in=item_in, db_item=item)
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_provider: Provider) -> None:
@@ -25,7 +25,7 @@ def test_create_item_default_values(db_provider: Provider) -> None:
     specific Provider."""
     item_in = create_random_project(default=True)
     item = project.create(obj_in=item_in, provider=db_provider)
-    validate_project_attrs(obj_in=item_in, db_item=item)
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_provider: Provider) -> None:
@@ -33,7 +33,7 @@ def test_get_item(db_provider: Provider) -> None:
     item_in = create_random_project()
     item = project.create(obj_in=item_in, provider=db_provider)
     item = project.get(uid=item.uid)
-    validate_project_attrs(obj_in=item_in, db_item=item)
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_provider: Provider) -> None:
@@ -56,11 +56,11 @@ def test_get_items(db_provider: Provider) -> None:
 
     stored_items = project.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_project_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_project_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = project.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_project_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_project_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_provider: Provider) -> None:
@@ -121,7 +121,7 @@ def test_patch_item(db_provider: Provider) -> None:
     item = project.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_project_attrs(obj_in=item_in, db_item=item)
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_provider: Provider) -> None:
@@ -140,7 +140,7 @@ def test_patch_item_with_defaults(db_provider: Provider) -> None:
     patch_in.description = ""
     item = project.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_project_attrs(obj_in=item_in, db_item=item)
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_force_update_item(db_provider: Provider) -> None:
@@ -148,7 +148,7 @@ def test_force_update_item(db_provider: Provider) -> None:
     item = project.create(obj_in=item_in, provider=db_provider)
     item_in = create_random_project()
     item = project.update(db_obj=item, obj_in=item_in, force=True)
-    validate_project_attrs(obj_in=item_in, db_item=item)
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_force_update_item_with_defaults(db_provider: Provider) -> None:
@@ -156,7 +156,7 @@ def test_force_update_item_with_defaults(db_provider: Provider) -> None:
     item = project.create(obj_in=item_in, provider=db_provider)
     item_in = create_random_project(default=True)
     item = project.update(db_obj=item, obj_in=item_in, force=True)
-    validate_project_attrs(obj_in=item_in, db_item=item)
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_provider: Provider) -> None:

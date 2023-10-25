@@ -1,16 +1,17 @@
 from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
-from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
-from app.flavor.crud import flavor
-from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
-from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
-from app.image.api.dependencies import is_private_image, valid_image_id
-from app.image.crud import image
-from app.image.models import Image
-from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
-from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
+
+# from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
+# from app.flavor.crud import flavor
+# from app.flavor.models import Flavor
+# from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
+# from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
+# from app.image.api.dependencies import is_private_image, valid_image_id
+# from app.image.crud import image
+# from app.image.models import Image
+# from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
+# from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.project.api.dependencies import valid_project_id, validate_new_project_values
 from app.project.crud import project
 from app.project.models import Project
@@ -122,7 +123,9 @@ def put_project(
         Returns `no content`. \
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error. \
-        On cascade, delete related SLA and quotas.",
+        On cascade, delete related SLA and quotas. \
+        If the deletion procedure fails, raises a `internal \
+        server` error",
 )
 def delete_project(item: Project = Depends(valid_project_id)):
     if not project.remove(db_obj=item):
@@ -132,147 +135,147 @@ def delete_project(item: Project = Depends(valid_project_id)):
         )
 
 
-@db.read_transaction
-@router.get(
-    "/{project_uid}/flavors",
-    response_model=Union[
-        List[FlavorReadExtended],
-        List[FlavorRead],
-        List[FlavorReadShort],
-        List[FlavorReadExtendedPublic],
-        List[FlavorReadPublic],
-    ],
-    summary="Read user group accessible flavors",
-    description="Retrieve all the flavors the user group \
-        has access to thanks to its SLA. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
-)
-def get_project_flavors(
-    auth: bool = Depends(check_read_access),
-    size: SchemaSize = Depends(),
-    item: Project = Depends(valid_project_id),
-):
-    items = item.private_flavors.all() + item.public_flavors()
-    return flavor.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
-    )
+# @db.read_transaction
+# @router.get(
+#     "/{project_uid}/flavors",
+#     response_model=Union[
+#         List[FlavorReadExtended],
+#         List[FlavorRead],
+#         List[FlavorReadShort],
+#         List[FlavorReadExtendedPublic],
+#         List[FlavorReadPublic],
+#     ],
+#     summary="Read user group accessible flavors",
+#     description="Retrieve all the flavors the user group \
+#         has access to thanks to its SLA. \
+#         If no entity matches the given *uid*, the endpoint \
+#         raises a `not found` error.",
+# )
+# def get_project_flavors(
+#     auth: bool = Depends(check_read_access),
+#     size: SchemaSize = Depends(),
+#     item: Project = Depends(valid_project_id),
+# ):
+#     items = item.private_flavors.all() + item.public_flavors()
+#     return flavor.choose_out_schema(
+#         items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#     )
 
 
-@db.write_transaction
-@router.put(
-    "/{project_uid}/flavors/{flavor_uid}",
-    response_model=List[FlavorRead],
-    dependencies=[Depends(check_write_access)],
-    summary="Connect project to flavor",
-    description="Connect a project to a specific flavor \
-        knowing their *uid*s. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
-)
-def connect_project_to_flavor(
-    response: Response,
-    item: Project = Depends(valid_project_id),
-    flavor: Flavor = Depends(is_private_flavor),
-):
-    if item.private_flavors.is_connected(flavor):
-        response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    item.private_flavors.connect(flavor)
-    return item.private_flavors.all()
+# @db.write_transaction
+# @router.put(
+#     "/{project_uid}/flavors/{flavor_uid}",
+#     response_model=Optional[List[FlavorRead]],
+#     dependencies=[Depends(check_write_access)],
+#     summary="Connect project to flavor",
+#     description="Connect a project to a specific flavor \
+#         knowing their *uid*s. \
+#         If no entity matches the given *uid*s, the endpoint \
+#         raises a `not found` error.",
+# )
+# def connect_project_to_flavor(
+#     response: Response,
+#     item: Project = Depends(valid_project_id),
+#     flavor: Flavor = Depends(is_private_flavor),
+# ):
+#     if item.private_flavors.is_connected(flavor):
+#         response.status_code = status.HTTP_304_NOT_MODIFIED
+#         return None
+#     item.private_flavors.connect(flavor)
+#     return item.private_flavors.all()
 
 
-@db.write_transaction
-@router.delete(
-    "/{project_uid}/flavors/{flavor_uid}",
-    response_model=List[FlavorRead],
-    dependencies=[Depends(check_write_access)],
-    summary="Disconnect project from flavor",
-    description="Disconnect a project from a specific flavor \
-        knowing their *uid*s. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
-)
-def disconnect_project_from_flavor(
-    response: Response,
-    item: Project = Depends(valid_project_id),
-    flavor: Flavor = Depends(valid_flavor_id),
-):
-    if not item.private_flavors.is_connected(flavor):
-        response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    item.private_flavors.disconnect(flavor)
-    return item.private_flavors.all()
+# @db.write_transaction
+# @router.delete(
+#     "/{project_uid}/flavors/{flavor_uid}",
+#     response_model=Optional[List[FlavorRead]],
+#     dependencies=[Depends(check_write_access)],
+#     summary="Disconnect project from flavor",
+#     description="Disconnect a project from a specific flavor \
+#         knowing their *uid*s. \
+#         If no entity matches the given *uid*s, the endpoint \
+#         raises a `not found` error.",
+# )
+# def disconnect_project_from_flavor(
+#     response: Response,
+#     item: Project = Depends(valid_project_id),
+#     flavor: Flavor = Depends(valid_flavor_id),
+# ):
+#     if not item.private_flavors.is_connected(flavor):
+#         response.status_code = status.HTTP_304_NOT_MODIFIED
+#         return None
+#     item.private_flavors.disconnect(flavor)
+#     return item.private_flavors.all()
 
 
-@db.read_transaction
-@router.get(
-    "/{project_uid}/images",
-    response_model=Union[
-        List[ImageReadExtended],
-        List[ImageRead],
-        List[ImageReadShort],
-        List[ImageReadExtendedPublic],
-        List[ImageReadPublic],
-    ],
-    summary="Read user group accessible images",
-    description="Retrieve all the images the user group \
-        has access to thanks to its SLA. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
-)
-def get_project_images(
-    auth: bool = Depends(check_read_access),
-    size: SchemaSize = Depends(),
-    item: Project = Depends(valid_project_id),
-):
-    items = item.private_images.all() + item.public_images()
-    return image.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
-    )
+# @db.read_transaction
+# @router.get(
+#     "/{project_uid}/images",
+#     response_model=Union[
+#         List[ImageReadExtended],
+#         List[ImageRead],
+#         List[ImageReadShort],
+#         List[ImageReadExtendedPublic],
+#         List[ImageReadPublic],
+#     ],
+#     summary="Read user group accessible images",
+#     description="Retrieve all the images the user group \
+#         has access to thanks to its SLA. \
+#         If no entity matches the given *uid*, the endpoint \
+#         raises a `not found` error.",
+# )
+# def get_project_images(
+#     auth: bool = Depends(check_read_access),
+#     size: SchemaSize = Depends(),
+#     item: Project = Depends(valid_project_id),
+# ):
+#     items = item.private_images.all() + item.public_images()
+#     return image.choose_out_schema(
+#         items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#     )
 
 
-@db.write_transaction
-@router.put(
-    "/{project_uid}/images/{image_uid}",
-    response_model=List[ImageRead],
-    dependencies=[Depends(check_write_access)],
-    summary="Connect project to image",
-    description="Connect a project to a specific image \
-        knowing their *uid*s. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
-)
-def connect_project_to_image(
-    response: Response,
-    item: Project = Depends(valid_project_id),
-    image: Image = Depends(is_private_image),
-):
-    if item.private_images.is_connected(image):
-        response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    item.private_images.connect(image)
-    return item.private_images.all()
+# @db.write_transaction
+# @router.put(
+#     "/{project_uid}/images/{image_uid}",
+#     response_model=Optional[List[ImageRead]],
+#     dependencies=[Depends(check_write_access)],
+#     summary="Connect project to image",
+#     description="Connect a project to a specific image \
+#         knowing their *uid*s. \
+#         If no entity matches the given *uid*s, the endpoint \
+#         raises a `not found` error.",
+# )
+# def connect_project_to_image(
+#     response: Response,
+#     item: Project = Depends(valid_project_id),
+#     image: Image = Depends(is_private_image),
+# ):
+#     if item.private_images.is_connected(image):
+#         response.status_code = status.HTTP_304_NOT_MODIFIED
+#         return None
+#     item.private_images.connect(image)
+#     return item.private_images.all()
 
 
-@db.write_transaction
-@router.delete(
-    "/{project_uid}/images/{image_uid}",
-    response_model=List[ImageRead],
-    dependencies=[Depends(check_write_access)],
-    summary="Disconnect project from image",
-    description="Disconnect a project from a specific image \
-        knowing their *uid*s. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
-)
-def disconnect_project_from_image(
-    response: Response,
-    item: Project = Depends(valid_project_id),
-    image: Image = Depends(valid_image_id),
-):
-    if not item.private_images.is_connected(image):
-        response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    item.private_images.disconnect(image)
-    return item.private_images.all()
+# @db.write_transaction
+# @router.delete(
+#     "/{project_uid}/images/{image_uid}",
+#     response_model=Optional[List[ImageRead]],
+#     dependencies=[Depends(check_write_access)],
+#     summary="Disconnect project from image",
+#     description="Disconnect a project from a specific image \
+#         knowing their *uid*s. \
+#         If no entity matches the given *uid*s, the endpoint \
+#         raises a `not found` error.",
+# )
+# def disconnect_project_from_image(
+#     response: Response,
+#     item: Project = Depends(valid_project_id),
+#     image: Image = Depends(valid_image_id),
+# ):
+#     if not item.private_images.is_connected(image):
+#         response.status_code = status.HTTP_304_NOT_MODIFIED
+#         return None
+#     item.private_images.disconnect(image)
+#     return item.private_images.all()

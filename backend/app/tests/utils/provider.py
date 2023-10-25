@@ -8,7 +8,7 @@ from app.tests.utils.identity_provider import (
     create_random_identity_provider,
     validate_identity_provider_attrs,
 )
-from app.tests.utils.project import create_random_project, validate_project_attrs
+from app.tests.utils.project import create_random_project, validate_create_project_attrs
 from app.tests.utils.region import create_random_region, validate_region_attrs
 from app.tests.utils.utils import random_bool, random_email, random_lower_string
 
@@ -91,7 +91,7 @@ def validate_provider_attrs(
     assert db_item.support_emails == obj_in.support_emails
     assert len(db_item.projects) == len(obj_in.projects)
     for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
-        validate_project_attrs(obj_in=proj_in, db_item=db_proj)
+        validate_create_project_attrs(obj_in=proj_in, db_item=db_proj)
     assert len(db_item.identity_providers) == len(obj_in.identity_providers)
     for db_idp, idp_in in zip(db_item.identity_providers, obj_in.identity_providers):
         validate_identity_provider_attrs(obj_in=idp_in, db_item=db_idp)

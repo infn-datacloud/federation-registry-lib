@@ -6,10 +6,9 @@ from app.project.schemas import ProjectCreate, ProjectUpdate
 from app.provider.api.dependencies import valid_provider_id
 from app.provider.models import Provider
 from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 
-def valid_project_id(project_uid: UUID4) -> Project:
+def valid_project_id(project_uid: str) -> Project:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
@@ -22,7 +21,7 @@ def valid_project_id(project_uid: UUID4) -> Project:
         NotFoundError: DB entity with given uid not found.
     """
 
-    item = project.get(uid=str(project_uid).replace("-", ""))
+    item = project.get(uid=project_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -127,5 +126,5 @@ def validate_new_project_values(
 
     if update_data.name != item.name:
         valid_project_name(item=update_data, provider=item.provider.single())
-    if str(update_data.uuid) != item.uuid:
+    if update_data.uuid != item.uuid:
         valid_project_uuid(item=update_data, provider=item.provider.single())
