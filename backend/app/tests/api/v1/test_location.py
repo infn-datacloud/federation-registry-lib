@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 from uuid import uuid4
 
@@ -378,7 +379,7 @@ def test_patch_location(
 
     response = client.patch(
         f"{settings.API_V1_STR}/locations/{db_location.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_200_OK
@@ -398,7 +399,7 @@ def test_patch_not_existing_location(
 
     response = client.patch(
         f"{settings.API_V1_STR}/locations/{item_uuid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -420,7 +421,7 @@ def test_patch_location_with_duplicated_site(
 
     response = client.patch(
         f"{settings.API_V1_STR}/locations/{db_location2.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST

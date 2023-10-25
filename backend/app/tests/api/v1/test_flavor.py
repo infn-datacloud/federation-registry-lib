@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 from uuid import uuid4
 
@@ -400,7 +401,7 @@ def test_patch_public_flavor(
 
     response = client.patch(
         f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_200_OK
@@ -421,7 +422,7 @@ def test_patch_private_flavor(
 
     response = client.patch(
         f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_200_OK
@@ -441,7 +442,7 @@ def test_patch_not_existing_flavor(
 
     response = client.patch(
         f"{settings.API_V1_STR}/flavors/{item_uuid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -461,7 +462,7 @@ def test_patch_flavor_changing_visibility(
 
     response = client.patch(
         f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -484,7 +485,7 @@ def test_patch_flavor_with_duplicated_uuid(
 
     response = client.patch(
         f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -507,7 +508,7 @@ def test_patch_flavor_with_duplicated_name(
 
     response = client.patch(
         f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST

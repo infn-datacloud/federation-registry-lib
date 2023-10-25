@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 
 from app.config import get_settings
@@ -359,7 +360,7 @@ def test_patch_image(
     data = create_random_image_patch()
     response = client.patch(
         f"{settings.API_V1_STR}/images/{db_public_image.uid}",
-        json=data.json(),
+        json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()
@@ -377,7 +378,7 @@ def test_patch_not_existing_image(
     data = create_random_image_patch()
     response = client.patch(
         f"{settings.API_V1_STR}/images/{uuid4()}",
-        json=data.json(),
+        json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()

@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 
 from app.config import get_settings
@@ -345,7 +346,7 @@ def test_patch_location(
     data = create_random_location_patch()
     response = client.patch(
         f"{settings.API_V1_STR}/locations/{db_location.uid}",
-        json=data.json(),
+        json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()
@@ -363,7 +364,7 @@ def test_patch_not_existing_location(
     data = create_random_location_patch()
     response = client.patch(
         f"{settings.API_V1_STR}/locations/{uuid4()}",
-        json=data.json(),
+        json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()

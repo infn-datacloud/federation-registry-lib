@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 from uuid import uuid4
 
@@ -403,7 +404,7 @@ def test_patch_public_network(
 
     response = client.patch(
         f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_200_OK
@@ -424,7 +425,7 @@ def test_patch_private_network(
 
     response = client.patch(
         f"{settings.API_V1_STR}/networks/{db_private_network.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_200_OK
@@ -444,7 +445,7 @@ def test_patch_not_existing_network(
 
     response = client.patch(
         f"{settings.API_V1_STR}/networks/{item_uuid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -465,7 +466,7 @@ def test_patch_network_changing_visibility(
 
     response = client.patch(
         f"{settings.API_V1_STR}/networks/{db_private_network.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -488,7 +489,7 @@ def test_patch_network_with_duplicated_uuid(
 
     response = client.patch(
         f"{settings.API_V1_STR}/networks/{db_private_network.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST

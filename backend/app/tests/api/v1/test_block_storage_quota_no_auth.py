@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 
 from app.config import get_settings
@@ -388,7 +389,7 @@ def test_patch_block_storage_quota(
     data = create_random_block_storage_quota_patch()
     response = client.patch(
         f"{settings.API_V1_STR}/block_storage_quotas/{db_block_storage_quota.uid}",
-        json=data.json(),
+        json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()
@@ -406,7 +407,7 @@ def test_patch_not_existing_block_storage_quota(
     data = create_random_block_storage_quota_patch()
     response = client.patch(
         f"{settings.API_V1_STR}/block_storage_quotas/{uuid4()}",
-        json=data.json(),
+        json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()

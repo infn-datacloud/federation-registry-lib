@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 from uuid import uuid4
 
@@ -416,7 +417,7 @@ def test_patch_compute_quota(
 
     response = client.patch(
         f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_200_OK
@@ -437,7 +438,7 @@ def test_patch_not_existing_compute_quota(
 
     response = client.patch(
         f"{settings.API_V1_STR}/compute_quotas/{item_uuid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -458,7 +459,7 @@ def test_patch_compute_quota_changing_per_user(
 
     response = client.patch(
         f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota_per_user.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_200_OK
@@ -481,7 +482,7 @@ def test_patch_compute_quota_with_duplicated_per_user(
 
     response = client.patch(
         f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota_per_user.uid}",
-        json=data.dict(),
+        json=json.loads(data.json()),
         headers=write_header,
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST

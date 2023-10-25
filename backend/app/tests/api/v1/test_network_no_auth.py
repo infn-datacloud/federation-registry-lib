@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 
 from app.config import get_settings
@@ -367,7 +368,7 @@ def test_patch_network(
     data = create_random_network_patch()
     response = client.patch(
         f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
-        json=data.json(),
+        json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()
@@ -385,7 +386,7 @@ def test_patch_not_existing_network(
     data = create_random_network_patch()
     response = client.patch(
         f"{settings.API_V1_STR}/networks/{uuid4()}",
-        json=data.json(),
+        json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()
