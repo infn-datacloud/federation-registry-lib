@@ -1,11 +1,17 @@
 from random import choice
-from typing import List, Union
+from typing import List
 from uuid import uuid4
 
 from app.image.enum import ImageOS
 from app.image.models import Image
-from app.image.schemas import ImageBase, ImageRead, ImageReadShort, ImageUpdate
-from app.image.schemas_extended import ImageReadExtended
+from app.image.schemas import (
+    ImageBase,
+    ImageRead,
+    ImageReadPublic,
+    ImageReadShort,
+    ImageUpdate,
+)
+from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.provider.schemas_extended import ImageCreateExtended
 from app.tests.utils.utils import random_bool, random_lower_string
 
@@ -84,6 +90,21 @@ def validate_image_attrs(*, obj_in: ImageBase, db_item: Image) -> None:
     assert db_item.tags == obj_in.tags
 
 
+def validate_image_public_attrs(*, obj_in: ImageBase, db_item: Image) -> None:
+    assert db_item.description == obj_in.description
+    assert db_item.name == obj_in.name
+    assert db_item.uuid == obj_in.uuid
+    assert db_item.is_public == obj_in.is_public
+    assert db_item.os_type == obj_in.os_type
+    assert db_item.os_distro == obj_in.os_distro
+    assert db_item.os_version == obj_in.os_version
+    assert db_item.architecture == obj_in.architecture
+    assert db_item.kernel_id == obj_in.kernel_id
+    assert db_item.cuda_support == obj_in.cuda_support
+    assert db_item.gpu_driver == obj_in.gpu_driver
+    assert db_item.tags == obj_in.tags
+
+
 def validate_create_image_attrs(*, obj_in: ImageCreateExtended, db_item: Image) -> None:
     validate_image_attrs(obj_in=obj_in, db_item=db_item)
     assert len(db_item.projects) == len(obj_in.projects)
@@ -91,16 +112,46 @@ def validate_create_image_attrs(*, obj_in: ImageCreateExtended, db_item: Image) 
         assert db_proj.uuid == proj_in
 
 
-def validate_read_image_attrs(
-    *, obj_out: Union[ImageRead, ImageReadShort, ImageReadExtended], db_item: Image
+def validate_read_image_attrs(*, obj_out: ImageRead, db_item: Image) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_image_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_short_image_attrs(*, obj_out: ImageReadShort, db_item: Image) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_image_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_public_image_attrs(
+    *, obj_out: ImageReadPublic, db_item: Image
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_image_public_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_extended_image_attrs(
+    *, obj_out: ImageReadExtended, db_item: Image
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_image_attrs(obj_in=obj_out, db_item=db_item)
 
-    if isinstance(obj_out, ImageReadExtended):
-        assert len(db_item.projects) == len(obj_out.projects)
-        for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
-            assert db_proj.uid == proj_out.uid
-        assert len(db_item.services) == len(obj_out.services)
-        for db_serv, serv_out in zip(db_item.services, obj_out.services):
-            assert db_serv.uid == serv_out.uid
+    assert len(db_item.projects) == len(obj_out.projects)
+    for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
+        assert db_proj.uid == proj_out.uid
+    assert len(db_item.services) == len(obj_out.services)
+    for db_serv, serv_out in zip(db_item.services, obj_out.services):
+        assert db_serv.uid == serv_out.uid
+
+
+def validate_read_extended_public_image_attrs(
+    *, obj_out: ImageReadExtendedPublic, db_item: Image
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_image_public_attrs(obj_in=obj_out, db_item=db_item)
+
+    assert len(db_item.projects) == len(obj_out.projects)
+    for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
+        assert db_proj.uid == proj_out.uid
+    assert len(db_item.services) == len(obj_out.services)
+    for db_serv, serv_out in zip(db_item.services, obj_out.services):
+        assert db_serv.uid == serv_out.uid

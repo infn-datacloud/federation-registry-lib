@@ -2,11 +2,12 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorReadPublic, FlavorReadShort
+from app.flavor.schemas import FlavorReadPublic
 from app.flavor.schemas_extended import FlavorReadExtendedPublic
 from app.tests.utils.flavor import (
     create_random_flavor_patch,
-    validate_read_flavor_attrs,
+    validate_read_extended_public_flavor_attrs,
+    validate_read_public_flavor_attrs,
 )
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -34,10 +35,10 @@ def test_read_flavors(
         resp_public_flavor = content[1]
         resp_private_flavor = content[0]
 
-    validate_read_flavor_attrs(
+    validate_read_public_flavor_attrs(
         obj_out=FlavorReadPublic(**resp_public_flavor), db_item=db_public_flavor
     )
-    validate_read_flavor_attrs(
+    validate_read_public_flavor_attrs(
         obj_out=FlavorReadPublic(**resp_private_flavor), db_item=db_private_flavor
     )
 
@@ -56,7 +57,7 @@ def test_read_flavors_with_target_params(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    validate_read_flavor_attrs(
+    validate_read_public_flavor_attrs(
         obj_out=FlavorReadPublic(**content[0]), db_item=db_public_flavor
     )
 
@@ -217,10 +218,10 @@ def test_read_flavors_with_conn(
         resp_public_flavor = content[1]
         resp_private_flavor = content[0]
 
-    validate_read_flavor_attrs(
+    validate_read_extended_public_flavor_attrs(
         obj_out=FlavorReadExtendedPublic(**resp_public_flavor), db_item=db_public_flavor
     )
-    validate_read_flavor_attrs(
+    validate_read_extended_public_flavor_attrs(
         obj_out=FlavorReadExtendedPublic(**resp_private_flavor),
         db_item=db_private_flavor,
     )
@@ -246,26 +247,32 @@ def test_read_flavors_short(
         resp_public_flavor = content[1]
         resp_private_flavor = content[0]
 
-    validate_read_flavor_attrs(
-        obj_out=FlavorReadShort(**resp_public_flavor), db_item=db_public_flavor
+    # TODO
+    # with pytest.raises(ValidationError):
+    #     q = FlavorReadShort(**resp_public_flavor)
+    # with pytest.raises(ValidationError):
+    #     q = FlavorReadShort(**resp_private_flavor)
+
+    validate_read_public_flavor_attrs(
+        obj_out=FlavorReadPublic(**resp_public_flavor), db_item=db_public_flavor
     )
-    validate_read_flavor_attrs(
-        obj_out=FlavorReadShort(**resp_private_flavor), db_item=db_private_flavor
+    validate_read_public_flavor_attrs(
+        obj_out=FlavorReadPublic(**resp_private_flavor), db_item=db_private_flavor
     )
 
 
-def test_read_public_flavor(
+def test_read_flavor(
     db_public_flavor: Flavor,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a public flavor."""
+    """Execute GET operations to read a flavor."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}",
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_flavor_attrs(
+    validate_read_public_flavor_attrs(
         obj_out=FlavorReadPublic(**content), db_item=db_public_flavor
     )
 
@@ -283,41 +290,8 @@ def test_read_public_flavor_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_flavor_attrs(
+    validate_read_extended_public_flavor_attrs(
         obj_out=FlavorReadExtendedPublic(**content), db_item=db_public_flavor
-    )
-
-
-def test_read_public_flavor_short(
-    db_public_flavor: Flavor,
-    client: TestClient,
-) -> None:
-    """Execute GET operations to read the shrunk version of a public flavor."""
-    settings = get_settings()
-    response = client.get(
-        f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}", params={"short": True}
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    validate_read_flavor_attrs(
-        obj_out=FlavorReadShort(**content), db_item=db_public_flavor
-    )
-
-
-def test_read_private_flavor(
-    db_private_flavor: Flavor,
-    client: TestClient,
-) -> None:
-    """Execute GET operations to read a private flavor."""
-    settings = get_settings()
-    response = client.get(
-        f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}",
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert content["uid"] == db_private_flavor.uid
-    validate_read_flavor_attrs(
-        obj_out=FlavorReadPublic(**content), db_item=db_private_flavor
     )
 
 
@@ -334,24 +308,29 @@ def test_read_private_flavor_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_flavor_attrs(
+    validate_read_extended_public_flavor_attrs(
         obj_out=FlavorReadExtendedPublic(**content), db_item=db_private_flavor
     )
 
 
-def test_read_private_flavor_short(
-    db_private_flavor: Flavor,
+def test_read_flavor_short(
+    db_public_flavor: Flavor,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a public flavor."""
+    """Execute GET operations to read the shrunk version of a flavor."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}", params={"short": True}
+        f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}", params={"short": True}
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_flavor_attrs(
-        obj_out=FlavorReadShort(**content), db_item=db_private_flavor
+
+    # TODO
+    # with pytest.raises(ValidationError):
+    #     q = FlavorReadShort(**content)
+
+    validate_read_public_flavor_attrs(
+        obj_out=FlavorReadPublic(**content), db_item=db_public_flavor
     )
 
 

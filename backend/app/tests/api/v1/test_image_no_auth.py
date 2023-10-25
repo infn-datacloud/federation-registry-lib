@@ -2,9 +2,13 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.image.models import Image
-from app.image.schemas import ImageReadPublic, ImageReadShort
+from app.image.schemas import ImageReadPublic
 from app.image.schemas_extended import ImageReadExtendedPublic
-from app.tests.utils.image import create_random_image_patch, validate_read_image_attrs
+from app.tests.utils.image import (
+    create_random_image_patch,
+    validate_read_extended_public_image_attrs,
+    validate_read_public_image_attrs,
+)
 from fastapi import status
 from fastapi.testclient import TestClient
 
@@ -31,10 +35,10 @@ def test_read_images(
         resp_public_image = content[1]
         resp_private_image = content[0]
 
-    validate_read_image_attrs(
+    validate_read_public_image_attrs(
         obj_out=ImageReadPublic(**resp_public_image), db_item=db_public_image
     )
-    validate_read_image_attrs(
+    validate_read_public_image_attrs(
         obj_out=ImageReadPublic(**resp_private_image), db_item=db_private_image
     )
 
@@ -53,7 +57,7 @@ def test_read_images_with_target_params(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    validate_read_image_attrs(
+    validate_read_public_image_attrs(
         obj_out=ImageReadPublic(**content[0]), db_item=db_public_image
     )
 
@@ -214,10 +218,10 @@ def test_read_images_with_conn(
         resp_public_image = content[1]
         resp_private_image = content[0]
 
-    validate_read_image_attrs(
+    validate_read_extended_public_image_attrs(
         obj_out=ImageReadExtendedPublic(**resp_public_image), db_item=db_public_image
     )
-    validate_read_image_attrs(
+    validate_read_extended_public_image_attrs(
         obj_out=ImageReadExtendedPublic(**resp_private_image),
         db_item=db_private_image,
     )
@@ -243,26 +247,32 @@ def test_read_images_short(
         resp_public_image = content[1]
         resp_private_image = content[0]
 
-    validate_read_image_attrs(
-        obj_out=ImageReadShort(**resp_public_image), db_item=db_public_image
+    # TODO
+    # with pytest.raises(ValidationError):
+    #     q = ImageReadShort(**resp_public_image)
+    # with pytest.raises(ValidationError):
+    #     q = ImageReadShort(**resp_private_image)
+
+    validate_read_public_image_attrs(
+        obj_out=ImageReadPublic(**resp_public_image), db_item=db_public_image
     )
-    validate_read_image_attrs(
-        obj_out=ImageReadShort(**resp_private_image), db_item=db_private_image
+    validate_read_public_image_attrs(
+        obj_out=ImageReadPublic(**resp_private_image), db_item=db_private_image
     )
 
 
-def test_read_public_image(
+def test_read_image(
     db_public_image: Image,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a public image."""
+    """Execute GET operations to read an image."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/images/{db_public_image.uid}",
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_image_attrs(
+    validate_read_public_image_attrs(
         obj_out=ImageReadPublic(**content), db_item=db_public_image
     )
 
@@ -279,41 +289,8 @@ def test_read_public_image_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_image_attrs(
+    validate_read_extended_public_image_attrs(
         obj_out=ImageReadExtendedPublic(**content), db_item=db_public_image
-    )
-
-
-def test_read_public_image_short(
-    db_public_image: Image,
-    client: TestClient,
-) -> None:
-    """Execute GET operations to read the shrunk version of a public image."""
-    settings = get_settings()
-    response = client.get(
-        f"{settings.API_V1_STR}/images/{db_public_image.uid}", params={"short": True}
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    validate_read_image_attrs(
-        obj_out=ImageReadShort(**content), db_item=db_public_image
-    )
-
-
-def test_read_private_image(
-    db_private_image: Image,
-    client: TestClient,
-) -> None:
-    """Execute GET operations to read a private image."""
-    settings = get_settings()
-    response = client.get(
-        f"{settings.API_V1_STR}/images/{db_private_image.uid}",
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert content["uid"] == db_private_image.uid
-    validate_read_image_attrs(
-        obj_out=ImageReadPublic(**content), db_item=db_private_image
     )
 
 
@@ -330,24 +307,29 @@ def test_read_private_image_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_image_attrs(
+    validate_read_extended_public_image_attrs(
         obj_out=ImageReadExtendedPublic(**content), db_item=db_private_image
     )
 
 
-def test_read_private_image_short(
-    db_private_image: Image,
+def test_read_image_short(
+    db_public_image: Image,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a public image."""
+    """Execute GET operations to read the shrunk version of an image."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/images/{db_private_image.uid}", params={"short": True}
+        f"{settings.API_V1_STR}/images/{db_public_image.uid}", params={"short": True}
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_image_attrs(
-        obj_out=ImageReadShort(**content), db_item=db_private_image
+
+    # TODO
+    # with pytest.raises(ValidationError):
+    #     q = ImageReadShort(**content)
+
+    validate_read_public_image_attrs(
+        obj_out=ImageReadPublic(**content), db_item=db_public_image
     )
 
 

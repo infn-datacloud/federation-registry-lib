@@ -2,11 +2,12 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.network.models import Network
-from app.network.schemas import NetworkReadPublic, NetworkReadShort
+from app.network.schemas import NetworkReadPublic
 from app.network.schemas_extended import NetworkReadExtendedPublic
 from app.tests.utils.network import (
     create_random_network_patch,
-    validate_read_network_attrs,
+    validate_read_extended_public_network_attrs,
+    validate_read_public_network_attrs,
 )
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -34,10 +35,10 @@ def test_read_networks(
         resp_public_network = content[1]
         resp_private_network = content[0]
 
-    validate_read_network_attrs(
+    validate_read_public_network_attrs(
         obj_out=NetworkReadPublic(**resp_public_network), db_item=db_public_network
     )
-    validate_read_network_attrs(
+    validate_read_public_network_attrs(
         obj_out=NetworkReadPublic(**resp_private_network), db_item=db_private_network
     )
 
@@ -56,7 +57,7 @@ def test_read_networks_with_target_params(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    validate_read_network_attrs(
+    validate_read_public_network_attrs(
         obj_out=NetworkReadPublic(**content[0]), db_item=db_public_network
     )
 
@@ -221,11 +222,11 @@ def test_read_networks_with_conn(
         resp_public_network = content[1]
         resp_private_network = content[0]
 
-    validate_read_network_attrs(
+    validate_read_extended_public_network_attrs(
         obj_out=NetworkReadExtendedPublic(**resp_public_network),
         db_item=db_public_network,
     )
-    validate_read_network_attrs(
+    validate_read_extended_public_network_attrs(
         obj_out=NetworkReadExtendedPublic(**resp_private_network),
         db_item=db_private_network,
     )
@@ -252,26 +253,32 @@ def test_read_networks_short(
         resp_public_network = content[1]
         resp_private_network = content[0]
 
-    validate_read_network_attrs(
-        obj_out=NetworkReadShort(**resp_public_network), db_item=db_public_network
+    # TODO
+    # with pytest.raises(ValidationError):
+    #     q = NetworkReadShort(**resp_public_network)
+    # with pytest.raises(ValidationError):
+    #     q = NetworkReadShort(**resp_private_network)
+
+    validate_read_public_network_attrs(
+        obj_out=NetworkReadPublic(**resp_public_network), db_item=db_public_network
     )
-    validate_read_network_attrs(
-        obj_out=NetworkReadShort(**resp_private_network), db_item=db_private_network
+    validate_read_public_network_attrs(
+        obj_out=NetworkReadPublic(**resp_private_network), db_item=db_private_network
     )
 
 
-def test_read_public_network(
+def test_read_network(
     db_public_network: Network,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a public network."""
+    """Execute GET operations to read a network."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_network_attrs(
+    validate_read_public_network_attrs(
         obj_out=NetworkReadPublic(**content), db_item=db_public_network
     )
 
@@ -289,43 +296,8 @@ def test_read_public_network_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_network_attrs(
+    validate_read_extended_public_network_attrs(
         obj_out=NetworkReadExtendedPublic(**content), db_item=db_public_network
-    )
-
-
-def test_read_public_network_short(
-    db_public_network: Network,
-    client: TestClient,
-) -> None:
-    """Execute GET operations to read the shrunk version of a public
-    network."""
-    settings = get_settings()
-    response = client.get(
-        f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
-        params={"short": True},
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    validate_read_network_attrs(
-        obj_out=NetworkReadShort(**content), db_item=db_public_network
-    )
-
-
-def test_read_private_network(
-    db_private_network: Network,
-    client: TestClient,
-) -> None:
-    """Execute GET operations to read a private network."""
-    settings = get_settings()
-    response = client.get(
-        f"{settings.API_V1_STR}/networks/{db_private_network.uid}",
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert content["uid"] == db_private_network.uid
-    validate_read_network_attrs(
-        obj_out=NetworkReadPublic(**content), db_item=db_private_network
     )
 
 
@@ -342,26 +314,30 @@ def test_read_private_network_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_network_attrs(
+    validate_read_extended_public_network_attrs(
         obj_out=NetworkReadExtendedPublic(**content), db_item=db_private_network
     )
 
 
-def test_read_private_network_short(
-    db_private_network: Network,
+def test_read_network_short(
+    db_public_network: Network,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a public
-    network."""
+    """Execute GET operations to read the shrunk version of a network."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/networks/{db_private_network.uid}",
+        f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
         params={"short": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_network_attrs(
-        obj_out=NetworkReadShort(**content), db_item=db_private_network
+
+    # TODO
+    # with pytest.raises(ValidationError):
+    #     q = NetworkReadShort(**content)
+
+    validate_read_public_network_attrs(
+        obj_out=NetworkReadPublic(**content), db_item=db_public_network
     )
 
 

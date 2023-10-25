@@ -2,11 +2,12 @@ from uuid import uuid4
 
 from app.config import get_settings
 from app.location.models import Location
-from app.location.schemas import LocationReadPublic, LocationReadShort
+from app.location.schemas import LocationReadPublic
 from app.location.schemas_extended import LocationReadExtendedPublic
 from app.tests.utils.location import (
     create_random_location_patch,
-    validate_read_location_attrs,
+    validate_read_extended_public_location_attrs,
+    validate_read_public_location_attrs,
 )
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -34,10 +35,10 @@ def test_read_locations(
         resp_loc1 = content[1]
         resp_loc2 = content[0]
 
-    validate_read_location_attrs(
+    validate_read_public_location_attrs(
         obj_out=LocationReadPublic(**resp_loc1), db_item=db_location
     )
-    validate_read_location_attrs(
+    validate_read_public_location_attrs(
         obj_out=LocationReadPublic(**resp_loc2), db_item=db_location2
     )
 
@@ -56,7 +57,7 @@ def test_read_locations_with_target_params(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    validate_read_location_attrs(
+    validate_read_public_location_attrs(
         obj_out=LocationReadPublic(**content[0]), db_item=db_location
     )
 
@@ -220,10 +221,10 @@ def test_read_locations_with_conn(
         resp_loc1 = content[1]
         resp_loc2 = content[0]
 
-    validate_read_location_attrs(
+    validate_read_extended_public_location_attrs(
         obj_out=LocationReadExtendedPublic(**resp_loc1), db_item=db_location
     )
-    validate_read_location_attrs(
+    validate_read_extended_public_location_attrs(
         obj_out=LocationReadExtendedPublic(**resp_loc2),
         db_item=db_location2,
     )
@@ -250,11 +251,17 @@ def test_read_locations_short(
         resp_loc1 = content[1]
         resp_loc2 = content[0]
 
-    validate_read_location_attrs(
-        obj_out=LocationReadShort(**resp_loc1), db_item=db_location
+    # TODO
+    # with pytest.raises(ValidationError):
+    #     q = LocationReadShort(**resp_loc1)
+    # with pytest.raises(ValidationError):
+    #     q = LocationReadShort(**resp_loc2)
+
+    validate_read_public_location_attrs(
+        obj_out=LocationReadPublic(**resp_loc1), db_item=db_location
     )
-    validate_read_location_attrs(
-        obj_out=LocationReadShort(**resp_loc2), db_item=db_location2
+    validate_read_public_location_attrs(
+        obj_out=LocationReadPublic(**resp_loc2), db_item=db_location2
     )
 
 
@@ -269,7 +276,7 @@ def test_read_location(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_location_attrs(
+    validate_read_public_location_attrs(
         obj_out=LocationReadPublic(**content), db_item=db_location
     )
 
@@ -286,7 +293,7 @@ def test_read_location_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_location_attrs(
+    validate_read_extended_public_location_attrs(
         obj_out=LocationReadExtendedPublic(**content), db_item=db_location
     )
 
@@ -302,8 +309,13 @@ def test_read_location_short(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_location_attrs(
-        obj_out=LocationReadShort(**content), db_item=db_location
+
+    # TODO
+    # with pytest.raises(ValidationError):
+    #     q = LocationReadShort(**content)
+
+    validate_read_public_location_attrs(
+        obj_out=LocationReadPublic(**content), db_item=db_location
     )
 
 

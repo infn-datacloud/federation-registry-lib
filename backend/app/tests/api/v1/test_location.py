@@ -7,7 +7,9 @@ from app.location.schemas import LocationRead, LocationReadShort
 from app.location.schemas_extended import LocationReadExtended
 from app.tests.utils.location import (
     create_random_location_patch,
+    validate_read_extended_location_attrs,
     validate_read_location_attrs,
+    validate_read_short_location_attrs,
 )
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -257,10 +259,10 @@ def test_read_locations_with_conn(
         resp_loc1 = content[1]
         resp_loc2 = content[0]
 
-    validate_read_location_attrs(
+    validate_read_extended_location_attrs(
         obj_out=LocationReadExtended(**resp_loc1), db_item=db_location
     )
-    validate_read_location_attrs(
+    validate_read_extended_location_attrs(
         obj_out=LocationReadExtended(**resp_loc2), db_item=db_location2
     )
 
@@ -289,10 +291,10 @@ def test_read_locations_short(
         resp_loc1 = content[1]
         resp_loc2 = content[0]
 
-    validate_read_location_attrs(
+    validate_read_short_location_attrs(
         obj_out=LocationReadShort(**resp_loc1), db_item=db_location
     )
-    validate_read_location_attrs(
+    validate_read_short_location_attrs(
         obj_out=LocationReadShort(**resp_loc2), db_item=db_location2
     )
 
@@ -326,7 +328,7 @@ def test_read_location_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_location_attrs(
+    validate_read_extended_location_attrs(
         obj_out=LocationReadExtended(**content), db_item=db_location
     )
 
@@ -345,7 +347,7 @@ def test_read_location_short(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_location_attrs(
+    validate_read_short_location_attrs(
         obj_out=LocationReadShort(**content), db_item=db_location
     )
 

@@ -44,7 +44,7 @@ class NetworkReadExtendedPublic(NetworkReadPublic):
     """Model to extend the Network data read from the DB with the lists of
     related items for non-authenticated users."""
 
-    projects: Optional[ProjectRead] = Field(
+    project: Optional[ProjectRead] = Field(
         default=None,
         description="List of accessible project. "
         "For private networks at most one item",

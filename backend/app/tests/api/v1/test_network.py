@@ -7,7 +7,9 @@ from app.network.schemas import NetworkRead, NetworkReadShort
 from app.network.schemas_extended import NetworkReadExtended
 from app.tests.utils.network import (
     create_random_network_patch,
+    validate_read_extended_network_attrs,
     validate_read_network_attrs,
+    validate_read_short_network_attrs,
 )
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -258,10 +260,10 @@ def test_read_networks_with_conn(
         resp_public_network = content[1]
         resp_private_network = content[0]
 
-    validate_read_network_attrs(
+    validate_read_extended_network_attrs(
         obj_out=NetworkReadExtended(**resp_public_network), db_item=db_public_network
     )
-    validate_read_network_attrs(
+    validate_read_extended_network_attrs(
         obj_out=NetworkReadExtended(**resp_private_network), db_item=db_private_network
     )
 
@@ -290,20 +292,20 @@ def test_read_networks_short(
         resp_public_network = content[1]
         resp_private_network = content[0]
 
-    validate_read_network_attrs(
+    validate_read_short_network_attrs(
         obj_out=NetworkReadShort(**resp_public_network), db_item=db_public_network
     )
-    validate_read_network_attrs(
+    validate_read_short_network_attrs(
         obj_out=NetworkReadShort(**resp_private_network), db_item=db_private_network
     )
 
 
-def test_read_public_network(
+def test_read_network(
     db_public_network: Network,
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a public network."""
+    """Execute GET operations to read a network."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/networks/{db_public_network.uid}", headers=read_header
@@ -330,46 +332,8 @@ def test_read_public_network_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_network_attrs(
+    validate_read_extended_network_attrs(
         obj_out=NetworkReadExtended(**content), db_item=db_public_network
-    )
-
-
-def test_read_public_network_short(
-    db_public_network: Network,
-    client: TestClient,
-    read_header: Dict,
-) -> None:
-    """Execute GET operations to read the shrunk version of a public
-    network."""
-    settings = get_settings()
-    response = client.get(
-        f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
-        params={"short": True},
-        headers=read_header,
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    validate_read_network_attrs(
-        obj_out=NetworkReadShort(**content), db_item=db_public_network
-    )
-
-
-def test_read_private_network(
-    db_private_network: Network,
-    client: TestClient,
-    read_header: Dict,
-) -> None:
-    """Execute GET operations to read a private network."""
-    settings = get_settings()
-    response = client.get(
-        f"{settings.API_V1_STR}/networks/{db_private_network.uid}", headers=read_header
-    )
-    assert response.status_code == status.HTTP_200_OK
-    content = response.json()
-    assert content["uid"] == db_private_network.uid
-    validate_read_network_attrs(
-        obj_out=NetworkRead(**content), db_item=db_private_network
     )
 
 
@@ -388,28 +352,27 @@ def test_read_private_network_with_conn(
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_network_attrs(
+    validate_read_extended_network_attrs(
         obj_out=NetworkReadExtended(**content), db_item=db_private_network
     )
 
 
-def test_read_private_network_short(
-    db_private_network: Network,
+def test_read_network_short(
+    db_public_network: Network,
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a public
-    network."""
+    """Execute GET operations to read the shrunk version of a network."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/networks/{db_private_network.uid}",
+        f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
         params={"short": True},
         headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    validate_read_network_attrs(
-        obj_out=NetworkReadShort(**content), db_item=db_private_network
+    validate_read_short_network_attrs(
+        obj_out=NetworkReadShort(**content), db_item=db_public_network
     )
 
 
@@ -471,7 +434,6 @@ def test_patch_private_network(
 
 
 def test_patch_not_existing_network(
-    db_public_network: Network,
     client: TestClient,
     write_header: Dict,
 ) -> None:
@@ -479,7 +441,6 @@ def test_patch_not_existing_network(
     settings = get_settings()
     item_uuid = uuid4()
     data = create_random_network_patch()
-    data.is_shared = db_public_network.is_shared
 
     response = client.patch(
         f"{settings.API_V1_STR}/networks/{item_uuid}",
