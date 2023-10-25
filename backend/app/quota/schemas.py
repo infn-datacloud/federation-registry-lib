@@ -3,58 +3,17 @@ from typing import Optional
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 from app.quota.enum import QuotaType
-from pydantic import Extra, Field, validator
+from pydantic import Field, validator
 
 
-class QuotaBase(BaseNode, extra=Extra.allow):
+class QuotaBase(BaseNode):
     """Model with Quota basic attributes."""
 
     type: QuotaType = Field(description="Quota type.")
     per_user: bool = Field(default=False, description="Quota to apply for each user")
 
 
-class QuotaCreate(BaseNodeCreate, QuotaBase):
-    """Model to create a Quota.
-
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
-    """
-
-
-class QuotaUpdate(BaseNodeCreate, QuotaBase):
-    """Model to update a Quota.
-
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
-
-    Default to None mandatory attributes.
-    """
-
-
-class QuotaRead(BaseNodeRead, QuotaBase):
-    """Model to read Service data retrieved from DB.
-
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
-    database.
-    """
-
-
-class QuotaReadPublic(BaseNodeRead, QuotaBase):
-    pass
-
-
-class QuotaReadShort(BaseNodeRead, QuotaBase):
-    pass
-
-
-QuotaQuery = create_query_model("QuotaQuery", QuotaBase)
-
-
-class BlockStorageQuotaBase(QuotaBase, extra=Extra.ignore):
+class BlockStorageQuotaBase(QuotaBase):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for BlockStorage services.
 
@@ -100,7 +59,7 @@ BlockStorageQuotaQuery = create_query_model(
 )
 
 
-class ComputeQuotaBase(QuotaBase, extra=Extra.ignore):
+class ComputeQuotaBase(QuotaBase):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Compute services.
 

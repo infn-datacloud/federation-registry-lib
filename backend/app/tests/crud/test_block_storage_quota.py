@@ -3,12 +3,12 @@ from uuid import uuid4
 from app.project.crud import project
 from app.quota.crud import block_storage_quota
 from app.service.models import BlockStorageService
-from app.tests.utils.project import create_random_project
-from app.tests.utils.quota import (
+from app.tests.utils.block_storage_quota import (
     create_random_block_storage_quota,
     create_random_block_storage_quota_patch,
-    validate_block_storage_quota_attrs,
+    validate_create_block_storage_quota_attrs,
 )
+from app.tests.utils.project import create_random_project
 
 
 def test_create_item(db_block_storage_serv: BlockStorageService) -> None:
@@ -21,7 +21,7 @@ def test_create_item(db_block_storage_serv: BlockStorageService) -> None:
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
     )
-    validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_block_storage_serv: BlockStorageService) -> None:
@@ -34,7 +34,7 @@ def test_create_item_default_values(db_block_storage_serv: BlockStorageService) 
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
     )
-    validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_block_storage_serv: BlockStorageService) -> None:
@@ -47,7 +47,7 @@ def test_get_item(db_block_storage_serv: BlockStorageService) -> None:
         obj_in=item_in, service=db_block_storage_serv, project=db_project
     )
     item = block_storage_quota.get(uid=item.uid)
-    validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_block_storage_serv: BlockStorageService) -> None:
@@ -82,11 +82,11 @@ def test_get_items(db_block_storage_serv: BlockStorageService) -> None:
 
     stored_items = block_storage_quota.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_block_storage_quota_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = block_storage_quota.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_block_storage_quota_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_block_storage_quota_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_block_storage_serv: BlockStorageService) -> None:
@@ -173,7 +173,7 @@ def test_patch_item(db_block_storage_serv: BlockStorageService) -> None:
     item = block_storage_quota.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_block_storage_serv: BlockStorageService) -> None:
@@ -197,7 +197,7 @@ def test_patch_item_with_defaults(db_block_storage_serv: BlockStorageService) ->
     patch_in.description = ""
     item = block_storage_quota.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item(db_block_storage_serv: BlockStorageService) -> None:
@@ -225,13 +225,13 @@ def test_forced_update_item(db_block_storage_serv: BlockStorageService) -> None:
     item = block_storage_quota.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_block_storage_quota(project=item_in.project)
     item = block_storage_quota.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_block_storage_serv: BlockStorageService) -> None:

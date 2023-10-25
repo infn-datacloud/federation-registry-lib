@@ -13,7 +13,7 @@ from app.quota.schemas_extended import (
     ComputeQuotaReadExtendedPublic,
 )
 from app.service.models import ComputeService
-from app.tests.utils.quota import create_random_compute_quota
+from app.tests.utils.compute_quota import create_random_compute_quota
 from app.tests.utils.utils import random_lower_string
 from pydantic import ValidationError
 

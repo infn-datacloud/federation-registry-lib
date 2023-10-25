@@ -3,12 +3,12 @@ from uuid import uuid4
 from app.project.crud import project
 from app.quota.crud import compute_quota
 from app.service.models import ComputeService
-from app.tests.utils.project import create_random_project
-from app.tests.utils.quota import (
+from app.tests.utils.compute_quota import (
     create_random_compute_quota,
     create_random_compute_quota_patch,
-    validate_compute_quota_attrs,
+    validate_create_compute_quota_attrs,
 )
+from app.tests.utils.project import create_random_project
 
 
 def test_create_item(db_compute_serv: ComputeService) -> None:
@@ -20,7 +20,7 @@ def test_create_item(db_compute_serv: ComputeService) -> None:
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
     )
-    validate_compute_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
@@ -33,7 +33,7 @@ def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
     )
-    validate_compute_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_compute_serv: ComputeService) -> None:
@@ -46,7 +46,7 @@ def test_get_item(db_compute_serv: ComputeService) -> None:
         obj_in=item_in, service=db_compute_serv, project=db_project
     )
     item = compute_quota.get(uid=item.uid)
-    validate_compute_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
@@ -81,11 +81,11 @@ def test_get_items(db_compute_serv: ComputeService) -> None:
 
     stored_items = compute_quota.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_compute_quota_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = compute_quota.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_compute_quota_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_compute_quota_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_compute_serv: ComputeService) -> None:
@@ -164,7 +164,7 @@ def test_patch_item(db_compute_serv: ComputeService) -> None:
     item = compute_quota.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_compute_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
@@ -188,7 +188,7 @@ def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
     patch_in.description = ""
     item = compute_quota.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_compute_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item(db_compute_serv: ComputeService) -> None:
@@ -214,13 +214,13 @@ def test_forced_update_item(db_compute_serv: ComputeService) -> None:
     item = compute_quota.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_compute_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_compute_quota(project=item_in.project)
     item = compute_quota.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_compute_quota_attrs(obj_in=item_in, db_item=item)
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_compute_serv: ComputeService) -> None:

@@ -26,15 +26,17 @@ from app.service.schemas import (
     IdentityServiceUpdate,
     NetworkServiceUpdate,
 )
+from app.tests.utils.block_storage_quota import (
+    create_random_block_storage_quota,
+    validate_create_block_storage_quota_attrs,
+)
+from app.tests.utils.compute_quota import (
+    create_random_compute_quota,
+    validate_create_compute_quota_attrs,
+)
 from app.tests.utils.flavor import create_random_flavor, validate_create_flavor_attrs
 from app.tests.utils.image import create_random_image, validate_create_image_attrs
 from app.tests.utils.network import create_random_network, validate_create_network_attrs
-from app.tests.utils.quota import (
-    create_random_block_storage_quota,
-    create_random_compute_quota,
-    validate_block_storage_quota_attrs,
-    validate_compute_quota_attrs,
-)
 from app.tests.utils.utils import random_lower_string, random_url
 
 
@@ -170,7 +172,7 @@ def validate_block_storage_service_attrs(
     assert db_item.type == obj_in.type
     assert len(db_item.quotas) == len(obj_in.quotas)
     for db_quota, quota_in in zip(db_item.quotas, obj_in.quotas):
-        validate_block_storage_quota_attrs(db_item=db_quota, obj_in=quota_in)
+        validate_create_block_storage_quota_attrs(db_item=db_quota, obj_in=quota_in)
 
 
 def validate_compute_service_attrs(
@@ -188,7 +190,7 @@ def validate_compute_service_attrs(
         validate_create_image_attrs(db_item=db_img, obj_in=img_in)
     assert len(db_item.quotas) == len(obj_in.quotas)
     for db_quota, quota_in in zip(db_item.quotas, obj_in.quotas):
-        validate_compute_quota_attrs(db_item=db_quota, obj_in=quota_in)
+        validate_create_compute_quota_attrs(db_item=db_quota, obj_in=quota_in)
 
 
 def validate_identity_service_attrs(

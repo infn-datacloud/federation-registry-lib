@@ -13,7 +13,7 @@ from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtendedPublic,
 )
 from app.service.models import BlockStorageService
-from app.tests.utils.quota import create_random_block_storage_quota
+from app.tests.utils.block_storage_quota import create_random_block_storage_quota
 from app.tests.utils.utils import random_lower_string
 from pydantic import ValidationError
 
