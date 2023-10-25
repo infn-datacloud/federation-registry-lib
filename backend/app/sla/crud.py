@@ -2,10 +2,10 @@ from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.project.models import Project
-from app.project.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from app.provider.schemas_extended import SLACreateExtended
 from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLARead, SLAReadPublic, SLAReadShort, SLAUpdate
+from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from app.user_group.models import UserGroup
 
 
