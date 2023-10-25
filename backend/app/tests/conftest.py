@@ -18,8 +18,18 @@ from app.quota.crud import block_storage_quota, compute_quota
 from app.quota.models import BlockStorageQuota, ComputeQuota
 from app.region.crud import region
 from app.region.models import Region
-from app.service.crud import block_storage_service, compute_service, network_service
-from app.service.models import BlockStorageService, ComputeService, NetworkService
+from app.service.crud import (
+    block_storage_service,
+    compute_service,
+    identity_service,
+    network_service,
+)
+from app.service.models import (
+    BlockStorageService,
+    ComputeService,
+    IdentityService,
+    NetworkService,
+)
 from app.sla.models import SLA
 from app.tests.utils.block_storage_quota import create_random_block_storage_quota
 from app.tests.utils.compute_quota import create_random_compute_quota
@@ -34,6 +44,7 @@ from app.tests.utils.region import create_random_region
 from app.tests.utils.service import (
     create_random_block_storage_service,
     create_random_compute_service,
+    create_random_identity_service,
     create_random_network_service,
 )
 from app.user_group.models import UserGroup
@@ -41,6 +52,8 @@ from fastapi.testclient import TestClient
 from neomodel import clear_neo4j_database, db
 
 pytest.register_assert_rewrite(
+    "tests.utils.block_storage_quota",
+    "tests.utils.compute_quota",
     "tests.utils.flavor",
     "tests.utils.identity_provider",
     "tests.utils.image",
@@ -48,7 +61,6 @@ pytest.register_assert_rewrite(
     "tests.utils.network",
     "tests.utils.project",
     "tests.utils.provider",
-    "tests.utils.quota",
     "tests.utils.region",
     "tests.utils.service",
     "tests.utils.sla",
@@ -65,6 +77,7 @@ def setup_and_teardown_db() -> Generator:
 
 @pytest.fixture
 def db_provider(setup_and_teardown_db: Generator) -> Provider:
+    """Provider with no relationships."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     yield item
@@ -72,13 +85,24 @@ def db_provider(setup_and_teardown_db: Generator) -> Provider:
 
 @pytest.fixture
 def db_provider_with_project(db_provider: Provider) -> Provider:
+    """Provider with a single project."""
     item_in = create_random_project()
     project.create(obj_in=item_in, provider=db_provider)
     yield db_provider
 
 
 @pytest.fixture
+def db_provider_with_multiple_projects(db_provider_with_project: Provider) -> Provider:
+    """Provider with multiple projects."""
+    item_in = create_random_project()
+    project.create(obj_in=item_in, provider=db_provider_with_project)
+    yield db_provider_with_project
+
+
+@pytest.fixture
 def db_idp(db_provider_with_project: Provider) -> IdentityProvider:
+    """Identity Provider with a single user group, linked to a single
+    provider."""
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_project.projects]
     )
@@ -87,13 +111,65 @@ def db_idp(db_provider_with_project: Provider) -> IdentityProvider:
 
 
 @pytest.fixture
-def db_group(db_idp: IdentityProvider) -> UserGroup:
-    yield db_idp.user_groups.all()[0]
+def db_idp_with_multiple_user_groups(
+    db_provider_with_multiple_projects: Provider,
+) -> IdentityProvider:
+    """Identity Provider with multiple user groups, linked to a single
+    provider."""
+    item_in = create_random_identity_provider(
+        projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
+    )
+    item = identity_provider.create(
+        obj_in=item_in, provider=db_provider_with_multiple_projects
+    )
+    yield item
+
+
+# TODO Evaluate if correct
+# @pytest.fixture
+# def db_idp_with_multiple_providers(
+#     db_provider_with_project: Provider,
+#     db_provider_with_multiple_projects: Provider,
+# ) -> IdentityProvider:
+#     """Identity Provider with multiple user groups, linked to multiple providers.
+#     It has a user group for each providers' project."""
+#     item_in = create_random_identity_provider(
+#         projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
+#     )
+#     item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
+#     item = identity_provider.create(
+#         obj_in=item_in, provider=db_provider_with_multiple_projects
+#     )
+#     yield item
+
+
+@pytest.fixture
+def db_group(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
+    yield db_idp_with_multiple_user_groups.user_groups.all()[0]
+
+
+@pytest.fixture
+def db_group2(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
+    yield db_idp_with_multiple_user_groups.user_groups.all()[1]
+
+
+# TODO Create UserGroup fixture with multiple SLAs each
+# belonging to a project of different providers
+# TODO Create UserGroup fixture with single SLA with
+# multiple projects of different providers
 
 
 @pytest.fixture
 def db_sla(db_group: UserGroup) -> SLA:
     yield db_group.slas.all()[0]
+
+
+@pytest.fixture
+def db_sla2(db_group2: UserGroup) -> SLA:
+    yield db_group2.slas.all()[0]
+
+
+# TODO Create SLA fixture with multiple projects of different providers
 
 
 @pytest.fixture
@@ -132,9 +208,65 @@ def db_block_storage_serv(db_region: Region) -> ComputeService:
 
 
 @pytest.fixture
+def db_block_storage_quota(
+    db_block_storage_serv: BlockStorageService,
+) -> BlockStorageQuota:
+    db_region = db_block_storage_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_block_storage_quota(project=db_project.uuid)
+    item_in.per_user = False
+    item = block_storage_quota.create(
+        obj_in=item_in, service=db_block_storage_serv, project=db_project
+    )
+    yield item
+
+
+@pytest.fixture
+def db_block_storage_quota_per_user(
+    db_block_storage_serv: BlockStorageService,
+) -> BlockStorageQuota:
+    db_region = db_block_storage_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_block_storage_quota(project=db_project.uuid)
+    item_in.per_user = True
+    item = block_storage_quota.create(
+        obj_in=item_in, service=db_block_storage_serv, project=db_project
+    )
+    yield item
+
+
+@pytest.fixture
 def db_compute_serv(db_region: Region) -> ComputeService:
     item_in = create_random_compute_service()
     item = compute_service.create(obj_in=item_in, region=db_region)
+    yield item
+
+
+@pytest.fixture
+def db_compute_quota(db_compute_serv: ComputeService) -> ComputeQuota:
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_compute_quota(project=db_project.uuid)
+    item_in.per_user = False
+    item = compute_quota.create(
+        obj_in=item_in, service=db_compute_serv, project=db_project
+    )
+    yield item
+
+
+@pytest.fixture
+def db_compute_quota_per_user(db_compute_serv: ComputeService) -> ComputeQuota:
+    db_region = db_compute_serv.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_compute_quota(project=db_project.uuid)
+    item_in.per_user = True
+    item = compute_quota.create(
+        obj_in=item_in, service=db_compute_serv, project=db_project
+    )
     yield item
 
 
@@ -199,58 +331,9 @@ def db_private_network(db_network_serv: NetworkService) -> Flavor:
 
 
 @pytest.fixture
-def db_block_storage_quota(
-    db_block_storage_serv: BlockStorageService,
-) -> BlockStorageQuota:
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item_in.per_user = False
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv, project=db_project
-    )
-    yield item
-
-
-@pytest.fixture
-def db_block_storage_quota_per_user(
-    db_block_storage_serv: BlockStorageService,
-) -> BlockStorageQuota:
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item_in.per_user = True
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv, project=db_project
-    )
-    yield item
-
-
-@pytest.fixture
-def db_compute_quota(db_compute_serv: ComputeService) -> ComputeQuota:
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_compute_quota(project=db_project.uuid)
-    item_in.per_user = False
-    item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
-    )
-    yield item
-
-
-@pytest.fixture
-def db_compute_quota_per_user(db_compute_serv: ComputeService) -> ComputeQuota:
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_compute_quota(project=db_project.uuid)
-    item_in.per_user = True
-    item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
-    )
+def db_identity_serv(db_region: Region) -> IdentityService:
+    item_in = create_random_identity_service()
+    item = identity_service.create(obj_in=item_in, region=db_region)
     yield item
 
 
@@ -289,4 +372,3 @@ def write_header(read_header: Dict) -> Dict:
         "accept": "application/json",
         "content-type": "application/json",
     }
-    return (read_header, write_header)
