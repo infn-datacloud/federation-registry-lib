@@ -19,7 +19,7 @@ from app.service.schemas_extended import (
     ComputeServiceReadExtended,
     ComputeServiceReadExtendedPublic,
 )
-from app.tests.utils.service import create_random_compute_service
+from app.tests.utils.compute_service import create_random_compute_service
 from app.tests.utils.utils import random_lower_string
 from pydantic import ValidationError
 

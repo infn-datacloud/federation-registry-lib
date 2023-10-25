@@ -33,21 +33,19 @@ from app.service.models import (
 )
 from app.sla.models import SLA
 from app.tests.utils.block_storage_quota import create_random_block_storage_quota
+from app.tests.utils.block_storage_service import create_random_block_storage_service
 from app.tests.utils.compute_quota import create_random_compute_quota
+from app.tests.utils.compute_service import create_random_compute_service
 from app.tests.utils.flavor import create_random_flavor
 from app.tests.utils.identity_provider import create_random_identity_provider
+from app.tests.utils.identity_service import create_random_identity_service
 from app.tests.utils.image import create_random_image
 from app.tests.utils.location import create_random_location
 from app.tests.utils.network import create_random_network
+from app.tests.utils.network_service import create_random_network_service
 from app.tests.utils.project import create_random_project
 from app.tests.utils.provider import create_random_provider
 from app.tests.utils.region import create_random_region
-from app.tests.utils.service import (
-    create_random_block_storage_service,
-    create_random_compute_service,
-    create_random_identity_service,
-    create_random_network_service,
-)
 from app.user_group.models import UserGroup
 from fastapi.testclient import TestClient
 from neomodel import clear_neo4j_database, db

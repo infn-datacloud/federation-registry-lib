@@ -16,7 +16,7 @@ from app.service.schemas_extended import (
     IdentityServiceReadExtended,
     IdentityServiceReadExtendedPublic,
 )
-from app.tests.utils.service import create_random_identity_service
+from app.tests.utils.identity_service import create_random_identity_service
 from app.tests.utils.utils import random_lower_string
 from pydantic import ValidationError
 

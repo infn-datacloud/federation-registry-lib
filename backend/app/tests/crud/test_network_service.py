@@ -3,10 +3,10 @@ from uuid import uuid4
 from app.network.crud import network
 from app.region.models import Region
 from app.service.crud import network_service
-from app.tests.utils.service import (
+from app.tests.utils.network_service import (
     create_random_network_service,
     create_random_network_service_patch,
-    validate_network_service_attrs,
+    validate_create_network_service_attrs,
 )
 
 
@@ -14,7 +14,7 @@ def test_create_item(db_region: Region) -> None:
     """Create an Network Service belonging to a specific Region."""
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_region: Region) -> None:
@@ -22,7 +22,7 @@ def test_create_item_default_values(db_region: Region) -> None:
     to a specific Compute Service."""
     item_in = create_random_network_service(default=True)
     item = network_service.create(obj_in=item_in, region=db_region)
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_networks(db_region: Region) -> None:
@@ -30,7 +30,7 @@ def test_create_item_with_networks(db_region: Region) -> None:
     to a specific Compute Service, with related networks."""
     item_in = create_random_network_service(with_networks=True)
     item = network_service.create(obj_in=item_in, region=db_region)
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_region: Region) -> None:
@@ -38,7 +38,7 @@ def test_get_item(db_region: Region) -> None:
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
     item = network_service.get(uid=item.uid)
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_region: Region) -> None:
@@ -61,11 +61,11 @@ def test_get_items(db_region: Region) -> None:
 
     stored_items = network_service.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_network_service_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_network_service_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = network_service.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_network_service_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_network_service_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_region: Region) -> None:
@@ -126,7 +126,7 @@ def test_patch_item(db_region: Region) -> None:
     item = network_service.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_region: Region) -> None:
@@ -145,7 +145,7 @@ def test_patch_item_with_defaults(db_region: Region) -> None:
     patch_in.description = ""
     item = network_service.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_(db_region: Region) -> None:
@@ -173,19 +173,19 @@ def test_forced_update_item_(db_region: Region) -> None:
     item = network_service.update(
         db_obj=item, obj_in=item_in, projects=projects, force=True
     )
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_network_service(with_networks=True)
     item = network_service.update(
         db_obj=item, obj_in=item_in, projects=projects, force=True
     )
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_network_service(with_networks=True)
     item = network_service.update(
         db_obj=item, obj_in=item_in, projects=projects, force=True
     )
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
     networks = item_in.networks
     item_in = create_random_network_service()
@@ -193,7 +193,7 @@ def test_forced_update_item_(db_region: Region) -> None:
     item = network_service.update(
         db_obj=item, obj_in=item_in, projects=projects, force=True
     )
-    validate_network_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_region: Region) -> None:

@@ -3,10 +3,10 @@ from uuid import uuid4
 from app.quota.crud import block_storage_quota
 from app.region.models import Region
 from app.service.crud import block_storage_service
-from app.tests.utils.service import (
+from app.tests.utils.block_storage_service import (
     create_random_block_storage_service,
     create_random_block_storage_service_patch,
-    validate_block_storage_service_attrs,
+    validate_create_block_storage_service_attrs,
 )
 
 
@@ -14,7 +14,7 @@ def test_create_item(db_region: Region) -> None:
     """Create a BlockStorage Service belonging to a specific Region."""
     item_in = create_random_block_storage_service()
     item = block_storage_service.create(obj_in=item_in, region=db_region)
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_region: Region) -> None:
@@ -22,7 +22,7 @@ def test_create_item_default_values(db_region: Region) -> None:
     belonging to a specific Region."""
     item_in = create_random_block_storage_service(default=True)
     item = block_storage_service.create(obj_in=item_in, region=db_region)
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects(db_region: Region) -> None:
@@ -35,7 +35,7 @@ def test_create_item_with_projects(db_region: Region) -> None:
     item = block_storage_service.create(
         obj_in=item_in, region=db_region, projects=db_provider.projects
     )
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_region: Region) -> None:
@@ -43,7 +43,7 @@ def test_get_item(db_region: Region) -> None:
     item_in = create_random_block_storage_service()
     item = block_storage_service.create(obj_in=item_in, region=db_region)
     item = block_storage_service.get(uid=item.uid)
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_region: Region) -> None:
@@ -66,11 +66,13 @@ def test_get_items(db_region: Region) -> None:
 
     stored_items = block_storage_service.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = block_storage_service.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_block_storage_service_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_block_storage_service_attrs(
+        obj_in=item_in2, db_item=stored_items[0]
+    )
 
 
 def test_get_items_with_limit(db_region: Region) -> None:
@@ -131,7 +133,7 @@ def test_patch_item(db_region: Region) -> None:
     item = block_storage_service.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_region: Region) -> None:
@@ -150,7 +152,7 @@ def test_patch_item_with_defaults(db_region: Region) -> None:
     patch_in.description = ""
     item = block_storage_service.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_(db_region: Region) -> None:
@@ -181,7 +183,7 @@ def test_forced_update_item_(db_region: Region) -> None:
     )
     item_in = create_random_block_storage_service()
     item = block_storage_service.update(db_obj=item, obj_in=item_in, force=True)
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_block_storage_service(
         projects=[i.uuid for i in db_provider.projects]
@@ -189,7 +191,7 @@ def test_forced_update_item_(db_region: Region) -> None:
     item = block_storage_service.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_block_storage_service(
         projects=[i.uuid for i in db_provider.projects]
@@ -197,7 +199,7 @@ def test_forced_update_item_(db_region: Region) -> None:
     item = block_storage_service.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
     quotas = item_in.quotas
     item_in = create_random_block_storage_service()
@@ -205,7 +207,7 @@ def test_forced_update_item_(db_region: Region) -> None:
     item = block_storage_service.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_region: Region) -> None:

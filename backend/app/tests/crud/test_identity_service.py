@@ -2,10 +2,10 @@ from uuid import uuid4
 
 from app.region.models import Region
 from app.service.crud import identity_service
-from app.tests.utils.service import (
+from app.tests.utils.identity_service import (
     create_random_identity_service,
     create_random_identity_service_patch,
-    validate_identity_service_attrs,
+    validate_create_identity_service_attrs,
 )
 
 
@@ -13,7 +13,7 @@ def test_create_item(db_region: Region) -> None:
     """Create an Identity Service belonging to a specific Region."""
     item_in = create_random_identity_service()
     item = identity_service.create(obj_in=item_in, region=db_region)
-    validate_identity_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_region: Region) -> None:
@@ -21,7 +21,7 @@ def test_create_item_default_values(db_region: Region) -> None:
     to a specific Compute Service."""
     item_in = create_random_identity_service(default=True)
     item = identity_service.create(obj_in=item_in, region=db_region)
-    validate_identity_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_region: Region) -> None:
@@ -29,7 +29,7 @@ def test_get_item(db_region: Region) -> None:
     item_in = create_random_identity_service()
     item = identity_service.create(obj_in=item_in, region=db_region)
     item = identity_service.get(uid=item.uid)
-    validate_identity_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_region: Region) -> None:
@@ -52,11 +52,11 @@ def test_get_items(db_region: Region) -> None:
 
     stored_items = identity_service.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_identity_service_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_identity_service_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = identity_service.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_identity_service_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_identity_service_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_region: Region) -> None:
@@ -116,7 +116,7 @@ def test_patch_item(db_region: Region) -> None:
     item = identity_service.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_identity_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_region: Region) -> None:
@@ -135,7 +135,7 @@ def test_patch_item_with_defaults(db_region: Region) -> None:
     patch_in.description = ""
     item = identity_service.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_identity_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item(db_region: Region) -> None:
@@ -145,7 +145,7 @@ def test_forced_update_item(db_region: Region) -> None:
     item = identity_service.create(obj_in=item_in, region=db_region)
     item_in = create_random_identity_service()
     item = identity_service.update(db_obj=item, obj_in=item_in, force=True)
-    validate_identity_service_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_region: Region) -> None:
