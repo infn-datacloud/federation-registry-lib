@@ -314,7 +314,7 @@ def test_read_flavor(
     validate_read_flavor_attrs(obj_out=FlavorRead(**content), db_item=db_public_flavor)
 
 
-def test_read_flavor_with_conn(
+def test_read_public_flavor_with_conn(
     db_public_flavor: Flavor,
     client: TestClient,
     read_header: Dict,
