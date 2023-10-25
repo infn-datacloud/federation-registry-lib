@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from app.identity_provider.models import IdentityProvider
 from app.project.crud import project
 from app.sla.crud import sla
 from app.tests.utils.project import create_random_project
@@ -55,33 +56,23 @@ def test_get_non_existing_item(db_group: UserGroup) -> None:
     assert not item
 
 
-def test_get_items(db_group: UserGroup) -> None:
-    """Retrieve multiple SLAs.
-
-    Filter GET operations specifying a target uid.
-    """
-    db_idp = db_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_sla(project=db_project.uuid)
-    item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
+def test_get_items(db_idp_with_multiple_user_groups: IdentityProvider) -> None:
+    """Retrieve multiple SLAs."""
+    db_user_group = db_idp_with_multiple_user_groups.user_groups.all()[0]
+    item = db_user_group.slas.all()[0]
 
     stored_items = sla.get_multi()
     assert len(stored_items) == 2
 
     stored_items = sla.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_sla_attrs(obj_in=item_in, db_item=stored_items[0])
+    assert stored_items[0].uid == item.uid
 
 
-def test_get_items_with_limit(db_group: UserGroup) -> None:
+def test_get_items_with_limit(
+    db_idp_with_multiple_user_groups: IdentityProvider,
+) -> None:
     """Test the 'limit' attribute in GET operations."""
-    db_idp = db_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_sla(project=db_project.uuid)
-    sla.create(obj_in=item_in, user_group=db_group, project=db_project)
-
     stored_items = sla.get_multi(limit=0)
     assert len(stored_items) == 0
 
@@ -92,18 +83,10 @@ def test_get_items_with_limit(db_group: UserGroup) -> None:
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_group: UserGroup) -> None:
+def test_get_sorted_items(db_idp_with_multiple_user_groups: IdentityProvider) -> None:
     """Test the 'sort' attribute in GET operations."""
-    db_idp = db_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = db_provider.projects.all()[0]
-    item = db_project.sla.single()
-
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in2 = create_random_sla(project=db_project.uuid)
-    item2 = sla.create(obj_in=item_in2, user_group=db_group, project=db_project)
-
-    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    items = [i.slas.all()[0] for i in db_idp_with_multiple_user_groups.user_groups]
+    sorted_items = list(sorted(items, key=lambda x: x.uid))
 
     stored_items = sla.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -114,14 +97,10 @@ def test_get_sorted_items(db_group: UserGroup) -> None:
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_group: UserGroup) -> None:
+def test_get_items_with_skip(
+    db_idp_with_multiple_user_groups: IdentityProvider,
+) -> None:
     """Test the 'skip' attribute in GET operations."""
-    db_idp = db_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_sla(project=db_project.uuid)
-    sla.create(obj_in=item_in, user_group=db_group, project=db_project)
-
     stored_items = sla.get_multi(skip=0)
     assert len(stored_items) == 2
 
@@ -130,10 +109,8 @@ def test_get_items_with_skip(db_group: UserGroup) -> None:
 
 
 def test_patch_item(db_group: UserGroup) -> None:
-    """Update the attributes of an existing SLA.
-
-    Do not update linked projects and user group.
-    """
+    """Update the attributes of an existing SLA, without updating its
+    relationships."""
     db_idp = db_group.identity_provider.single()
     db_provider = db_idp.providers.all()[0]
     db_project = db_provider.projects.all()[0]

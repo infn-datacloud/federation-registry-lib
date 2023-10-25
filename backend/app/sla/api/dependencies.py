@@ -4,10 +4,9 @@ from app.sla.crud import sla
 from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLAUpdate
 from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 
-def valid_sla_id(sla_uid: UUID4) -> SLA:
+def valid_sla_id(sla_uid: str) -> SLA:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
@@ -20,7 +19,7 @@ def valid_sla_id(sla_uid: UUID4) -> SLA:
         NotFoundError: DB entity with given uid not found.
     """
 
-    item = sla.get(uid=str(sla_uid).replace("-", ""))
+    item = sla.get(uid=sla_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -70,8 +69,5 @@ def validate_new_sla_values(
         BadRequestError: DB entity with given document uuid already exists.
     """
 
-    if (
-        update_data.doc_uuid is not None
-        and str(update_data.doc_uuid) != item.doc_uuid
-    ):
+    if update_data.doc_uuid is not None and update_data.doc_uuid != item.doc_uuid:
         is_unique_sla(update_data)
