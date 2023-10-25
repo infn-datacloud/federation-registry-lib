@@ -1,5 +1,5 @@
 from app.provider.schemas_extended import UserGroupCreateExtended
-from app.tests.utils.sla import create_random_sla, validate_sla_attrs
+from app.tests.utils.sla import create_random_sla, validate_create_sla_attrs
 from app.tests.utils.utils import random_lower_string
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupUpdate
@@ -32,4 +32,4 @@ def validate_user_group_attrs(
     assert len(db_item.slas) > 0
     db_slas = list(filter(lambda x: x.doc_uuid == obj_in.sla.doc_uuid, db_item.slas))
     assert len(db_slas) == 1
-    validate_sla_attrs(obj_in=obj_in.sla, db_item=db_slas[0])
+    validate_create_sla_attrs(obj_in=obj_in.sla, db_item=db_slas[0])

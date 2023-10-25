@@ -7,7 +7,7 @@ from app.tests.utils.project import create_random_project
 from app.tests.utils.sla import (
     create_random_sla,
     create_random_sla_patch,
-    validate_sla_attrs,
+    validate_create_sla_attrs,
 )
 from app.user_group.models import UserGroup
 
@@ -20,7 +20,7 @@ def test_create_item(db_group: UserGroup) -> None:
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_sla(project=db_project.uuid)
     item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
-    validate_sla_attrs(obj_in=item_in, db_item=item)
+    validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_group: UserGroup) -> None:
@@ -31,7 +31,7 @@ def test_create_item_default_values(db_group: UserGroup) -> None:
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_sla(default=True, project=db_project.uuid)
     item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
-    validate_sla_attrs(obj_in=item_in, db_item=item)
+    validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_group: UserGroup) -> None:
@@ -42,7 +42,7 @@ def test_get_item(db_group: UserGroup) -> None:
     item_in = create_random_sla(project=db_project.uuid)
     item = sla.create(obj_in=item_in, user_group=db_group, project=db_project)
     item = sla.get(uid=item.uid)
-    validate_sla_attrs(obj_in=item_in, db_item=item)
+    validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_group: UserGroup) -> None:
@@ -120,7 +120,7 @@ def test_patch_item(db_group: UserGroup) -> None:
     item = sla.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_sla_attrs(obj_in=item_in, db_item=item)
+    validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_group: UserGroup) -> None:
@@ -142,7 +142,7 @@ def test_patch_item_with_defaults(db_group: UserGroup) -> None:
     patch_in.description = ""
     item = sla.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_sla_attrs(obj_in=item_in, db_item=item)
+    validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update(db_group: UserGroup) -> None:
@@ -164,14 +164,14 @@ def test_forced_update(db_group: UserGroup) -> None:
     item = sla.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_sla_attrs(obj_in=item_in, db_item=item)
+    validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_sla(project=db_project.uuid)
     item = sla.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_sla_attrs(obj_in=item_in, db_item=item)
+    validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_group: UserGroup) -> None:
