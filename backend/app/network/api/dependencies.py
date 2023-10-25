@@ -3,7 +3,7 @@ from typing import List, Union
 from app.network.crud import network
 from app.network.models import Network
 from app.network.schemas import NetworkCreate, NetworkUpdate
-from app.service.api.dependencies import valid_service_id
+from app.service.api.dependencies import valid_network_service_id
 from app.service.models import NetworkService
 from fastapi import Depends, HTTPException, status
 
@@ -32,7 +32,7 @@ def valid_network_id(network_uid: str) -> Network:
 
 def valid_network_uuid(
     item: Union[NetworkCreate, NetworkUpdate],
-    services: List[NetworkService] = Depends(valid_service_id),
+    services: List[NetworkService] = Depends(valid_network_service_id),
 ) -> None:
     """Check there are no other networks, belonging to the same service, with
     the same uuid.
@@ -49,7 +49,7 @@ def valid_network_uuid(
     """
 
     for service in services:
-        service = valid_service_id(service.uid)
+        service = valid_network_service_id(service.uid)
         db_item = service.networks.get_or_none(uuid=item.uuid)
         if db_item is not None:
             raise HTTPException(

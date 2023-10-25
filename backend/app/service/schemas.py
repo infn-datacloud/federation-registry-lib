@@ -9,63 +9,17 @@ from app.service.enum import (
     NetworkServiceName,
     ServiceType,
 )
-from pydantic import AnyHttpUrl, Extra, Field, validator
+from pydantic import AnyHttpUrl, Field, validator
 
 
-class ServiceBase(BaseNode, extra=Extra.allow):
+class ServiceBase(BaseNode):
     """Model with Service basic attributes."""
 
     endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
     type: ServiceType = Field(description="Service type.")
 
 
-class ServiceCreate(BaseNodeCreate, ServiceBase):
-    """Model to create a Service.
-
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
-    """
-
-
-class ServiceUpdate(ServiceCreate):
-    """Model to update a Service.
-
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
-
-    Default to None mandatory attributes.
-    """
-
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    type: Optional[ServiceType] = Field(default=None, description="Service type.")
-
-
-class ServiceRead(BaseNodeRead, ServiceBase):
-    """Model to read Service data retrieved from DB.
-
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
-    database.
-    """
-
-
-class ServiceReadPublic(BaseNodeRead, ServiceBase):
-    pass
-
-
-class ServiceReadShort(BaseNodeRead, ServiceBase):
-    pass
-
-
-ServiceQuery = create_query_model("ServiceQuery", ServiceBase)
-
-
-class BlockStorageServiceBase(ServiceBase, extra=Extra.ignore):
+class BlockStorageServiceBase(ServiceBase):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for BlockStorage services.
 
@@ -134,7 +88,7 @@ BlockStorageServiceQuery = create_query_model(
 )
 
 
-class ComputeServiceBase(ServiceBase, extra=Extra.ignore):
+class ComputeServiceBase(ServiceBase):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Compute services.
 
@@ -199,7 +153,7 @@ class ComputeServiceReadShort(BaseNodeRead, ComputeServiceBase):
 ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeServiceBase)
 
 
-class IdentityServiceBase(ServiceBase, extra=Extra.ignore):
+class IdentityServiceBase(ServiceBase):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Identity services.
 
@@ -264,7 +218,7 @@ class IdentityServiceReadShort(BaseNodeRead, IdentityServiceBase):
 IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityServiceBase)
 
 
-class NetworkServiceBase(ServiceBase, extra=Extra.ignore):
+class NetworkServiceBase(ServiceBase):
     """Model derived from ServiceBase to inherit attributes common to all
     services. It adds the basic attributes for Network services.
 

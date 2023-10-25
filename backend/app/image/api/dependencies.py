@@ -3,7 +3,7 @@ from typing import List, Union
 from app.image.crud import image
 from app.image.models import Image
 from app.image.schemas import ImageCreate, ImageUpdate
-from app.service.api.dependencies import valid_service_id
+from app.service.api.dependencies import valid_compute_service_id
 from app.service.models import ComputeService
 from fastapi import Depends, HTTPException, status
 
@@ -49,7 +49,7 @@ def valid_image_name(
     """
 
     for service in services:
-        service = valid_service_id(service.uid)
+        service = valid_compute_service_id(service.uid)
         db_item = service.images.get_or_none(name=item.name)
         if db_item is not None:
             raise HTTPException(
@@ -60,7 +60,7 @@ def valid_image_name(
 
 def valid_image_uuid(
     item: Union[ImageCreate, ImageUpdate],
-    services: List[ComputeService] = Depends(valid_service_id),
+    services: List[ComputeService] = Depends(valid_compute_service_id),
 ) -> None:
     """Check there are no other images, belonging to the same service, with the
     same uuid.
@@ -77,7 +77,7 @@ def valid_image_uuid(
     """
 
     for service in services:
-        service = valid_service_id(service.uid)
+        service = valid_compute_service_id(service.uid)
         db_item = service.images.get_or_none(uuid=item.uuid)
         if db_item is not None:
             raise HTTPException(
