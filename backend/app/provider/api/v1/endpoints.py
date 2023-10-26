@@ -34,7 +34,8 @@ from app.provider.schemas_extended import (
     ProviderReadExtendedPublic,
 )
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-from app.service.api.dependencies import valid_service_endpoint
+
+# from app.service.api.dependencies import valid_service_endpoint
 from app.service.crud import (
     block_storage_service,
     compute_service,
@@ -338,7 +339,7 @@ def add_project_to_provider(
         ComputeServiceReadExtended,
     ],
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(check_write_access), Depends(valid_service_endpoint)],
+    dependencies=[Depends(check_write_access)],  # , Depends(valid_service_endpoint)],
     summary="Add new service to provider",
     description="Create a service and connect it to a \
         provider knowing it *uid*. \

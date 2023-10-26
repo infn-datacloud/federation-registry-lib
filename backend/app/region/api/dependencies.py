@@ -75,6 +75,4 @@ def validate_new_region_values(
     """
 
     if update_data.name != item.name:
-        is_unique_region(
-            item=update_data, provider=item.provider.single()
-        )
+        is_unique_region(item=update_data, provider=item.provider.single())

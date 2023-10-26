@@ -10,7 +10,12 @@ from app.provider.schemas_extended import (
     ProviderCreateExtended,
     RegionCreateExtended,
 )
-from app.service.api.dependencies import valid_service_endpoint
+from app.service.api.dependencies import (
+    valid_block_storage_service_endpoint,
+    valid_compute_service_endpoint,
+    valid_identity_service_endpoint,
+    valid_network_service_endpoint,
+)
 from app.sla.crud import sla
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
@@ -129,9 +134,7 @@ def valid_identity_provider(
             db_idp = db_group.identity_provider.single()
             if db_group.name != group.name or db_idp.endpoint != item.endpoint:
                 msg = f"SLA {group.sla.doc_uuid} already used by another group"
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST, detail=msg
-                )
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
 def valid_region(item: RegionCreateExtended) -> None:
@@ -149,10 +152,10 @@ def valid_region(item: RegionCreateExtended) -> None:
                     )
 
     for service in item.block_storage_services:
-        valid_service_endpoint(service)
+        valid_block_storage_service_endpoint(service)
     for service in item.compute_services:
-        valid_service_endpoint(service)
+        valid_compute_service_endpoint(service)
     for service in item.identity_services:
-        valid_service_endpoint(service)
+        valid_identity_service_endpoint(service)
     for service in item.network_services:
-        valid_service_endpoint(service)
+        valid_network_service_endpoint(service)
