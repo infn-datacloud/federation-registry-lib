@@ -222,6 +222,13 @@ def db_block_storage_serv(db_region: Region) -> ComputeService:
 
 
 @pytest.fixture
+def db_block_storage_serv2(db_region2: Region) -> ComputeService:
+    item_in = create_random_block_storage_service()
+    item = block_storage_service.create(obj_in=item_in, region=db_region2)
+    yield item
+
+
+@pytest.fixture
 def db_block_storage_quota(
     db_block_storage_serv: BlockStorageService,
 ) -> BlockStorageQuota:
@@ -255,6 +262,13 @@ def db_block_storage_quota_per_user(
 def db_compute_serv(db_region: Region) -> ComputeService:
     item_in = create_random_compute_service()
     item = compute_service.create(obj_in=item_in, region=db_region)
+    yield item
+
+
+@pytest.fixture
+def db_compute_serv2(db_region2: Region) -> ComputeService:
+    item_in = create_random_compute_service()
+    item = compute_service.create(obj_in=item_in, region=db_region2)
     yield item
 
 
@@ -324,6 +338,13 @@ def db_private_image(db_compute_serv: ComputeService) -> Flavor:
 def db_network_serv(db_region: Region) -> NetworkService:
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
+    yield item
+
+
+@pytest.fixture
+def db_network_serv2(db_region2: Region) -> NetworkService:
+    item_in = create_random_network_service()
+    item = network_service.create(obj_in=item_in, region=db_region2)
     yield item
 
 
