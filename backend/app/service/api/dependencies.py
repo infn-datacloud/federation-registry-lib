@@ -66,7 +66,7 @@ def valid_block_storage_service_endpoint(
 
     db_item = block_storage_service.get(endpoint=item.endpoint)
     if db_item is not None:
-        msg = f"Block Storage Service with URL '{item.endpoint}' "
+        msg = f"Block Storage Service with endpoint '{item.endpoint}' "
         msg += "already registered"
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
@@ -92,11 +92,6 @@ def validate_new_block_storage_service_values(
 
     if str(update_data.endpoint) != item.endpoint:
         valid_block_storage_service_endpoint(update_data)
-    if update_data.type != item.type:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Service type update is forbidden!",
-        )
 
 
 def valid_compute_service_id(
@@ -118,7 +113,7 @@ def valid_compute_service_id(
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Block Storage Service '{service_uid}' not found",
+            detail=f"Compute Service '{service_uid}' not found",
         )
     return item
 
@@ -140,7 +135,7 @@ def valid_compute_service_endpoint(
 
     db_item = compute_service.get(endpoint=item.endpoint)
     if db_item is not None:
-        msg = f"Compute Service with URL '{item.endpoint}' "
+        msg = f"Compute Service with endpoint '{item.endpoint}' "
         msg += "already registered"
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
@@ -166,11 +161,6 @@ def validate_new_compute_service_values(
 
     if str(update_data.endpoint) != item.endpoint:
         valid_compute_service_endpoint(update_data)
-    if update_data.type != item.type:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Service type update is forbidden!",
-        )
 
 
 def valid_identity_service_id(
@@ -192,7 +182,7 @@ def valid_identity_service_id(
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Block Storage Service '{service_uid}' not found",
+            detail=f"Identity Service '{service_uid}' not found",
         )
     return item
 
@@ -214,7 +204,7 @@ def valid_identity_service_endpoint(
 
     db_item = identity_service.get(endpoint=item.endpoint)
     if db_item is not None:
-        msg = f"Identity Service with URL '{item.endpoint}' "
+        msg = f"Identity Service with endpoint '{item.endpoint}' "
         msg += "already registered"
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
@@ -240,11 +230,6 @@ def validate_new_identity_service_values(
 
     if str(update_data.endpoint) != item.endpoint:
         valid_identity_service_endpoint(update_data)
-    if update_data.type != item.type:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Service type update is forbidden!",
-        )
 
 
 def valid_network_service_id(
@@ -266,7 +251,7 @@ def valid_network_service_id(
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Block Storage Service '{service_uid}' not found",
+            detail=f"Network Service '{service_uid}' not found",
         )
     return item
 
@@ -288,7 +273,7 @@ def valid_network_service_endpoint(
 
     db_item = network_service.get(endpoint=item.endpoint)
     if db_item is not None:
-        msg = f"Network Service with URL '{item.endpoint}' "
+        msg = f"Network Service with endpoint '{item.endpoint}' "
         msg += "already registered"
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
@@ -314,8 +299,3 @@ def validate_new_network_service_values(
 
     if str(update_data.endpoint) != item.endpoint:
         valid_network_service_endpoint(update_data)
-    if update_data.type != item.type:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Service type update is forbidden!",
-        )

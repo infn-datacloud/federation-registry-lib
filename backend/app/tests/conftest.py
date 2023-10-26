@@ -352,6 +352,13 @@ def db_identity_serv(db_region: Region) -> IdentityService:
 
 
 @pytest.fixture
+def db_identity_serv2(db_region2: Region) -> IdentityService:
+    item_in = create_random_identity_service()
+    item = identity_service.create(obj_in=item_in, region=db_region2)
+    yield item
+
+
+@pytest.fixture
 def client(setup_and_teardown_db: Generator) -> Generator:
     with TestClient(app) as c:
         yield c
