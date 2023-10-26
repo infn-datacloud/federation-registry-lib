@@ -8,6 +8,7 @@ from app.project.api.v1.endpoints import router as project_router_v1
 from app.provider.api.v1.endpoints import router as provider_router_v1
 from app.quota.api.v1.endpoints import bs_router as block_storage_quota_router_v1
 from app.quota.api.v1.endpoints import c_router as compute_quota_router_v1
+from app.region.api.v1.endpoints import router as region_router_v1
 from app.service.api.v1.endpoints import bs_router as block_storage_service_router_v1
 from app.service.api.v1.endpoints import c_router as compute_service_router_v1
 from app.service.api.v1.endpoints import i_router as identity_service_router_v1
@@ -34,3 +35,4 @@ router_v1.include_router(identity_service_router_v1)
 router_v1.include_router(network_service_router_v1)
 router_v1.include_router(sla_router_v1)
 router_v1.include_router(user_group_router_v1)
+router_v1.include_router(region_router_v1)

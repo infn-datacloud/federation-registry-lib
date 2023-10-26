@@ -1,9 +1,15 @@
 from typing import List
-from uuid import uuid4
 
 from app.provider.schemas_extended import RegionCreateExtended
 from app.region.models import Region
-from app.region.schemas import RegionUpdate
+from app.region.schemas import (
+    RegionBase,
+    RegionRead,
+    RegionReadPublic,
+    RegionReadShort,
+    RegionUpdate,
+)
+from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
 from app.service.enum import ServiceType
 from app.tests.utils.block_storage_service import (
     create_random_block_storage_service,
@@ -62,28 +68,28 @@ def create_random_region(
     return RegionCreateExtended(name=name, **kwargs)
 
 
-def create_random_update_region_data() -> RegionUpdate:
+def create_random_region_patch(*, default: bool = False) -> RegionUpdate:
+    if default:
+        return RegionUpdate()
     description = random_lower_string()
     name = random_lower_string()
-    uuid = uuid4()
-    public_network_name = random_lower_string()
-    private_network_name = random_lower_string()
-    private_network_proxy_host = random_lower_string()
-    private_network_proxy_user = random_lower_string()
-    return RegionUpdate(
-        description=description,
-        name=name,
-        uuid=uuid,
-        public_network_name=public_network_name,
-        private_network_name=private_network_name,
-        private_network_proxy_host=private_network_proxy_host,
-        private_network_proxy_user=private_network_proxy_user,
-    )
+    return RegionUpdate(description=description, name=name)
 
 
-def validate_region_attrs(*, obj_in: RegionCreateExtended, db_item: Region) -> None:
+def validate_region_attrs(*, obj_in: RegionBase, db_item: Region) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
+
+
+def validate_region_public_attrs(*, obj_in: RegionBase, db_item: Region) -> None:
+    assert db_item.description == obj_in.description
+    assert db_item.name == obj_in.name
+
+
+def validate_create_region_attrs(
+    *, obj_in: RegionCreateExtended, db_item: Region
+) -> None:
+    validate_region_attrs(obj_in=obj_in, db_item=db_item)
     if db_item.location.single():
         validate_create_location_attrs(
             obj_in=obj_in.location, db_item=db_item.location.single()
@@ -122,3 +128,54 @@ def validate_region_attrs(*, obj_in: RegionCreateExtended, db_item: Region) -> N
         assert len(db_network_services) == len(obj_in.network_services)
         for db_serv, serv_in in zip(db_network_services, obj_in.network_services):
             validate_create_network_service_attrs(obj_in=serv_in, db_item=db_serv)
+
+
+def validate_read_region_attrs(*, obj_out: RegionRead, db_item: Region) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_region_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_short_region_attrs(
+    *, obj_out: RegionReadShort, db_item: Region
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_region_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_public_region_attrs(
+    *, obj_out: RegionReadPublic, db_item: Region
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_region_public_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_extended_region_attrs(
+    *, obj_out: RegionReadExtended, db_item: Region
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_region_attrs(obj_in=obj_out, db_item=db_item)
+    db_provider = db_item.provider.single()
+    assert db_provider
+    assert db_provider.uid == obj_out.provider.uid
+    db_location = db_item.location.single()
+    if db_location:
+        assert db_location.uid == obj_out.location.uid
+    else:
+        assert not obj_out.location
+    assert len(db_item.services) == len(obj_out.services)
+
+
+def validate_read_extended_public_region_attrs(
+    *, obj_out: RegionReadExtendedPublic, db_item: Region
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_region_public_attrs(obj_in=obj_out, db_item=db_item)
+    db_provider = db_item.provider.single()
+    assert db_provider
+    assert db_provider.uid == obj_out.provider.uid
+    db_location = db_item.location.single()
+    if db_location:
+        assert db_location.uid == obj_out.location.uid
+    else:
+        assert not obj_out.location
+    assert len(db_item.services) == len(obj_out.services)

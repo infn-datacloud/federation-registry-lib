@@ -117,9 +117,10 @@ class CRUDRegion(
                 or net_serv_updated
             )
 
-        update_data = super().update(
-            db_obj=db_obj, obj_in=RegionUpdate.parse_obj(obj_in), force=force
-        )
+        if isinstance(obj_in, RegionCreateExtended):
+            obj_in = RegionUpdate.parse_obj(obj_in)
+
+        update_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else update_data
 
     def __update_location(

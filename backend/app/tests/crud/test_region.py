@@ -11,14 +11,18 @@ from app.service.crud import (
     network_service,
 )
 from app.service.enum import ServiceType
-from app.tests.utils.region import create_random_region, validate_region_attrs
+from app.tests.utils.region import (
+    create_random_region,
+    create_random_region_patch,
+    validate_create_region_attrs,
+)
 
 
 def test_create_item(db_provider: Provider) -> None:
     """Create a Region belonging to a specific Provider."""
     item_in = create_random_region()
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(db_provider: Provider) -> None:
@@ -26,14 +30,14 @@ def test_create_item_default_values(db_provider: Provider) -> None:
     specific Provider."""
     item_in = create_random_region(default=True)
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_location(db_provider: Provider) -> None:
     """Create a Region belonging to a specific Provider with a Location."""
     item_in = create_random_region(with_location=True)
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_already_existing_location(db_location: Location) -> None:
@@ -54,13 +58,13 @@ def test_create_item_with_already_existing_location(db_location: Location) -> No
     item_in = create_random_region(with_location=True)
     item_in.location.site = db_location.site
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     loc_in = item_in.location
     item_in = create_random_region()
     item_in.location = loc_in
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     assert len(location.get_multi()) == 1
 
@@ -78,7 +82,7 @@ def test_create_item_with_projects_and_block_storage_services(
         projects=[i.uuid for i in db_provider.projects],
     )
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects_and_compute_services(db_provider: Provider) -> None:
@@ -90,7 +94,7 @@ def test_create_item_with_projects_and_compute_services(db_provider: Provider) -
         with_compute_services=True, projects=[i.uuid for i in db_provider.projects]
     )
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_identity_services(db_provider: Provider) -> None:
@@ -98,7 +102,7 @@ def test_create_item_with_identity_services(db_provider: Provider) -> None:
     Services."""
     item_in = create_random_region(with_identity_services=True)
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects_and_network_services(db_provider: Provider) -> None:
@@ -108,7 +112,7 @@ def test_create_item_with_projects_and_network_services(db_provider: Provider) -
         with_network_services=True, projects=[i.uuid for i in db_provider.projects]
     )
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_everything(db_provider: Provider) -> None:
@@ -124,7 +128,7 @@ def test_create_item_with_everything(db_provider: Provider) -> None:
         projects=[i.uuid for i in db_provider.projects],
     )
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_block_storage_services(db_provider: Provider) -> None:
@@ -135,7 +139,7 @@ def test_create_item_with_block_storage_services(db_provider: Provider) -> None:
     """
     item_in = create_random_region(with_block_storage_services=True)
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_compute_services(db_provider: Provider) -> None:
@@ -145,7 +149,7 @@ def test_create_item_with_compute_services(db_provider: Provider) -> None:
     """
     item_in = create_random_region(with_compute_services=True)
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_network_services(db_provider: Provider) -> None:
@@ -155,7 +159,7 @@ def test_create_item_with_network_services(db_provider: Provider) -> None:
     """
     item_in = create_random_region(with_network_services=True)
     item = region.create(obj_in=item_in, provider=db_provider)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_provider: Provider) -> None:
@@ -163,7 +167,7 @@ def test_get_item(db_provider: Provider) -> None:
     item_in = create_random_region()
     item = region.create(obj_in=item_in, provider=db_provider)
     item = region.get(uid=item.uid)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_provider: Provider) -> None:
@@ -186,11 +190,11 @@ def test_get_items(db_provider: Provider) -> None:
 
     stored_items = region.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_region_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_region_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = region.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_region_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_region_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_provider: Provider) -> None:
@@ -247,9 +251,30 @@ def test_patch_item(db_provider: Provider) -> None:
     relationships."""
     item_in = create_random_region()
     item = region.create(obj_in=item_in, provider=db_provider)
+    patch_in = create_random_region_patch()
+    item = region.update(db_obj=item, obj_in=patch_in)
+    for k, v in patch_in.dict().items():
+        item_in.__setattr__(k, v)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+
+
+def test_patch_item_with_defaults(db_provider: Provider) -> None:
+    """Try to update the attributes of an existing Region, without updating its
+    relationships, with default values.
+
+    The first attempt fails (no updates); the second one, with explicit
+    default values, succeeds.
+    """
     item_in = create_random_region()
-    item = region.update(db_obj=item, obj_in=item_in)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    item = region.create(obj_in=item_in, provider=db_provider)
+    patch_in = create_random_region_patch(default=True)
+    assert not region.update(db_obj=item, obj_in=patch_in)
+
+    patch_in = create_random_region_patch(default=True)
+    patch_in.description = ""
+    item = region.update(db_obj=item, obj_in=patch_in)
+    item_in.description = patch_in.description
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_location(db_provider: Provider) -> None:
@@ -272,21 +297,21 @@ def test_forced_update_item_with_location(db_provider: Provider) -> None:
     item = region.create(obj_in=item_in, provider=db_provider)
     item_in = create_random_region()
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(with_location=True)
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(with_location=True)
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     loc_in = item_in.location
     item_in = create_random_region()
     item_in.location = loc_in
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_projects_and_block_storage_services(
@@ -314,7 +339,7 @@ def test_forced_update_item_with_projects_and_block_storage_services(
     item = region.create(obj_in=item_in, provider=db_provider_with_project)
     item_in = create_random_region()
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_block_storage_services=True,
@@ -326,7 +351,7 @@ def test_forced_update_item_with_projects_and_block_storage_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_block_storage_services=True,
@@ -338,7 +363,7 @@ def test_forced_update_item_with_projects_and_block_storage_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     block_storage_services = item_in.block_storage_services
     item_in = create_random_region()
@@ -351,7 +376,7 @@ def test_forced_update_item_with_projects_and_block_storage_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_projects_and_compute_services(
@@ -379,7 +404,7 @@ def test_forced_update_item_with_projects_and_compute_services(
     item = region.create(obj_in=item_in, provider=db_provider_with_project)
     item_in = create_random_region()
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_compute_services=True,
@@ -391,7 +416,7 @@ def test_forced_update_item_with_projects_and_compute_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_compute_services=True,
@@ -403,7 +428,7 @@ def test_forced_update_item_with_projects_and_compute_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     compute_services = item_in.compute_services
     item_in = create_random_region()
@@ -416,7 +441,7 @@ def test_forced_update_item_with_projects_and_compute_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_identity_services(
@@ -441,21 +466,21 @@ def test_forced_update_item_with_identity_services(
     item = region.create(obj_in=item_in, provider=db_provider)
     item_in = create_random_region()
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(with_identity_services=True)
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(with_identity_services=True)
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     identity_services = item_in.identity_services
     item_in = create_random_region()
     item_in.identity_services = identity_services
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_projects_and_network_services(
@@ -483,7 +508,7 @@ def test_forced_update_item_with_projects_and_network_services(
     item = region.create(obj_in=item_in, provider=db_provider_with_project)
     item_in = create_random_region()
     item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_network_services=True,
@@ -495,7 +520,7 @@ def test_forced_update_item_with_projects_and_network_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_network_services=True,
@@ -507,7 +532,7 @@ def test_forced_update_item_with_projects_and_network_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     network_services = item_in.network_services
     item_in = create_random_region()
@@ -520,7 +545,7 @@ def test_forced_update_item_with_projects_and_network_services(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_provider: Provider) -> None:
@@ -581,4 +606,4 @@ def test_failed_delete_item(db_provider: Provider) -> None:
     result = region.remove(db_obj=item)
     assert not result
     item = region.get(uid=item.uid)
-    validate_region_attrs(obj_in=item_in, db_item=item)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)

@@ -1,69 +1,124 @@
+from typing import List, Optional, Union
 
-@db.write_transaction
-@router.post(
-    "/",
-    status_code=status.HTTP_201_CREATED,
-    response_model=LocationReadExtended,
-    dependencies=[Depends(check_write_access), Depends(valid_location_site)],
-    summary="Create location",
-    description="Create a location. \
-        At first validate new location values checking there are \
-        no other items with the given *site*.",
+from app.auth.dependencies import check_read_access, check_write_access
+from app.query import DbQueryCommonParams, Pagination, SchemaSize
+from app.region.api.dependencies import valid_region_id, validate_new_region_values
+from app.region.crud import region
+from app.region.models import Region
+from app.region.schemas import (
+    RegionQuery,
+    RegionRead,
+    RegionReadPublic,
+    RegionReadShort,
+    RegionUpdate,
 )
-def post_location(item: LocationCreate):
-    return location.create(obj_in=item, force=True)
+from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
+router = APIRouter(prefix="/regions", tags=["regions"])
 
 
+@db.read_transaction
+@router.get(
+    "/",
+    response_model=Union[
+        List[RegionReadExtended],
+        List[RegionRead],
+        List[RegionReadShort],
+        List[RegionReadExtendedPublic],
+        List[RegionReadPublic],
+    ],
+    summary="Read all regions",
+    description="Retrieve all regions stored in the database. \
+        It is possible to filter on regions attributes and other \
+        common query parameters.",
+)
+def get_regions(
+    auth: bool = Depends(check_read_access),
+    comm: DbQueryCommonParams = Depends(),
+    page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
+    item: RegionQuery = Depends(),
+):
+    items = region.get_multi(
+        **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
+    )
+    items = region.paginate(items=items, page=page.page, size=page.size)
+    return region.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
 
-@db.write_transaction
-@router.put(
-    "/{provider_uid}/locations/{location_uid}",
-    response_model=Optional[ProviderReadExtended],
-    dependencies=[Depends(check_write_access)],
-    summary="Connect provider to location",
-    description="Connect a provider to a specific location \
-        knowing their *uid*s. \
-        If the provider already has a \
-        current location and the new one is different, \
-        the endpoint replaces it with the new one, otherwise \
-        it leaves the entity unchanged and returns a \
-        `not modified` message. \
-        If no entity matches the given *uid*s, the endpoint \
+
+@db.read_transaction
+@router.get(
+    "/{region_uid}",
+    response_model=Union[
+        RegionReadExtended,
+        RegionRead,
+        RegionReadShort,
+        RegionReadExtendedPublic,
+        RegionReadPublic,
+    ],
+    summary="Read a specific region",
+    description="Retrieve a specific region using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def connect_provider_to_location(
-    response: Response,
-    item: Provider = Depends(valid_provider_id),
-    location: Location = Depends(valid_location_id),
+def get_region(
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: Region = Depends(valid_region_id),
 ):
-    if item.location.single() is None:
-        item.location.connect(location)
-    elif not item.location.is_connected(location):
-        item.location.replace(location)
-    else:
+    return region.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
+
+
+@db.write_transaction
+@router.patch(
+    "/{region_uid}",
+    status_code=status.HTTP_200_OK,
+    response_model=Optional[RegionRead],
+    dependencies=[Depends(check_write_access), Depends(validate_new_region_values)],
+    summary="Edit a specific region",
+    description="Update attribute values of a specific region. \
+        The target region is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new region values checking there are \
+        no other items, belonging to the same provider with \
+        the given *name*.",
+)
+def put_region(
+    update_data: RegionUpdate,
+    response: Response,
+    item: Region = Depends(valid_region_id),
+):
+    db_item = region.update(db_obj=item, obj_in=update_data)
+    if db_item is None:
         response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    return item
+    return db_item
 
 
 @db.write_transaction
 @router.delete(
-    "/{provider_uid}/locations/{location_uid}",
-    response_model=Optional[ProviderReadExtended],
+    "/{region_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(check_write_access)],
-    summary="Disconnect provider from location",
-    description="Disconnect a provider from a specific location \
-        knowing their *uid*s. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
+    summary="Delete a specific region",
+    description="Delete a specific region using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        If the deletion procedure fails, raises a `internal \
+        server` error",
 )
-def disconnect_provider_from_location(
-    response: Response,
-    item: Provider = Depends(valid_provider_id),
-    location: Location = Depends(valid_location_id),
-):
-    if not item.location.is_connected(location):
-        response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    item.location.disconnect(location)
-    return item
+def delete_regions(item: Region = Depends(valid_region_id)):
+    if not region.remove(db_obj=item):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete item",
+        )

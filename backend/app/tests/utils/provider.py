@@ -9,7 +9,7 @@ from app.tests.utils.identity_provider import (
     validate_identity_provider_attrs,
 )
 from app.tests.utils.project import create_random_project, validate_create_project_attrs
-from app.tests.utils.region import create_random_region, validate_region_attrs
+from app.tests.utils.region import create_random_region, validate_create_region_attrs
 from app.tests.utils.utils import random_bool, random_email, random_lower_string
 
 
@@ -97,4 +97,4 @@ def validate_provider_attrs(
         validate_identity_provider_attrs(obj_in=idp_in, db_item=db_idp)
     assert len(db_item.regions) == len(obj_in.regions)
     for db_reg, reg_in in zip(db_item.regions, obj_in.regions):
-        validate_region_attrs(obj_in=reg_in, db_item=db_reg)
+        validate_create_region_attrs(obj_in=reg_in, db_item=db_reg)
