@@ -7,7 +7,7 @@
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 
 stages:
-  - linting
+  - formatting
   - test
 
 include:
@@ -15,16 +15,16 @@ include:
   - template: Workflows/MergeRequest-Pipelines.gitlab-ci.yml
 
 black:
-  stage: linting
+  stage: formatting
   image: registry.gitlab.com/pipeline-components/black:latest
   script:
-    - black --line-length=79 --check app
+    - black --check backend/app
 
 flake8:
-  stage: linting
+  stage: formatting
   image: registry.gitlab.com/pipeline-components/flake8:latest
   script:
-    - flake8 app
+    - flake8 backend/app --max-line-length=88
 
 nox:
   stage: test

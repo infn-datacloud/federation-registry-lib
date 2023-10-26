@@ -8,7 +8,7 @@ def backend_tests(session: nox.Session) -> None:
     session.install("-r", "requirements.dev.txt")
     session.run(
         "pytest",
-        "--cov",
+        "--cov=backend/app",
         "--cov-report",
         "term",
         "--cov-report",
