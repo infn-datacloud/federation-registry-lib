@@ -6,7 +6,7 @@ from app.identity_provider.schemas import IdentityProviderUpdate
 from app.provider.schemas_extended import IdentityProviderCreateExtended
 from app.tests.utils.user_group import (
     create_random_user_group,
-    validate_user_group_attrs,
+    validate_create_user_group_attrs,
 )
 from app.tests.utils.utils import random_lower_string, random_url
 
@@ -63,4 +63,4 @@ def validate_identity_provider_attrs(
         assert auth_data.idp_name == obj_in.relationship.idp_name
     assert len(db_item.user_groups) == len(obj_in.user_groups)
     for db_user, user_in in zip(db_item.user_groups, obj_in.user_groups):
-        validate_user_group_attrs(obj_in=user_in, db_item=db_user)
+        validate_create_user_group_attrs(obj_in=user_in, db_item=db_user)

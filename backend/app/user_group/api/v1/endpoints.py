@@ -1,39 +1,40 @@
 from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
-from app.flavor.crud import flavor
-from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
-from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
-from app.identity_provider.schemas_extended import (
-    ProviderReadExtended,
-    ProviderReadExtendedPublic,
-)
-from app.image.crud import image
-from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
-from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
-from app.provider.crud import provider
-from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadShort
+
+# from app.flavor.crud import flavor
+# from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
+# from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
+# from app.identity_provider.schemas_extended import (
+#     ProviderReadExtended,
+#     ProviderReadExtendedPublic,
+# )
+# from app.image.crud import image
+# from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
+# from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
+# from app.provider.crud import provider
+# from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadShort
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-from app.service.crud import service
-from app.service.schemas import (
-    BlockStorageServiceRead,
-    BlockStorageServiceReadPublic,
-    BlockStorageServiceReadShort,
-    ComputeServiceRead,
-    ComputeServiceReadPublic,
-    ComputeServiceReadShort,
-    IdentityServiceRead,
-    IdentityServiceReadPublic,
-    IdentityServiceReadShort,
-)
-from app.service.schemas_extended import (
-    BlockStorageServiceReadExtended,
-    BlockStorageServiceReadExtendedPublic,
-    ComputeServiceReadExtended,
-    ComputeServiceReadExtendedPublic,
-    IdentityServiceReadExtended,
-    IdentityServiceReadExtendedPublic,
-)
+
+# from app.service.schemas import (
+#     BlockStorageServiceRead,
+#     BlockStorageServiceReadPublic,
+#     BlockStorageServiceReadShort,
+#     ComputeServiceRead,
+#     ComputeServiceReadPublic,
+#     ComputeServiceReadShort,
+#     IdentityServiceRead,
+#     IdentityServiceReadPublic,
+#     IdentityServiceReadShort,
+# )
+# from app.service.schemas_extended import (
+#     BlockStorageServiceReadExtended,
+#     BlockStorageServiceReadExtendedPublic,
+#     ComputeServiceReadExtended,
+#     ComputeServiceReadExtendedPublic,
+#     IdentityServiceReadExtended,
+#     IdentityServiceReadExtendedPublic,
+# )
 from app.user_group.api.dependencies import (
     valid_user_group_id,
     validate_new_user_group_values,
@@ -48,7 +49,6 @@ from app.user_group.schemas import (
     UserGroupUpdate,
 )
 from app.user_group.schemas_extended import (
-    ServiceQuery,
     UserGroupReadExtended,
     UserGroupReadExtendedPublic,
 )
@@ -162,131 +162,131 @@ def delete_user_group(item: UserGroup = Depends(valid_user_group_id)):
         )
 
 
-@db.read_transaction
-@router.get(
-    "/{user_group_uid}/flavors",
-    response_model=Union[
-        List[FlavorReadExtended],
-        List[FlavorRead],
-        List[FlavorReadShort],
-        List[FlavorReadExtendedPublic],
-        List[FlavorReadPublic],
-    ],
-    summary="Read user group accessible flavors",
-    description="Retrieve all the flavors the user group \
-        has access to thanks to its SLA. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
-)
-def get_user_group_flavors(
-    auth: bool = Depends(check_read_access),
-    size: SchemaSize = Depends(),
-    item: UserGroup = Depends(valid_user_group_id),
-):
-    return flavor.choose_out_schema(
-        items=item.flavors(), auth=auth, short=size.short, with_conn=size.with_conn
-    )
+# @db.read_transaction
+# @router.get(
+#     "/{user_group_uid}/flavors",
+#     response_model=Union[
+#         List[FlavorReadExtended],
+#         List[FlavorRead],
+#         List[FlavorReadShort],
+#         List[FlavorReadExtendedPublic],
+#         List[FlavorReadPublic],
+#     ],
+#     summary="Read user group accessible flavors",
+#     description="Retrieve all the flavors the user group \
+#         has access to thanks to its SLA. \
+#         If no entity matches the given *uid*, the endpoint \
+#         raises a `not found` error.",
+# )
+# def get_user_group_flavors(
+#     auth: bool = Depends(check_read_access),
+#     size: SchemaSize = Depends(),
+#     item: UserGroup = Depends(valid_user_group_id),
+# ):
+#     return flavor.choose_out_schema(
+#         items=item.flavors(), auth=auth, short=size.short, with_conn=size.with_conn
+#     )
 
 
-@db.read_transaction
-@router.get(
-    "/{user_group_uid}/images",
-    response_model=Union[
-        List[ImageReadExtended],
-        List[ImageRead],
-        List[ImageReadShort],
-        List[ImageReadExtendedPublic],
-        List[ImageReadPublic],
-    ],
-    summary="Read user group accessible images",
-    description="Retrieve all the images the user group \
-        has access to thanks to its SLA. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
-)
-def get_user_group_images(
-    auth: bool = Depends(check_read_access),
-    size: SchemaSize = Depends(),
-    item: UserGroup = Depends(valid_user_group_id),
-):
-    return image.choose_out_schema(
-        items=item.images(), auth=auth, short=size.short, with_conn=size.with_conn
-    )
+# @db.read_transaction
+# @router.get(
+#     "/{user_group_uid}/images",
+#     response_model=Union[
+#         List[ImageReadExtended],
+#         List[ImageRead],
+#         List[ImageReadShort],
+#         List[ImageReadExtendedPublic],
+#         List[ImageReadPublic],
+#     ],
+#     summary="Read user group accessible images",
+#     description="Retrieve all the images the user group \
+#         has access to thanks to its SLA. \
+#         If no entity matches the given *uid*, the endpoint \
+#         raises a `not found` error.",
+# )
+# def get_user_group_images(
+#     auth: bool = Depends(check_read_access),
+#     size: SchemaSize = Depends(),
+#     item: UserGroup = Depends(valid_user_group_id),
+# ):
+#     return image.choose_out_schema(
+#         items=item.images(), auth=auth, short=size.short, with_conn=size.with_conn
+#     )
 
 
-@db.read_transaction
-@router.get(
-    "/{user_group_uid}/providers",
-    response_model=Union[
-        List[ProviderReadExtended],
-        List[ProviderRead],
-        List[ProviderReadShort],
-        List[ProviderReadExtendedPublic],
-        List[ProviderReadPublic],
-    ],
-    summary="Read user group accessible providers",
-    description="Retrieve all the providers the user group \
-        has access to thanks to its SLA. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
-)
-def get_user_group_providers(
-    auth: bool = Depends(check_read_access),
-    size: SchemaSize = Depends(),
-    item: UserGroup = Depends(valid_user_group_id),
-):
-    return provider.choose_out_schema(
-        items=item.providers(), auth=auth, short=size.short, with_conn=size.with_conn
-    )
+# @db.read_transaction
+# @router.get(
+#     "/{user_group_uid}/providers",
+#     response_model=Union[
+#         List[ProviderReadExtended],
+#         List[ProviderRead],
+#         List[ProviderReadShort],
+#         List[ProviderReadExtendedPublic],
+#         List[ProviderReadPublic],
+#     ],
+#     summary="Read user group accessible providers",
+#     description="Retrieve all the providers the user group \
+#         has access to thanks to its SLA. \
+#         If no entity matches the given *uid*, the endpoint \
+#         raises a `not found` error.",
+# )
+# def get_user_group_providers(
+#     auth: bool = Depends(check_read_access),
+#     size: SchemaSize = Depends(),
+#     item: UserGroup = Depends(valid_user_group_id),
+# ):
+#     return provider.choose_out_schema(
+#         items=item.providers(), auth=auth, short=size.short, with_conn=size.with_conn
+#     )
 
 
-@db.read_transaction
-@router.get(
-    "/{user_group_uid}/services",
-    response_model=Union[
-        List[
-            Union[
-                BlockStorageServiceReadExtended,
-                IdentityServiceReadExtended,
-                ComputeServiceReadExtended,
-            ]
-        ],
-        List[Union[BlockStorageServiceRead, IdentityServiceRead, ComputeServiceRead]],
-        List[
-            Union[
-                BlockStorageServiceReadShort,
-                IdentityServiceReadShort,
-                ComputeServiceReadShort,
-            ]
-        ],
-        List[
-            Union[
-                BlockStorageServiceReadExtendedPublic,
-                IdentityServiceReadExtendedPublic,
-                ComputeServiceReadExtendedPublic,
-            ]
-        ],
-        List[
-            Union[
-                BlockStorageServiceReadPublic,
-                IdentityServiceReadPublic,
-                ComputeServiceReadPublic,
-            ]
-        ],
-    ],
-    summary="Read user group accessible services",
-    description="Retrieve all the services the user group \
-        has access to thanks to its SLA. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error.",
-)
-def get_user_group_services(
-    auth: bool = Depends(check_read_access),
-    size: SchemaSize = Depends(),
-    item: UserGroup = Depends(valid_user_group_id),
-    srv: ServiceQuery = Depends(),
-):
-    items = item.services(**srv.dict(exclude_none=True))
-    return service.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
-    )
+# @db.read_transaction
+# @router.get(
+#    "/{user_group_uid}/services",
+#    response_model=Union[
+#        List[
+#            Union[
+#                BlockStorageServiceReadExtended,
+#                IdentityServiceReadExtended,
+#                ComputeServiceReadExtended,
+#            ]
+#        ],
+#        List[Union[BlockStorageServiceRead, IdentityServiceRead, ComputeServiceRead]],
+#        List[
+#            Union[
+#                BlockStorageServiceReadShort,
+#                IdentityServiceReadShort,
+#                ComputeServiceReadShort,
+#            ]
+#        ],
+#        List[
+#            Union[
+#                BlockStorageServiceReadExtendedPublic,
+#                IdentityServiceReadExtendedPublic,
+#                ComputeServiceReadExtendedPublic,
+#            ]
+#        ],
+#        List[
+#            Union[
+#                BlockStorageServiceReadPublic,
+#                IdentityServiceReadPublic,
+#                ComputeServiceReadPublic,
+#            ]
+#        ],
+#    ],
+#    summary="Read user group accessible services",
+#    description="Retrieve all the services the user group \
+#        has access to thanks to its SLA. \
+#        If no entity matches the given *uid*, the endpoint \
+#        raises a `not found` error.",
+# )
+# def get_user_group_services(
+#    auth: bool = Depends(check_read_access),
+#    size: SchemaSize = Depends(),
+#    item: UserGroup = Depends(valid_user_group_id),
+#    srv: ServiceQuery = Depends(),
+# ):
+#    items = item.services(**srv.dict(exclude_none=True))
+#    return service.choose_out_schema(
+#        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#    )

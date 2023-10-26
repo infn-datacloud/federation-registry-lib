@@ -29,8 +29,7 @@ class UserGroupReadExtended(UserGroupRead):
     related items."""
 
     identity_provider: IdentityProviderRead = Field(
-        default_factory=list,
-        description="Identity Provider owning this User Group.",
+        description="Identity Provider owning this User Group."
     )
     slas: List[SLAReadExtended] = Field(
         default_factory=list,
@@ -43,8 +42,7 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
     related items."""
 
     identity_provider: IdentityProviderReadPublic = Field(
-        default_factory=list,
-        description="Identity Provider owning this User Group.",
+        description="Identity Provider owning this User Group."
     )
     slas: List[SLAReadExtendedPublic] = Field(
         default_factory=list,

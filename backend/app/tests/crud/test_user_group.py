@@ -7,7 +7,7 @@ from app.tests.utils.project import create_random_project
 from app.tests.utils.user_group import (
     create_random_user_group,
     create_random_user_group_patch,
-    validate_user_group_attrs,
+    validate_create_user_group_attrs,
 )
 from app.user_group.crud import user_group
 
@@ -21,7 +21,7 @@ def test_create_item_with_projects(db_idp: IdentityProvider) -> None:
     item = user_group.create(
         obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
     )
-    validate_user_group_attrs(obj_in=item_in, db_item=item)
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values_with_projects(db_idp: IdentityProvider) -> None:
@@ -33,7 +33,7 @@ def test_create_item_default_values_with_projects(db_idp: IdentityProvider) -> N
     item = user_group.create(
         obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
     )
-    validate_user_group_attrs(obj_in=item_in, db_item=item)
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_idp: IdentityProvider) -> None:
@@ -45,7 +45,7 @@ def test_get_item(db_idp: IdentityProvider) -> None:
         obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
     )
     item = user_group.get(uid=item.uid)
-    validate_user_group_attrs(obj_in=item_in, db_item=item)
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_idp: IdentityProvider) -> None:
@@ -73,7 +73,7 @@ def test_get_items(db_idp: IdentityProvider) -> None:
 
     stored_items = user_group.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_user_group_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_user_group_attrs(obj_in=item_in, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_idp: IdentityProvider) -> None:
@@ -145,7 +145,7 @@ def test_patch_item(db_idp: IdentityProvider) -> None:
     item = user_group.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_user_group_attrs(obj_in=item_in, db_item=item)
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_idp: IdentityProvider) -> None:
@@ -168,7 +168,7 @@ def test_patch_item_with_defaults(db_idp: IdentityProvider) -> None:
     patch_in.description = ""
     item = user_group.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_user_group_attrs(obj_in=item_in, db_item=item)
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_slas(db_idp: IdentityProvider) -> None:
@@ -196,7 +196,7 @@ def test_forced_update_item_with_slas(db_idp: IdentityProvider) -> None:
     item = user_group.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_user_group_attrs(obj_in=item_in, db_item=item)
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
     sla = item_in.sla
     item_in = create_random_user_group(project=db_project.uuid)
@@ -204,7 +204,7 @@ def test_forced_update_item_with_slas(db_idp: IdentityProvider) -> None:
     item = user_group.update(
         db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
     )
-    validate_user_group_attrs(obj_in=item_in, db_item=item)
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item_with_relationships(db_idp: IdentityProvider) -> None:

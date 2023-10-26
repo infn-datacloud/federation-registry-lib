@@ -158,12 +158,12 @@ def db_idp_with_multiple_user_groups(
 
 
 @pytest.fixture
-def db_group(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
+def db_user_group(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
     yield db_idp_with_multiple_user_groups.user_groups.all()[0]
 
 
 @pytest.fixture
-def db_group2(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
+def db_user_group2(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
     yield db_idp_with_multiple_user_groups.user_groups.all()[1]
 
 
@@ -174,13 +174,13 @@ def db_group2(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
 
 
 @pytest.fixture
-def db_sla(db_group: UserGroup) -> SLA:
-    yield db_group.slas.all()[0]
+def db_sla(db_user_group: UserGroup) -> SLA:
+    yield db_user_group.slas.all()[0]
 
 
 @pytest.fixture
-def db_sla2(db_group2: UserGroup) -> SLA:
-    yield db_group2.slas.all()[0]
+def db_sla2(db_user_group2: UserGroup) -> SLA:
+    yield db_user_group2.slas.all()[0]
 
 
 # TODO Create SLA fixture with multiple projects of different providers

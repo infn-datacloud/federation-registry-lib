@@ -30,10 +30,10 @@ def test_invalid_create_schema():
         a.sla = None
 
 
-def test_read_schema(db_group: UserGroup):
+def test_read_schema(db_user_group: UserGroup):
     """Create a valid 'Read' Schema."""
-    UserGroupRead.from_orm(db_group)
-    UserGroupReadPublic.from_orm(db_group)
-    UserGroupReadShort.from_orm(db_group)
-    UserGroupReadExtended.from_orm(db_group)
-    UserGroupReadExtendedPublic.from_orm(db_group)
+    UserGroupRead.from_orm(db_user_group)
+    UserGroupReadPublic.from_orm(db_user_group)
+    UserGroupReadShort.from_orm(db_user_group)
+    UserGroupReadExtended.from_orm(db_user_group)
+    UserGroupReadExtendedPublic.from_orm(db_user_group)

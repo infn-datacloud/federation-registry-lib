@@ -3,10 +3,6 @@ from typing import List, Optional, Union
 from app.crud import CRUDBase
 from app.identity_provider.models import IdentityProvider
 from app.project.models import Project
-from app.project.schemas_extended import (
-    UserGroupReadExtended,
-    UserGroupReadExtendedPublic,
-)
 from app.provider.schemas_extended import UserGroupCreateExtended
 from app.sla.crud import sla
 from app.user_group.models import UserGroup
@@ -16,6 +12,10 @@ from app.user_group.schemas import (
     UserGroupReadPublic,
     UserGroupReadShort,
     UserGroupUpdate,
+)
+from app.user_group.schemas_extended import (
+    UserGroupReadExtended,
+    UserGroupReadExtendedPublic,
 )
 
 

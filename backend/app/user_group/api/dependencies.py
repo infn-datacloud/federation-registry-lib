@@ -6,10 +6,9 @@ from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
 from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 
-def valid_user_group_id(user_group_uid: UUID4) -> UserGroup:
+def valid_user_group_id(user_group_uid: str) -> UserGroup:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
@@ -22,7 +21,7 @@ def valid_user_group_id(user_group_uid: UUID4) -> UserGroup:
         NotFoundError: DB entity with given uid not found.
     """
 
-    item = user_group.get(uid=str(user_group_uid).replace("-", ""))
+    item = user_group.get(uid=user_group_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
