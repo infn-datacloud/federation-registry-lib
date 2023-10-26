@@ -6,7 +6,7 @@ from app.provider.schemas import ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended
 from app.tests.utils.identity_provider import (
     create_random_identity_provider,
-    validate_identity_provider_attrs,
+    validate_create_identity_provider_attrs,
 )
 from app.tests.utils.project import create_random_project, validate_create_project_attrs
 from app.tests.utils.region import create_random_region, validate_create_region_attrs
@@ -94,7 +94,7 @@ def validate_provider_attrs(
         validate_create_project_attrs(obj_in=proj_in, db_item=db_proj)
     assert len(db_item.identity_providers) == len(obj_in.identity_providers)
     for db_idp, idp_in in zip(db_item.identity_providers, obj_in.identity_providers):
-        validate_identity_provider_attrs(obj_in=idp_in, db_item=db_idp)
+        validate_create_identity_provider_attrs(obj_in=idp_in, db_item=db_idp)
     assert len(db_item.regions) == len(obj_in.regions)
     for db_reg, reg_in in zip(db_item.regions, obj_in.regions):
         validate_create_region_attrs(obj_in=reg_in, db_item=db_reg)

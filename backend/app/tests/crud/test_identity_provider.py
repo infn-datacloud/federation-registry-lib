@@ -6,7 +6,7 @@ from app.provider.models import Provider
 from app.tests.utils.identity_provider import (
     create_random_identity_provider,
     create_random_identity_provider_patch,
-    validate_identity_provider_attrs,
+    validate_create_identity_provider_attrs,
 )
 from app.tests.utils.project import create_random_project
 from app.user_group.crud import user_group
@@ -19,7 +19,7 @@ def test_create_item_with_projects(db_provider_with_project: Provider) -> None:
         projects=[i.uuid for i in db_provider_with_project.projects]
     )
     item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
-    validate_identity_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values_with_projects(
@@ -31,7 +31,7 @@ def test_create_item_default_values_with_projects(
         projects=[i.uuid for i in db_provider_with_project.projects]
     )
     item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
-    validate_identity_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(db_provider_with_project: Provider) -> None:
@@ -41,7 +41,7 @@ def test_get_item(db_provider_with_project: Provider) -> None:
     )
     item = identity_provider.create(obj_in=item_in, provider=db_provider_with_project)
     item = identity_provider.get(uid=item.uid)
-    validate_identity_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(db_provider_with_project: Provider) -> None:
@@ -70,11 +70,11 @@ def test_get_items(db_provider_with_project: Provider) -> None:
 
     stored_items = identity_provider.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_identity_provider_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = identity_provider.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_identity_provider_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_identity_provider_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(db_provider_with_project: Provider) -> None:
@@ -149,7 +149,7 @@ def test_patch_item(db_provider_with_project: Provider) -> None:
     item = identity_provider.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_identity_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(db_provider_with_project: Provider) -> None:
@@ -170,7 +170,7 @@ def test_patch_item_with_defaults(db_provider_with_project: Provider) -> None:
     patch_in.description = ""
     item = identity_provider.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_identity_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_projects_and_user_groups(
@@ -208,7 +208,7 @@ def test_forced_update_item_with_projects_and_user_groups(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_identity_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
     auth_data = item_in.relationship
     user_groups = item_in.user_groups
@@ -223,7 +223,7 @@ def test_forced_update_item_with_projects_and_user_groups(
         projects=db_provider_with_project.projects,
         force=True,
     )
-    validate_identity_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
     user_groups = item_in.user_groups
     item_in = create_random_identity_provider(
@@ -237,7 +237,7 @@ def test_forced_update_item_with_projects_and_user_groups(
         provider=db_provider_with_project,
         force=True,
     )
-    validate_identity_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item_with_relationships(db_provider_with_project: Provider) -> None:
