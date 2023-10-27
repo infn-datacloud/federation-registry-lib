@@ -62,7 +62,15 @@ def setup_and_teardown_db() -> Generator:
 
 @pytest.fixture
 def db_provider(setup_and_teardown_db: Generator) -> Provider:
-    """Provider with no relationships."""
+    """First Provider with no relationships."""
+    item_in = create_random_provider()
+    item = provider.create(obj_in=item_in)
+    yield item
+
+
+@pytest.fixture
+def db_provider2(db_provider: Generator) -> Provider:
+    """Second Provider with no relationships."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     yield item
@@ -70,9 +78,17 @@ def db_provider(setup_and_teardown_db: Generator) -> Provider:
 
 @pytest.fixture
 def db_project(db_provider: Provider) -> Project:
-    """Project owned by a provider."""
+    """First project owned by first provider."""
     item_in = create_random_project()
     db_project = project.create(obj_in=item_in, provider=db_provider)
+    yield db_project
+
+
+@pytest.fixture
+def db_project2(db_provider_with_project: Provider) -> Project:
+    """Second project owned by first provider."""
+    item_in = create_random_project()
+    db_project = project.create(obj_in=item_in, provider=db_provider_with_project)
     yield db_project
 
 
@@ -80,17 +96,6 @@ def db_project(db_provider: Provider) -> Project:
 def db_provider_with_project(db_project: Project) -> Provider:
     """Provider with a single project."""
     yield db_project.provider.single()
-
-
-@pytest.fixture
-def db_project2(db_provider_with_project: Provider) -> Project:
-    """Project owned by a provider.
-
-    It's the second project owned by the same provider.
-    """
-    item_in = create_random_project()
-    db_project = project.create(obj_in=item_in, provider=db_provider_with_project)
-    yield db_project
 
 
 @pytest.fixture

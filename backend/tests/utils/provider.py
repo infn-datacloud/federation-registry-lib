@@ -2,8 +2,18 @@ from random import choice
 
 from app.provider.enum import ProviderStatus, ProviderType
 from app.provider.models import Provider
-from app.provider.schemas import ProviderUpdate
-from app.provider.schemas_extended import ProviderCreateExtended
+from app.provider.schemas import (
+    ProviderBase,
+    ProviderRead,
+    ProviderReadPublic,
+    ProviderReadShort,
+    ProviderUpdate,
+)
+from app.provider.schemas_extended import (
+    ProviderCreateExtended,
+    ProviderReadExtended,
+    ProviderReadExtendedPublic,
+)
 from tests.utils.identity_provider import (
     create_random_identity_provider,
     validate_create_identity_provider_attrs,
@@ -78,9 +88,7 @@ def random_type() -> str:
     return choice([i.value for i in ProviderType])
 
 
-def validate_provider_attrs(
-    *, obj_in: ProviderCreateExtended, db_item: Provider
-) -> None:
+def validate_provider_attrs(*, obj_in: ProviderBase, db_item: Provider) -> None:
     assert obj_in
     assert db_item
     assert db_item.description == obj_in.description
@@ -89,6 +97,23 @@ def validate_provider_attrs(
     assert db_item.is_public == obj_in.is_public
     assert db_item.status == obj_in.status
     assert db_item.support_emails == obj_in.support_emails
+
+
+def validate_provider_public_attrs(*, obj_in: ProviderBase, db_item: Provider) -> None:
+    assert obj_in
+    assert db_item
+    assert db_item.description == obj_in.description
+    assert db_item.name == obj_in.name
+    assert db_item.type == obj_in.type
+    assert db_item.is_public == obj_in.is_public
+    assert db_item.status == obj_in.status
+    assert db_item.support_emails == obj_in.support_emails
+
+
+def validate_create_provider_attrs(
+    *, obj_in: ProviderCreateExtended, db_item: Provider
+) -> None:
+    validate_provider_attrs(obj_in=obj_in, db_item=db_item)
     assert len(db_item.projects) == len(obj_in.projects)
     for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
         validate_create_project_attrs(obj_in=proj_in, db_item=db_proj)
@@ -98,3 +123,45 @@ def validate_provider_attrs(
     assert len(db_item.regions) == len(obj_in.regions)
     for db_reg, reg_in in zip(db_item.regions, obj_in.regions):
         validate_create_region_attrs(obj_in=reg_in, db_item=db_reg)
+
+
+def validate_read_provider_attrs(*, obj_out: ProviderRead, db_item: Provider) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_provider_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_short_provider_attrs(
+    *, obj_out: ProviderReadShort, db_item: Provider
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_provider_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_public_provider_attrs(
+    *, obj_out: ProviderReadPublic, db_item: Provider
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_provider_public_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_extended_provider_attrs(
+    *, obj_out: ProviderReadExtended, db_item: Provider
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_provider_attrs(obj_in=obj_out, db_item=db_item)
+
+
+def validate_read_extended_public_provider_attrs(
+    *, obj_out: ProviderReadExtendedPublic, db_item: Provider
+) -> None:
+    assert db_item.uid == obj_out.uid
+    validate_provider_public_attrs(obj_in=obj_out, db_item=db_item)
+    assert len(db_item.projects) == len(obj_out.projects)
+    for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
+        assert db_proj.uid == proj_out.uid
+    assert len(db_item.identity_providers) == len(obj_out.identity_providers)
+    for db_idp, idp_out in zip(db_item.identity_providers, obj_out.identity_providers):
+        assert db_idp.uid == idp_out.uid
+    assert len(db_item.regions) == len(obj_out.regions)
+    for db_reg, reg_out in zip(db_item.regions, obj_out.regions):
+        assert db_reg.uid == reg_out.uid

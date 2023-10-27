@@ -8,7 +8,7 @@ from app.region.crud import region
 from tests.utils.provider import (
     create_random_provider,
     create_random_provider_patch,
-    validate_provider_attrs,
+    validate_create_provider_attrs,
 )
 
 
@@ -16,21 +16,21 @@ def test_create_item(setup_and_teardown_db: Generator) -> None:
     """Create a Provider."""
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_default_values(setup_and_teardown_db: Generator) -> None:
     """Create a Provider, with default values when possible."""
     item_in = create_random_provider(default=True)
     item = provider.create(obj_in=item_in)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects(setup_and_teardown_db: Generator) -> None:
     """Create a Provider, with linked projects."""
     item_in = create_random_provider(with_projects=True)
     item = provider.create(obj_in=item_in)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects_and_identity_providers(
@@ -39,7 +39,7 @@ def test_create_item_with_projects_and_identity_providers(
     """Create a Provider, with linked projects and identity providers."""
     item_in = create_random_provider(with_projects=True, with_identity_providers=True)
     item = provider.create(obj_in=item_in)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects_and_regions(
@@ -48,7 +48,7 @@ def test_create_item_with_projects_and_regions(
     """Create a Provider, with linked projects and regions."""
     item_in = create_random_provider(with_projects=True, with_regions=True)
     item = provider.create(obj_in=item_in)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_everything(setup_and_teardown_db: Generator) -> None:
@@ -58,7 +58,7 @@ def test_create_item_with_everything(setup_and_teardown_db: Generator) -> None:
         with_projects=True, with_identity_providers=True, with_regions=True
     )
     item = provider.create(obj_in=item_in)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_regions(
@@ -67,7 +67,7 @@ def test_create_item_with_regions(
     """Create a Provider, with regions and no projects."""
     item_in = create_random_provider(with_regions=True)
     item = provider.create(obj_in=item_in)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_item(setup_and_teardown_db: Generator) -> None:
@@ -75,7 +75,7 @@ def test_get_item(setup_and_teardown_db: Generator) -> None:
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     item = provider.get(uid=item.uid)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
@@ -98,11 +98,11 @@ def test_get_items(setup_and_teardown_db: Generator) -> None:
 
     stored_items = provider.get_multi(uid=item.uid)
     assert len(stored_items) == 1
-    validate_provider_attrs(obj_in=item_in, db_item=stored_items[0])
+    validate_create_provider_attrs(obj_in=item_in, db_item=stored_items[0])
 
     stored_items = provider.get_multi(uid=item2.uid)
     assert len(stored_items) == 1
-    validate_provider_attrs(obj_in=item_in2, db_item=stored_items[0])
+    validate_create_provider_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
 def test_get_items_with_limit(setup_and_teardown_db: Generator) -> None:
@@ -163,7 +163,7 @@ def test_patch_item(setup_and_teardown_db: Generator) -> None:
     item = provider.update(db_obj=item, obj_in=patch_in)
     for k, v in patch_in.dict().items():
         item_in.__setattr__(k, v)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_patch_item_with_defaults(setup_and_teardown_db: Generator) -> None:
@@ -182,7 +182,7 @@ def test_patch_item_with_defaults(setup_and_teardown_db: Generator) -> None:
     patch_in.description = ""
     item = provider.update(db_obj=item, obj_in=patch_in)
     item_in.description = patch_in.description
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_projects(setup_and_teardown_db: Generator) -> None:
@@ -205,21 +205,21 @@ def test_forced_update_item_with_projects(setup_and_teardown_db: Generator) -> N
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider()
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_provider(with_projects=True)
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_provider(with_projects=True)
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     projects = item_in.projects
     item_in = create_random_provider()
     item_in.projects = projects
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_projects_and_identity_providers(
@@ -246,15 +246,15 @@ def test_forced_update_item_with_projects_and_identity_providers(
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider()
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_provider(with_projects=True, with_identity_providers=True)
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_provider(with_projects=True, with_identity_providers=True)
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     projects = item_in.projects
     identity_providers = item_in.identity_providers
@@ -262,7 +262,7 @@ def test_forced_update_item_with_projects_and_identity_providers(
     item_in.projects = projects
     item_in.identity_providers = identity_providers
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_projects_and_regions(
@@ -287,19 +287,19 @@ def test_forced_update_item_with_projects_and_regions(
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider(with_projects=True, with_regions=True)
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_provider()
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider(with_projects=True, with_regions=True)
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_provider(with_projects=True, with_regions=True)
     item = provider.create(obj_in=item_in)
     item_in = create_random_provider()
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
     projects = item_in.projects
     regions = item_in.regions
@@ -307,7 +307,7 @@ def test_forced_update_item_with_projects_and_regions(
     item_in.projects = projects
     item_in.regions = regions
     item = provider.update(db_obj=item, obj_in=item_in, force=True)
-    validate_provider_attrs(obj_in=item_in, db_item=item)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(setup_and_teardown_db: Generator) -> None:

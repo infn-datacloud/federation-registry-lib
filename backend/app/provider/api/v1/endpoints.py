@@ -1,19 +1,20 @@
 from typing import List, Optional, Union
 
 from app.auth.dependencies import check_read_access, check_write_access
-from app.auth_method.schemas import AuthMethodCreate
-from app.identity_provider.api.dependencies import (
-    valid_identity_provider_endpoint,
-    valid_identity_provider_id,
-)
-from app.identity_provider.crud import identity_provider
-from app.identity_provider.models import IdentityProvider
-from app.identity_provider.schemas import IdentityProviderCreate
-from app.identity_provider.schemas_extended import IdentityProviderReadExtended
-from app.project.api.dependencies import valid_project_name, valid_project_uuid
-from app.project.crud import project
-from app.project.schemas import ProjectCreate
-from app.project.schemas_extended import ProjectReadExtended
+
+# from app.auth_method.schemas import AuthMethodCreate
+# from app.identity_provider.api.dependencies import (
+#     valid_identity_provider_endpoint,
+#     valid_identity_provider_id,
+# )
+# from app.identity_provider.crud import identity_provider
+# from app.identity_provider.models import IdentityProvider
+# from app.identity_provider.schemas import IdentityProviderCreate
+# from app.identity_provider.schemas_extended import IdentityProviderReadExtended
+# from app.project.api.dependencies import valid_project_name, valid_project_uuid
+# from app.project.crud import project
+# from app.project.schemas import ProjectCreate
+# from app.project.schemas_extended import ProjectReadExtended
 from app.provider.api.dependencies import (
     valid_provider,
     valid_provider_id,
@@ -36,23 +37,23 @@ from app.provider.schemas_extended import (
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 
 # from app.service.api.dependencies import valid_service_endpoint
-from app.service.crud import (
-    block_storage_service,
-    compute_service,
-    identity_service,
-    network_service,
-)
-from app.service.schemas import (
-    BlockStorageServiceCreate,
-    ComputeServiceCreate,
-    IdentityServiceCreate,
-    NetworkServiceCreate,
-)
-from app.service.schemas_extended import (
-    BlockStorageServiceReadExtended,
-    ComputeServiceReadExtended,
-    IdentityServiceReadExtended,
-)
+# from app.service.crud import (
+#     block_storage_service,
+#     compute_service,
+#     identity_service,
+#     network_service,
+# )
+# from app.service.schemas import (
+#     BlockStorageServiceCreate,
+#     ComputeServiceCreate,
+#     IdentityServiceCreate,
+#     NetworkServiceCreate,
+# )
+# from app.service.schemas_extended import (
+#     BlockStorageServiceReadExtended,
+#     ComputeServiceReadExtended,
+#     IdentityServiceReadExtended,
+# )
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
@@ -105,7 +106,7 @@ def get_providers(
         Moreover check the received lists do not contain duplicates.",
 )
 def post_provider(item: ProviderCreateExtended):
-    return provider.create(obj_in=item, force=True)
+    return provider.create(obj_in=item)
 
 
 @db.read_transaction
@@ -207,77 +208,77 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 #
 
 
-@db.write_transaction
-@router.post(
-    "/{provider_uid}/identity_providers/",
-    status_code=status.HTTP_201_CREATED,
-    response_model=IdentityProviderReadExtended,
-    dependencies=[
-        Depends(check_write_access),
-        Depends(valid_identity_provider_endpoint),
-    ],
-    summary="Create location",
-    description="Create a location. \
-        At first validate new location values checking there are \
-        no other items with the given *name*.",
-)
-def post_location(item: IdentityProviderCreate):
-    return identity_provider.create(obj_in=item, force=True)
+# @db.write_transaction
+# @router.post(
+#     "/{provider_uid}/identity_providers/",
+#     status_code=status.HTTP_201_CREATED,
+#     response_model=IdentityProviderReadExtended,
+#     dependencies=[
+#         Depends(check_write_access),
+#         Depends(valid_identity_provider_endpoint),
+#     ],
+#     summary="Create location",
+#     description="Create a location. \
+#         At first validate new location values checking there are \
+#         no other items with the given *name*.",
+# )
+# def post_location(item: IdentityProviderCreate):
+#     return identity_provider.create(obj_in=item, force=True)
 
 
-@db.write_transaction
-@router.put(
-    "/{provider_uid}/identity_providers/{identity_provider_uid}",
-    response_model=Optional[ProviderReadExtended],
-    dependencies=[Depends(check_write_access)],
-    summary="Connect provider to identity provider",
-    description="Connect a provider to a specific identity \
-        provider knowing their *uid*s. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
-)
-def connect_provider_to_identity_providers(
-    data: AuthMethodCreate,
-    response: Response,
-    item: Provider = Depends(valid_provider_id),
-    identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
-):
-    if item.identity_providers.is_connected(identity_provider):
-        db_item = item.identity_providers.relationship(identity_provider)
-        if all(
-            [
-                db_item.__getattribute__(k) == v
-                for k, v in data.dict(exclude_unset=True).items()
-            ]
-        ):
-            response.status_code = status.HTTP_304_NOT_MODIFIED
-            return None
-        item.identity_providers.disconnect(identity_provider)
-    item.identity_providers.connect(identity_provider, data.dict())
-    return item
+# @db.write_transaction
+# @router.put(
+#     "/{provider_uid}/identity_providers/{identity_provider_uid}",
+#     response_model=Optional[ProviderReadExtended],
+#     dependencies=[Depends(check_write_access)],
+#     summary="Connect provider to identity provider",
+#     description="Connect a provider to a specific identity \
+#         provider knowing their *uid*s. \
+#         If no entity matches the given *uid*s, the endpoint \
+#         raises a `not found` error.",
+# )
+# def connect_provider_to_identity_providers(
+#     data: AuthMethodCreate,
+#     response: Response,
+#     item: Provider = Depends(valid_provider_id),
+#     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
+# ):
+#     if item.identity_providers.is_connected(identity_provider):
+#         db_item = item.identity_providers.relationship(identity_provider)
+#         if all(
+#             [
+#                 db_item.__getattribute__(k) == v
+#                 for k, v in data.dict(exclude_unset=True).items()
+#             ]
+#         ):
+#             response.status_code = status.HTTP_304_NOT_MODIFIED
+#             return None
+#         item.identity_providers.disconnect(identity_provider)
+#     item.identity_providers.connect(identity_provider, data.dict())
+#     return item
 
 
-@db.write_transaction
-@router.delete(
-    "/{provider_uid}/identity_providers/{identity_provider_uid}",
-    response_model=Optional[ProviderReadExtended],
-    dependencies=[Depends(check_write_access)],
-    summary="Disconnect provider from identity provider",
-    description="Disconnect a provider from a specific identity \
-        provider knowing their *uid*s. \
-        If no entity matches the given *uid*s, the endpoint \
-        raises a `not found` error.",
-)
-def disconnect_provider_from_identity_providers(
-    response: Response,
-    item: Provider = Depends(valid_provider_id),
-    identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
-):
-    if not item.identity_providers.is_connected(identity_provider):
-        response.status_code = status.HTTP_304_NOT_MODIFIED
-        return None
-    item.identity_providers.disconnect(identity_provider)
-    return item
+# @db.write_transaction
+# @router.delete(
+#     "/{provider_uid}/identity_providers/{identity_provider_uid}",
+#     response_model=Optional[ProviderReadExtended],
+#     dependencies=[Depends(check_write_access)],
+#     summary="Disconnect provider from identity provider",
+#     description="Disconnect a provider from a specific identity \
+#         provider knowing their *uid*s. \
+#         If no entity matches the given *uid*s, the endpoint \
+#         raises a `not found` error.",
+# )
+# def disconnect_provider_from_identity_providers(
+#     response: Response,
+#     item: Provider = Depends(valid_provider_id),
+#     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
+# ):
+#     if not item.identity_providers.is_connected(identity_provider):
+#         response.status_code = status.HTTP_304_NOT_MODIFIED
+#         return None
+#     item.identity_providers.disconnect(identity_provider)
+#     return item
 
 
 # @db.write_transaction
@@ -305,63 +306,64 @@ def disconnect_provider_from_identity_providers(
 #    return image.create(obj_in=item, provider=provider, force=True)
 
 
-@db.write_transaction
-@router.post(
-    "/{provider_uid}/projects/",
-    response_model=ProjectReadExtended,
-    status_code=status.HTTP_201_CREATED,
-    dependencies=[
-        Depends(check_write_access),
-        Depends(valid_project_name),
-        Depends(valid_project_uuid),
-    ],
-    summary="Add new project to provider",
-    description="Create a project and connect it to a \
-        provider knowing it *uid*. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error. \
-        At first validate new project values checking there are \
-        no other items with the given *name* or *uuid*.",
-)
-def add_project_to_provider(
-    item: ProjectCreate,
-    provider: Provider = Depends(valid_provider_id),
-):
-    return project.create(obj_in=item, provider=provider, force=True)
+# @db.write_transaction
+# @router.post(
+#     "/{provider_uid}/projects/",
+#     response_model=ProjectReadExtended,
+#     status_code=status.HTTP_201_CREATED,
+#     dependencies=[
+#         Depends(check_write_access),
+#         Depends(valid_project_name),
+#         Depends(valid_project_uuid),
+#     ],
+#     summary="Add new project to provider",
+#     description="Create a project and connect it to a \
+#         provider knowing it *uid*. \
+#         If no entity matches the given *uid*, the endpoint \
+#         raises a `not found` error. \
+#         At first validate new project values checking there are \
+#         no other items with the given *name* or *uuid*.",
+# )
+# def add_project_to_provider(
+#     item: ProjectCreate,
+#     provider: Provider = Depends(valid_provider_id),
+# ):
+#     return project.create(obj_in=item, provider=provider, force=True)
 
 
-@db.write_transaction
-@router.post(
-    "/{provider_uid}/services/",
-    response_model=Union[
-        BlockStorageServiceReadExtended,
-        IdentityServiceReadExtended,
-        ComputeServiceReadExtended,
-    ],
-    status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(check_write_access)],  # , Depends(valid_service_endpoint)],
-    summary="Add new service to provider",
-    description="Create a service and connect it to a \
-        provider knowing it *uid*. \
-        If no entity matches the given *uid*, the endpoint \
-        raises a `not found` error. \
-        At first validate new service values checking there are \
-        no other items with the given *name* or *uuid*.",
-)
-def add_service_to_provider(
-    item: Union[
-        BlockStorageServiceCreate,
-        IdentityServiceCreate,
-        ComputeServiceCreate,
-        NetworkServiceCreate,
-    ],
-    provider: Provider = Depends(valid_provider_id),
-):
-    if isinstance(item, BlockStorageServiceCreate):
-        return block_storage_service.create(obj_in=item, provider=provider, force=True)
-    if isinstance(item, ComputeServiceCreate):
-        return compute_service.create(obj_in=item, provider=provider, force=True)
-    if isinstance(item, IdentityServiceCreate):
-        return identity_service.create(obj_in=item, provider=provider, force=True)
-    if isinstance(item, NetworkServiceCreate):
-        return network_service.create(obj_in=item, provider=provider, force=True)
+# @db.write_transaction
+# @router.post(
+#     "/{provider_uid}/services/",
+#     response_model=Union[
+#         BlockStorageServiceReadExtended,
+#         IdentityServiceReadExtended,
+#         ComputeServiceReadExtended,
+#     ],
+#     status_code=status.HTTP_201_CREATED,
+#     dependencies=[Depends(check_write_access)],  # , Depends(valid_service_endpoint)],
+#     summary="Add new service to provider",
+#     description="Create a service and connect it to a \
+#         provider knowing it *uid*. \
+#         If no entity matches the given *uid*, the endpoint \
+#         raises a `not found` error. \
+#         At first validate new service values checking there are \
+#         no other items with the given *name* or *uuid*.",
+# )
+# def add_service_to_provider(
+#     item: Union[
+#         BlockStorageServiceCreate,
+#         IdentityServiceCreate,
+#         ComputeServiceCreate,
+#         NetworkServiceCreate,
+#     ],
+#     provider: Provider = Depends(valid_provider_id),
+# ):
+#     if isinstance(item, BlockStorageServiceCreate):
+#         return block_storage_service.create(obj_in=item, provider=provider,
+# force=True)
+#     if isinstance(item, ComputeServiceCreate):
+#         return compute_service.create(obj_in=item, provider=provider, force=True)
+#     if isinstance(item, IdentityServiceCreate):
+#         return identity_service.create(obj_in=item, provider=provider, force=True)
+#     if isinstance(item, NetworkServiceCreate):
+#         return network_service.create(obj_in=item, provider=provider, force=True)
