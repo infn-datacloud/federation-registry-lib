@@ -12,7 +12,14 @@ from app.identity_provider.schemas_extended import (
     IdentityProviderReadExtendedPublic,
 )
 from pydantic import ValidationError
-from tests.utils.identity_provider import create_random_identity_provider
+from tests.utils.identity_provider import (
+    create_random_identity_provider,
+    validate_read_extended_identity_provider_attrs,
+    validate_read_extended_public_identity_provider_attrs,
+    validate_read_identity_provider_attrs,
+    validate_read_public_identity_provider_attrs,
+    validate_read_short_identity_provider_attrs,
+)
 
 
 def test_create_schema():
@@ -38,10 +45,99 @@ def test_invalid_create_schema():
         a.user_groups = []
 
 
-def test_read_schema(db_idp_with_single_user_group: IdentityProvider):
-    """Create a valid 'Read' Schema."""
-    IdentityProviderRead.from_orm(db_idp_with_single_user_group)
-    IdentityProviderReadPublic.from_orm(db_idp_with_single_user_group)
-    IdentityProviderReadShort.from_orm(db_idp_with_single_user_group)
-    IdentityProviderReadExtended.from_orm(db_idp_with_single_user_group)
-    IdentityProviderReadExtendedPublic.from_orm(db_idp_with_single_user_group)
+def test_read_schema_with_single_user_group(
+    db_idp_with_single_user_group: IdentityProvider,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Target IDP has one user group.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+    """
+    schema = IdentityProviderRead.from_orm(db_idp_with_single_user_group)
+    validate_read_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_single_user_group
+    )
+    schema = IdentityProviderReadShort.from_orm(db_idp_with_single_user_group)
+    validate_read_short_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_single_user_group
+    )
+    schema = IdentityProviderReadPublic.from_orm(db_idp_with_single_user_group)
+    validate_read_public_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_single_user_group
+    )
+    schema = IdentityProviderReadExtended.from_orm(db_idp_with_single_user_group)
+    validate_read_extended_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_single_user_group
+    )
+    schema = IdentityProviderReadExtendedPublic.from_orm(db_idp_with_single_user_group)
+    validate_read_extended_public_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_single_user_group
+    )
+
+
+def test_read_schema_with_multiple_user_groups(
+    db_idp_with_multiple_user_groups: IdentityProvider,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Target IDP has multiple user groups.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+    """
+    schema = IdentityProviderRead.from_orm(db_idp_with_multiple_user_groups)
+    validate_read_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_user_groups
+    )
+    schema = IdentityProviderReadShort.from_orm(db_idp_with_multiple_user_groups)
+    validate_read_short_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_user_groups
+    )
+    schema = IdentityProviderReadPublic.from_orm(db_idp_with_multiple_user_groups)
+    validate_read_public_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_user_groups
+    )
+    schema = IdentityProviderReadExtended.from_orm(db_idp_with_multiple_user_groups)
+    validate_read_extended_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_user_groups
+    )
+    schema = IdentityProviderReadExtendedPublic.from_orm(
+        db_idp_with_multiple_user_groups
+    )
+    validate_read_extended_public_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_user_groups
+    )
+
+
+def test_read_schema_with_multiple_providers(
+    db_idp_with_multiple_providers: IdentityProvider,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Target IDP has multiple user groups, one for each provider.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+    """
+    schema = IdentityProviderRead.from_orm(db_idp_with_multiple_providers)
+    validate_read_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_providers
+    )
+    schema = IdentityProviderReadShort.from_orm(db_idp_with_multiple_providers)
+    validate_read_short_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_providers
+    )
+    schema = IdentityProviderReadPublic.from_orm(db_idp_with_multiple_providers)
+    validate_read_public_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_providers
+    )
+    schema = IdentityProviderReadExtended.from_orm(db_idp_with_multiple_providers)
+    validate_read_extended_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_providers
+    )
+    schema = IdentityProviderReadExtendedPublic.from_orm(db_idp_with_multiple_providers)
+    validate_read_extended_public_identity_provider_attrs(
+        obj_out=schema, db_item=db_idp_with_multiple_providers
+    )

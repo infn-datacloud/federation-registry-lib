@@ -17,8 +17,8 @@ from tests.utils.user_group import (
 
 
 def test_read_user_groups(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -30,7 +30,7 @@ def test_read_user_groups(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_user_group.uid:
+    if content[0]["uid"] == db_user_group2.uid:
         resp_user = content[0]
         resp_user2 = content[1]
     else:
@@ -38,10 +38,10 @@ def test_read_user_groups(
         resp_user2 = content[0]
 
     validate_read_user_group_attrs(
-        obj_out=UserGroupRead(**resp_user), db_item=db_user_group
+        obj_out=UserGroupRead(**resp_user), db_item=db_user_group2
     )
     validate_read_user_group_attrs(
-        obj_out=UserGroupRead(**resp_user2), db_item=db_user_group2
+        obj_out=UserGroupRead(**resp_user2), db_item=db_user_group3
     )
 
 
@@ -69,7 +69,6 @@ def test_read_user_groups_with_target_params(
 
 
 def test_read_user_groups_with_limit(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
     client: TestClient,
     read_header: Dict,
@@ -98,14 +97,14 @@ def test_read_user_groups_with_limit(
 
 
 def test_read_sorted_user_groups(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all sorted user_groups."""
     settings = get_settings()
-    sorted_items = list(sorted([db_user_group, db_user_group2], key=lambda x: x.uid))
+    sorted_items = list(sorted([db_user_group2, db_user_group3], key=lambda x: x.uid))
 
     response = client.get(
         f"{settings.API_V1_STR}/user_groups/",
@@ -153,7 +152,6 @@ def test_read_sorted_user_groups(
 
 
 def test_read_user_groups_with_skip(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
     client: TestClient,
     read_header: Dict,
@@ -200,8 +198,8 @@ def test_read_user_groups_with_skip(
 
 
 def test_read_user_groups_with_pagination(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -219,10 +217,10 @@ def test_read_user_groups_with_pagination(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    if content[0]["uid"] == db_user_group.uid:
-        next_page_uid = db_user_group2.uid
+    if content[0]["uid"] == db_user_group2.uid:
+        next_page_uid = db_user_group3.uid
     else:
-        next_page_uid = db_user_group.uid
+        next_page_uid = db_user_group2.uid
 
     response = client.get(
         f"{settings.API_V1_STR}/user_groups/",
@@ -256,8 +254,8 @@ def test_read_user_groups_with_pagination(
 
 
 def test_read_user_groups_with_conn(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -274,7 +272,7 @@ def test_read_user_groups_with_conn(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_user_group.uid:
+    if content[0]["uid"] == db_user_group2.uid:
         resp_user = content[0]
         resp_user2 = content[1]
     else:
@@ -282,16 +280,16 @@ def test_read_user_groups_with_conn(
         resp_user2 = content[0]
 
     validate_read_extended_user_group_attrs(
-        obj_out=UserGroupReadExtended(**resp_user), db_item=db_user_group
+        obj_out=UserGroupReadExtended(**resp_user), db_item=db_user_group2
     )
     validate_read_extended_user_group_attrs(
-        obj_out=UserGroupReadExtended(**resp_user2), db_item=db_user_group2
+        obj_out=UserGroupReadExtended(**resp_user2), db_item=db_user_group3
     )
 
 
 def test_read_user_groups_short(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -308,7 +306,7 @@ def test_read_user_groups_short(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_user_group.uid:
+    if content[0]["uid"] == db_user_group2.uid:
         resp_user = content[0]
         resp_user2 = content[1]
     else:
@@ -316,10 +314,10 @@ def test_read_user_groups_short(
         resp_user2 = content[0]
 
     validate_read_short_user_group_attrs(
-        obj_out=UserGroupReadShort(**resp_user), db_item=db_user_group
+        obj_out=UserGroupReadShort(**resp_user), db_item=db_user_group2
     )
     validate_read_short_user_group_attrs(
-        obj_out=UserGroupReadShort(**resp_user2), db_item=db_user_group2
+        obj_out=UserGroupReadShort(**resp_user2), db_item=db_user_group3
     )
 
 
@@ -433,9 +431,31 @@ def test_patch_not_existing_user_group(
     assert content["detail"] == f"User Group '{item_uuid}' not found"
 
 
-def test_patch_user_group_with_duplicated_name(
-    db_user_group: UserGroup,
+def test_patch_user_group_with_duplicated_name_same_idp(
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
+    client: TestClient,
+    write_header: Dict,
+) -> None:
+    """Execute PATCH operations to try to assign an already existing name to a
+    user_group."""
+    settings = get_settings()
+    data = create_random_user_group_patch()
+    data.name = db_user_group2.name
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/user_groups/{db_user_group3.uid}",
+        json=json.loads(data.json()),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    content = response.json()
+    assert content["detail"] == f"User Group with name '{data.name}' already registered"
+
+
+def test_patch_user_group_with_duplicated_name_diff_idp(
+    db_user_group: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
     write_header: Dict,
 ) -> None:
@@ -446,13 +466,14 @@ def test_patch_user_group_with_duplicated_name(
     data.name = db_user_group.name
 
     response = client.patch(
-        f"{settings.API_V1_STR}/user_groups/{db_user_group2.uid}",
+        f"{settings.API_V1_STR}/user_groups/{db_user_group3.uid}",
         json=json.loads(data.json()),
         headers=write_header,
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_200_OK
     content = response.json()
-    assert content["detail"] == f"User Group with name '{data.name}' already registered"
+    for k, v in data.dict().items():
+        assert content[k] == v
 
 
 # TODO Add tests raising 422
@@ -460,7 +481,6 @@ def test_patch_user_group_with_duplicated_name(
 
 def test_delete_user_group(
     db_user_group: UserGroup,
-    db_user_group2: UserGroup,
     client: TestClient,
     write_header: Dict,
 ) -> None:

@@ -1,10 +1,16 @@
 import pytest
-from app.project.crud import project
+from app.project.models import Project
 from app.project.schemas import ProjectRead, ProjectReadPublic, ProjectReadShort
 from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
-from app.provider.models import Provider
 from pydantic import ValidationError
-from tests.utils.project import create_random_project
+from tests.utils.project import (
+    create_random_project,
+    validate_read_extended_project_attrs,
+    validate_read_extended_public_project_attrs,
+    validate_read_project_attrs,
+    validate_read_public_project_attrs,
+    validate_read_short_project_attrs,
+)
 
 
 def test_create_schema():
@@ -22,20 +28,21 @@ def test_invalid_create_schema():
         a.name = None
 
 
-def test_read_schema(db_provider: Provider):
-    """Create a valid 'Read' Schema."""
-    obj_in = create_random_project()
-    db_obj = project.create(obj_in=obj_in, provider=db_provider)
-    ProjectRead.from_orm(db_obj)
-    ProjectReadPublic.from_orm(db_obj)
-    ProjectReadShort.from_orm(db_obj)
-    ProjectReadExtended.from_orm(db_obj)
-    ProjectReadExtendedPublic.from_orm(db_obj)
+def test_read_schema(db_project: Project):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_project(default=True)
-    db_obj = project.create(obj_in=obj_in, provider=db_provider)
-    ProjectRead.from_orm(db_obj)
-    ProjectReadPublic.from_orm(db_obj)
-    ProjectReadShort.from_orm(db_obj)
-    ProjectReadExtended.from_orm(db_obj)
-    ProjectReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target project has no relationships except for provider.
+    """
+    schema = ProjectRead.from_orm(db_project)
+    validate_read_project_attrs(obj_out=schema, db_item=db_project)
+    schema = ProjectReadShort.from_orm(db_project)
+    validate_read_short_project_attrs(obj_out=schema, db_item=db_project)
+    schema = ProjectReadPublic.from_orm(db_project)
+    validate_read_public_project_attrs(obj_out=schema, db_item=db_project)
+    schema = ProjectReadExtended.from_orm(db_project)
+    validate_read_extended_project_attrs(obj_out=schema, db_item=db_project)
+    schema = ProjectReadExtendedPublic.from_orm(db_project)
+    validate_read_extended_public_project_attrs(obj_out=schema, db_item=db_project)

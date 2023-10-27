@@ -2,14 +2,21 @@ import copy
 from uuid import uuid4
 
 import pytest
-from app.provider.crud import provider
+from app.provider.models import Provider
 from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadShort
 from app.provider.schemas_extended import (
     ProviderReadExtended,
     ProviderReadExtendedPublic,
 )
 from pydantic import ValidationError
-from tests.utils.provider import create_random_provider
+from tests.utils.provider import (
+    create_random_provider,
+    validate_read_extended_provider_attrs,
+    validate_read_extended_public_provider_attrs,
+    validate_read_provider_attrs,
+    validate_read_public_provider_attrs,
+    validate_read_short_provider_attrs,
+)
 from tests.utils.utils import random_lower_string, random_url
 
 
@@ -98,93 +105,107 @@ def test_invalid_create_schema():
         a.regions = [reg]
 
 
-def test_read_schema():
-    """Create a valid 'Read' Schema."""
-    obj_in = create_random_provider()
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_no_relationships(db_provider: Provider):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_provider(default=True)
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
 
-    obj_in = create_random_provider(with_projects=True)
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
+    Target provider has no relationships.
+    """
+    schema = ProviderRead.from_orm(db_provider)
+    validate_read_provider_attrs(obj_out=schema, db_item=db_provider)
+    schema = ProviderReadShort.from_orm(db_provider)
+    validate_read_short_provider_attrs(obj_out=schema, db_item=db_provider)
+    schema = ProviderReadPublic.from_orm(db_provider)
+    validate_read_public_provider_attrs(obj_out=schema, db_item=db_provider)
+    schema = ProviderReadExtended.from_orm(db_provider)
+    validate_read_extended_provider_attrs(obj_out=schema, db_item=db_provider)
+    schema = ProviderReadExtendedPublic.from_orm(db_provider)
+    validate_read_extended_public_provider_attrs(obj_out=schema, db_item=db_provider)
 
-    obj_in = create_random_provider(default=True, with_projects=True)
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
 
-    obj_in = create_random_provider(with_projects=True, with_identity_providers=True)
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_with_single_idp(db_provider_with_single_idp: Provider):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_provider(
-        default=True, with_projects=True, with_identity_providers=True
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target provider has one idp and one project.
+    """
+    schema = ProviderRead.from_orm(db_provider_with_single_idp)
+    validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_single_idp)
+    schema = ProviderReadShort.from_orm(db_provider_with_single_idp)
+    validate_read_short_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_single_idp
     )
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
-
-    obj_in = create_random_provider(with_regions=True)
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
-
-    obj_in = create_random_provider(default=True, with_regions=True)
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
-
-    obj_in = create_random_provider(
-        with_projects=True, with_identity_providers=True, with_regions=True
+    schema = ProviderReadPublic.from_orm(db_provider_with_single_idp)
+    validate_read_public_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_single_idp
     )
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
-
-    obj_in = create_random_provider(
-        default=True,
-        with_projects=True,
-        with_identity_providers=True,
-        with_regions=True,
+    schema = ProviderReadExtended.from_orm(db_provider_with_single_idp)
+    validate_read_extended_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_single_idp
     )
-    db_obj = provider.create(obj_in=obj_in)
-    ProviderRead.from_orm(db_obj)
-    ProviderReadPublic.from_orm(db_obj)
-    ProviderReadShort.from_orm(db_obj)
-    ProviderReadExtended.from_orm(db_obj)
-    ProviderReadExtendedPublic.from_orm(db_obj)
+    schema = ProviderReadExtendedPublic.from_orm(db_provider_with_single_idp)
+    validate_read_extended_public_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_single_idp
+    )
+
+
+def test_read_schema_with_multiple_idps(
+    db_provider_with_multiple_idps: Provider,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target provider support multiple idps and has multiple project.
+    """
+    schema = ProviderRead.from_orm(db_provider_with_multiple_idps)
+    validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_multiple_idps)
+    schema = ProviderReadShort.from_orm(db_provider_with_multiple_idps)
+    validate_read_short_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_idps
+    )
+    schema = ProviderReadPublic.from_orm(db_provider_with_multiple_idps)
+    validate_read_public_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_idps
+    )
+    schema = ProviderReadExtended.from_orm(db_provider_with_multiple_idps)
+    validate_read_extended_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_idps
+    )
+    schema = ProviderReadExtendedPublic.from_orm(db_provider_with_multiple_idps)
+    validate_read_extended_public_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_idps
+    )
+
+
+# TODO
+# def test_read_schema_with_everything(db_provider_with_everything: Provider):
+#     """Create a valid 'Read' Schema from DB object.
+
+#     Apply conversion for this item for all read
+#     schemas. No one of them should raise errors.
+
+#     Target provider has projects, authorized idps and regions."""
+#     schema = ProviderRead.from_orm(db_provider_with_everything)
+#     validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_everything)
+#     schema = ProviderReadShort.from_orm(db_provider_with_everything)
+#     validate_read_short_provider_attrs(
+#         obj_out=schema, db_item=db_provider_with_everything
+#     )
+#     schema = ProviderReadPublic.from_orm(db_provider_with_everything)
+#     validate_read_public_provider_attrs(
+#         obj_out=schema, db_item=db_provider_with_everything
+#     )
+#     schema = ProviderReadExtended.from_orm(db_provider_with_everything)
+#     validate_read_extended_provider_attrs(
+#         obj_out=schema, db_item=db_provider_with_everything
+#     )
+#     schema = ProviderReadExtendedPublic.from_orm(db_provider_with_everything)
+#     validate_read_extended_public_provider_attrs(
+#         obj_out=schema, db_item=db_provider_with_everything
+#     )

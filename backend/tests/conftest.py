@@ -178,11 +178,14 @@ def db_idp_with_multiple_providers(
     one. Each user group points to exactly one project.
     """
     item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
+        projects=[i.uuid for i in db_provider_with_single_project.projects]
     )
     item = identity_provider.create(
         obj_in=item_in, provider=db_provider_with_single_project
     )
+    item_in.user_groups = create_random_identity_provider(
+        projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
+    ).user_groups
     item = identity_provider.create(
         obj_in=item_in, provider=db_provider_with_multiple_projects
     )
@@ -190,19 +193,88 @@ def db_idp_with_multiple_providers(
 
 
 @pytest.fixture
-def db_user_group(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
-    yield db_idp_with_multiple_user_groups.user_groups.all()[0]
+def db_provider_with_single_idp(
+    db_idp_with_single_user_group: IdentityProvider,
+) -> Provider:
+    """Provider with a single authorized IDP and a single project."""
+    return db_idp_with_single_user_group.providers.all()[0]
+
+
+@pytest.fixture
+def db_provider_with_multiple_idps(
+    db_provider_with_multiple_projects: Provider,
+) -> Provider:
+    """Provider with a multiple authorized IDP and multiple projects.
+
+    Each IDP has a single user group. Each user group points to a
+    different project.
+    """
+    db_project1 = db_provider_with_multiple_projects.projects.all()[0]
+    db_project2 = db_provider_with_multiple_projects.projects.all()[1]
+    item_in = create_random_identity_provider(projects=[db_project1.uuid])
+    identity_provider.create(
+        obj_in=item_in, provider=db_provider_with_multiple_projects
+    )
+    item_in = create_random_identity_provider(projects=[db_project2.uuid])
+    identity_provider.create(
+        obj_in=item_in, provider=db_provider_with_multiple_projects
+    )
+    yield db_provider_with_multiple_projects
+
+
+@pytest.fixture
+def db_user_group(db_idp_with_single_user_group: IdentityProvider) -> UserGroup:
+    """User group owned by the idp with just one user group.
+
+    It has just one SLA.
+    """
+    yield db_idp_with_single_user_group.user_groups.all()[0]
 
 
 @pytest.fixture
 def db_user_group2(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
+    """First user group owned by the idp with multiple user groups.
+
+    It has just one SLA.
+    """
+    yield db_idp_with_multiple_user_groups.user_groups.all()[0]
+
+
+@pytest.fixture
+def db_user_group3(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGroup:
+    """Second user group owned by the idp with multiple user groups.
+
+    It has just one SLA.
+    """
     yield db_idp_with_multiple_user_groups.user_groups.all()[1]
 
 
-# TODO Create UserGroup fixture with multiple SLAs each
-# belonging to a project of different providers
-# TODO Create UserGroup fixture with single SLA with
-# multiple projects of different providers
+@pytest.fixture
+def db_user_group_with_multiple_slas(
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
+) -> IdentityProvider:
+    """User Group with multiple SLAs.
+
+    Each SLA points to a project belonging to a different provider.
+    """
+    item_in = create_random_identity_provider(
+        projects=[i.uuid for i in db_provider_with_single_project.projects]
+    )
+    item = identity_provider.create(
+        obj_in=item_in, provider=db_provider_with_single_project
+    )
+    item_in.user_groups[0].sla = (
+        create_random_identity_provider(
+            projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
+        )
+        .user_groups[0]
+        .sla
+    )
+    item = identity_provider.create(
+        obj_in=item_in, provider=db_provider_with_multiple_projects
+    )
+    yield item.user_groups.all()[0]
 
 
 @pytest.fixture
@@ -213,6 +285,11 @@ def db_sla(db_user_group: UserGroup) -> SLA:
 @pytest.fixture
 def db_sla2(db_user_group2: UserGroup) -> SLA:
     yield db_user_group2.slas.all()[0]
+
+
+@pytest.fixture
+def db_sla3(db_user_group3: UserGroup) -> SLA:
+    yield db_user_group3.slas.all()[0]
 
 
 # TODO Create SLA fixture with multiple projects of different providers

@@ -15,8 +15,8 @@ from tests.utils.user_group import (
 
 
 def test_read_user_groups(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all user_groups."""
@@ -29,7 +29,7 @@ def test_read_user_groups(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_user_group.uid:
+    if content[0]["uid"] == db_user_group2.uid:
         resp_user = content[0]
         resp_user2 = content[1]
     else:
@@ -37,10 +37,10 @@ def test_read_user_groups(
         resp_user2 = content[0]
 
     validate_read_public_user_group_attrs(
-        obj_out=UserGroupReadPublic(**resp_user), db_item=db_user_group
+        obj_out=UserGroupReadPublic(**resp_user), db_item=db_user_group2
     )
     validate_read_public_user_group_attrs(
-        obj_out=UserGroupReadPublic(**resp_user2), db_item=db_user_group2
+        obj_out=UserGroupReadPublic(**resp_user2), db_item=db_user_group3
     )
 
 
@@ -66,7 +66,6 @@ def test_read_user_groups_with_target_params(
 
 
 def test_read_user_groups_with_limit(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
     client: TestClient,
 ) -> None:
@@ -86,13 +85,13 @@ def test_read_user_groups_with_limit(
 
 
 def test_read_sorted_user_groups(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all sorted user_groups."""
     settings = get_settings()
-    sorted_items = list(sorted([db_user_group, db_user_group2], key=lambda x: x.uid))
+    sorted_items = list(sorted([db_user_group2, db_user_group3], key=lambda x: x.uid))
 
     response = client.get(f"{settings.API_V1_STR}/user_groups/", params={"sort": "uid"})
     assert response.status_code == status.HTTP_200_OK
@@ -131,7 +130,6 @@ def test_read_sorted_user_groups(
 
 
 def test_read_user_groups_with_skip(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
     client: TestClient,
 ) -> None:
@@ -161,8 +159,8 @@ def test_read_user_groups_with_skip(
 
 
 def test_read_user_groups_with_pagination(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all user_groups.
@@ -175,10 +173,10 @@ def test_read_user_groups_with_pagination(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    if content[0]["uid"] == db_user_group.uid:
-        next_page_uid = db_user_group2.uid
+    if content[0]["uid"] == db_user_group2.uid:
+        next_page_uid = db_user_group3.uid
     else:
-        next_page_uid = db_user_group.uid
+        next_page_uid = db_user_group2.uid
 
     response = client.get(
         f"{settings.API_V1_STR}/user_groups/", params={"size": 1, "page": 1}
@@ -204,8 +202,8 @@ def test_read_user_groups_with_pagination(
 
 
 def test_read_user_groups_with_conn(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all user_groups with their
@@ -219,7 +217,7 @@ def test_read_user_groups_with_conn(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_user_group.uid:
+    if content[0]["uid"] == db_user_group2.uid:
         resp_user = content[0]
         resp_user2 = content[1]
     else:
@@ -228,17 +226,17 @@ def test_read_user_groups_with_conn(
 
     validate_read_extended_public_user_group_attrs(
         obj_out=UserGroupReadExtendedPublic(**resp_user),
-        db_item=db_user_group,
+        db_item=db_user_group2,
     )
     validate_read_extended_public_user_group_attrs(
         obj_out=UserGroupReadExtendedPublic(**resp_user2),
-        db_item=db_user_group2,
+        db_item=db_user_group3,
     )
 
 
 def test_read_user_groups_short(
-    db_user_group: UserGroup,
     db_user_group2: UserGroup,
+    db_user_group3: UserGroup,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all user_groups with their shrunk
@@ -250,7 +248,7 @@ def test_read_user_groups_short(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_user_group.uid:
+    if content[0]["uid"] == db_user_group2.uid:
         resp_user = content[0]
         resp_user2 = content[1]
     else:
@@ -264,10 +262,10 @@ def test_read_user_groups_short(
     #     q = UserGroupReadShort(**resp_user2)
 
     validate_read_public_user_group_attrs(
-        obj_out=UserGroupReadPublic(**resp_user), db_item=db_user_group
+        obj_out=UserGroupReadPublic(**resp_user), db_item=db_user_group2
     )
     validate_read_public_user_group_attrs(
-        obj_out=UserGroupReadPublic(**resp_user2), db_item=db_user_group2
+        obj_out=UserGroupReadPublic(**resp_user2), db_item=db_user_group3
     )
 
 

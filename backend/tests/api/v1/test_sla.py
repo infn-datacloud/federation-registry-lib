@@ -18,8 +18,8 @@ from tests.utils.sla import (
 
 
 def test_read_slas(
-    db_sla: SLA,
     db_sla2: SLA,
+    db_sla3: SLA,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -31,15 +31,15 @@ def test_read_slas(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_sla.uid:
+    if content[0]["uid"] == db_sla2.uid:
         resp_sla = content[0]
         resp_sla2 = content[1]
     else:
         resp_sla = content[1]
         resp_sla2 = content[0]
 
-    validate_read_sla_attrs(obj_out=SLARead(**resp_sla), db_item=db_sla)
-    validate_read_sla_attrs(obj_out=SLARead(**resp_sla2), db_item=db_sla2)
+    validate_read_sla_attrs(obj_out=SLARead(**resp_sla), db_item=db_sla2)
+    validate_read_sla_attrs(obj_out=SLARead(**resp_sla2), db_item=db_sla3)
 
 
 def test_read_slas_with_target_params(
@@ -64,7 +64,6 @@ def test_read_slas_with_target_params(
 
 
 def test_read_slas_with_limit(
-    db_sla: SLA,
     db_sla2: SLA,
     client: TestClient,
     read_header: Dict,
@@ -89,14 +88,14 @@ def test_read_slas_with_limit(
 
 
 def test_read_sorted_slas(
-    db_sla: SLA,
     db_sla2: SLA,
+    db_sla3: SLA,
     client: TestClient,
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all sorted slas."""
     settings = get_settings()
-    sorted_items = list(sorted([db_sla, db_sla2], key=lambda x: x.uid))
+    sorted_items = list(sorted([db_sla2, db_sla3], key=lambda x: x.uid))
 
     response = client.get(
         f"{settings.API_V1_STR}/slas/", params={"sort": "uid"}, headers=read_header
@@ -140,7 +139,6 @@ def test_read_sorted_slas(
 
 
 def test_read_slas_with_skip(
-    db_sla: SLA,
     db_sla2: SLA,
     client: TestClient,
     read_header: Dict,
@@ -179,8 +177,8 @@ def test_read_slas_with_skip(
 
 
 def test_read_slas_with_pagination(
-    db_sla: SLA,
     db_sla2: SLA,
+    db_sla3: SLA,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -196,10 +194,10 @@ def test_read_slas_with_pagination(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    if content[0]["uid"] == db_sla.uid:
-        next_page_uid = db_sla2.uid
+    if content[0]["uid"] == db_sla2.uid:
+        next_page_uid = db_sla3.uid
     else:
-        next_page_uid = db_sla.uid
+        next_page_uid = db_sla2.uid
 
     response = client.get(
         f"{settings.API_V1_STR}/slas/",
@@ -231,8 +229,8 @@ def test_read_slas_with_pagination(
 
 
 def test_read_slas_with_conn(
-    db_sla: SLA,
     db_sla2: SLA,
+    db_sla3: SLA,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -248,7 +246,7 @@ def test_read_slas_with_conn(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_sla.uid:
+    if content[0]["uid"] == db_sla2.uid:
         resp_sla = content[0]
         resp_sla2 = content[1]
     else:
@@ -256,16 +254,16 @@ def test_read_slas_with_conn(
         resp_sla2 = content[0]
 
     validate_read_extended_sla_attrs(
-        obj_out=SLAReadExtended(**resp_sla), db_item=db_sla
+        obj_out=SLAReadExtended(**resp_sla), db_item=db_sla2
     )
     validate_read_extended_sla_attrs(
-        obj_out=SLAReadExtended(**resp_sla2), db_item=db_sla2
+        obj_out=SLAReadExtended(**resp_sla2), db_item=db_sla3
     )
 
 
 def test_read_slas_short(
-    db_sla: SLA,
     db_sla2: SLA,
+    db_sla3: SLA,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -279,15 +277,15 @@ def test_read_slas_short(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_sla.uid:
+    if content[0]["uid"] == db_sla2.uid:
         resp_sla = content[0]
         resp_sla2 = content[1]
     else:
         resp_sla = content[1]
         resp_sla2 = content[0]
 
-    validate_read_short_sla_attrs(obj_out=SLAReadShort(**resp_sla), db_item=db_sla)
-    validate_read_short_sla_attrs(obj_out=SLAReadShort(**resp_sla2), db_item=db_sla2)
+    validate_read_short_sla_attrs(obj_out=SLAReadShort(**resp_sla), db_item=db_sla2)
+    validate_read_short_sla_attrs(obj_out=SLAReadShort(**resp_sla2), db_item=db_sla3)
 
 
 def test_read_sla(
@@ -397,18 +395,18 @@ def test_patch_not_existing_sla(
 
 def test_patch_sla_with_duplicated_doc_uuid(
     db_sla: SLA,
-    db_sla2: SLA,
+    db_sla3: SLA,
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing UUID to a
-    sla."""
+    """Execute PATCH operations to try to assign an already existing UUID to an
+    SLA."""
     settings = get_settings()
     data = create_random_sla_patch()
     data.doc_uuid = db_sla.doc_uuid
 
     response = client.patch(
-        f"{settings.API_V1_STR}/slas/{db_sla2.uid}",
+        f"{settings.API_V1_STR}/slas/{db_sla3.uid}",
         json=json.loads(data.json()),
         headers=write_header,
     )
