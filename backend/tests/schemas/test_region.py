@@ -111,7 +111,7 @@ def test_read_schema(db_region: Region):
     Apply conversion for this item for all read schemas. No one of them
     should raise errors.
 
-    Target provider has one idp and one project.
+    Target region is only linked to the provider.
     """
     schema = RegionRead.from_orm(db_region)
     validate_read_region_attrs(obj_out=schema, db_item=db_region)
@@ -123,6 +123,28 @@ def test_read_schema(db_region: Region):
     validate_read_extended_region_attrs(obj_out=schema, db_item=db_region)
     schema = RegionReadExtendedPublic.from_orm(db_region)
     validate_read_extended_public_region_attrs(obj_out=schema, db_item=db_region)
+
+
+def test_read_schema_with_location(db_region_with_location: Region):
+    """Create a valid 'Read' from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target region has a location.
+    """
+    schema = RegionRead.from_orm(db_region_with_location)
+    validate_read_region_attrs(obj_out=schema, db_item=db_region_with_location)
+    schema = RegionReadShort.from_orm(db_region_with_location)
+    validate_read_short_region_attrs(obj_out=schema, db_item=db_region_with_location)
+    schema = RegionReadPublic.from_orm(db_region_with_location)
+    validate_read_public_region_attrs(obj_out=schema, db_item=db_region_with_location)
+    schema = RegionReadExtended.from_orm(db_region_with_location)
+    validate_read_extended_region_attrs(obj_out=schema, db_item=db_region_with_location)
+    schema = RegionReadExtendedPublic.from_orm(db_region_with_location)
+    validate_read_extended_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_location
+    )
 
     # obj_in = create_random_region(default=True)
     # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)

@@ -265,7 +265,7 @@ def db_user_group3(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGr
 def db_user_group_with_multiple_slas(
     db_provider_with_single_project: Provider,
     db_provider_with_multiple_projects: Provider,
-) -> IdentityProvider:
+) -> UserGroup:
     """User Group with multiple SLAs.
 
     Each SLA points to a project belonging to a different provider.
@@ -314,7 +314,7 @@ def db_sla3(db_user_group3: UserGroup) -> SLA:
 # TODO Create SLA fixture with multiple projects of different providers
 
 
-# REGIONS
+# REGIONS (and related providers)
 
 
 @pytest.fixture
@@ -342,13 +342,13 @@ def db_region3(db_region2: Region) -> Region:
 
 
 @pytest.fixture
-def db_provider_with_single_region(db_region: Region) -> Region:
+def db_provider_with_single_region(db_region: Region) -> Provider:
     """Provider with single region."""
     yield db_region.provider.single()
 
 
 @pytest.fixture
-def db_provider_with_multiple_regions(db_region3: Region) -> Region:
+def db_provider_with_multiple_regions(db_region3: Region) -> Provider:
     """Provider with multiple regions."""
     yield db_region3.provider.single()
 
@@ -358,16 +358,39 @@ def db_provider_with_multiple_regions(db_region3: Region) -> Region:
 
 @pytest.fixture
 def db_location(db_region: Region) -> Location:
+    """Location of the region of the first provider."""
     item_in = create_random_location()
     item = location.create(obj_in=item_in, region=db_region)
     yield item
 
 
 @pytest.fixture
-def db_location_with_multiple_regions(db_region2: Region) -> Location:
+def db_location2(db_region2: Region) -> Location:
+    """Location of the first region of the second provider."""
     item_in = create_random_location()
     item = location.create(obj_in=item_in, region=db_region2)
     yield item
+
+
+@pytest.fixture
+def db_location_with_multiple_regions(
+    db_location: Location, db_region3: Region
+) -> Location:
+    """Location connected to the region of the first provider and the second
+    region of the second provider."""
+    item_in = create_random_location()
+    item_in.site = db_location.site
+    item = location.create(obj_in=item_in, region=db_region3)
+    yield item
+
+
+@pytest.fixture
+def db_region_with_location(db_location: Location) -> Region:
+    """Region with a location."""
+    yield db_location.regions.all()[0]
+
+
+# BLOCK STORAGE SERVICES (and related regions)
 
 
 @pytest.fixture

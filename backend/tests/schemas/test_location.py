@@ -1,13 +1,19 @@
 import pytest
-from app.location.crud import location
+from app.location.models import Location
 from app.location.schemas import LocationRead, LocationReadPublic, LocationReadShort
 from app.location.schemas_extended import (
     LocationReadExtended,
     LocationReadExtendedPublic,
 )
-from app.region.models import Region
 from pydantic import ValidationError
-from tests.utils.location import create_random_location
+from tests.utils.location import (
+    create_random_location,
+    validate_read_extended_location_attrs,
+    validate_read_extended_public_location_attrs,
+    validate_read_location_attrs,
+    validate_read_public_location_attrs,
+    validate_read_short_location_attrs,
+)
 from tests.utils.utils import random_lower_string
 
 
@@ -40,20 +46,51 @@ def test_invalid_create_schema():
         a.longitude = 100
 
 
-def test_read_schema(db_region: Region):
-    """Create a valid 'Read' Schema."""
-    obj_in = create_random_location()
-    db_obj = location.create(obj_in=obj_in, region=db_region)
-    LocationRead.from_orm(db_obj)
-    LocationReadPublic.from_orm(db_obj)
-    LocationReadShort.from_orm(db_obj)
-    LocationReadExtended.from_orm(db_obj)
-    LocationReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_with_single_region(db_location: Location):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_location(default=True)
-    db_obj = location.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    LocationRead.from_orm(db_obj)
-    LocationReadPublic.from_orm(db_obj)
-    LocationReadShort.from_orm(db_obj)
-    LocationReadExtended.from_orm(db_obj)
-    LocationReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target location is linked to a single region.
+    """
+    schema = LocationRead.from_orm(db_location)
+    validate_read_location_attrs(obj_out=schema, db_item=db_location)
+    schema = LocationReadShort.from_orm(db_location)
+    validate_read_short_location_attrs(obj_out=schema, db_item=db_location)
+    schema = LocationReadPublic.from_orm(db_location)
+    validate_read_public_location_attrs(obj_out=schema, db_item=db_location)
+    schema = LocationReadExtended.from_orm(db_location)
+    validate_read_extended_location_attrs(obj_out=schema, db_item=db_location)
+    schema = LocationReadExtendedPublic.from_orm(db_location)
+    validate_read_extended_public_location_attrs(obj_out=schema, db_item=db_location)
+
+
+def test_read_schema_with_multiple_regions(db_location_with_multiple_regions: Location):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target location is linked to multiple regions.
+    """
+    schema = LocationRead.from_orm(db_location_with_multiple_regions)
+    validate_read_location_attrs(
+        obj_out=schema, db_item=db_location_with_multiple_regions
+    )
+    schema = LocationReadShort.from_orm(db_location_with_multiple_regions)
+    validate_read_short_location_attrs(
+        obj_out=schema, db_item=db_location_with_multiple_regions
+    )
+    schema = LocationReadPublic.from_orm(db_location_with_multiple_regions)
+    validate_read_public_location_attrs(
+        obj_out=schema, db_item=db_location_with_multiple_regions
+    )
+    schema = LocationReadExtended.from_orm(db_location_with_multiple_regions)
+    validate_read_extended_location_attrs(
+        obj_out=schema, db_item=db_location_with_multiple_regions
+    )
+    schema = LocationReadExtendedPublic.from_orm(db_location_with_multiple_regions)
+    validate_read_extended_public_location_attrs(
+        obj_out=schema, db_item=db_location_with_multiple_regions
+    )
