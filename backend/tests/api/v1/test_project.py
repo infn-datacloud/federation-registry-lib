@@ -403,14 +403,14 @@ def test_patch_not_existing_project(
     assert content["detail"] == f"Project '{item_uuid}' not found"
 
 
-def test_patch_project_with_duplicated_uuid(
+def test_patch_project_with_duplicated_uuid_same_provider(
     db_project: Project,
     db_project2: Project,
     client: TestClient,
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing UUID to a
-    project."""
+    project belonging to the same provider."""
     settings = get_settings()
     data = create_random_project_patch()
     data.uuid = db_project.uuid
@@ -425,14 +425,37 @@ def test_patch_project_with_duplicated_uuid(
     assert content["detail"] == f"Project with uuid '{data.uuid}' already registered"
 
 
-def test_patch_project_with_duplicated_name(
+def test_patch_project_with_duplicated_uuid_diff_provider(
+    db_project: Project,
+    db_project3: Project,
+    client: TestClient,
+    write_header: Dict,
+) -> None:
+    """Execute PATCH operations to assign an already existing UUID to a project
+    belonging to a different provider."""
+    settings = get_settings()
+    data = create_random_project_patch()
+    data.uuid = db_project.uuid
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/projects/{db_project3.uid}",
+        json=json.loads(data.json()),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    content = response.json()
+    for k, v in data.dict().items():
+        assert content[k] == v
+
+
+def test_patch_project_with_duplicated_name_same_provider(
     db_project: Project,
     db_project2: Project,
     client: TestClient,
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign a name already in use to a
-    project."""
+    project belonging to the same provider."""
     settings = get_settings()
     data = create_random_project_patch()
     data.name = db_project.name
@@ -445,6 +468,29 @@ def test_patch_project_with_duplicated_name(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     content = response.json()
     assert content["detail"] == f"Project with name '{data.name}' already registered"
+
+
+def test_patch_project_with_duplicated_name_diff_provider(
+    db_project: Project,
+    db_project3: Project,
+    client: TestClient,
+    write_header: Dict,
+) -> None:
+    """Execute PATCH operations to assign an already existing UUID to a project
+    belonging to a different provider."""
+    settings = get_settings()
+    data = create_random_project_patch()
+    data.name = db_project.name
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/projects/{db_project3.uid}",
+        json=json.loads(data.json()),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    content = response.json()
+    for k, v in data.dict().items():
+        assert content[k] == v
 
 
 # TODO Add tests raising 422

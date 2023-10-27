@@ -315,7 +315,7 @@ def test_forced_update_item_with_location(db_provider: Provider) -> None:
 
 
 def test_forced_update_item_with_projects_and_block_storage_services(
-    db_provider_with_project: Provider,
+    db_provider_with_single_project: Provider,
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
@@ -334,33 +334,33 @@ def test_forced_update_item_with_projects_and_block_storage_services(
     """
     item_in = create_random_region(
         with_block_storage_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
-    item = region.create(obj_in=item_in, provider=db_provider_with_project)
+    item = region.create(obj_in=item_in, provider=db_provider_with_single_project)
     item_in = create_random_region()
     item = region.update(db_obj=item, obj_in=item_in, force=True)
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_block_storage_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_block_storage_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
@@ -373,14 +373,14 @@ def test_forced_update_item_with_projects_and_block_storage_services(
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_forced_update_item_with_projects_and_compute_services(
-    db_provider_with_project: Provider,
+    db_provider_with_single_project: Provider,
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
@@ -399,33 +399,33 @@ def test_forced_update_item_with_projects_and_compute_services(
     """
     item_in = create_random_region(
         with_compute_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
-    item = region.create(obj_in=item_in, provider=db_provider_with_project)
+    item = region.create(obj_in=item_in, provider=db_provider_with_single_project)
     item_in = create_random_region()
     item = region.update(db_obj=item, obj_in=item_in, force=True)
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_compute_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_compute_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
@@ -438,7 +438,7 @@ def test_forced_update_item_with_projects_and_compute_services(
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
@@ -484,7 +484,7 @@ def test_forced_update_item_with_identity_services(
 
 
 def test_forced_update_item_with_projects_and_network_services(
-    db_provider_with_project: Provider,
+    db_provider_with_single_project: Provider,
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
@@ -503,33 +503,33 @@ def test_forced_update_item_with_projects_and_network_services(
     """
     item_in = create_random_region(
         with_network_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
-    item = region.create(obj_in=item_in, provider=db_provider_with_project)
+    item = region.create(obj_in=item_in, provider=db_provider_with_single_project)
     item_in = create_random_region()
     item = region.update(db_obj=item, obj_in=item_in, force=True)
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_network_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
     item_in = create_random_region(
         with_network_services=True,
-        projects=[i.uuid for i in db_provider_with_project.projects],
+        projects=[i.uuid for i in db_provider_with_single_project.projects],
     )
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
@@ -542,7 +542,7 @@ def test_forced_update_item_with_projects_and_network_services(
     item = region.update(
         db_obj=item,
         obj_in=item_in,
-        projects=db_provider_with_project.projects,
+        projects=db_provider_with_single_project.projects,
         force=True,
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
