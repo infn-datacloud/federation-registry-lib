@@ -2,14 +2,13 @@ import copy
 from uuid import uuid4
 
 import pytest
-from app.region.models import Region
-from app.service.crud import block_storage_service
 from app.service.enum import (
     ComputeServiceName,
     IdentityServiceName,
     NetworkServiceName,
     ServiceType,
 )
+from app.service.models import BlockStorageService
 from app.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
@@ -20,7 +19,14 @@ from app.service.schemas_extended import (
     BlockStorageServiceReadExtendedPublic,
 )
 from pydantic import ValidationError
-from tests.utils.block_storage_service import create_random_block_storage_service
+from tests.utils.block_storage_service import (
+    create_random_block_storage_service,
+    validate_read_block_storage_service_attrs,
+    validate_read_extended_block_storage_service_attrs,
+    validate_read_extended_public_block_storage_service_attrs,
+    validate_read_public_block_storage_service_attrs,
+    validate_read_short_block_storage_service_attrs,
+)
 from tests.utils.utils import random_lower_string
 
 
@@ -63,45 +69,64 @@ def test_invalid_create_schema():
         a.quotas = [a.quotas[0], a.quotas[0]]
 
 
-def test_read_schema(db_region: Region):
-    """Create a valid 'Read' Schema."""
-    obj_in = create_random_block_storage_service()
-    db_obj = block_storage_service.create(obj_in=obj_in, region=db_region)
-    BlockStorageServiceRead.from_orm(db_obj)
-    BlockStorageServiceReadPublic.from_orm(db_obj)
-    BlockStorageServiceReadShort.from_orm(db_obj)
-    BlockStorageServiceReadExtended.from_orm(db_obj)
-    BlockStorageServiceReadExtendedPublic.from_orm(db_obj)
+def test_read_schema(db_block_storage_serv: BlockStorageService):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_block_storage_service(default=True)
-    db_obj = block_storage_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    BlockStorageServiceRead.from_orm(db_obj)
-    BlockStorageServiceReadPublic.from_orm(db_obj)
-    BlockStorageServiceReadShort.from_orm(db_obj)
-    BlockStorageServiceReadExtended.from_orm(db_obj)
-    BlockStorageServiceReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
 
-    db_provider = db_region.provider.single()
-    obj_in = create_random_block_storage_service(
-        projects=[i.uuid for i in db_provider.projects]
+    Target service is linked only to the parent region.
+    """
+    schema = BlockStorageServiceRead.from_orm(db_block_storage_serv)
+    validate_read_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv
     )
-    db_obj = block_storage_service.update(
-        db_obj=db_obj, obj_in=obj_in, projects=db_provider.projects, force=True
+    schema = BlockStorageServiceReadShort.from_orm(db_block_storage_serv)
+    validate_read_short_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv
     )
-    BlockStorageServiceRead.from_orm(db_obj)
-    BlockStorageServiceReadPublic.from_orm(db_obj)
-    BlockStorageServiceReadShort.from_orm(db_obj)
-    BlockStorageServiceReadExtended.from_orm(db_obj)
-    BlockStorageServiceReadExtendedPublic.from_orm(db_obj)
+    schema = BlockStorageServiceReadPublic.from_orm(db_block_storage_serv)
+    validate_read_public_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv
+    )
+    schema = BlockStorageServiceReadExtended.from_orm(db_block_storage_serv)
+    validate_read_extended_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv
+    )
+    schema = BlockStorageServiceReadExtendedPublic.from_orm(db_block_storage_serv)
+    validate_read_extended_public_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv
+    )
 
-    obj_in = create_random_block_storage_service(
-        default=True, projects=[i.uuid for i in db_provider.projects]
-    )
-    db_obj = block_storage_service.update(
-        db_obj=db_obj, obj_in=obj_in, projects=db_provider.projects, force=True
-    )
-    BlockStorageServiceRead.from_orm(db_obj)
-    BlockStorageServiceReadPublic.from_orm(db_obj)
-    BlockStorageServiceReadShort.from_orm(db_obj)
-    BlockStorageServiceReadExtended.from_orm(db_obj)
-    BlockStorageServiceReadExtendedPublic.from_orm(db_obj)
+    # obj_in = create_random_block_storage_service(default=True)
+    # db_obj = block_storage_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
+    # BlockStorageServiceRead.from_orm(db_obj)
+    # BlockStorageServiceReadPublic.from_orm(db_obj)
+    # BlockStorageServiceReadShort.from_orm(db_obj)
+    # BlockStorageServiceReadExtended.from_orm(db_obj)
+    # BlockStorageServiceReadExtendedPublic.from_orm(db_obj)
+
+    # db_provider = db_region.provider.single()
+    # obj_in = create_random_block_storage_service(
+    #     projects=[i.uuid for i in db_provider.projects]
+    # )
+    # db_obj = block_storage_service.update(
+    #     db_obj=db_obj, obj_in=obj_in, projects=db_provider.projects, force=True
+    # )
+    # BlockStorageServiceRead.from_orm(db_obj)
+    # BlockStorageServiceReadPublic.from_orm(db_obj)
+    # BlockStorageServiceReadShort.from_orm(db_obj)
+    # BlockStorageServiceReadExtended.from_orm(db_obj)
+    # BlockStorageServiceReadExtendedPublic.from_orm(db_obj)
+
+    # obj_in = create_random_block_storage_service(
+    #     default=True, projects=[i.uuid for i in db_provider.projects]
+    # )
+    # db_obj = block_storage_service.update(
+    #     db_obj=db_obj, obj_in=obj_in, projects=db_provider.projects, force=True
+    # )
+    # BlockStorageServiceRead.from_orm(db_obj)
+    # BlockStorageServiceReadPublic.from_orm(db_obj)
+    # BlockStorageServiceReadShort.from_orm(db_obj)
+    # BlockStorageServiceReadExtended.from_orm(db_obj)
+    # BlockStorageServiceReadExtendedPublic.from_orm(db_obj)

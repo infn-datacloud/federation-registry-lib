@@ -394,17 +394,36 @@ def db_region_with_location(db_location: Location) -> Region:
 
 
 @pytest.fixture
-def db_block_storage_serv(db_region: Region) -> ComputeService:
+def db_block_storage_serv(db_region: Region) -> BlockStorageService:
+    """Block Storage service on the region of the first provider."""
     item_in = create_random_block_storage_service()
     item = block_storage_service.create(obj_in=item_in, region=db_region)
     yield item
 
 
 @pytest.fixture
-def db_block_storage_serv2(db_region2: Region) -> ComputeService:
+def db_block_storage_serv2(db_region2: Region) -> BlockStorageService:
+    """Block Storage service on the first region of the second provider."""
     item_in = create_random_block_storage_service()
     item = block_storage_service.create(obj_in=item_in, region=db_region2)
     yield item
+
+
+# TODO Add fixture of second block_storage_service for the same region?
+
+
+@pytest.fixture
+def db_region_with_block_storage_service(
+    db_block_storage_serv: BlockStorageService,
+) -> Region:
+    """Region with a block storage service."""
+    yield db_block_storage_serv.region.single()
+
+
+# TODO Add fixture of region with multiple block_storage_services?
+
+
+# BLOCK STORAGE QUOTA (and related services)
 
 
 @pytest.fixture
@@ -437,8 +456,12 @@ def db_block_storage_quota_per_user(
     yield item
 
 
+# COMPUTE SERVICES (and related regions)
+
+
 @pytest.fixture
 def db_compute_serv(db_region: Region) -> ComputeService:
+    """Compute service on the region of the first provider."""
     item_in = create_random_compute_service()
     item = compute_service.create(obj_in=item_in, region=db_region)
     yield item
@@ -446,9 +469,16 @@ def db_compute_serv(db_region: Region) -> ComputeService:
 
 @pytest.fixture
 def db_compute_serv2(db_region2: Region) -> ComputeService:
+    """Compute service on first region of the second provider."""
     item_in = create_random_compute_service()
     item = compute_service.create(obj_in=item_in, region=db_region2)
     yield item
+
+
+@pytest.fixture
+def db_region_with_compute_service(db_compute_serv: ComputeService) -> Region:
+    """Region with a block storage service."""
+    yield db_compute_serv.region.single()
 
 
 @pytest.fixture
@@ -513,8 +543,12 @@ def db_private_image(db_compute_serv: ComputeService) -> Flavor:
     yield item
 
 
+# NETWORK SERVICES (and related regions)
+
+
 @pytest.fixture
 def db_network_serv(db_region: Region) -> NetworkService:
+    """Network service on the region of the first provider."""
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region)
     yield item
@@ -522,9 +556,16 @@ def db_network_serv(db_region: Region) -> NetworkService:
 
 @pytest.fixture
 def db_network_serv2(db_region2: Region) -> NetworkService:
+    """Network service on first region of the second provider."""
     item_in = create_random_network_service()
     item = network_service.create(obj_in=item_in, region=db_region2)
     yield item
+
+
+@pytest.fixture
+def db_region_with_network_service(db_network_serv: NetworkService) -> Region:
+    """Region with a block storage service."""
+    yield db_network_serv.region.single()
 
 
 @pytest.fixture
@@ -544,8 +585,12 @@ def db_private_network(db_network_serv: NetworkService) -> Flavor:
     yield item
 
 
+# IDENTITY SERVICES (and related regions)
+
+
 @pytest.fixture
 def db_identity_serv(db_region: Region) -> IdentityService:
+    """Identity service on the region of the first provider."""
     item_in = create_random_identity_service()
     item = identity_service.create(obj_in=item_in, region=db_region)
     yield item
@@ -553,9 +598,16 @@ def db_identity_serv(db_region: Region) -> IdentityService:
 
 @pytest.fixture
 def db_identity_serv2(db_region2: Region) -> IdentityService:
+    """Identity service on first region of the second provider."""
     item_in = create_random_identity_service()
     item = identity_service.create(obj_in=item_in, region=db_region2)
     yield item
+
+
+@pytest.fixture
+def db_region_with_identity_service(db_identity_serv: IdentityService) -> Region:
+    """Region with a block storage service."""
+    yield db_identity_serv.region.single()
 
 
 @pytest.fixture

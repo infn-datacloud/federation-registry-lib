@@ -1,12 +1,11 @@
 import pytest
-from app.region.models import Region
-from app.service.crud import identity_service
 from app.service.enum import (
     BlockStorageServiceName,
     ComputeServiceName,
     NetworkServiceName,
     ServiceType,
 )
+from app.service.models import IdentityService
 from app.service.schemas import (
     IdentityServiceRead,
     IdentityServiceReadPublic,
@@ -17,7 +16,14 @@ from app.service.schemas_extended import (
     IdentityServiceReadExtendedPublic,
 )
 from pydantic import ValidationError
-from tests.utils.identity_service import create_random_identity_service
+from tests.utils.identity_service import (
+    create_random_identity_service,
+    validate_read_extended_identity_service_attrs,
+    validate_read_extended_public_identity_service_attrs,
+    validate_read_identity_service_attrs,
+    validate_read_public_identity_service_attrs,
+    validate_read_short_identity_service_attrs,
+)
 from tests.utils.utils import random_lower_string
 
 
@@ -50,20 +56,27 @@ def test_invalid_create_schema():
         a.endpoint = None
 
 
-def test_read_schema(db_region: Region):
-    """Create a valid 'Read' Schema."""
-    obj_in = create_random_identity_service()
-    db_obj = identity_service.create(obj_in=obj_in, region=db_region)
-    IdentityServiceRead.from_orm(db_obj)
-    IdentityServiceReadPublic.from_orm(db_obj)
-    IdentityServiceReadShort.from_orm(db_obj)
-    IdentityServiceReadExtended.from_orm(db_obj)
-    IdentityServiceReadExtendedPublic.from_orm(db_obj)
+def test_read_schema(db_identity_serv: IdentityService):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_identity_service(default=True)
-    db_obj = identity_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    IdentityServiceRead.from_orm(db_obj)
-    IdentityServiceReadPublic.from_orm(db_obj)
-    IdentityServiceReadShort.from_orm(db_obj)
-    IdentityServiceReadExtended.from_orm(db_obj)
-    IdentityServiceReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked only to the parent region.
+    """
+    schema = IdentityServiceRead.from_orm(db_identity_serv)
+    validate_read_identity_service_attrs(obj_out=schema, db_item=db_identity_serv)
+    schema = IdentityServiceReadShort.from_orm(db_identity_serv)
+    validate_read_short_identity_service_attrs(obj_out=schema, db_item=db_identity_serv)
+    schema = IdentityServiceReadPublic.from_orm(db_identity_serv)
+    validate_read_public_identity_service_attrs(
+        obj_out=schema, db_item=db_identity_serv
+    )
+    schema = IdentityServiceReadExtended.from_orm(db_identity_serv)
+    validate_read_extended_identity_service_attrs(
+        obj_out=schema, db_item=db_identity_serv
+    )
+    schema = IdentityServiceReadExtendedPublic.from_orm(db_identity_serv)
+    validate_read_extended_public_identity_service_attrs(
+        obj_out=schema, db_item=db_identity_serv
+    )

@@ -146,93 +146,127 @@ def test_read_schema_with_location(db_region_with_location: Region):
         obj_out=schema, db_item=db_region_with_location
     )
 
-    # obj_in = create_random_region(default=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
 
-    # obj_in = create_random_region(with_location=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_with_single_block_storage_service(
+    db_region_with_block_storage_service: Region,
+):
+    """Create a valid 'Read' from DB object.
 
-    # obj_in = create_random_region(default=True, with_location=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
 
-    # obj_in = create_random_region(with_block_storage_services=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
+    Target region has a block storage service.
+    """
+    schema = RegionRead.from_orm(db_region_with_block_storage_service)
+    validate_read_region_attrs(
+        obj_out=schema, db_item=db_region_with_block_storage_service
+    )
+    schema = RegionReadShort.from_orm(db_region_with_block_storage_service)
+    validate_read_short_region_attrs(
+        obj_out=schema, db_item=db_region_with_block_storage_service
+    )
+    schema = RegionReadPublic.from_orm(db_region_with_block_storage_service)
+    validate_read_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_block_storage_service
+    )
+    schema = RegionReadExtended.from_orm(db_region_with_block_storage_service)
+    validate_read_extended_region_attrs(
+        obj_out=schema, db_item=db_region_with_block_storage_service
+    )
+    schema = RegionReadExtendedPublic.from_orm(db_region_with_block_storage_service)
+    validate_read_extended_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_block_storage_service
+    )
 
-    # obj_in = create_random_region(default=True, with_block_storage_services=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
 
-    # obj_in = create_random_region(with_compute_services=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_with_single_compute_service(
+    db_region_with_compute_service: Region,
+):
+    """Create a valid 'Read' from DB object.
 
-    # obj_in = create_random_region(default=True, with_compute_services=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
 
-    # obj_in = create_random_region(with_identity_services=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
+    Target region has a block storage service.
+    """
+    schema = RegionRead.from_orm(db_region_with_compute_service)
+    validate_read_region_attrs(obj_out=schema, db_item=db_region_with_compute_service)
+    schema = RegionReadShort.from_orm(db_region_with_compute_service)
+    validate_read_short_region_attrs(
+        obj_out=schema, db_item=db_region_with_compute_service
+    )
+    schema = RegionReadPublic.from_orm(db_region_with_compute_service)
+    validate_read_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_compute_service
+    )
+    schema = RegionReadExtended.from_orm(db_region_with_compute_service)
+    validate_read_extended_region_attrs(
+        obj_out=schema, db_item=db_region_with_compute_service
+    )
+    schema = RegionReadExtendedPublic.from_orm(db_region_with_compute_service)
+    validate_read_extended_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_compute_service
+    )
 
-    # obj_in = create_random_region(default=True, with_identity_services=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
 
-    # obj_in = create_random_region(with_network_services=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_with_single_identity_service(
+    db_region_with_identity_service: Region,
+):
+    """Create a valid 'Read' from DB object.
 
-    # obj_in = create_random_region(default=True, with_network_services=True)
-    # db_obj = region.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # RegionRead.from_orm(db_obj)
-    # RegionReadPublic.from_orm(db_obj)
-    # RegionReadShort.from_orm(db_obj)
-    # RegionReadExtended.from_orm(db_obj)
-    # RegionReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target region has a block storage service.
+    """
+    schema = RegionRead.from_orm(db_region_with_identity_service)
+    validate_read_region_attrs(obj_out=schema, db_item=db_region_with_identity_service)
+    schema = RegionReadShort.from_orm(db_region_with_identity_service)
+    validate_read_short_region_attrs(
+        obj_out=schema, db_item=db_region_with_identity_service
+    )
+    schema = RegionReadPublic.from_orm(db_region_with_identity_service)
+    validate_read_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_identity_service
+    )
+    schema = RegionReadExtended.from_orm(db_region_with_identity_service)
+    validate_read_extended_region_attrs(
+        obj_out=schema, db_item=db_region_with_identity_service
+    )
+    schema = RegionReadExtendedPublic.from_orm(db_region_with_identity_service)
+    validate_read_extended_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_identity_service
+    )
+
+
+def test_read_schema_with_single_network_service(
+    db_region_with_network_service: Region,
+):
+    """Create a valid 'Read' from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target region has a block storage service.
+    """
+    schema = RegionRead.from_orm(db_region_with_network_service)
+    validate_read_region_attrs(obj_out=schema, db_item=db_region_with_network_service)
+    schema = RegionReadShort.from_orm(db_region_with_network_service)
+    validate_read_short_region_attrs(
+        obj_out=schema, db_item=db_region_with_network_service
+    )
+    schema = RegionReadPublic.from_orm(db_region_with_network_service)
+    validate_read_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_network_service
+    )
+    schema = RegionReadExtended.from_orm(db_region_with_network_service)
+    validate_read_extended_region_attrs(
+        obj_out=schema, db_item=db_region_with_network_service
+    )
+    schema = RegionReadExtendedPublic.from_orm(db_region_with_network_service)
+    validate_read_extended_public_region_attrs(
+        obj_out=schema, db_item=db_region_with_network_service
+    )
 
     # obj_in = create_random_region(
     #     with_location=True,
