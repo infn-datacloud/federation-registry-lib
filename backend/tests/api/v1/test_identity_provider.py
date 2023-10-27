@@ -21,7 +21,7 @@ from tests.utils.identity_provider import (
 
 
 def test_read_identity_providers(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     read_header: Dict,
@@ -36,7 +36,7 @@ def test_read_identity_providers(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_idp.uid:
+    if content[0]["uid"] == db_idp_with_single_user_group.uid:
         resp_idp = content[0]
         resp_idp2 = content[1]
     else:
@@ -44,7 +44,7 @@ def test_read_identity_providers(
         resp_idp2 = content[0]
 
     validate_read_identity_provider_attrs(
-        obj_out=IdentityProviderRead(**resp_idp), db_item=db_idp
+        obj_out=IdentityProviderRead(**resp_idp), db_item=db_idp_with_single_user_group
     )
     validate_read_identity_provider_attrs(
         obj_out=IdentityProviderRead(**resp_idp2),
@@ -53,7 +53,7 @@ def test_read_identity_providers(
 
 
 def test_read_identity_providers_with_target_params(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -64,19 +64,20 @@ def test_read_identity_providers_with_target_params(
     for k in IdentityProviderBase.__fields__.keys():
         response = client.get(
             f"{settings.API_V1_STR}/identity_providers/",
-            params={k: db_idp.__getattribute__(k)},
+            params={k: db_idp_with_single_user_group.__getattribute__(k)},
             headers=read_header,
         )
         assert response.status_code == status.HTTP_200_OK
         content = response.json()
         assert len(content) == 1
         validate_read_identity_provider_attrs(
-            obj_out=IdentityProviderRead(**content[0]), db_item=db_idp
+            obj_out=IdentityProviderRead(**content[0]),
+            db_item=db_idp_with_single_user_group,
         )
 
 
 def test_read_identity_providers_with_limit(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     read_header: Dict,
@@ -105,7 +106,7 @@ def test_read_identity_providers_with_limit(
 
 
 def test_read_sorted_identity_providers(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     read_header: Dict,
@@ -113,7 +114,10 @@ def test_read_sorted_identity_providers(
     """Execute GET operations to read all sorted identity_providers."""
     settings = get_settings()
     sorted_items = list(
-        sorted([db_idp, db_idp_with_multiple_user_groups], key=lambda x: x.uid)
+        sorted(
+            [db_idp_with_single_user_group, db_idp_with_multiple_user_groups],
+            key=lambda x: x.uid,
+        )
     )
 
     response = client.get(
@@ -162,7 +166,7 @@ def test_read_sorted_identity_providers(
 
 
 def test_read_identity_providers_with_skip(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     read_header: Dict,
@@ -209,7 +213,7 @@ def test_read_identity_providers_with_skip(
 
 
 def test_read_identity_providers_with_pagination(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     read_header: Dict,
@@ -228,10 +232,10 @@ def test_read_identity_providers_with_pagination(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    if content[0]["uid"] == db_idp.uid:
+    if content[0]["uid"] == db_idp_with_single_user_group.uid:
         next_page_uid = db_idp_with_multiple_user_groups.uid
     else:
-        next_page_uid = db_idp.uid
+        next_page_uid = db_idp_with_single_user_group.uid
 
     response = client.get(
         f"{settings.API_V1_STR}/identity_providers/",
@@ -265,7 +269,7 @@ def test_read_identity_providers_with_pagination(
 
 
 def test_read_identity_providers_with_conn(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     read_header: Dict,
@@ -283,7 +287,7 @@ def test_read_identity_providers_with_conn(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_idp.uid:
+    if content[0]["uid"] == db_idp_with_single_user_group.uid:
         resp_idp = content[0]
         resp_idp2 = content[1]
     else:
@@ -291,7 +295,8 @@ def test_read_identity_providers_with_conn(
         resp_idp2 = content[0]
 
     validate_read_extended_identity_provider_attrs(
-        obj_out=IdentityProviderReadExtended(**resp_idp), db_item=db_idp
+        obj_out=IdentityProviderReadExtended(**resp_idp),
+        db_item=db_idp_with_single_user_group,
     )
     validate_read_extended_identity_provider_attrs(
         obj_out=IdentityProviderReadExtended(**resp_idp2),
@@ -300,7 +305,7 @@ def test_read_identity_providers_with_conn(
 
 
 def test_read_identity_providers_short(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     read_header: Dict,
@@ -318,7 +323,7 @@ def test_read_identity_providers_short(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_idp.uid:
+    if content[0]["uid"] == db_idp_with_single_user_group.uid:
         resp_idp = content[0]
         resp_idp2 = content[1]
     else:
@@ -326,7 +331,8 @@ def test_read_identity_providers_short(
         resp_idp2 = content[0]
 
     validate_read_short_identity_provider_attrs(
-        obj_out=IdentityProviderReadShort(**resp_idp), db_item=db_idp
+        obj_out=IdentityProviderReadShort(**resp_idp),
+        db_item=db_idp_with_single_user_group,
     )
     validate_read_short_identity_provider_attrs(
         obj_out=IdentityProviderReadShort(**resp_idp2),
@@ -335,25 +341,25 @@ def test_read_identity_providers_short(
 
 
 def test_read_identity_provider(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read a identity_provider."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
         headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_identity_provider_attrs(
-        obj_out=IdentityProviderRead(**content), db_item=db_idp
+        obj_out=IdentityProviderRead(**content), db_item=db_idp_with_single_user_group
     )
 
 
 def test_read_identity_provider_with_conn(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -361,19 +367,20 @@ def test_read_identity_provider_with_conn(
     relationships."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
         params={"with_conn": True},
         headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_extended_identity_provider_attrs(
-        obj_out=IdentityProviderReadExtended(**content), db_item=db_idp
+        obj_out=IdentityProviderReadExtended(**content),
+        db_item=db_idp_with_single_user_group,
     )
 
 
 def test_read_identity_provider_short(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -381,14 +388,15 @@ def test_read_identity_provider_short(
     identity_provider."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
         params={"short": True},
         headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_short_identity_provider_attrs(
-        obj_out=IdentityProviderReadShort(**content), db_item=db_idp
+        obj_out=IdentityProviderReadShort(**content),
+        db_item=db_idp_with_single_user_group,
     )
 
 
@@ -409,7 +417,7 @@ def test_read_not_existing_identity_provider(
 
 
 def test_patch_identity_provider(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
     write_header: Dict,
 ) -> None:
@@ -418,7 +426,7 @@ def test_patch_identity_provider(
     data = create_random_identity_provider_patch()
 
     response = client.patch(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
         json=json.loads(data.json()),
         headers=write_header,
     )
@@ -449,7 +457,7 @@ def test_patch_not_existing_identity_provider(
 
 
 def test_patch_identity_provider_with_duplicated_endpoint(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     write_header: Dict,
@@ -458,7 +466,7 @@ def test_patch_identity_provider_with_duplicated_endpoint(
     to a identity_provider."""
     settings = get_settings()
     data = create_random_identity_provider_patch()
-    data.endpoint = db_idp.endpoint
+    data.endpoint = db_idp_with_single_user_group.endpoint
 
     uid = db_idp_with_multiple_user_groups.uid
     response = client.patch(
@@ -478,7 +486,7 @@ def test_patch_identity_provider_with_duplicated_endpoint(
 
 
 def test_delete_identity_provider(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
     write_header: Dict,
@@ -486,7 +494,7 @@ def test_delete_identity_provider(
     """Execute DELETE to remove a public identity_provider."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
         headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT

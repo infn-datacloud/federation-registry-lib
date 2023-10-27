@@ -18,7 +18,7 @@ from tests.utils.identity_provider import (
 
 
 def test_read_identity_providers(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
 ) -> None:
@@ -32,7 +32,7 @@ def test_read_identity_providers(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_idp.uid:
+    if content[0]["uid"] == db_idp_with_single_user_group.uid:
         resp_idp = content[0]
         resp_idp2 = content[1]
     else:
@@ -40,7 +40,8 @@ def test_read_identity_providers(
         resp_idp2 = content[0]
 
     validate_read_public_identity_provider_attrs(
-        obj_out=IdentityProviderReadPublic(**resp_idp), db_item=db_idp
+        obj_out=IdentityProviderReadPublic(**resp_idp),
+        db_item=db_idp_with_single_user_group,
     )
     validate_read_public_identity_provider_attrs(
         obj_out=IdentityProviderReadPublic(**resp_idp2),
@@ -49,7 +50,7 @@ def test_read_identity_providers(
 
 
 def test_read_identity_providers_with_target_params(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all identity_providers matching specific
@@ -59,18 +60,19 @@ def test_read_identity_providers_with_target_params(
     for k in IdentityProviderBase.__fields__.keys():
         response = client.get(
             f"{settings.API_V1_STR}/identity_providers/",
-            params={k: db_idp.__getattribute__(k)},
+            params={k: db_idp_with_single_user_group.__getattribute__(k)},
         )
         assert response.status_code == status.HTTP_200_OK
         content = response.json()
         assert len(content) == 1
         validate_read_public_identity_provider_attrs(
-            obj_out=IdentityProviderReadPublic(**content[0]), db_item=db_idp
+            obj_out=IdentityProviderReadPublic(**content[0]),
+            db_item=db_idp_with_single_user_group,
         )
 
 
 def test_read_identity_providers_with_limit(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
 ) -> None:
@@ -94,14 +96,17 @@ def test_read_identity_providers_with_limit(
 
 
 def test_read_sorted_identity_providers(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all sorted identity_providers."""
     settings = get_settings()
     sorted_items = list(
-        sorted([db_idp, db_idp_with_multiple_user_groups], key=lambda x: x.uid)
+        sorted(
+            [db_idp_with_single_user_group, db_idp_with_multiple_user_groups],
+            key=lambda x: x.uid,
+        )
     )
 
     response = client.get(
@@ -143,7 +148,7 @@ def test_read_sorted_identity_providers(
 
 
 def test_read_identity_providers_with_skip(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
 ) -> None:
@@ -181,7 +186,7 @@ def test_read_identity_providers_with_skip(
 
 
 def test_read_identity_providers_with_pagination(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
 ) -> None:
@@ -197,10 +202,10 @@ def test_read_identity_providers_with_pagination(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    if content[0]["uid"] == db_idp.uid:
+    if content[0]["uid"] == db_idp_with_single_user_group.uid:
         next_page_uid = db_idp_with_multiple_user_groups.uid
     else:
-        next_page_uid = db_idp.uid
+        next_page_uid = db_idp_with_single_user_group.uid
 
     response = client.get(
         f"{settings.API_V1_STR}/identity_providers/", params={"size": 1, "page": 1}
@@ -228,7 +233,7 @@ def test_read_identity_providers_with_pagination(
 
 
 def test_read_identity_providers_with_conn(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
 ) -> None:
@@ -243,7 +248,7 @@ def test_read_identity_providers_with_conn(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_idp.uid:
+    if content[0]["uid"] == db_idp_with_single_user_group.uid:
         resp_idp = content[0]
         resp_idp2 = content[1]
     else:
@@ -252,7 +257,7 @@ def test_read_identity_providers_with_conn(
 
     validate_read_extended_public_identity_provider_attrs(
         obj_out=IdentityProviderReadExtendedPublic(**resp_idp),
-        db_item=db_idp,
+        db_item=db_idp_with_single_user_group,
     )
     validate_read_extended_public_identity_provider_attrs(
         obj_out=IdentityProviderReadExtendedPublic(**resp_idp2),
@@ -261,7 +266,7 @@ def test_read_identity_providers_with_conn(
 
 
 def test_read_identity_providers_short(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     db_idp_with_multiple_user_groups: IdentityProvider,
     client: TestClient,
 ) -> None:
@@ -276,7 +281,7 @@ def test_read_identity_providers_short(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_idp.uid:
+    if content[0]["uid"] == db_idp_with_single_user_group.uid:
         resp_idp = content[0]
         resp_idp2 = content[1]
     else:
@@ -290,7 +295,8 @@ def test_read_identity_providers_short(
     #     q = IdentityProviderReadShort(**resp_idp2)
 
     validate_read_public_identity_provider_attrs(
-        obj_out=IdentityProviderReadPublic(**resp_idp), db_item=db_idp
+        obj_out=IdentityProviderReadPublic(**resp_idp),
+        db_item=db_idp_with_single_user_group,
     )
     validate_read_public_identity_provider_attrs(
         obj_out=IdentityProviderReadPublic(**resp_idp2),
@@ -299,48 +305,50 @@ def test_read_identity_providers_short(
 
 
 def test_read_identity_provider(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read a identity_provider."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_public_identity_provider_attrs(
-        obj_out=IdentityProviderReadPublic(**content), db_item=db_idp
+        obj_out=IdentityProviderReadPublic(**content),
+        db_item=db_idp_with_single_user_group,
     )
 
 
 def test_read_identity_provider_with_conn(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read a identity_provider with its
     relationships."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
         params={"with_conn": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_extended_public_identity_provider_attrs(
-        obj_out=IdentityProviderReadExtendedPublic(**content), db_item=db_idp
+        obj_out=IdentityProviderReadExtendedPublic(**content),
+        db_item=db_idp_with_single_user_group,
     )
 
 
 def test_read_identity_provider_short(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read the shrunk version of a
     identity_provider."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
         params={"short": True},
     )
     assert response.status_code == status.HTTP_200_OK
@@ -351,7 +359,8 @@ def test_read_identity_provider_short(
     #     q = IdentityProviderReadShort(**content)
 
     validate_read_public_identity_provider_attrs(
-        obj_out=IdentityProviderReadPublic(**content), db_item=db_idp
+        obj_out=IdentityProviderReadPublic(**content),
+        db_item=db_idp_with_single_user_group,
     )
 
 
@@ -371,7 +380,7 @@ def test_read_not_existing_identity_provider(
 
 
 def test_patch_identity_provider(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
 ) -> None:
     """Execute PATCH operations to update a identity_provider.
@@ -381,7 +390,7 @@ def test_patch_identity_provider(
     settings = get_settings()
     data = create_random_identity_provider_patch()
     response = client.patch(
-        f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}",
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
         json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -408,7 +417,7 @@ def test_patch_not_existing_identity_provider(
 
 
 def test_delete_identity_provider(
-    db_idp: IdentityProvider,
+    db_idp_with_single_user_group: IdentityProvider,
     client: TestClient,
 ) -> None:
     """Execute PATCH operations to update a identity_provider.
@@ -416,7 +425,9 @@ def test_delete_identity_provider(
     No access rights. Permission denied
     """
     settings = get_settings()
-    response = client.delete(f"{settings.API_V1_STR}/identity_providers/{db_idp.uid}")
+    response = client.delete(
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}"
+    )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()
     assert content["detail"] == "Not authenticated"

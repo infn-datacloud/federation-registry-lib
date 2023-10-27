@@ -15,8 +15,8 @@ from tests.utils.provider import (
 
 
 def test_read_providers(
-    db_provider: Provider,
-    db_provider2: Provider,
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers."""
@@ -29,7 +29,7 @@ def test_read_providers(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_provider.uid:
+    if content[0]["uid"] == db_provider_with_single_project.uid:
         resp_prov = content[0]
         resp_prov2 = content[1]
     else:
@@ -37,15 +37,16 @@ def test_read_providers(
         resp_prov2 = content[0]
 
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**resp_prov), db_item=db_provider
+        obj_out=ProviderReadPublic(**resp_prov), db_item=db_provider_with_single_project
     )
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**resp_prov2), db_item=db_provider2
+        obj_out=ProviderReadPublic(**resp_prov2),
+        db_item=db_provider_with_multiple_projects,
     )
 
 
 def test_read_providers_with_target_params(
-    db_provider: Provider,
+    db_provider_with_single_project: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers matching specific
@@ -55,19 +56,20 @@ def test_read_providers_with_target_params(
     for k in ProviderBase.__fields__.keys():
         response = client.get(
             f"{settings.API_V1_STR}/providers/",
-            params={k: db_provider.__getattribute__(k)},
+            params={k: db_provider_with_single_project.__getattribute__(k)},
         )
         assert response.status_code == status.HTTP_200_OK
         content = response.json()
         assert len(content) == 1
         validate_read_public_provider_attrs(
-            obj_out=ProviderReadPublic(**content[0]), db_item=db_provider
+            obj_out=ProviderReadPublic(**content[0]),
+            db_item=db_provider_with_single_project,
         )
 
 
 def test_read_providers_with_limit(
-    db_provider: Provider,
-    db_provider2: Provider,
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers limiting the number of
@@ -86,13 +88,18 @@ def test_read_providers_with_limit(
 
 
 def test_read_sorted_providers(
-    db_provider: Provider,
-    db_provider2: Provider,
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all sorted providers."""
     settings = get_settings()
-    sorted_items = list(sorted([db_provider, db_provider2], key=lambda x: x.uid))
+    sorted_items = list(
+        sorted(
+            [db_provider_with_single_project, db_provider_with_multiple_projects],
+            key=lambda x: x.uid,
+        )
+    )
 
     response = client.get(f"{settings.API_V1_STR}/providers/", params={"sort": "uid"})
     assert response.status_code == status.HTTP_200_OK
@@ -129,8 +136,8 @@ def test_read_sorted_providers(
 
 
 def test_read_providers_with_skip(
-    db_provider: Provider,
-    db_provider2: Provider,
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers, skipping the first N
@@ -159,8 +166,8 @@ def test_read_providers_with_skip(
 
 
 def test_read_providers_with_pagination(
-    db_provider: Provider,
-    db_provider2: Provider,
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers.
@@ -173,10 +180,10 @@ def test_read_providers_with_pagination(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    if content[0]["uid"] == db_provider.uid:
-        next_page_uid = db_provider2.uid
+    if content[0]["uid"] == db_provider_with_single_project.uid:
+        next_page_uid = db_provider_with_multiple_projects.uid
     else:
-        next_page_uid = db_provider.uid
+        next_page_uid = db_provider_with_single_project.uid
 
     response = client.get(
         f"{settings.API_V1_STR}/providers/", params={"size": 1, "page": 1}
@@ -202,8 +209,8 @@ def test_read_providers_with_pagination(
 
 
 def test_read_providers_with_conn(
-    db_provider: Provider,
-    db_provider2: Provider,
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers with their
@@ -217,7 +224,7 @@ def test_read_providers_with_conn(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_provider.uid:
+    if content[0]["uid"] == db_provider_with_single_project.uid:
         resp_prov = content[0]
         resp_prov2 = content[1]
     else:
@@ -226,17 +233,17 @@ def test_read_providers_with_conn(
 
     validate_read_extended_public_provider_attrs(
         obj_out=ProviderReadExtendedPublic(**resp_prov),
-        db_item=db_provider,
+        db_item=db_provider_with_single_project,
     )
     validate_read_extended_public_provider_attrs(
         obj_out=ProviderReadExtendedPublic(**resp_prov2),
-        db_item=db_provider2,
+        db_item=db_provider_with_multiple_projects,
     )
 
 
 def test_read_providers_short(
-    db_provider: Provider,
-    db_provider2: Provider,
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers with their shrunk
@@ -248,7 +255,7 @@ def test_read_providers_short(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_provider.uid:
+    if content[0]["uid"] == db_provider_with_single_project.uid:
         resp_prov = content[0]
         resp_prov2 = content[1]
     else:
@@ -262,54 +269,56 @@ def test_read_providers_short(
     #     q = ProviderReadShort(**resp_prov2)
 
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**resp_prov), db_item=db_provider
+        obj_out=ProviderReadPublic(**resp_prov), db_item=db_provider_with_single_project
     )
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**resp_prov2), db_item=db_provider2
+        obj_out=ProviderReadPublic(**resp_prov2),
+        db_item=db_provider_with_multiple_projects,
     )
 
 
 def test_read_provider(
-    db_provider: Provider,
+    db_provider_with_single_project: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read a provider."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/providers/{db_provider.uid}",
+        f"{settings.API_V1_STR}/providers/{db_provider_with_single_project.uid}",
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**content), db_item=db_provider
+        obj_out=ProviderReadPublic(**content), db_item=db_provider_with_single_project
     )
 
 
 def test_read_provider_with_conn(
-    db_provider: Provider,
+    db_provider_with_single_project: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read a provider with its relationships."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/providers/{db_provider.uid}",
+        f"{settings.API_V1_STR}/providers/{db_provider_with_single_project.uid}",
         params={"with_conn": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_extended_public_provider_attrs(
-        obj_out=ProviderReadExtendedPublic(**content), db_item=db_provider
+        obj_out=ProviderReadExtendedPublic(**content),
+        db_item=db_provider_with_single_project,
     )
 
 
 def test_read_provider_short(
-    db_provider: Provider,
+    db_provider_with_single_project: Provider,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read the shrunk version of a provider."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/providers/{db_provider.uid}",
+        f"{settings.API_V1_STR}/providers/{db_provider_with_single_project.uid}",
         params={"short": True},
     )
     assert response.status_code == status.HTTP_200_OK
@@ -320,7 +329,7 @@ def test_read_provider_short(
     #     q = ProviderReadShort(**content)
 
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**content), db_item=db_provider
+        obj_out=ProviderReadPublic(**content), db_item=db_provider_with_single_project
     )
 
 
@@ -339,7 +348,7 @@ def test_read_not_existing_provider(
 
 
 def test_patch_provider(
-    db_provider: Provider,
+    db_provider_with_single_project: Provider,
     client: TestClient,
 ) -> None:
     """Execute PATCH operations to update a provider.
@@ -349,7 +358,7 @@ def test_patch_provider(
     settings = get_settings()
     data = create_random_provider_patch()
     response = client.patch(
-        f"{settings.API_V1_STR}/providers/{db_provider.uid}",
+        f"{settings.API_V1_STR}/providers/{db_provider_with_single_project.uid}",
         json=json.loads(data.json()),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -376,7 +385,7 @@ def test_patch_not_existing_provider(
 
 
 def test_delete_provider(
-    db_provider: Provider,
+    db_provider_with_single_project: Provider,
     client: TestClient,
 ) -> None:
     """Execute PATCH operations to update a provider.
@@ -384,7 +393,9 @@ def test_delete_provider(
     No access rights. Permission denied
     """
     settings = get_settings()
-    response = client.delete(f"{settings.API_V1_STR}/providers/{db_provider.uid}")
+    response = client.delete(
+        f"{settings.API_V1_STR}/providers/{db_provider_with_single_project.uid}"
+    )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()
     assert content["detail"] == "Not authenticated"

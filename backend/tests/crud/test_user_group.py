@@ -12,61 +12,75 @@ from tests.utils.user_group import (
 )
 
 
-def test_create_item_with_projects(db_idp: IdentityProvider) -> None:
+def test_create_item_with_projects(
+    db_idp_with_single_user_group: IdentityProvider,
+) -> None:
     """Create a User Group belonging to a specific Identity Provider with an
     SLA for each received project."""
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
-def test_create_item_default_values_with_projects(db_idp: IdentityProvider) -> None:
+def test_create_item_default_values_with_projects(
+    db_idp_with_single_user_group: IdentityProvider,
+) -> None:
     """Create a User Group, with default values when possible, belonging to a
     specific Identity Provider with an SLA for each received project."""
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_idp: IdentityProvider) -> None:
+def test_get_item(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Retrieve a User Group from its UID."""
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
     item = user_group.get(uid=item.uid)
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_non_existing_item(db_idp: IdentityProvider) -> None:
+def test_get_non_existing_item(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Try to retrieve a not existing User Group."""
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
     item = user_group.get(uid=uuid4())
     assert not item
 
 
-def test_get_items(db_idp: IdentityProvider) -> None:
+def test_get_items(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Retrieve multiple User Groups."""
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
     stored_items = user_group.get_multi()
     assert len(stored_items) == 2
@@ -76,13 +90,15 @@ def test_get_items(db_idp: IdentityProvider) -> None:
     validate_create_user_group_attrs(obj_in=item_in, db_item=stored_items[0])
 
 
-def test_get_items_with_limit(db_idp: IdentityProvider) -> None:
+def test_get_items_with_limit(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Test the 'limit' attribute in GET operations."""
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
 
     stored_items = user_group.get_multi(limit=0)
@@ -95,14 +111,16 @@ def test_get_items_with_limit(db_idp: IdentityProvider) -> None:
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_idp: IdentityProvider) -> None:
+def test_get_sorted_items(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Test the 'sort' attribute in GET operations."""
-    db_provider = db_idp.providers.all()[0]
-    item = db_idp.user_groups.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
+    item = db_idp_with_single_user_group.user_groups.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in2 = create_random_user_group(project=db_project.uuid)
     item2 = user_group.create(
-        obj_in=item_in2, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in2,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
 
     sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
@@ -116,13 +134,15 @@ def test_get_sorted_items(db_idp: IdentityProvider) -> None:
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_idp: IdentityProvider) -> None:
+def test_get_items_with_skip(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Test the 'skip' attribute in GET operations."""
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
 
     stored_items = user_group.get_multi(skip=0)
@@ -132,14 +152,16 @@ def test_get_items_with_skip(db_idp: IdentityProvider) -> None:
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_idp: IdentityProvider) -> None:
+def test_patch_item(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Update the attributes of an existing User Group, without updating its
     relationships."""
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
     patch_in = create_random_user_group_patch()
     item = user_group.update(db_obj=item, obj_in=patch_in)
@@ -148,18 +170,22 @@ def test_patch_item(db_idp: IdentityProvider) -> None:
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
-def test_patch_item_with_defaults(db_idp: IdentityProvider) -> None:
+def test_patch_item_with_defaults(
+    db_idp_with_single_user_group: IdentityProvider,
+) -> None:
     """Try to update the attributes of an existing User Group, without updating
     its relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
     patch_in = create_random_user_group_patch(default=True)
     assert not user_group.update(db_obj=item, obj_in=patch_in)
@@ -171,7 +197,9 @@ def test_patch_item_with_defaults(db_idp: IdentityProvider) -> None:
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
-def test_forced_update_item_with_slas(db_idp: IdentityProvider) -> None:
+def test_forced_update_item_with_slas(
+    db_idp_with_single_user_group: IdentityProvider,
+) -> None:
     """Update the attributes and relationships of an existing User Group.
 
     At first update a User Group with a set of linked SLAs, updating its
@@ -187,10 +215,12 @@ def test_forced_update_item_with_slas(db_idp: IdentityProvider) -> None:
     attributes leaving untouched its connections (this is different from
     the previous test because the flag force is set to True).
     """
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = db_provider.projects.all()[0]
     item_in = create_random_user_group(project=db_project.uuid)
-    item = user_group.create(obj_in=item_in, identity_provider=db_idp)
+    item = user_group.create(
+        obj_in=item_in, identity_provider=db_idp_with_single_user_group
+    )
 
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.update(
@@ -207,16 +237,20 @@ def test_forced_update_item_with_slas(db_idp: IdentityProvider) -> None:
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item_with_relationships(db_idp: IdentityProvider) -> None:
+def test_delete_item_with_relationships(
+    db_idp_with_single_user_group: IdentityProvider,
+) -> None:
     """Delete an existing User Group.
 
     On cascade delete linked SLAs.
     """
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp_with_single_user_group.providers.all()[0]
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
     item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp, projects=db_provider.projects
+        obj_in=item_in,
+        identity_provider=db_idp_with_single_user_group,
+        projects=db_provider.projects,
     )
     db_sla = db_project.sla.single()
     result = user_group.remove(db_obj=item)

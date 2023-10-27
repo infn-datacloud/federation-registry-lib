@@ -38,10 +38,10 @@ def test_invalid_create_schema():
         a.user_groups = []
 
 
-def test_read_schema(db_idp: IdentityProvider):
+def test_read_schema(db_idp_with_single_user_group: IdentityProvider):
     """Create a valid 'Read' Schema."""
-    IdentityProviderRead.from_orm(db_idp)
-    IdentityProviderReadPublic.from_orm(db_idp)
-    IdentityProviderReadShort.from_orm(db_idp)
-    IdentityProviderReadExtended.from_orm(db_idp)
-    IdentityProviderReadExtendedPublic.from_orm(db_idp)
+    IdentityProviderRead.from_orm(db_idp_with_single_user_group)
+    IdentityProviderReadPublic.from_orm(db_idp_with_single_user_group)
+    IdentityProviderReadShort.from_orm(db_idp_with_single_user_group)
+    IdentityProviderReadExtended.from_orm(db_idp_with_single_user_group)
+    IdentityProviderReadExtendedPublic.from_orm(db_idp_with_single_user_group)

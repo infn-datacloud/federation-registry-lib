@@ -149,6 +149,15 @@ def validate_read_extended_provider_attrs(
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_provider_attrs(obj_in=obj_out, db_item=db_item)
+    assert len(db_item.projects) == len(obj_out.projects)
+    for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
+        assert db_proj.uid == proj_out.uid
+    assert len(db_item.identity_providers) == len(obj_out.identity_providers)
+    for db_idp, idp_out in zip(db_item.identity_providers, obj_out.identity_providers):
+        assert db_idp.uid == idp_out.uid
+    assert len(db_item.regions) == len(obj_out.regions)
+    for db_reg, reg_out in zip(db_item.regions, obj_out.regions):
+        assert db_reg.uid == reg_out.uid
 
 
 def validate_read_extended_public_provider_attrs(

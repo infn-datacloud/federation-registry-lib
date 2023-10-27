@@ -47,7 +47,7 @@ from tests.utils.location import create_random_location
 from tests.utils.network import create_random_network
 from tests.utils.network_service import create_random_network_service
 from tests.utils.project import create_random_project
-from tests.utils.provider import create_random_provider
+from tests.utils.provider import create_random_provider, random_type
 from tests.utils.region import create_random_region
 
 pytest.register_assert_rewrite("tests.utils")
@@ -69,9 +69,28 @@ def db_provider(setup_and_teardown_db: Generator) -> Provider:
 
 
 @pytest.fixture
-def db_provider2(db_provider: Generator) -> Provider:
-    """Second Provider with no relationships."""
+def db_provider2(db_provider: Provider) -> Provider:
+    """Second Provider with no relationships.
+
+    If the first is public, this is private. It has the same type as the
+    first one.
+    """
     item_in = create_random_provider()
+    item_in.is_public = not db_provider.is_public
+    item_in.type = db_provider.type
+    item = provider.create(obj_in=item_in)
+    yield item
+
+
+@pytest.fixture
+def db_provider3(db_provider2: Provider) -> Provider:
+    """Third Provider with no relationships.
+
+    It has a different type from the other two providers.
+    """
+    item_in = create_random_provider()
+    while item_in.type == item_in.type:
+        item_in.type = random_type()
     item = provider.create(obj_in=item_in)
     yield item
 
@@ -85,15 +104,7 @@ def db_project(db_provider: Provider) -> Project:
 
 
 @pytest.fixture
-def db_project2(db_project: Provider) -> Project:
-    """Second project owned by first provider."""
-    item_in = create_random_project()
-    db_project = project.create(obj_in=item_in, provider=db_project.provider.single())
-    yield db_project
-
-
-@pytest.fixture
-def db_project3(db_provider2: Provider) -> Project:
+def db_project2(db_provider2: Provider) -> Project:
     """First project owned by second provider."""
     item_in = create_random_project()
     db_project = project.create(obj_in=item_in, provider=db_provider2)
@@ -101,21 +112,33 @@ def db_project3(db_provider2: Provider) -> Project:
 
 
 @pytest.fixture
-def db_provider_with_single_project(db_project3: Project) -> Provider:
+def db_project3(db_project2: Project) -> Project:
+    """Second project owned by second provider."""
+    item_in = create_random_project()
+    db_project = project.create(obj_in=item_in, provider=db_project2.provider.single())
+    yield db_project
+
+
+@pytest.fixture
+def db_provider_with_single_project(db_project: Project) -> Provider:
     """Provider with a single project."""
+    yield db_project.provider.single()
+
+
+@pytest.fixture
+def db_provider_with_multiple_projects(db_project3: Project) -> Provider:
+    """Provider with multiple (2) projects."""
     yield db_project3.provider.single()
 
 
 @pytest.fixture
-def db_provider_with_multiple_projects(db_project2: Project) -> Provider:
-    """Provider with multiple projects."""
-    yield db_project2.provider.single()
+def db_idp_with_single_user_group(
+    db_provider_with_single_project: Provider,
+) -> IdentityProvider:
+    """Identity Provider with a single user group.
 
-
-@pytest.fixture
-def db_idp(db_provider_with_single_project: Provider) -> IdentityProvider:
-    """Identity Provider with a single user group, linked to a single
-    provider."""
+    It is linked to the provider with only one project.
+    """
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_single_project.projects]
     )
@@ -129,8 +152,11 @@ def db_idp(db_provider_with_single_project: Provider) -> IdentityProvider:
 def db_idp_with_multiple_user_groups(
     db_provider_with_multiple_projects: Provider,
 ) -> IdentityProvider:
-    """Identity Provider with multiple user groups, linked to a single
-    provider."""
+    """Identity Provider with multiple user groups.
+
+    It is linked to the provider with multiple projects and generates a
+    user group for each provider project.
+    """
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
     )
@@ -140,23 +166,27 @@ def db_idp_with_multiple_user_groups(
     yield item
 
 
-# TODO Evaluate if correct
-# @pytest.fixture
-# def db_idp_with_multiple_providers(
-#     db_provider_with_single_project: Provider,
-#     db_provider_with_multiple_projects: Provider,
-# ) -> IdentityProvider:
-#     """Identity Provider with multiple user groups, linked to multiple providers.
-#     It has a user group for each providers' project."""
-#     item_in = create_random_identity_provider(
-#         projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
-#     )
-#     item = identity_provider.create(obj_in=item_in,
-# provider=db_provider_with_single_project)
-#     item = identity_provider.create(
-#         obj_in=item_in, provider=db_provider_with_multiple_projects
-#     )
-#     yield item
+@pytest.fixture
+def db_idp_with_multiple_providers(
+    db_provider_with_single_project: Provider,
+    db_provider_with_multiple_projects: Provider,
+) -> IdentityProvider:
+    """Identity Provider with multiple user groups, linked to multiple
+    providers.
+
+    It has a user group on a provider and 2 user groups on the other
+    one. Each user group points to exactly one project.
+    """
+    item_in = create_random_identity_provider(
+        projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
+    )
+    item = identity_provider.create(
+        obj_in=item_in, provider=db_provider_with_single_project
+    )
+    item = identity_provider.create(
+        obj_in=item_in, provider=db_provider_with_multiple_projects
+    )
+    yield item
 
 
 @pytest.fixture

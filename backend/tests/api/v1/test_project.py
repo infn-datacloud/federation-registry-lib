@@ -404,8 +404,8 @@ def test_patch_not_existing_project(
 
 
 def test_patch_project_with_duplicated_uuid_same_provider(
-    db_project: Project,
     db_project2: Project,
+    db_project3: Project,
     client: TestClient,
     write_header: Dict,
 ) -> None:
@@ -413,10 +413,10 @@ def test_patch_project_with_duplicated_uuid_same_provider(
     project belonging to the same provider."""
     settings = get_settings()
     data = create_random_project_patch()
-    data.uuid = db_project.uuid
+    data.uuid = db_project2.uuid
 
     response = client.patch(
-        f"{settings.API_V1_STR}/projects/{db_project2.uid}",
+        f"{settings.API_V1_STR}/projects/{db_project3.uid}",
         json=json.loads(data.json()),
         headers=write_header,
     )
@@ -449,8 +449,8 @@ def test_patch_project_with_duplicated_uuid_diff_provider(
 
 
 def test_patch_project_with_duplicated_name_same_provider(
-    db_project: Project,
     db_project2: Project,
+    db_project3: Project,
     client: TestClient,
     write_header: Dict,
 ) -> None:
@@ -458,10 +458,10 @@ def test_patch_project_with_duplicated_name_same_provider(
     project belonging to the same provider."""
     settings = get_settings()
     data = create_random_project_patch()
-    data.name = db_project.name
+    data.name = db_project2.name
 
     response = client.patch(
-        f"{settings.API_V1_STR}/projects/{db_project2.uid}",
+        f"{settings.API_V1_STR}/projects/{db_project3.uid}",
         json=json.loads(data.json()),
         headers=write_header,
     )
