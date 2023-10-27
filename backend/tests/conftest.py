@@ -60,6 +60,9 @@ def setup_and_teardown_db() -> Generator:
     clear_neo4j_database(db)
 
 
+# PROVIDERS
+
+
 @pytest.fixture
 def db_provider(setup_and_teardown_db: Generator) -> Provider:
     """First Provider with no relationships."""
@@ -95,9 +98,12 @@ def db_provider3(db_provider2: Provider) -> Provider:
     yield item
 
 
+# PROJECTS (and related providers)
+
+
 @pytest.fixture
 def db_project(db_provider: Provider) -> Project:
-    """First project owned by first provider."""
+    """Project owned by first provider."""
     item_in = create_random_project()
     db_project = project.create(obj_in=item_in, provider=db_provider)
     yield db_project
@@ -129,6 +135,9 @@ def db_provider_with_single_project(db_project: Project) -> Provider:
 def db_provider_with_multiple_projects(db_project3: Project) -> Provider:
     """Provider with multiple (2) projects."""
     yield db_project3.provider.single()
+
+
+# IDENTITY PROVIDERS (and related providers)
 
 
 @pytest.fixture
@@ -222,6 +231,9 @@ def db_provider_with_multiple_idps(
     yield db_provider_with_multiple_projects
 
 
+# USER GROUPS
+
+
 @pytest.fixture
 def db_user_group(db_idp_with_single_user_group: IdentityProvider) -> UserGroup:
     """User group owned by the idp with just one user group.
@@ -277,36 +289,71 @@ def db_user_group_with_multiple_slas(
     yield item.user_groups.all()[0]
 
 
+# SLAS
+
+
 @pytest.fixture
 def db_sla(db_user_group: UserGroup) -> SLA:
+    """SLA owned by the user group of the provider with just one project."""
     yield db_user_group.slas.all()[0]
 
 
 @pytest.fixture
 def db_sla2(db_user_group2: UserGroup) -> SLA:
+    """SLA owned by first user group of the provider with multiple projects."""
     yield db_user_group2.slas.all()[0]
 
 
 @pytest.fixture
 def db_sla3(db_user_group3: UserGroup) -> SLA:
+    """SLA owned by second user group of the provider with multiple
+    projects."""
     yield db_user_group3.slas.all()[0]
 
 
 # TODO Create SLA fixture with multiple projects of different providers
 
 
+# REGIONS
+
+
 @pytest.fixture
-def db_region(db_provider_with_single_project: Provider) -> Region:
+def db_region(db_provider: Provider) -> Region:
+    """Region owned by first provider."""
     item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider_with_single_project)
+    item = region.create(obj_in=item_in, provider=db_provider)
     yield item
 
 
 @pytest.fixture
-def db_region2(db_provider_with_single_project: Provider) -> Region:
+def db_region2(db_provider2: Provider) -> Region:
+    """First region owned by second provider."""
     item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider_with_single_project)
+    item = region.create(obj_in=item_in, provider=db_provider2)
     yield item
+
+
+@pytest.fixture
+def db_region3(db_region2: Region) -> Region:
+    """Second region owned by second provider."""
+    item_in = create_random_region()
+    item = region.create(obj_in=item_in, provider=db_region2.provider.single())
+    yield item
+
+
+@pytest.fixture
+def db_provider_with_single_region(db_region: Region) -> Region:
+    """Provider with single region."""
+    yield db_region.provider.single()
+
+
+@pytest.fixture
+def db_provider_with_multiple_regions(db_region3: Region) -> Region:
+    """Provider with multiple regions."""
+    yield db_region3.provider.single()
+
+
+# LOCATIONS (and related regions)
 
 
 @pytest.fixture
@@ -317,7 +364,7 @@ def db_location(db_region: Region) -> Location:
 
 
 @pytest.fixture
-def db_location2(db_region2: Region) -> Location:
+def db_location_with_multiple_regions(db_region2: Region) -> Location:
     item_in = create_random_location()
     item = location.create(obj_in=item_in, region=db_region2)
     yield item

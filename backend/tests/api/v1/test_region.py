@@ -17,8 +17,8 @@ from tests.utils.region import (
 
 
 def test_read_regions(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -30,15 +30,15 @@ def test_read_regions(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_region.uid:
+    if content[0]["uid"] == db_region2.uid:
         resp_reg = content[0]
         resp_reg2 = content[1]
     else:
         resp_reg = content[1]
         resp_reg2 = content[0]
 
-    validate_read_region_attrs(obj_out=RegionRead(**resp_reg), db_item=db_region)
-    validate_read_region_attrs(obj_out=RegionRead(**resp_reg2), db_item=db_region2)
+    validate_read_region_attrs(obj_out=RegionRead(**resp_reg), db_item=db_region2)
+    validate_read_region_attrs(obj_out=RegionRead(**resp_reg2), db_item=db_region3)
 
 
 def test_read_regions_with_target_params(
@@ -63,7 +63,6 @@ def test_read_regions_with_target_params(
 
 
 def test_read_regions_with_limit(
-    db_region: Region,
     db_region2: Region,
     client: TestClient,
     read_header: Dict,
@@ -92,14 +91,14 @@ def test_read_regions_with_limit(
 
 
 def test_read_sorted_regions(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all sorted regions."""
     settings = get_settings()
-    sorted_items = list(sorted([db_region, db_region2], key=lambda x: x.uid))
+    sorted_items = list(sorted([db_region2, db_region3], key=lambda x: x.uid))
 
     response = client.get(
         f"{settings.API_V1_STR}/regions/",
@@ -147,8 +146,7 @@ def test_read_sorted_regions(
 
 
 def test_read_regions_with_skip(
-    db_region: Region,
-    db_region2: Region,
+    db_region3: Region,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -194,8 +192,8 @@ def test_read_regions_with_skip(
 
 
 def test_read_regions_with_pagination(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -213,10 +211,10 @@ def test_read_regions_with_pagination(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    if content[0]["uid"] == db_region.uid:
-        next_page_uid = db_region2.uid
+    if content[0]["uid"] == db_region2.uid:
+        next_page_uid = db_region3.uid
     else:
-        next_page_uid = db_region.uid
+        next_page_uid = db_region2.uid
 
     response = client.get(
         f"{settings.API_V1_STR}/regions/",
@@ -250,8 +248,8 @@ def test_read_regions_with_pagination(
 
 
 def test_read_regions_with_conn(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -267,7 +265,7 @@ def test_read_regions_with_conn(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_region.uid:
+    if content[0]["uid"] == db_region2.uid:
         resp_reg = content[0]
         resp_reg2 = content[1]
     else:
@@ -275,16 +273,16 @@ def test_read_regions_with_conn(
         resp_reg2 = content[0]
 
     validate_read_extended_region_attrs(
-        obj_out=RegionReadExtended(**resp_reg), db_item=db_region
+        obj_out=RegionReadExtended(**resp_reg), db_item=db_region2
     )
     validate_read_extended_region_attrs(
-        obj_out=RegionReadExtended(**resp_reg2), db_item=db_region2
+        obj_out=RegionReadExtended(**resp_reg2), db_item=db_region3
     )
 
 
 def test_read_regions_short(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
     read_header: Dict,
 ) -> None:
@@ -300,7 +298,7 @@ def test_read_regions_short(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_region.uid:
+    if content[0]["uid"] == db_region2.uid:
         resp_reg = content[0]
         resp_reg2 = content[1]
     else:
@@ -308,10 +306,10 @@ def test_read_regions_short(
         resp_reg2 = content[0]
 
     validate_read_short_region_attrs(
-        obj_out=RegionReadShort(**resp_reg), db_item=db_region
+        obj_out=RegionReadShort(**resp_reg), db_item=db_region2
     )
     validate_read_short_region_attrs(
-        obj_out=RegionReadShort(**resp_reg2), db_item=db_region2
+        obj_out=RegionReadShort(**resp_reg2), db_item=db_region3
     )
 
 
@@ -423,20 +421,20 @@ def test_patch_not_existing_region(
     assert content["detail"] == f"Region '{item_uuid}' not found"
 
 
-def test_patch_region_with_duplicated_name(
-    db_region: Region,
+def test_patch_region_with_duplicated_name_same_provider(
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing name to a
-    region."""
+    region belonging to the same provider."""
     settings = get_settings()
     data = create_random_region_patch()
-    data.name = db_region.name
+    data.name = db_region2.name
 
     response = client.patch(
-        f"{settings.API_V1_STR}/regions/{db_region2.uid}",
+        f"{settings.API_V1_STR}/regions/{db_region3.uid}",
         json=json.loads(data.json()),
         headers=write_header,
     )
@@ -445,19 +443,42 @@ def test_patch_region_with_duplicated_name(
     assert content["detail"] == f"Region with name '{data.name}' already registered"
 
 
+def test_patch_region_with_duplicated_name_diff_provider(
+    db_region: Region,
+    db_region3: Region,
+    client: TestClient,
+    write_header: Dict,
+) -> None:
+    """Execute PATCH operations to try to assign an already existing name to a
+    region belonging to a different provider."""
+    settings = get_settings()
+    data = create_random_region_patch()
+    data.name = db_region.name
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/regions/{db_region3.uid}",
+        json=json.loads(data.json()),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_200_OK
+    content = response.json()
+    for k, v in data.dict().items():
+        assert content[k] == v
+
+
 # TODO Add tests raising 422
 
 
 def test_delete_region(
-    db_region: Region,
-    db_region2: Region,
+    db_region3: Region,
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute DELETE to remove a public region."""
+    """Execute DELETE to remove a region from a provider with multiple
+    regions."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/regions/{db_region.uid}",
+        f"{settings.API_V1_STR}/regions/{db_region3.uid}",
         headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
@@ -468,7 +489,10 @@ def test_failed_delete_region(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute DELETE to remove a public region."""
+    """Execute DELETE to remove a region from a provider with only one region.
+
+    Fail deletion, since a provider must have at least one region.
+    """
     settings = get_settings()
     response = client.delete(
         f"{settings.API_V1_STR}/regions/{db_region.uid}",

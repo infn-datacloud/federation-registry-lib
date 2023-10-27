@@ -15,8 +15,8 @@ from tests.utils.region import (
 
 
 def test_read_regions(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all regions."""
@@ -29,7 +29,7 @@ def test_read_regions(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_region.uid:
+    if content[0]["uid"] == db_region2.uid:
         resp_reg = content[0]
         resp_reg2 = content[1]
     else:
@@ -37,10 +37,10 @@ def test_read_regions(
         resp_reg2 = content[0]
 
     validate_read_public_region_attrs(
-        obj_out=RegionReadPublic(**resp_reg), db_item=db_region
+        obj_out=RegionReadPublic(**resp_reg), db_item=db_region2
     )
     validate_read_public_region_attrs(
-        obj_out=RegionReadPublic(**resp_reg2), db_item=db_region2
+        obj_out=RegionReadPublic(**resp_reg2), db_item=db_region3
     )
 
 
@@ -66,7 +66,6 @@ def test_read_regions_with_target_params(
 
 
 def test_read_regions_with_limit(
-    db_region: Region,
     db_region2: Region,
     client: TestClient,
 ) -> None:
@@ -90,14 +89,14 @@ def test_read_regions_with_limit(
 
 
 def test_read_sorted_regions(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all sorted regions."""
     settings = get_settings()
     sorted_items = list(
-        sorted([db_region, db_region2], key=lambda x: x.uid)
+        sorted([db_region2, db_region3], key=lambda x: x.uid)
     )
 
     response = client.get(
@@ -139,8 +138,7 @@ def test_read_sorted_regions(
 
 
 def test_read_regions_with_skip(
-    db_region: Region,
-    db_region2: Region,
+    db_region3: Region,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all regions, skipping the first N
@@ -177,8 +175,8 @@ def test_read_regions_with_skip(
 
 
 def test_read_regions_with_pagination(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all regions.
@@ -193,10 +191,10 @@ def test_read_regions_with_pagination(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
-    if content[0]["uid"] == db_region.uid:
-        next_page_uid = db_region2.uid
+    if content[0]["uid"] == db_region2.uid:
+        next_page_uid = db_region3.uid
     else:
-        next_page_uid = db_region.uid
+        next_page_uid = db_region2.uid
 
     response = client.get(
         f"{settings.API_V1_STR}/regions/", params={"size": 1, "page": 1}
@@ -224,8 +222,8 @@ def test_read_regions_with_pagination(
 
 
 def test_read_regions_with_conn(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all regions with their relationships."""
@@ -238,7 +236,7 @@ def test_read_regions_with_conn(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_region.uid:
+    if content[0]["uid"] == db_region2.uid:
         resp_reg = content[0]
         resp_reg2 = content[1]
     else:
@@ -247,17 +245,17 @@ def test_read_regions_with_conn(
 
     validate_read_extended_public_region_attrs(
         obj_out=RegionReadExtendedPublic(**resp_reg),
-        db_item=db_region,
+        db_item=db_region2,
     )
     validate_read_extended_public_region_attrs(
         obj_out=RegionReadExtendedPublic(**resp_reg2),
-        db_item=db_region2,
+        db_item=db_region3,
     )
 
 
 def test_read_regions_short(
-    db_region: Region,
     db_region2: Region,
+    db_region3: Region,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all regions with their shrunk version."""
@@ -270,7 +268,7 @@ def test_read_regions_short(
     content = response.json()
     assert len(content) == 2
 
-    if content[0]["uid"] == db_region.uid:
+    if content[0]["uid"] == db_region2.uid:
         resp_reg = content[0]
         resp_reg2 = content[1]
     else:
@@ -284,10 +282,10 @@ def test_read_regions_short(
     #     q = RegionReadShort(**resp_reg2)
 
     validate_read_public_region_attrs(
-        obj_out=RegionReadPublic(**resp_reg), db_item=db_region
+        obj_out=RegionReadPublic(**resp_reg), db_item=db_region2
     )
     validate_read_public_region_attrs(
-        obj_out=RegionReadPublic(**resp_reg2), db_item=db_region2
+        obj_out=RegionReadPublic(**resp_reg2), db_item=db_region3
     )
 
 

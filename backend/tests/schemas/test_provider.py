@@ -183,6 +183,66 @@ def test_read_schema_with_multiple_idps(
     )
 
 
+def test_read_schema_with_single_region(db_provider_with_single_region: Provider):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target provider has one region.
+    """
+    schema = ProviderRead.from_orm(db_provider_with_single_region)
+    validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_single_region)
+    schema = ProviderReadShort.from_orm(db_provider_with_single_region)
+    validate_read_short_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_single_region
+    )
+    schema = ProviderReadPublic.from_orm(db_provider_with_single_region)
+    validate_read_public_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_single_region
+    )
+    schema = ProviderReadExtended.from_orm(db_provider_with_single_region)
+    validate_read_extended_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_single_region
+    )
+    schema = ProviderReadExtendedPublic.from_orm(db_provider_with_single_region)
+    validate_read_extended_public_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_single_region
+    )
+
+
+def test_read_schema_with_multiple_regions(
+    db_provider_with_multiple_regions: Provider,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target provider has multiple regions.
+    """
+    schema = ProviderRead.from_orm(db_provider_with_multiple_regions)
+    validate_read_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_regions
+    )
+    schema = ProviderReadShort.from_orm(db_provider_with_multiple_regions)
+    validate_read_short_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_regions
+    )
+    schema = ProviderReadPublic.from_orm(db_provider_with_multiple_regions)
+    validate_read_public_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_regions
+    )
+    schema = ProviderReadExtended.from_orm(db_provider_with_multiple_regions)
+    validate_read_extended_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_regions
+    )
+    schema = ProviderReadExtendedPublic.from_orm(db_provider_with_multiple_regions)
+    validate_read_extended_public_provider_attrs(
+        obj_out=schema, db_item=db_provider_with_multiple_regions
+    )
+
+
 # TODO
 # def test_read_schema_with_everything(db_provider_with_everything: Provider):
 #     """Create a valid 'Read' Schema from DB object.
