@@ -40,9 +40,14 @@ class CRUDRegion(
         RegionReadExtendedPublic,
     ]
 ):
-    """"""
+    """Region Create, Read, Update and Delete operations."""
 
     def create(self, *, obj_in: RegionCreateExtended, provider: Provider) -> Region:
+        """Create a new Region.
+
+        Connect the region to the given provider. For each received
+        location and service, create the corresponding entity.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.provider.connect(provider)
         if obj_in.location is not None:
@@ -64,8 +69,15 @@ class CRUDRegion(
         return db_obj
 
     def remove(self, *, db_obj: Region, from_provider: bool = False) -> bool:
-        # If the corresponding provider has no other regions,
-        # abort region deletion in favor of provider deletion.
+        """Delete an existing region and all its relationships.
+
+        If the corresponding provider has no other regions, abort region
+        deletion in favor of provider deletion.
+
+        At first delete its services. Then, if the location points only
+        to this provider, delete it. Finally delete the region.
+        """
+
         if not from_provider:
             item = db_obj.provider.single()
             if len(item.regions) == 1:
@@ -96,6 +108,12 @@ class CRUDRegion(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[Region]:
+        """Update Region attributes.
+
+        By default do not update relationships or default values. If
+        force is True, update linked projects and apply default values
+        when explicit.
+        """
         edit = False
         if force:
             locations_updated = self.__update_location(db_obj=db_obj, obj_in=obj_in)
@@ -128,6 +146,17 @@ class CRUDRegion(
     def __update_location(
         self, *, db_obj: Region, obj_in: RegionCreateExtended
     ) -> bool:
+        """Update region linked location.
+
+        If no new location is given or the new location differs from the
+        current one, delete linked location if it points only to this
+        region, or disconnect it.
+
+        If there wasn't a location and and a new one is given, or the
+        new location differs from the current one, create the new
+        location. Otherwise, if the old location match the new location,
+        forcefully update it.
+        """
         edit = False
         loc_in = obj_in.location
         db_loc = db_obj.location.single()
@@ -159,6 +188,12 @@ class CRUDRegion(
         obj_in: RegionCreateExtended,
         provider_projects: List[Project],
     ) -> bool:
+        """Update region linked block storage services.
+
+        Connect new block storage services not already connect, leave
+        untouched already linked ones and delete old ones no more
+        connected to the region.
+        """
         edit = False
         db_items = {
             db_item.endpoint: db_item
@@ -190,6 +225,12 @@ class CRUDRegion(
         obj_in: RegionCreateExtended,
         provider_projects: List[Project],
     ) -> bool:
+        """Update region linked compute services.
+
+        Connect new compute services not already connect, leave
+        untouched already linked ones and delete old ones no more
+        connected to the region.
+        """
         edit = False
         db_items = {
             db_item.endpoint: db_item
@@ -220,6 +261,12 @@ class CRUDRegion(
         db_obj: Region,
         obj_in: RegionCreateExtended,
     ) -> bool:
+        """Update region linked identity services.
+
+        Connect new identity services not already connect, leave
+        untouched already linked ones and delete old ones no more
+        connected to the region.
+        """
         edit = False
         db_items = {
             db_item.endpoint: db_item
@@ -249,6 +296,12 @@ class CRUDRegion(
         obj_in: RegionCreateExtended,
         provider_projects: List[Project],
     ) -> bool:
+        """Update region linked network services.
+
+        Connect new network services not already connect, leave
+        untouched already linked ones and delete old ones no more
+        connected to the region.
+        """
         edit = False
         db_items = {
             db_item.endpoint: db_item

@@ -31,11 +31,26 @@ class CRUDIdentityProvider(
         IdentityProviderReadExtendedPublic,
     ]
 ):
-    """"""
+    """Identity Provider Create, Read, Update and Delete operations."""
 
     def create(
         self, *, obj_in: IdentityProviderCreateExtended, provider: Provider
     ) -> IdentityProvider:
+        """Create a new Identity Provider. At first check that an identity
+        provider with the given endpoint does not already exist. If it does not
+        exist create it. Otherwise do nothing. In any case connect the identity
+        provider to the given provider. For any received user group, check the
+        identity provider is not already connect to it (when dealing with a new
+        identity provider, all user groups will be new user groups). If the
+        identity provider is already connected to that user group, update it
+        and its relationships. Otherwise create that new user group.
+
+        Attention: Do not delete no more connected user groups since this
+        operation is executed when creating a new provider. So, if some user group
+        is not received, it does not mean that this identity provider does not
+        support them, but that the specific provider is not interested to that
+        user groups.
+        """
         db_obj = self.get(endpoint=obj_in.endpoint)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
@@ -59,6 +74,11 @@ class CRUDIdentityProvider(
         return db_obj
 
     def remove(self, *, db_obj: IdentityProvider) -> bool:
+        """Delete an existing identity provider and all its relationships.
+
+        At first delete its user groups. Finally delete the identity
+        provider.
+        """
         for item in db_obj.user_groups:
             user_group.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
@@ -72,6 +92,12 @@ class CRUDIdentityProvider(
         provider: Optional[Provider] = None,
         force: bool = False
     ) -> Optional[IdentityProvider]:
+        """Update Identity Provider attributes.
+
+        By default do not update relationships or default values. If
+        force is True, update linked user groups and apply default
+        values when explicit.
+        """
         edit = False
         if force:
             edit = self.__update_user_groups(
@@ -99,6 +125,12 @@ class CRUDIdentityProvider(
         db_obj: IdentityProvider,
         provider_projects: List[Project]
     ) -> bool:
+        """Update identity provider linked user groups.
+
+        Connect new user group not already connect, leave untouched
+        already linked ones and delete old ones no more connected to the
+        identity provider.
+        """
         edit = False
         db_items = {db_item.name: db_item for db_item in db_obj.user_groups}
         for item in obj_in.user_groups:

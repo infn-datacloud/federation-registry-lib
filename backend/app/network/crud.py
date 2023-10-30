@@ -27,7 +27,7 @@ class CRUDNetwork(
         NetworkReadExtendedPublic,
     ]
 ):
-    """"""
+    """Network Create, Read, Update and Delete operations."""
 
     def create(
         self,
@@ -36,6 +36,11 @@ class CRUDNetwork(
         service: NetworkService,
         project: Optional[Project] = None
     ) -> Network:
+        """Create a new Network.
+
+        Connect the network to the given service and to the optional
+        received project.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.service.connect(service)
         if project is not None:
@@ -50,6 +55,12 @@ class CRUDNetwork(
         projects: List[Project] = [],
         force: bool = False
     ) -> Optional[Network]:
+        """Update Network attributes.
+
+        By default do not update relationships or default values. If
+        force is True, update linked project and apply default values
+        when explicit.
+        """
         edit = False
         if force:
             db_projects = {db_item.uuid: db_item for db_item in projects}

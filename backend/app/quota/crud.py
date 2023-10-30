@@ -40,7 +40,7 @@ class CRUDBlockStorageQuota(
         BlockStorageQuotaReadExtendedPublic,
     ]
 ):
-    """"""
+    """Block Storage Quota Create, Read, Update and Delete operations."""
 
     def create(
         self,
@@ -49,6 +49,10 @@ class CRUDBlockStorageQuota(
         service: BlockStorageService,
         project: Project,
     ) -> BlockStorageQuota:
+        """Create a new Block Storage Quota.
+
+        Connect the quota to the given service and project.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
@@ -62,6 +66,12 @@ class CRUDBlockStorageQuota(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[BlockStorageQuota]:
+        """Update Quota attributes.
+
+        By default do not update relationships or default values. If
+        force is True, if different from the current one, replace linked
+        project and apply default values when explicit.
+        """
         edit = False
         if force:
             db_projects = {db_item.uuid: db_item for db_item in projects}
@@ -90,7 +100,7 @@ class CRUDComputeQuota(
         ComputeQuotaReadExtendedPublic,
     ]
 ):
-    """"""
+    """Compute Quota Create, Read, Update and Delete operations."""
 
     def create(
         self,
@@ -99,6 +109,10 @@ class CRUDComputeQuota(
         service: ComputeService,
         project: Project,
     ) -> ComputeQuota:
+        """Create a new Compute Quota.
+
+        Connect the quota to the given service and project.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.service.connect(service)
         db_obj.project.connect(project)
@@ -112,6 +126,12 @@ class CRUDComputeQuota(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[ComputeQuota]:
+        """Update Quota attributes.
+
+        By default do not update relationships or default values. If
+        force is True, if different from the current one, replace linked
+        project and apply default values when explicit.
+        """
         edit = False
         if force:
             db_projects = {db_item.uuid: db_item for db_item in projects}

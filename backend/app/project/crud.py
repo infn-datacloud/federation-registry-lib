@@ -26,14 +26,24 @@ class CRUDProject(
         ProjectReadExtendedPublic,
     ]
 ):
-    """"""
+    """Flavor Create, Read, Update and Delete operations."""
 
     def create(self, *, obj_in: ProjectCreate, provider: Provider) -> Project:
+        """Create a new Project.
+
+        Connect the project to the given provider.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.provider.connect(provider)
         return db_obj
 
     def remove(self, *, db_obj: Project) -> bool:
+        """Delete an existing project and all its relationships.
+
+        At first delete its quotas. Then, if the linked SLA points only
+        to this project, delete it. Otherwise do nothing. Finally delete
+        the project.
+        """
         for item in db_obj.quotas:
             if isinstance(item, BlockStorageQuota):
                 block_storage_quota.remove(db_obj=item)

@@ -26,9 +26,17 @@ class CRUDLocation(
         LocationReadExtendedPublic,
     ]
 ):
-    """"""
+    """Location Create, Read, Update and Delete operations."""
 
     def create(self, *, obj_in: LocationCreate, region: Region) -> Location:
+        """Create a new Location.
+
+        At first check that a location with the given site name does not
+        already exist. If it does not exist create it. Otherwise update
+        its values without forcing default ones (some configuration may
+        add new information to a location). In any case connect the
+        location to the given region.
+        """
         db_obj = self.get(site=obj_in.site)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)

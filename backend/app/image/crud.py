@@ -27,7 +27,7 @@ class CRUDImage(
         ImageReadExtendedPublic,
     ]
 ):
-    """"""
+    """Image Create, Read, Update and Delete operations."""
 
     def create(
         self,
@@ -36,6 +36,15 @@ class CRUDImage(
         service: ComputeService,
         projects: List[Project] = [],
     ) -> Image:
+        """Create a new Image.
+
+        At first check that a image with the given UUID does not already
+        exist. If it does not exist create it. Otherwise check the
+        provider of the existing one. If it is the same of the received
+        service, do nothing, otherwise create a new image. In any case
+        connect the image to the given service and to any received
+        project.
+        """
         db_obj = self.get(uuid=obj_in.uuid)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
@@ -62,6 +71,12 @@ class CRUDImage(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[Image]:
+        """Update Image attributes.
+
+        By default do not update relationships or default values. If
+        force is True, update linked projects and apply default values
+        when explicit.
+        """
         edit = False
         if force:
             edit = self.__update_projects(
@@ -81,6 +96,12 @@ class CRUDImage(
         db_obj: Image,
         provider_projects: List[Project],
     ) -> bool:
+        """Update image linked projects.
+
+        Connect new projects not already connect, leave untouched
+        already linked ones and delete old ones no more connected to the
+        image.
+        """
         edit = False
         db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
         db_projects = {db_item.uuid: db_item for db_item in provider_projects}
