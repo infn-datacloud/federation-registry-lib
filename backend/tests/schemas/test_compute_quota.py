@@ -1,8 +1,8 @@
 from uuid import uuid4
 
 import pytest
-from app.quota.crud import compute_quota
 from app.quota.enum import QuotaType
+from app.quota.models import ComputeQuota
 from app.quota.schemas import (
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
@@ -12,9 +12,15 @@ from app.quota.schemas_extended import (
     ComputeQuotaReadExtended,
     ComputeQuotaReadExtendedPublic,
 )
-from app.service.models import ComputeService
 from pydantic import ValidationError
-from tests.utils.compute_quota import create_random_compute_quota
+from tests.utils.compute_quota import (
+    create_random_compute_quota,
+    validate_read_compute_quota_attrs,
+    validate_read_extended_compute_quota_attrs,
+    validate_read_extended_public_compute_quota_attrs,
+    validate_read_public_compute_quota_attrs,
+    validate_read_short_compute_quota_attrs,
+)
 from tests.utils.utils import random_lower_string
 
 
@@ -45,28 +51,17 @@ def test_invalid_create_schema():
         a.ram = -1
 
 
-def test_read_schema(db_compute_serv: ComputeService):
+def test_read_schema(db_compute_quota: ComputeQuota):
     """Create a valid 'Read' Schema."""
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-
-    obj_in = create_random_compute_quota(project=db_project.uuid)
-    db_obj = compute_quota.create(
-        obj_in=obj_in, service=db_compute_serv, project=db_project
+    schema = ComputeQuotaRead.from_orm(db_compute_quota)
+    validate_read_compute_quota_attrs(obj_out=schema, db_item=db_compute_quota)
+    schema = ComputeQuotaReadShort.from_orm(db_compute_quota)
+    validate_read_short_compute_quota_attrs(obj_out=schema, db_item=db_compute_quota)
+    schema = ComputeQuotaReadPublic.from_orm(db_compute_quota)
+    validate_read_public_compute_quota_attrs(obj_out=schema, db_item=db_compute_quota)
+    schema = ComputeQuotaReadExtended.from_orm(db_compute_quota)
+    validate_read_extended_compute_quota_attrs(obj_out=schema, db_item=db_compute_quota)
+    schema = ComputeQuotaReadExtendedPublic.from_orm(db_compute_quota)
+    validate_read_extended_public_compute_quota_attrs(
+        obj_out=schema, db_item=db_compute_quota
     )
-    ComputeQuotaRead.from_orm(db_obj)
-    ComputeQuotaReadPublic.from_orm(db_obj)
-    ComputeQuotaReadShort.from_orm(db_obj)
-    ComputeQuotaReadExtended.from_orm(db_obj)
-    ComputeQuotaReadExtendedPublic.from_orm(db_obj)
-
-    obj_in = create_random_compute_quota(default=True, project=db_project.uuid)
-    db_obj = compute_quota.update(
-        db_obj=db_obj, obj_in=obj_in, projects=db_provider.projects, force=True
-    )
-    ComputeQuotaRead.from_orm(db_obj)
-    ComputeQuotaReadPublic.from_orm(db_obj)
-    ComputeQuotaReadShort.from_orm(db_obj)
-    ComputeQuotaReadExtended.from_orm(db_obj)
-    ComputeQuotaReadExtendedPublic.from_orm(db_obj)

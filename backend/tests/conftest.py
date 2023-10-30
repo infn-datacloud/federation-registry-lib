@@ -431,7 +431,7 @@ def db_region_with_block_storage_service(
 # TODO Add fixture of region with multiple block_storage_services?
 
 
-# BLOCK STORAGE QUOTA (and related services)
+# BLOCK STORAGE QUOTA (and related projects and services)
 
 
 @pytest.fixture
@@ -582,35 +582,153 @@ def db_compute_serv2(db_region2: Region) -> ComputeService:
 
 
 @pytest.fixture
+def db_compute_serv3(db_region3: Region) -> ComputeService:
+    """Compute service on the second region of the second provider."""
+    item_in = create_random_compute_service()
+    item = compute_service.create(obj_in=item_in, region=db_region3)
+    yield item
+
+
+# TODO Add fixture of second compute_service for the same region?
+
+
+@pytest.fixture
 def db_region_with_compute_service(db_compute_serv: ComputeService) -> Region:
     """Region with a block storage service."""
     yield db_compute_serv.region.single()
 
 
+# TODO Add fixture of region with multiple compute_services?
+
+
+# COMPUTE QUOTA (and related projects and services)
+
+
 @pytest.fixture
-def db_compute_quota(db_compute_serv: ComputeService) -> ComputeQuota:
-    db_region = db_compute_serv.region.single()
+def db_compute_quota(
+    db_compute_serv2: BlockStorageService,
+) -> BlockStorageQuota:
+    """Compute Quota of the C Service belonging to the first region of the
+    provider with multiple projects.
+
+    Quota points to the first project. Quota to apply to the whole user
+    group.
+    """
+    db_region = db_compute_serv2.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
     item_in = create_random_compute_quota(project=db_project.uuid)
     item_in.per_user = False
     item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
+        obj_in=item_in, service=db_compute_serv2, project=db_project
     )
     yield item
 
 
 @pytest.fixture
-def db_compute_quota_per_user(db_compute_serv: ComputeService) -> ComputeQuota:
-    db_region = db_compute_serv.region.single()
+def db_compute_quota_per_user(
+    db_compute_quota: ComputeQuota,
+) -> ComputeQuota:
+    """Compute Quota of the C Service belonging to the first region of the
+    provider with multiple projects.
+
+    Quota points to the first project. Quota to apply to each user of
+    the user group. This is currently the second quota on the same
+    project and same service.
+    """
+    db_service = db_compute_quota.service.single()
+    db_region = db_service.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
     item_in = create_random_compute_quota(project=db_project.uuid)
     item_in.per_user = True
+    item = compute_quota.create(obj_in=item_in, service=db_service, project=db_project)
+    yield item
+
+
+@pytest.fixture
+def db_compute_quota2(
+    db_compute_quota_per_user: ComputeQuota,
+) -> ComputeQuota:
+    """Compute Quota of the C Service belonging to the first region of the
+    provider with multiple projects.
+
+    Quota points to the second project. Quota to apply to the whole user
+    group. This is the third quota on the same service.
+    """
+    db_service = db_compute_quota_per_user.service.single()
+    db_region = db_service.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[1]
+    item_in = create_random_compute_quota(project=db_project.uuid)
+    item_in.per_user = False
+    item = compute_quota.create(obj_in=item_in, service=db_service, project=db_project)
+    yield item
+
+
+@pytest.fixture
+def db_compute_quota3(
+    db_compute_quota2: ComputeQuota,
+    db_compute_serv3: ComputeService,
+) -> ComputeQuota:
+    """Compute Quota of the C Service belonging to the second region of the
+    provider with a multiple projects.
+
+    Quota points to the second project. Quota to apply to the whole user
+    group.
+    """
+    db_region = db_compute_serv3.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[1]
+    item_in = create_random_compute_quota(project=db_project.uuid)
+    item_in.per_user = False
     item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
+        obj_in=item_in, service=db_compute_serv3, project=db_project
     )
     yield item
+
+
+@pytest.fixture
+def db_compute_serv_with_single_quota(
+    db_compute_quota: ComputeQuota,
+) -> ComputeService:
+    """Project with single Compute Quota."""
+    yield db_compute_quota.service.all()[0]
+
+
+@pytest.fixture
+def db_compute_serv_with_multiple_quotas(
+    db_compute_quota2: ComputeQuota,
+) -> ComputeService:
+    """Project with single Compute Quota."""
+    yield db_compute_quota2.service.all()[0]
+
+
+@pytest.fixture
+def db_project_with_single_compute_quota(
+    db_compute_quota: ComputeQuota,
+) -> Project:
+    """Project with single Compute Quota."""
+    yield db_compute_quota.project.single()
+
+
+@pytest.fixture
+def db_project_with_multiple_compute_quotas_same_service(
+    db_compute_quota_per_user: ComputeQuota,
+) -> Project:
+    """Project with multiple Compute Quotas on same service."""
+    yield db_compute_quota_per_user.project.single()
+
+
+@pytest.fixture
+def db_project_with_multiple_compute_quotas_diff_service(
+    db_compute_quota3: ComputeQuota,
+) -> Project:
+    """Project with single Compute Quota."""
+    yield db_compute_quota3.project.single()
+
+
+# FLAVORS
 
 
 @pytest.fixture

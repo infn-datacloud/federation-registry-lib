@@ -114,6 +114,76 @@ def test_read_schema(db_compute_serv: ComputeService):
     )
 
 
+def test_read_schema_with_single_quota(
+    db_compute_serv_with_single_quota: ComputeService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked only to one compute quota.
+    """
+    schema = ComputeServiceRead.from_orm(db_compute_serv_with_single_quota)
+    validate_read_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_quota
+    )
+    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_single_quota)
+    validate_read_short_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_quota
+    )
+    schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_single_quota)
+    validate_read_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_quota
+    )
+    schema = ComputeServiceReadExtended.from_orm(db_compute_serv_with_single_quota)
+    validate_read_extended_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_quota
+    )
+    schema = ComputeServiceReadExtendedPublic.from_orm(
+        db_compute_serv_with_single_quota
+    )
+    validate_read_extended_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_quota
+    )
+
+
+def test_read_schema_with_multiple_quotas(
+    db_compute_serv_with_multiple_quotas: ComputeService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked multiple compute quotas.
+    """
+    schema = ComputeServiceRead.from_orm(db_compute_serv_with_multiple_quotas)
+    validate_read_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_quotas
+    )
+    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_multiple_quotas)
+    validate_read_short_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_quotas
+    )
+    schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_multiple_quotas)
+    validate_read_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_quotas
+    )
+    schema = ComputeServiceReadExtended.from_orm(db_compute_serv_with_multiple_quotas)
+    assert len(schema.quotas) > 1
+    validate_read_extended_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_quotas
+    )
+    schema = ComputeServiceReadExtendedPublic.from_orm(
+        db_compute_serv_with_multiple_quotas
+    )
+    assert len(schema.quotas) > 1
+    validate_read_extended_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_quotas
+    )
+
+
 # def test_read_schema(db_region: Region):
 #     """Create a valid 'Read' Schema."""
 #     obj_in = create_random_compute_service()

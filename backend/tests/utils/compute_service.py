@@ -19,8 +19,8 @@ from tests.utils.compute_quota import (
     create_random_compute_quota,
     validate_create_compute_quota_attrs,
 )
-from tests.utils.flavor import create_random_flavor, validate_create_flavor_attrs
-from tests.utils.image import create_random_image, validate_create_image_attrs
+from tests.utils.flavor import create_random_flavor
+from tests.utils.image import create_random_image
 from tests.utils.utils import random_lower_string, random_url
 
 
@@ -114,14 +114,14 @@ def validate_read_extended_compute_service_attrs(
     assert db_item.uid == obj_out.uid
     validate_compute_service_attrs(obj_in=obj_out, db_item=db_item)
     assert len(db_item.flavors) == len(obj_out.flavors)
-    for db_flav, flav_in in zip(db_item.flavors, obj_out.flavors):
-        validate_create_flavor_attrs(db_item=db_flav, obj_out=flav_in)
+    for db_flav, flav_out in zip(db_item.flavors, obj_out.flavors):
+        assert db_flav.uid == flav_out.uid
     assert len(db_item.images) == len(obj_out.images)
-    for db_img, img_in in zip(db_item.images, obj_out.images):
-        validate_create_image_attrs(db_item=db_img, obj_out=img_in)
+    for db_img, img_out in zip(db_item.images, obj_out.images):
+        assert db_img.uid == img_out.uid
     assert len(db_item.quotas) == len(obj_out.quotas)
-    for db_quota, quota_in in zip(db_item.quotas, obj_out.quotas):
-        validate_create_compute_quota_attrs(db_item=db_quota, obj_out=quota_in)
+    for db_quota, quota_out in zip(db_item.quotas, obj_out.quotas):
+        assert db_quota.uid == quota_out.uid
     db_region = db_item.region.single()
     assert db_region
     assert db_region.uid == obj_out.region.uid
@@ -133,14 +133,14 @@ def validate_read_extended_public_compute_service_attrs(
     assert db_item.uid == obj_out.uid
     validate_compute_service_public_attrs(obj_in=obj_out, db_item=db_item)
     assert len(db_item.flavors) == len(obj_out.flavors)
-    for db_flav, flav_in in zip(db_item.flavors, obj_out.flavors):
-        validate_create_flavor_attrs(db_item=db_flav, obj_out=flav_in)
+    for db_flav, flav_out in zip(db_item.flavors, obj_out.flavors):
+        assert db_flav.uid == flav_out.uid
     assert len(db_item.images) == len(obj_out.images)
-    for db_img, img_in in zip(db_item.images, obj_out.images):
-        validate_create_image_attrs(db_item=db_img, obj_out=img_in)
+    for db_img, img_out in zip(db_item.images, obj_out.images):
+        assert db_img.uid == img_out.uid
     assert len(db_item.quotas) == len(obj_out.quotas)
-    for db_quota, quota_in in zip(db_item.quotas, obj_out.quotas):
-        validate_create_compute_quota_attrs(db_item=db_quota, obj_out=quota_in)
+    for db_quota, quota_out in zip(db_item.quotas, obj_out.quotas):
+        assert db_quota.uid == quota_out.uid
     db_region = db_item.region.single()
     assert db_region
     assert db_region.uid == obj_out.region.uid

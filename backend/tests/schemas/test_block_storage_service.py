@@ -107,7 +107,7 @@ def test_read_schema_with_single_quota(
     Apply conversion for this item for all read schemas. No one of them
     should raise errors.
 
-    Target service is linked only to the parent region.
+    Target service is linked only to one block storage quota.
     """
     schema = BlockStorageServiceRead.from_orm(db_block_storage_serv_with_single_quota)
     validate_read_block_storage_service_attrs(
@@ -147,7 +147,7 @@ def test_read_schema_with_multiple_quotas(
     Apply conversion for this item for all read schemas. No one of them
     should raise errors.
 
-    Target service is linked only to the parent region.
+    Target service is linked to multiple block storage quotas.
     """
     schema = BlockStorageServiceRead.from_orm(
         db_block_storage_serv_with_multiple_quotas
