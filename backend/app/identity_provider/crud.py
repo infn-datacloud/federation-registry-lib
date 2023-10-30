@@ -39,10 +39,7 @@ class CRUDIdentityProvider(
         db_obj = self.get(endpoint=obj_in.endpoint)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
-        else:
-            updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
-            if updated_data:
-                db_obj = updated_data
+
         db_obj.providers.connect(provider, obj_in.relationship.dict())
 
         for item in obj_in.user_groups:
