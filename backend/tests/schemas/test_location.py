@@ -87,10 +87,12 @@ def test_read_schema_with_multiple_regions(db_location_with_multiple_regions: Lo
         obj_out=schema, db_item=db_location_with_multiple_regions
     )
     schema = LocationReadExtended.from_orm(db_location_with_multiple_regions)
+    assert len(schema.regions) > 1
     validate_read_extended_location_attrs(
         obj_out=schema, db_item=db_location_with_multiple_regions
     )
     schema = LocationReadExtendedPublic.from_orm(db_location_with_multiple_regions)
+    assert len(schema.regions) > 1
     validate_read_extended_public_location_attrs(
         obj_out=schema, db_item=db_location_with_multiple_regions
     )

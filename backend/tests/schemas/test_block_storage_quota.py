@@ -1,8 +1,8 @@
 from uuid import uuid4
 
 import pytest
-from app.quota.crud import block_storage_quota
 from app.quota.enum import QuotaType
+from app.quota.models import BlockStorageQuota
 from app.quota.schemas import (
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
@@ -12,9 +12,15 @@ from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtended,
     BlockStorageQuotaReadExtendedPublic,
 )
-from app.service.models import BlockStorageService
 from pydantic import ValidationError
-from tests.utils.block_storage_quota import create_random_block_storage_quota
+from tests.utils.block_storage_quota import (
+    create_random_block_storage_quota,
+    validate_read_block_storage_quota_attrs,
+    validate_read_extended_block_storage_quota_attrs,
+    validate_read_extended_public_block_storage_quota_attrs,
+    validate_read_public_block_storage_quota_attrs,
+    validate_read_short_block_storage_quota_attrs,
+)
 from tests.utils.utils import random_lower_string
 
 
@@ -41,28 +47,25 @@ def test_invalid_create_schema():
         a.volumes = -2
 
 
-def test_read_schema(db_block_storage_serv: BlockStorageService):
+def test_read_schema(db_block_storage_quota: BlockStorageQuota):
     """Create a valid 'Read' Schema."""
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-
-    obj_in = create_random_block_storage_quota(project=db_project.uuid)
-    db_obj = block_storage_quota.create(
-        obj_in=obj_in, service=db_block_storage_serv, project=db_project
+    schema = BlockStorageQuotaRead.from_orm(db_block_storage_quota)
+    validate_read_block_storage_quota_attrs(
+        obj_out=schema, db_item=db_block_storage_quota
     )
-    BlockStorageQuotaRead.from_orm(db_obj)
-    BlockStorageQuotaReadPublic.from_orm(db_obj)
-    BlockStorageQuotaReadShort.from_orm(db_obj)
-    BlockStorageQuotaReadExtended.from_orm(db_obj)
-    BlockStorageQuotaReadExtendedPublic.from_orm(db_obj)
-
-    obj_in = create_random_block_storage_quota(default=True, project=db_project.uuid)
-    db_obj = block_storage_quota.update(
-        db_obj=db_obj, obj_in=obj_in, projects=db_provider.projects, force=True
+    schema = BlockStorageQuotaReadShort.from_orm(db_block_storage_quota)
+    validate_read_short_block_storage_quota_attrs(
+        obj_out=schema, db_item=db_block_storage_quota
     )
-    BlockStorageQuotaRead.from_orm(db_obj)
-    BlockStorageQuotaReadPublic.from_orm(db_obj)
-    BlockStorageQuotaReadShort.from_orm(db_obj)
-    BlockStorageQuotaReadExtended.from_orm(db_obj)
-    BlockStorageQuotaReadExtendedPublic.from_orm(db_obj)
+    schema = BlockStorageQuotaReadPublic.from_orm(db_block_storage_quota)
+    validate_read_public_block_storage_quota_attrs(
+        obj_out=schema, db_item=db_block_storage_quota
+    )
+    schema = BlockStorageQuotaReadExtended.from_orm(db_block_storage_quota)
+    validate_read_extended_block_storage_quota_attrs(
+        obj_out=schema, db_item=db_block_storage_quota
+    )
+    schema = BlockStorageQuotaReadExtendedPublic.from_orm(db_block_storage_quota)
+    validate_read_extended_public_block_storage_quota_attrs(
+        obj_out=schema, db_item=db_block_storage_quota
+    )

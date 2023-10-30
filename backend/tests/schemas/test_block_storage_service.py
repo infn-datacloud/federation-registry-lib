@@ -98,6 +98,90 @@ def test_read_schema(db_block_storage_serv: BlockStorageService):
         obj_out=schema, db_item=db_block_storage_serv
     )
 
+
+def test_read_schema_with_single_quota(
+    db_block_storage_serv_with_single_quota: BlockStorageService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked only to the parent region.
+    """
+    schema = BlockStorageServiceRead.from_orm(db_block_storage_serv_with_single_quota)
+    validate_read_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_single_quota
+    )
+    schema = BlockStorageServiceReadShort.from_orm(
+        db_block_storage_serv_with_single_quota
+    )
+    validate_read_short_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_single_quota
+    )
+    schema = BlockStorageServiceReadPublic.from_orm(
+        db_block_storage_serv_with_single_quota
+    )
+    validate_read_public_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_single_quota
+    )
+    schema = BlockStorageServiceReadExtended.from_orm(
+        db_block_storage_serv_with_single_quota
+    )
+    validate_read_extended_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_single_quota
+    )
+    schema = BlockStorageServiceReadExtendedPublic.from_orm(
+        db_block_storage_serv_with_single_quota
+    )
+    validate_read_extended_public_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_single_quota
+    )
+
+
+def test_read_schema_with_multiple_quotas(
+    db_block_storage_serv_with_multiple_quotas: BlockStorageService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked only to the parent region.
+    """
+    schema = BlockStorageServiceRead.from_orm(
+        db_block_storage_serv_with_multiple_quotas
+    )
+    validate_read_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_multiple_quotas
+    )
+    schema = BlockStorageServiceReadShort.from_orm(
+        db_block_storage_serv_with_multiple_quotas
+    )
+    validate_read_short_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_multiple_quotas
+    )
+    schema = BlockStorageServiceReadPublic.from_orm(
+        db_block_storage_serv_with_multiple_quotas
+    )
+    validate_read_public_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_multiple_quotas
+    )
+    schema = BlockStorageServiceReadExtended.from_orm(
+        db_block_storage_serv_with_multiple_quotas
+    )
+    assert len(schema.quotas) > 1
+    validate_read_extended_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_multiple_quotas
+    )
+    schema = BlockStorageServiceReadExtendedPublic.from_orm(
+        db_block_storage_serv_with_multiple_quotas
+    )
+    assert len(schema.quotas) > 1
+    validate_read_extended_public_block_storage_service_attrs(
+        obj_out=schema, db_item=db_block_storage_serv_with_multiple_quotas
+    )
+
     # obj_in = create_random_block_storage_service(default=True)
     # db_obj = block_storage_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
     # BlockStorageServiceRead.from_orm(db_obj)

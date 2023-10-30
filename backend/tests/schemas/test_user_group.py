@@ -80,10 +80,12 @@ def test_read_schema_with_multiple_slas(db_user_group_with_multiple_slas: UserGr
         obj_out=schema, db_item=db_user_group_with_multiple_slas
     )
     schema = UserGroupReadExtended.from_orm(db_user_group_with_multiple_slas)
+    assert len(schema.slas) > 1
     validate_read_extended_user_group_attrs(
         obj_out=schema, db_item=db_user_group_with_multiple_slas
     )
     schema = UserGroupReadExtendedPublic.from_orm(db_user_group_with_multiple_slas)
+    assert len(schema.slas) > 1
     validate_read_extended_public_user_group_attrs(
         obj_out=schema, db_item=db_user_group_with_multiple_slas
     )

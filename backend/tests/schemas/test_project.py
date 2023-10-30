@@ -46,3 +46,86 @@ def test_read_schema(db_project: Project):
     validate_read_extended_project_attrs(obj_out=schema, db_item=db_project)
     schema = ProjectReadExtendedPublic.from_orm(db_project)
     validate_read_extended_public_project_attrs(obj_out=schema, db_item=db_project)
+
+
+def test_read_schema_with_single_block_storage_quota(
+    db_project_with_single_block_storage_quota: Project,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target project has no relationships except for provider.
+    """
+    schema = ProjectRead.from_orm(db_project_with_single_block_storage_quota)
+    validate_read_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_block_storage_quota
+    )
+    schema = ProjectReadShort.from_orm(db_project_with_single_block_storage_quota)
+    validate_read_short_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_block_storage_quota
+    )
+    schema = ProjectReadPublic.from_orm(db_project_with_single_block_storage_quota)
+    validate_read_public_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_block_storage_quota
+    )
+    schema = ProjectReadExtended.from_orm(db_project_with_single_block_storage_quota)
+    validate_read_extended_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_block_storage_quota
+    )
+    schema = ProjectReadExtendedPublic.from_orm(
+        db_project_with_single_block_storage_quota
+    )
+    validate_read_extended_public_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_block_storage_quota
+    )
+
+
+def test_read_schema_with_multiple_block_storage_quotas(
+    db_project_with_multiple_block_storage_quotas_diff_service: Project,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target project has no relationships except for provider.
+    """
+    schema = ProjectRead.from_orm(
+        db_project_with_multiple_block_storage_quotas_diff_service
+    )
+    validate_read_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_block_storage_quotas_diff_service,
+    )
+    schema = ProjectReadShort.from_orm(
+        db_project_with_multiple_block_storage_quotas_diff_service
+    )
+    validate_read_short_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_block_storage_quotas_diff_service,
+    )
+    schema = ProjectReadPublic.from_orm(
+        db_project_with_multiple_block_storage_quotas_diff_service
+    )
+    validate_read_public_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_block_storage_quotas_diff_service,
+    )
+    schema = ProjectReadExtended.from_orm(
+        db_project_with_multiple_block_storage_quotas_diff_service
+    )
+    assert len(schema.quotas) > 1
+    validate_read_extended_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_block_storage_quotas_diff_service,
+    )
+    schema = ProjectReadExtendedPublic.from_orm(
+        db_project_with_multiple_block_storage_quotas_diff_service
+    )
+    assert len(schema.quotas) > 1
+    validate_read_extended_public_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_block_storage_quotas_diff_service,
+    )

@@ -106,8 +106,8 @@ def validate_read_extended_block_storage_service_attrs(
     assert db_item.uid == obj_out.uid
     validate_block_storage_service_attrs(obj_in=obj_out, db_item=db_item)
     assert len(db_item.quotas) == len(obj_out.quotas)
-    for db_quota, quota_in in zip(db_item.quotas, obj_out.quotas):
-        validate_create_block_storage_quota_attrs(db_item=db_quota, obj_in=quota_in)
+    for db_quota, quota_out in zip(db_item.quotas, obj_out.quotas):
+        assert db_quota.uid == quota_out.uid
     db_region = db_item.region.single()
     assert db_region
     assert db_region.uid == obj_out.region.uid
@@ -119,8 +119,8 @@ def validate_read_extended_public_block_storage_service_attrs(
     assert db_item.uid == obj_out.uid
     validate_block_storage_service_public_attrs(obj_in=obj_out, db_item=db_item)
     assert len(db_item.quotas) == len(obj_out.quotas)
-    for db_quota, quota_in in zip(db_item.quotas, obj_out.quotas):
-        validate_create_block_storage_quota_attrs(db_item=db_quota, obj_in=quota_in)
+    for db_quota, quota_out in zip(db_item.quotas, obj_out.quotas):
+        assert db_quota.uid == quota_out.uid
     db_region = db_item.region.single()
     assert db_region
     assert db_region.uid == obj_out.region.uid

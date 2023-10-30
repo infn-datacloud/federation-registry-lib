@@ -174,10 +174,12 @@ def test_read_schema_with_multiple_idps(
         obj_out=schema, db_item=db_provider_with_multiple_idps
     )
     schema = ProviderReadExtended.from_orm(db_provider_with_multiple_idps)
+    assert len(schema.identity_providers) > 1
     validate_read_extended_provider_attrs(
         obj_out=schema, db_item=db_provider_with_multiple_idps
     )
     schema = ProviderReadExtendedPublic.from_orm(db_provider_with_multiple_idps)
+    assert len(schema.identity_providers) > 1
     validate_read_extended_public_provider_attrs(
         obj_out=schema, db_item=db_provider_with_multiple_idps
     )
@@ -234,10 +236,12 @@ def test_read_schema_with_multiple_regions(
         obj_out=schema, db_item=db_provider_with_multiple_regions
     )
     schema = ProviderReadExtended.from_orm(db_provider_with_multiple_regions)
+    assert len(schema.regions) > 1
     validate_read_extended_provider_attrs(
         obj_out=schema, db_item=db_provider_with_multiple_regions
     )
     schema = ProviderReadExtendedPublic.from_orm(db_provider_with_multiple_regions)
+    assert len(schema.regions) > 1
     validate_read_extended_public_provider_attrs(
         obj_out=schema, db_item=db_provider_with_multiple_regions
     )

@@ -100,12 +100,14 @@ def test_read_schema_with_multiple_user_groups(
         obj_out=schema, db_item=db_idp_with_multiple_user_groups
     )
     schema = IdentityProviderReadExtended.from_orm(db_idp_with_multiple_user_groups)
+    assert len(schema.user_groups) > 1
     validate_read_extended_identity_provider_attrs(
         obj_out=schema, db_item=db_idp_with_multiple_user_groups
     )
     schema = IdentityProviderReadExtendedPublic.from_orm(
         db_idp_with_multiple_user_groups
     )
+    assert len(schema.user_groups) > 1
     validate_read_extended_public_identity_provider_attrs(
         obj_out=schema, db_item=db_idp_with_multiple_user_groups
     )
@@ -134,10 +136,12 @@ def test_read_schema_with_multiple_providers(
         obj_out=schema, db_item=db_idp_with_multiple_providers
     )
     schema = IdentityProviderReadExtended.from_orm(db_idp_with_multiple_providers)
+    assert len(schema.providers) > 1
     validate_read_extended_identity_provider_attrs(
         obj_out=schema, db_item=db_idp_with_multiple_providers
     )
     schema = IdentityProviderReadExtendedPublic.from_orm(db_idp_with_multiple_providers)
+    assert len(schema.providers) > 1
     validate_read_extended_public_identity_provider_attrs(
         obj_out=schema, db_item=db_idp_with_multiple_providers
     )

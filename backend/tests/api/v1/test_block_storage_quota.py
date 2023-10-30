@@ -454,17 +454,21 @@ def test_patch_not_existing_block_storage_quota(
 
 
 def test_patch_block_storage_quota_changing_per_user(
-    db_block_storage_quota_per_user: BlockStorageQuota,
+    db_block_storage_quota: BlockStorageQuota,
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to change the visibility of a
-    block_storage_quota."""
+    """Execute PATCH operations to try to change the per_user property of a
+    block_storage_quota.
+
+    Currently a per user block storage quota does not exist on the same
+    project.
+    """
     settings = get_settings()
     data = create_random_block_storage_quota_patch()
-    data.per_user = not db_block_storage_quota_per_user.per_user
+    data.per_user = not db_block_storage_quota.per_user
 
-    uid = db_block_storage_quota_per_user.uid
+    uid = db_block_storage_quota.uid
     response = client.patch(
         f"{settings.API_V1_STR}/block_storage_quotas/{uid}",
         json=json.loads(data.json()),
@@ -477,16 +481,19 @@ def test_patch_block_storage_quota_changing_per_user(
 
 
 def test_patch_block_storage_quota_with_duplicated_per_user(
-    db_block_storage_quota: BlockStorageQuota,
     db_block_storage_quota_per_user: BlockStorageQuota,
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing UUID to a
-    block_storage_quota."""
+    """Execute PATCH operations to try to change the per_user property of a
+    block_storage_quota.
+
+    Currently a per user block storage quota already exist s on the same
+    project.
+    """
     settings = get_settings()
     data = create_random_block_storage_quota_patch()
-    data.per_user = db_block_storage_quota.per_user
+    data.per_user = not db_block_storage_quota_per_user.per_user
 
     uid = db_block_storage_quota_per_user.uid
     response = client.patch(
@@ -496,8 +503,9 @@ def test_patch_block_storage_quota_with_duplicated_per_user(
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     content = response.json()
+    db_project = db_block_storage_quota_per_user.project.single()
     assert (
-        content["detail"] == f"Project '{db_block_storage_quota.project.single().uid}' "
+        content["detail"] == f"Project '{db_project.uid}' "
         "already has a Block Storage Quota to not apply to each user"
     )
 
