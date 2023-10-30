@@ -98,7 +98,7 @@ class ProjectReadExtended(ProjectRead):
     """Model to extend the Project data read from the DB with the lists of
     related items for authenticated users."""
 
-    networks: List[NetworkRead] = Field(
+    private_networks: List[NetworkRead] = Field(
         default_factory=list, description="List of accessible networks"
     )
     private_flavors: List[FlavorRead] = Field(
@@ -120,7 +120,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     """Model to extend the Project data read from the DB with the lists of
     related items for non-authenticated users."""
 
-    networks: List[NetworkReadPublic] = Field(
+    private_networks: List[NetworkReadPublic] = Field(
         default_factory=list, description="List of accessible networks"
     )
     private_flavors: List[FlavorReadPublic] = Field(

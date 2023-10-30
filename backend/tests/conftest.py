@@ -12,6 +12,7 @@ from app.location.crud import location
 from app.location.models import Location
 from app.main import app
 from app.network.crud import network
+from app.network.models import Network
 from app.project.crud import project
 from app.project.models import Project
 from app.provider.crud import provider
@@ -729,7 +730,7 @@ def db_project_with_multiple_compute_quotas_diff_service(
     yield db_compute_quota3.project.single()
 
 
-# FLAVORS
+# FLAVORS (and related services and projects)
 
 
 @pytest.fixture
@@ -856,7 +857,7 @@ def db_project_with_multiple_private_flavors_diff_service(
     yield db_private_flavor3.projects.all()[0]
 
 
-# IMAGES
+# IMAGES (and related services and projects)
 
 
 @pytest.fixture
@@ -1003,26 +1004,119 @@ def db_network_serv2(db_region2: Region) -> NetworkService:
 
 
 @pytest.fixture
+def db_network_serv3(db_region3: Region) -> NetworkService:
+    """Network service on the second region of the second provider."""
+    item_in = create_random_network_service()
+    item = network_service.create(obj_in=item_in, region=db_region3)
+    yield item
+
+
+# TODO Add fixture of second network_service for the same region?
+
+
+@pytest.fixture
 def db_region_with_network_service(db_network_serv: NetworkService) -> Region:
     """Region with a block storage service."""
     yield db_network_serv.region.single()
 
 
+# TODO Add fixture of region with multiple network_services?
+
+
+# NETWORKS (and related services and projects)
+
+
 @pytest.fixture
-def db_public_network(db_network_serv: NetworkService) -> Image:
+def db_public_network(db_network_serv2: NetworkService) -> Network:
+    """Public network of a network service."""
     item_in = create_random_network()
-    item = network.create(obj_in=item_in, service=db_network_serv)
+    item = network.create(obj_in=item_in, service=db_network_serv2)
     yield item
 
 
 @pytest.fixture
-def db_private_network(db_network_serv: NetworkService) -> Image:
-    db_region = db_network_serv.region.single()
+def db_private_network(db_public_network: Network) -> Network:
+    """First private network of a network service.
+
+    It belongs to a specific project. It's the second network on the
+    same service.
+    """
+    db_service = db_public_network.services.all()[0]
+    db_region = db_service.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
     item_in = create_random_network(project=db_project.uuid)
-    item = network.create(obj_in=item_in, service=db_network_serv, project=db_project)
+    item = network.create(obj_in=item_in, service=db_service, project=db_project)
     yield item
+
+
+@pytest.fixture
+def db_private_network2(db_private_network: Network) -> Network:
+    """Second private network of a network service.
+
+    It belongs to a specific project. It's the third network on the same
+    service.
+    """
+    db_service = db_private_network.services.all()[0]
+    db_region = db_service.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_network(project=db_project.uuid)
+    item = network.create(obj_in=item_in, service=db_service, project=db_project)
+    yield item
+
+
+@pytest.fixture
+def db_private_network3(
+    db_private_network2: Network, db_network_serv3: NetworkService
+) -> Network:
+    """First private network of another network service.
+
+    It belongs to a specific project. It's the first network on a
+    different service.
+    """
+    db_region = db_network_serv3.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.all()[0]
+    item_in = create_random_network(project=db_project.uuid)
+    item = network.create(obj_in=item_in, service=db_network_serv3, project=db_project)
+    yield item
+
+
+@pytest.fixture
+def db_network_serv_with_single_network(db_public_network: Network) -> NetworkService:
+    """Project with single Network."""
+    yield db_public_network.services.all()[0]
+
+
+@pytest.fixture
+def db_network_serv_with_multiple_networks(
+    db_private_network: Network,
+) -> NetworkService:
+    """Project with multiple Networks (public and private ones)."""
+    yield db_private_network.services.all()[0]
+
+
+@pytest.fixture
+def db_project_with_single_private_network(db_private_network: Network) -> Project:
+    """Project with single private Network."""
+    yield db_private_network.project.single()
+
+
+@pytest.fixture
+def db_project_with_multiple_private_networks_same_service(
+    db_private_network2: Network,
+) -> Project:
+    """Project with multiple Networks on same service."""
+    yield db_private_network2.project.single()
+
+
+@pytest.fixture
+def db_project_with_multiple_private_networks_diff_service(
+    db_private_network3: Network,
+) -> Project:
+    """Project with multiple Networks on different services."""
+    yield db_private_network3.project.single()
 
 
 # IDENTITY SERVICES (and related regions)

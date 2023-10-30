@@ -89,6 +89,76 @@ def test_read_schema(db_network_serv: NetworkService):
     )
 
 
+def test_read_schema_with_single_network(
+    db_network_serv_with_single_network: NetworkService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked only to one network.
+    """
+    schema = NetworkServiceRead.from_orm(db_network_serv_with_single_network)
+    validate_read_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_network
+    )
+    schema = NetworkServiceReadShort.from_orm(db_network_serv_with_single_network)
+    validate_read_short_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_network
+    )
+    schema = NetworkServiceReadPublic.from_orm(db_network_serv_with_single_network)
+    validate_read_public_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_network
+    )
+    schema = NetworkServiceReadExtended.from_orm(db_network_serv_with_single_network)
+    validate_read_extended_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_network
+    )
+    schema = NetworkServiceReadExtendedPublic.from_orm(
+        db_network_serv_with_single_network
+    )
+    validate_read_extended_public_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_network
+    )
+
+
+def test_read_schema_with_multiple_networks(
+    db_network_serv_with_multiple_networks: NetworkService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked multiple networks.
+    """
+    schema = NetworkServiceRead.from_orm(db_network_serv_with_multiple_networks)
+    validate_read_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_networks
+    )
+    schema = NetworkServiceReadShort.from_orm(db_network_serv_with_multiple_networks)
+    validate_read_short_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_networks
+    )
+    schema = NetworkServiceReadPublic.from_orm(db_network_serv_with_multiple_networks)
+    validate_read_public_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_networks
+    )
+    schema = NetworkServiceReadExtended.from_orm(db_network_serv_with_multiple_networks)
+    assert len(schema.networks) > 1
+    validate_read_extended_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_networks
+    )
+    schema = NetworkServiceReadExtendedPublic.from_orm(
+        db_network_serv_with_multiple_networks
+    )
+    assert len(schema.networks) > 1
+    validate_read_extended_public_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_networks
+    )
+
+
 # def test_read_schema(db_region: Region):
 #     """Create a valid 'Read' Schema."""
 #     obj_in = create_random_network_service()

@@ -366,3 +366,84 @@ def test_read_schema_with_multiple_images(
         obj_out=schema,
         db_item=db_project_with_multiple_private_images_diff_service,
     )
+
+
+def test_read_schema_with_single_network(
+    db_project_with_single_private_network: Project,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target project has a provider and an network.
+    """
+    schema = ProjectRead.from_orm(db_project_with_single_private_network)
+    validate_read_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_private_network
+    )
+    schema = ProjectReadShort.from_orm(db_project_with_single_private_network)
+    validate_read_short_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_private_network
+    )
+    schema = ProjectReadPublic.from_orm(db_project_with_single_private_network)
+    validate_read_public_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_private_network
+    )
+    schema = ProjectReadExtended.from_orm(db_project_with_single_private_network)
+    validate_read_extended_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_private_network
+    )
+    schema = ProjectReadExtendedPublic.from_orm(db_project_with_single_private_network)
+    validate_read_extended_public_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_private_network
+    )
+
+
+def test_read_schema_with_multiple_networks(
+    db_project_with_multiple_private_networks_diff_service: Project,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target project has a provider and multiple networks.
+    """
+    schema = ProjectRead.from_orm(
+        db_project_with_multiple_private_networks_diff_service
+    )
+    validate_read_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_private_networks_diff_service,
+    )
+    schema = ProjectReadShort.from_orm(
+        db_project_with_multiple_private_networks_diff_service
+    )
+    validate_read_short_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_private_networks_diff_service,
+    )
+    schema = ProjectReadPublic.from_orm(
+        db_project_with_multiple_private_networks_diff_service
+    )
+    validate_read_public_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_private_networks_diff_service,
+    )
+    schema = ProjectReadExtended.from_orm(
+        db_project_with_multiple_private_networks_diff_service
+    )
+    assert len(schema.private_networks) > 1
+    validate_read_extended_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_private_networks_diff_service,
+    )
+    schema = ProjectReadExtendedPublic.from_orm(
+        db_project_with_multiple_private_networks_diff_service
+    )
+    assert len(schema.private_networks) > 1
+    validate_read_extended_public_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_private_networks_diff_service,
+    )

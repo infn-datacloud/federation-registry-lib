@@ -1,12 +1,18 @@
 from uuid import uuid4
 
 import pytest
-from app.network.crud import network
+from app.network.models import Network
 from app.network.schemas import NetworkRead, NetworkReadPublic, NetworkReadShort
 from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
-from app.service.models import NetworkService
 from pydantic import ValidationError
-from tests.utils.network import create_random_network
+from tests.utils.network import (
+    create_random_network,
+    validate_read_extended_network_attrs,
+    validate_read_extended_public_network_attrs,
+    validate_read_network_attrs,
+    validate_read_public_network_attrs,
+    validate_read_short_network_attrs,
+)
 
 
 def test_create_schema():
@@ -34,39 +40,46 @@ def test_invalid_create_schema():
         a.is_shared = True
 
 
-def test_read_schema(db_network_serv: NetworkService):
-    """Create a valid 'Read' Schema."""
-    obj_in = create_random_network()
-    db_obj = network.create(obj_in=obj_in, service=db_network_serv)
-    NetworkRead.from_orm(db_obj)
-    NetworkReadPublic.from_orm(db_obj)
-    NetworkReadShort.from_orm(db_obj)
-    NetworkReadExtended.from_orm(db_obj)
-    NetworkReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_public_network(db_public_network: Network):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_network(default=True)
-    db_obj = network.create(obj_in=obj_in, service=db_network_serv)
-    NetworkRead.from_orm(db_obj)
-    NetworkReadPublic.from_orm(db_obj)
-    NetworkReadShort.from_orm(db_obj)
-    NetworkReadExtended.from_orm(db_obj)
-    NetworkReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
 
-    db_region = db_network_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-    obj_in = create_random_network(project=db_project.uuid)
-    db_obj = network.create(obj_in=obj_in, service=db_network_serv)
-    NetworkRead.from_orm(db_obj)
-    NetworkReadPublic.from_orm(db_obj)
-    NetworkReadShort.from_orm(db_obj)
-    NetworkReadExtended.from_orm(db_obj)
-    NetworkReadExtendedPublic.from_orm(db_obj)
+    Target network is linked to a single service.
+    """
+    schema = NetworkRead.from_orm(db_public_network)
+    validate_read_network_attrs(obj_out=schema, db_item=db_public_network)
+    schema = NetworkReadShort.from_orm(db_public_network)
+    validate_read_short_network_attrs(obj_out=schema, db_item=db_public_network)
+    schema = NetworkReadPublic.from_orm(db_public_network)
+    validate_read_public_network_attrs(obj_out=schema, db_item=db_public_network)
+    schema = NetworkReadExtended.from_orm(db_public_network)
+    validate_read_extended_network_attrs(obj_out=schema, db_item=db_public_network)
+    schema = NetworkReadExtendedPublic.from_orm(db_public_network)
+    validate_read_extended_public_network_attrs(
+        obj_out=schema, db_item=db_public_network
+    )
 
-    obj_in = create_random_network(default=True, project=db_project.uuid)
-    db_obj = network.create(obj_in=obj_in, service=db_network_serv)
-    NetworkRead.from_orm(db_obj)
-    NetworkReadPublic.from_orm(db_obj)
-    NetworkReadShort.from_orm(db_obj)
-    NetworkReadExtended.from_orm(db_obj)
-    NetworkReadExtendedPublic.from_orm(db_obj)
+
+def test_read_schema_private_network_single_project(db_private_network: Network):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target network is linked to a single service and owned by a single
+    project.
+    """
+    schema = NetworkRead.from_orm(db_private_network)
+    validate_read_network_attrs(obj_out=schema, db_item=db_private_network)
+    schema = NetworkReadShort.from_orm(db_private_network)
+    validate_read_short_network_attrs(obj_out=schema, db_item=db_private_network)
+    schema = NetworkReadPublic.from_orm(db_private_network)
+    validate_read_public_network_attrs(obj_out=schema, db_item=db_private_network)
+    schema = NetworkReadExtended.from_orm(db_private_network)
+    validate_read_extended_network_attrs(obj_out=schema, db_item=db_private_network)
+    schema = NetworkReadExtendedPublic.from_orm(db_private_network)
+    validate_read_extended_public_network_attrs(
+        obj_out=schema, db_item=db_private_network
+    )

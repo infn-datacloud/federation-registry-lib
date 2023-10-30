@@ -63,7 +63,7 @@ class Project(StructuredNode):
         "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )
-    networks = RelationshipTo(
+    private_networks = RelationshipTo(
         "..network.models.Network",
         "CAN_USE_NETWORK",
         cardinality=ZeroOrMore,

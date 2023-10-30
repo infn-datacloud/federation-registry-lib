@@ -71,17 +71,17 @@ def validate_read_extended_project_attrs(
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_project_attrs(obj_in=obj_out, db_item=db_item)
-    assert len(db_item.networks) == len(obj_out.networks)
-    for db_net, net_out in zip(db_item.networks, obj_out.networks):
+    assert len(db_item.private_networks) == len(obj_out.private_networks)
+    for db_net, net_out in zip(db_item.private_networks, obj_out.private_networks):
         assert db_net.uid == net_out.uid
     assert len(db_item.private_flavors) == len(obj_out.private_flavors)
-    for db_net, net_out in zip(db_item.networks, obj_out.networks):
+    for db_net, net_out in zip(db_item.private_flavors, obj_out.private_flavors):
         assert db_net.uid == net_out.uid
     assert len(db_item.private_images) == len(obj_out.private_images)
-    for db_net, net_out in zip(db_item.networks, obj_out.networks):
+    for db_net, net_out in zip(db_item.private_images, obj_out.private_images):
         assert db_net.uid == net_out.uid
     assert len(db_item.quotas) == len(obj_out.quotas)
-    for db_net, net_out in zip(db_item.networks, obj_out.networks):
+    for db_net, net_out in zip(db_item.quotas, obj_out.quotas):
         assert db_net.uid == net_out.uid
     db_provider = db_item.provider.single()
     assert db_provider
@@ -98,17 +98,17 @@ def validate_read_extended_public_project_attrs(
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_project_public_attrs(obj_in=obj_out, db_item=db_item)
-    assert len(db_item.networks) == len(obj_out.networks)
-    for db_net, net_out in zip(db_item.networks, obj_out.networks):
+    assert len(db_item.private_networks) == len(obj_out.private_networks)
+    for db_net, net_out in zip(db_item.private_networks, obj_out.private_networks):
         assert db_net.uid == net_out.uid
     assert len(db_item.private_flavors) == len(obj_out.private_flavors)
-    for db_net, net_out in zip(db_item.networks, obj_out.networks):
+    for db_net, net_out in zip(db_item.private_flavors, obj_out.private_flavors):
         assert db_net.uid == net_out.uid
     assert len(db_item.private_images) == len(obj_out.private_images)
-    for db_net, net_out in zip(db_item.networks, obj_out.networks):
+    for db_net, net_out in zip(db_item.private_images, obj_out.private_images):
         assert db_net.uid == net_out.uid
     assert len(db_item.quotas) == len(obj_out.quotas)
-    for db_net, net_out in zip(db_item.networks, obj_out.networks):
+    for db_net, net_out in zip(db_item.quotas, obj_out.quotas):
         assert db_net.uid == net_out.uid
     db_provider = db_item.provider.single()
     assert db_provider
