@@ -184,6 +184,75 @@ def test_read_schema_with_multiple_quotas(
     )
 
 
+def test_read_schema_with_single_flavor(
+    db_compute_serv_with_single_flavor: ComputeService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked only to one flavor.
+    """
+    schema = ComputeServiceRead.from_orm(db_compute_serv_with_single_flavor)
+    validate_read_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_flavor
+    )
+    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_single_flavor)
+    validate_read_short_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_flavor
+    )
+    schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_single_flavor)
+    validate_read_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_flavor
+    )
+    schema = ComputeServiceReadExtended.from_orm(db_compute_serv_with_single_flavor)
+    validate_read_extended_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_flavor
+    )
+    schema = ComputeServiceReadExtendedPublic.from_orm(
+        db_compute_serv_with_single_flavor
+    )
+    validate_read_extended_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_flavor
+    )
+
+
+def test_read_schema_with_multiple_flavors(
+    db_compute_serv_with_multiple_flavors: ComputeService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked multiple flavors.
+    """
+    schema = ComputeServiceRead.from_orm(db_compute_serv_with_multiple_flavors)
+    validate_read_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_flavors
+    )
+    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_multiple_flavors)
+    validate_read_short_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_flavors
+    )
+    schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_multiple_flavors)
+    validate_read_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_flavors
+    )
+    schema = ComputeServiceReadExtended.from_orm(db_compute_serv_with_multiple_flavors)
+    assert len(schema.flavors) > 1
+    validate_read_extended_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_flavors
+    )
+    schema = ComputeServiceReadExtendedPublic.from_orm(
+        db_compute_serv_with_multiple_flavors
+    )
+    assert len(schema.flavors) > 1
+    validate_read_extended_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_flavors
+    )
+
 # def test_read_schema(db_region: Region):
 #     """Create a valid 'Read' Schema."""
 #     obj_in = create_random_compute_service()

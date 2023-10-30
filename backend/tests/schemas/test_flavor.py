@@ -1,12 +1,18 @@
 from uuid import uuid4
 
 import pytest
-from app.flavor.crud import flavor
+from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
-from app.service.models import ComputeService
 from pydantic import ValidationError
-from tests.utils.flavor import create_random_flavor
+from tests.utils.flavor import (
+    create_random_flavor,
+    validate_read_extended_flavor_attrs,
+    validate_read_extended_public_flavor_attrs,
+    validate_read_flavor_attrs,
+    validate_read_public_flavor_attrs,
+    validate_read_short_flavor_attrs,
+)
 
 
 def test_create_schema():
@@ -51,40 +57,80 @@ def test_invalid_create_schema():
         a.projects = [a.projects[0], a.projects[0]]
 
 
-def test_read_schema(db_compute_serv: ComputeService):
-    """Create a valid 'Read' Schema."""
-    obj_in = create_random_flavor()
-    db_obj = flavor.create(obj_in=obj_in, service=db_compute_serv)
-    FlavorRead.from_orm(db_obj)
-    FlavorReadPublic.from_orm(db_obj)
-    FlavorReadShort.from_orm(db_obj)
-    FlavorReadExtended.from_orm(db_obj)
-    FlavorReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_public_flavor(db_public_flavor: Flavor):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_flavor(default=True)
-    db_obj = flavor.create(obj_in=obj_in, service=db_compute_serv)
-    FlavorRead.from_orm(db_obj)
-    FlavorReadPublic.from_orm(db_obj)
-    FlavorReadShort.from_orm(db_obj)
-    FlavorReadExtended.from_orm(db_obj)
-    FlavorReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
 
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    obj_in = create_random_flavor(projects=[i.uuid for i in db_provider.projects])
-    db_obj = flavor.create(obj_in=obj_in, service=db_compute_serv)
-    FlavorRead.from_orm(db_obj)
-    FlavorReadPublic.from_orm(db_obj)
-    FlavorReadShort.from_orm(db_obj)
-    FlavorReadExtended.from_orm(db_obj)
-    FlavorReadExtendedPublic.from_orm(db_obj)
+    Target flavor is linked to a single service.
+    """
+    schema = FlavorRead.from_orm(db_public_flavor)
+    validate_read_flavor_attrs(obj_out=schema, db_item=db_public_flavor)
+    schema = FlavorReadShort.from_orm(db_public_flavor)
+    validate_read_short_flavor_attrs(obj_out=schema, db_item=db_public_flavor)
+    schema = FlavorReadPublic.from_orm(db_public_flavor)
+    validate_read_public_flavor_attrs(obj_out=schema, db_item=db_public_flavor)
+    schema = FlavorReadExtended.from_orm(db_public_flavor)
+    validate_read_extended_flavor_attrs(obj_out=schema, db_item=db_public_flavor)
+    schema = FlavorReadExtendedPublic.from_orm(db_public_flavor)
+    validate_read_extended_public_flavor_attrs(obj_out=schema, db_item=db_public_flavor)
 
-    obj_in = create_random_flavor(
-        default=True, projects=[i.uuid for i in db_provider.projects]
+
+def test_read_schema_private_flavor_single_project(db_private_flavor: Flavor):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target flavor is linked to a single service and owned by a single
+    project.
+    """
+    schema = FlavorRead.from_orm(db_private_flavor)
+    validate_read_flavor_attrs(obj_out=schema, db_item=db_private_flavor)
+    schema = FlavorReadShort.from_orm(db_private_flavor)
+    validate_read_short_flavor_attrs(obj_out=schema, db_item=db_private_flavor)
+    schema = FlavorReadPublic.from_orm(db_private_flavor)
+    validate_read_public_flavor_attrs(obj_out=schema, db_item=db_private_flavor)
+    schema = FlavorReadExtended.from_orm(db_private_flavor)
+    validate_read_extended_flavor_attrs(obj_out=schema, db_item=db_private_flavor)
+    schema = FlavorReadExtendedPublic.from_orm(db_private_flavor)
+    validate_read_extended_public_flavor_attrs(
+        obj_out=schema, db_item=db_private_flavor
     )
-    db_obj = flavor.create(obj_in=obj_in, service=db_compute_serv)
-    FlavorRead.from_orm(db_obj)
-    FlavorReadPublic.from_orm(db_obj)
-    FlavorReadShort.from_orm(db_obj)
-    FlavorReadExtended.from_orm(db_obj)
-    FlavorReadExtendedPublic.from_orm(db_obj)
+
+
+def test_read_schema_private_flavor_multiple_projects(
+    db_private_flavor_multiple_projects: Flavor,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target flavor is linked to a single service and owned by multiple
+    projects on the same provider.
+    """
+    schema = FlavorRead.from_orm(db_private_flavor_multiple_projects)
+    validate_read_flavor_attrs(
+        obj_out=schema, db_item=db_private_flavor_multiple_projects
+    )
+    schema = FlavorReadShort.from_orm(db_private_flavor_multiple_projects)
+    validate_read_short_flavor_attrs(
+        obj_out=schema, db_item=db_private_flavor_multiple_projects
+    )
+    schema = FlavorReadPublic.from_orm(db_private_flavor_multiple_projects)
+    validate_read_public_flavor_attrs(
+        obj_out=schema, db_item=db_private_flavor_multiple_projects
+    )
+    schema = FlavorReadExtended.from_orm(db_private_flavor_multiple_projects)
+    validate_read_extended_flavor_attrs(
+        obj_out=schema, db_item=db_private_flavor_multiple_projects
+    )
+    schema = FlavorReadExtendedPublic.from_orm(db_private_flavor_multiple_projects)
+    validate_read_extended_public_flavor_attrs(
+        obj_out=schema, db_item=db_private_flavor_multiple_projects
+    )
+
+
+# TODO Add tests for a flavor shared between multiple services
