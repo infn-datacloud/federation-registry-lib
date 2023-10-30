@@ -45,11 +45,7 @@ class CRUDImage(
             db_provider1 = db_region.provider.single()
             db_region = service.region.single()
             db_provider2 = db_region.provider.single()
-            if db_provider1 == db_provider2:
-                updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
-                if updated_data:
-                    db_obj = updated_data
-            else:
+            if db_provider1 != db_provider2:
                 db_obj = super().create(obj_in=obj_in)
 
         db_obj.services.connect(service)
