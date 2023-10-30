@@ -55,6 +55,9 @@ from tests.utils.region import create_random_region
 pytest.register_assert_rewrite("tests.utils")
 
 
+# DB specific fixtures
+
+
 @pytest.fixture
 def setup_and_teardown_db() -> Generator:
     clear_neo4j_database(db)
@@ -813,14 +816,14 @@ def db_private_flavor3(
     yield item
 
 
-# TODO create fixture for a flavor shared between services of the same provider
-# @pytest.fixture
-# def db_shared_flavor(db_compute_serv: ComputeService) -> Flavor:
-#     """Public flavor shared between different compute services
-# of the same provider."""
-#     item_in = create_random_flavor()
-#     item = flavor.create(obj_in=item_in, service=db_compute_serv)
-#     yield item
+@pytest.fixture
+def db_shared_flavor(db_compute_serv2: ComputeService, db_compute_serv3) -> Flavor:
+    """Public flavor shared between different compute services of the same
+    provider."""
+    item_in = create_random_flavor()
+    item = flavor.create(obj_in=item_in, service=db_compute_serv2)
+    item = flavor.create(obj_in=item_in, service=db_compute_serv3)
+    yield item
 
 
 @pytest.fixture
@@ -940,14 +943,14 @@ def db_private_image3(
     yield item
 
 
-# TODO create fixture for a image shared between services of the same provider
-# @pytest.fixture
-# def db_shared_image(db_compute_serv: ComputeService) -> Image:
-#     """Public image shared between different compute services
-# of the same provider."""
-#     item_in = create_random_image()
-#     item = image.create(obj_in=item_in, service=db_compute_serv)
-#     yield item
+@pytest.fixture
+def db_shared_image(db_compute_serv2: ComputeService, db_compute_serv3) -> Flavor:
+    """Public image shared between different compute services of the same
+    provider."""
+    item_in = create_random_image()
+    item = image.create(obj_in=item_in, service=db_compute_serv2)
+    item = image.create(obj_in=item_in, service=db_compute_serv3)
+    yield item
 
 
 @pytest.fixture
@@ -1142,6 +1145,9 @@ def db_identity_serv2(db_region2: Region) -> IdentityService:
 def db_region_with_identity_service(db_identity_serv: IdentityService) -> Region:
     """Region with a block storage service."""
     yield db_identity_serv.region.single()
+
+
+# API specific fixtures
 
 
 @pytest.fixture

@@ -36,8 +36,24 @@ class CRUDFlavor(
         service: ComputeService,
         projects: List[Project] = [],
     ) -> Flavor:
-        db_obj = super().create(obj_in=obj_in)
+        db_obj = self.get(uuid=obj_in.uuid)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in)
+        else:
+            db_service = db_obj.services.all()[0]
+            db_region = db_service.region.single()
+            db_provider1 = db_region.provider.single()
+            db_region = service.region.single()
+            db_provider2 = db_region.provider.single()
+            if db_provider1 == db_provider2:
+                updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
+                if updated_data:
+                    db_obj = updated_data
+            else:
+                db_obj = super().create(obj_in=obj_in)
+
         db_obj.services.connect(service)
+
         for project in projects:
             db_obj.projects.connect(project)
         return db_obj

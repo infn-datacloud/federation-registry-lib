@@ -81,9 +81,7 @@ def test_read_schema_private_image_single_project(db_private_image: Image):
     schema = ImageReadExtended.from_orm(db_private_image)
     validate_read_extended_image_attrs(obj_out=schema, db_item=db_private_image)
     schema = ImageReadExtendedPublic.from_orm(db_private_image)
-    validate_read_extended_public_image_attrs(
-        obj_out=schema, db_item=db_private_image
-    )
+    validate_read_extended_public_image_attrs(obj_out=schema, db_item=db_private_image)
 
 
 def test_read_schema_private_image_multiple_projects(
@@ -110,13 +108,34 @@ def test_read_schema_private_image_multiple_projects(
         obj_out=schema, db_item=db_private_image_multiple_projects
     )
     schema = ImageReadExtended.from_orm(db_private_image_multiple_projects)
+    assert len(schema.projects) > 1
     validate_read_extended_image_attrs(
         obj_out=schema, db_item=db_private_image_multiple_projects
     )
     schema = ImageReadExtendedPublic.from_orm(db_private_image_multiple_projects)
+    assert len(schema.projects) > 1
     validate_read_extended_public_image_attrs(
         obj_out=schema, db_item=db_private_image_multiple_projects
     )
 
 
-# TODO Add tests for a image shared between multiple services
+def test_read_schema_image_shared_between_multiple_services(db_shared_image: Image):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target public image is linked to a multiple services.
+    """
+    schema = ImageRead.from_orm(db_shared_image)
+    validate_read_image_attrs(obj_out=schema, db_item=db_shared_image)
+    schema = ImageReadShort.from_orm(db_shared_image)
+    validate_read_short_image_attrs(obj_out=schema, db_item=db_shared_image)
+    schema = ImageReadPublic.from_orm(db_shared_image)
+    validate_read_public_image_attrs(obj_out=schema, db_item=db_shared_image)
+    schema = ImageReadExtended.from_orm(db_shared_image)
+    assert len(schema.services) > 1
+    validate_read_extended_image_attrs(obj_out=schema, db_item=db_shared_image)
+    schema = ImageReadExtendedPublic.from_orm(db_shared_image)
+    assert len(schema.services) > 1
+    validate_read_extended_public_image_attrs(obj_out=schema, db_item=db_shared_image)

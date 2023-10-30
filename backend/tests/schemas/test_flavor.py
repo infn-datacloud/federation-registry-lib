@@ -124,13 +124,34 @@ def test_read_schema_private_flavor_multiple_projects(
         obj_out=schema, db_item=db_private_flavor_multiple_projects
     )
     schema = FlavorReadExtended.from_orm(db_private_flavor_multiple_projects)
+    assert len(schema.projects) > 1
     validate_read_extended_flavor_attrs(
         obj_out=schema, db_item=db_private_flavor_multiple_projects
     )
     schema = FlavorReadExtendedPublic.from_orm(db_private_flavor_multiple_projects)
+    assert len(schema.projects) > 1
     validate_read_extended_public_flavor_attrs(
         obj_out=schema, db_item=db_private_flavor_multiple_projects
     )
 
 
-# TODO Add tests for a flavor shared between multiple services
+def test_read_schema_flavor_shared_between_multiple_services(db_shared_flavor: Flavor):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target public flavor is linked to a multiple services.
+    """
+    schema = FlavorRead.from_orm(db_shared_flavor)
+    validate_read_flavor_attrs(obj_out=schema, db_item=db_shared_flavor)
+    schema = FlavorReadShort.from_orm(db_shared_flavor)
+    validate_read_short_flavor_attrs(obj_out=schema, db_item=db_shared_flavor)
+    schema = FlavorReadPublic.from_orm(db_shared_flavor)
+    validate_read_public_flavor_attrs(obj_out=schema, db_item=db_shared_flavor)
+    schema = FlavorReadExtended.from_orm(db_shared_flavor)
+    assert len(schema.services) > 1
+    validate_read_extended_flavor_attrs(obj_out=schema, db_item=db_shared_flavor)
+    schema = FlavorReadExtendedPublic.from_orm(db_shared_flavor)
+    assert len(schema.services) > 1
+    validate_read_extended_public_flavor_attrs(obj_out=schema, db_item=db_shared_flavor)
