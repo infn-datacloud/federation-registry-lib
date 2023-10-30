@@ -71,18 +71,20 @@ class CRUDRegion(
             if len(item.regions) == 1:
                 return False
 
-        for item in db_obj.services:
-            if isinstance(db_obj, BlockStorageService):
-                return block_storage_service.remove(db_obj=item)
-            elif isinstance(db_obj, ComputeService):
-                return compute_service.remove(db_obj=item)
-            elif isinstance(db_obj, IdentityService):
-                return identity_service.remove(db_obj=item)
-            elif isinstance(db_obj, NetworkService):
-                return network_service.remove(db_obj=item)
+        for db_serv in db_obj.services:
+            if isinstance(db_serv, BlockStorageService):
+                block_storage_service.remove(db_obj=db_serv)
+            elif isinstance(db_serv, ComputeService):
+                compute_service.remove(db_obj=db_serv)
+            elif isinstance(db_serv, IdentityService):
+                identity_service.remove(db_obj=db_serv)
+            elif isinstance(db_serv, NetworkService):
+                network_service.remove(db_obj=db_serv)
+
         item = db_obj.location.single()
         if item and len(item.regions) == 1:
             location.remove(db_obj=item)
+
         result = super().remove(db_obj=db_obj)
         return result
 
