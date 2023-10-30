@@ -32,10 +32,10 @@ class FlavorBase(BaseNode):
     def check_gpu_values(cls, values: Dict[str, Any]):
         if values.get("gpus") == 0:
             assert (
-                values.get("gpu_model") is None
+                not values.get("gpu_model")
             ), "'GPU model' must be None if 'Num GPUs' is 0"
             assert (
-                values.get("gpu_vendor") is None
+                not values.get("gpu_vendor")
             ), "'GPU vendor' must be None if 'Num GPUs' is 0"
         return values
 

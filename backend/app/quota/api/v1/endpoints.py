@@ -150,7 +150,7 @@ def put_block_storage_quota(
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
 ):
     db_item = block_storage_quota.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 
@@ -297,7 +297,7 @@ def put_compute_quota(
     item: ComputeQuota = Depends(valid_compute_quota_id),
 ):
     db_item = compute_quota.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 

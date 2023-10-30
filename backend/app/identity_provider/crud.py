@@ -106,7 +106,7 @@ class CRUDIdentityProvider(
         db_items = {db_item.name: db_item for db_item in db_obj.user_groups}
         for item in obj_in.user_groups:
             db_item = db_items.pop(item.name, None)
-            if db_item is None:
+            if not db_item:
                 user_group.create(
                     obj_in=item, identity_provider=db_obj, projects=provider_projects
                 )

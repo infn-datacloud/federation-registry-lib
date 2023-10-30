@@ -130,7 +130,7 @@ class CRUDProvider(
         db_items = {db_item.name: db_item for db_item in db_obj.regions}
         for item in obj_in.regions:
             db_item = db_items.pop(item.name, None)
-            if db_item is None:
+            if not db_item:
                 region.create(obj_in=item, provider=db_obj)
                 edit = True
             else:

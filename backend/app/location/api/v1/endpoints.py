@@ -106,7 +106,7 @@ def put_location(
     item: Location = Depends(valid_location_id),
 ):
     db_item = location.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 
@@ -153,7 +153,7 @@ def delete_location(item: Location = Depends(valid_location_id)):
 #     item: Location = Depends(valid_location_id),
 #     r_egion: Region = Depends(valid_region_id),
 # ):
-#     if item.region.single() is None:
+#     if not item.region.single():
 #         item.region.connect(region)
 #     elif not item.region.is_connected(region):
 #         item.region.replace(region)

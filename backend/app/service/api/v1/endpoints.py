@@ -154,7 +154,7 @@ def put_block_storage_service(
     item: BlockStorageService = Depends(valid_block_storage_service_id),
 ):
     db_item = block_storage_service.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 
@@ -267,7 +267,7 @@ def put_compute_service(
     item: ComputeService = Depends(valid_compute_service_id),
 ):
     db_item = compute_service.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 
@@ -378,7 +378,7 @@ def put_identity_sservice(
     item: IdentityService = Depends(valid_identity_service_id),
 ):
     db_item = identity_service.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 
@@ -491,7 +491,7 @@ def put_network_service(
     item: NetworkService = Depends(valid_network_service_id),
 ):
     db_item = network_service.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 

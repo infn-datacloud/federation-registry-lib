@@ -596,7 +596,7 @@ def test_delete_item_with_relationships(db_provider: Provider) -> None:
             item = identity_service.get(uid=db_service.uid)
         if db_service.type == ServiceType.NETWORK:
             item = network_service.get(uid=db_service.uid)
-        assert item is None
+        assert not item
 
 
 def test_failed_delete_item(db_provider: Provider) -> None:

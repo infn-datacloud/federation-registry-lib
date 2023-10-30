@@ -137,7 +137,7 @@ def put_user_group(
     item: UserGroup = Depends(valid_user_group_id),
 ):
     db_item = user_group.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 

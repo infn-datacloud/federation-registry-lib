@@ -108,7 +108,7 @@ def put_project(
     item: Project = Depends(valid_project_id),
 ):
     db_item = project.update(db_obj=item, obj_in=update_data)
-    if db_item is None:
+    if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
 

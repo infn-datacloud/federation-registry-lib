@@ -87,7 +87,7 @@ class CRUDBase(
         obj_in = self.create_schema.parse_obj(obj_in)
         obj_in_data = obj_in.dict(exclude_none=True)
         db_obj = None
-        if db_obj is None:
+        if not db_obj:
             db_obj = self.model.create(obj_in_data)[0]
         return db_obj
 

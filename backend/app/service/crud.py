@@ -130,7 +130,7 @@ class CRUDBlockStorageService(
         for item in obj_in.quotas:
             if item.per_user:
                 db_item = db_items_per_user.pop(item.project, None)
-                if db_item is None:
+                if not db_item:
                     block_storage_quota.create(
                         obj_in=item,
                         service=db_obj,
@@ -148,7 +148,7 @@ class CRUDBlockStorageService(
                         edit = True
             else:
                 db_item = db_items_total.pop(item.project, None)
-                if db_item is None:
+                if not db_item:
                     block_storage_quota.create(
                         obj_in=item,
                         service=db_obj,
@@ -265,7 +265,7 @@ class CRUDComputeService(
             db_projects = list(
                 filter(lambda x: x.uuid in item.projects, provider_projects)
             )
-            if db_item is None:
+            if not db_item:
                 flavor.create(obj_in=item, service=db_obj, projects=db_projects)
                 edit = True
             else:
@@ -293,7 +293,7 @@ class CRUDComputeService(
             db_projects = list(
                 filter(lambda x: x.uuid in item.projects, provider_projects)
             )
-            if db_item is None:
+            if not db_item:
                 image.create(obj_in=item, service=db_obj, projects=db_projects)
                 edit = True
             else:
@@ -329,7 +329,7 @@ class CRUDComputeService(
         for item in obj_in.quotas:
             if item.per_user:
                 db_item = db_items_per_user.pop(item.project, None)
-                if db_item is None:
+                if not db_item:
                     compute_quota.create(
                         obj_in=item,
                         service=db_obj,
@@ -347,7 +347,7 @@ class CRUDComputeService(
                         edit = True
             else:
                 db_item = db_items_total.pop(item.project, None)
-                if db_item is None:
+                if not db_item:
                     compute_quota.create(
                         obj_in=item,
                         service=db_obj,
@@ -468,7 +468,7 @@ class CRUDNetworkService(
             db_projects = list(
                 filter(lambda x: x.uuid == item.project, provider_projects)
             )
-            if db_item is None:
+            if not db_item:
                 project = None if len(db_projects) == 0 else db_projects[0]
                 network.create(obj_in=item, service=db_obj, project=project)
                 edit = True

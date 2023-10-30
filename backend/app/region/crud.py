@@ -161,7 +161,7 @@ class CRUDRegion(
         }
         for item in obj_in.block_storage_services:
             db_item = db_items.pop(item.endpoint, None)
-            if db_item is None:
+            if not db_item:
                 block_storage_service.create(
                     obj_in=item, region=db_obj, projects=provider_projects
                 )
@@ -192,7 +192,7 @@ class CRUDRegion(
         }
         for item in obj_in.compute_services:
             db_item = db_items.pop(item.endpoint, None)
-            if db_item is None:
+            if not db_item:
                 compute_service.create(
                     obj_in=item, region=db_obj, projects=provider_projects
                 )
@@ -222,7 +222,7 @@ class CRUDRegion(
         }
         for item in obj_in.identity_services:
             db_item = db_items.pop(item.endpoint, None)
-            if db_item is None:
+            if not db_item:
                 identity_service.create(obj_in=item, region=db_obj)
                 edit = True
             else:
@@ -251,7 +251,7 @@ class CRUDRegion(
         }
         for item in obj_in.network_services:
             db_item = db_items.pop(item.endpoint, None)
-            if db_item is None:
+            if not db_item:
                 network_service.create(
                     obj_in=item, region=db_obj, projects=provider_projects
                 )

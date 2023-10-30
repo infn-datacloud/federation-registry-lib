@@ -297,7 +297,7 @@ class NetworkCreateExtended(NetworkCreate):
         if not values.get("is_shared"):
             assert values.get("project") is not None
         else:
-            assert values.get("project") is None
+            assert not values.get("project")
         return values
 
 
@@ -313,7 +313,7 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
             if quota.project is not None:
                 msg = f"Multiple quotas on same project {quota.project}"
                 q = d.get(quota.project)
-                if q is None:
+                if not q:
                     d[quota.project] = [1, quota.per_user]
                 else:
                     q[0] += 1
@@ -353,7 +353,7 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
             if quota.project is not None:
                 msg = f"Multiple quotas on same project {quota.project}"
                 q = d.get(quota.project)
-                if q is None:
+                if not q:
                     d[quota.project] = [1, quota.per_user]
                 else:
                     q[0] += 1
