@@ -137,7 +137,7 @@ class CRUDProvider(
                 updated_data = region.update(
                     db_obj=db_item,
                     obj_in=item,
-                    projects=db_obj.projects.all(),
+                    projects=db_obj.projects,
                     force=True,
                 )
                 if not edit and updated_data is not None:

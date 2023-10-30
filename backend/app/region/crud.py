@@ -49,17 +49,17 @@ class CRUDRegion(
             location.create(obj_in=obj_in.location, region=db_obj)
         for item in obj_in.block_storage_services:
             block_storage_service.create(
-                obj_in=item, region=db_obj, projects=provider.projects.all()
+                obj_in=item, region=db_obj, projects=provider.projects
             )
         for item in obj_in.compute_services:
             compute_service.create(
-                obj_in=item, region=db_obj, projects=provider.projects.all()
+                obj_in=item, region=db_obj, projects=provider.projects
             )
         for item in obj_in.identity_services:
             identity_service.create(obj_in=item, region=db_obj)
         for item in obj_in.network_services:
             network_service.create(
-                obj_in=item, region=db_obj, projects=provider.projects.all()
+                obj_in=item, region=db_obj, projects=provider.projects
             )
         return db_obj
 

@@ -46,7 +46,7 @@ class CRUDUserGroup(
             if db_project.uuid == obj_in.sla.project:
                 db_sla = db_project.sla.single()
                 if db_sla is not None:
-                    if len(db_sla.projects.all()) == 1:
+                    if len(db_sla.projects) == 1:
                         sla.remove(db_obj=db_sla)
                     else:
                         db_project.sla.disconnect(db_sla)
