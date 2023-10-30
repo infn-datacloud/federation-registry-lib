@@ -133,10 +133,14 @@ class CRUDRegion(
         db_loc = db_obj.location.single()
 
         if db_loc and (not loc_in or db_loc.site != loc_in.site):
-            db_obj.location.disconnect(db_loc)
+            if len(db_loc.regions) == 1:
+                location.remove(db_obj=db_loc)
+            else:
+                db_obj.location.disconnect(db_loc)
             edit = True
 
-        # No previous and new location or new location differs from existing one
+        # No previous and new location received
+        # or new location differs from existing one
         if (not db_loc and loc_in) or (
             db_loc and loc_in and db_loc.site != loc_in.site
         ):
