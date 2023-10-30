@@ -2,7 +2,7 @@ from neomodel import (
     ArrayProperty,
     BooleanProperty,
     IntegerProperty,
-    OneOrMore,
+    One,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -50,10 +50,10 @@ class Network(StructuredNode):
     proxy_user = StringProperty()
     tags = ArrayProperty(StringProperty())
 
-    services = RelationshipFrom(
+    service = RelationshipFrom(
         "..service.models.NetworkService",
         "AVAILABLE_NETWORK",
-        cardinality=OneOrMore,
+        cardinality=One,
     )
     project = RelationshipFrom(
         "..project.models.Project",

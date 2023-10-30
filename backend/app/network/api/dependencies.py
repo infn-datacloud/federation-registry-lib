@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Union
 
 from app.network.crud import network
 from app.network.models import Network
@@ -32,7 +32,7 @@ def valid_network_id(network_uid: str) -> Network:
 
 def valid_network_uuid(
     item: Union[NetworkCreate, NetworkUpdate],
-    services: List[NetworkService] = Depends(valid_network_service_id),
+    service: NetworkService = Depends(valid_network_service_id),
 ) -> None:
     """Check there are no other networks, belonging to the same service, with
     the same uuid.
@@ -48,14 +48,13 @@ def valid_network_uuid(
             belonging to the same service, already exists.
     """
 
-    for service in services:
-        service = valid_network_service_id(service.uid)
-        db_item = service.networks.get_or_none(uuid=item.uuid)
-        if db_item is not None:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Network with uuid '{item.uuid}' already registered",
-            )
+    service = valid_network_service_id(service.uid)
+    db_item = service.networks.get_or_none(uuid=item.uuid)
+    if db_item is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Network with uuid '{item.uuid}' already registered",
+        )
 
 
 def validate_new_network_values(
@@ -78,7 +77,7 @@ def validate_new_network_values(
     """
 
     if update_data.uuid != item.uuid:
-        valid_network_uuid(item=update_data, services=item.services.all())
+        valid_network_uuid(item=update_data, service=item.service.single())
     if update_data.is_shared != item.is_shared:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

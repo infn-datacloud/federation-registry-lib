@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from app.network.schemas import NetworkRead, NetworkReadPublic
 from app.project.schemas import ProjectRead
@@ -35,9 +35,7 @@ class NetworkReadExtended(NetworkRead):
         description="List of accessible project. "
         "For private networks at most one item",
     )
-    services: List[NetworkServiceReadExtended] = Field(
-        default_factory=list, description="Network service"
-    )
+    service: NetworkServiceReadExtended = Field(description="Network service")
 
 
 class NetworkReadExtendedPublic(NetworkReadPublic):
@@ -49,6 +47,4 @@ class NetworkReadExtendedPublic(NetworkReadPublic):
         description="List of accessible project. "
         "For private networks at most one item",
     )
-    services: List[NetworkServiceReadExtendedPublic] = Field(
-        default_factory=list, description="Network service"
-    )
+    service: NetworkServiceReadExtendedPublic = Field(description="Network service")

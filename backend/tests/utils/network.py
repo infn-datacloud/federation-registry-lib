@@ -130,9 +130,9 @@ def validate_read_extended_network_attrs(
         assert db_project.uid == obj_out.project.uid
     else:
         assert not obj_out.project
-    assert len(db_item.services) == len(obj_out.services)
-    for db_serv, serv_out in zip(db_item.services, obj_out.services):
-        assert db_serv.uid == serv_out.uid
+    db_service = db_item.service.single()
+    assert db_service
+    assert db_service.uid == obj_out.service.uid
 
 
 def validate_read_extended_public_network_attrs(
@@ -146,6 +146,6 @@ def validate_read_extended_public_network_attrs(
         assert db_project.uid == obj_out.project.uid
     else:
         assert not obj_out.project
-    assert len(db_item.services) == len(obj_out.services)
-    for db_serv, serv_out in zip(db_item.services, obj_out.services):
-        assert db_serv.uid == serv_out.uid
+    db_service = db_item.service.single()
+    assert db_service
+    assert db_service.uid == obj_out.service.uid

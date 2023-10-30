@@ -1044,7 +1044,7 @@ def db_private_network(db_public_network: Network) -> Network:
     It belongs to a specific project. It's the second network on the
     same service.
     """
-    db_service = db_public_network.services.all()[0]
+    db_service = db_public_network.service.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
@@ -1060,7 +1060,7 @@ def db_private_network2(db_private_network: Network) -> Network:
     It belongs to a specific project. It's the third network on the same
     service.
     """
-    db_service = db_private_network.services.all()[0]
+    db_service = db_private_network.service.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.all()[0]
@@ -1088,16 +1088,16 @@ def db_private_network3(
 
 @pytest.fixture
 def db_network_serv_with_single_network(db_public_network: Network) -> NetworkService:
-    """Project with single Network."""
-    yield db_public_network.services.all()[0]
+    """Network service with single Network."""
+    yield db_public_network.service.single()
 
 
 @pytest.fixture
 def db_network_serv_with_multiple_networks(
     db_private_network: Network,
 ) -> NetworkService:
-    """Project with multiple Networks (public and private ones)."""
-    yield db_private_network.services.all()[0]
+    """Network service with multiple Networks (public and private ones)."""
+    yield db_private_network.service.single()
 
 
 @pytest.fixture
