@@ -446,18 +446,22 @@ def test_patch_not_existing_compute_quota(
 
 
 def test_patch_compute_quota_changing_per_user(
-    db_compute_quota_per_user: ComputeQuota,
+    db_compute_quota: ComputeQuota,
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to change the visibility of a
-    compute_quota."""
+    """Execute PATCH operations to try to change the per_user property of a
+    block_storage_quota.
+
+    Currently a per user block storage quota does not exist on the same
+    project.
+    """
     settings = get_settings()
     data = create_random_compute_quota_patch()
-    data.per_user = not db_compute_quota_per_user.per_user
+    data.per_user = not db_compute_quota.per_user
 
     response = client.patch(
-        f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota_per_user.uid}",
+        f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota.uid}",
         json=json.loads(data.json()),
         headers=write_header,
     )
@@ -468,16 +472,19 @@ def test_patch_compute_quota_changing_per_user(
 
 
 def test_patch_compute_quota_with_duplicated_per_user(
-    db_compute_quota: ComputeQuota,
     db_compute_quota_per_user: ComputeQuota,
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing UUID to a
-    compute_quota."""
+    """Execute PATCH operations to try to change the per_user property of a
+    block_storage_quota.
+
+    Currently a per user block storage quota already exist s on the same
+    project.
+    """
     settings = get_settings()
     data = create_random_compute_quota_patch()
-    data.per_user = db_compute_quota.per_user
+    data.per_user = not db_compute_quota_per_user.per_user
 
     response = client.patch(
         f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota_per_user.uid}",
@@ -486,8 +493,9 @@ def test_patch_compute_quota_with_duplicated_per_user(
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     content = response.json()
+    db_project = db_compute_quota_per_user.project.single()
     assert (
-        content["detail"] == f"Project '{db_compute_quota.project.single().uid}' "
+        content["detail"] == f"Project '{db_project.uid}' "
         "already has a Compute Quota to not apply to each user"
     )
 

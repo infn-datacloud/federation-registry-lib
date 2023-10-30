@@ -1,12 +1,18 @@
 from uuid import uuid4
 
 import pytest
-from app.image.crud import image
+from app.image.models import Image
 from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
 from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
-from app.service.models import ComputeService
 from pydantic import ValidationError
-from tests.utils.image import create_random_image
+from tests.utils.image import (
+    create_random_image,
+    validate_read_extended_image_attrs,
+    validate_read_extended_public_image_attrs,
+    validate_read_image_attrs,
+    validate_read_public_image_attrs,
+    validate_read_short_image_attrs,
+)
 
 
 def test_create_schema():
@@ -37,40 +43,80 @@ def test_invalid_create_schema():
         a.projects = [a.projects[0], a.projects[0]]
 
 
-def test_read_schema(db_compute_serv: ComputeService):
-    """Create a valid 'Read' Schema."""
-    obj_in = create_random_image()
-    db_obj = image.create(obj_in=obj_in, service=db_compute_serv)
-    ImageRead.from_orm(db_obj)
-    ImageReadPublic.from_orm(db_obj)
-    ImageReadShort.from_orm(db_obj)
-    ImageReadExtended.from_orm(db_obj)
-    ImageReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_public_image(db_public_image: Image):
+    """Create a valid 'Read' Schema from DB object.
 
-    obj_in = create_random_image(default=True)
-    db_obj = image.create(obj_in=obj_in, service=db_compute_serv)
-    ImageRead.from_orm(db_obj)
-    ImageReadPublic.from_orm(db_obj)
-    ImageReadShort.from_orm(db_obj)
-    ImageReadExtended.from_orm(db_obj)
-    ImageReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
 
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    obj_in = create_random_image(projects=[i.uuid for i in db_provider.projects])
-    db_obj = image.create(obj_in=obj_in, service=db_compute_serv)
-    ImageRead.from_orm(db_obj)
-    ImageReadPublic.from_orm(db_obj)
-    ImageReadShort.from_orm(db_obj)
-    ImageReadExtended.from_orm(db_obj)
-    ImageReadExtendedPublic.from_orm(db_obj)
+    Target image is linked to a single service.
+    """
+    schema = ImageRead.from_orm(db_public_image)
+    validate_read_image_attrs(obj_out=schema, db_item=db_public_image)
+    schema = ImageReadShort.from_orm(db_public_image)
+    validate_read_short_image_attrs(obj_out=schema, db_item=db_public_image)
+    schema = ImageReadPublic.from_orm(db_public_image)
+    validate_read_public_image_attrs(obj_out=schema, db_item=db_public_image)
+    schema = ImageReadExtended.from_orm(db_public_image)
+    validate_read_extended_image_attrs(obj_out=schema, db_item=db_public_image)
+    schema = ImageReadExtendedPublic.from_orm(db_public_image)
+    validate_read_extended_public_image_attrs(obj_out=schema, db_item=db_public_image)
 
-    obj_in = create_random_image(
-        default=True, projects=[i.uuid for i in db_provider.projects]
+
+def test_read_schema_private_image_single_project(db_private_image: Image):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target image is linked to a single service and owned by a single
+    project.
+    """
+    schema = ImageRead.from_orm(db_private_image)
+    validate_read_image_attrs(obj_out=schema, db_item=db_private_image)
+    schema = ImageReadShort.from_orm(db_private_image)
+    validate_read_short_image_attrs(obj_out=schema, db_item=db_private_image)
+    schema = ImageReadPublic.from_orm(db_private_image)
+    validate_read_public_image_attrs(obj_out=schema, db_item=db_private_image)
+    schema = ImageReadExtended.from_orm(db_private_image)
+    validate_read_extended_image_attrs(obj_out=schema, db_item=db_private_image)
+    schema = ImageReadExtendedPublic.from_orm(db_private_image)
+    validate_read_extended_public_image_attrs(
+        obj_out=schema, db_item=db_private_image
     )
-    db_obj = image.create(obj_in=obj_in, service=db_compute_serv)
-    ImageRead.from_orm(db_obj)
-    ImageReadPublic.from_orm(db_obj)
-    ImageReadShort.from_orm(db_obj)
-    ImageReadExtended.from_orm(db_obj)
-    ImageReadExtendedPublic.from_orm(db_obj)
+
+
+def test_read_schema_private_image_multiple_projects(
+    db_private_image_multiple_projects: Image,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target image is linked to a single service and owned by multiple
+    projects on the same provider.
+    """
+    schema = ImageRead.from_orm(db_private_image_multiple_projects)
+    validate_read_image_attrs(
+        obj_out=schema, db_item=db_private_image_multiple_projects
+    )
+    schema = ImageReadShort.from_orm(db_private_image_multiple_projects)
+    validate_read_short_image_attrs(
+        obj_out=schema, db_item=db_private_image_multiple_projects
+    )
+    schema = ImageReadPublic.from_orm(db_private_image_multiple_projects)
+    validate_read_public_image_attrs(
+        obj_out=schema, db_item=db_private_image_multiple_projects
+    )
+    schema = ImageReadExtended.from_orm(db_private_image_multiple_projects)
+    validate_read_extended_image_attrs(
+        obj_out=schema, db_item=db_private_image_multiple_projects
+    )
+    schema = ImageReadExtendedPublic.from_orm(db_private_image_multiple_projects)
+    validate_read_extended_public_image_attrs(
+        obj_out=schema, db_item=db_private_image_multiple_projects
+    )
+
+
+# TODO Add tests for a image shared between multiple services

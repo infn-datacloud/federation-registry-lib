@@ -253,55 +253,76 @@ def test_read_schema_with_multiple_flavors(
         obj_out=schema, db_item=db_compute_serv_with_multiple_flavors
     )
 
-# def test_read_schema(db_region: Region):
-#     """Create a valid 'Read' Schema."""
-#     obj_in = create_random_compute_service()
-#     db_obj = compute_service.create(obj_in=obj_in, region=db_region)
-#     ComputeServiceRead.from_orm(db_obj)
-#     ComputeServiceReadPublic.from_orm(db_obj)
-#     ComputeServiceReadShort.from_orm(db_obj)
-#     ComputeServiceReadExtended.from_orm(db_obj)
-#     ComputeServiceReadExtendedPublic.from_orm(db_obj)
 
-#     obj_in = create_random_compute_service(default=True)
-#     db_obj = compute_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
-#     ComputeServiceRead.from_orm(db_obj)
-#     ComputeServiceReadPublic.from_orm(db_obj)
-#     ComputeServiceReadShort.from_orm(db_obj)
-#     ComputeServiceReadExtended.from_orm(db_obj)
-#     ComputeServiceReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_with_single_image(
+    db_compute_serv_with_single_image: ComputeService,
+):
+    """Create a valid 'Read' Schema from DB object.
 
-#     obj_in = create_random_compute_service(with_flavors=True)
-#     db_obj = compute_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
-#     ComputeServiceRead.from_orm(db_obj)
-#     ComputeServiceReadPublic.from_orm(db_obj)
-#     ComputeServiceReadShort.from_orm(db_obj)
-#     ComputeServiceReadExtended.from_orm(db_obj)
-#     ComputeServiceReadExtendedPublic.from_orm(db_obj)
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
 
-#     obj_in = create_random_compute_service(default=True, with_flavors=True)
-#     db_obj = compute_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
-#     ComputeServiceRead.from_orm(db_obj)
-#     ComputeServiceReadPublic.from_orm(db_obj)
-#     ComputeServiceReadShort.from_orm(db_obj)
-#     ComputeServiceReadExtended.from_orm(db_obj)
-#     ComputeServiceReadExtendedPublic.from_orm(db_obj)
+    Target service is linked only to one image.
+    """
+    schema = ComputeServiceRead.from_orm(db_compute_serv_with_single_image)
+    validate_read_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_image
+    )
+    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_single_image)
+    validate_read_short_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_image
+    )
+    schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_single_image)
+    validate_read_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_image
+    )
+    schema = ComputeServiceReadExtended.from_orm(db_compute_serv_with_single_image)
+    validate_read_extended_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_image
+    )
+    schema = ComputeServiceReadExtendedPublic.from_orm(
+        db_compute_serv_with_single_image
+    )
+    validate_read_extended_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_single_image
+    )
 
-#     obj_in = create_random_compute_service(with_images=True)
-#     db_obj = compute_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
-#     ComputeServiceRead.from_orm(db_obj)
-#     ComputeServiceReadPublic.from_orm(db_obj)
-#     ComputeServiceReadShort.from_orm(db_obj)
-#     ComputeServiceReadExtended.from_orm(db_obj)
-#     ComputeServiceReadExtendedPublic.from_orm(db_obj)
 
-#     obj_in = create_random_compute_service(default=True, with_images=True)
-#     db_obj = compute_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
-#     ComputeServiceRead.from_orm(db_obj)
-#     ComputeServiceReadPublic.from_orm(db_obj)
-#     ComputeServiceReadShort.from_orm(db_obj)
-#     ComputeServiceReadExtended.from_orm(db_obj)
-#     ComputeServiceReadExtendedPublic.from_orm(db_obj)
+def test_read_schema_with_multiple_images(
+    db_compute_serv_with_multiple_images: ComputeService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them
+    should raise errors.
+
+    Target service is linked multiple images.
+    """
+    schema = ComputeServiceRead.from_orm(db_compute_serv_with_multiple_images)
+    validate_read_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_images
+    )
+    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_multiple_images)
+    validate_read_short_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_images
+    )
+    schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_multiple_images)
+    validate_read_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_images
+    )
+    schema = ComputeServiceReadExtended.from_orm(db_compute_serv_with_multiple_images)
+    assert len(schema.images) > 1
+    validate_read_extended_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_images
+    )
+    schema = ComputeServiceReadExtendedPublic.from_orm(
+        db_compute_serv_with_multiple_images
+    )
+    assert len(schema.images) > 1
+    validate_read_extended_public_compute_service_attrs(
+        obj_out=schema, db_item=db_compute_serv_with_multiple_images
+    )
+
 
 #     db_provider = db_region.provider.single()
 #     obj_in = create_random_compute_service(
