@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Generic, List, Optional, Type, TypeVar, Union
 
 from neomodel import StructuredNode
 from pydantic import BaseModel
@@ -95,14 +95,11 @@ class CRUDBase(
         self,
         *,
         db_obj: ModelType,
-        obj_in: Union[UpdateSchemaType, Dict[str, Any]],
+        obj_in: UpdateSchemaType,
         force: bool = False,
     ) -> Optional[ModelType]:
         obj_data = db_obj.__dict__
-        if isinstance(obj_in, dict):
-            update_data = obj_in
-        else:
-            update_data = obj_in.dict(exclude_unset=not force)
+        update_data = obj_in.dict(exclude_unset=not force)
 
         if all([obj_data.get(k) == v for k, v in update_data.items()]):
             return None
