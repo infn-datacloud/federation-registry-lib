@@ -64,7 +64,7 @@ class CRUDBlockStorageService(
         BlockStorageServiceReadExtendedPublic,
     ]
 ):
-    """"""
+    """Block Storage Service Create, Read, Update and Delete operations."""
 
     def create(
         self,
@@ -73,6 +73,12 @@ class CRUDBlockStorageService(
         region: Region,
         projects: List[Project] = [],
     ) -> BlockStorageService:
+        """Create a new Block Storage Service.
+
+        Connect the service to the given region and create all relative
+        quotas. Filter projects based on received ones and target one.
+        It must be exactly one.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.region.connect(region)
         for item in obj_in.quotas:
@@ -84,6 +90,10 @@ class CRUDBlockStorageService(
         return db_obj
 
     def remove(self, *, db_obj: BlockStorageService) -> bool:
+        """Delete an existing service and all its relationships.
+
+        At first delete its quotas. Finally delete the service.
+        """
         for item in db_obj.quotas:
             block_storage_quota.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
@@ -96,6 +106,12 @@ class CRUDBlockStorageService(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[BlockStorageService]:
+        """Update Block Storage Service attributes.
+
+        By default do not update relationships or default values. If
+        force is True, update linked quotas and apply default values
+        when explicit.
+        """
         edit = False
         if force:
             edit = self.__update_quotas(
@@ -115,6 +131,16 @@ class CRUDBlockStorageService(
         obj_in: BlockStorageServiceCreateExtended,
         provider_projects: List[Project],
     ) -> bool:
+        """Update service linked quotas.
+
+        Connect new quotas not already connect, leave untouched already
+        linked ones and delete old ones no more connected to the
+        service.
+
+        Split quotas in per_user and total. For each one of them, check
+        the linked project. If the project already has a quota of that
+        type, update that quota with the new received values.
+        """
         edit = False
 
         db_items_per_user = {
@@ -187,7 +213,7 @@ class CRUDComputeService(
         ComputeServiceReadExtendedPublic,
     ]
 ):
-    """"""
+    """Compute Service Create, Read, Update and Delete operations."""
 
     def create(
         self,
@@ -196,6 +222,12 @@ class CRUDComputeService(
         region: Region,
         projects: List[Project] = [],
     ) -> ComputeService:
+        """Create a new Block Storage Service.
+
+        Connect the service to the given region and create all relative
+        flavors, images and quotas. Filter projects based on received
+        ones and target one. For quotas it must be exactly one.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.region.connect(region)
         for item in obj_in.flavors:
@@ -213,6 +245,11 @@ class CRUDComputeService(
         return db_obj
 
     def remove(self, *, db_obj: ComputeService) -> bool:
+        """Delete an existing service and all its relationships.
+
+        At first delete its quotas. Then delete the flavors and images
+        connected only to this service. Finally delete the service.
+        """
         for item in db_obj.quotas:
             compute_quota.remove(db_obj=item)
         for item in db_obj.flavors:
@@ -232,6 +269,13 @@ class CRUDComputeService(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[ComputeService]:
+        """Update Compute Service attributes.
+
+        By default do not update relationships or default values. If
+        force is True, update linked flavors, images, quotas and apply
+        default values when explicit.
+        """
+
         edit = False
         if force:
             flavors_updated = self.__update_flavors(
@@ -258,6 +302,12 @@ class CRUDComputeService(
         obj_in: ComputeServiceCreateExtended,
         provider_projects: List[Project],
     ) -> bool:
+        """Update service linked flavors.
+
+        Connect new flavors not already connect, leave untouched already
+        linked ones and delete old ones no more connected to the
+        service.
+        """
         edit = False
         db_items = {db_item.uuid: db_item for db_item in db_obj.flavors}
         for item in obj_in.flavors:
@@ -286,6 +336,12 @@ class CRUDComputeService(
         obj_in: ComputeServiceCreateExtended,
         provider_projects: List[Project],
     ) -> bool:
+        """Update service linked images.
+
+        Connect new images not already connect, leave untouched already
+        linked ones and delete old ones no more connected to the
+        service.
+        """
         edit = False
         db_items = {db_item.uuid: db_item for db_item in db_obj.images}
         for item in obj_in.images:
@@ -314,6 +370,16 @@ class CRUDComputeService(
         obj_in: ComputeServiceCreateExtended,
         provider_projects: List[Project],
     ) -> bool:
+        """Update service linked quotas.
+
+        Connect new quotas not already connect, leave untouched already
+        linked ones and delete old ones no more connected to the
+        service.
+
+        Split quotas in per_user and total. For each one of them, check
+        the linked project. If the project already has a quota of that
+        type, update that quota with the new received values.
+        """
         edit = False
 
         db_items_per_user = {
@@ -386,11 +452,15 @@ class CRUDIdentityService(
         IdentityServiceReadExtendedPublic,
     ]
 ):
-    """"""
+    """Identity Service Create, Read, Update and Delete operations."""
 
     def create(
         self, *, obj_in: IdentityServiceCreate, region: Region
     ) -> IdentityService:
+        """Create a new Block Storage Service.
+
+        Connect the service to the given region.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.region.connect(region)
         return db_obj
@@ -408,7 +478,7 @@ class CRUDNetworkService(
         NetworkServiceReadExtendedPublic,
     ]
 ):
-    """"""
+    """Network Service Create, Read, Update and Delete operations."""
 
     def create(
         self,
@@ -417,6 +487,12 @@ class CRUDNetworkService(
         region: Region,
         projects: List[Project] = [],
     ) -> NetworkService:
+        """Create a new Block Storage Service.
+
+        Connect the service to the given region and create all relative
+        networks. Filter projects based on received ones and target one.
+        It must be exactly one.
+        """
         db_obj = super().create(obj_in=obj_in)
         db_obj.region.connect(region)
         for item in obj_in.networks:
@@ -428,9 +504,13 @@ class CRUDNetworkService(
         return db_obj
 
     def remove(self, *, db_obj: NetworkService) -> bool:
+        """Delete an existing service and all its relationships.
+
+        At first delete its quotas. Then delete the flavors and images
+        connected only to this service. Finally delete the service.
+        """
         for item in db_obj.networks:
-            if len(item.services) == 1:
-                network.remove(db_obj=item)
+            network.remove(db_obj=item)
         result = super().remove(db_obj=db_obj)
         return result
 
@@ -442,6 +522,12 @@ class CRUDNetworkService(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[NetworkService]:
+        """Update Network Service attributes.
+
+        By default do not update relationships or default values. If
+        force is True, update linked networks and apply default values
+        when explicit.
+        """
         edit = False
         if force:
             edit = self.__update_networks(
@@ -461,6 +547,12 @@ class CRUDNetworkService(
         obj_in: NetworkServiceCreateExtended,
         provider_projects: List[Project],
     ) -> bool:
+        """Update service linked networks.
+
+        Connect new networks not already connect, leave untouched
+        already linked ones and delete old ones no more connected to the
+        service.
+        """
         edit = False
         db_items = {db_item.uuid: db_item for db_item in db_obj.networks}
         for item in obj_in.networks:
