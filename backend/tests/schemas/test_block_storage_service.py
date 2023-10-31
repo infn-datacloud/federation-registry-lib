@@ -181,36 +181,3 @@ def test_read_schema_with_multiple_quotas(
     validate_read_extended_public_block_storage_service_attrs(
         obj_out=schema, db_item=db_block_storage_serv_with_multiple_quotas
     )
-
-    # obj_in = create_random_block_storage_service(default=True)
-    # db_obj = block_storage_service.update(db_obj=db_obj, obj_in=obj_in, force=True)
-    # BlockStorageServiceRead.from_orm(db_obj)
-    # BlockStorageServiceReadPublic.from_orm(db_obj)
-    # BlockStorageServiceReadShort.from_orm(db_obj)
-    # BlockStorageServiceReadExtended.from_orm(db_obj)
-    # BlockStorageServiceReadExtendedPublic.from_orm(db_obj)
-
-    # db_provider = db_region.provider.single()
-    # obj_in = create_random_block_storage_service(
-    #     projects=[i.uuid for i in db_provider.projects]
-    # )
-    # db_obj = block_storage_service.update(
-    #     db_obj=db_obj, obj_in=obj_in, projects=db_provider.projects, force=True
-    # )
-    # BlockStorageServiceRead.from_orm(db_obj)
-    # BlockStorageServiceReadPublic.from_orm(db_obj)
-    # BlockStorageServiceReadShort.from_orm(db_obj)
-    # BlockStorageServiceReadExtended.from_orm(db_obj)
-    # BlockStorageServiceReadExtendedPublic.from_orm(db_obj)
-
-    # obj_in = create_random_block_storage_service(
-    #     default=True, projects=[i.uuid for i in db_provider.projects]
-    # )
-    # db_obj = block_storage_service.update(
-    #     db_obj=db_obj, obj_in=obj_in, projects=db_provider.projects, force=True
-    # )
-    # BlockStorageServiceRead.from_orm(db_obj)
-    # BlockStorageServiceReadPublic.from_orm(db_obj)
-    # BlockStorageServiceReadShort.from_orm(db_obj)
-    # BlockStorageServiceReadExtended.from_orm(db_obj)
-    # BlockStorageServiceReadExtendedPublic.from_orm(db_obj)

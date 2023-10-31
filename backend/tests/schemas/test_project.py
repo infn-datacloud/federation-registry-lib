@@ -368,7 +368,7 @@ def test_read_schema_with_multiple_images(
     )
 
 
-def test_read_schema_with_single_network(
+def test_read_schema_with_single_private_network(
     db_project_with_single_private_network: Project,
 ):
     """Create a valid 'Read' Schema from DB object.
@@ -400,7 +400,7 @@ def test_read_schema_with_single_network(
     )
 
 
-def test_read_schema_with_multiple_networks(
+def test_read_schema_with_multiple_private_networks(
     db_project_with_multiple_private_networks_diff_service: Project,
 ):
     """Create a valid 'Read' Schema from DB object.

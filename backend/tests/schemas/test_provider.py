@@ -105,7 +105,7 @@ def test_invalid_create_schema():
         a.regions = [reg]
 
 
-def test_read_schema_no_relationships(db_provider: Provider):
+def test_read_schema(db_provider: Provider):
     """Create a valid 'Read' Schema from DB object.
 
     Apply conversion for this item for all read schemas. No one of them
@@ -161,7 +161,7 @@ def test_read_schema_with_multiple_idps(
     Apply conversion for this item for all read schemas. No one of them
     should raise errors.
 
-    Target provider support multiple idps and has multiple project.
+    Target provider support multiple idps and has multiple projects.
     """
     schema = ProviderRead.from_orm(db_provider_with_multiple_idps)
     validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_multiple_idps)
@@ -245,31 +245,3 @@ def test_read_schema_with_multiple_regions(
     validate_read_extended_public_provider_attrs(
         obj_out=schema, db_item=db_provider_with_multiple_regions
     )
-
-
-# TODO
-# def test_read_schema_with_everything(db_provider_with_everything: Provider):
-#     """Create a valid 'Read' Schema from DB object.
-
-#     Apply conversion for this item for all read
-#     schemas. No one of them should raise errors.
-
-#     Target provider has projects, authorized idps and regions."""
-#     schema = ProviderRead.from_orm(db_provider_with_everything)
-#     validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_everything)
-#     schema = ProviderReadShort.from_orm(db_provider_with_everything)
-#     validate_read_short_provider_attrs(
-#         obj_out=schema, db_item=db_provider_with_everything
-#     )
-#     schema = ProviderReadPublic.from_orm(db_provider_with_everything)
-#     validate_read_public_provider_attrs(
-#         obj_out=schema, db_item=db_provider_with_everything
-#     )
-#     schema = ProviderReadExtended.from_orm(db_provider_with_everything)
-#     validate_read_extended_provider_attrs(
-#         obj_out=schema, db_item=db_provider_with_everything
-#     )
-#     schema = ProviderReadExtendedPublic.from_orm(db_provider_with_everything)
-#     validate_read_extended_public_provider_attrs(
-#         obj_out=schema, db_item=db_provider_with_everything
-#     )

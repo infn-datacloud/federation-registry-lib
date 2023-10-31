@@ -62,7 +62,7 @@ def test_read_schema_public_network(db_public_network: Network):
     )
 
 
-def test_read_schema_private_network_single_project(db_private_network: Network):
+def test_read_schema_private_network(db_private_network: Network):
     """Create a valid 'Read' Schema from DB object.
 
     Apply conversion for this item for all read schemas. No one of them
