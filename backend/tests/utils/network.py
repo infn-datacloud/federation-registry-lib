@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 from uuid import uuid4
 
 from app.network.models import Network
@@ -63,7 +63,7 @@ def create_random_network_patch(default: bool = False) -> NetworkUpdate:
     )
 
 
-def validate_network_attrs(*, obj_in: NetworkBase, db_item: Network) -> None:
+def validate_public_attrs(*, obj_in: NetworkBase, db_item: Network) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
     assert db_item.uuid == obj_in.uuid
@@ -76,23 +76,27 @@ def validate_network_attrs(*, obj_in: NetworkBase, db_item: Network) -> None:
     assert db_item.tags == obj_in.tags
 
 
-def validate_network_public_attrs(*, obj_in: NetworkBase, db_item: Network) -> None:
-    assert db_item.description == obj_in.description
-    assert db_item.name == obj_in.name
-    assert db_item.uuid == obj_in.uuid
-    assert db_item.is_shared == obj_in.is_shared
-    assert db_item.is_router_external == obj_in.is_router_external
-    assert db_item.is_default == obj_in.is_default
-    assert db_item.mtu == obj_in.mtu
-    assert db_item.proxy_ip == obj_in.proxy_ip
-    assert db_item.proxy_user == obj_in.proxy_user
-    assert db_item.tags == obj_in.tags
+def validate_attrs(*, obj_in: NetworkBase, db_item: Network) -> None:
+    validate_public_attrs(obj_in=obj_in, db_item=db_item)
+
+
+def validate_rels(
+    *, obj_out: Union[NetworkReadExtended, NetworkReadExtendedPublic], db_item: Network
+) -> None:
+    db_service = db_item.service.single()
+    assert db_service
+    assert db_service.uid == obj_out.service.uid
+    db_project = db_item.project.single()
+    if db_project:
+        assert db_project.uid == obj_out.project.uid
+    else:
+        assert not obj_out.project
 
 
 def validate_create_network_attrs(
     *, obj_in: NetworkCreateExtended, db_item: Network
 ) -> None:
-    validate_network_attrs(obj_in=obj_in, db_item=db_item)
+    validate_attrs(obj_in=obj_in, db_item=db_item)
     db_project = db_item.project.single()
     if db_project:
         assert db_project.uuid == obj_in.project
@@ -102,50 +106,34 @@ def validate_create_network_attrs(
 
 def validate_read_network_attrs(*, obj_out: NetworkRead, db_item: Network) -> None:
     assert db_item.uid == obj_out.uid
-    validate_network_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_short_network_attrs(
     *, obj_out: NetworkReadShort, db_item: Network
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_network_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_public_network_attrs(
     *, obj_out: NetworkReadPublic, db_item: Network
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_network_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_extended_network_attrs(
     *, obj_out: NetworkReadExtended, db_item: Network
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_network_attrs(obj_in=obj_out, db_item=db_item)
-
-    db_project = db_item.project.single()
-    if db_project:
-        assert db_project.uid == obj_out.project.uid
-    else:
-        assert not obj_out.project
-    db_service = db_item.service.single()
-    assert db_service
-    assert db_service.uid == obj_out.service.uid
+    validate_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)
 
 
 def validate_read_extended_public_network_attrs(
     *, obj_out: NetworkReadExtendedPublic, db_item: Network
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_network_public_attrs(obj_in=obj_out, db_item=db_item)
-
-    db_project = db_item.project.single()
-    if db_project:
-        assert db_project.uid == obj_out.project.uid
-    else:
-        assert not obj_out.project
-    db_service = db_item.service.single()
-    assert db_service
-    assert db_service.uid == obj_out.service.uid
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)

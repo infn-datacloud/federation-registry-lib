@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from app.auth_method.schemas import AuthMethodCreate
 from app.identity_provider.models import IdentityProvider
@@ -59,7 +59,7 @@ def random_relationship() -> AuthMethodCreate:
     return AuthMethodCreate(idp_name=idp_name, protocol=protocol)
 
 
-def validate_identity_provider_attrs(
+def validate_public_attrs(
     *, obj_in: IdentityProviderBase, db_item: IdentityProvider
 ) -> None:
     assert db_item.description == obj_in.description
@@ -67,18 +67,33 @@ def validate_identity_provider_attrs(
     assert db_item.group_claim == obj_in.group_claim
 
 
-def validate_identity_provider_public_attrs(
-    *, obj_in: IdentityProviderBase, db_item: IdentityProvider
+def validate_attrs(*, obj_in: IdentityProviderBase, db_item: IdentityProvider) -> None:
+    validate_public_attrs(obj_in=obj_in, db_item=db_item)
+
+
+def validate_rels(
+    *,
+    obj_out: Union[IdentityProviderReadExtended, IdentityProviderReadExtendedPublic],
+    db_item: IdentityProvider
 ) -> None:
-    assert db_item.description == obj_in.description
-    assert db_item.endpoint == obj_in.endpoint
-    assert db_item.group_claim == obj_in.group_claim
+    assert len(db_item.providers) == len(obj_out.providers)
+    for db_prov, prov_out in zip(
+        sorted(db_item.providers, key=lambda x: x.uid),
+        sorted(obj_out.providers, key=lambda x: x.uid),
+    ):
+        assert db_prov.uid == prov_out.uid
+    assert len(db_item.user_groups) == len(obj_out.user_groups)
+    for db_user, user_out in zip(
+        sorted(db_item.user_groups, key=lambda x: x.uid),
+        sorted(obj_out.user_groups, key=lambda x: x.uid),
+    ):
+        assert db_user.uid == user_out.uid
 
 
 def validate_create_identity_provider_attrs(
     *, obj_in: IdentityProviderCreateExtended, db_item: IdentityProvider
 ) -> None:
-    validate_identity_provider_attrs(obj_in=obj_in, db_item=db_item)
+    validate_attrs(obj_in=obj_in, db_item=db_item)
     for p in db_item.providers:
         auth_data = db_item.providers.relationship(p)
         assert auth_data
@@ -86,7 +101,10 @@ def validate_create_identity_provider_attrs(
         assert auth_data.protocol == obj_in.relationship.protocol
         assert auth_data.idp_name == obj_in.relationship.idp_name
     assert len(db_item.user_groups) == len(obj_in.user_groups)
-    for db_user, user_in in zip(db_item.user_groups, obj_in.user_groups):
+    for db_user, user_in in zip(
+        sorted(db_item.user_groups, key=lambda x: x.name),
+        sorted(obj_in.user_groups, key=lambda x: x.name),
+    ):
         validate_create_user_group_attrs(obj_in=user_in, db_item=db_user)
 
 
@@ -94,44 +112,34 @@ def validate_read_identity_provider_attrs(
     *, obj_out: IdentityProviderRead, db_item: IdentityProvider
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_identity_provider_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_short_identity_provider_attrs(
     *, obj_out: IdentityProviderReadShort, db_item: IdentityProvider
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_identity_provider_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_public_identity_provider_attrs(
     *, obj_out: IdentityProviderReadPublic, db_item: IdentityProvider
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_identity_provider_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_extended_identity_provider_attrs(
     *, obj_out: IdentityProviderReadExtended, db_item: IdentityProvider
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_identity_provider_attrs(obj_in=obj_out, db_item=db_item)
-    assert len(db_item.providers) == len(obj_out.providers)
-    for db_prov, prov_out in zip(db_item.providers, obj_out.providers):
-        assert db_prov.uid == prov_out.uid
-    assert len(db_item.user_groups) == len(obj_out.user_groups)
-    for db_user, user_out in zip(db_item.user_groups, obj_out.user_groups):
-        assert db_user.uid == user_out.uid
+    validate_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)
 
 
 def validate_read_extended_public_identity_provider_attrs(
     *, obj_out: IdentityProviderReadExtendedPublic, db_item: IdentityProvider
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_identity_provider_public_attrs(obj_in=obj_out, db_item=db_item)
-    assert len(db_item.providers) == len(obj_out.providers)
-    for db_prov, prov_out in zip(db_item.providers, obj_out.providers):
-        assert db_prov.uid == prov_out.uid
-    assert len(db_item.user_groups) == len(obj_out.user_groups)
-    for db_user, user_out in zip(db_item.user_groups, obj_out.user_groups):
-        assert db_user.uid == user_out.uid
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)

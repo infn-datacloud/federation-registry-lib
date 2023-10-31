@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 from uuid import uuid4
 
 from app.flavor.models import Flavor
@@ -80,7 +80,7 @@ def create_random_flavor_patch(default: bool = False) -> FlavorUpdate:
     )
 
 
-def validate_flavor_attrs(*, obj_in: FlavorBase, db_item: Flavor) -> None:
+def validate_public_attrs(*, obj_in: FlavorBase, db_item: Flavor) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
     assert db_item.uuid == obj_in.uuid
@@ -97,74 +97,68 @@ def validate_flavor_attrs(*, obj_in: FlavorBase, db_item: Flavor) -> None:
     assert db_item.local_storage == obj_in.local_storage
 
 
-def validate_flavor_public_attrs(*, obj_in: FlavorBase, db_item: Flavor) -> None:
-    assert db_item.description == obj_in.description
-    assert db_item.name == obj_in.name
-    assert db_item.uuid == obj_in.uuid
-    assert db_item.disk == obj_in.disk
-    assert db_item.is_public == obj_in.is_public
-    assert db_item.ram == obj_in.ram
-    assert db_item.vcpus == obj_in.vcpus
-    assert db_item.swap == obj_in.swap
-    assert db_item.ephemeral == obj_in.ephemeral
-    assert db_item.infiniband == obj_in.infiniband
-    assert db_item.gpus == obj_in.gpus
-    assert db_item.gpu_model == obj_in.gpu_model
-    assert db_item.gpu_vendor == obj_in.gpu_vendor
-    assert db_item.local_storage == obj_in.local_storage
+def validate_attr(*, obj_in: FlavorBase, db_item: Flavor) -> None:
+    validate_public_attrs(obj_in=obj_in, db_item=db_item)
+
+
+def validate_read_rels(
+    *, obj_out: Union[FlavorReadExtended, FlavorReadExtendedPublic], db_item: Flavor
+) -> None:
+    assert len(db_item.projects) == len(obj_out.projects)
+    for db_proj, proj_out in zip(
+        sorted(db_item.projects, key=lambda x: x.uid),
+        sorted(obj_out.projects, key=lambda x: x.uid),
+    ):
+        assert db_proj.uid == proj_out.uid
+    assert len(db_item.services) == len(obj_out.services)
+    for db_serv, serv_out in zip(
+        sorted(db_item.services, key=lambda x: x.uid),
+        sorted(obj_out.services, key=lambda x: x.uid),
+    ):
+        assert db_serv.uid == serv_out.uid
 
 
 def validate_create_flavor_attrs(
     *, obj_in: FlavorCreateExtended, db_item: Flavor
 ) -> None:
-    validate_flavor_attrs(obj_in=obj_in, db_item=db_item)
+    validate_attr(obj_in=obj_in, db_item=db_item)
     assert len(db_item.projects) == len(obj_in.projects)
-    for db_proj, proj_in in zip(db_item.projects, obj_in.projects):
+    for db_proj, proj_in in zip(
+        sorted(db_item.projects, key=lambda x: x.uuid), sorted(obj_in.projects)
+    ):
         assert db_proj.uuid == proj_in
 
 
 def validate_read_flavor_attrs(*, obj_out: FlavorRead, db_item: Flavor) -> None:
     assert db_item.uid == obj_out.uid
-    validate_flavor_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attr(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_short_flavor_attrs(
     *, obj_out: FlavorReadShort, db_item: Flavor
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_flavor_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attr(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_public_flavor_attrs(
     *, obj_out: FlavorReadPublic, db_item: Flavor
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_flavor_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_extended_flavor_attrs(
     *, obj_out: FlavorReadExtended, db_item: Flavor
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_flavor_attrs(obj_in=obj_out, db_item=db_item)
-
-    assert len(db_item.projects) == len(obj_out.projects)
-    for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
-        assert db_proj.uid == proj_out.uid
-    assert len(db_item.services) == len(obj_out.services)
-    for db_serv, serv_out in zip(db_item.services, obj_out.services):
-        assert db_serv.uid == serv_out.uid
+    validate_attr(obj_in=obj_out, db_item=db_item)
+    validate_read_rels(obj_out=obj_out, db_item=db_item)
 
 
 def validate_read_extended_public_flavor_attrs(
     *, obj_out: FlavorReadExtendedPublic, db_item: Flavor
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_flavor_public_attrs(obj_in=obj_out, db_item=db_item)
-
-    assert len(db_item.projects) == len(obj_out.projects)
-    for db_proj, proj_out in zip(db_item.projects, obj_out.projects):
-        assert db_proj.uid == proj_out.uid
-    assert len(db_item.services) == len(obj_out.services)
-    for db_serv, serv_out in zip(db_item.services, obj_out.services):
-        assert db_serv.uid == serv_out.uid
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_read_rels(obj_out=obj_out, db_item=db_item)

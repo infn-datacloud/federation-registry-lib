@@ -1,3 +1,5 @@
+from typing import Union
+
 from app.provider.schemas_extended import UserGroupCreateExtended
 from app.user_group.models import UserGroup
 from app.user_group.schemas import (
@@ -34,22 +36,35 @@ def create_random_user_group_patch(*, default: bool = False) -> UserGroupUpdate:
     return UserGroupUpdate(name=name, description=description)
 
 
-def validate_user_group_attrs(*, obj_in: UserGroupBase, db_item: UserGroup) -> None:
+def validate_public_attrs(*, obj_in: UserGroupBase, db_item: UserGroup) -> None:
     assert db_item.description == db_item.description
     assert db_item.name == obj_in.name
 
 
-def validate_user_group_public_attrs(
-    *, obj_in: UserGroupBase, db_item: UserGroup
+def validate_attrs(*, obj_in: UserGroupBase, db_item: UserGroup) -> None:
+    validate_public_attrs(obj_in=obj_in, db_item=db_item)
+
+
+def validate_rels(
+    *,
+    obj_out: Union[UserGroupReadExtended, UserGroupReadExtendedPublic],
+    db_item: UserGroup
 ) -> None:
-    assert db_item.description == db_item.description
-    assert db_item.name == obj_in.name
+    db_idp = db_item.identity_provider.single()
+    assert db_idp
+    assert db_idp.uid == obj_out.identity_provider.uid
+    assert len(db_item.slas) == len(obj_out.slas)
+    for db_sla, sla_out in zip(
+        sorted(db_item.slas, key=lambda x: x.uid),
+        sorted(obj_out.slas, key=lambda x: x.uid),
+    ):
+        assert db_sla.uid == sla_out.uid
 
 
 def validate_create_user_group_attrs(
     *, obj_in: UserGroupCreateExtended, db_item: UserGroup
 ) -> None:
-    validate_user_group_attrs(obj_in=obj_in, db_item=db_item)
+    validate_attrs(obj_in=obj_in, db_item=db_item)
     assert len(db_item.slas) > 0
     db_slas = list(filter(lambda x: x.doc_uuid == obj_in.sla.doc_uuid, db_item.slas))
     assert len(db_slas) == 1
@@ -60,44 +75,34 @@ def validate_read_user_group_attrs(
     *, obj_out: UserGroupRead, db_item: UserGroup
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_user_group_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_short_user_group_attrs(
     *, obj_out: UserGroupReadShort, db_item: UserGroup
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_user_group_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_public_user_group_attrs(
     *, obj_out: UserGroupReadPublic, db_item: UserGroup
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_user_group_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_extended_user_group_attrs(
     *, obj_out: UserGroupReadExtended, db_item: UserGroup
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_user_group_attrs(obj_in=obj_out, db_item=db_item)
-    db_idp = db_item.identity_provider.single()
-    assert db_idp
-    assert db_idp.uid == obj_out.identity_provider.uid
-    assert len(db_item.slas) == len(obj_out.slas)
-    for db_sla, sla_out in zip(db_item.slas, obj_out.slas):
-        assert db_sla.uid == sla_out.uid
+    validate_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)
 
 
 def validate_read_extended_public_user_group_attrs(
     *, obj_out: UserGroupReadExtendedPublic, db_item: UserGroup
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_user_group_public_attrs(obj_in=obj_out, db_item=db_item)
-    db_idp = db_item.identity_provider.single()
-    assert db_idp
-    assert db_idp.uid == obj_out.identity_provider.uid
-    assert len(db_item.slas) == len(obj_out.slas)
-    for db_sla, sla_out in zip(db_item.slas, obj_out.slas):
-        assert db_sla.uid == sla_out.uid
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)

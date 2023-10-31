@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Union
 
 from app.provider.schemas_extended import RegionCreateExtended
 from app.region.models import Region
@@ -73,20 +73,33 @@ def create_random_region_patch(*, default: bool = False) -> RegionUpdate:
     return RegionUpdate(description=description, name=name)
 
 
-def validate_region_attrs(*, obj_in: RegionBase, db_item: Region) -> None:
+def validate_public_attrs(*, obj_in: RegionBase, db_item: Region) -> None:
     assert db_item.description == obj_in.description
     assert db_item.name == obj_in.name
 
 
-def validate_region_public_attrs(*, obj_in: RegionBase, db_item: Region) -> None:
-    assert db_item.description == obj_in.description
-    assert db_item.name == obj_in.name
+def validate_attrs(*, obj_in: RegionBase, db_item: Region) -> None:
+    validate_public_attrs(obj_in=obj_in, db_item=db_item)
+
+
+def validate_rels(
+    *, obj_out: Union[RegionReadExtended, RegionReadExtendedPublic], db_item: Region
+) -> None:
+    db_provider = db_item.provider.single()
+    assert db_provider
+    assert db_provider.uid == obj_out.provider.uid
+    db_location = db_item.location.single()
+    if db_location:
+        assert db_location.uid == obj_out.location.uid
+    else:
+        assert not obj_out.location
+    assert len(db_item.services) == len(obj_out.services)
 
 
 def validate_create_region_attrs(
     *, obj_in: RegionCreateExtended, db_item: Region
 ) -> None:
-    validate_region_attrs(obj_in=obj_in, db_item=db_item)
+    validate_attrs(obj_in=obj_in, db_item=db_item)
     if db_item.location.single():
         validate_create_location_attrs(
             obj_in=obj_in.location, db_item=db_item.location.single()
@@ -101,7 +114,8 @@ def validate_create_region_attrs(
         )
         assert len(db_block_storage_services) == len(obj_in.block_storage_services)
         for db_serv, serv_in in zip(
-            db_block_storage_services, obj_in.block_storage_services
+            sorted(db_block_storage_services, key=lambda x: x.endpoint),
+            sorted(obj_in.block_storage_services, key=lambda x: x.endpoint),
         ):
             validate_create_block_storage_service_attrs(obj_in=serv_in, db_item=db_serv)
 
@@ -109,70 +123,63 @@ def validate_create_region_attrs(
             filter(lambda x: x.type == ServiceType.COMPUTE.value, db_item.services)
         )
         assert len(db_compute_services) == len(obj_in.compute_services)
-        for db_serv, serv_in in zip(db_compute_services, obj_in.compute_services):
+        for db_serv, serv_in in zip(
+            sorted(db_compute_services, key=lambda x: x.endpoint),
+            sorted(obj_in.compute_services, key=lambda x: x.endpoint),
+        ):
             validate_create_compute_service_attrs(obj_in=serv_in, db_item=db_serv)
 
         db_identity_services = list(
             filter(lambda x: x.type == ServiceType.IDENTITY.value, db_item.services)
         )
         assert len(db_identity_services) == len(obj_in.identity_services)
-        for db_serv, serv_in in zip(db_identity_services, obj_in.identity_services):
+        for db_serv, serv_in in zip(
+            sorted(db_identity_services, key=lambda x: x.endpoint),
+            sorted(obj_in.identity_services, key=lambda x: x.endpoint),
+        ):
             validate_create_identity_service_attrs(obj_in=serv_in, db_item=db_serv)
 
         db_network_services = list(
             filter(lambda x: x.type == ServiceType.NETWORK.value, db_item.services)
         )
         assert len(db_network_services) == len(obj_in.network_services)
-        for db_serv, serv_in in zip(db_network_services, obj_in.network_services):
+        for db_serv, serv_in in zip(
+            sorted(db_network_services, key=lambda x: x.endpoint),
+            sorted(obj_in.network_services, key=lambda x: x.endpoint),
+        ):
             validate_create_network_service_attrs(obj_in=serv_in, db_item=db_serv)
 
 
 def validate_read_region_attrs(*, obj_out: RegionRead, db_item: Region) -> None:
     assert db_item.uid == obj_out.uid
-    validate_region_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_short_region_attrs(
     *, obj_out: RegionReadShort, db_item: Region
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_region_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_public_region_attrs(
     *, obj_out: RegionReadPublic, db_item: Region
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_region_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_extended_region_attrs(
     *, obj_out: RegionReadExtended, db_item: Region
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_region_attrs(obj_in=obj_out, db_item=db_item)
-    db_provider = db_item.provider.single()
-    assert db_provider
-    assert db_provider.uid == obj_out.provider.uid
-    db_location = db_item.location.single()
-    if db_location:
-        assert db_location.uid == obj_out.location.uid
-    else:
-        assert not obj_out.location
-    assert len(db_item.services) == len(obj_out.services)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)
 
 
 def validate_read_extended_public_region_attrs(
     *, obj_out: RegionReadExtendedPublic, db_item: Region
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_region_public_attrs(obj_in=obj_out, db_item=db_item)
-    db_provider = db_item.provider.single()
-    assert db_provider
-    assert db_provider.uid == obj_out.provider.uid
-    db_location = db_item.location.single()
-    if db_location:
-        assert db_location.uid == obj_out.location.uid
-    else:
-        assert not obj_out.location
-    assert len(db_item.services) == len(obj_out.services)
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)

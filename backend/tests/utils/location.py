@@ -1,4 +1,5 @@
 from random import choice, randrange
+from typing import Union
 
 from app.location.models import Location
 from app.location.schemas import (
@@ -58,7 +59,7 @@ def random_longitude() -> float:
     return float(randrange(-90, 90))
 
 
-def validate_location_attrs(*, obj_in: LocationCreate, db_item: Location) -> None:
+def validate_public_attrs(*, obj_in: LocationCreate, db_item: Location) -> None:
     assert db_item.description == obj_in.description
     assert db_item.site == obj_in.site
     assert db_item.country == obj_in.country
@@ -66,59 +67,60 @@ def validate_location_attrs(*, obj_in: LocationCreate, db_item: Location) -> Non
     assert db_item.longitude == obj_in.longitude
 
 
-def validate_location_public_attrs(
-    *, obj_in: LocationCreate, db_item: Location
+def validate_attrs(*, obj_in: LocationCreate, db_item: Location) -> None:
+    validate_public_attrs(obj_in=obj_in, db_item=db_item)
+
+
+def validate_rels(
+    *,
+    obj_out: Union[LocationReadExtended, LocationReadExtendedPublic],
+    db_item: Location
 ) -> None:
-    assert db_item.description == obj_in.description
-    assert db_item.site == obj_in.site
-    assert db_item.country == obj_in.country
-    assert db_item.latitude == obj_in.latitude
-    assert db_item.longitude == obj_in.longitude
+    assert len(db_item.regions) == len(obj_out.regions)
+    for db_reg, reg_out in zip(
+        sorted(db_item.regions, key=lambda x: x.uid),
+        sorted(obj_out.regions, key=lambda x: x.uid),
+    ):
+        assert db_reg.uid == reg_out.uid
 
 
 def validate_create_location_attrs(
     *, obj_in: LocationCreate, db_item: Location
 ) -> None:
-    validate_location_attrs(obj_in=obj_in, db_item=db_item)
+    validate_attrs(obj_in=obj_in, db_item=db_item)
 
 
 def validate_read_location_attrs(*, obj_out: LocationRead, db_item: Location) -> None:
     assert db_item.uid == obj_out.uid
     assert obj_out.country_code is not None
-    validate_location_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_short_location_attrs(
     *, obj_out: LocationReadShort, db_item: Location
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_location_attrs(obj_in=obj_out, db_item=db_item)
+    validate_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_public_location_attrs(
     *, obj_out: LocationReadPublic, db_item: Location
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_location_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
 
 
 def validate_read_extended_location_attrs(
     *, obj_out: LocationReadExtended, db_item: Location
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_location_attrs(obj_in=obj_out, db_item=db_item)
-
-    assert len(db_item.regions) == len(obj_out.regions)
-    for db_reg, reg_out in zip(db_item.regions, obj_out.regions):
-        assert db_reg.uid == reg_out.uid
+    validate_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)
 
 
 def validate_read_extended_public_location_attrs(
     *, obj_out: LocationReadExtendedPublic, db_item: Location
 ) -> None:
     assert db_item.uid == obj_out.uid
-    validate_location_public_attrs(obj_in=obj_out, db_item=db_item)
-
-    assert len(db_item.regions) == len(obj_out.regions)
-    for db_reg, reg_out in zip(db_item.regions, obj_out.regions):
-        assert db_reg.uid == reg_out.uid
+    validate_public_attrs(obj_in=obj_out, db_item=db_item)
+    validate_rels(obj_out=obj_out, db_item=db_item)
