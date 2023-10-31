@@ -21,13 +21,21 @@ class CRUDSLA(
         SLAReadExtendedPublic,
     ]
 ):
-    """"""
+    """SLA Create, Read, Update and Delete operations."""
 
     def create(
         self, *, obj_in: SLACreate, project: Project, user_group: UserGroup
     ) -> SLA:
-        db_obj = super().create(obj_in=obj_in)
-        db_obj.user_group.connect(user_group)
+        """Create a new SLA.
+
+        At first check an SLA pointing to the same document does not
+        exist yet. If it does not exist, create it. In any case connect
+        the SLA to the given user group and project.
+        """
+        db_obj = user_group.slas.get_or_none(doc_uuid=obj_in.doc_uuid)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in)
+            db_obj.user_group.connect(user_group)
         db_obj.projects.connect(project)
         return db_obj
 
@@ -39,48 +47,37 @@ class CRUDSLA(
         projects: List[Project] = [],
         force: bool = False,
     ) -> Optional[SLA]:
+        """Update SLA attributes.
+
+        By default do not update relationships or default values. If
+        force is True, update linked projects and apply default values
+        when explicit.
+
+        To update projects, since the forced update happens when
+        creating or updating a provider, we filter all the existing
+        projects on this provider already connected to this SLA, should
+        be just one. If there is a project already connected we replace
+        the old one with the new one, otherwise we immediately connect
+        the new one.
+        """
         edit = False
         if force:
             provider_projects = {db_item.uuid: db_item for db_item in projects}
-            old_projects_same_provider = list(
-                filter(lambda x: x in db_obj.projects, projects)
-            )
-            db_project = provider_projects.get(obj_in.project)
-            if len(old_projects_same_provider) == 0:
-                db_obj.projects.connect(db_project)
+            new_project = provider_projects.get(obj_in.project)
+            old_project = next(filter(lambda x: x in db_obj.projects, projects), None)
+
+            if not old_project:
+                db_obj.projects.connect(new_project)
                 edit = True
-            else:
-                old_project = old_projects_same_provider[0]
-                if old_project.uuid != obj_in.project:
-                    db_obj.projects.reconnect(old_project, db_project)
-                    edit = True
+            elif old_project.uuid != obj_in.project:
+                db_obj.projects.reconnect(old_project, new_project)
+                edit = True
 
         if isinstance(obj_in, SLACreateExtended):
             obj_in = SLAUpdate.parse_obj(obj_in)
 
         updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else updated_data
-
-    def __update_projects(
-        self,
-        *,
-        obj_in: SLACreateExtended,
-        db_obj: SLA,
-        provider_projects: List[Project],
-    ) -> bool:
-        edit = False
-        db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
-        db_projects = {db_item.uuid: db_item for db_item in provider_projects}
-        for proj in obj_in.projects:
-            db_item = db_items.pop(proj, None)
-            if not db_item:
-                db_item = db_projects.get(proj)
-                db_obj.projects.connect(db_item)
-                edit = True
-        for db_item in db_items.values():
-            db_obj.projects.disconnect(db_item)
-            edit = True
-        return edit
 
 
 sla = CRUDSLA(
