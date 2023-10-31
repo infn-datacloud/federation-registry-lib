@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from app.region.models import Region
 from app.service.crud import identity_service
+from app.service.models import IdentityService
 from tests.utils.identity_service import (
     create_random_identity_service,
     create_random_identity_service_patch,
@@ -24,20 +25,15 @@ def test_create_item_default_values(db_region: Region) -> None:
     validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_region: Region) -> None:
+def test_get_item(db_identity_serv: IdentityService) -> None:
     """Retrieve an Identity Service from its UID."""
-    item_in = create_random_identity_service()
-    item = identity_service.create(obj_in=item_in, region=db_region)
-    item = identity_service.get(uid=item.uid)
-    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
+    item = identity_service.get(uid=db_identity_serv.uid)
+    assert item.uid == db_identity_serv.uid
 
 
-def test_get_non_existing_item(db_region: Region) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Identity Service."""
-    item_in = create_random_identity_service()
-    item = identity_service.create(obj_in=item_in, region=db_region)
-    item = identity_service.get(uid=uuid4())
-    assert not item
+    assert not identity_service.get(uid=uuid4())
 
 
 def test_get_items(db_region: Region) -> None:

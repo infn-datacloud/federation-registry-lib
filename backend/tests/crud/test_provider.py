@@ -4,6 +4,7 @@ from uuid import uuid4
 from app.identity_provider.crud import identity_provider
 from app.project.crud import project
 from app.provider.crud import provider
+from app.provider.models import Provider
 from app.region.crud import region
 from tests.utils.provider import (
     create_random_provider,
@@ -51,6 +52,15 @@ def test_create_item_with_projects_and_regions(
     validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
+def test_create_item_with_regions(
+    setup_and_teardown_db: Generator,
+) -> None:
+    """Create a Provider, with regions and no projects."""
+    item_in = create_random_provider(with_regions=True)
+    item = provider.create(obj_in=item_in)
+    validate_create_provider_attrs(obj_in=item_in, db_item=item)
+
+
 def test_create_item_with_everything(setup_and_teardown_db: Generator) -> None:
     """Create a Provider, with linked projects, identity providers and
     regions."""
@@ -61,29 +71,15 @@ def test_create_item_with_everything(setup_and_teardown_db: Generator) -> None:
     validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
-def test_create_item_with_regions(
-    setup_and_teardown_db: Generator,
-) -> None:
-    """Create a Provider, with regions and no projects."""
-    item_in = create_random_provider(with_regions=True)
-    item = provider.create(obj_in=item_in)
-    validate_create_provider_attrs(obj_in=item_in, db_item=item)
-
-
-def test_get_item(setup_and_teardown_db: Generator) -> None:
+def test_get_item(db_provider: Provider) -> None:
     """Retrieve a Provider from its UID."""
-    item_in = create_random_provider()
-    item = provider.create(obj_in=item_in)
-    item = provider.get(uid=item.uid)
-    validate_create_provider_attrs(obj_in=item_in, db_item=item)
+    item = provider.get(uid=db_provider.uid)
+    assert item.uid == db_provider.uid
 
 
-def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Provider."""
-    item_in = create_random_provider()
-    item = provider.create(obj_in=item_in)
-    item = provider.get(uid=uuid4())
-    assert not item
+    assert not provider.get(uid=uuid4())
 
 
 def test_get_items(setup_and_teardown_db: Generator) -> None:

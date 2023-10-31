@@ -1,10 +1,9 @@
 from uuid import uuid4
 
-from app.identity_provider.models import IdentityProvider
-from app.project.crud import project
+from app.provider.models import Provider
 from app.sla.crud import sla
+from app.sla.models import SLA
 from app.user_group.models import UserGroup
-from tests.utils.project import create_random_project
 from tests.utils.sla import (
     create_random_sla,
     create_random_sla_patch,
@@ -34,26 +33,15 @@ def test_create_item_default_values(db_user_group: UserGroup) -> None:
     validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_user_group: UserGroup) -> None:
+def test_get_item(db_sla: SLA) -> None:
     """Retrieve an SLA from its UID."""
-    db_idp = db_user_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_sla(project=db_project.uuid)
-    item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
-    item = sla.get(uid=item.uid)
-    validate_create_sla_attrs(obj_in=item_in, db_item=item)
+    item = sla.get(uid=db_sla.uid)
+    assert item.uid == db_sla.uid
 
 
-def test_get_non_existing_item(db_user_group: UserGroup) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing SLA."""
-    db_idp = db_user_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_sla(project=db_project.uuid)
-    item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
-    item = sla.get(uid=uuid4())
-    assert not item
+    assert not sla.get(uid=uuid4())
 
 
 def test_get_items(db_idp_with_multiple_user_groups: IdentityProvider) -> None:

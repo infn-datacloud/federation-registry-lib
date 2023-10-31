@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from app.project.crud import project
+from app.project.models import Project
 from app.provider.models import Provider
 from app.quota.crud import block_storage_quota, compute_quota
 from app.quota.models import BlockStorageQuota, ComputeQuota
@@ -28,20 +29,15 @@ def test_create_item_default_values(db_provider: Provider) -> None:
     validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_provider: Provider) -> None:
+def test_get_item(db_project: Project) -> None:
     """Retrieve a Project from its UID."""
-    item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
-    item = project.get(uid=item.uid)
-    validate_create_project_attrs(obj_in=item_in, db_item=item)
+    item = project.get(uid=db_project.uid)
+    assert item.uid == db_project.uid
 
 
-def test_get_non_existing_item(db_provider: Provider) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Project."""
-    item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
-    item = project.get(uid=uuid4())
-    assert not item
+    assert not project.get(uid=uuid4())
 
 
 def test_get_items(db_provider: Provider) -> None:

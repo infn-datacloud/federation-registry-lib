@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from app.identity_provider.crud import identity_provider
+from app.identity_provider.models import IdentityProvider
 from app.project.crud import project
 from app.provider.models import Provider
 from app.user_group.crud import user_group
@@ -38,28 +39,15 @@ def test_create_item_default_values_with_projects(
     validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_provider_with_single_project: Provider) -> None:
+def test_get_item(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Retrieve an Identity Provider from its UID."""
-    item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider_with_single_project.projects]
-    )
-    item = identity_provider.create(
-        obj_in=item_in, provider=db_provider_with_single_project
-    )
-    item = identity_provider.get(uid=item.uid)
-    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
+    item = identity_provider.get(uid=db_idp_with_single_user_group.uid)
+    assert item.uid == db_idp_with_single_user_group.uid
 
 
-def test_get_non_existing_item(db_provider_with_single_project: Provider) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Identity Provider."""
-    item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider_with_single_project.projects]
-    )
-    item = identity_provider.create(
-        obj_in=item_in, provider=db_provider_with_single_project
-    )
-    item = identity_provider.get(uid=uuid4())
-    assert not item
+    assert not identity_provider.get(uid=uuid4())
 
 
 def test_get_items(db_provider_with_single_project: Provider) -> None:

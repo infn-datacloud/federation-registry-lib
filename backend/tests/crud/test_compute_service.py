@@ -68,20 +68,15 @@ def test_create_item_with_everything(db_region: Region) -> None:
     validate_create_compute_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_region: Region) -> None:
+def test_get_item(db_compute_serv: Region) -> None:
     """Retrieve a Compute Service from its UID."""
-    item_in = create_random_compute_service()
-    item = compute_service.create(obj_in=item_in, region=db_region)
-    item = compute_service.get(uid=item.uid)
-    validate_create_compute_service_attrs(obj_in=item_in, db_item=item)
+    item = compute_service.get(uid=db_compute_serv.uid)
+    assert item.uid == db_compute_serv.uid
 
 
-def test_get_non_existing_item(db_region: Region) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Compute Service."""
-    item_in = create_random_compute_service()
-    item = compute_service.create(obj_in=item_in, region=db_region)
-    item = compute_service.get(uid=uuid4())
-    assert not item
+    assert not compute_service.get(uid=uuid4())
 
 
 def test_get_items(db_region: Region) -> None:

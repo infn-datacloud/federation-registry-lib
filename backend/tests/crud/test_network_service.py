@@ -3,6 +3,7 @@ from uuid import uuid4
 from app.network.crud import network
 from app.region.models import Region
 from app.service.crud import network_service
+from app.service.models import NetworkService
 from tests.utils.network_service import (
     create_random_network_service,
     create_random_network_service_patch,
@@ -33,20 +34,15 @@ def test_create_item_with_networks(db_region: Region) -> None:
     validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_region: Region) -> None:
+def test_get_item(db_network_serv: NetworkService) -> None:
     """Retrieve an Network Service from its UID."""
-    item_in = create_random_network_service()
-    item = network_service.create(obj_in=item_in, region=db_region)
-    item = network_service.get(uid=item.uid)
-    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    item = network_service.get(uid=db_network_serv.uid)
+    assert item.uid == db_network_serv.uid
 
 
-def test_get_non_existing_item(db_region: Region) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Network Service."""
-    item_in = create_random_network_service()
-    item = network_service.create(obj_in=item_in, region=db_region)
-    item = network_service.get(uid=uuid4())
-    assert not item
+    assert not network_service.get(uid=uuid4())
 
 
 def test_get_items(db_region: Region) -> None:

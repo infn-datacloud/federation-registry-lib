@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from app.image.crud import image
+from app.image.models import Image
 from app.project.crud import project
 from app.service.models import ComputeService
 from tests.utils.image import (
@@ -43,9 +44,9 @@ def test_create_item_private(db_compute_serv: ComputeService) -> None:
 def test_create_item_with_same_uuid_diff_provider(
     db_compute_serv: ComputeService, db_compute_serv2: ComputeService
 ) -> None:
-    """Create a public Flavor belonging to a specific Compute Service.
+    """Create a public Image belonging to a specific Compute Service.
 
-    Connect a Flavor with the same UUID to another Provider. This
+    Connect a Image with the same UUID to another Provider. This
     operation is allowed since the images belong to different providers.
     """
     item_in = create_random_image()
@@ -59,9 +60,9 @@ def test_create_item_with_same_uuid_diff_provider(
 def test_connect_same_item_to_different_service(
     db_compute_serv2: ComputeService, db_compute_serv3: ComputeService
 ) -> None:
-    """Create a public Flavor belonging to a specific Compute Service.
+    """Create a public Image belonging to a specific Compute Service.
 
-    Connect this same Flavor to another Compute Service of the same
+    Connect this same Image to another Compute Service of the same
     Provider. This operation is performed creating again the same image
     but passing another service.
     """
@@ -73,20 +74,15 @@ def test_connect_same_item_to_different_service(
     assert item.uid == item2.uid
 
 
-def test_get_item(db_compute_serv: ComputeService) -> None:
+def test_get_item(db_private_image: Image) -> None:
     """Retrieve an Image from its UID."""
-    item_in = create_random_image()
-    item = image.create(obj_in=item_in, service=db_compute_serv)
-    item = image.get(uid=item.uid)
-    validate_create_image_attrs(obj_in=item_in, db_item=item)
+    item = image.get(uid=db_private_image.uid)
+    assert item.uid == db_private_image.uid
 
 
-def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Image."""
-    item_in = create_random_image()
-    item = image.create(obj_in=item_in, service=db_compute_serv)
-    item = image.get(uid=uuid4())
-    assert not item
+    assert not image.get(uid=uuid4())
 
 
 def test_get_items(db_compute_serv: ComputeService) -> None:

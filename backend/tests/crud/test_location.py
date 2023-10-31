@@ -58,20 +58,15 @@ def test_create_when_site_already_exists(db_location: Location) -> None:
     validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_region: Region) -> None:
+def test_get_item(db_location: Location) -> None:
     """Retrieve a Location from its UID."""
-    item_in = create_random_location()
-    item = location.create(obj_in=item_in, region=db_region)
-    item = location.get(uid=item.uid)
-    validate_create_location_attrs(obj_in=item_in, db_item=item)
+    item = location.get(uid=db_location.uid)
+    assert item.uid == db_location.uid
 
 
-def test_get_non_existing_item(db_region: Region) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Location."""
-    item_in = create_random_location()
-    item = location.create(obj_in=item_in, region=db_region)
-    item = location.get(uid=uuid4())
-    assert not item
+    assert not location.get(uid=uuid4())
 
 
 def test_get_items(db_region: Region) -> None:

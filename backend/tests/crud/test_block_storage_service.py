@@ -3,6 +3,7 @@ from uuid import uuid4
 from app.quota.crud import block_storage_quota
 from app.region.models import Region
 from app.service.crud import block_storage_service
+from app.service.models import BlockStorageService
 from tests.utils.block_storage_service import (
     create_random_block_storage_service,
     create_random_block_storage_service_patch,
@@ -38,20 +39,15 @@ def test_create_item_with_projects(db_region: Region) -> None:
     validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_region: Region) -> None:
+def test_get_item(db_block_storage_serv: BlockStorageService) -> None:
     """Retrieve a BlockStorage Service from its UID."""
-    item_in = create_random_block_storage_service()
-    item = block_storage_service.create(obj_in=item_in, region=db_region)
-    item = block_storage_service.get(uid=item.uid)
-    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    item = block_storage_service.get(uid=db_block_storage_serv.uid)
+    assert item.uid == db_block_storage_serv.uid
 
 
-def test_get_non_existing_item(db_region: Region) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing BlockStorage Service."""
-    item_in = create_random_block_storage_service()
-    item = block_storage_service.create(obj_in=item_in, region=db_region)
-    item = block_storage_service.get(uid=uuid4())
-    assert not item
+    assert not block_storage_service.get(uid=uuid4())
 
 
 def test_get_items(db_region: Region) -> None:

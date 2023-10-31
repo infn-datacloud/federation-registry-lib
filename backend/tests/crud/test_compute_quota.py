@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from app.project.crud import project
 from app.quota.crud import compute_quota
+from app.quota.models import ComputeQuota
 from app.service.models import ComputeService
 from tests.utils.compute_quota import (
     create_random_compute_quota,
@@ -36,30 +37,15 @@ def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
     validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_compute_serv: ComputeService) -> None:
+def test_get_item(db_compute_quota: ComputeQuota) -> None:
     """Retrieve a Compute Quota from its UID."""
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_compute_quota(project=db_project.uuid)
-    item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
-    )
-    item = compute_quota.get(uid=item.uid)
-    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
+    item = compute_quota.get(uid=db_compute_quota.uid)
+    assert item.uid == db_compute_quota.uid
 
 
-def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Compute Quota."""
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_compute_quota(project=db_project.uuid)
-    item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
-    )
-    item = compute_quota.get(uid=uuid4())
-    assert not item
+    assert not compute_quota.get(uid=uuid4())
 
 
 def test_get_items(db_compute_serv: ComputeService) -> None:

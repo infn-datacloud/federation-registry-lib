@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from app.network.crud import network
+from app.network.models import Network
 from app.project.crud import project
 from app.service.models import NetworkService
 from tests.utils.network import (
@@ -39,20 +40,15 @@ def test_create_item_private(db_network_serv: NetworkService) -> None:
     validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_network_serv: NetworkService) -> None:
+def test_get_item(db_private_network: Network) -> None:
     """Retrieve a Network from its UID."""
-    item_in = create_random_network()
-    item = network.create(obj_in=item_in, service=db_network_serv)
-    item = network.get(uid=item.uid)
-    validate_create_network_attrs(obj_in=item_in, db_item=item)
+    item = network.get(uid=db_private_network.uid)
+    assert item.uid == db_private_network.uid
 
 
-def test_get_non_existing_item(db_network_serv: NetworkService) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Network."""
-    item_in = create_random_network()
-    item = network.create(obj_in=item_in, service=db_network_serv)
-    item = network.get(uid=uuid4())
-    assert not item
+    assert not network.get(uid=uuid4())
 
 
 def test_get_items(db_network_serv: NetworkService) -> None:

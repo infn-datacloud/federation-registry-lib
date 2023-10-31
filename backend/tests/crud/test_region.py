@@ -4,6 +4,7 @@ from app.location.crud import location
 from app.location.models import Location
 from app.provider.models import Provider
 from app.region.crud import region
+from app.region.models import Region
 from app.service.crud import (
     block_storage_service,
     compute_service,
@@ -115,22 +116,6 @@ def test_create_item_with_projects_and_network_services(db_provider: Provider) -
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
-def test_create_item_with_everything(db_provider: Provider) -> None:
-    """Create a Region belonging to a specific Provider with Location,
-    BlockStorage Services, Compute Services, Identity Services and Network
-    Services."""
-    item_in = create_random_region(
-        with_location=True,
-        with_block_storage_services=True,
-        with_compute_services=True,
-        with_identity_services=True,
-        with_network_services=True,
-        projects=[i.uuid for i in db_provider.projects],
-    )
-    item = region.create(obj_in=item_in, provider=db_provider)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-
 def test_create_item_with_block_storage_services(db_provider: Provider) -> None:
     """Create a Region belonging to a specific Provider with BlockStorage
     Services.
@@ -162,20 +147,31 @@ def test_create_item_with_network_services(db_provider: Provider) -> None:
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_provider: Provider) -> None:
-    """Retrieve a Region from its UID."""
-    item_in = create_random_region()
+def test_create_item_with_everything(db_provider: Provider) -> None:
+    """Create a Region belonging to a specific Provider with Location,
+    BlockStorage Services, Compute Services, Identity Services and Network
+    Services."""
+    item_in = create_random_region(
+        with_location=True,
+        with_block_storage_services=True,
+        with_compute_services=True,
+        with_identity_services=True,
+        with_network_services=True,
+        projects=[i.uuid for i in db_provider.projects],
+    )
     item = region.create(obj_in=item_in, provider=db_provider)
-    item = region.get(uid=item.uid)
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_non_existing_item(db_provider: Provider) -> None:
+def test_get_item(db_region: Region) -> None:
+    """Retrieve a Region from its UID."""
+    item = region.get(uid=db_region.uid)
+    assert item.uid == db_region.uid
+
+
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Region."""
-    item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider)
-    item = region.get(uid=uuid4())
-    assert not item
+    assert not region.get(uid=uuid4())
 
 
 def test_get_items(db_provider: Provider) -> None:

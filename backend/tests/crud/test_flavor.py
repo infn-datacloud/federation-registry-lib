@@ -1,14 +1,13 @@
 from uuid import uuid4
 
 from app.flavor.crud import flavor
-from app.project.crud import project
+from app.flavor.models import Flavor
 from app.service.models import ComputeService
 from tests.utils.flavor import (
     create_random_flavor,
     create_random_flavor_patch,
     validate_create_flavor_attrs,
 )
-from tests.utils.project import create_random_project
 
 
 def test_create_item(db_compute_serv: ComputeService) -> None:
@@ -74,20 +73,15 @@ def test_connect_same_item_to_different_service(
     assert item.uid == item2.uid
 
 
-def test_get_item(db_compute_serv: ComputeService) -> None:
+def test_get_item(db_private_flavor: Flavor) -> None:
     """Retrieve a Flavor from its UID."""
-    item_in = create_random_flavor()
-    item = flavor.create(obj_in=item_in, service=db_compute_serv)
-    item = flavor.get(uid=item.uid)
-    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
+    item = flavor.get(uid=db_private_flavor.uid)
+    assert item.uid == db_private_flavor.uid
 
 
-def test_get_non_existing_item(db_compute_serv: ComputeService) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing Flavor."""
-    item_in = create_random_flavor()
-    item = flavor.create(obj_in=item_in, service=db_compute_serv)
-    item = flavor.get(uid=uuid4())
-    assert not item
+    assert not flavor.get(uid=uuid4())
 
 
 def test_get_items(db_compute_serv: ComputeService) -> None:

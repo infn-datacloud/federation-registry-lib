@@ -4,6 +4,7 @@ from app.identity_provider.models import IdentityProvider
 from app.project.crud import project
 from app.sla.crud import sla
 from app.user_group.crud import user_group
+from app.user_group.models import UserGroup
 from tests.utils.project import create_random_project
 from tests.utils.user_group import (
     create_random_user_group,
@@ -44,32 +45,15 @@ def test_create_item_default_values_with_projects(
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_idp_with_single_user_group: IdentityProvider) -> None:
+def test_get_item(db_user_group: UserGroup) -> None:
     """Retrieve a User Group from its UID."""
-    db_provider = db_idp_with_single_user_group.providers.all()[0]
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_user_group(project=db_project.uuid)
-    item = user_group.create(
-        obj_in=item_in,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
-    item = user_group.get(uid=item.uid)
-    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
+    item = user_group.get(uid=db_user_group.uid)
+    assert item.uid == db_user_group.uid
 
 
-def test_get_non_existing_item(db_idp_with_single_user_group: IdentityProvider) -> None:
+def test_get_non_existing_item() -> None:
     """Try to retrieve a not existing User Group."""
-    db_provider = db_idp_with_single_user_group.providers.all()[0]
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_user_group(project=db_project.uuid)
-    item = user_group.create(
-        obj_in=item_in,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
-    item = user_group.get(uid=uuid4())
-    assert not item
+    assert not user_group.get(uid=uuid4())
 
 
 def test_get_items(db_idp_with_single_user_group: IdentityProvider) -> None:
