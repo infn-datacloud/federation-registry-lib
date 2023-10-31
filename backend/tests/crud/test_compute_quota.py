@@ -16,7 +16,7 @@ def test_create_item(db_compute_serv: ComputeService) -> None:
     """Create a Compute Quota belonging to a specific Compute Service."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
@@ -29,7 +29,7 @@ def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
     a specific Compute Service."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(default=True, project=db_project.uuid)
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
@@ -52,7 +52,7 @@ def test_get_items(db_compute_serv: ComputeService) -> None:
     """Retrieve multiple Compute Quotas."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
@@ -78,7 +78,7 @@ def test_get_items_with_limit(db_compute_serv: ComputeService) -> None:
     """Test the 'limit' attribute in GET operations."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     compute_quota.create(obj_in=item_in, service=db_compute_serv, project=db_project)
     item_in2 = create_random_compute_quota(project=db_project.uuid)
@@ -98,7 +98,7 @@ def test_get_sorted_items(db_compute_serv: ComputeService) -> None:
     """Test the 'sort' attribute in GET operations."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
@@ -123,7 +123,7 @@ def test_get_items_with_skip(db_compute_serv: ComputeService) -> None:
     """Test the 'skip' attribute in GET operations."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     compute_quota.create(obj_in=item_in, service=db_compute_serv, project=db_project)
     item_in2 = create_random_compute_quota(project=db_project.uuid)
@@ -141,7 +141,7 @@ def test_patch_item(db_compute_serv: ComputeService) -> None:
     relationships."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
@@ -162,7 +162,7 @@ def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
     """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project
@@ -189,7 +189,7 @@ def test_forced_update_item(db_compute_serv: ComputeService) -> None:
     """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    project1 = db_provider.projects.all()[0]
+    project1 = db_provider.projects.single()
     item_in = create_random_compute_quota(project=project1.uuid)
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=project1
@@ -216,7 +216,7 @@ def test_delete_item(db_compute_serv: ComputeService) -> None:
     """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     item = compute_quota.create(
         obj_in=item_in, service=db_compute_serv, project=db_project

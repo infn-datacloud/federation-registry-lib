@@ -168,7 +168,7 @@ def test_delete_item(db_provider: Provider) -> None:
 
 def test_delete_item_with_proprietary_sla(db_sla: SLA) -> None:
     """Delete an existing Project and its SLA."""
-    item = db_sla.projects.all()[0]
+    item = db_sla.projects.single()
     result = project.remove(db_obj=item)
     assert result
     item = project.get(uid=item.uid)

@@ -49,7 +49,8 @@ class CRUDFlavor(
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
         else:
-            db_service = db_obj.services.all()[0]
+            # It's indifferent which service, we want to reach the provider
+            db_service = db_obj.services.single()
             db_region = db_service.region.single()
             db_provider1 = db_region.provider.single()
             db_region = service.region.single()

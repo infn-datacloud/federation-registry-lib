@@ -12,7 +12,7 @@ def db_user_group(db_idp_with_single_user_group: IdentityProvider) -> UserGroup:
 
     It has just one SLA.
     """
-    yield db_idp_with_single_user_group.user_groups.all()[0]
+    yield db_idp_with_single_user_group.user_groups.single()
 
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def db_user_group2(db_idp_with_multiple_user_groups: IdentityProvider) -> UserGr
 
     It has just one SLA.
     """
-    yield db_idp_with_multiple_user_groups.user_groups.all()[0]
+    yield db_idp_with_multiple_user_groups.user_groups.single()
 
 
 @pytest.fixture
@@ -58,4 +58,4 @@ def db_user_group_with_multiple_slas(
     item = identity_provider.create(
         obj_in=item_in, provider=db_provider_with_multiple_projects
     )
-    yield item.user_groups.all()[0]
+    yield item.user_groups.single()

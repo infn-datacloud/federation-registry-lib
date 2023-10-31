@@ -71,7 +71,7 @@ def db_provider_with_single_idp(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> Provider:
     """Provider with a single authorized IDP and a single project."""
-    return db_idp_with_single_user_group.providers.all()[0]
+    return db_idp_with_single_user_group.providers.single()
 
 
 @pytest.fixture
@@ -83,7 +83,7 @@ def db_provider_with_multiple_idps(
     Each IDP has a single user group. Each user group points to a
     different project.
     """
-    db_project1 = db_provider_with_multiple_projects.projects.all()[0]
+    db_project1 = db_provider_with_multiple_projects.projects.single()
     db_project2 = db_provider_with_multiple_projects.projects.all()[1]
     item_in = create_random_identity_provider(projects=[db_project1.uuid])
     identity_provider.create(

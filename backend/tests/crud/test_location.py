@@ -39,7 +39,7 @@ def test_create_when_site_already_exists(db_location: Location) -> None:
     Finally create a location with everything equal to the existing one.
     No changes.
     """
-    db_region = db_location.regions.all()[0]
+    db_region = db_location.regions.single()
 
     item_in = create_random_location()
     item_in.site = db_location.site

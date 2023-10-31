@@ -264,9 +264,9 @@ def test_delete_item_with_relationships(db_region: Region) -> None:
     item = compute_service.create(
         obj_in=item_in, region=db_region, projects=db_provider.projects
     )
-    db_flavor = item.flavors.all()[0]
-    db_image = item.images.all()[0]
-    db_quota = item.quotas.all()[0]
+    db_flavor = item.flavors.single()
+    db_image = item.images.single()
+    db_quota = item.quotas.single()
 
     result = compute_service.remove(db_obj=item)
     assert result

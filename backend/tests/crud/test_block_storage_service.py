@@ -226,7 +226,7 @@ def test_delete_item_with_relationships(db_region: Region) -> None:
     item = block_storage_service.create(
         obj_in=item_in, region=db_region, projects=db_provider.projects
     )
-    db_quota = item.quotas.all()[0]
+    db_quota = item.quotas.single()
 
     result = block_storage_service.remove(db_obj=item)
     assert result

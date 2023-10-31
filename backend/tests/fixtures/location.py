@@ -36,4 +36,4 @@ def db_location_with_multiple_regions(
 @pytest.fixture
 def db_region_with_location(db_location: Location) -> Region:
     """Region with a location."""
-    yield db_location.regions.all()[0]
+    yield db_location.regions.single()

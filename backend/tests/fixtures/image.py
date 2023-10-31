@@ -22,10 +22,10 @@ def db_private_image(db_public_image: Image) -> Image:
     It belongs to a specific project. It's the second image on the same
     service.
     """
-    db_service = db_public_image.services.all()[0]
+    db_service = db_public_image.services.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_image(projects=[db_project.uuid])
     item = image.create(
         obj_in=item_in, service=db_service, projects=db_provider.projects
@@ -40,7 +40,7 @@ def db_private_image_multiple_projects(db_public_image: Image) -> Image:
     It belongs to a all projects. It's the second image on the same
     service.
     """
-    db_service = db_public_image.services.all()[0]
+    db_service = db_public_image.services.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
     item_in = create_random_image(projects=[i.uuid for i in db_provider.projects])
@@ -57,10 +57,10 @@ def db_private_image2(db_private_image: Image) -> Image:
     It belongs to a specific project. It's the third image on the same
     service.
     """
-    db_service = db_private_image.services.all()[0]
+    db_service = db_private_image.services.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_image(projects=[db_project.uuid])
     item = image.create(
         obj_in=item_in, service=db_service, projects=db_provider.projects
@@ -79,7 +79,7 @@ def db_private_image3(
     """
     db_region = db_compute_serv3.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_image(projects=[db_project.uuid])
     item = image.create(
         obj_in=item_in, service=db_compute_serv3, projects=db_provider.projects
@@ -100,19 +100,19 @@ def db_shared_image(db_compute_serv2: ComputeService, db_compute_serv3) -> Flavo
 @pytest.fixture
 def db_compute_serv_with_single_image(db_public_image: Image) -> ComputeService:
     """Project with single Image."""
-    yield db_public_image.services.all()[0]
+    yield db_public_image.services.single()
 
 
 @pytest.fixture
 def db_compute_serv_with_multiple_images(db_private_image: Image) -> ComputeService:
     """Project with multiple Images (public and private ones)."""
-    yield db_private_image.services.all()[0]
+    yield db_private_image.services.single()
 
 
 @pytest.fixture
 def db_project_with_single_private_image(db_private_image: Image) -> Project:
     """Project with single private Image."""
-    yield db_private_image.projects.all()[0]
+    yield db_private_image.projects.single()
 
 
 @pytest.fixture
@@ -120,7 +120,7 @@ def db_project_with_multiple_private_images_same_service(
     db_private_image2: Image,
 ) -> Project:
     """Project with multiple Images on same service."""
-    yield db_private_image2.projects.all()[0]
+    yield db_private_image2.projects.single()
 
 
 @pytest.fixture
@@ -128,4 +128,4 @@ def db_project_with_multiple_private_images_diff_service(
     db_private_image3: Image,
 ) -> Project:
     """Project with multiple Images on different services."""
-    yield db_private_image3.projects.all()[0]
+    yield db_private_image3.projects.single()

@@ -15,7 +15,7 @@ def test_create_item(db_user_group: UserGroup) -> None:
     """Create an SLA belonging to a specific user group and pointing to an
     existing projects."""
     db_idp = db_user_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp.providers.single()
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_sla(project=db_project.uuid)
     item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
@@ -26,7 +26,7 @@ def test_create_item_default_values(db_user_group: UserGroup) -> None:
     """Create an SLA, with default values when possible, belonging to a
     specific user group and pointing to existing projects."""
     db_idp = db_user_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
+    db_provider = db_idp.providers.single()
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_sla(default=True, project=db_project.uuid)
     item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)

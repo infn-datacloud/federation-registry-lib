@@ -17,7 +17,7 @@ def test_create_item(db_block_storage_serv: BlockStorageService) -> None:
     Service."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
@@ -30,7 +30,7 @@ def test_create_item_default_values(db_block_storage_serv: BlockStorageService) 
     belonging to a specific BlockStorage Service."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(default=True, project=db_project.uuid)
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
@@ -53,7 +53,7 @@ def test_get_items(db_block_storage_serv: BlockStorageService) -> None:
     """Retrieve multiple BlockStorage Quotas."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
@@ -79,7 +79,7 @@ def test_get_items_with_limit(db_block_storage_serv: BlockStorageService) -> Non
     """Test the 'limit' attribute in GET operations."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
@@ -103,7 +103,7 @@ def test_get_sorted_items(db_block_storage_serv: BlockStorageService) -> None:
     """Test the 'sort' attribute in GET operations."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
@@ -128,7 +128,7 @@ def test_get_items_with_skip(db_block_storage_serv: BlockStorageService) -> None
     """Test the 'skip' attribute in GET operations."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
@@ -150,7 +150,7 @@ def test_patch_item(db_block_storage_serv: BlockStorageService) -> None:
     linked relationships."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
@@ -171,7 +171,7 @@ def test_patch_item_with_defaults(db_block_storage_serv: BlockStorageService) ->
     """
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project
@@ -200,7 +200,7 @@ def test_forced_update_item(db_block_storage_serv: BlockStorageService) -> None:
     """
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    project1 = db_provider.projects.all()[0]
+    project1 = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=project1.uuid)
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=project1
@@ -227,7 +227,7 @@ def test_delete_item(db_block_storage_serv: BlockStorageService) -> None:
     """
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     item = block_storage_quota.create(
         obj_in=item_in, service=db_block_storage_serv, project=db_project

@@ -18,7 +18,7 @@ def db_block_storage_quota(
     """
     db_region = db_block_storage_serv2.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     item_in.per_user = False
     item = block_storage_quota.create(
@@ -41,7 +41,7 @@ def db_block_storage_quota_per_user(
     db_service = db_block_storage_quota.service.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
     item_in.per_user = True
     item = block_storage_quota.create(
@@ -99,7 +99,7 @@ def db_block_storage_serv_with_single_quota(
     db_block_storage_quota: BlockStorageQuota,
 ) -> BlockStorageService:
     """Project with single Block Storage Quota."""
-    yield db_block_storage_quota.service.all()[0]
+    yield db_block_storage_quota.service.single()
 
 
 @pytest.fixture
@@ -107,7 +107,7 @@ def db_block_storage_serv_with_multiple_quotas(
     db_block_storage_quota2: BlockStorageQuota,
 ) -> BlockStorageService:
     """Project with single Block Storage Quota."""
-    yield db_block_storage_quota2.service.all()[0]
+    yield db_block_storage_quota2.service.single()
 
 
 @pytest.fixture

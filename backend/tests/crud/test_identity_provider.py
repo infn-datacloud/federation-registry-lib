@@ -52,7 +52,7 @@ def test_get_non_existing_item() -> None:
 
 def test_get_items(db_provider_with_single_project: Provider) -> None:
     """Retrieve multiple Identity Providers."""
-    db_project1 = db_provider_with_single_project.projects.all()[0]
+    db_project1 = db_provider_with_single_project.projects.single()
     db_project2 = project.create(
         obj_in=create_random_project(), provider=db_provider_with_single_project
     )
@@ -79,7 +79,7 @@ def test_get_items(db_provider_with_single_project: Provider) -> None:
 
 def test_get_items_with_limit(db_provider_with_single_project: Provider) -> None:
     """Test the 'limit' attribute in GET operations."""
-    db_project1 = db_provider_with_single_project.projects.all()[0]
+    db_project1 = db_provider_with_single_project.projects.single()
     db_project2 = project.create(
         obj_in=create_random_project(), provider=db_provider_with_single_project
     )
@@ -100,7 +100,7 @@ def test_get_items_with_limit(db_provider_with_single_project: Provider) -> None
 
 def test_get_sorted_items(db_provider_with_single_project: Provider) -> None:
     """Test the 'sort' attribute in GET operations."""
-    db_project1 = db_provider_with_single_project.projects.all()[0]
+    db_project1 = db_provider_with_single_project.projects.single()
     db_project2 = project.create(
         obj_in=create_random_project(), provider=db_provider_with_single_project
     )
@@ -126,7 +126,7 @@ def test_get_sorted_items(db_provider_with_single_project: Provider) -> None:
 
 def test_get_items_with_skip(db_provider_with_single_project: Provider) -> None:
     """Test the 'skip' attribute in GET operations."""
-    db_project1 = db_provider_with_single_project.projects.all()[0]
+    db_project1 = db_provider_with_single_project.projects.single()
     db_project2 = project.create(
         obj_in=create_random_project(), provider=db_provider_with_single_project
     )

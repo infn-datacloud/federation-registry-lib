@@ -207,7 +207,7 @@ def test_delete_item_with_relationships(db_region: Region) -> None:
     """Delete an existing Network Service and its linked quotas."""
     item_in = create_random_network_service(with_networks=True)
     item = network_service.create(obj_in=item_in, region=db_region)
-    db_network = item.networks.all()[0]
+    db_network = item.networks.single()
 
     result = network_service.remove(db_obj=item)
     assert result

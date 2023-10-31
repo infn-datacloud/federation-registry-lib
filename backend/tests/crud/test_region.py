@@ -53,7 +53,7 @@ def test_create_item_with_already_existing_location(db_location: Location) -> No
     Verify that no new locations have been created but all regions point
     to the same.
     """
-    db_region = db_location.regions.all()[0]
+    db_region = db_location.regions.single()
     db_provider = db_region.provider.single()
 
     item_in = create_random_region(with_location=True)

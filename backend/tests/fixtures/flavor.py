@@ -21,10 +21,10 @@ def db_private_flavor(db_public_flavor: Flavor) -> Flavor:
     It belongs to a specific project. It's the second flavor on the same
     service.
     """
-    db_service = db_public_flavor.services.all()[0]
+    db_service = db_public_flavor.services.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_flavor(projects=[db_project.uuid])
     item = flavor.create(
         obj_in=item_in, service=db_service, projects=db_provider.projects
@@ -39,7 +39,7 @@ def db_private_flavor_multiple_projects(db_public_flavor: Flavor) -> Flavor:
     It belongs to a all projects. It's the second flavor on the same
     service.
     """
-    db_service = db_public_flavor.services.all()[0]
+    db_service = db_public_flavor.services.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
     item_in = create_random_flavor(projects=[i.uuid for i in db_provider.projects])
@@ -56,10 +56,10 @@ def db_private_flavor2(db_private_flavor: Flavor) -> Flavor:
     It belongs to a specific project. It's the third flavor on the same
     service.
     """
-    db_service = db_private_flavor.services.all()[0]
+    db_service = db_private_flavor.services.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_flavor(projects=[db_project.uuid])
     item = flavor.create(
         obj_in=item_in, service=db_service, projects=db_provider.projects
@@ -78,7 +78,7 @@ def db_private_flavor3(
     """
     db_region = db_compute_serv3.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_flavor(projects=[db_project.uuid])
     item = flavor.create(
         obj_in=item_in, service=db_compute_serv3, projects=db_provider.projects
@@ -99,19 +99,19 @@ def db_shared_flavor(db_compute_serv2: ComputeService, db_compute_serv3) -> Flav
 @pytest.fixture
 def db_compute_serv_with_single_flavor(db_public_flavor: Flavor) -> ComputeService:
     """Project with single Flavor."""
-    yield db_public_flavor.services.all()[0]
+    yield db_public_flavor.services.single()
 
 
 @pytest.fixture
 def db_compute_serv_with_multiple_flavors(db_private_flavor: Flavor) -> ComputeService:
     """Project with multiple Flavors (public and private ones)."""
-    yield db_private_flavor.services.all()[0]
+    yield db_private_flavor.services.single()
 
 
 @pytest.fixture
 def db_project_with_single_private_flavor(db_private_flavor: Flavor) -> Project:
     """Project with single private Flavor."""
-    yield db_private_flavor.projects.all()[0]
+    yield db_private_flavor.projects.single()
 
 
 @pytest.fixture
@@ -119,7 +119,7 @@ def db_project_with_multiple_private_flavors_same_service(
     db_private_flavor2: Flavor,
 ) -> Project:
     """Project with multiple Flavors on same service."""
-    yield db_private_flavor2.projects.all()[0]
+    yield db_private_flavor2.projects.single()
 
 
 @pytest.fixture
@@ -127,4 +127,4 @@ def db_project_with_multiple_private_flavors_diff_service(
     db_private_flavor3: Flavor,
 ) -> Project:
     """Project with multiple Flavors on different services."""
-    yield db_private_flavor3.projects.all()[0]
+    yield db_private_flavor3.projects.single()

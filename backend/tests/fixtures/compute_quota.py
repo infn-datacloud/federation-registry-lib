@@ -18,7 +18,7 @@ def db_compute_quota(
     """
     db_region = db_compute_serv2.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     item_in.per_user = False
     item = compute_quota.create(
@@ -41,7 +41,7 @@ def db_compute_quota_per_user(
     db_service = db_compute_quota.service.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
     item_in.per_user = True
     item = compute_quota.create(obj_in=item_in, service=db_service, project=db_project)
@@ -95,7 +95,7 @@ def db_compute_serv_with_single_quota(
     db_compute_quota: ComputeQuota,
 ) -> ComputeService:
     """Project with single Compute Quota."""
-    yield db_compute_quota.service.all()[0]
+    yield db_compute_quota.service.single()
 
 
 @pytest.fixture
@@ -103,7 +103,7 @@ def db_compute_serv_with_multiple_quotas(
     db_compute_quota2: ComputeQuota,
 ) -> ComputeService:
     """Project with single Compute Quota."""
-    yield db_compute_quota2.service.all()[0]
+    yield db_compute_quota2.service.single()
 
 
 @pytest.fixture

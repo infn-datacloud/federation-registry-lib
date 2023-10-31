@@ -208,7 +208,7 @@ def test_forced_update_item(db_compute_serv: ComputeService) -> None:
     """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
-    project1 = db_provider.projects.all()[0]
+    project1 = db_provider.projects.single()
     item_in = create_random_image(projects=[project1.uuid])
     item = image.create(
         obj_in=item_in, service=db_compute_serv, projects=db_provider.projects

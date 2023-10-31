@@ -34,7 +34,7 @@ def test_create_item_private(db_network_serv: NetworkService) -> None:
     """
     db_region = db_network_serv.region.single()
     db_provider = db_region.provider.single()
-    project = db_provider.projects.all()[0]
+    project = db_provider.projects.single()
     item_in = create_random_network(project=project.uuid)
     item = network.create(obj_in=item_in, service=db_network_serv, project=project)
     validate_create_network_attrs(obj_in=item_in, db_item=item)
@@ -174,7 +174,7 @@ def test_forced_update_item(db_network_serv: NetworkService) -> None:
     """
     db_region = db_network_serv.region.single()
     db_provider = db_region.provider.single()
-    project1 = db_provider.projects.all()[0]
+    project1 = db_provider.projects.single()
     item_in = create_random_network(project=project1.uuid)
     item = network.create(obj_in=item_in, service=db_network_serv, project=project1)
     item_in = create_random_network()
@@ -217,7 +217,7 @@ def test_delete_item_with_relationships(db_network_serv: NetworkService) -> None
     """
     db_region = db_network_serv.region.single()
     db_provider = db_region.provider.single()
-    project = db_provider.projects.all()[0]
+    project = db_provider.projects.single()
     item_in = create_random_network(project=project.uuid)
     item = network.create(obj_in=item_in, service=db_network_serv, project=project)
     num_db_project = len(db_provider.projects)

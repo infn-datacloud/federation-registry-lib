@@ -26,7 +26,7 @@ def db_private_network(db_public_network: Network) -> Network:
     db_service = db_public_network.service.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_network(project=db_project.uuid)
     item = network.create(obj_in=item_in, service=db_service, project=db_project)
     yield item
@@ -42,7 +42,7 @@ def db_private_network2(db_private_network: Network) -> Network:
     db_service = db_private_network.service.single()
     db_region = db_service.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_network(project=db_project.uuid)
     item = network.create(obj_in=item_in, service=db_service, project=db_project)
     yield item
@@ -59,7 +59,7 @@ def db_private_network3(
     """
     db_region = db_network_serv3.region.single()
     db_provider = db_region.provider.single()
-    db_project = db_provider.projects.all()[0]
+    db_project = db_provider.projects.single()
     item_in = create_random_network(project=db_project.uuid)
     item = network.create(obj_in=item_in, service=db_network_serv3, project=db_project)
     yield item
