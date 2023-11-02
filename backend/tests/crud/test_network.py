@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.network.crud import network
@@ -10,7 +11,6 @@ from tests.utils.network import (
     create_random_network_patch,
     validate_create_network_attrs,
 )
-from tests.utils.project import create_random_project
 
 
 def test_create_item(db_network_serv: NetworkService) -> None:
@@ -47,7 +47,7 @@ def test_get_item(db_private_network: Network) -> None:
     assert item.uid == db_private_network.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Network."""
     assert not network.get(uid=uuid4())
 
@@ -140,46 +140,69 @@ def test_patch_item_with_defaults(db_private_network: Network) -> None:
 # or public when it has related projects
 
 
-def test_forced_update_item(db_network_serv: NetworkService) -> None:
+def test_change_network_from_private_to_public(db_private_network: Network) -> None:
     """Update the attributes and relationships of an existing Network.
 
-    At first update a Network with a set of linked projects, updating
-    its attributes and removing all linked projects.
+    Update a Network with a set of linked projects, updating its
+    attributes and removing all linked projects. Change it from private
+    to public.
+    """
+    item_in = create_random_network()
+    item = network.update(db_obj=db_private_network, obj_in=item_in, force=True)
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
+
+
+def test_change_network_from_public_to_private(db_public_network: Network) -> None:
+    """Update the attributes and relationships of an existing Network.
 
     Update a Network with no projects, changing its attributes and
-    linking a new project.
+    linking a new project. Change it from public to private.
+    """
+    db_service = db_public_network.service.single()
+    db_region = db_service.region.single()
+    db_provider = db_region.provider.single()
+    db_project = db_provider.projects.single()
+    item_in = create_random_network(project=db_project.uuid)
+    item = network.update(
+        db_obj=db_public_network,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
+
+
+def test_replace_private_network_projects(db_private_network: Network) -> None:
+    """Update the attributes and relationships of an existing Network.
 
     Update a Network with a set of linked projects, changing both its
     attributes and replacing the linked projects with new ones.
+    """
+    db_project = db_private_network.project.single()
+    db_provider = db_project.provider.single()
+    db_project = db_provider.projects.single()
+    item_in = create_random_network(project=db_project.uuid)
+    item = network.update(
+        db_obj=db_private_network,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_network_attrs(obj_in=item_in, db_item=item)
+
+
+def test_force_update_without_changing_relationships(
+    db_private_network: Network,
+) -> None:
+    """Update the attributes and relationships of an existing Network.
 
     Update a Network with a set of linked projects, changing only its
     attributes leaving untouched its connections (this is different from
     the previous test because the flag force is set to True).
     """
-    db_region = db_network_serv.region.single()
-    db_provider = db_region.provider.single()
-    project1 = db_provider.projects.single()
-    item_in = create_random_network(project=project1.uuid)
-    item = network.create(obj_in=item_in, service=db_network_serv, project=project1)
-    item_in = create_random_network()
-    item = network.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_network_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_network(project=project1.uuid)
-    item = network.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
-    )
-    validate_create_network_attrs(obj_in=item_in, db_item=item)
-
-    project2 = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_network(project=project2.uuid)
-    item = network.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
-    )
-    validate_create_network_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_network(project=item_in.project)
-    item = network.update(db_obj=item, obj_in=item_in, force=True)
+    db_project = db_private_network.project.single()
+    item_in = create_random_network(project=db_project.uuid)
+    item = network.update(db_obj=db_private_network, obj_in=item_in, force=True)
     validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 

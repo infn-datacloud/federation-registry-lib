@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.flavor.crud import flavor
@@ -81,7 +82,7 @@ def test_get_item(db_private_flavor: Flavor) -> None:
     assert item.uid == db_private_flavor.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Flavor."""
     assert not flavor.get(uid=uuid4())
 
@@ -172,48 +173,66 @@ def test_patch_item_with_defaults(db_private_flavor: Flavor) -> None:
 # or public when it has related projects
 
 
-def test_forced_update_item(db_compute_serv: ComputeService) -> None:
+def test_change_flavor_from_private_to_public(db_private_flavor: Flavor) -> None:
     """Update the attributes and relationships of an existing Flavor.
 
-    At first update a Flavor with a set of linked projects, updating its
-    attributes and removing all linked projects.
+    Update a Flavor with a set of linked projects, updating its
+    attributes and removing all linked projects. Change it from private
+    to public.
+    """
+    item_in = create_random_flavor()
+    item = flavor.update(db_obj=db_private_flavor, obj_in=item_in, force=True)
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
+
+
+def test_change_flavor_from_public_to_private(db_public_flavor: Flavor) -> None:
+    """Update the attributes and relationships of an existing Flavor.
 
     Update a Flavor with no projects, changing its attributes and
-    linking a new project.
+    linking a new project. Change it from public to private.
+    """
+    db_service = db_public_flavor.services.single()
+    db_region = db_service.region.single()
+    db_provider = db_region.provider.single()
+    item_in = create_random_flavor(projects=[i.uuid for i in db_provider.projects])
+    item = flavor.update(
+        db_obj=db_public_flavor,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
+
+
+def test_replace_private_flavor_projects(db_private_flavor: Flavor) -> None:
+    """Update the attributes and relationships of an existing Flavor.
 
     Update a Flavor with a set of linked projects, changing both its
     attributes and replacing the linked projects with new ones.
+    """
+    db_project = db_private_flavor.projects.single()
+    db_provider = db_project.provider.single()
+    item_in = create_random_flavor(projects=[i.uuid for i in db_provider.projects])
+    item = flavor.update(
+        db_obj=db_private_flavor,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
+
+
+def test_force_update_without_changing_relationships(db_private_flavor: Flavor) -> None:
+    """Update the attributes and relationships of an existing Flavor.
 
     Update a Flavor with a set of linked projects, changing only its
     attributes leaving untouched its connections (this is different from
     the previous test because the flag force is set to True).
     """
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    project1 = db_provider.projects.all()[0]
-    item_in = create_random_flavor(projects=[project1.uuid])
-    item = flavor.create(
-        obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
+    item_in = create_random_flavor(
+        projects=[i.uuid for i in db_private_flavor.projects]
     )
-    item_in = create_random_flavor()
-    item = flavor.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_flavor(projects=[project1.uuid])
-    item = flavor.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
-    )
-    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
-
-    project2 = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_flavor(projects=[project2.uuid])
-    item = flavor.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
-    )
-    validate_create_flavor_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_flavor(projects=item_in.projects)
-    item = flavor.update(db_obj=item, obj_in=item_in, force=True)
+    item = flavor.update(db_obj=db_private_flavor, obj_in=item_in, force=True)
     validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
