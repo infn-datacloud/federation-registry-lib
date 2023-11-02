@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from app.location.crud import location
 from app.location.models import Location
+from app.region.crud import region
 from app.region.models import Region
 from tests.utils.location import (
     create_random_location,
@@ -156,12 +157,9 @@ def test_forced_update_item(db_region: Region) -> None:
     validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_region: Region) -> None:
+def test_delete_item(db_location: Location) -> None:
     """Delete an existing Location."""
-    item_in = create_random_location()
-    item = location.create(obj_in=item_in, region=db_region)
-    result = location.remove(db_obj=item)
-    assert result
-    item = location.get(uid=item.uid)
-    assert not item
-    assert db_region
+    db_region = db_location.regions.single()
+    assert location.remove(db_obj=db_location)
+    assert not location.get(uid=db_location.uid)
+    assert region.get(uid=db_region.uid)

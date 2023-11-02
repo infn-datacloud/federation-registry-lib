@@ -3,6 +3,7 @@ from uuid import uuid4
 from app.project.crud import project
 from app.quota.crud import block_storage_quota
 from app.quota.models import BlockStorageQuota
+from app.service.crud import block_storage_service
 from app.service.models import BlockStorageService
 from tests.utils.block_storage_quota import (
     create_random_block_storage_quota,
@@ -186,21 +187,14 @@ def test_forced_update_item(db_block_storage_serv: BlockStorageService) -> None:
     validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_block_storage_serv: BlockStorageService) -> None:
+def test_delete_item(db_block_storage_quota: BlockStorageQuota) -> None:
     """Delete an existing BlockStorage Quota.
 
     Do not delete related projects.
     """
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv, project=db_project
-    )
-    num_db_project = len(db_provider.projects)
-    result = block_storage_quota.remove(db_obj=item)
-    assert result
-    item = block_storage_quota.get(uid=item.uid)
-    assert not item
-    assert len(db_provider.projects) == num_db_project
+    db_project = db_block_storage_quota.project.single()
+    db_service = db_block_storage_quota.service.single()
+    assert block_storage_quota.remove(db_obj=db_block_storage_quota)
+    assert not block_storage_quota.get(uid=db_block_storage_quota.uid)
+    assert project.get(uid=db_project.uid)
+    assert block_storage_service.get(uid=db_service.uid)

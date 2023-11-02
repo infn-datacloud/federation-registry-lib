@@ -2,6 +2,8 @@ from uuid import uuid4
 
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
+from app.project.crud import project
+from app.service.crud import compute_service
 from app.service.models import ComputeService
 from tests.utils.flavor import (
     create_random_flavor,
@@ -218,31 +220,22 @@ def test_forced_update_item(db_compute_serv: ComputeService) -> None:
     validate_create_flavor_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_compute_serv: ComputeService) -> None:
+def test_delete_item(db_public_flavor: Flavor) -> None:
     """Delete an existing public Flavor."""
-    item_in = create_random_flavor()
-    item = flavor.create(obj_in=item_in, service=db_compute_serv)
-    result = flavor.remove(db_obj=item)
-    assert result
-    item = flavor.get(uid=item.uid)
-    assert not item
-    assert db_compute_serv
+    db_service = db_public_flavor.services.single()
+    assert flavor.remove(db_obj=db_public_flavor)
+    assert not flavor.get(uid=db_public_flavor.uid)
+    assert compute_service.get(uid=db_service.uid)
 
 
-def test_delete_item_with_relationships(db_compute_serv: ComputeService) -> None:
+def test_delete_item_with_relationships(db_private_flavor: Flavor) -> None:
     """Delete an existing private Flavor.
 
     Do not delete linked projects
     """
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    item_in = create_random_flavor(projects=[i.uuid for i in db_provider.projects])
-    item = flavor.create(
-        obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
-    )
-    num_db_project = len(db_provider.projects)
-    result = flavor.remove(db_obj=item)
-    assert result
-    item = flavor.get(uid=item.uid)
-    assert not item
-    assert len(db_provider.projects) == num_db_project
+    db_service = db_private_flavor.services.single()
+    db_project = db_private_flavor.projects.single()
+    assert flavor.remove(db_obj=db_private_flavor)
+    assert not flavor.get(uid=db_private_flavor.uid)
+    assert project.get(uid=db_project.uid)
+    assert compute_service.get(uid=db_service.uid)

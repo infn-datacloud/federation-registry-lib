@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from app.region.crud import region
 from app.region.models import Region
 from app.service.crud import identity_service
 from app.service.models import IdentityService
@@ -132,12 +133,9 @@ def test_forced_update_item(db_region: Region) -> None:
     validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_region: Region) -> None:
+def test_delete_item(db_identity_serv: IdentityService) -> None:
     """Delete an existing Identity Service."""
-    item_in = create_random_identity_service()
-    item = identity_service.create(obj_in=item_in, region=db_region)
-    result = identity_service.remove(db_obj=item)
-    assert result
-    item = identity_service.get(uid=item.uid)
-    assert not item
-    assert db_region
+    db_region = db_identity_serv.region.single()
+    assert identity_service.remove(db_obj=db_identity_serv)
+    assert not identity_service.get(uid=db_identity_serv.uid)
+    assert region.get(uid=db_region.uid)

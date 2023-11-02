@@ -34,8 +34,19 @@ def db_network_serv3(db_region3: Region) -> NetworkService:
 
 @pytest.fixture
 def db_region_with_network_service(db_network_serv: NetworkService) -> Region:
-    """Region with a block storage service."""
+    """Region with a network service."""
     yield db_network_serv.region.single()
+
+
+@pytest.fixture
+def db_deletable_region_with_network_service(
+    db_network_serv3: NetworkService,
+) -> Region:
+    """Region with a network service.
+
+    Region can be deleted.
+    """
+    yield db_network_serv3.region.single()
 
 
 # TODO Add fixture of region with multiple network_services?

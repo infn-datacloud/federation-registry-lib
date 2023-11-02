@@ -3,6 +3,7 @@ from uuid import uuid4
 from app.project.crud import project
 from app.quota.crud import compute_quota
 from app.quota.models import ComputeQuota
+from app.service.crud import compute_service
 from app.service.models import ComputeService
 from tests.utils.compute_quota import (
     create_random_compute_quota,
@@ -177,21 +178,14 @@ def test_forced_update_item(db_compute_serv: ComputeService) -> None:
     validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_compute_serv: ComputeService) -> None:
+def test_delete_item(db_compute_quota: ComputeQuota) -> None:
     """Delete an existing Compute Quota.
 
     Do not delete related projects.
     """
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_compute_quota(project=db_project.uuid)
-    item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
-    )
-    num_db_project = len(db_provider.projects)
-    result = compute_quota.remove(db_obj=item)
-    assert result
-    item = compute_quota.get(uid=item.uid)
-    assert not item
-    assert len(db_provider.projects) == num_db_project
+    db_project = db_compute_quota.project.single()
+    db_service = db_compute_quota.service.single()
+    assert compute_quota.remove(db_obj=db_compute_quota)
+    assert not compute_quota.get(uid=db_compute_quota.uid)
+    assert project.get(uid=db_project.uid)
+    assert compute_service.get(uid=db_service.uid)

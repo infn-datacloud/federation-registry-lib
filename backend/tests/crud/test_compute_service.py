@@ -3,6 +3,7 @@ from uuid import uuid4
 from app.flavor.crud import flavor
 from app.image.crud import image
 from app.quota.crud import compute_quota
+from app.region.crud import region
 from app.region.models import Region
 from app.service.crud import compute_service
 from app.service.models import ComputeService
@@ -230,40 +231,48 @@ def test_forced_update_item_(db_region: Region) -> None:
     validate_create_compute_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_region: Region) -> None:
+def test_delete_item(db_compute_serv: ComputeService) -> None:
     """Delete an existing Compute Service."""
-    item_in = create_random_compute_service()
-    item = compute_service.create(obj_in=item_in, region=db_region)
-    result = compute_service.remove(db_obj=item)
-    assert result
-    item = compute_service.get(uid=item.uid)
-    assert not item
-    assert db_region
+    db_region = db_compute_serv.region.single()
+    assert compute_service.remove(db_obj=db_compute_serv)
+    assert not compute_service.get(uid=db_compute_serv.uid)
+    assert region.get_multi(uid=db_region.uid)
 
 
-def test_delete_item_with_relationships(db_region: Region) -> None:
+def test_delete_item_with_flavors(
+    db_compute_serv_with_single_flavor: ComputeService,
+) -> None:
+    """Delete an existing Compute Service and its linked flavors, images and
+    flavors."""
+    db_region = db_compute_serv_with_single_flavor.region.single()
+    db_flavor = db_compute_serv_with_single_flavor.flavors.single()
+    assert compute_service.remove(db_obj=db_compute_serv_with_single_flavor)
+    assert not compute_service.get(uid=db_compute_serv_with_single_flavor.uid)
+    assert region.get(uid=db_region.uid)
+    assert not flavor.get(uid=db_flavor.uid)
+
+
+def test_delete_item_with_images(
+    db_compute_serv_with_single_image: ComputeService,
+) -> None:
+    """Delete an existing Compute Service and its linked flavors, images and
+    images."""
+    db_region = db_compute_serv_with_single_image.region.single()
+    db_image = db_compute_serv_with_single_image.images.single()
+    assert compute_service.remove(db_obj=db_compute_serv_with_single_image)
+    assert not compute_service.get(uid=db_compute_serv_with_single_image.uid)
+    assert region.get(uid=db_region.uid)
+    assert not image.get(uid=db_image.uid)
+
+
+def test_delete_item_with_quotas(
+    db_compute_serv_with_single_quota: ComputeService,
+) -> None:
     """Delete an existing Compute Service and its linked flavors, images and
     quotas."""
-    db_provider = db_region.provider.single()
-    item_in = create_random_compute_service(
-        with_flavors=True,
-        with_images=True,
-        projects=[i.uuid for i in db_provider.projects],
-    )
-    item = compute_service.create(
-        obj_in=item_in, region=db_region, projects=db_provider.projects
-    )
-    db_flavor = item.flavors.single()
-    db_image = item.images.single()
-    db_quota = item.quotas.single()
-
-    result = compute_service.remove(db_obj=item)
-    assert result
-    item = compute_service.get(uid=item.uid)
-    assert not item
-    item = flavor.get(uid=db_flavor.uid)
-    assert not item
-    item = image.get(uid=db_image.uid)
-    assert not item
-    item = compute_quota.get(uid=db_quota.uid)
-    assert not item
+    db_region = db_compute_serv_with_single_quota.region.single()
+    db_quota = db_compute_serv_with_single_quota.quotas.single()
+    assert compute_service.remove(db_obj=db_compute_serv_with_single_quota)
+    assert not compute_service.get(uid=db_compute_serv_with_single_quota.uid)
+    assert region.get(uid=db_region.uid)
+    assert not compute_quota.get(uid=db_quota.uid)

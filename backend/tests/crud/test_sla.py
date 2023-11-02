@@ -1,9 +1,11 @@
 from uuid import uuid4
 
-from app.provider.models import Provider
 from app.sla.crud import sla
+from app.project.crud import project
+from app.user_group.crud import user_group
 from app.sla.models import SLA
 from app.user_group.models import UserGroup
+from scripts.models.provider import Provider
 from tests.utils.sla import (
     create_random_sla,
     create_random_sla_patch,
@@ -158,14 +160,11 @@ def test_forced_update(db_user_group: UserGroup) -> None:
     validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_user_group: UserGroup) -> None:
+def test_delete_item(db_sla: SLA) -> None:
     """Delete an existing SLA."""
-    db_idp = db_user_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_sla(project=db_project.uuid)
-    item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
-    result = sla.remove(db_obj=item)
-    assert result
-    item = sla.get(uid=item.uid)
-    assert not item
+    db_project = db_sla.projects.single()
+    db_user_group = db_sla.user_group.single()
+    assert sla.remove(db_obj=db_sla)
+    assert not sla.get(uid=db_sla.uid)
+    assert project.get(uid=db_project.uid)
+    assert user_group.get(uid=db_user_group.uid)

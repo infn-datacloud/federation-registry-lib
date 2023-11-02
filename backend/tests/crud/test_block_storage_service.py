@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from app.quota.crud import block_storage_quota
+from app.region.crud import region
 from app.region.models import Region
 from app.service.crud import block_storage_service
 from app.service.models import BlockStorageService
@@ -196,31 +197,23 @@ def test_forced_update_item_(db_region: Region) -> None:
     validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_region: Region) -> None:
+def test_delete_item(db_block_storage_serv: BlockStorageService) -> None:
     """Delete an existing BlockStorage Service."""
-    item_in = create_random_block_storage_service()
-    item = block_storage_service.create(obj_in=item_in, region=db_region)
-    result = block_storage_service.remove(db_obj=item)
-    assert result
-    item = block_storage_service.get(uid=item.uid)
-    assert not item
-    assert db_region
+    db_region = db_block_storage_serv.region.single()
+    assert block_storage_service.remove(db_obj=db_block_storage_serv)
+    assert not block_storage_service.get(uid=db_block_storage_serv.uid)
+    assert region.get_multi(uid=db_region.uid)
 
 
-def test_delete_item_with_relationships(db_region: Region) -> None:
+def test_delete_item_with_relationships(
+    db_block_storage_serv_with_single_quota: BlockStorageService,
+) -> None:
     """Delete an existing BlockStorage Service and its linked quotas."""
-    db_provider = db_region.provider.single()
-    item_in = create_random_block_storage_service(
-        projects=[i.uuid for i in db_provider.projects]
+    db_region = db_block_storage_serv_with_single_quota.region.single()
+    db_quota = db_block_storage_serv_with_single_quota.quotas.single()
+    assert block_storage_service.remove(db_obj=db_block_storage_serv_with_single_quota)
+    assert not block_storage_service.get(
+        uid=db_block_storage_serv_with_single_quota.uid
     )
-    item = block_storage_service.create(
-        obj_in=item_in, region=db_region, projects=db_provider.projects
-    )
-    db_quota = item.quotas.single()
-
-    result = block_storage_service.remove(db_obj=item)
-    assert result
-    item = block_storage_service.get(uid=item.uid)
-    assert not item
-    item = block_storage_quota.get(uid=db_quota.uid)
-    assert not item
+    assert region.get(uid=db_region.uid)
+    assert not block_storage_quota.get(uid=db_quota.uid)

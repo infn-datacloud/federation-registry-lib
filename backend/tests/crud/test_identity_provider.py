@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
+from app.provider.crud import provider
 from app.provider.models import Provider
 from app.user_group.crud import user_group
 from tests.utils.identity_provider import (
@@ -217,20 +218,15 @@ def test_forced_update_item_with_projects_and_user_groups(
 
 
 def test_delete_item_with_relationships(
-    db_provider_with_single_project: Provider,
+    db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
     """Delete an existing Identity Provider.
 
     On cascade delete linked User Groups.
     """
-    item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
-    )
-    item = identity_provider.create(
-        obj_in=item_in, provider=db_provider_with_single_project
-    )
-    result = identity_provider.remove(db_obj=item)
-    assert result
-    item = identity_provider.get(uid=item.uid)
-    assert not item
-    assert not len(user_group.get_multi())
+    db_provider = db_idp_with_single_user_group.providers.single()
+    db_user_group = db_idp_with_single_user_group.user_groups.single()
+    assert identity_provider.remove(db_obj=db_idp_with_single_user_group)
+    assert not identity_provider.get(uid=db_idp_with_single_user_group.uid)
+    assert not user_group.get(uid=db_user_group.uid)
+    assert provider.get(uid=db_provider.uid)

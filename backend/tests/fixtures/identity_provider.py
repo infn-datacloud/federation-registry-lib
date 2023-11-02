@@ -94,3 +94,10 @@ def db_provider_with_multiple_idps(
         obj_in=item_in, provider=db_provider_with_multiple_projects
     )
     yield db_provider_with_multiple_projects
+
+
+@pytest.fixture
+def db_provider_with_shared_idp(
+    db_idp_with_multiple_providers: IdentityProvider,
+) -> Provider:
+    yield db_idp_with_multiple_providers.providers.single()

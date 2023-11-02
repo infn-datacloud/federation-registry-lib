@@ -286,30 +286,53 @@ def test_forced_update_item_with_projects_and_regions(
     validate_create_provider_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(setup_and_teardown_db: Generator) -> None:
+def test_delete_item(db_provider: Provider) -> None:
     """Delete an existing Provider."""
-    item_in = create_random_provider()
-    item = provider.create(obj_in=item_in)
-    result = provider.remove(db_obj=item)
-    assert result
-    item = provider.get(uid=item.uid)
-    assert not item
+    assert provider.remove(db_obj=db_provider)
+    assert not provider.get(uid=db_provider.uid)
 
 
-def test_delete_item_with_relationships(setup_and_teardown_db: Generator) -> None:
+def test_delete_item_with_projects(db_provider_with_single_project: Provider) -> None:
     """Delete an existing Provider.
 
-    On cascade delete projects and regions. Delete identity providers
-    only if no other providers use them.
+    On cascade delete projects.
     """
-    item_in = create_random_provider(
-        with_identity_providers=True, with_projects=True, with_regions=True
-    )
-    item = provider.create(obj_in=item_in)
-    result = provider.remove(db_obj=item)
-    assert result
-    item = provider.get(uid=item.uid)
-    assert not item
-    assert not len(region.get_multi())
-    assert not len(project.get_multi())
-    assert not len(identity_provider.get_multi())
+    db_project = db_provider_with_single_project.projects.single()
+    assert provider.remove(db_obj=db_provider_with_single_project)
+    assert not provider.get(uid=db_provider_with_single_project.uid)
+    assert not project.get(uid=db_project.uid)
+
+
+def test_delete_item_with_regions(db_provider_with_single_region: Provider) -> None:
+    """Delete an existing Provider.
+
+    On cascade delete regions.
+    """
+    db_region = db_provider_with_single_region.regions.single()
+    assert provider.remove(db_obj=db_provider_with_single_region)
+    assert not provider.get(uid=db_provider_with_single_region.uid)
+    assert not region.get(uid=db_region.uid)
+
+
+def test_delete_item_with_proprietary_idp(
+    db_provider_with_single_idp: Provider,
+) -> None:
+    """Delete an existing Provider.
+
+    Delete identity providers only if no other providers use them.
+    """
+    db_idp = db_provider_with_single_idp.identity_providers.single()
+    assert provider.remove(db_obj=db_provider_with_single_idp)
+    assert not provider.get(uid=db_provider_with_single_idp.uid)
+    assert not identity_provider.get(uid=db_idp.uid)
+
+
+def test_delete_item_with_shared_idp(db_provider_with_shared_idp: Provider) -> None:
+    """Delete an existing Provider.
+
+    Delete identity providers only if no other providers use them.
+    """
+    db_idp = db_provider_with_shared_idp.identity_providers.single()
+    assert provider.remove(db_obj=db_provider_with_shared_idp)
+    assert not provider.get(uid=db_provider_with_shared_idp.uid)
+    assert identity_provider.get(uid=db_idp.uid)

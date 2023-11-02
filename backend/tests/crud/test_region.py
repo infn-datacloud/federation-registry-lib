@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from app.location.crud import location
 from app.location.models import Location
+from app.provider.crud import provider
 from app.provider.models import Provider
 from app.region.crud import region
 from app.region.models import Region
@@ -11,7 +12,6 @@ from app.service.crud import (
     identity_service,
     network_service,
 )
-from app.service.enum import ServiceType
 from tests.utils.region import (
     create_random_region,
     create_random_region_patch,
@@ -522,62 +522,184 @@ def test_forced_update_item_with_projects_and_network_services(
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_provider: Provider) -> None:
+def test_delete_item(db_region3: Region) -> None:
     """Delete an existing Region."""
-    item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider)
-    item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider)
-    result = region.remove(db_obj=item)
-    assert result
-    item = region.get(uid=item.uid)
-    assert not item
-    assert db_provider
+    db_provider = db_region3.provider.single()
+    assert region.remove(db_obj=db_region3)
+    assert not region.get(uid=db_region3.uid)
+    assert provider.get(uid=db_provider.uid)
 
 
-def test_delete_item_with_relationships(db_provider: Provider) -> None:
+def test_failed_delete_item(db_region: Region) -> None:
+    """Try to delete the unique Region of a Provider."""
+    db_provider = db_region.provider.single()
+    assert not region.remove(db_obj=db_region)
+    assert region.get(uid=db_region.uid)
+    assert provider.get(uid=db_provider.uid)
+
+
+def test_delete_item_with_proprietary_location(
+    db_deletable_region_with_location: Region,
+) -> None:
     """Delete an existing Region.
 
     On Cascade delete all linked services. Delete location only if there
     are no more regions linked to it.
     """
-    item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider)
-    item_in = create_random_region(
-        with_location=True,
-        with_block_storage_services=True,
-        with_compute_services=True,
-        with_identity_services=True,
-        with_network_services=True,
-        projects=[i.uuid for i in db_provider.projects],
-    )
-    item = region.create(obj_in=item_in, provider=db_provider)
-    db_location = item.location.single()
-    db_services = item.services.all()
-
-    result = region.remove(db_obj=item)
-    assert result
-    item = region.get(uid=item.uid)
-    assert not item
-    item = location.get(uid=db_location.uid)
-    assert not item
-    for db_service in db_services:
-        if db_service.type == ServiceType.BLOCK_STORAGE:
-            item = block_storage_service.get(uid=db_service.uid)
-        if db_service.type == ServiceType.COMPUTE:
-            item = compute_service.get(uid=db_service.uid)
-        if db_service.type == ServiceType.IDENTITY:
-            item = identity_service.get(uid=db_service.uid)
-        if db_service.type == ServiceType.NETWORK:
-            item = network_service.get(uid=db_service.uid)
-        assert not item
+    db_provider = db_deletable_region_with_location.provider.single()
+    db_location = db_deletable_region_with_location.location.single()
+    assert region.remove(db_obj=db_deletable_region_with_location)
+    assert not region.get(uid=db_deletable_region_with_location.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert not location.get(uid=db_location.uid)
 
 
-def test_failed_delete_item(db_provider: Provider) -> None:
-    """Try to delete the unique Region of a Provider."""
-    item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider)
-    result = region.remove(db_obj=item)
-    assert not result
-    item = region.get(uid=item.uid)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
+def test_delete_item_with_shared_location(
+    db_region_with_shared_location: Region,
+) -> None:
+    """Delete an existing Region.
+
+    On Cascade delete all linked services. Delete location only if there
+    are no more regions linked to it.
+    """
+    db_provider = db_region_with_shared_location.provider.single()
+    db_location = db_region_with_shared_location.location.single()
+    assert region.remove(db_obj=db_region_with_shared_location)
+    assert not region.get(uid=db_region_with_shared_location.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert location.get(uid=db_location.uid)
+
+
+def test_failed_delete_item_with_proprietary_location(
+    db_region_with_location: Region,
+) -> None:
+    """Try to delete the unique Region of a Provider.
+
+    Location is still there.
+    """
+    db_provider = db_region_with_location.provider.single()
+    db_location = db_region_with_location.location.single()
+    assert not region.remove(db_obj=db_region_with_location)
+    assert region.get(uid=db_region_with_location.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert location.get(uid=db_location.uid)
+
+
+def test_delete_item_with_block_storage_service(
+    db_deletable_region_with_block_storage_service: Region,
+) -> None:
+    """Delete an existing Region.
+
+    On Cascade delete all linked services.
+    """
+    db_provider = db_deletable_region_with_block_storage_service.provider.single()
+    db_service = db_deletable_region_with_block_storage_service.services.single()
+    assert region.remove(db_obj=db_deletable_region_with_block_storage_service)
+    assert not region.get(uid=db_deletable_region_with_block_storage_service.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert not block_storage_service.get(uid=db_service.uid)
+
+
+def test_failed_delete_item_with_block_storage_service(
+    db_region_with_block_storage_service: Region,
+) -> None:
+    """Try to delete the unique Region of a Provider.
+
+    Service is still there.
+    """
+    db_provider = db_region_with_block_storage_service.provider.single()
+    db_service = db_region_with_block_storage_service.services.single()
+    assert not region.remove(db_obj=db_region_with_block_storage_service)
+    assert region.get(uid=db_region_with_block_storage_service.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert block_storage_service.get(uid=db_service.uid)
+
+
+def test_delete_item_with_compute_service(
+    db_deletable_region_with_compute_service: Region,
+) -> None:
+    """Delete an existing Region.
+
+    On Cascade delete all linked services.
+    """
+    db_provider = db_deletable_region_with_compute_service.provider.single()
+    db_service = db_deletable_region_with_compute_service.services.single()
+    assert region.remove(db_obj=db_deletable_region_with_compute_service)
+    assert not region.get(uid=db_deletable_region_with_compute_service.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert not compute_service.get(uid=db_service.uid)
+
+
+def test_failed_delete_item_with_compute_service(
+    db_region_with_compute_service: Region,
+) -> None:
+    """Try to delete the unique Region of a Provider.
+
+    Service is still there.
+    """
+    db_provider = db_region_with_compute_service.provider.single()
+    db_service = db_region_with_compute_service.services.single()
+    assert not region.remove(db_obj=db_region_with_compute_service)
+    assert region.get(uid=db_region_with_compute_service.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert compute_service.get(uid=db_service.uid)
+
+
+def test_delete_item_with_identity_service(
+    db_deletable_region_with_identity_service: Region,
+) -> None:
+    """Delete an existing Region.
+
+    On Cascade delete all linked services.
+    """
+    db_provider = db_deletable_region_with_identity_service.provider.single()
+    db_service = db_deletable_region_with_identity_service.services.single()
+    assert region.remove(db_obj=db_deletable_region_with_identity_service)
+    assert not region.get(uid=db_deletable_region_with_identity_service.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert not identity_service.get(uid=db_service.uid)
+
+
+def test_failed_delete_item_with_identity_service(
+    db_region_with_identity_service: Region,
+) -> None:
+    """Try to delete the unique Region of a Provider.
+
+    Service is still there.
+    """
+    db_provider = db_region_with_identity_service.provider.single()
+    db_service = db_region_with_identity_service.services.single()
+    assert not region.remove(db_obj=db_region_with_identity_service)
+    assert region.get(uid=db_region_with_identity_service.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert identity_service.get(uid=db_service.uid)
+
+
+def test_delete_item_with_network_service(
+    db_deletable_region_with_network_service: Region,
+) -> None:
+    """Delete an existing Region.
+
+    On Cascade delete all linked services.
+    """
+    db_provider = db_deletable_region_with_network_service.provider.single()
+    db_service = db_deletable_region_with_network_service.services.single()
+    assert region.remove(db_obj=db_deletable_region_with_network_service)
+    assert not region.get(uid=db_deletable_region_with_network_service.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert not network_service.get(uid=db_service.uid)
+
+
+def test_failed_delete_item_with_network_service(
+    db_region_with_network_service: Region,
+) -> None:
+    """Try to delete the unique Region of a Provider.
+
+    Service is still there.
+    """
+    db_provider = db_region_with_network_service.provider.single()
+    db_service = db_region_with_network_service.services.single()
+    assert not region.remove(db_obj=db_region_with_network_service)
+    assert region.get(uid=db_region_with_network_service.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert network_service.get(uid=db_service.uid)

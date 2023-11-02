@@ -40,4 +40,15 @@ def db_region_with_block_storage_service(
     yield db_block_storage_serv.region.single()
 
 
+@pytest.fixture
+def db_deletable_region_with_block_storage_service(
+    db_block_storage_serv3: BlockStorageService,
+) -> Region:
+    """Region with a block storage service.
+
+    Region can be deleted.
+    """
+    yield db_block_storage_serv3.region.single()
+
+
 # TODO Add fixture of region with multiple block_storage_services?

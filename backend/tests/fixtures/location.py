@@ -14,10 +14,10 @@ def db_location(db_region: Region) -> Location:
 
 
 @pytest.fixture
-def db_location2(db_region2: Region) -> Location:
-    """Location of the first region of the second provider."""
+def db_location2(db_region3: Region) -> Location:
+    """Location of the second region of the second provider."""
     item_in = create_random_location()
-    item = location.create(obj_in=item_in, region=db_region2)
+    item = location.create(obj_in=item_in, region=db_region3)
     yield item
 
 
@@ -37,3 +37,20 @@ def db_location_with_multiple_regions(
 def db_region_with_location(db_location: Location) -> Region:
     """Region with a location."""
     yield db_location.regions.single()
+
+
+@pytest.fixture
+def db_deletable_region_with_location(db_location2: Location) -> Region:
+    """Region with a location.
+
+    This region can be delete.
+    """
+    yield db_location2.regions.single()
+
+
+@pytest.fixture
+def db_region_with_shared_location(
+    db_location_with_multiple_regions: Location,
+) -> Region:
+    """Region with location shared between multiple regions."""
+    yield db_location_with_multiple_regions.regions.single()

@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
 from app.project.crud import project
 from app.sla.crud import sla
@@ -194,24 +195,15 @@ def test_forced_update_item_with_slas(
 
 
 def test_delete_item_with_relationships(
-    db_idp_with_single_user_group: IdentityProvider,
+    db_user_group: UserGroup,
 ) -> None:
     """Delete an existing User Group.
 
     On cascade delete linked SLAs.
     """
-    db_provider = db_idp_with_single_user_group.providers.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_user_group(project=db_project.uuid)
-    item = user_group.create(
-        obj_in=item_in,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
-    db_sla = db_project.sla.single()
-    result = user_group.remove(db_obj=item)
-    assert result
-    item = user_group.get(uid=item.uid)
-    assert not item
-    item = sla.get(uid=db_sla.uid)
-    assert not item
+    db_idp = db_user_group.identity_provider.single()
+    db_sla = db_user_group.slas.single()
+    assert user_group.remove(db_obj=db_user_group)
+    assert not user_group.get(uid=db_user_group.uid)
+    assert identity_provider.get(uid=db_idp.uid)
+    assert not sla.get(uid=db_sla.uid)

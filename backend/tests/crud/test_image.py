@@ -3,6 +3,7 @@ from uuid import uuid4
 from app.image.crud import image
 from app.image.models import Image
 from app.project.crud import project
+from app.service.crud import compute_service
 from app.service.models import ComputeService
 from tests.utils.image import (
     create_random_image,
@@ -215,31 +216,22 @@ def test_forced_update_item(db_compute_serv: ComputeService) -> None:
     validate_create_image_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_compute_serv: ComputeService) -> None:
+def test_delete_item(db_public_image: Image) -> None:
     """Delete an existing public Image."""
-    item_in = create_random_image()
-    item = image.create(obj_in=item_in, service=db_compute_serv)
-    result = image.remove(db_obj=item)
-    assert result
-    item = image.get(uid=item.uid)
-    assert not item
-    assert db_compute_serv
+    db_service = db_public_image.services.single()
+    assert image.remove(db_obj=db_public_image)
+    assert not image.get(uid=db_public_image.uid)
+    assert compute_service.get(uid=db_service.uid)
 
 
-def test_delete_item_with_relationships(db_compute_serv: ComputeService) -> None:
+def test_delete_item_with_relationships(db_private_image: Image) -> None:
     """Delete an existing private Image.
 
     Do not delete linked projects
     """
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    item_in = create_random_image(projects=[i.uuid for i in db_provider.projects])
-    item = image.create(
-        obj_in=item_in, service=db_compute_serv, projects=db_provider.projects
-    )
-    num_db_project = len(db_provider.projects)
-    result = image.remove(db_obj=item)
-    assert result
-    item = image.get(uid=item.uid)
-    assert not item
-    assert len(db_provider.projects) == num_db_project
+    db_service = db_private_image.services.single()
+    db_project = db_private_image.projects.single()
+    assert image.remove(db_obj=db_private_image)
+    assert not image.get(uid=db_private_image.uid)
+    assert project.get(uid=db_project.uid)
+    assert compute_service.get(uid=db_service.uid)

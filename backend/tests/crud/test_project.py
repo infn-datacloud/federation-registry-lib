@@ -2,11 +2,11 @@ from uuid import uuid4
 
 from app.project.crud import project
 from app.project.models import Project
+from app.provider.crud import provider
 from app.provider.models import Provider
 from app.quota.crud import block_storage_quota, compute_quota
-from app.quota.models import BlockStorageQuota, ComputeQuota
+from app.quota.models import ComputeQuota
 from app.sla.crud import sla
-from app.sla.models import SLA
 from tests.utils.project import (
     create_random_project,
     create_random_project_patch,
@@ -135,51 +135,53 @@ def test_force_update_item_with_defaults(db_provider: Provider) -> None:
     validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_provider: Provider) -> None:
+def test_delete_item(db_project: Project) -> None:
     """Delete an existing Project."""
-    item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
-    result = project.remove(db_obj=item)
-    assert result
-    item = project.get(uid=item.uid)
-    assert not item
-    assert db_provider
+    db_provider = db_project.provider.single()
+    assert project.remove(db_obj=db_project)
+    assert not project.get(uid=db_project.uid)
+    assert provider.get(uid=db_provider.uid)
 
 
-def test_delete_item_with_proprietary_sla(db_sla: SLA) -> None:
+def test_delete_item_with_proprietary_sla(db_project_with_sla: Project) -> None:
     """Delete an existing Project and its SLA."""
-    item = db_sla.projects.single()
-    result = project.remove(db_obj=item)
-    assert result
-    item = project.get(uid=item.uid)
-    assert not item
-    item = sla.get(uid=db_sla.uid)
-    assert not item
+    db_provider = db_project_with_sla.provider.single()
+    db_sla = db_project_with_sla.sla.single()
+    assert project.remove(db_obj=db_project_with_sla)
+    assert not project.get(uid=db_project_with_sla.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert not sla.get(uid=db_sla.uid)
 
 
-# TODO tests deletion of project linked to a SLA related to multiple projects.
-# The deletion delete the project but not the SLA.
+def test_delete_item_with_shared_sla(db_project_with_shared_sla: Project) -> None:
+    """Delete an existing Project but not its SLA, since it is shared."""
+    db_provider = db_project_with_shared_sla.provider.single()
+    db_sla = db_project_with_shared_sla.sla.single()
+    assert project.remove(db_obj=db_project_with_shared_sla)
+    assert not project.get(uid=db_project_with_shared_sla.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert sla.get(uid=db_sla.uid)
 
 
 def test_delete_item_with_block_storage_quotas(
-    db_block_storage_quota: BlockStorageQuota,
+    db_project_with_single_block_storage_quota: Project,
 ) -> None:
     """Delete an existing Project and its BlockStorage Quotas."""
-    item = db_block_storage_quota.project.single()
-    result = project.remove(db_obj=item)
-    assert result
-    item = project.get(uid=item.uid)
-    assert not item
-    item = block_storage_quota.get(uid=db_block_storage_quota.uid)
-    assert not item
+    db_provider = db_project_with_single_block_storage_quota.provider.single()
+    db_quota = db_project_with_single_block_storage_quota.quotas.single()
+    assert project.remove(db_obj=db_project_with_single_block_storage_quota)
+    assert not project.get(uid=db_project_with_single_block_storage_quota.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert not block_storage_quota.get(uid=db_quota.uid)
 
 
-def test_delete_item_with_compute_quotas(db_compute_quota: ComputeQuota) -> None:
+def test_delete_item_with_compute_quotas(
+    db_project_with_single_compute_quota: ComputeQuota,
+) -> None:
     """Delete an existing Project and its Compute Quotas."""
-    item = db_compute_quota.project.single()
-    result = project.remove(db_obj=item)
-    assert result
-    item = project.get(uid=item.uid)
-    assert not item
-    item = compute_quota.get(uid=db_compute_quota.uid)
-    assert not item
+    db_provider = db_project_with_single_compute_quota.provider.single()
+    db_quota = db_project_with_single_compute_quota.quotas.single()
+    assert project.remove(db_obj=db_project_with_single_compute_quota)
+    assert not project.get(uid=db_project_with_single_compute_quota.uid)
+    assert provider.get(uid=db_provider.uid)
+    assert not compute_quota.get(uid=db_quota.uid)

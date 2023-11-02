@@ -38,4 +38,12 @@ def db_region_with_compute_service(db_compute_serv: ComputeService) -> Region:
     yield db_compute_serv.region.single()
 
 
+@pytest.fixture
+def db_deletable_region_with_compute_service(
+    db_compute_serv3: ComputeService,
+) -> Region:
+    """Region with a block storage service."""
+    yield db_compute_serv3.region.single()
+
+
 # TODO Add fixture of region with multiple compute_services?

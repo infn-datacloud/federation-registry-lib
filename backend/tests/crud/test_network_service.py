@@ -1,6 +1,7 @@
 from uuid import uuid4
 
 from app.network.crud import network
+from app.region.crud import region
 from app.region.models import Region
 from app.service.crud import network_service
 from app.service.models import NetworkService
@@ -180,26 +181,21 @@ def test_forced_update_item_(db_region: Region) -> None:
     validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_region: Region) -> None:
+def test_delete_item(db_network_serv: NetworkService) -> None:
     """Delete an existing Network Service."""
-    item_in = create_random_network_service()
-    item = network_service.create(obj_in=item_in, region=db_region)
-    result = network_service.remove(db_obj=item)
-    assert result
-    item = network_service.get(uid=item.uid)
-    assert not item
-    assert db_region
+    db_region = db_network_serv.region.single()
+    assert network_service.remove(db_obj=db_network_serv)
+    assert not network_service.get(uid=db_network_serv.uid)
+    assert region.get_multi(uid=db_region.uid)
 
 
-def test_delete_item_with_relationships(db_region: Region) -> None:
-    """Delete an existing Network Service and its linked quotas."""
-    item_in = create_random_network_service(with_networks=True)
-    item = network_service.create(obj_in=item_in, region=db_region)
-    db_network = item.networks.single()
-
-    result = network_service.remove(db_obj=item)
-    assert result
-    item = network_service.get(uid=item.uid)
-    assert not item
-    item = network.get(uid=db_network.uid)
-    assert not item
+def test_delete_item_with_relationships(
+    db_network_serv_with_single_network: NetworkService,
+) -> None:
+    """Delete an existing Network Service and its linked networks."""
+    db_region = db_network_serv_with_single_network.region.single()
+    db_network = db_network_serv_with_single_network.networks.single()
+    assert network_service.remove(db_obj=db_network_serv_with_single_network)
+    assert not network_service.get(uid=db_network_serv_with_single_network.uid)
+    assert region.get_multi(uid=db_region.uid)
+    assert not network.get(uid=db_network.uid)

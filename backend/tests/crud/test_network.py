@@ -3,6 +3,7 @@ from uuid import uuid4
 from app.network.crud import network
 from app.network.models import Network
 from app.project.crud import project
+from app.service.crud import network_service
 from app.service.models import NetworkService
 from tests.utils.network import (
     create_random_network,
@@ -185,30 +186,22 @@ def test_forced_update_item(db_network_serv: NetworkService) -> None:
     validate_create_network_attrs(obj_in=item_in, db_item=item)
 
 
-def test_delete_item(db_network_serv: NetworkService) -> None:
+def test_delete_item(db_public_network: Network) -> None:
     """Delete an existing public Network."""
-    item_in = create_random_network()
-    item = network.create(obj_in=item_in, service=db_network_serv)
-    result = network.remove(db_obj=item)
-    assert result
-    item = network.get(uid=item.uid)
-    assert not item
-    assert db_network_serv
+    db_service = db_public_network.service.single()
+    assert network.remove(db_obj=db_public_network)
+    assert not network.get(uid=db_public_network.uid)
+    assert network_service.get(uid=db_service.uid)
 
 
-def test_delete_item_with_relationships(db_network_serv: NetworkService) -> None:
+def test_delete_item_with_relationships(db_private_network: Network) -> None:
     """Delete an existing private Network.
 
     Do not delete linked projects
     """
-    db_region = db_network_serv.region.single()
-    db_provider = db_region.provider.single()
-    project = db_provider.projects.single()
-    item_in = create_random_network(project=project.uuid)
-    item = network.create(obj_in=item_in, service=db_network_serv, project=project)
-    num_db_project = len(db_provider.projects)
-    result = network.remove(db_obj=item)
-    assert result
-    item = network.get(uid=item.uid)
-    assert not item
-    assert len(db_provider.projects) == num_db_project
+    db_service = db_private_network.service.single()
+    db_project = db_private_network.project.single()
+    assert network.remove(db_obj=db_private_network)
+    assert not network.get(uid=db_private_network.uid)
+    assert project.get(uid=db_project.uid)
+    assert network_service.get(uid=db_service.uid)
