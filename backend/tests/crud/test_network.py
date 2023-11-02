@@ -106,37 +106,34 @@ def test_get_items_with_skip(
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_network_serv: NetworkService) -> None:
+def test_patch_item(db_private_network: Network) -> None:
     """Update the attributes of an existing Network, without updating its
     relationships."""
-    item_in = create_random_network()
-    item = network.create(obj_in=item_in, service=db_network_serv)
     patch_in = create_random_network_patch()
-    patch_in.is_shared = item.is_shared
-    item = network.update(db_obj=item, obj_in=patch_in)
+    patch_in.is_shared = db_private_network.is_shared
+    item = network.update(db_obj=db_private_network, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_network_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
+def test_patch_item_with_defaults(db_private_network: Network) -> None:
     """Try to update the attributes of an existing Network, without updating
     its relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    item_in = create_random_network()
-    item = network.create(obj_in=item_in, service=db_network_serv)
     patch_in = create_random_network_patch(default=True)
-    assert not network.update(db_obj=item, obj_in=patch_in)
+    assert not network.update(db_obj=db_private_network, obj_in=patch_in)
 
     patch_in = create_random_network_patch(default=True)
     patch_in.description = ""
-    patch_in.is_shared = item.is_shared
-    item = network.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_network_attrs(obj_in=item_in, db_item=item)
+    patch_in.is_shared = db_private_network.is_shared
+    item = network.update(db_obj=db_private_network, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_private_network.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
 
 # TODO try to patch network setting it as private when there are no projects

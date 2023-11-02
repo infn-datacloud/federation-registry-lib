@@ -109,49 +109,32 @@ def test_get_items_with_skip(
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_idp_with_single_user_group: IdentityProvider) -> None:
+def test_patch_item(db_user_group: UserGroup) -> None:
     """Update the attributes of an existing User Group, without updating its
     relationships."""
-    db_provider = db_idp_with_single_user_group.providers.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_user_group(project=db_project.uuid)
-    item = user_group.create(
-        obj_in=item_in,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
     patch_in = create_random_user_group_patch()
-    item = user_group.update(db_obj=item, obj_in=patch_in)
+    item = user_group.update(db_obj=db_user_group, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(
-    db_idp_with_single_user_group: IdentityProvider,
-) -> None:
+def test_patch_item_with_defaults(db_user_group: UserGroup) -> None:
     """Try to update the attributes of an existing User Group, without updating
     its relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    db_provider = db_idp_with_single_user_group.providers.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_user_group(project=db_project.uuid)
-    item = user_group.create(
-        obj_in=item_in,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
     patch_in = create_random_user_group_patch(default=True)
-    assert not user_group.update(db_obj=item, obj_in=patch_in)
+    assert not user_group.update(db_obj=db_user_group, obj_in=patch_in)
 
     patch_in = create_random_user_group_patch(default=True)
     patch_in.description = ""
-    item = user_group.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
+    item = user_group.update(db_obj=db_user_group, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_user_group.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
 
 def test_forced_update_item_with_slas(

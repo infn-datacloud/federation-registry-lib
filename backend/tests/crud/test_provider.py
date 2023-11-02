@@ -130,35 +130,32 @@ def test_get_items_with_skip(db_provider: Provider, db_provider2: Provider) -> N
     assert len(stored_items) == 1
 
 
-def test_patch_item(setup_and_teardown_db: Generator) -> None:
+def test_patch_item(db_provider: Provider) -> None:
     """Update the attributes of an existing Provider, without updating its
     relationships."""
-    item_in = create_random_provider()
-    item = provider.create(obj_in=item_in)
     patch_in = create_random_provider_patch()
-    item = provider.update(db_obj=item, obj_in=patch_in)
+    item = provider.update(db_obj=db_provider, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_provider_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(setup_and_teardown_db: Generator) -> None:
+def test_patch_item_with_defaults(db_provider: Provider) -> None:
     """Try to update the attributes of an existing Provider, without updating
     its relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    item_in = create_random_provider()
-    item = provider.create(obj_in=item_in)
     patch_in = create_random_provider_patch(default=True)
-    assert not provider.update(db_obj=item, obj_in=patch_in)
+    assert not provider.update(db_obj=db_provider, obj_in=patch_in)
 
     patch_in = create_random_provider_patch(default=True)
     patch_in.description = ""
-    item = provider.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_provider_attrs(obj_in=item_in, db_item=item)
+    item = provider.update(db_obj=db_provider, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_provider.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
 
 def test_forced_update_item_with_projects(setup_and_teardown_db: Generator) -> None:

@@ -94,45 +94,33 @@ def test_get_items_with_skip(db_sla2: SLA, db_sla3: SLA) -> None:
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_user_group: UserGroup) -> None:
+def test_patch_item(db_sla: SLA) -> None:
     """Update the attributes of an existing SLA, without updating its
     relationships."""
-    db_idp = db_user_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_sla(project=db_project.uuid)
-    item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
     patch_in = create_random_sla_patch()
-    item = sla.update(db_obj=item, obj_in=patch_in)
+    item = sla.update(db_obj=db_sla, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_sla_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(db_user_group: UserGroup) -> None:
+def test_patch_item_with_defaults(db_sla: SLA) -> None:
     """Try to update the attributes of an existing SLA, without updating its
     relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    db_idp = db_user_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_sla(project=db_project.uuid)
-    item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
     patch_in = create_random_sla_patch(default=True)
-    assert not sla.update(db_obj=item, obj_in=patch_in)
+    assert not sla.update(db_obj=db_sla, obj_in=patch_in)
 
     patch_in = create_random_sla_patch(default=True)
     patch_in.description = ""
-    item = sla.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_sla_attrs(obj_in=item_in, db_item=item)
+    item = sla.update(db_obj=db_sla, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_sla.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
-
-def test_forced_update(db_user_group: UserGroup) -> None:
-    """Update the attributes and relationships of an existing SLA.
 
     At first update only SLA attributes leaving untouched its
     connections (this is different from the previous test because the

@@ -102,35 +102,32 @@ def test_get_items_with_skip(
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_region: Region) -> None:
+def test_patch_item(db_network_serv: NetworkService) -> None:
     """Update the attributes of an existing Network Service, without updating
     its relationships."""
-    item_in = create_random_network_service()
-    item = network_service.create(obj_in=item_in, region=db_region)
     patch_in = create_random_network_service_patch()
-    item = network_service.update(db_obj=item, obj_in=patch_in)
+    item = network_service.update(db_obj=db_network_serv, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(db_region: Region) -> None:
+def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
     """Try to update the attributes of an existing Network Service, without
     updating its relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    item_in = create_random_network_service()
-    item = network_service.create(obj_in=item_in, region=db_region)
     patch_in = create_random_network_service_patch(default=True)
-    assert not network_service.update(db_obj=item, obj_in=patch_in)
+    assert not network_service.update(db_obj=db_network_serv, obj_in=patch_in)
 
     patch_in = create_random_network_service_patch(default=True)
     patch_in.description = ""
-    item = network_service.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    item = network_service.update(db_obj=db_network_serv, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_network_serv.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
 
 def test_forced_update_item_(db_region: Region) -> None:

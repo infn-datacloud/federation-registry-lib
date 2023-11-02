@@ -88,35 +88,32 @@ def test_get_items_with_skip(db_project: Project, db_project2: Project) -> None:
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_provider: Provider) -> None:
+def test_patch_item(db_project: Project) -> None:
     """Update the attributes of an existing Project, without updating its
     relationships."""
-    item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
     patch_in = create_random_project_patch()
-    item = project.update(db_obj=item, obj_in=patch_in)
+    item = project.update(db_obj=db_project, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_project_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(db_provider: Provider) -> None:
+def test_patch_item_with_defaults(db_project: Project) -> None:
     """Try to update the attributes of an existing Project, without updating
     its relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
     patch_in = create_random_project_patch(default=True)
-    assert not project.update(db_obj=item, obj_in=patch_in)
+    assert not project.update(db_obj=db_project, obj_in=patch_in)
 
     patch_in = create_random_project_patch(default=True)
     patch_in.description = ""
-    item = project.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_project_attrs(obj_in=item_in, db_item=item)
+    item = project.update(db_obj=db_project, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_project.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
 
 def test_force_update_item(db_provider: Provider) -> None:

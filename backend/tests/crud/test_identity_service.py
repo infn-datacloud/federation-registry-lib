@@ -93,34 +93,31 @@ def test_get_items_with_skip(
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_region: Region) -> None:
+def test_patch_item(db_identity_serv: IdentityService) -> None:
     """Update the attributes of an existing Identity Service."""
-    item_in = create_random_identity_service()
-    item = identity_service.create(obj_in=item_in, region=db_region)
     patch_in = create_random_identity_service_patch()
-    item = identity_service.update(db_obj=item, obj_in=patch_in)
+    item = identity_service.update(db_obj=db_identity_serv, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(db_region: Region) -> None:
+def test_patch_item_with_defaults(db_identity_serv: IdentityService) -> None:
     """Try to update the attributes of an existing Identity Service, without
     updating its relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    item_in = create_random_identity_service()
-    item = identity_service.create(obj_in=item_in, region=db_region)
     patch_in = create_random_identity_service_patch(default=True)
-    assert not identity_service.update(db_obj=item, obj_in=patch_in)
+    assert not identity_service.update(db_obj=db_identity_serv, obj_in=patch_in)
 
     patch_in = create_random_identity_service_patch(default=True)
     patch_in.description = ""
-    item = identity_service.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
+    item = identity_service.update(db_obj=db_identity_serv, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_identity_serv.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
 
 def test_forced_update_item(db_region: Region) -> None:

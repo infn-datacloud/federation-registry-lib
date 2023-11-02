@@ -134,37 +134,34 @@ def test_get_items_with_skip(db_public_image: Image, db_private_image: Image) ->
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_compute_serv: ComputeService) -> None:
+def test_patch_item(db_private_image: Image) -> None:
     """Update the attributes of an existing Image, without updating its
     relationships."""
-    item_in = create_random_image()
-    item = image.create(obj_in=item_in, service=db_compute_serv)
     patch_in = create_random_image_patch()
-    patch_in.is_public = item.is_public
-    item = image.update(db_obj=item, obj_in=patch_in)
+    patch_in.is_public = db_private_image.is_public
+    item = image.update(db_obj=db_private_image, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_image_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
+def test_patch_item_with_defaults(db_private_image: Image) -> None:
     """Try to update the attributes of an existing Image, without updating its
     relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    item_in = create_random_image()
-    item = image.create(obj_in=item_in, service=db_compute_serv)
     patch_in = create_random_image_patch(default=True)
-    assert not image.update(db_obj=item, obj_in=patch_in)
+    assert not image.update(db_obj=db_private_image, obj_in=patch_in)
 
     patch_in = create_random_image_patch(default=True)
     patch_in.description = ""
-    patch_in.is_public = item.is_public
-    item = image.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_image_attrs(obj_in=item_in, db_item=item)
+    patch_in.is_public = db_private_image.is_public
+    item = image.update(db_obj=db_private_image, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_private_image.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
 
 # TODO try to patch image setting it as private when there are no projects

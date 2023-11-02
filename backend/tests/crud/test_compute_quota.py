@@ -105,45 +105,32 @@ def test_get_items_with_skip(
     assert len(stored_items) == 1
 
 
-def test_patch_item(db_compute_serv: ComputeService) -> None:
+def test_patch_item(db_compute_quota: ComputeQuota) -> None:
     """Update the attributes of an existing Compute Quota, do not update linked
     relationships."""
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_compute_quota(project=db_project.uuid)
-    item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
-    )
     patch_in = create_random_compute_quota_patch()
-    item = compute_quota.update(db_obj=item, obj_in=patch_in)
+    item = compute_quota.update(db_obj=db_compute_quota, obj_in=patch_in)
     for k, v in patch_in.dict().items():
-        item_in.__setattr__(k, v)
-    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
+        assert item.__getattribute__(k) == v
 
 
-def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
+def test_patch_item_with_defaults(db_compute_quota: ComputeQuota) -> None:
     """Try to update the attributes of an existing Compute Quota, without
     updating its relationships, with default values.
 
     The first attempt fails (no updates); the second one, with explicit
     default values, succeeds.
     """
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_compute_quota(project=db_project.uuid)
-    item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=db_project
-    )
     patch_in = create_random_compute_quota_patch(default=True)
-    assert not compute_quota.update(db_obj=item, obj_in=patch_in)
+    assert not compute_quota.update(db_obj=db_compute_quota, obj_in=patch_in)
 
     patch_in = create_random_compute_quota_patch(default=True)
     patch_in.description = ""
-    item = compute_quota.update(db_obj=item, obj_in=patch_in)
-    item_in.description = patch_in.description
-    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
+    item = compute_quota.update(db_obj=db_compute_quota, obj_in=patch_in)
+    assert item.description == patch_in.description
+    for k, v in db_compute_quota.__dict__.items():
+        if k != "description":
+            assert item.__getattribute__(k) == v
 
 
 def test_forced_update_item(db_compute_serv: ComputeService) -> None:
