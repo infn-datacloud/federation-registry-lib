@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.project.crud import project
@@ -10,7 +11,6 @@ from tests.utils.compute_quota import (
     create_random_compute_quota_patch,
     validate_create_compute_quota_attrs,
 )
-from tests.utils.project import create_random_project
 
 
 def test_create_item(db_compute_serv: ComputeService) -> None:
@@ -44,7 +44,7 @@ def test_get_item(db_compute_quota: ComputeQuota) -> None:
     assert item.uid == db_compute_quota.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Compute Quota."""
     assert not compute_quota.get(uid=uuid4())
 
@@ -133,34 +133,46 @@ def test_patch_item_with_defaults(db_compute_quota: ComputeQuota) -> None:
             assert item.__getattribute__(k) == v
 
 
-def test_forced_update_item(db_compute_serv: ComputeService) -> None:
+def test_replace_project_with_another_same_provider(
+    db_compute_quota: ComputeQuota,
+) -> None:
     """Update the attributes and relationships of an existing Compute Quota.
 
     At first update a Compute Quota with a set of linked projects,
     updating its attributes and removing all linked projects.
+    """
+    db_project = db_compute_quota.project.single()
+    db_provider = db_project.provider.single()
+    for db_project2 in db_provider.projects:
+        if db_project2.uid != db_project.uid:
+            break
+    item_in = create_random_compute_quota(project=db_project2.uuid)
+    item = compute_quota.update(
+        db_obj=db_compute_quota,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
+
+
+def test_force_update_without_changing_relationships(
+    db_compute_quota: ComputeQuota,
+) -> None:
+    """Update the attributes and relationships of an existing Compute Quota.
 
     Update a Compute Quota with a set of linked projects, changing only
     its attributes leaving untouched its connections (this is different
     from the previous test because the flag force is set to True).
     """
-    db_region = db_compute_serv.region.single()
-    db_provider = db_region.provider.single()
-    project1 = db_provider.projects.single()
-    item_in = create_random_compute_quota(project=project1.uuid)
-    item = compute_quota.create(
-        obj_in=item_in, service=db_compute_serv, project=project1
-    )
-
-    project2 = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_compute_quota(project=project2.uuid)
+    db_project = db_compute_quota.project.single()
+    db_provider = db_project.provider.single()
+    item_in = create_random_compute_quota(project=db_project.uuid)
     item = compute_quota.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
-    )
-    validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_compute_quota(project=item_in.project)
-    item = compute_quota.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+        db_obj=db_compute_quota,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
     )
     validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
 
