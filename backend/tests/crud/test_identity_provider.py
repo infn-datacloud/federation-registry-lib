@@ -2,7 +2,6 @@ from uuid import uuid4
 
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
-from app.project.crud import project
 from app.provider.models import Provider
 from app.user_group.crud import user_group
 from tests.utils.identity_provider import (
@@ -10,7 +9,6 @@ from tests.utils.identity_provider import (
     create_random_identity_provider_patch,
     validate_create_identity_provider_attrs,
 )
-from tests.utils.project import create_random_project
 
 
 def test_create_item_with_projects(db_provider_with_single_project: Provider) -> None:
@@ -50,44 +48,28 @@ def test_get_non_existing_item() -> None:
     assert not identity_provider.get(uid=uuid4())
 
 
-def test_get_items(db_provider_with_single_project: Provider) -> None:
+def test_get_items(
+    db_idp_with_single_user_group: IdentityProvider,
+    db_idp_with_multiple_user_groups: IdentityProvider,
+) -> None:
     """Retrieve multiple Identity Providers."""
-    db_project1 = db_provider_with_single_project.projects.single()
-    db_project2 = project.create(
-        obj_in=create_random_project(), provider=db_provider_with_single_project
-    )
-    item_in = create_random_identity_provider(projects=[db_project1.uuid])
-    item = identity_provider.create(
-        obj_in=item_in, provider=db_provider_with_single_project
-    )
-    item_in2 = create_random_identity_provider(projects=[db_project2.uuid])
-    item2 = identity_provider.create(
-        obj_in=item_in2, provider=db_provider_with_single_project
-    )
-
     stored_items = identity_provider.get_multi()
     assert len(stored_items) == 2
 
-    stored_items = identity_provider.get_multi(uid=item.uid)
+    stored_items = identity_provider.get_multi(uid=db_idp_with_single_user_group.uid)
     assert len(stored_items) == 1
-    validate_create_identity_provider_attrs(obj_in=item_in, db_item=stored_items[0])
+    assert stored_items[0].uid == db_idp_with_single_user_group.uid
 
-    stored_items = identity_provider.get_multi(uid=item2.uid)
+    stored_items = identity_provider.get_multi(uid=db_idp_with_multiple_user_groups.uid)
     assert len(stored_items) == 1
-    validate_create_identity_provider_attrs(obj_in=item_in2, db_item=stored_items[0])
+    assert stored_items[0].uid == db_idp_with_multiple_user_groups.uid
 
 
-def test_get_items_with_limit(db_provider_with_single_project: Provider) -> None:
+def test_get_items_with_limit(
+    db_idp_with_single_user_group: IdentityProvider,
+    db_idp_with_multiple_user_groups: IdentityProvider,
+) -> None:
     """Test the 'limit' attribute in GET operations."""
-    db_project1 = db_provider_with_single_project.projects.single()
-    db_project2 = project.create(
-        obj_in=create_random_project(), provider=db_provider_with_single_project
-    )
-    item_in = create_random_identity_provider(projects=[db_project1.uuid])
-    identity_provider.create(obj_in=item_in, provider=db_provider_with_single_project)
-    item_in2 = create_random_identity_provider(projects=[db_project2.uuid])
-    identity_provider.create(obj_in=item_in2, provider=db_provider_with_single_project)
-
     stored_items = identity_provider.get_multi(limit=0)
     assert len(stored_items) == 0
 
@@ -98,22 +80,12 @@ def test_get_items_with_limit(db_provider_with_single_project: Provider) -> None
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_provider_with_single_project: Provider) -> None:
+def test_get_sorted_items(
+    db_idp_with_single_user_group: IdentityProvider,
+    db_idp_with_multiple_user_groups: IdentityProvider,
+) -> None:
     """Test the 'sort' attribute in GET operations."""
-    db_project1 = db_provider_with_single_project.projects.single()
-    db_project2 = project.create(
-        obj_in=create_random_project(), provider=db_provider_with_single_project
-    )
-    item_in = create_random_identity_provider(projects=[db_project1.uuid])
-    item = identity_provider.create(
-        obj_in=item_in, provider=db_provider_with_single_project
-    )
-    item_in2 = create_random_identity_provider(projects=[db_project2.uuid])
-    item2 = identity_provider.create(
-        obj_in=item_in2, provider=db_provider_with_single_project
-    )
-
-    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    sorted_items = list(sorted(identity_provider.get_multi(), key=lambda x: x.uid))
 
     stored_items = identity_provider.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -124,17 +96,11 @@ def test_get_sorted_items(db_provider_with_single_project: Provider) -> None:
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_provider_with_single_project: Provider) -> None:
+def test_get_items_with_skip(
+    db_idp_with_single_user_group: IdentityProvider,
+    db_idp_with_multiple_user_groups: IdentityProvider,
+) -> None:
     """Test the 'skip' attribute in GET operations."""
-    db_project1 = db_provider_with_single_project.projects.single()
-    db_project2 = project.create(
-        obj_in=create_random_project(), provider=db_provider_with_single_project
-    )
-    item_in = create_random_identity_provider(projects=[db_project1.uuid])
-    identity_provider.create(obj_in=item_in, provider=db_provider_with_single_project)
-    item_in2 = create_random_identity_provider(projects=[db_project2.uuid])
-    identity_provider.create(obj_in=item_in2, provider=db_provider_with_single_project)
-
     stored_items = identity_provider.get_multi(skip=0)
     assert len(stored_items) == 2
 

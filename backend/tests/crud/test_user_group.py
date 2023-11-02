@@ -56,35 +56,24 @@ def test_get_non_existing_item() -> None:
     assert not user_group.get(uid=uuid4())
 
 
-def test_get_items(db_idp_with_single_user_group: IdentityProvider) -> None:
+def test_get_items(db_user_group2: UserGroup, db_user_group3: UserGroup) -> None:
     """Retrieve multiple User Groups."""
-    db_provider = db_idp_with_single_user_group.providers.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_user_group(project=db_project.uuid)
-    item = user_group.create(
-        obj_in=item_in,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
     stored_items = user_group.get_multi()
     assert len(stored_items) == 2
 
-    stored_items = user_group.get_multi(uid=item.uid)
+    stored_items = user_group.get_multi(uid=db_user_group2.uid)
     assert len(stored_items) == 1
-    validate_create_user_group_attrs(obj_in=item_in, db_item=stored_items[0])
+    assert stored_items[0].uid == db_user_group2.uid
+
+    stored_items = user_group.get_multi(uid=db_user_group3.uid)
+    assert len(stored_items) == 1
+    assert stored_items[0].uid == db_user_group3.uid
 
 
-def test_get_items_with_limit(db_idp_with_single_user_group: IdentityProvider) -> None:
+def test_get_items_with_limit(
+    db_user_group2: UserGroup, db_user_group3: UserGroup
+) -> None:
     """Test the 'limit' attribute in GET operations."""
-    db_provider = db_idp_with_single_user_group.providers.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_user_group(project=db_project.uuid)
-    user_group.create(
-        obj_in=item_in,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
-
     stored_items = user_group.get_multi(limit=0)
     assert len(stored_items) == 0
 
@@ -95,19 +84,9 @@ def test_get_items_with_limit(db_idp_with_single_user_group: IdentityProvider) -
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_idp_with_single_user_group: IdentityProvider) -> None:
+def test_get_sorted_items(db_user_group2: UserGroup, db_user_group3: UserGroup) -> None:
     """Test the 'sort' attribute in GET operations."""
-    db_provider = db_idp_with_single_user_group.providers.single()
-    item = db_idp_with_single_user_group.user_groups.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in2 = create_random_user_group(project=db_project.uuid)
-    item2 = user_group.create(
-        obj_in=item_in2,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
-
-    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    sorted_items = list(sorted(user_group.get_multi(), key=lambda x: x.uid))
 
     stored_items = user_group.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -118,17 +97,10 @@ def test_get_sorted_items(db_idp_with_single_user_group: IdentityProvider) -> No
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_idp_with_single_user_group: IdentityProvider) -> None:
+def test_get_items_with_skip(
+    db_user_group2: UserGroup, db_user_group3: UserGroup
+) -> None:
     """Test the 'skip' attribute in GET operations."""
-    db_provider = db_idp_with_single_user_group.providers.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_user_group(project=db_project.uuid)
-    user_group.create(
-        obj_in=item_in,
-        identity_provider=db_idp_with_single_user_group,
-        projects=db_provider.projects,
-    )
-
     stored_items = user_group.get_multi(skip=0)
     assert len(stored_items) == 2
 

@@ -5,6 +5,7 @@ from app.image.crud import image
 from app.quota.crud import compute_quota
 from app.region.models import Region
 from app.service.crud import compute_service
+from app.service.models import ComputeService
 from tests.utils.compute_service import (
     create_random_compute_service,
     create_random_compute_service_patch,
@@ -68,7 +69,7 @@ def test_create_item_with_everything(db_region: Region) -> None:
     validate_create_compute_service_attrs(obj_in=item_in, db_item=item)
 
 
-def test_get_item(db_compute_serv: Region) -> None:
+def test_get_item(db_compute_serv: ComputeService) -> None:
     """Retrieve a Compute Service from its UID."""
     item = compute_service.get(uid=db_compute_serv.uid)
     assert item.uid == db_compute_serv.uid
@@ -79,32 +80,26 @@ def test_get_non_existing_item() -> None:
     assert not compute_service.get(uid=uuid4())
 
 
-def test_get_items(db_region: Region) -> None:
+def test_get_items(
+    db_compute_serv: ComputeService, db_compute_serv2: ComputeService
+) -> None:
     """Retrieve multiple Compute Services."""
-    item_in = create_random_compute_service()
-    item = compute_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_compute_service()
-    item2 = compute_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = compute_service.get_multi()
     assert len(stored_items) == 2
 
-    stored_items = compute_service.get_multi(uid=item.uid)
+    stored_items = compute_service.get_multi(uid=db_compute_serv.uid)
     assert len(stored_items) == 1
-    validate_create_compute_service_attrs(obj_in=item_in, db_item=stored_items[0])
+    assert stored_items[0].uid == db_compute_serv.uid
 
-    stored_items = compute_service.get_multi(uid=item2.uid)
+    stored_items = compute_service.get_multi(uid=db_compute_serv2.uid)
     assert len(stored_items) == 1
-    validate_create_compute_service_attrs(obj_in=item_in2, db_item=stored_items[0])
+    assert stored_items[0].uid == db_compute_serv2.uid
 
 
-def test_get_items_with_limit(db_region: Region) -> None:
+def test_get_items_with_limit(
+    db_compute_serv: ComputeService, db_compute_serv2: ComputeService
+) -> None:
     """Test the 'limit' attribute in GET operations."""
-    item_in = create_random_compute_service()
-    compute_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_compute_service()
-    compute_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = compute_service.get_multi(limit=0)
     assert len(stored_items) == 0
 
@@ -115,14 +110,11 @@ def test_get_items_with_limit(db_region: Region) -> None:
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_region: Region) -> None:
+def test_get_sorted_items(
+    db_compute_serv: ComputeService, db_compute_serv2: ComputeService
+) -> None:
     """Test the 'sort' attribute in GET operations."""
-    item_in = create_random_compute_service()
-    item = compute_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_compute_service()
-    item2 = compute_service.create(obj_in=item_in2, region=db_region)
-
-    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    sorted_items = list(sorted(compute_service.get_multi(), key=lambda x: x.uid))
 
     stored_items = compute_service.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -133,13 +125,10 @@ def test_get_sorted_items(db_region: Region) -> None:
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_region: Region) -> None:
+def test_get_items_with_skip(
+    db_compute_serv: ComputeService, db_compute_serv2: ComputeService
+) -> None:
     """Test the 'skip' attribute in GET operations."""
-    item_in = create_random_compute_service()
-    compute_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_compute_service()
-    compute_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = compute_service.get_multi(skip=0)
     assert len(stored_items) == 2
 

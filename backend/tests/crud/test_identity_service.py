@@ -36,32 +36,26 @@ def test_get_non_existing_item() -> None:
     assert not identity_service.get(uid=uuid4())
 
 
-def test_get_items(db_region: Region) -> None:
+def test_get_items(
+    db_identity_serv: IdentityService, db_identity_serv2: IdentityService
+) -> None:
     """Retrieve multiple Identity Services."""
-    item_in = create_random_identity_service()
-    item = identity_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_identity_service()
-    item2 = identity_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = identity_service.get_multi()
     assert len(stored_items) == 2
 
-    stored_items = identity_service.get_multi(uid=item.uid)
+    stored_items = identity_service.get_multi(uid=db_identity_serv.uid)
     assert len(stored_items) == 1
-    validate_create_identity_service_attrs(obj_in=item_in, db_item=stored_items[0])
+    assert stored_items[0].uid == db_identity_serv.uid
 
-    stored_items = identity_service.get_multi(uid=item2.uid)
+    stored_items = identity_service.get_multi(uid=db_identity_serv2.uid)
     assert len(stored_items) == 1
-    validate_create_identity_service_attrs(obj_in=item_in2, db_item=stored_items[0])
+    assert stored_items[0].uid == db_identity_serv2.uid
 
 
-def test_get_items_with_limit(db_region: Region) -> None:
+def test_get_items_with_limit(
+    db_identity_serv: IdentityService, db_identity_serv2: IdentityService
+) -> None:
     """Test the 'limit' attribute in GET operations."""
-    item_in = create_random_identity_service()
-    identity_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_identity_service()
-    identity_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = identity_service.get_multi(limit=0)
     assert len(stored_items) == 0
 
@@ -72,14 +66,11 @@ def test_get_items_with_limit(db_region: Region) -> None:
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_region: Region) -> None:
+def test_get_sorted_items(
+    db_identity_serv: IdentityService, db_identity_serv2: IdentityService
+) -> None:
     """Test the 'sort' attribute in GET operations."""
-    item_in = create_random_identity_service()
-    item = identity_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_identity_service()
-    item2 = identity_service.create(obj_in=item_in2, region=db_region)
-
-    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    sorted_items = list(sorted(identity_service.get_multi(), key=lambda x: x.uid))
 
     stored_items = identity_service.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -90,13 +81,10 @@ def test_get_sorted_items(db_region: Region) -> None:
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_region: Region) -> None:
+def test_get_items_with_skip(
+    db_identity_serv: IdentityService, db_identity_serv2: IdentityService
+) -> None:
     """Test the 'skip' attribute in GET operations."""
-    item_in = create_random_identity_service()
-    identity_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_identity_service()
-    identity_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = identity_service.get_multi(skip=0)
     assert len(stored_items) == 2
 

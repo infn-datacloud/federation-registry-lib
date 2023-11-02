@@ -49,46 +49,30 @@ def test_get_non_existing_item() -> None:
     assert not block_storage_quota.get(uid=uuid4())
 
 
-def test_get_items(db_block_storage_serv: BlockStorageService) -> None:
+def test_get_items(
+    db_block_storage_quota: BlockStorageQuota,
+    db_block_storage_quota_per_user: BlockStorageQuota,
+) -> None:
     """Retrieve multiple BlockStorage Quotas."""
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv, project=db_project
-    )
-    item_in2 = create_random_block_storage_quota(project=db_project.uuid)
-    item2 = block_storage_quota.create(
-        obj_in=item_in2, service=db_block_storage_serv, project=db_project
-    )
-
     stored_items = block_storage_quota.get_multi()
     assert len(stored_items) == 2
 
-    stored_items = block_storage_quota.get_multi(uid=item.uid)
+    stored_items = block_storage_quota.get_multi(uid=db_block_storage_quota.uid)
     assert len(stored_items) == 1
-    validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=stored_items[0])
+    assert stored_items[0].uid == db_block_storage_quota.uid
 
-    stored_items = block_storage_quota.get_multi(uid=item2.uid)
+    stored_items = block_storage_quota.get_multi(
+        uid=db_block_storage_quota_per_user.uid
+    )
     assert len(stored_items) == 1
-    validate_create_block_storage_quota_attrs(obj_in=item_in2, db_item=stored_items[0])
+    assert stored_items[0].uid == db_block_storage_quota_per_user.uid
 
 
-def test_get_items_with_limit(db_block_storage_serv: BlockStorageService) -> None:
+def test_get_items_with_limit(
+    db_block_storage_quota: BlockStorageQuota,
+    db_block_storage_quota_per_user: BlockStorageQuota,
+) -> None:
     """Test the 'limit' attribute in GET operations."""
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv, project=db_project
-    )
-    item_in2 = create_random_block_storage_quota(project=db_project.uuid)
-    block_storage_quota.create(
-        obj_in=item_in2, service=db_block_storage_serv, project=db_project
-    )
-
     stored_items = block_storage_quota.get_multi(limit=0)
     assert len(stored_items) == 0
 
@@ -99,21 +83,12 @@ def test_get_items_with_limit(db_block_storage_serv: BlockStorageService) -> Non
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_block_storage_serv: BlockStorageService) -> None:
+def test_get_sorted_items(
+    db_block_storage_quota: BlockStorageQuota,
+    db_block_storage_quota_per_user: BlockStorageQuota,
+) -> None:
     """Test the 'sort' attribute in GET operations."""
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv, project=db_project
-    )
-    item_in2 = create_random_block_storage_quota(project=db_project.uuid)
-    item2 = block_storage_quota.create(
-        obj_in=item_in2, service=db_block_storage_serv, project=db_project
-    )
-
-    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    sorted_items = list(sorted(block_storage_quota.get_multi(), key=lambda x: x.uid))
 
     stored_items = block_storage_quota.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -124,20 +99,11 @@ def test_get_sorted_items(db_block_storage_serv: BlockStorageService) -> None:
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_block_storage_serv: BlockStorageService) -> None:
+def test_get_items_with_skip(
+    db_block_storage_quota: BlockStorageQuota,
+    db_block_storage_quota_per_user: BlockStorageQuota,
+) -> None:
     """Test the 'skip' attribute in GET operations."""
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv, project=db_project
-    )
-    item_in2 = create_random_block_storage_quota(project=db_project.uuid)
-    block_storage_quota.create(
-        obj_in=item_in2, service=db_block_storage_serv, project=db_project
-    )
-
     stored_items = block_storage_quota.get_multi(skip=0)
     assert len(stored_items) == 2
 

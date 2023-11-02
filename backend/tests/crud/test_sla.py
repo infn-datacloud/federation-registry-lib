@@ -16,7 +16,7 @@ def test_create_item(db_user_group: UserGroup) -> None:
     existing projects."""
     db_idp = db_user_group.identity_provider.single()
     db_provider = db_idp.providers.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    db_project = db_provider.projects.single()
     item_in = create_random_sla(project=db_project.uuid)
     item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
     validate_create_sla_attrs(obj_in=item_in, db_item=item)
@@ -27,7 +27,7 @@ def test_create_item_default_values(db_user_group: UserGroup) -> None:
     specific user group and pointing to existing projects."""
     db_idp = db_user_group.identity_provider.single()
     db_provider = db_idp.providers.single()
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
+    db_project = db_provider.projects.single()
     item_in = create_random_sla(default=True, project=db_project.uuid)
     item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
     validate_create_sla_attrs(obj_in=item_in, db_item=item)
@@ -44,22 +44,21 @@ def test_get_non_existing_item() -> None:
     assert not sla.get(uid=uuid4())
 
 
-def test_get_items(db_idp_with_multiple_user_groups: IdentityProvider) -> None:
+def test_get_items(db_sla2: SLA, db_sla3: SLA) -> None:
     """Retrieve multiple SLAs."""
-    db_user_group = db_idp_with_multiple_user_groups.user_groups.all()[0]
-    item = db_user_group.slas.all()[0]
-
     stored_items = sla.get_multi()
     assert len(stored_items) == 2
 
-    stored_items = sla.get_multi(uid=item.uid)
+    stored_items = sla.get_multi(uid=db_sla2.uid)
     assert len(stored_items) == 1
-    assert stored_items[0].uid == item.uid
+    assert stored_items[0].uid == db_sla2.uid
+
+    stored_items = sla.get_multi(uid=db_sla3.uid)
+    assert len(stored_items) == 1
+    assert stored_items[0].uid == db_sla3.uid
 
 
-def test_get_items_with_limit(
-    db_idp_with_multiple_user_groups: IdentityProvider,
-) -> None:
+def test_get_items_with_limit(db_sla2: SLA, db_sla3: SLA) -> None:
     """Test the 'limit' attribute in GET operations."""
     stored_items = sla.get_multi(limit=0)
     assert len(stored_items) == 0
@@ -71,10 +70,9 @@ def test_get_items_with_limit(
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_idp_with_multiple_user_groups: IdentityProvider) -> None:
+def test_get_sorted_items(db_sla2: SLA, db_sla3: SLA) -> None:
     """Test the 'sort' attribute in GET operations."""
-    items = [i.slas.all()[0] for i in db_idp_with_multiple_user_groups.user_groups]
-    sorted_items = list(sorted(items, key=lambda x: x.uid))
+    sorted_items = list(sorted(sla.get_multi(), key=lambda x: x.uid))
 
     stored_items = sla.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -85,9 +83,7 @@ def test_get_sorted_items(db_idp_with_multiple_user_groups: IdentityProvider) ->
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(
-    db_idp_with_multiple_user_groups: IdentityProvider,
-) -> None:
+def test_get_items_with_skip(db_sla2: SLA, db_sla3: SLA) -> None:
     """Test the 'skip' attribute in GET operations."""
     stored_items = sla.get_multi(skip=0)
     assert len(stored_items) == 2

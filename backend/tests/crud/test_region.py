@@ -174,32 +174,20 @@ def test_get_non_existing_item() -> None:
     assert not region.get(uid=uuid4())
 
 
-def test_get_items(db_provider: Provider) -> None:
+def test_get_items(db_region: Region, db_region2: Region) -> None:
     """Retrieve multiple Regions."""
-    item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider)
-    item_in2 = create_random_region()
-    item2 = region.create(obj_in=item_in2, provider=db_provider)
-
     stored_items = region.get_multi()
     assert len(stored_items) == 2
 
-    stored_items = region.get_multi(uid=item.uid)
+    stored_items = region.get_multi(uid=db_region.uid)
     assert len(stored_items) == 1
-    validate_create_region_attrs(obj_in=item_in, db_item=stored_items[0])
 
-    stored_items = region.get_multi(uid=item2.uid)
+    stored_items = region.get_multi(uid=db_region2.uid)
     assert len(stored_items) == 1
-    validate_create_region_attrs(obj_in=item_in2, db_item=stored_items[0])
 
 
-def test_get_items_with_limit(db_provider: Provider) -> None:
+def test_get_items_with_limit(db_region: Region, db_region2: Region) -> None:
     """Test the 'limit' attribute in GET operations."""
-    item_in = create_random_region()
-    region.create(obj_in=item_in, provider=db_provider)
-    item_in2 = create_random_region()
-    region.create(obj_in=item_in2, provider=db_provider)
-
     stored_items = region.get_multi(limit=0)
     assert len(stored_items) == 0
 
@@ -210,14 +198,9 @@ def test_get_items_with_limit(db_provider: Provider) -> None:
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_provider: Provider) -> None:
+def test_get_sorted_items(db_region: Region, db_region2: Region) -> None:
     """Test the 'sort' attribute in GET operations."""
-    item_in = create_random_region()
-    item = region.create(obj_in=item_in, provider=db_provider)
-    item_in2 = create_random_region()
-    item2 = region.create(obj_in=item_in2, provider=db_provider)
-
-    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    sorted_items = list(sorted(region.get_multi(), key=lambda x: x.uid))
 
     stored_items = region.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -228,13 +211,8 @@ def test_get_sorted_items(db_provider: Provider) -> None:
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_provider: Provider) -> None:
+def test_get_items_with_skip(db_region: Region, db_region2: Region) -> None:
     """Test the 'skip' attribute in GET operations."""
-    item_in = create_random_region()
-    region.create(obj_in=item_in, provider=db_provider)
-    item_in2 = create_random_region()
-    region.create(obj_in=item_in2, provider=db_provider)
-
     stored_items = region.get_multi(skip=0)
     assert len(stored_items) == 2
 

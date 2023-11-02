@@ -45,32 +45,26 @@ def test_get_non_existing_item() -> None:
     assert not network_service.get(uid=uuid4())
 
 
-def test_get_items(db_region: Region) -> None:
+def test_get_items(
+    db_network_serv: NetworkService, db_network_serv2: NetworkService
+) -> None:
     """Retrieve multiple Network Services."""
-    item_in = create_random_network_service()
-    item = network_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_network_service()
-    item2 = network_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = network_service.get_multi()
     assert len(stored_items) == 2
 
-    stored_items = network_service.get_multi(uid=item.uid)
+    stored_items = network_service.get_multi(uid=db_network_serv.uid)
     assert len(stored_items) == 1
-    validate_create_network_service_attrs(obj_in=item_in, db_item=stored_items[0])
+    assert stored_items[0].uid == db_network_serv.uid
 
-    stored_items = network_service.get_multi(uid=item2.uid)
+    stored_items = network_service.get_multi(uid=db_network_serv2.uid)
     assert len(stored_items) == 1
-    validate_create_network_service_attrs(obj_in=item_in2, db_item=stored_items[0])
+    assert stored_items[0].uid == db_network_serv2.uid
 
 
-def test_get_items_with_limit(db_region: Region) -> None:
+def test_get_items_with_limit(
+    db_network_serv: NetworkService, db_network_serv2: NetworkService
+) -> None:
     """Test the 'limit' attribute in GET operations."""
-    item_in = create_random_network_service()
-    network_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_network_service()
-    network_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = network_service.get_multi(limit=0)
     assert len(stored_items) == 0
 
@@ -81,14 +75,11 @@ def test_get_items_with_limit(db_region: Region) -> None:
     assert len(stored_items) == 2
 
 
-def test_get_sorted_items(db_region: Region) -> None:
+def test_get_sorted_items(
+    db_network_serv: NetworkService, db_network_serv2: NetworkService
+) -> None:
     """Test the 'sort' attribute in GET operations."""
-    item_in = create_random_network_service()
-    item = network_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_network_service()
-    item2 = network_service.create(obj_in=item_in2, region=db_region)
-
-    sorted_items = list(sorted([item, item2], key=lambda x: x.uid))
+    sorted_items = list(sorted(network_service.get_multi(), key=lambda x: x.uid))
 
     stored_items = network_service.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid
@@ -99,13 +90,10 @@ def test_get_sorted_items(db_region: Region) -> None:
     assert sorted_items[0].uid == stored_items[1].uid
 
 
-def test_get_items_with_skip(db_region: Region) -> None:
+def test_get_items_with_skip(
+    db_network_serv: NetworkService, db_network_serv2: NetworkService
+) -> None:
     """Test the 'skip' attribute in GET operations."""
-    item_in = create_random_network_service()
-    network_service.create(obj_in=item_in, region=db_region)
-    item_in2 = create_random_network_service()
-    network_service.create(obj_in=item_in2, region=db_region)
-
     stored_items = network_service.get_multi(skip=0)
     assert len(stored_items) == 2
 
