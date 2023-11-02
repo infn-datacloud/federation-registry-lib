@@ -1,9 +1,10 @@
+from typing import Generator
 from uuid import uuid4
 
-from app.sla.crud import sla
 from app.project.crud import project
-from app.user_group.crud import user_group
+from app.sla.crud import sla
 from app.sla.models import SLA
+from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from scripts.models.provider import Provider
 from tests.utils.sla import (
@@ -41,7 +42,7 @@ def test_get_item(db_sla: SLA) -> None:
     assert item.uid == db_sla.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing SLA."""
     assert not sla.get(uid=uuid4())
 
@@ -122,30 +123,53 @@ def test_patch_item_with_defaults(db_sla: SLA) -> None:
             assert item.__getattribute__(k) == v
 
 
-    At first update only SLA attributes leaving untouched its
-    connections (this is different from the previous test because the
-    flag force is set to True).
+def test_force_update_without_changing_relationships(db_sla: SLA) -> None:
+    """Update the attributes of an existing SLA.
 
-    Then update the linked projects. The new project list will replace
-    the previous linked projects.
+    Update only SLA attributes leaving untouched its connections (this
+    is different from the previous test because the flag force is set to
+    True).
     """
-    db_idp = db_user_group.identity_provider.single()
-    db_provider = db_idp.providers.all()[0]
-    db_project = db_provider.projects.all()[0]
-    item_in = create_random_sla(project=db_project.uuid)
-    item = sla.create(obj_in=item_in, user_group=db_user_group, project=db_project)
+    db_project = db_sla.projects.single()
+    db_provider = db_project.provider.single()
     item_in = create_random_sla(project=db_project.uuid)
     item = sla.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+        db_obj=db_sla, obj_in=item_in, projects=db_provider.projects, force=True
     )
     validate_create_sla_attrs(obj_in=item_in, db_item=item)
 
-    db_project = project.create(obj_in=create_random_project(), provider=db_provider)
-    item_in = create_random_sla(project=db_project.uuid)
+
+def test_replace_project_with_another_same_provider(db_sla2: SLA) -> None:
+    """Update an existing SLA with a single project on a provider, replacing
+    the project with another project of the same provider."""
+    db_project = db_sla2.projects.single()
+    db_provider = db_project.provider.single()
+    for db_project2 in db_provider.projects:
+        if db_project2.uid != db_project.uid:
+            break
+
+    item_in = create_random_sla(project=db_project2.uuid)
     item = sla.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+        db_obj=db_sla2, obj_in=item_in, projects=db_provider.projects, force=True
     )
     validate_create_sla_attrs(obj_in=item_in, db_item=item)
+
+
+def test_add_new_project_diff_provider_to_existing_sla(
+    db_sla: SLA, db_provider_with_multiple_projects: Provider
+) -> None:
+    """Update an existing SLA with a single project, adding a new project
+    belonging to another provider."""
+    db_project = db_provider_with_multiple_projects.projects.single()
+    item_in = create_random_sla(project=db_project.uuid)
+    item = sla.update(
+        db_obj=db_sla,
+        obj_in=item_in,
+        projects=db_provider_with_multiple_projects.projects,
+        force=True,
+    )
+    validate_create_sla_attrs(obj_in=item_in, db_item=item)
+    assert len(item.projects) == 2
 
 
 def test_delete_item(db_sla: SLA) -> None:

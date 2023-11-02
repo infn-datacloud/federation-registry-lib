@@ -1,8 +1,10 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.identity_provider.crud import identity_provider
 from app.identity_provider.models import IdentityProvider
 from app.project.crud import project
+from app.provider.models import Provider
 from app.sla.crud import sla
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
@@ -52,7 +54,7 @@ def test_get_item(db_user_group: UserGroup) -> None:
     assert item.uid == db_user_group.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing User Group."""
     assert not user_group.get(uid=uuid4())
 
@@ -137,44 +139,95 @@ def test_patch_item_with_defaults(db_user_group: UserGroup) -> None:
             assert item.__getattribute__(k) == v
 
 
-def test_forced_update_item_with_slas(
-    db_idp_with_single_user_group: IdentityProvider,
-) -> None:
-    """Update the attributes and relationships of an existing User Group.
-
-    At first update a User Group with a set of linked SLAs, updating its
-    attributes and removing all linked SLAs.
-
-    Update a User Group with no SLAs, changing its attributes and
-    linking a new SLA.
-
-    Update a User Group with a set of linked SLAs, changing both its
-    attributes and replacing the linked SLAs with new ones.
+def test_force_update_without_changing_relationships(db_user_group: UserGroup) -> None:
+    """Update the attributes of an existing User Group.
 
     Update a User Group with a set of linked SLAs, changing only its
     attributes leaving untouched its connections (this is different from
     the previous test because the flag force is set to True).
     """
-    db_provider = db_idp_with_single_user_group.providers.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_user_group(project=db_project.uuid)
-    item = user_group.create(
-        obj_in=item_in, identity_provider=db_idp_with_single_user_group
-    )
 
+    db_sla = db_user_group.slas.single()
+    db_project = db_sla.projects.single()
+    db_provider = db_project.provider.single()
     item_in = create_random_user_group(project=db_project.uuid)
+    item_in.sla.doc_uuid == db_sla.doc_uuid
+    item_in.sla.start_date == db_sla.start_date
+    item_in.sla.end_date == db_sla.end_date
     item = user_group.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+        db_obj=db_user_group, obj_in=item_in, projects=db_provider.projects, force=True
     )
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
 
-    sla = item_in.sla
+
+def test_replace_sla_with_another_same_provider(db_user_group: UserGroup) -> None:
+    """Update the attributes and relationships of an existing User Group.
+
+    Update a User Group with a set of linked SLAs, changing both its
+    attributes and replacing the linked SLAs with new ones.
+    """
+    db_sla = db_user_group.slas.single()
+    db_project = db_sla.projects.single()
+    db_provider = db_project.provider.single()
     item_in = create_random_user_group(project=db_project.uuid)
-    item_in.sla = sla
     item = user_group.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+        db_obj=db_user_group, obj_in=item_in, projects=db_provider.projects, force=True
     )
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
+
+
+def test_add_new_sla_diff_provider_to_existing_user_group(
+    db_user_group: UserGroup, db_provider_with_multiple_projects: Provider
+) -> None:
+    """Update an existing User Group with a single SLA, adding a new SLA
+    belonging to another provider."""
+    db_project = db_provider_with_multiple_projects.projects.single()
+    item_in = create_random_user_group(project=db_project.uuid)
+    item_in.name = db_user_group.name
+    item = user_group.update(
+        db_obj=db_user_group,
+        obj_in=item_in,
+        projects=db_provider_with_multiple_projects.projects,
+        force=True,
+    )
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
+    assert len(item.slas) == 2
+
+
+def test_add_new_sla_replacing_part_of_existing_one(
+    db_user_group_with_sla_with_multiple_projects: UserGroup,
+) -> None:
+    """Update the attributes and relationships of an existing User Group.
+
+    Update a User Group with an SLA pointing to multiple projects (each
+    on a different provider), adding a new SLA pointing to a project of
+    an already referenced provider. The user group will have 2 SLAs each
+    pointing to the project of one provider.
+
+    This case should happen when updating the SLA of a project and the
+    old SLA, pointing to 2 providers, should be changed as well!
+    """
+    db_sla = db_user_group_with_sla_with_multiple_projects.slas.single()
+    db_project = db_sla.projects.single()
+    db_provider = db_project.provider.single()
+    item_in = create_random_user_group(project=db_project.uuid)
+    item = user_group.update(
+        db_obj=db_user_group_with_sla_with_multiple_projects,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_user_group_attrs(obj_in=item_in, db_item=item)
+    assert len(item.slas) == 2
+    db_sla1 = item.slas.all()[0]
+    db_sla2 = item.slas.all()[1]
+    assert len(db_sla1.projects) == 1
+    assert len(db_sla2.projects) == 1
+    db_project1 = db_sla1.projects.single()
+    db_project2 = db_sla2.projects.single()
+    assert db_project1.sla.single()
+    assert db_project2.sla.single()
+    assert db_project1.provider.single() != db_project2.provider.single()
 
 
 def test_delete_item_with_relationships(

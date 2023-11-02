@@ -30,12 +30,16 @@ class CRUDSLA(
 
         At first check an SLA pointing to the same document does not
         exist yet. If it does not exist, create it. In any case connect
-        the SLA to the given user group and project.
+        the SLA to the given user group and project. If the project
+        already has an attached SLA, disconnect it.
         """
         db_obj = user_group.slas.get_or_none(doc_uuid=obj_in.doc_uuid)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
             db_obj.user_group.connect(user_group)
+        old_sla = project.sla.single()
+        if old_sla:
+            project.sla.disconnect(old_sla)
         db_obj.projects.connect(project)
         return db_obj
 

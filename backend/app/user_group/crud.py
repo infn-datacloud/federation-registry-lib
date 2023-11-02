@@ -59,8 +59,6 @@ class CRUDUserGroup(
             if db_sla is not None:
                 if len(db_sla.projects) == 1:
                     sla.remove(db_obj=db_sla)
-                else:
-                    db_project.sla.disconnect(db_sla)
             sla.create(obj_in=obj_in.sla, user_group=db_obj, project=db_project)
         return db_obj
 
@@ -131,8 +129,6 @@ class CRUDUserGroup(
             if db_sla_target_provider.doc_uuid != obj_in.sla.doc_uuid:
                 if len(db_sla_target_provider.projects) == 1:
                     sla.remove(db_obj=db_sla_target_provider)
-                else:
-                    db_sla_target_provider.user_group.disconnect(db_obj)
                 sla.create(obj_in=obj_in.sla, project=db_project, user_group=db_obj)
                 edit = True
             else:
@@ -142,8 +138,7 @@ class CRUDUserGroup(
                     projects=provider_projects,
                     force=True,
                 )
-                if not edit and updated_data is not None:
-                    edit = True
+                edit = updated_data is not None
         else:
             sla.create(obj_in=obj_in.sla, project=db_project, user_group=db_obj)
         return edit

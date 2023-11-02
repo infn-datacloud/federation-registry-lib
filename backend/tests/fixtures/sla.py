@@ -44,3 +44,12 @@ def db_project_with_sla(db_sla: SLA) -> Project:
 def db_project_with_shared_sla(db_sla_with_multiple_projects: SLA) -> Project:
     """Project with SLA shared between multiple projects."""
     yield db_sla_with_multiple_projects.projects.single()
+
+
+@pytest.fixture
+def db_user_group_with_sla_with_multiple_projects(
+    db_sla_with_multiple_projects: SLA,
+) -> UserGroup:
+    """User group with an SLA pointing to multiple projects on different
+    providers."""
+    yield db_sla_with_multiple_projects.user_group.single()
