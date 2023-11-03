@@ -138,9 +138,11 @@ class CRUDUserGroup(
                     projects=provider_projects,
                     force=True,
                 )
-                edit = updated_data is not None
+                if not edit and updated_data is not None:
+                    edit = True
         else:
             sla.create(obj_in=obj_in.sla, project=db_project, user_group=db_obj)
+            edit = True
         return edit
 
 
