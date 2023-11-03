@@ -229,11 +229,17 @@ def test_force_update_without_changing_relationships(db_private_flavor: Flavor) 
     attributes leaving untouched its connections (this is different from
     the previous test because the flag force is set to True).
     """
+    db_projects = sorted(db_private_flavor.projects, key=lambda x: x.uid)
+    db_services = sorted(db_private_flavor.services, key=lambda x: x.uid)
     item_in = create_random_flavor(
         projects=[i.uuid for i in db_private_flavor.projects]
     )
     item = flavor.update(db_obj=db_private_flavor, obj_in=item_in, force=True)
     validate_create_flavor_attrs(obj_in=item_in, db_item=item)
+    for i, j in zip(sorted(item.projects, key=lambda x: x.uid), db_projects):
+        assert i == j
+    for i, j in zip(sorted(item.services, key=lambda x: x.uid), db_services):
+        assert i == j
 
 
 def test_delete_item(db_public_flavor: Flavor) -> None:

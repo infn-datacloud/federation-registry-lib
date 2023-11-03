@@ -201,9 +201,12 @@ def test_force_update_without_changing_relationships(
     the previous test because the flag force is set to True).
     """
     db_project = db_private_network.project.single()
+    db_service = db_private_network.service.single()
     item_in = create_random_network(project=db_project.uuid)
     item = network.update(db_obj=db_private_network, obj_in=item_in, force=True)
     validate_create_network_attrs(obj_in=item_in, db_item=item)
+    assert item.project.single() == db_project
+    assert item.service.single() == db_service
 
 
 def test_delete_item(db_public_network: Network) -> None:

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Generator
 from uuid import uuid4
 
@@ -146,18 +147,24 @@ def test_force_update_without_changing_relationships(db_user_group: UserGroup) -
     attributes leaving untouched its connections (this is different from
     the previous test because the flag force is set to True).
     """
-
+    db_idp = db_user_group.identity_provider.single()
+    db_slas = sorted(db_user_group.slas, key=lambda x: x.uid)
     db_sla = db_user_group.slas.single()
     db_project = db_sla.projects.single()
     db_provider = db_project.provider.single()
     item_in = create_random_user_group(project=db_project.uuid)
-    item_in.sla.doc_uuid == db_sla.doc_uuid
-    item_in.sla.start_date == db_sla.start_date
-    item_in.sla.end_date == db_sla.end_date
+    item_in.sla.doc_uuid = db_sla.doc_uuid
+    if db_sla.start_date >= item_in.sla.end_date:
+        item_in.sla.end_date = db_sla.start_date + timedelta(1)
+    item_in.sla.start_date = db_sla.start_date
+    item_in.sla.end_date = db_sla.end_date
     item = user_group.update(
         db_obj=db_user_group, obj_in=item_in, projects=db_provider.projects, force=True
     )
     validate_create_user_group_attrs(obj_in=item_in, db_item=item)
+    assert item.identity_provider.single() == db_idp
+    for i, j in zip(sorted(item.slas, key=lambda x: x.uid), db_slas):
+        assert i == j
 
 
 def test_replace_sla_with_another_same_provider(db_user_group: UserGroup) -> None:

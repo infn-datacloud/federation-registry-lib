@@ -130,6 +130,8 @@ def test_force_update_without_changing_relationships(db_sla: SLA) -> None:
     is different from the previous test because the flag force is set to
     True).
     """
+    db_user_group = db_sla.user_group.single()
+    db_projects = sorted(db_sla.projects, key=lambda x: x.uid)
     db_project = db_sla.projects.single()
     db_provider = db_project.provider.single()
     item_in = create_random_sla(project=db_project.uuid)
@@ -137,6 +139,9 @@ def test_force_update_without_changing_relationships(db_sla: SLA) -> None:
         db_obj=db_sla, obj_in=item_in, projects=db_provider.projects, force=True
     )
     validate_create_sla_attrs(obj_in=item_in, db_item=item)
+    assert item.user_group.single() == db_user_group
+    for i, j in zip(sorted(item.projects, key=lambda x: x.uid), db_projects):
+        assert i == j
 
 
 def test_replace_project_with_another_same_provider(db_sla2: SLA) -> None:

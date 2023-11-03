@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.location.crud import location
@@ -65,7 +66,7 @@ def test_get_item(db_location: Location) -> None:
     assert item.uid == db_location.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Location."""
     assert not location.get(uid=uuid4())
 
@@ -146,12 +147,18 @@ def test_patch_item_with_defaults(db_location: Location) -> None:
             assert item.__getattribute__(k) == v
 
 
-def test_forced_update_item(db_region: Region) -> None:
+def test_force_update_without_changing_relationships(db_location: Location) -> None:
+    """Update the attributes and relationships of an existing Location.
+
+    Update a Region with a set of linked locations, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
+    db_region = db_location.regions.single()
     item_in = create_random_location()
-    item = location.create(obj_in=item_in, region=db_region)
-    item_in = create_random_location()
-    item = location.update(db_obj=item, obj_in=item_in, force=True)
+    item = location.update(db_obj=db_location, obj_in=item_in, force=True)
     validate_create_location_attrs(obj_in=item_in, db_item=item)
+    assert item.regions.single() == db_region
 
 
 def test_delete_item(db_location: Location) -> None:

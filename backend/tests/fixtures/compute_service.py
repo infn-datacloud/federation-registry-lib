@@ -34,7 +34,7 @@ def db_compute_serv3(db_region3: Region) -> ComputeService:
 
 @pytest.fixture
 def db_region_with_compute_service(db_compute_serv: ComputeService) -> Region:
-    """Region with a block storage service."""
+    """Region with a compute service."""
     yield db_compute_serv.region.single()
 
 
@@ -42,7 +42,7 @@ def db_region_with_compute_service(db_compute_serv: ComputeService) -> Region:
 def db_deletable_region_with_compute_service(
     db_compute_serv3: ComputeService,
 ) -> Region:
-    """Region with a block storage service."""
+    """Region with a compute service."""
     yield db_compute_serv3.region.single()
 
 

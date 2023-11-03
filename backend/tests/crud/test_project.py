@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.project.crud import project
@@ -35,7 +36,7 @@ def test_get_item(db_project: Project) -> None:
     assert item.uid == db_project.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Project."""
     assert not project.get(uid=uuid4())
 
@@ -116,20 +117,117 @@ def test_patch_item_with_defaults(db_project: Project) -> None:
             assert item.__getattribute__(k) == v
 
 
-def test_force_update_item(db_provider: Provider) -> None:
+def test_force_update_without_changing_flavors(
+    db_project_with_single_private_flavor: Project,
+) -> None:
+    """Update the attributes and relationships of an existing Project.
+
+    Update a Project with a set of linked flavors, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
+    db_provider = db_project_with_single_private_flavor.provider.single()
+    db_flavor = db_project_with_single_private_flavor.private_flavors.single()
     item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
-    item_in = create_random_project()
-    item = project.update(db_obj=item, obj_in=item_in, force=True)
+    item = project.update(
+        db_obj=db_project_with_single_private_flavor, obj_in=item_in, force=True
+    )
     validate_create_project_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.private_flavors.single() == db_flavor
 
 
-def test_force_update_item_with_defaults(db_provider: Provider) -> None:
+def test_force_update_without_changing_images(
+    db_project_with_single_private_image: Project,
+) -> None:
+    """Update the attributes and relationships of an existing Project.
+
+    Update a Project with a set of linked images, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
+    db_provider = db_project_with_single_private_image.provider.single()
+    db_image = db_project_with_single_private_image.private_images.single()
     item_in = create_random_project()
-    item = project.create(obj_in=item_in, provider=db_provider)
-    item_in = create_random_project(default=True)
-    item = project.update(db_obj=item, obj_in=item_in, force=True)
+    item = project.update(
+        db_obj=db_project_with_single_private_image, obj_in=item_in, force=True
+    )
     validate_create_project_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.private_images.single() == db_image
+
+
+def test_force_update_without_changing_block_storage_quotas(
+    db_project_with_single_block_storage_quota: Project,
+) -> None:
+    """Update the attributes and relationships of an existing Project.
+
+    Update a Project with a set of linked quotas, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
+    db_provider = db_project_with_single_block_storage_quota.provider.single()
+    db_quota = db_project_with_single_block_storage_quota.quotas.single()
+    item_in = create_random_project()
+    item = project.update(
+        db_obj=db_project_with_single_block_storage_quota, obj_in=item_in, force=True
+    )
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.quotas.single() == db_quota
+
+
+def test_force_update_without_changing_compute_quotas(
+    db_project_with_single_compute_quota: Project,
+) -> None:
+    """Update the attributes and relationships of an existing Project.
+
+    Update a Project with a set of linked quotas, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
+    db_provider = db_project_with_single_compute_quota.provider.single()
+    db_quota = db_project_with_single_compute_quota.quotas.single()
+    item_in = create_random_project()
+    item = project.update(
+        db_obj=db_project_with_single_compute_quota, obj_in=item_in, force=True
+    )
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.quotas.single() == db_quota
+
+
+def test_force_update_without_changing_slas(
+    db_project_with_sla: Project,
+) -> None:
+    """Update the attributes and relationships of an existing Project.
+
+    Update a Project with a set of linked quotas, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
+    db_provider = db_project_with_sla.provider.single()
+    db_quota = db_project_with_sla.quotas.single()
+    item_in = create_random_project()
+    item = project.update(db_obj=db_project_with_sla, obj_in=item_in, force=True)
+    validate_create_project_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.quotas.single() == db_quota
+
+
+# def test_force_update_item_with_defaults(db_provider: Provider) -> None:
+#     """Update the attributes and relationships of an existing Location.
+
+#     Update a Region with a set of linked locations, changing
+#     only its attributes leaving untouched its connections (this is
+#     different from the previous test because the flag force is set to
+#     True).
+#     """
+#     item_in = create_random_project()
+#     item = project.create(obj_in=item_in, provider=db_provider)
+#     item_in = create_random_project(default=True)
+#     item = project.update(db_obj=item, obj_in=item_in, force=True)
+#     validate_create_project_attrs(obj_in=item_in, db_item=item)
 
 
 def test_delete_item(db_project: Project) -> None:

@@ -1,3 +1,5 @@
+from copy import deepcopy
+from typing import Generator
 from uuid import uuid4
 
 from app.quota.crud import block_storage_quota
@@ -10,6 +12,7 @@ from tests.utils.block_storage_service import (
     create_random_block_storage_service_patch,
     validate_create_block_storage_service_attrs,
 )
+from tests.utils.utils import random_lower_string
 
 
 def test_create_item(db_region: Region) -> None:
@@ -46,7 +49,7 @@ def test_get_item(db_block_storage_serv: BlockStorageService) -> None:
     assert item.uid == db_block_storage_serv.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing BlockStorage Service."""
     assert not block_storage_service.get(uid=uuid4())
 
@@ -141,59 +144,162 @@ def test_patch_item_with_defaults(db_block_storage_serv: BlockStorageService) ->
             assert item.__getattribute__(k) == v
 
 
-def test_forced_update_item_(db_region: Region) -> None:
+def test_add_quotas(db_block_storage_serv: BlockStorageService) -> None:
     """Update the attributes and relationships of an existing BlockStorage
     Service.
 
-    At first update a BlockStorage Service with a set of linked
-    projects, updating its attributes and removing all linked projects.
-
-    Update a BlockStorage Service with no projects, changing its
-    attributes and linking a new project.
-
-    Update a BlockStorage Service with a set of linked projects,
-    changing both its attributes and replacing the linked projects with
-    new ones.
-
-    Update a BlockStorage Service with a set of linked projects,
-    changing only its attributes leaving untouched its connections (this
-    is different from the previous test because the flag force is set to
-    True).
+    Update a BlockStorage Service with no quotas, changing its
+    attributes and linking a new quota.
     """
+    db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
     item_in = create_random_block_storage_service(
         projects=[i.uuid for i in db_provider.projects]
     )
-    item = block_storage_service.create(
-        obj_in=item_in, region=db_region, projects=db_provider.projects
-    )
-    item_in = create_random_block_storage_service()
-    item = block_storage_service.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    db_quota = deepcopy(item_in.quotas[0])
+    db_quota.description = random_lower_string()
+    db_quota.per_user = not db_quota.per_user
+    item_in.quotas.append(db_quota)
 
+    item = block_storage_service.update(
+        db_obj=db_block_storage_serv,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.quotas) == 2
+
+
+def test_remove_quotas(
+    db_block_storage_serv_with_multiple_quotas: BlockStorageService,
+) -> None:
+    """Update the attributes and relationships of an existing BlockStorage
+    Service.
+
+    Update a BlockStorage Service with a set of linked quotas, updating
+    its attributes and removing all linked quotas.
+    """
+    db_region = db_block_storage_serv_with_multiple_quotas.region.single()
+    item_in = create_random_block_storage_service()
+    item = block_storage_service.update(
+        db_obj=db_block_storage_serv_with_multiple_quotas, obj_in=item_in, force=True
+    )
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.quotas) == 0
+
+
+def test_replace_quotas_with_ones_pointing_to_diff_project(
+    db_block_storage_serv_with_multiple_quotas_same_project: BlockStorageService,
+) -> None:
+    """Update the attributes and relationships of an existing BlockStorage
+    Service.
+
+    Update a BlockStorage Service with a set of linked quotas, changing
+    both its attributes and replacing the linked quotas with new ones.
+    """
+    db_region = db_block_storage_serv_with_multiple_quotas_same_project.region.single()
+    db_provider = db_region.provider.single()
+    db_quota = db_block_storage_serv_with_multiple_quotas_same_project.quotas.get(
+        per_user=True
+    )
+    for db_project in db_provider.projects:
+        if db_project.uid != db_quota.project.single().uid:
+            break
+
+    quotas_uids = [
+        i.uid for i in db_block_storage_serv_with_multiple_quotas_same_project.quotas
+    ]
+
+    item_in = create_random_block_storage_service(projects=[db_project.uuid])
+    db_quota = deepcopy(item_in.quotas[0])
+    db_quota.description = random_lower_string()
+    db_quota.per_user = not db_quota.per_user
+    item_in.quotas.append(db_quota)
+
+    item = block_storage_service.update(
+        db_obj=db_block_storage_serv_with_multiple_quotas_same_project,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.quotas) == 2
+    for i in item.quotas:
+        assert i.uid not in quotas_uids
+
+
+def test_replace_quotas_with_ones_pointing_to_same_project(
+    db_block_storage_serv_with_multiple_quotas_same_project: BlockStorageService,
+) -> None:
+    """Update the attributes and relationships of an existing BlockStorage
+    Service.
+
+    Update a BlockStorage Service with a set of linked quotas, changing
+    both its attributes and replacing the linked quotas with new ones.
+    """
+    db_region = db_block_storage_serv_with_multiple_quotas_same_project.region.single()
+    db_provider = db_region.provider.single()
+    db_quota = db_block_storage_serv_with_multiple_quotas_same_project.quotas.get(
+        per_user=True
+    )
+    db_project = db_quota.project.single()
+
+    quotas_uids = [
+        i.uid for i in db_block_storage_serv_with_multiple_quotas_same_project.quotas
+    ]
+
+    item_in = create_random_block_storage_service(projects=[db_project.uuid])
+    db_quota = deepcopy(item_in.quotas[0])
+    db_quota.description = random_lower_string()
+    db_quota.per_user = not db_quota.per_user
+    item_in.quotas.append(db_quota)
+
+    item = block_storage_service.update(
+        db_obj=db_block_storage_serv_with_multiple_quotas_same_project,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.quotas) == 2
+    for i in sorted(item.quotas, key=lambda x: x.uid):
+        assert i.uid in quotas_uids
+
+
+def test_force_update_without_changing_relationships(
+    db_block_storage_serv_with_single_quota: BlockStorageService,
+) -> None:
+    """Update the attributes and relationships of an existing BlockStorage
+    Service.
+
+    Update a BlockStorage Service with a set of linked quotas, changing
+    only its attributes leaving untouched its connections (this is
+    different from the previous test because the flag force is set to
+    True).
+    """
+    db_region = db_block_storage_serv_with_single_quota.region.single()
+    db_provider = db_region.provider.single()
+    db_quota = db_block_storage_serv_with_single_quota.quotas.single()
     item_in = create_random_block_storage_service(
         projects=[i.uuid for i in db_provider.projects]
     )
+    for k in item_in.quotas[0].dict(exclude={"project"}).keys():
+        item_in.quotas[0].__setattr__(k, db_quota.__getattribute__(k))
+    item_in.quotas[0].project = db_quota.project.single().uuid
     item = block_storage_service.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
+        db_obj=db_block_storage_serv_with_single_quota,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
     )
     validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_block_storage_service(
-        projects=[i.uuid for i in db_provider.projects]
-    )
-    item = block_storage_service.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
-    )
-    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
-
-    quotas = item_in.quotas
-    item_in = create_random_block_storage_service()
-    item_in.quotas = quotas
-    item = block_storage_service.update(
-        db_obj=item, obj_in=item_in, projects=db_provider.projects, force=True
-    )
-    validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert item.quotas.single() == db_quota
 
 
 def test_delete_item(db_block_storage_serv: BlockStorageService) -> None:

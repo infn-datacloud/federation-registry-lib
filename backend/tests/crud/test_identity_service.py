@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.region.crud import region
@@ -32,7 +33,7 @@ def test_get_item(db_identity_serv: IdentityService) -> None:
     assert item.uid == db_identity_serv.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Identity Service."""
     assert not identity_service.get(uid=uuid4())
 
@@ -120,14 +121,17 @@ def test_patch_item_with_defaults(db_identity_serv: IdentityService) -> None:
             assert item.__getattribute__(k) == v
 
 
-def test_forced_update_item(db_region: Region) -> None:
-    """Update the attributes of an existing Identity Service forcing default
-    values when not set."""
+def test_force_update_without_changing_relationships(
+    db_identity_serv: IdentityService,
+) -> None:
+    """Update the attributes of an existing Identity Service leaving untouched
+    its connections (this is different from the previous test because the flag
+    force is set to True)."""
+    db_region = db_identity_serv.region.single()
     item_in = create_random_identity_service()
-    item = identity_service.create(obj_in=item_in, region=db_region)
-    item_in = create_random_identity_service()
-    item = identity_service.update(db_obj=item, obj_in=item_in, force=True)
+    item = identity_service.update(db_obj=db_identity_serv, obj_in=item_in, force=True)
     validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
 
 
 def test_delete_item(db_identity_serv: IdentityService) -> None:

@@ -109,6 +109,12 @@ def db_compute_serv_with_multiple_flavors(db_private_flavor: Flavor) -> ComputeS
 
 
 @pytest.fixture
+def db_compute_serv_with_shared_flavor(db_shared_flavor: Flavor) -> ComputeService:
+    """Compute Service with shared Flavor."""
+    yield db_shared_flavor.services.single()
+
+
+@pytest.fixture
 def db_project_with_single_private_flavor(db_private_flavor: Flavor) -> Project:
     """Project with single private Flavor."""
     yield db_private_flavor.projects.single()

@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.identity_provider.crud import identity_provider
@@ -44,7 +45,7 @@ def test_get_item(db_idp_with_single_user_group: IdentityProvider) -> None:
     assert item.uid == db_idp_with_single_user_group.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Identity Provider."""
     assert not identity_provider.get(uid=uuid4())
 
@@ -145,73 +146,99 @@ def test_patch_item_with_defaults(
             assert item.__getattribute__(k) == v
 
 
-def test_forced_update_item_with_projects_and_user_groups(
-    db_provider_with_single_project: Provider,
+def test_forced_update_user_groups(
+    db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
     """Update the attributes and relationships of an existing Identity
     Provider.
 
     Update an Identity Provider with a set of linked User Groups,
     changing both its attributes and replacing the linked User Groups
-    with new ones.
+    with new ones. Keep the relationship with the provider unchanged.
+    """
+    db_provider = db_idp_with_single_user_group.providers.single()
+    db_user_group = db_idp_with_single_user_group.user_groups.single()
+    rel = db_idp_with_single_user_group.providers.relationship(db_provider)
+    item_in = create_random_identity_provider(
+        projects=[i.uuid for i in db_provider.projects]
+    )
+    item_in.relationship.idp_name = rel.idp_name
+    item_in.relationship.protocol = rel.protocol
+    item = identity_provider.update(
+        db_obj=db_idp_with_single_user_group,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
+    assert item.providers.single() == db_provider
+    assert item.providers.relationship(db_provider).protocol == rel.protocol
+    assert item.providers.relationship(db_provider).idp_name == rel.idp_name
+    assert item.user_groups.single() != db_user_group
+
+
+def test_forced_update_item_without_changing_relationships(
+    db_idp_with_single_user_group: IdentityProvider,
+) -> None:
+    """Update the attributes and relationships of an existing Identity
+    Provider.
 
     Update an Identity Provider with a set of linked User Groups,
     changing only its attributes leaving untouched its connections (this
     is different from the previous test because the flag force is set to
     True).
+    """
+    db_provider = db_idp_with_single_user_group.providers.single()
+    db_user_group = db_idp_with_single_user_group.user_groups.single()
+    rel = db_idp_with_single_user_group.providers.relationship(db_provider)
+    item_in = create_random_identity_provider(
+        projects=[i.uuid for i in db_provider.projects]
+    )
+    item_in.user_groups[0].name = db_user_group.name
+    item_in.relationship.idp_name = rel.idp_name
+    item_in.relationship.protocol = rel.protocol
+    item = identity_provider.update(
+        db_obj=db_idp_with_single_user_group,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
+    assert item.providers.single() == db_provider
+    assert item.providers.relationship(db_provider).protocol == rel.protocol
+    assert item.providers.relationship(db_provider).idp_name == rel.idp_name
+    assert item.user_groups.single() == db_user_group
+
+
+def test_forced_update_item_changing_provider_relationships_data(
+    db_idp_with_single_user_group: IdentityProvider,
+) -> None:
+    """Update the attributes and relationships of an existing Identity
+    Provider.
 
     Update an Identity Provider with a set of linked User Groups,
     changing only the attributes of the relationship with a target
     provider, leaving untouched the user groups.
     """
+    db_provider = db_idp_with_single_user_group.providers.single()
+    db_user_group = db_idp_with_single_user_group.user_groups.single()
+    rel = db_idp_with_single_user_group.providers.relationship(db_provider)
     item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider_with_single_project.projects]
+        projects=[i.uuid for i in db_provider.projects]
     )
-    item = identity_provider.create(
-        obj_in=item_in, provider=db_provider_with_single_project
-    )
-
-    auth_data = item_in.relationship
-    item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider_with_single_project.projects]
-    )
-    item_in.relationship = auth_data
+    item_in.user_groups[0].name = db_user_group.name
     item = identity_provider.update(
-        db_obj=item,
+        db_obj=db_idp_with_single_user_group,
         obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
+        projects=db_provider.projects,
+        provider=db_provider,
         force=True,
     )
     validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
-
-    auth_data = item_in.relationship
-    user_groups = item_in.user_groups
-    item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider_with_single_project.projects]
-    )
-    item_in.user_groups = user_groups
-    item_in.relationship = auth_data
-    item = identity_provider.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
-    )
-    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
-
-    user_groups = item_in.user_groups
-    item_in = create_random_identity_provider(
-        projects=[i.uuid for i in db_provider_with_single_project.projects]
-    )
-    item_in.user_groups = user_groups
-    item = identity_provider.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        provider=db_provider_with_single_project,
-        force=True,
-    )
-    validate_create_identity_provider_attrs(obj_in=item_in, db_item=item)
+    assert item.providers.single() == db_provider
+    assert item.providers.relationship(db_provider).protocol != rel.protocol
+    assert item.providers.relationship(db_provider).idp_name != rel.idp_name
+    assert item.user_groups.single() == db_user_group
 
 
 def test_delete_item_with_relationships(

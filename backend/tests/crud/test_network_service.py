@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.network.crud import network
@@ -41,7 +42,7 @@ def test_get_item(db_network_serv: NetworkService) -> None:
     assert item.uid == db_network_serv.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Network Service."""
     assert not network_service.get(uid=uuid4())
 
@@ -130,52 +131,105 @@ def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
             assert item.__getattribute__(k) == v
 
 
-def test_forced_update_item_(db_region: Region) -> None:
+def test_add_networks(db_network_serv: NetworkService) -> None:
     """Update the attributes and relationships of an existing Network Service.
-
-    At first update a Network Service with a set of linked networks,
-    updating its attributes and removing all linked networks.
 
     Update a Network Service with no networks, changing its attributes
     and linking a new network.
+    """
+    db_region = db_network_serv.region.single()
+    item_in = create_random_network_service(with_networks=True)
+    item = network_service.update(db_obj=db_network_serv, obj_in=item_in, force=True)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.networks) > 0
+
+
+def test_remove_networks(db_network_serv_with_single_network: NetworkService) -> None:
+    """Update the attributes and relationships of an existing Network Service.
+
+    Update a Network Service with a set of linked networks, updating its
+    attributes and removing all linked networks.
+    """
+    db_region = db_network_serv_with_single_network.region.single()
+    item_in = create_random_network_service()
+    item = network_service.update(
+        db_obj=db_network_serv_with_single_network, obj_in=item_in, force=True
+    )
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.networks) == 0
+
+
+def test_replace_public_net_with_public(
+    db_network_serv_with_single_network: NetworkService,
+) -> None:
+    """Update the attributes and relationships of an existing Network Service.
 
     Update a Network Service with a set of linked networks, changing
     both its attributes and replacing the linked networks with new ones.
+    """
+    db_region = db_network_serv_with_single_network.region.single()
+    db_network = db_network_serv_with_single_network.networks.single()
+    item_in = create_random_network_service(with_networks=True)
+    item = network_service.update(
+        db_obj=db_network_serv_with_single_network, obj_in=item_in, force=True
+    )
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.networks) == 1
+    assert item.networks.single() != db_network
+
+
+def test_replace_public_net_with_private(
+    db_network_serv_with_single_network: NetworkService,
+) -> None:
+    """Update the attributes and relationships of an existing Network Service.
+
+    Update a Network Service with a set of linked networks, changing
+    both its attributes and replacing the linked networks with new ones
+    (in this case with a private one).
+    """
+    db_region = db_network_serv_with_single_network.region.single()
+    db_provider = db_region.provider.single()
+    db_network = db_network_serv_with_single_network.networks.single()
+    item_in = create_random_network_service(
+        with_networks=True, projects=[i.uuid for i in db_provider.projects]
+    )
+    item = network_service.update(
+        db_obj=db_network_serv_with_single_network,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.networks) == 1
+    assert item.networks.single() != db_network
+    assert item.networks.single().project
+
+
+def test_force_update_without_changing_relationships(
+    db_network_serv_with_single_network: NetworkService,
+) -> None:
+    """Update the attributes and relationships of an existing Network Service.
 
     Update a Network Service with a set of linked networks, changing
     only its attributes leaving untouched its connections (this is
     different from the previous test because the flag force is set to
     True).
     """
-    db_provider = db_region.provider.single()
-    projects = db_provider.projects.all()
+    db_region = db_network_serv_with_single_network.region.single()
+    db_network = db_network_serv_with_single_network.networks.single()
     item_in = create_random_network_service(with_networks=True)
-    item = network_service.create(obj_in=item_in, region=db_region)
-    item_in = create_random_network_service()
+    for k in item_in.networks[0].dict(exclude={"project"}).keys():
+        item_in.networks[0].__setattr__(k, db_network.__getattribute__(k))
     item = network_service.update(
-        db_obj=item, obj_in=item_in, projects=projects, force=True
+        db_obj=db_network_serv_with_single_network, obj_in=item_in, force=True
     )
     validate_create_network_service_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_network_service(with_networks=True)
-    item = network_service.update(
-        db_obj=item, obj_in=item_in, projects=projects, force=True
-    )
-    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_network_service(with_networks=True)
-    item = network_service.update(
-        db_obj=item, obj_in=item_in, projects=projects, force=True
-    )
-    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
-
-    networks = item_in.networks
-    item_in = create_random_network_service()
-    item_in.networks = networks
-    item = network_service.update(
-        db_obj=item, obj_in=item_in, projects=projects, force=True
-    )
-    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert item.networks.single() == db_network
 
 
 def test_delete_item(db_network_serv: NetworkService) -> None:

@@ -177,6 +177,7 @@ def test_force_update_without_changing_relationships(
     different from the previous test because the flag force is set to
     True).
     """
+    db_service = db_block_storage_quota.service.single()
     db_project = db_block_storage_quota.project.single()
     db_provider = db_project.provider.single()
     item_in = create_random_block_storage_quota(project=db_project.uuid)
@@ -187,6 +188,8 @@ def test_force_update_without_changing_relationships(
         force=True,
     )
     validate_create_block_storage_quota_attrs(obj_in=item_in, db_item=item)
+    assert item.service.single() == db_service
+    assert item.project.single() == db_project
 
 
 def test_delete_item(db_block_storage_quota: BlockStorageQuota) -> None:

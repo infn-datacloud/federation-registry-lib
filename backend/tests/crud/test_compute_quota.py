@@ -165,6 +165,7 @@ def test_force_update_without_changing_relationships(
     its attributes leaving untouched its connections (this is different
     from the previous test because the flag force is set to True).
     """
+    db_service = db_compute_quota.service.single()
     db_project = db_compute_quota.project.single()
     db_provider = db_project.provider.single()
     item_in = create_random_compute_quota(project=db_project.uuid)
@@ -175,6 +176,8 @@ def test_force_update_without_changing_relationships(
         force=True,
     )
     validate_create_compute_quota_attrs(obj_in=item_in, db_item=item)
+    assert item.service.single() == db_service
+    assert item.project.single() == db_project
 
 
 def test_delete_item(db_compute_quota: ComputeQuota) -> None:

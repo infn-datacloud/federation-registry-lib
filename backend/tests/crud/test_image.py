@@ -224,9 +224,15 @@ def test_force_update_without_changing_relationships(db_private_image: Image) ->
     attributes leaving untouched its connections (this is different from
     the previous test because the flag force is set to True).
     """
+    db_projects = sorted(db_private_image.projects, key=lambda x: x.uid)
+    db_services = sorted(db_private_image.services, key=lambda x: x.uid)
     item_in = create_random_image(projects=[i.uuid for i in db_private_image.projects])
     item = image.update(db_obj=db_private_image, obj_in=item_in, force=True)
     validate_create_image_attrs(obj_in=item_in, db_item=item)
+    for i, j in zip(sorted(item.projects, key=lambda x: x.uid), db_projects):
+        assert i == j
+    for i, j in zip(sorted(item.services, key=lambda x: x.uid), db_services):
+        assert i == j
 
 
 def test_delete_item(db_public_image: Image) -> None:

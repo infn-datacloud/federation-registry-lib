@@ -99,6 +99,14 @@ def db_compute_serv_with_single_quota(
 
 
 @pytest.fixture
+def db_compute_serv_with_multiple_quotas_same_project(
+    db_compute_quota_per_user: ComputeQuota,
+) -> ComputeService:
+    """Project with multiple Compute Quota on same project."""
+    yield db_compute_quota_per_user.service.single()
+
+
+@pytest.fixture
 def db_compute_serv_with_multiple_quotas(
     db_compute_quota2: ComputeQuota,
 ) -> ComputeService:

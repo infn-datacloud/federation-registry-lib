@@ -1,5 +1,4 @@
 import pytest
-from app.flavor.models import Flavor
 from app.image.crud import image
 from app.image.models import Image
 from app.project.models import Project
@@ -88,7 +87,7 @@ def db_private_image3(
 
 
 @pytest.fixture
-def db_shared_image(db_compute_serv2: ComputeService, db_compute_serv3) -> Flavor:
+def db_shared_image(db_compute_serv2: ComputeService, db_compute_serv3) -> Image:
     """Public image shared between different compute services of the same
     provider."""
     item_in = create_random_image()
@@ -107,6 +106,12 @@ def db_compute_serv_with_single_image(db_public_image: Image) -> ComputeService:
 def db_compute_serv_with_multiple_images(db_private_image: Image) -> ComputeService:
     """Project with multiple Images (public and private ones)."""
     yield db_private_image.services.single()
+
+
+@pytest.fixture
+def db_compute_serv_with_shared_image(db_shared_image: Image) -> ComputeService:
+    """Compute Service with shared Image."""
+    yield db_shared_image.services.single()
 
 
 @pytest.fixture

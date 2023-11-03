@@ -1,3 +1,4 @@
+from typing import Generator
 from uuid import uuid4
 
 from app.location.crud import location
@@ -169,7 +170,7 @@ def test_get_item(db_region: Region) -> None:
     assert item.uid == db_region.uid
 
 
-def test_get_non_existing_item() -> None:
+def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
     """Try to retrieve a not existing Region."""
     assert not region.get(uid=uuid4())
 
@@ -248,275 +249,379 @@ def test_patch_item_with_defaults(db_region: Region) -> None:
             assert item.__getattribute__(k) == v
 
 
-def test_forced_update_item_with_location(db_provider: Provider) -> None:
+def test_add_location(db_region: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    At first update a Region with a location, updating its attributes
-    and removing the location.
-
-    Update a Region with no location, changing its attributes and
+    Update a Region with no locations, changing its attributes and
     linking a new location.
-
-    Update a Region with a location, changing both its attributes and
-    replacing the location with a new one.
-
-    Update a Region with a location, changing only its attributes
-    leaving untouched its connections (this is different from the
-    previous test because the flag force is set to True).
     """
+    db_provider = db_region.provider.single()
     item_in = create_random_region(with_location=True)
-    item = region.create(obj_in=item_in, provider=db_provider)
+    item = region.update(db_obj=db_region, obj_in=item_in, force=True)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.location) > 0
+
+
+def test_remove_location(db_region_with_location: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked locations, updating its
+    attributes and removing all linked locations.
+    """
+    db_provider = db_region_with_location.provider.single()
     item_in = create_random_region()
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
+    item = region.update(db_obj=db_region_with_location, obj_in=item_in, force=True)
     validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.location) == 0
 
-    item_in = create_random_region(with_location=True)
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
 
-    item_in = create_random_region(with_location=True)
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
+def test_remove_shared_location(db_region_with_shared_location: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
 
-    loc_in = item_in.location
+    Update a Region with a set of linked locations, updating its
+    attributes and removing all linked locations.
+    """
+    db_provider = db_region_with_shared_location.provider.single()
+    db_location = db_region_with_shared_location.location.single()
     item_in = create_random_region()
-    item_in.location = loc_in
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
+    item = region.update(
+        db_obj=db_region_with_shared_location, obj_in=item_in, force=True
+    )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.location) == 0
+    assert location.get(uid=db_location.uid)
 
 
-def test_forced_update_item_with_projects_and_block_storage_services(
-    db_provider_with_single_project: Provider,
+def test_replace_locations(db_region_with_location: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked locations, changing both its
+    attributes and replacing the linked locations with new ones.
+    """
+    db_provider = db_region_with_location.provider.single()
+    db_location = db_region_with_location.location.single()
+    item_in = create_random_region(with_location=True)
+    item = region.update(db_obj=db_region_with_location, obj_in=item_in, force=True)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.location) == 1
+    assert item.location.single() != db_location
+
+
+def test_force_update_without_changing_locations(
+    db_region_with_location: Region,
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    At first update a Region with a set of BlockStorage Services,
-    updating its attributes and removing the services.
+    Update a Region with a set of linked locations, changing only its
+    attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
+    """
+    db_provider = db_region_with_location.provider.single()
+    db_location = db_region_with_location.location.single()
+    item_in = create_random_region(with_location=True)
+    for k in item_in.location.dict().keys():
+        item_in.location.__setattr__(k, db_location.__getattribute__(k))
+    item = region.update(db_obj=db_region_with_location, obj_in=item_in, force=True)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.location.single() == db_location
 
-    Update a Region with no BlockStorage services, changing its
-    attributes and linking a new BlockStorage service.
 
-    Update a Region with a set of BlockStorage services, changing both
-    its attributes and replacing the services with a new ones.
+def test_add_block_storage_service(db_region: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of BlockStorage services, changing only
+    Update a Region with no block_storage_services, changing its
+    attributes and linking a new block_storage_service.
+    """
+    db_provider = db_region.provider.single()
+    item_in = create_random_region(with_block_storage_services=True)
+    item = region.update(db_obj=db_region, obj_in=item_in, force=True)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) > 0
+
+
+def test_remove_block_storage_service(
+    db_region_with_block_storage_service: Region,
+) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked block_storage_services,
+    updating its attributes and removing all linked
+    block_storage_services.
+    """
+    db_provider = db_region_with_block_storage_service.provider.single()
+    item_in = create_random_region()
+    item = region.update(
+        db_obj=db_region_with_block_storage_service, obj_in=item_in, force=True
+    )
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) == 0
+
+
+def test_replace_block_storage_services(
+    db_region_with_block_storage_service: Region,
+) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked block_storage_services,
+    changing both its attributes and replacing the linked
+    block_storage_services with new ones.
+    """
+    db_provider = db_region_with_block_storage_service.provider.single()
+    db_service = db_region_with_block_storage_service.services.single()
+    item_in = create_random_region(with_block_storage_services=True)
+    item = region.update(
+        db_obj=db_region_with_block_storage_service, obj_in=item_in, force=True
+    )
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) == 1
+    assert item.services.single() != db_service
+
+
+def test_force_update_without_changing_block_storage_services(
+    db_region_with_block_storage_service: Region,
+) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked block_storage_services,
+    changing only its attributes leaving untouched its connections (this
+    is different from the previous test because the flag force is set to
+    True).
+    """
+    db_provider = db_region_with_block_storage_service.provider.single()
+    db_service = db_region_with_block_storage_service.services.single()
+    item_in = create_random_region(with_block_storage_services=True)
+    for k in item_in.block_storage_services[0].dict(exclude={"quotas"}).keys():
+        item_in.block_storage_services[0].__setattr__(k, db_service.__getattribute__(k))
+    item = region.update(
+        db_obj=db_region_with_block_storage_service, obj_in=item_in, force=True
+    )
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.services.single() == db_service
+
+
+def test_add_compute_service(db_region: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with no compute_services, changing its attributes
+    and linking a new compute_service.
+    """
+    db_provider = db_region.provider.single()
+    item_in = create_random_region(with_compute_services=True)
+    item = region.update(db_obj=db_region, obj_in=item_in, force=True)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) > 0
+
+
+def test_remove_compute_service(db_region_with_compute_service: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked compute_services, updating its
+    attributes and removing all linked compute_services.
+    """
+    db_provider = db_region_with_compute_service.provider.single()
+    item_in = create_random_region()
+    item = region.update(
+        db_obj=db_region_with_compute_service, obj_in=item_in, force=True
+    )
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) == 0
+
+
+def test_replace_compute_services(db_region_with_compute_service: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked compute_services, changing both
+    its attributes and replacing the linked compute_services with new
+    ones.
+    """
+    db_provider = db_region_with_compute_service.provider.single()
+    db_service = db_region_with_compute_service.services.single()
+    item_in = create_random_region(with_compute_services=True)
+    item = region.update(
+        db_obj=db_region_with_compute_service, obj_in=item_in, force=True
+    )
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) == 1
+    assert item.services.single() != db_service
+
+
+def test_force_update_without_changing_compute_services(
+    db_region_with_compute_service: Region,
+) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked compute_services, changing only
     its attributes leaving untouched its connections (this is different
     from the previous test because the flag force is set to True).
     """
-    item_in = create_random_region(
-        with_block_storage_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
+    db_provider = db_region_with_compute_service.provider.single()
+    db_service = db_region_with_compute_service.services.single()
+    item_in = create_random_region(with_compute_services=True)
+    for k in (
+        item_in.compute_services[0].dict(exclude={"flavors", "images", "quotas"}).keys()
+    ):
+        item_in.compute_services[0].__setattr__(k, db_service.__getattribute__(k))
+    item = region.update(
+        db_obj=db_region_with_compute_service, obj_in=item_in, force=True
     )
-    item = region.create(obj_in=item_in, provider=db_provider_with_single_project)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.services.single() == db_service
+
+
+def test_add_identity_service(db_region: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with no identity_services, changing its attributes
+    and linking a new identity_service.
+    """
+    db_provider = db_region.provider.single()
+    item_in = create_random_region(with_identity_services=True)
+    item = region.update(db_obj=db_region, obj_in=item_in, force=True)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) > 0
+
+
+def test_remove_identity_service(db_region_with_identity_service: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked identity_services, updating its
+    attributes and removing all linked identity_services.
+    """
+    db_provider = db_region_with_identity_service.provider.single()
     item_in = create_random_region()
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_region(
-        with_block_storage_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
-    )
     item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
+        db_obj=db_region_with_identity_service, obj_in=item_in, force=True
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) == 0
 
-    item_in = create_random_region(
-        with_block_storage_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
-    )
+
+def test_replace_identity_services(db_region_with_identity_service: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked identity_services, changing
+    both its attributes and replacing the linked identity_services with
+    new ones.
+    """
+    db_provider = db_region_with_identity_service.provider.single()
+    db_service = db_region_with_identity_service.services.single()
+    item_in = create_random_region(with_identity_services=True)
     item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
+        db_obj=db_region_with_identity_service, obj_in=item_in, force=True
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    block_storage_services = item_in.block_storage_services
-    item_in = create_random_region()
-    item_in.block_storage_services = block_storage_services
-    # Works also if projects is an empty list since,
-    # in this case, nested networks are equal.
-    item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
-    )
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) == 1
+    assert item.services.single() != db_service
 
 
-def test_forced_update_item_with_projects_and_compute_services(
-    db_provider_with_single_project: Provider,
+def test_force_update_without_changing_identity_services(
+    db_region_with_identity_service: Region,
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    At first update a Region with a set of Compute Services, updating
-    its attributes and removing the services.
-
-    Update a Region with no Compute services, changing its attributes
-    and linking a new Compute service.
-
-    Update a Region with a set of Compute services, changing both its
-    attributes and replacing the services with a new ones.
-
-    Update a Region with a set of Compute services, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Region with a set of linked identity_services, changing
+    only its attributes leaving untouched its connections (this is
+    different from the previous test because the flag force is set to
+    True).
     """
-    item_in = create_random_region(
-        with_compute_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
+    db_provider = db_region_with_identity_service.provider.single()
+    db_service = db_region_with_identity_service.services.single()
+    item_in = create_random_region(with_identity_services=True)
+    for k in item_in.identity_services[0].dict().keys():
+        item_in.identity_services[0].__setattr__(k, db_service.__getattribute__(k))
+    item = region.update(
+        db_obj=db_region_with_identity_service, obj_in=item_in, force=True
     )
-    item = region.create(obj_in=item_in, provider=db_provider_with_single_project)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.services.single() == db_service
+
+
+def test_add_network_service(db_region: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with no network_services, changing its attributes
+    and linking a new network_service.
+    """
+    db_provider = db_region.provider.single()
+    item_in = create_random_region(with_network_services=True)
+    item = region.update(db_obj=db_region, obj_in=item_in, force=True)
+    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) > 0
+
+
+def test_remove_network_service(db_region_with_network_service: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked network_services, updating its
+    attributes and removing all linked network_services.
+    """
+    db_provider = db_region_with_network_service.provider.single()
     item_in = create_random_region()
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_region(
-        with_compute_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
-    )
     item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
+        db_obj=db_region_with_network_service, obj_in=item_in, force=True
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) == 0
 
-    item_in = create_random_region(
-        with_compute_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
-    )
+
+def test_replace_network_services(db_region_with_network_service: Region) -> None:
+    """Update the attributes and relationships of an existing Region.
+
+    Update a Region with a set of linked network_services, changing both
+    its attributes and replacing the linked network_services with new
+    ones.
+    """
+    db_provider = db_region_with_network_service.provider.single()
+    db_service = db_region_with_network_service.services.single()
+    item_in = create_random_region(with_network_services=True)
     item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
+        db_obj=db_region_with_network_service, obj_in=item_in, force=True
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    compute_services = item_in.compute_services
-    item_in = create_random_region()
-    item_in.compute_services = compute_services
-    # Works also if projects is an empty list since,
-    # in this case, nested networks are equal.
-    item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
-    )
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert len(item.services) == 1
+    assert item.services.single() != db_service
 
 
-def test_forced_update_item_with_identity_services(
-    db_provider: Provider,
+def test_force_update_without_changing_network_services(
+    db_region_with_network_service: Region,
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    At first update a Region with a identity service, updating its
-    attributes and removing the identity service.
-
-    Update a Region with no projects, changing its attributes and
-    linking a new identity service.
-
-    Update a Region with a identity service, changing both its
-    attributes and replacing the identity service with a new one.
-
-    Update a Region with a identity service, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Region with a set of linked network_services, changing only
+    its attributes leaving untouched its connections (this is different
+    from the previous test because the flag force is set to True).
     """
-    item_in = create_random_region(with_identity_services=True)
-    item = region.create(obj_in=item_in, provider=db_provider)
-    item_in = create_random_region()
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_region(with_identity_services=True)
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_region(with_identity_services=True)
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    identity_services = item_in.identity_services
-    item_in = create_random_region()
-    item_in.identity_services = identity_services
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-
-def test_forced_update_item_with_projects_and_network_services(
-    db_provider_with_single_project: Provider,
-) -> None:
-    """Update the attributes and relationships of an existing Region.
-
-    At first update a Region with a set of Network Services, updating
-    its attributes and removing the services.
-
-    Update a Region with no Network services, changing its attributes
-    and linking a new Network service.
-
-    Update a Region with a set of Network services, changing both its
-    attributes and replacing the services with a new ones.
-
-    Update a Region with a set of Network services, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
-    """
-    item_in = create_random_region(
-        with_network_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
-    )
-    item = region.create(obj_in=item_in, provider=db_provider_with_single_project)
-    item_in = create_random_region()
-    item = region.update(db_obj=item, obj_in=item_in, force=True)
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_region(
-        with_network_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
-    )
+    db_provider = db_region_with_network_service.provider.single()
+    db_service = db_region_with_network_service.services.single()
+    item_in = create_random_region(with_network_services=True)
+    for k in item_in.network_services[0].dict(exclude={"networks"}).keys():
+        item_in.network_services[0].__setattr__(k, db_service.__getattribute__(k))
     item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
+        db_obj=db_region_with_network_service, obj_in=item_in, force=True
     )
     validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    item_in = create_random_region(
-        with_network_services=True,
-        projects=[i.uuid for i in db_provider_with_single_project.projects],
-    )
-    item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
-    )
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
-
-    network_services = item_in.network_services
-    item_in = create_random_region()
-    item_in.network_services = network_services
-    # Works also if projects is an empty list since,
-    # in this case, nested networks are equal.
-    item = region.update(
-        db_obj=item,
-        obj_in=item_in,
-        projects=db_provider_with_single_project.projects,
-        force=True,
-    )
-    validate_create_region_attrs(obj_in=item_in, db_item=item)
+    assert item.provider.single() == db_provider
+    assert item.services.single() == db_service
 
 
 def test_delete_item(db_region3: Region) -> None:
