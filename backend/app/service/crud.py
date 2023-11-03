@@ -325,7 +325,10 @@ class CRUDComputeService(
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
-            flavor.remove(db_obj=db_item)
+            if len(db_item.services) == 1:
+                flavor.remove(db_obj=db_item)
+            else:
+                db_obj.flavors.disconnect(db_item)
             edit = True
         return edit
 
@@ -359,7 +362,10 @@ class CRUDComputeService(
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
-            image.remove(db_obj=db_item)
+            if len(db_item.services) == 1:
+                image.remove(db_obj=db_item)
+            else:
+                db_obj.images.disconnect(db_item)
             edit = True
         return edit
 
