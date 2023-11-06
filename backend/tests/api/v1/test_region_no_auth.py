@@ -73,16 +73,12 @@ def test_read_regions_with_limit(
     items."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"limit": 0}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"limit": 0})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"limit": 1}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"limit": 1})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
@@ -95,31 +91,23 @@ def test_read_sorted_regions(
 ) -> None:
     """Execute GET operations to read all sorted regions."""
     settings = get_settings()
-    sorted_items = list(
-        sorted([db_region2, db_region3], key=lambda x: x.uid)
-    )
+    sorted_items = list(sorted([db_region2, db_region3], key=lambda x: x.uid))
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"sort": "uid"}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"sort": "uid"})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
     assert content[0]["uid"] == sorted_items[0].uid
     assert content[1]["uid"] == sorted_items[1].uid
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"sort": "-uid"}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"sort": "-uid"})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
     assert content[0]["uid"] == sorted_items[1].uid
     assert content[1]["uid"] == sorted_items[0].uid
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"sort": "uid_asc"}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"sort": "uid_asc"})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
@@ -145,30 +133,22 @@ def test_read_regions_with_skip(
     entries."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"skip": 0}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"skip": 0})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"skip": 1}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"skip": 1})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"skip": 2}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"skip": 2})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"skip": 3}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"skip": 3})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
@@ -185,9 +165,7 @@ def test_read_regions_with_pagination(
     """
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"size": 1}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"size": 1})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
@@ -205,9 +183,7 @@ def test_read_regions_with_pagination(
     assert content[0]["uid"] == next_page_uid
 
     # Page greater than 0 but size equals None, does nothing
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"page": 1}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"page": 1})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
@@ -229,9 +205,7 @@ def test_read_regions_with_conn(
     """Execute GET operations to read all regions with their relationships."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"with_conn": True}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"with_conn": True})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
@@ -261,9 +235,7 @@ def test_read_regions_short(
     """Execute GET operations to read all regions with their shrunk version."""
     settings = get_settings()
 
-    response = client.get(
-        f"{settings.API_V1_STR}/regions/", params={"short": True}
-    )
+    response = client.get(f"{settings.API_V1_STR}/regions/", params={"short": True})
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
@@ -404,9 +376,7 @@ def test_delete_region(
     No access rights. Permission denied
     """
     settings = get_settings()
-    response = client.delete(
-        f"{settings.API_V1_STR}/regions/{db_region.uid}"
-    )
+    response = client.delete(f"{settings.API_V1_STR}/regions/{db_region.uid}")
     assert response.status_code == status.HTTP_403_FORBIDDEN
     content = response.json()
     assert content["detail"] == "Not authenticated"
