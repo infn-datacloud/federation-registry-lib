@@ -15,6 +15,7 @@ from app.quota.schemas import (
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
 )
+from app.region.schemas import RegionRead, RegionReadPublic
 from app.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
@@ -26,11 +27,39 @@ from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from pydantic import Field
 
 
+class ComputeServiceReadExtended(ComputeServiceRead):
+    """Model to extend the Service data read from the DB with the parent
+    region."""
+
+    region: RegionRead = Field(description="Region hosting this service.")
+
+
+class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
+    """Model to extend the Service data read from the DB with the parent
+    region."""
+
+    region: RegionReadPublic = Field(description="Region hosting this service.")
+
+
+class BlockStorageServiceReadExtended(BlockStorageServiceRead):
+    """Model to extend the Service data read from the DB with the parent
+    region."""
+
+    region: RegionRead = Field(description="Region hosting this service.")
+
+
+class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
+    """Model to extend the Service data read from the DB with the parent
+    region."""
+
+    region: RegionReadPublic = Field(description="Region hosting this service.")
+
+
 class ComputeQuotaReadExtended(ComputeQuotaRead):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: ComputeServiceRead = Field(
+    service: ComputeServiceReadExtended = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
@@ -39,7 +68,7 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: ComputeServiceReadPublic = Field(
+    service: ComputeServiceReadExtendedPublic = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
@@ -48,7 +77,7 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: BlockStorageServiceRead = Field(
+    service: BlockStorageServiceReadExtended = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
@@ -57,7 +86,7 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of
     related items."""
 
-    service: BlockStorageServiceReadPublic = Field(
+    service: BlockStorageServiceReadExtendedPublic = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
