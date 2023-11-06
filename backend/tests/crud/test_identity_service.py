@@ -20,8 +20,8 @@ def test_create_item(db_region: Region) -> None:
 
 
 def test_create_item_default_values(db_region: Region) -> None:
-    """Create an Identity Service, with default values when possible, belonging
-    to a specific Compute Service."""
+    """Create an Identity Service, with default values when possible, belonging to a
+    specific Compute Service."""
     item_in = create_random_identity_service(default=True)
     item = identity_service.create(obj_in=item_in, region=db_region)
     validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
@@ -103,11 +103,11 @@ def test_patch_item(db_identity_serv: IdentityService) -> None:
 
 
 def test_patch_item_with_defaults(db_identity_serv: IdentityService) -> None:
-    """Try to update the attributes of an existing Identity Service, without
-    updating its relationships, with default values.
+    """Try to update the attributes of an existing Identity Service, without updating
+    its relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_identity_service_patch(default=True)
     assert not identity_service.update(db_obj=db_identity_serv, obj_in=patch_in)
@@ -124,9 +124,9 @@ def test_patch_item_with_defaults(db_identity_serv: IdentityService) -> None:
 def test_force_update_without_changing_relationships(
     db_identity_serv: IdentityService,
 ) -> None:
-    """Update the attributes of an existing Identity Service leaving untouched
-    its connections (this is different from the previous test because the flag
-    force is set to True)."""
+    """Update the attributes of an existing Identity Service leaving untouched its
+    connections (this is different from the previous test because the flag force is set
+    to True)."""
     db_region = db_identity_serv.region.single()
     item_in = create_random_identity_service()
     item = identity_service.update(db_obj=db_identity_serv, obj_in=item_in, force=True)

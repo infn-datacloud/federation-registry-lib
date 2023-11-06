@@ -6,8 +6,8 @@ from pydantic import Field
 
 
 class LocationReadExtended(LocationRead):
-    """Model to extend the Location data read from the DB with the lists of
-    related items for authenticated users."""
+    """Model to extend the Location data read from the DB with the lists of related
+    items for authenticated users."""
 
     regions: List[RegionRead] = Field(
         default_factory=list, description="List of hosted regions."
@@ -15,8 +15,8 @@ class LocationReadExtended(LocationRead):
 
 
 class LocationReadExtendedPublic(LocationReadPublic):
-    """Model to extend the Location data read from the DB with the lists of
-    related items for non-authenticated users."""
+    """Model to extend the Location data read from the DB with the lists of related
+    items for non-authenticated users."""
 
     regions: List[RegionReadPublic] = Field(
         default_factory=list, description="List of hosted regions."

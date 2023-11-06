@@ -23,16 +23,16 @@ def test_create_item(db_region: Region) -> None:
 
 
 def test_create_item_default_values(db_region: Region) -> None:
-    """Create a BlockStorage Service, with default values when possible,
-    belonging to a specific Region."""
+    """Create a BlockStorage Service, with default values when possible, belonging to a
+    specific Region."""
     item_in = create_random_block_storage_service(default=True)
     item = block_storage_service.create(obj_in=item_in, region=db_region)
     validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects(db_region: Region) -> None:
-    """Create a BlockStorage Service belonging to a specific Region with a set
-    of quotas."""
+    """Create a BlockStorage Service belonging to a specific Region with a set of
+    quotas."""
     db_provider = db_region.provider.single()
     item_in = create_random_block_storage_service(
         projects=[i.uuid for i in db_provider.projects]
@@ -115,8 +115,8 @@ def test_get_items_with_skip(
 
 
 def test_patch_item(db_block_storage_serv: BlockStorageService) -> None:
-    """Update the attributes of an existing BlockStorage Service, without
-    updating its relationships."""
+    """Update the attributes of an existing BlockStorage Service, without updating its
+    relationships."""
     patch_in = create_random_block_storage_service_patch()
     item = block_storage_service.update(db_obj=db_block_storage_serv, obj_in=patch_in)
     for k, v in patch_in.dict().items():
@@ -124,11 +124,11 @@ def test_patch_item(db_block_storage_serv: BlockStorageService) -> None:
 
 
 def test_patch_item_with_defaults(db_block_storage_serv: BlockStorageService) -> None:
-    """Try to update the attributes of an existing BlockStorage Service,
-    without updating its relationships, with default values.
+    """Try to update the attributes of an existing BlockStorage Service, without
+    updating its relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_block_storage_service_patch(default=True)
     assert not block_storage_service.update(
@@ -145,11 +145,10 @@ def test_patch_item_with_defaults(db_block_storage_serv: BlockStorageService) ->
 
 
 def test_add_quotas(db_block_storage_serv: BlockStorageService) -> None:
-    """Update the attributes and relationships of an existing BlockStorage
-    Service.
+    """Update the attributes and relationships of an existing BlockStorage Service.
 
-    Update a BlockStorage Service with no quotas, changing its
-    attributes and linking a new quota.
+    Update a BlockStorage Service with no quotas, changing its attributes and linking a
+    new quota.
     """
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
@@ -175,11 +174,10 @@ def test_add_quotas(db_block_storage_serv: BlockStorageService) -> None:
 def test_remove_quotas(
     db_block_storage_serv_with_multiple_quotas: BlockStorageService,
 ) -> None:
-    """Update the attributes and relationships of an existing BlockStorage
-    Service.
+    """Update the attributes and relationships of an existing BlockStorage Service.
 
-    Update a BlockStorage Service with a set of linked quotas, updating
-    its attributes and removing all linked quotas.
+    Update a BlockStorage Service with a set of linked quotas, updating its attributes
+    and removing all linked quotas.
     """
     db_region = db_block_storage_serv_with_multiple_quotas.region.single()
     item_in = create_random_block_storage_service()
@@ -194,11 +192,10 @@ def test_remove_quotas(
 def test_replace_quotas_with_ones_pointing_to_diff_project(
     db_block_storage_serv_with_multiple_quotas_same_project: BlockStorageService,
 ) -> None:
-    """Update the attributes and relationships of an existing BlockStorage
-    Service.
+    """Update the attributes and relationships of an existing BlockStorage Service.
 
-    Update a BlockStorage Service with a set of linked quotas, changing
-    both its attributes and replacing the linked quotas with new ones.
+    Update a BlockStorage Service with a set of linked quotas, changing both its
+    attributes and replacing the linked quotas with new ones.
     """
     db_region = db_block_storage_serv_with_multiple_quotas_same_project.region.single()
     db_provider = db_region.provider.single()
@@ -235,11 +232,10 @@ def test_replace_quotas_with_ones_pointing_to_diff_project(
 def test_replace_quotas_with_ones_pointing_to_same_project(
     db_block_storage_serv_with_multiple_quotas_same_project: BlockStorageService,
 ) -> None:
-    """Update the attributes and relationships of an existing BlockStorage
-    Service.
+    """Update the attributes and relationships of an existing BlockStorage Service.
 
-    Update a BlockStorage Service with a set of linked quotas, changing
-    both its attributes and replacing the linked quotas with new ones.
+    Update a BlockStorage Service with a set of linked quotas, changing both its
+    attributes and replacing the linked quotas with new ones.
     """
     db_region = db_block_storage_serv_with_multiple_quotas_same_project.region.single()
     db_provider = db_region.provider.single()
@@ -274,13 +270,11 @@ def test_replace_quotas_with_ones_pointing_to_same_project(
 def test_force_update_without_changing_relationships(
     db_block_storage_serv_with_single_quota: BlockStorageService,
 ) -> None:
-    """Update the attributes and relationships of an existing BlockStorage
-    Service.
+    """Update the attributes and relationships of an existing BlockStorage Service.
 
-    Update a BlockStorage Service with a set of linked quotas, changing
-    only its attributes leaving untouched its connections (this is
-    different from the previous test because the flag force is set to
-    True).
+    Update a BlockStorage Service with a set of linked quotas, changing only its
+    attributes leaving untouched its connections (this is different from the previous
+    test because the flag force is set to True).
     """
     db_region = db_block_storage_serv_with_single_quota.region.single()
     db_provider = db_region.provider.single()

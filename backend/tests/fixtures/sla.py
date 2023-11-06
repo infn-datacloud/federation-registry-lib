@@ -18,8 +18,7 @@ def db_sla2(db_user_group2: UserGroup) -> SLA:
 
 @pytest.fixture
 def db_sla3(db_user_group3: UserGroup) -> SLA:
-    """SLA owned by second user group of the provider with multiple
-    projects."""
+    """SLA owned by second user group of the provider with multiple projects."""
     yield db_user_group3.slas.single()
 
 
@@ -50,6 +49,5 @@ def db_project_with_shared_sla(db_sla_with_multiple_projects: SLA) -> Project:
 def db_user_group_with_sla_with_multiple_projects(
     db_sla_with_multiple_projects: SLA,
 ) -> UserGroup:
-    """User group with an SLA pointing to multiple projects on different
-    providers."""
+    """User group with an SLA pointing to multiple projects on different providers."""
     yield db_sla_with_multiple_projects.user_group.single()

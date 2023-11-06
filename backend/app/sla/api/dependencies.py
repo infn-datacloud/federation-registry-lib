@@ -54,8 +54,8 @@ def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
 def validate_new_sla_values(
     update_data: SLAUpdate, item: SLA = Depends(valid_sla_id)
 ) -> None:
-    """Check given data are valid ones. Check there are no other SLAs with the
-    same document uuid.
+    """Check given data are valid ones. Check there are no other SLAs with the same
+    document uuid.
 
     Args:
         update_data (FlavorUpdate): new data.

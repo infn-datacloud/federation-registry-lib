@@ -31,8 +31,8 @@ def validate_new_block_storage_quota_values(
     update_data: BlockStorageQuotaUpdate,
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other quotas,
-    belonging to the same project, with the same type and per_user flag.
+    """Check given data are valid ones. Check there are no other quotas, belonging to
+    the same project, with the same type and per_user flag.
 
     Args:
         update_data (BlockStorageQuotaUpdate): new data.
@@ -87,8 +87,8 @@ def validate_new_compute_quota_values(
     update_data: ComputeQuotaUpdate,
     item: ComputeQuota = Depends(valid_compute_quota_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other quotas,
-    belonging to the same project, with the same type and per_user flag.
+    """Check given data are valid ones. Check there are no other quotas, belonging to
+    the same project, with the same type and per_user flag.
 
     Args:
         update_data (ComputeQuotaUpdate): new data.

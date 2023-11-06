@@ -21,16 +21,16 @@ def test_create_item(db_region: Region) -> None:
 
 
 def test_create_item_default_values(db_region: Region) -> None:
-    """Create an Network Service, with default values when possible, belonging
-    to a specific Compute Service."""
+    """Create an Network Service, with default values when possible, belonging to a
+    specific Compute Service."""
     item_in = create_random_network_service(default=True)
     item = network_service.create(obj_in=item_in, region=db_region)
     validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_networks(db_region: Region) -> None:
-    """Create an Network Service, with default values when possible, belonging
-    to a specific Compute Service, with related networks."""
+    """Create an Network Service, with default values when possible, belonging to a
+    specific Compute Service, with related networks."""
     item_in = create_random_network_service(with_networks=True)
     item = network_service.create(obj_in=item_in, region=db_region)
     validate_create_network_service_attrs(obj_in=item_in, db_item=item)
@@ -104,8 +104,8 @@ def test_get_items_with_skip(
 
 
 def test_patch_item(db_network_serv: NetworkService) -> None:
-    """Update the attributes of an existing Network Service, without updating
-    its relationships."""
+    """Update the attributes of an existing Network Service, without updating its
+    relationships."""
     patch_in = create_random_network_service_patch()
     item = network_service.update(db_obj=db_network_serv, obj_in=patch_in)
     for k, v in patch_in.dict().items():
@@ -113,11 +113,11 @@ def test_patch_item(db_network_serv: NetworkService) -> None:
 
 
 def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
-    """Try to update the attributes of an existing Network Service, without
-    updating its relationships, with default values.
+    """Try to update the attributes of an existing Network Service, without updating its
+    relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_network_service_patch(default=True)
     assert not network_service.update(db_obj=db_network_serv, obj_in=patch_in)
@@ -134,8 +134,8 @@ def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
 def test_add_networks(db_network_serv: NetworkService) -> None:
     """Update the attributes and relationships of an existing Network Service.
 
-    Update a Network Service with no networks, changing its attributes
-    and linking a new network.
+    Update a Network Service with no networks, changing its attributes and linking a new
+    network.
     """
     db_region = db_network_serv.region.single()
     item_in = create_random_network_service(with_networks=True)
@@ -148,8 +148,8 @@ def test_add_networks(db_network_serv: NetworkService) -> None:
 def test_remove_networks(db_network_serv_with_single_network: NetworkService) -> None:
     """Update the attributes and relationships of an existing Network Service.
 
-    Update a Network Service with a set of linked networks, updating its
-    attributes and removing all linked networks.
+    Update a Network Service with a set of linked networks, updating its attributes and
+    removing all linked networks.
     """
     db_region = db_network_serv_with_single_network.region.single()
     item_in = create_random_network_service()
@@ -166,8 +166,8 @@ def test_replace_public_net_with_public(
 ) -> None:
     """Update the attributes and relationships of an existing Network Service.
 
-    Update a Network Service with a set of linked networks, changing
-    both its attributes and replacing the linked networks with new ones.
+    Update a Network Service with a set of linked networks, changing both its attributes
+    and replacing the linked networks with new ones.
     """
     db_region = db_network_serv_with_single_network.region.single()
     db_network = db_network_serv_with_single_network.networks.single()
@@ -186,9 +186,8 @@ def test_replace_public_net_with_private(
 ) -> None:
     """Update the attributes and relationships of an existing Network Service.
 
-    Update a Network Service with a set of linked networks, changing
-    both its attributes and replacing the linked networks with new ones
-    (in this case with a private one).
+    Update a Network Service with a set of linked networks, changing both its attributes
+    and replacing the linked networks with new ones (in this case with a private one).
     """
     db_region = db_network_serv_with_single_network.region.single()
     db_provider = db_region.provider.single()
@@ -214,10 +213,9 @@ def test_force_update_without_changing_relationships(
 ) -> None:
     """Update the attributes and relationships of an existing Network Service.
 
-    Update a Network Service with a set of linked networks, changing
-    only its attributes leaving untouched its connections (this is
-    different from the previous test because the flag force is set to
-    True).
+    Update a Network Service with a set of linked networks, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_region = db_network_serv_with_single_network.region.single()
     db_network = db_network_serv_with_single_network.networks.single()

@@ -10,11 +10,10 @@ from tests.utils.block_storage_quota import create_random_block_storage_quota
 def db_block_storage_quota(
     db_block_storage_serv2: BlockStorageService,
 ) -> BlockStorageQuota:
-    """Block Storage Quota of the BS Service belonging to the first region of
-    the provider with multiple projects.
+    """Block Storage Quota of the BS Service belonging to the first region of the
+    provider with multiple projects.
 
-    Quota points to the first project. Quota to apply to the whole user
-    group.
+    Quota points to the first project. Quota to apply to the whole user group.
     """
     db_region = db_block_storage_serv2.region.single()
     db_provider = db_region.provider.single()
@@ -31,12 +30,11 @@ def db_block_storage_quota(
 def db_block_storage_quota_per_user(
     db_block_storage_quota: BlockStorageQuota,
 ) -> BlockStorageQuota:
-    """Block Storage Quota of the BS Service belonging to the first region of
-    the provider with multiple projects.
+    """Block Storage Quota of the BS Service belonging to the first region of the
+    provider with multiple projects.
 
-    Quota points to the first project. Quota to apply to each user of
-    the user group. This is currently the second quota on the same
-    project and same service.
+    Quota points to the first project. Quota to apply to each user of the user group.
+    This is currently the second quota on the same project and same service.
     """
     db_service = db_block_storage_quota.service.single()
     db_project = db_block_storage_quota.project.single()
@@ -52,11 +50,11 @@ def db_block_storage_quota_per_user(
 def db_block_storage_quota2(
     db_block_storage_quota_per_user: BlockStorageQuota,
 ) -> BlockStorageQuota:
-    """Block Storage Quota of the BS Service belonging to the first region of
-    the provider with multiple projects.
+    """Block Storage Quota of the BS Service belonging to the first region of the
+    provider with multiple projects.
 
-    Quota points to the second project. Quota to apply to the whole user
-    group. This is the third quota on the same service.
+    Quota points to the second project. Quota to apply to the whole user group. This is
+    the third quota on the same service.
     """
     db_service = db_block_storage_quota_per_user.service.single()
     db_region = db_service.region.single()
@@ -75,11 +73,10 @@ def db_block_storage_quota3(
     db_block_storage_quota2: BlockStorageQuota,
     db_block_storage_serv3: BlockStorageService,
 ) -> BlockStorageQuota:
-    """Block Storage Quota of the BS Service belonging to the second region of
-    the provider with a multiple projects.
+    """Block Storage Quota of the BS Service belonging to the second region of the
+    provider with a multiple projects.
 
-    Quota points to the second project. Quota to apply to the whole user
-    group.
+    Quota points to the second project. Quota to apply to the whole user group.
     """
     db_region = db_block_storage_serv3.region.single()
     db_provider = db_region.provider.single()

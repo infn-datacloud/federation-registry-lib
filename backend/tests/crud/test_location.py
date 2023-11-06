@@ -20,26 +20,25 @@ def test_create_item(db_region: Region) -> None:
 
 
 def test_create_item_default_values(db_region: Region) -> None:
-    """Create a Location, with default values when possible, belonging to a
-    specific Region."""
+    """Create a Location, with default values when possible, belonging to a specific
+    Region."""
     item_in = create_random_location(default=True)
     item = location.create(obj_in=item_in, region=db_region)
     validate_create_location_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_when_site_already_exists(db_location: Location) -> None:
-    """Try to create a Location belonging to a specific Region, when a Location
-    with the same site name already exists.
+    """Try to create a Location belonging to a specific Region, when a Location with the
+    same site name already exists.
 
-    At first create a location with new attributes but same site name of
-    existing one. The result will have the attributes of the new one.
+    At first create a location with new attributes but same site name of existing one.
+    The result will have the attributes of the new one.
 
-    Then create a location with default values, except one, and same
-    site name of existing one. The result will keep the previous
-    attributes instead of defaults and update the new given attributes.
+    Then create a location with default values, except one, and same site name of
+    existing one. The result will keep the previous attributes instead of defaults and
+    update the new given attributes.
 
-    Finally create a location with everything equal to the existing one.
-    No changes.
+    Finally create a location with everything equal to the existing one. No changes.
     """
     db_region = db_location.regions.single()
 
@@ -129,11 +128,11 @@ def test_patch_item(db_location: Location) -> None:
 
 
 def test_patch_item_with_defaults(db_location: Location) -> None:
-    """Try to update the attributes of an existing Location, without updating
-    its relationships, with default values.
+    """Try to update the attributes of an existing Location, without updating its
+    relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_location_patch(default=True)
     assert not location.update(db_obj=db_location, obj_in=patch_in)
@@ -150,9 +149,9 @@ def test_patch_item_with_defaults(db_location: Location) -> None:
 def test_force_update_without_changing_relationships(db_location: Location) -> None:
     """Update the attributes and relationships of an existing Location.
 
-    Update a Region with a set of linked locations, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Region with a set of linked locations, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_region = db_location.regions.single()
     item_in = create_random_location()

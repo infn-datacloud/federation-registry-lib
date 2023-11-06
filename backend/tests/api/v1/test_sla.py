@@ -47,8 +47,8 @@ def test_read_slas_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all slas matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all slas matching specific attributes passed as
+    query attributes."""
     settings = get_settings()
 
     for k in SLABase.__fields__.keys():
@@ -68,8 +68,7 @@ def test_read_slas_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all slas limiting the number of output
-    items."""
+    """Execute GET operations to read all slas limiting the number of output items."""
     settings = get_settings()
 
     response = client.get(
@@ -143,8 +142,7 @@ def test_read_slas_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all slas, skipping the first N
-    entries."""
+    """Execute GET operations to read all slas, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(
@@ -415,8 +413,7 @@ def test_patch_sla_with_duplicated_doc_uuid(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing UUID to an
-    SLA."""
+    """Execute PATCH operations to try to assign an already existing UUID to an SLA."""
     settings = get_settings()
     data = create_random_sla_patch()
     data.doc_uuid = db_sla.doc_uuid

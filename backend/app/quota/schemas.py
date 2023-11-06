@@ -14,8 +14,8 @@ class QuotaBase(BaseNode):
 
 
 class BlockStorageQuotaBase(QuotaBase):
-    """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for BlockStorage services.
+    """Model derived from ServiceBase to inherit attributes common to all services. It
+    adds the basic attributes for BlockStorage services.
 
     Validation: type value is exactly QuotaType.openstack_nova.
     """
@@ -60,8 +60,8 @@ BlockStorageQuotaQuery = create_query_model(
 
 
 class ComputeQuotaBase(QuotaBase):
-    """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Compute services.
+    """Model derived from ServiceBase to inherit attributes common to all services. It
+    adds the basic attributes for Compute services.
 
     Validation: type value is exactly QuotaType.openstack_nova.
     """

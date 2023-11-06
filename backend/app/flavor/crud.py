@@ -38,12 +38,11 @@ class CRUDFlavor(
     ) -> Flavor:
         """Create a new Flavor.
 
-        At first check that a flavor with the given UUID does not
-        already exist. If it does not exist create it. Otherwise check
-        the provider of the existing one. If it is the same of the
-        received service, do nothing, otherwise create a new flavor. In
-        any case connect the flavor to the given service and to any
-        received project.
+        At first check that a flavor with the given UUID does not already exist. If it
+        does not exist create it. Otherwise check the provider of the existing one. If
+        it is the same of the received service, do nothing, otherwise create a new
+        flavor. In any case connect the flavor to the given service and to any received
+        project.
         """
         db_obj = self.get(uuid=obj_in.uuid)
         if not db_obj:
@@ -74,9 +73,8 @@ class CRUDFlavor(
     ) -> Optional[Flavor]:
         """Update Flavor attributes.
 
-        By default do not update relationships or default values. If
-        force is True, update linked projects and apply default values
-        when explicit.
+        By default do not update relationships or default values. If force is True,
+        update linked projects and apply default values when explicit.
         """
         edit = False
         if force:
@@ -99,9 +97,8 @@ class CRUDFlavor(
     ) -> bool:
         """Update flavor linked projects.
 
-        Connect new projects not already connect, leave untouched
-        already linked ones and delete old ones no more connected to the
-        flavor.
+        Connect new projects not already connect, leave untouched already linked ones
+        and delete old ones no more connected to the flavor.
         """
         edit = False
         db_items = {db_item.uuid: db_item for db_item in db_obj.projects}

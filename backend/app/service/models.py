@@ -37,8 +37,8 @@ class Service(StructuredNode):
 class BlockStorageService(Service):
     """Service managing Block Storage resources.
 
-    A Block Storage Service, for each project, support a set of quotas
-    managing the block storage resources.
+    A Block Storage Service, for each project, support a set of quotas managing the
+    block storage resources.
     """
 
     quotas = RelationshipFrom(
@@ -49,9 +49,8 @@ class BlockStorageService(Service):
 class ComputeService(Service):
     """Service managing Compute resources.
 
-    A Compute Service, for each project, support a set of quotas
-    managing the block storage resources. A Compute Service provides
-    public and private Flavors and Images.
+    A Compute Service, for each project, support a set of quotas managing the block
+    storage resources. A Compute Service provides public and private Flavors and Images.
     """
 
     flavors = RelationshipTo(

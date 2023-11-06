@@ -38,8 +38,7 @@ class CRUDNetwork(
     ) -> Network:
         """Create a new Network.
 
-        Connect the network to the given service and to the optional
-        received project.
+        Connect the network to the given service and to the optional received project.
         """
         db_obj = super().create(obj_in=obj_in)
         db_obj.service.connect(service)
@@ -57,9 +56,8 @@ class CRUDNetwork(
     ) -> Optional[Network]:
         """Update Network attributes.
 
-        By default do not update relationships or default values. If
-        force is True, update linked project and apply default values
-        when explicit.
+        By default do not update relationships or default values. If force is True,
+        update linked project and apply default values when explicit.
         """
         edit = False
         if force:

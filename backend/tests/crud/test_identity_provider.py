@@ -14,8 +14,8 @@ from tests.utils.identity_provider import (
 
 
 def test_create_item_with_projects(db_provider_with_single_project: Provider) -> None:
-    """Create an Identity Provider accepted by a specific Provider with a User
-    Group for each received project."""
+    """Create an Identity Provider accepted by a specific Provider with a User Group for
+    each received project."""
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_single_project.projects]
     )
@@ -28,8 +28,8 @@ def test_create_item_with_projects(db_provider_with_single_project: Provider) ->
 def test_create_item_default_values_with_projects(
     db_provider_with_single_project: Provider,
 ) -> None:
-    """Create an Identity Provider, with default values when possible, accepted
-    by a specific Provider with a User Group for each received project."""
+    """Create an Identity Provider, with default values when possible, accepted by a
+    specific Provider with a User Group for each received project."""
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_single_project.projects]
     )
@@ -111,8 +111,8 @@ def test_get_items_with_skip(
 
 
 def test_patch_item(db_idp_with_single_user_group: IdentityProvider) -> None:
-    """Update the attributes of an existing Identity Provider, without updating
-    its relationships."""
+    """Update the attributes of an existing Identity Provider, without updating its
+    relationships."""
     patch_in = create_random_identity_provider_patch()
     item = identity_provider.update(
         db_obj=db_idp_with_single_user_group, obj_in=patch_in
@@ -124,11 +124,11 @@ def test_patch_item(db_idp_with_single_user_group: IdentityProvider) -> None:
 def test_patch_item_with_defaults(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
-    """Try to update the attributes of an existing Identity Provider, without
-    updating its relationships, with default values.
+    """Try to update the attributes of an existing Identity Provider, without updating
+    its relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_identity_provider_patch(default=True)
     assert not identity_provider.update(
@@ -149,12 +149,11 @@ def test_patch_item_with_defaults(
 def test_forced_update_user_groups(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
-    """Update the attributes and relationships of an existing Identity
-    Provider.
+    """Update the attributes and relationships of an existing Identity Provider.
 
-    Update an Identity Provider with a set of linked User Groups,
-    changing both its attributes and replacing the linked User Groups
-    with new ones. Keep the relationship with the provider unchanged.
+    Update an Identity Provider with a set of linked User Groups, changing both its
+    attributes and replacing the linked User Groups with new ones. Keep the relationship
+    with the provider unchanged.
     """
     db_provider = db_idp_with_single_user_group.providers.single()
     db_user_group = db_idp_with_single_user_group.user_groups.single()
@@ -180,13 +179,11 @@ def test_forced_update_user_groups(
 def test_forced_update_item_without_changing_relationships(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
-    """Update the attributes and relationships of an existing Identity
-    Provider.
+    """Update the attributes and relationships of an existing Identity Provider.
 
-    Update an Identity Provider with a set of linked User Groups,
-    changing only its attributes leaving untouched its connections (this
-    is different from the previous test because the flag force is set to
-    True).
+    Update an Identity Provider with a set of linked User Groups, changing only its
+    attributes leaving untouched its connections (this is different from the previous
+    test because the flag force is set to True).
     """
     db_provider = db_idp_with_single_user_group.providers.single()
     db_user_group = db_idp_with_single_user_group.user_groups.single()
@@ -213,12 +210,11 @@ def test_forced_update_item_without_changing_relationships(
 def test_forced_update_item_changing_provider_relationships_data(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
-    """Update the attributes and relationships of an existing Identity
-    Provider.
+    """Update the attributes and relationships of an existing Identity Provider.
 
-    Update an Identity Provider with a set of linked User Groups,
-    changing only the attributes of the relationship with a target
-    provider, leaving untouched the user groups.
+    Update an Identity Provider with a set of linked User Groups, changing only the
+    attributes of the relationship with a target provider, leaving untouched the user
+    groups.
     """
     db_provider = db_idp_with_single_user_group.providers.single()
     db_user_group = db_idp_with_single_user_group.user_groups.single()

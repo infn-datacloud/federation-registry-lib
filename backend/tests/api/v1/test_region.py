@@ -46,8 +46,8 @@ def test_read_regions_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all regions matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all regions matching specific attributes passed as
+    query attributes."""
     settings = get_settings()
 
     for k in RegionBase.__fields__.keys():
@@ -150,8 +150,7 @@ def test_read_regions_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all regions, skipping the first N
-    entries."""
+    """Execute GET operations to read all regions, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(
@@ -445,8 +444,8 @@ def test_patch_region_with_duplicated_name_same_provider(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing name to a
-    region belonging to the same provider."""
+    """Execute PATCH operations to try to assign an already existing name to a region
+    belonging to the same provider."""
     settings = get_settings()
     data = create_random_region_patch()
     data.name = db_region2.name
@@ -467,8 +466,8 @@ def test_patch_region_with_duplicated_name_diff_provider(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing name to a
-    region belonging to a different provider."""
+    """Execute PATCH operations to try to assign an already existing name to a region
+    belonging to a different provider."""
     settings = get_settings()
     data = create_random_region_patch()
     data.name = db_region.name
@@ -492,8 +491,7 @@ def test_delete_region(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute DELETE to remove a region from a provider with multiple
-    regions."""
+    """Execute DELETE to remove a region from a provider with multiple regions."""
     settings = get_settings()
     response = client.delete(
         f"{settings.API_V1_STR}/regions/{db_region3.uid}",

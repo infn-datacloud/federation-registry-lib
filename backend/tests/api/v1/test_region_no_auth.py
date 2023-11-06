@@ -48,8 +48,8 @@ def test_read_regions_with_target_params(
     db_region: Region,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all regions matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all regions matching specific attributes passed as
+    query attributes."""
     settings = get_settings()
 
     for k in RegionBase.__fields__.keys():
@@ -129,8 +129,7 @@ def test_read_regions_with_skip(
     db_region3: Region,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all regions, skipping the first N
-    entries."""
+    """Execute GET operations to read all regions, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/regions/", params={"skip": 0})

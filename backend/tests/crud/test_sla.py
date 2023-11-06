@@ -15,8 +15,8 @@ from tests.utils.sla import (
 
 
 def test_create_item(db_user_group: UserGroup) -> None:
-    """Create an SLA belonging to a specific user group and pointing to an
-    existing projects."""
+    """Create an SLA belonging to a specific user group and pointing to an existing
+    projects."""
     db_idp = db_user_group.identity_provider.single()
     db_provider = db_idp.providers.single()
     db_project = db_provider.projects.single()
@@ -26,8 +26,8 @@ def test_create_item(db_user_group: UserGroup) -> None:
 
 
 def test_create_item_default_values(db_user_group: UserGroup) -> None:
-    """Create an SLA, with default values when possible, belonging to a
-    specific user group and pointing to existing projects."""
+    """Create an SLA, with default values when possible, belonging to a specific user
+    group and pointing to existing projects."""
     db_idp = db_user_group.identity_provider.single()
     db_provider = db_idp.providers.single()
     db_project = db_provider.projects.single()
@@ -96,8 +96,7 @@ def test_get_items_with_skip(db_sla2: SLA, db_sla3: SLA) -> None:
 
 
 def test_patch_item(db_sla: SLA) -> None:
-    """Update the attributes of an existing SLA, without updating its
-    relationships."""
+    """Update the attributes of an existing SLA, without updating its relationships."""
     patch_in = create_random_sla_patch()
     item = sla.update(db_obj=db_sla, obj_in=patch_in)
     for k, v in patch_in.dict().items():
@@ -108,8 +107,8 @@ def test_patch_item_with_defaults(db_sla: SLA) -> None:
     """Try to update the attributes of an existing SLA, without updating its
     relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_sla_patch(default=True)
     assert not sla.update(db_obj=db_sla, obj_in=patch_in)
@@ -126,9 +125,8 @@ def test_patch_item_with_defaults(db_sla: SLA) -> None:
 def test_force_update_without_changing_relationships(db_sla: SLA) -> None:
     """Update the attributes of an existing SLA.
 
-    Update only SLA attributes leaving untouched its connections (this
-    is different from the previous test because the flag force is set to
-    True).
+    Update only SLA attributes leaving untouched its connections (this is different from
+    the previous test because the flag force is set to True).
     """
     db_user_group = db_sla.user_group.single()
     db_projects = sorted(db_sla.projects, key=lambda x: x.uid)
@@ -145,8 +143,8 @@ def test_force_update_without_changing_relationships(db_sla: SLA) -> None:
 
 
 def test_replace_project_with_another_same_provider(db_sla2: SLA) -> None:
-    """Update an existing SLA with a single project on a provider, replacing
-    the project with another project of the same provider."""
+    """Update an existing SLA with a single project on a provider, replacing the project
+    with another project of the same provider."""
     db_project = db_sla2.projects.single()
     db_provider = db_project.provider.single()
     for db_project2 in db_provider.projects:
@@ -163,8 +161,8 @@ def test_replace_project_with_another_same_provider(db_sla2: SLA) -> None:
 def test_add_new_project_diff_provider_to_existing_sla(
     db_sla: SLA, db_provider_with_multiple_projects: Provider
 ) -> None:
-    """Update an existing SLA with a single project, adding a new project
-    belonging to another provider."""
+    """Update an existing SLA with a single project, adding a new project belonging to
+    another provider."""
     db_project = db_provider_with_multiple_projects.projects.single()
     item_in = create_random_sla(project=db_project.uuid)
     item = sla.update(

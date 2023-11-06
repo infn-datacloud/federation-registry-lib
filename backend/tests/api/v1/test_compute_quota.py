@@ -51,8 +51,8 @@ def test_read_compute_quotas_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_quotas matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all compute_quotas matching specific attributes
+    passed as query attributes."""
     settings = get_settings()
 
     for k in ComputeQuotaBase.__fields__.keys():
@@ -75,8 +75,8 @@ def test_read_compute_quotas_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_quotas limiting the number of
-    output items."""
+    """Execute GET operations to read all compute_quotas limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(
@@ -267,8 +267,7 @@ def test_read_compute_quotas_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_quotas with their
-    relationships."""
+    """Execute GET operations to read all compute_quotas with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -303,8 +302,7 @@ def test_read_compute_quotas_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_quotas with their shrunk
-    version."""
+    """Execute GET operations to read all compute_quotas with their shrunk version."""
     settings = get_settings()
 
     response = client.get(
@@ -355,8 +353,7 @@ def test_read_compute_quota_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a compute_quota with its
-    relationships."""
+    """Execute GET operations to read a compute_quota with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota.uid}",
@@ -447,8 +444,7 @@ def test_patch_not_existing_compute_quota(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to update a not existing
-    compute_quota."""
+    """Execute PATCH operations to try to update a not existing compute_quota."""
     settings = get_settings()
     item_uuid = uuid4()
     data = create_random_compute_quota_patch()
@@ -471,8 +467,7 @@ def test_patch_compute_quota_changing_per_user(
     """Execute PATCH operations to try to change the per_user property of a
     block_storage_quota.
 
-    Currently a per user block storage quota does not exist on the same
-    project.
+    Currently a per user block storage quota does not exist on the same project.
     """
     settings = get_settings()
     data = create_random_compute_quota_patch()
@@ -497,8 +492,7 @@ def test_patch_compute_quota_with_duplicated_per_user(
     """Execute PATCH operations to try to change the per_user property of a
     block_storage_quota.
 
-    Currently a per user block storage quota already exist s on the same
-    project.
+    Currently a per user block storage quota already exist s on the same project.
     """
     settings = get_settings()
     data = create_random_compute_quota_patch()
@@ -539,8 +533,7 @@ def test_delete_not_existing_compute_quota(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute DELETE operations to try to delete a not existing
-    compute_quota."""
+    """Execute DELETE operations to try to delete a not existing compute_quota."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(

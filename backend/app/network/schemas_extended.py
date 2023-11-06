@@ -27,8 +27,8 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
 
 
 class NetworkReadExtended(NetworkRead):
-    """Model to extend the Network data read from the DB with the lists of
-    related items for authenticated users."""
+    """Model to extend the Network data read from the DB with the lists of related items
+    for authenticated users."""
 
     project: Optional[ProjectRead] = Field(
         default=None,
@@ -39,8 +39,8 @@ class NetworkReadExtended(NetworkRead):
 
 
 class NetworkReadExtendedPublic(NetworkReadPublic):
-    """Model to extend the Network data read from the DB with the lists of
-    related items for non-authenticated users."""
+    """Model to extend the Network data read from the DB with the lists of related items
+    for non-authenticated users."""
 
     project: Optional[ProjectRead] = Field(
         default=None,

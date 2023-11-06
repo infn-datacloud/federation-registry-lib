@@ -28,10 +28,9 @@ class CRUDSLA(
     ) -> SLA:
         """Create a new SLA.
 
-        At first check an SLA pointing to the same document does not
-        exist yet. If it does not exist, create it. In any case connect
-        the SLA to the given user group and project. If the project
-        already has an attached SLA, disconnect it.
+        At first check an SLA pointing to the same document does not exist yet. If it
+        does not exist, create it. In any case connect the SLA to the given user group
+        and project. If the project already has an attached SLA, disconnect it.
         """
         db_obj = user_group.slas.get_or_none(doc_uuid=obj_in.doc_uuid)
         if not db_obj:
@@ -53,16 +52,14 @@ class CRUDSLA(
     ) -> Optional[SLA]:
         """Update SLA attributes.
 
-        By default do not update relationships or default values. If
-        force is True, update linked projects and apply default values
-        when explicit.
+        By default do not update relationships or default values. If force is True,
+        update linked projects and apply default values when explicit.
 
-        To update projects, since the forced update happens when
-        creating or updating a provider, we filter all the existing
-        projects on this provider already connected to this SLA, should
-        be just one. If there is a project already connected we replace
-        the old one with the new one, otherwise we immediately connect
-        the new one.
+        To update projects, since the forced update happens when creating or updating a
+        provider, we filter all the existing projects on this provider already connected
+        to this SLA, should be just one. If there is a project already connected we
+        replace the old one with the new one, otherwise we immediately connect the new
+        one.
         """
         edit = False
         if force:

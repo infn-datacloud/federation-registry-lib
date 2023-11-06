@@ -27,8 +27,8 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
 
 
 class FlavorReadExtended(FlavorRead):
-    """Model to extend the Flavor data read from the DB with the lists of
-    related items for authenticated users."""
+    """Model to extend the Flavor data read from the DB with the lists of related items
+    for authenticated users."""
 
     projects: List[ProjectRead] = Field(
         description="Projects having access to this flavor. "
@@ -40,8 +40,8 @@ class FlavorReadExtended(FlavorRead):
 
 
 class FlavorReadExtendedPublic(FlavorReadPublic):
-    """Model to extend the Flavor data read from the DB with the lists of
-    related items for non-authenticated users."""
+    """Model to extend the Flavor data read from the DB with the lists of related items
+    for non-authenticated users."""
 
     projects: List[ProjectReadPublic] = Field(
         description="Projects having access to this flavor. "

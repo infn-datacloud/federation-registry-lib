@@ -20,8 +20,7 @@ def db_public_network(db_network_serv2: NetworkService) -> Network:
 def db_private_network(db_public_network: Network) -> Network:
     """First private network of a network service.
 
-    It belongs to a specific project. It's the second network on the
-    same service.
+    It belongs to a specific project. It's the second network on the same service.
     """
     db_service = db_public_network.service.single()
     db_region = db_service.region.single()
@@ -36,8 +35,7 @@ def db_private_network(db_public_network: Network) -> Network:
 def db_private_network2(db_private_network: Network) -> Network:
     """Second private network of a network service.
 
-    It belongs to a specific project. It's the third network on the same
-    service.
+    It belongs to a specific project. It's the third network on the same service.
     """
     db_service = db_private_network.service.single()
     db_region = db_service.region.single()
@@ -54,8 +52,7 @@ def db_private_network3(
 ) -> Network:
     """First private network of another network service.
 
-    It belongs to a specific project. It's the first network on a
-    different service.
+    It belongs to a specific project. It's the first network on a different service.
     """
     db_region = db_network_serv3.region.single()
     db_provider = db_region.provider.single()

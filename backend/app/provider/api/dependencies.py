@@ -70,8 +70,8 @@ def is_unique_provider(item: Union[ProviderCreateExtended, ProviderUpdate]) -> N
 def validate_new_provider_values(
     update_data: ProviderUpdate, item: Provider = Depends(valid_provider_id)
 ) -> None:
-    """Check given data are valid ones. Check there are no other providers with
-    the same name.
+    """Check given data are valid ones. Check there are no other providers with the same
+    name.
 
     Args:
         update_data (ProviderUpdate): new data.
@@ -90,8 +90,8 @@ def validate_new_provider_values(
 
 
 def valid_provider(item: ProviderCreateExtended) -> None:
-    """Check provider does not already exists and validate identity providers
-    and regions."""
+    """Check provider does not already exists and validate identity providers and
+    regions."""
     is_unique_provider(item)
     for idp in item.identity_providers:
         valid_identity_provider(idp)
@@ -102,10 +102,10 @@ def valid_provider(item: ProviderCreateExtended) -> None:
 def valid_identity_provider(
     item: IdentityProviderCreateExtended,
 ) -> None:
-    """Check there are no identity providers with the same endpoint, in the
-    identity provider list of the received provider. Check that all items have
-    a corresponding relationship Check that if there is another identity
-    provider in the DB with the same endpoint, it matches the given attributes.
+    """Check there are no identity providers with the same endpoint, in the identity
+    provider list of the received provider. Check that all items have a corresponding
+    relationship Check that if there is another identity provider in the DB with the
+    same endpoint, it matches the given attributes.
 
     Args:
         item (ProviderCreateExtended): provider data.

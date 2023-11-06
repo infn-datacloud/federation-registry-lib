@@ -48,8 +48,8 @@ def test_read_locations_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all locations matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all locations matching specific attributes passed
+    as query attributes."""
     settings = get_settings()
 
     for k in LocationBase.__fields__.keys():
@@ -72,8 +72,8 @@ def test_read_locations_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all locations limiting the number of
-    output items."""
+    """Execute GET operations to read all locations limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(
@@ -150,8 +150,7 @@ def test_read_locations_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all locations, skipping the first N
-    entries."""
+    """Execute GET operations to read all locations, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(
@@ -241,8 +240,7 @@ def test_read_locations_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all locations with their
-    relationships."""
+    """Execute GET operations to read all locations with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -275,8 +273,7 @@ def test_read_locations_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all locations with their shrunk
-    version."""
+    """Execute GET operations to read all locations with their shrunk version."""
     settings = get_settings()
 
     response = client.get(
@@ -432,8 +429,7 @@ def test_patch_location_with_duplicated_site(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign a name already in use to a
-    location."""
+    """Execute PATCH operations to try to assign a name already in use to a location."""
     settings = get_settings()
     data = create_random_location_patch()
     data.site = db_location.site

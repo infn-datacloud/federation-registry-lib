@@ -14,16 +14,16 @@ class RegionBase(BaseNode):
 class RegionCreate(BaseNodeCreate, RegionBase):
     """Model to create a Region.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
     """
 
 
 class RegionUpdate(BaseNodeCreate, RegionBase):
     """Model to update a Region.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -36,12 +36,11 @@ class RegionUpdate(BaseNodeCreate, RegionBase):
 class RegionRead(BaseNodeRead, RegionBase):
     """Model to read Region data retrieved from DB.
 
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
+    Class to read data retrieved from the database. Expected as output when performing a
+    generic REST request. It contains all the non- sensible data written in the
     database.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
     """
 
 

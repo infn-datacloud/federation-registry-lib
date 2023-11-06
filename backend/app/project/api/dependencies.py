@@ -58,8 +58,8 @@ def valid_project_name(
     item: Union[ProjectCreate, ProjectUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """Check there are no other projects, belonging to the same provider, with
-    the same name.
+    """Check there are no other projects, belonging to the same provider, with the same
+    name.
 
     Args:
         item (ProjectCreate | ProjectUpdate): new data.
@@ -84,8 +84,8 @@ def valid_project_uuid(
     item: Union[ProjectCreate, ProjectUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """Check there are no other projects, belonging to the same provider, with
-    the same uuid.
+    """Check there are no other projects, belonging to the same provider, with the same
+    uuid.
 
     Args:
         item (ProjectCreate | ProjectUpdate): new data.
@@ -108,8 +108,8 @@ def valid_project_uuid(
 def validate_new_project_values(
     update_data: ProjectUpdate, item: Project = Depends(valid_project_id)
 ) -> None:
-    """Check given data are valid ones. Check there are no other projects,
-    belonging to the same provider, with the same uuid and name.
+    """Check given data are valid ones. Check there are no other projects, belonging to
+    the same provider, with the same uuid and name.
 
     Args:
         update_data (ProjectUpdate): new data.

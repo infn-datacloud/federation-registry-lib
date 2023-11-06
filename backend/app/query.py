@@ -62,8 +62,8 @@ class DbQueryCommonParams(BaseModel):
 
 
 def create_query_model(model_name: str, base_model: BaseModel):
-    """Create a Query Model with the given model name and starting from the
-    received base model."""
+    """Create a Query Model with the given model name and starting from the received
+    base model."""
 
     d = {}
     for k, v in base_model.__fields__.items():

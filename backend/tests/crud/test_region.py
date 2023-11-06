@@ -28,8 +28,8 @@ def test_create_item(db_provider: Provider) -> None:
 
 
 def test_create_item_default_values(db_provider: Provider) -> None:
-    """Create a Region, with default values when possible, belonging to a
-    specific Provider."""
+    """Create a Region, with default values when possible, belonging to a specific
+    Provider."""
     item_in = create_random_region(default=True)
     item = region.create(obj_in=item_in, provider=db_provider)
     validate_create_region_attrs(obj_in=item_in, db_item=item)
@@ -43,16 +43,15 @@ def test_create_item_with_location(db_provider: Provider) -> None:
 
 
 def test_create_item_with_already_existing_location(db_location: Location) -> None:
-    """Create a Region belonging to a specific Provider with an already
-    existing Location.
+    """Create a Region belonging to a specific Provider with an already existing
+    Location.
 
-    At first the new region points to a location with same site name but
-    different attributes.
+    At first the new region points to a location with same site name but different
+    attributes.
 
     In the latter the new location equals the existing one.
 
-    Verify that no new locations have been created but all regions point
-    to the same.
+    Verify that no new locations have been created but all regions point to the same.
     """
     db_region = db_location.regions.single()
     db_provider = db_region.provider.single()
@@ -74,8 +73,7 @@ def test_create_item_with_already_existing_location(db_location: Location) -> No
 def test_create_item_with_projects_and_block_storage_services(
     db_provider: Provider,
 ) -> None:
-    """Create a Region belonging to a specific Provider with BlockStorage
-    Services.
+    """Create a Region belonging to a specific Provider with BlockStorage Services.
 
     On Cascade create related quotas
     """
@@ -100,16 +98,14 @@ def test_create_item_with_projects_and_compute_services(db_provider: Provider) -
 
 
 def test_create_item_with_identity_services(db_provider: Provider) -> None:
-    """Create a Region belonging to a specific Provider with Identity
-    Services."""
+    """Create a Region belonging to a specific Provider with Identity Services."""
     item_in = create_random_region(with_identity_services=True)
     item = region.create(obj_in=item_in, provider=db_provider)
     validate_create_region_attrs(obj_in=item_in, db_item=item)
 
 
 def test_create_item_with_projects_and_network_services(db_provider: Provider) -> None:
-    """Create a Region belonging to a specific Provider with Network
-    Services."""
+    """Create a Region belonging to a specific Provider with Network Services."""
     item_in = create_random_region(
         with_network_services=True, projects=[i.uuid for i in db_provider.projects]
     )
@@ -118,8 +114,7 @@ def test_create_item_with_projects_and_network_services(db_provider: Provider) -
 
 
 def test_create_item_with_block_storage_services(db_provider: Provider) -> None:
-    """Create a Region belonging to a specific Provider with BlockStorage
-    Services.
+    """Create a Region belonging to a specific Provider with BlockStorage Services.
 
     No quotas
     """
@@ -149,9 +144,8 @@ def test_create_item_with_network_services(db_provider: Provider) -> None:
 
 
 def test_create_item_with_everything(db_provider: Provider) -> None:
-    """Create a Region belonging to a specific Provider with Location,
-    BlockStorage Services, Compute Services, Identity Services and Network
-    Services."""
+    """Create a Region belonging to a specific Provider with Location, BlockStorage
+    Services, Compute Services, Identity Services and Network Services."""
     item_in = create_random_region(
         with_location=True,
         with_block_storage_services=True,
@@ -234,8 +228,8 @@ def test_patch_item_with_defaults(db_region: Region) -> None:
     """Try to update the attributes of an existing Region, without updating its
     relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_region_patch(default=True)
     assert not region.update(db_obj=db_region, obj_in=patch_in)
@@ -252,8 +246,8 @@ def test_patch_item_with_defaults(db_region: Region) -> None:
 def test_add_location(db_region: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with no locations, changing its attributes and
-    linking a new location.
+    Update a Region with no locations, changing its attributes and linking a new
+    location.
     """
     db_provider = db_region.provider.single()
     item_in = create_random_region(with_location=True)
@@ -266,8 +260,8 @@ def test_add_location(db_region: Region) -> None:
 def test_remove_location(db_region_with_location: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked locations, updating its
-    attributes and removing all linked locations.
+    Update a Region with a set of linked locations, updating its attributes and removing
+    all linked locations.
     """
     db_provider = db_region_with_location.provider.single()
     item_in = create_random_region()
@@ -280,8 +274,8 @@ def test_remove_location(db_region_with_location: Region) -> None:
 def test_remove_shared_location(db_region_with_shared_location: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked locations, updating its
-    attributes and removing all linked locations.
+    Update a Region with a set of linked locations, updating its attributes and removing
+    all linked locations.
     """
     db_provider = db_region_with_shared_location.provider.single()
     db_location = db_region_with_shared_location.location.single()
@@ -298,8 +292,8 @@ def test_remove_shared_location(db_region_with_shared_location: Region) -> None:
 def test_replace_locations(db_region_with_location: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked locations, changing both its
-    attributes and replacing the linked locations with new ones.
+    Update a Region with a set of linked locations, changing both its attributes and
+    replacing the linked locations with new ones.
     """
     db_provider = db_region_with_location.provider.single()
     db_location = db_region_with_location.location.single()
@@ -316,9 +310,9 @@ def test_force_update_without_changing_locations(
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked locations, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Region with a set of linked locations, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_provider = db_region_with_location.provider.single()
     db_location = db_region_with_location.location.single()
@@ -334,8 +328,8 @@ def test_force_update_without_changing_locations(
 def test_add_block_storage_service(db_region: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with no block_storage_services, changing its
-    attributes and linking a new block_storage_service.
+    Update a Region with no block_storage_services, changing its attributes and linking
+    a new block_storage_service.
     """
     db_provider = db_region.provider.single()
     item_in = create_random_region(with_block_storage_services=True)
@@ -350,9 +344,8 @@ def test_remove_block_storage_service(
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked block_storage_services,
-    updating its attributes and removing all linked
-    block_storage_services.
+    Update a Region with a set of linked block_storage_services, updating its attributes
+    and removing all linked block_storage_services.
     """
     db_provider = db_region_with_block_storage_service.provider.single()
     item_in = create_random_region()
@@ -369,9 +362,8 @@ def test_replace_block_storage_services(
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked block_storage_services,
-    changing both its attributes and replacing the linked
-    block_storage_services with new ones.
+    Update a Region with a set of linked block_storage_services, changing both its
+    attributes and replacing the linked block_storage_services with new ones.
     """
     db_provider = db_region_with_block_storage_service.provider.single()
     db_service = db_region_with_block_storage_service.services.single()
@@ -390,10 +382,9 @@ def test_force_update_without_changing_block_storage_services(
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked block_storage_services,
-    changing only its attributes leaving untouched its connections (this
-    is different from the previous test because the flag force is set to
-    True).
+    Update a Region with a set of linked block_storage_services, changing only its
+    attributes leaving untouched its connections (this is different from the previous
+    test because the flag force is set to True).
     """
     db_provider = db_region_with_block_storage_service.provider.single()
     db_service = db_region_with_block_storage_service.services.single()
@@ -411,8 +402,8 @@ def test_force_update_without_changing_block_storage_services(
 def test_add_compute_service(db_region: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with no compute_services, changing its attributes
-    and linking a new compute_service.
+    Update a Region with no compute_services, changing its attributes and linking a new
+    compute_service.
     """
     db_provider = db_region.provider.single()
     item_in = create_random_region(with_compute_services=True)
@@ -425,8 +416,8 @@ def test_add_compute_service(db_region: Region) -> None:
 def test_remove_compute_service(db_region_with_compute_service: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked compute_services, updating its
-    attributes and removing all linked compute_services.
+    Update a Region with a set of linked compute_services, updating its attributes and
+    removing all linked compute_services.
     """
     db_provider = db_region_with_compute_service.provider.single()
     item_in = create_random_region()
@@ -441,9 +432,8 @@ def test_remove_compute_service(db_region_with_compute_service: Region) -> None:
 def test_replace_compute_services(db_region_with_compute_service: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked compute_services, changing both
-    its attributes and replacing the linked compute_services with new
-    ones.
+    Update a Region with a set of linked compute_services, changing both its attributes
+    and replacing the linked compute_services with new ones.
     """
     db_provider = db_region_with_compute_service.provider.single()
     db_service = db_region_with_compute_service.services.single()
@@ -462,9 +452,9 @@ def test_force_update_without_changing_compute_services(
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked compute_services, changing only
-    its attributes leaving untouched its connections (this is different
-    from the previous test because the flag force is set to True).
+    Update a Region with a set of linked compute_services, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_provider = db_region_with_compute_service.provider.single()
     db_service = db_region_with_compute_service.services.single()
@@ -484,8 +474,8 @@ def test_force_update_without_changing_compute_services(
 def test_add_identity_service(db_region: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with no identity_services, changing its attributes
-    and linking a new identity_service.
+    Update a Region with no identity_services, changing its attributes and linking a new
+    identity_service.
     """
     db_provider = db_region.provider.single()
     item_in = create_random_region(with_identity_services=True)
@@ -498,8 +488,8 @@ def test_add_identity_service(db_region: Region) -> None:
 def test_remove_identity_service(db_region_with_identity_service: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked identity_services, updating its
-    attributes and removing all linked identity_services.
+    Update a Region with a set of linked identity_services, updating its attributes and
+    removing all linked identity_services.
     """
     db_provider = db_region_with_identity_service.provider.single()
     item_in = create_random_region()
@@ -514,9 +504,8 @@ def test_remove_identity_service(db_region_with_identity_service: Region) -> Non
 def test_replace_identity_services(db_region_with_identity_service: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked identity_services, changing
-    both its attributes and replacing the linked identity_services with
-    new ones.
+    Update a Region with a set of linked identity_services, changing both its attributes
+    and replacing the linked identity_services with new ones.
     """
     db_provider = db_region_with_identity_service.provider.single()
     db_service = db_region_with_identity_service.services.single()
@@ -535,10 +524,9 @@ def test_force_update_without_changing_identity_services(
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked identity_services, changing
-    only its attributes leaving untouched its connections (this is
-    different from the previous test because the flag force is set to
-    True).
+    Update a Region with a set of linked identity_services, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_provider = db_region_with_identity_service.provider.single()
     db_service = db_region_with_identity_service.services.single()
@@ -556,8 +544,8 @@ def test_force_update_without_changing_identity_services(
 def test_add_network_service(db_region: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with no network_services, changing its attributes
-    and linking a new network_service.
+    Update a Region with no network_services, changing its attributes and linking a new
+    network_service.
     """
     db_provider = db_region.provider.single()
     item_in = create_random_region(with_network_services=True)
@@ -570,8 +558,8 @@ def test_add_network_service(db_region: Region) -> None:
 def test_remove_network_service(db_region_with_network_service: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked network_services, updating its
-    attributes and removing all linked network_services.
+    Update a Region with a set of linked network_services, updating its attributes and
+    removing all linked network_services.
     """
     db_provider = db_region_with_network_service.provider.single()
     item_in = create_random_region()
@@ -586,9 +574,8 @@ def test_remove_network_service(db_region_with_network_service: Region) -> None:
 def test_replace_network_services(db_region_with_network_service: Region) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked network_services, changing both
-    its attributes and replacing the linked network_services with new
-    ones.
+    Update a Region with a set of linked network_services, changing both its attributes
+    and replacing the linked network_services with new ones.
     """
     db_provider = db_region_with_network_service.provider.single()
     db_service = db_region_with_network_service.services.single()
@@ -607,9 +594,9 @@ def test_force_update_without_changing_network_services(
 ) -> None:
     """Update the attributes and relationships of an existing Region.
 
-    Update a Region with a set of linked network_services, changing only
-    its attributes leaving untouched its connections (this is different
-    from the previous test because the flag force is set to True).
+    Update a Region with a set of linked network_services, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_provider = db_region_with_network_service.provider.single()
     db_service = db_region_with_network_service.services.single()
@@ -645,8 +632,8 @@ def test_delete_item_with_proprietary_location(
 ) -> None:
     """Delete an existing Region.
 
-    On Cascade delete all linked services. Delete location only if there
-    are no more regions linked to it.
+    On Cascade delete all linked services. Delete location only if there are no more
+    regions linked to it.
     """
     db_provider = db_deletable_region_with_location.provider.single()
     db_location = db_deletable_region_with_location.location.single()
@@ -661,8 +648,8 @@ def test_delete_item_with_shared_location(
 ) -> None:
     """Delete an existing Region.
 
-    On Cascade delete all linked services. Delete location only if there
-    are no more regions linked to it.
+    On Cascade delete all linked services. Delete location only if there are no more
+    regions linked to it.
     """
     db_provider = db_region_with_shared_location.provider.single()
     db_location = db_region_with_shared_location.location.single()

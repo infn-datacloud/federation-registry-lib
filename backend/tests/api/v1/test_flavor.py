@@ -50,8 +50,8 @@ def test_read_flavors_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all flavors matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all flavors matching specific attributes passed as
+    query attributes."""
     settings = get_settings()
 
     for k in FlavorBase.__fields__.keys():
@@ -152,8 +152,7 @@ def test_read_flavors_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all flavors, skipping the first N
-    entries."""
+    """Execute GET operations to read all flavors, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(
@@ -321,8 +320,7 @@ def test_read_public_flavor_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a public flavor with its
-    relationships."""
+    """Execute GET operations to read a public flavor with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}",
@@ -341,8 +339,7 @@ def test_read_private_flavor_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a private flavor with its
-    relationships."""
+    """Execute GET operations to read a private flavor with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}",
@@ -516,8 +513,7 @@ def test_patch_flavor_with_duplicated_name(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign a name already in use to a
-    flavor."""
+    """Execute PATCH operations to try to assign a name already in use to a flavor."""
     settings = get_settings()
     data = create_random_flavor_patch()
     data.is_public = db_private_flavor.is_public

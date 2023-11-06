@@ -36,8 +36,8 @@ class CRUDProvider(
     def create(self, *, obj_in: ProviderCreateExtended) -> Provider:
         """Create a new Provider.
 
-        For each received project, identity provider and region, create
-        the corresponding entity.
+        For each received project, identity provider and region, create the
+        corresponding entity.
         """
         db_obj = super().create(obj_in=obj_in)
         for item in obj_in.projects:
@@ -51,9 +51,8 @@ class CRUDProvider(
     def remove(self, *, db_obj: Provider) -> bool:
         """Delete an existing provider and all its relationships.
 
-        At first delete its projects and regions. Then delete the
-        identity providers who point only to this provider. Finally
-        delete the provider.
+        At first delete its projects and regions. Then delete the identity providers who
+        point only to this provider. Finally delete the provider.
         """
         for item in db_obj.projects:
             project.remove(db_obj=item)
@@ -74,9 +73,9 @@ class CRUDProvider(
     ) -> Optional[Provider]:
         """Update Provider attributes.
 
-        By default do not update relationships or default values. If
-        force is True, update linked projects, identity providers and
-        apply default values when explicit.
+        By default do not update relationships or default values. If force is True,
+        update linked projects, identity providers and apply default values when
+        explicit.
         """
         edit = False
         if force:
@@ -98,9 +97,8 @@ class CRUDProvider(
     ) -> bool:
         """Update provider linked projects.
 
-        Connect new projects not already connect, leave untouched
-        already linked ones and delete old ones no more connected to the
-        flavor.
+        Connect new projects not already connect, leave untouched already linked ones
+        and delete old ones no more connected to the flavor.
         """
         edit = False
         db_items = {db_item.uuid: db_item for db_item in db_obj.projects}
@@ -123,9 +121,8 @@ class CRUDProvider(
     ) -> bool:
         """Update provider linked identity providers.
 
-        Connect new identity providers not already connect, leave
-        untouched already linked ones and delete/disconnect old ones no
-        more connected to the provider.
+        Connect new identity providers not already connect, leave untouched already
+        linked ones and delete/disconnect old ones no more connected to the provider.
         """
         edit = False
         db_items = {db_item.endpoint: db_item for db_item in db_obj.identity_providers}
@@ -157,9 +154,8 @@ class CRUDProvider(
     ) -> bool:
         """Update provider linked regions.
 
-        Connect new regions not already connect, leave untouched already
-        linked ones and delete old ones no more connected to the
-        provider.
+        Connect new regions not already connect, leave untouched already linked ones and
+        delete old ones no more connected to the provider.
         """
         edit = False
         db_items = {db_item.name: db_item for db_item in db_obj.regions}

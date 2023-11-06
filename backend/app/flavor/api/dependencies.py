@@ -34,8 +34,8 @@ def valid_flavor_name(
     item: Union[FlavorCreate, FlavorUpdate],
     services: List[ComputeService],
 ) -> None:
-    """Check there are no other flavors, belonging to the same service, with
-    the same name.
+    """Check there are no other flavors, belonging to the same service, with the same
+    name.
 
     Args:
         item (FlavorCreate | FlavorUpdate): new data.
@@ -62,8 +62,8 @@ def valid_flavor_uuid(
     item: Union[FlavorCreate, FlavorUpdate],
     services: List[ComputeService] = Depends(valid_compute_service_id),
 ) -> None:
-    """Check there are no other flavors, belonging to the same service, with
-    the same uuid.
+    """Check there are no other flavors, belonging to the same service, with the same
+    uuid.
 
     Args:
         item (FlavorCreate | FlavorUpdate): new data.
@@ -89,9 +89,8 @@ def valid_flavor_uuid(
 def validate_new_flavor_values(
     update_data: FlavorUpdate, item: Flavor = Depends(valid_flavor_id)
 ) -> None:
-    """Check given data are valid ones. Check there are no other flavors,
-    belonging to the same service, with the same uuid and name. Avoid to change
-    flavor visibility.
+    """Check given data are valid ones. Check there are no other flavors, belonging to
+    the same service, with the same uuid and name. Avoid to change flavor visibility.
 
     Args:
         update_data (FlavorUpdate): new data.

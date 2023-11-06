@@ -49,8 +49,8 @@ def test_invalid_create_schema():
 def test_read_schema_with_single_region(db_location: Location):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target location is linked to a single region.
     """
@@ -69,8 +69,8 @@ def test_read_schema_with_single_region(db_location: Location):
 def test_read_schema_with_multiple_regions(db_location_with_multiple_regions: Location):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target location is linked to multiple regions.
     """

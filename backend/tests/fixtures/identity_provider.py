@@ -28,8 +28,8 @@ def db_idp_with_multiple_user_groups(
 ) -> IdentityProvider:
     """Identity Provider with multiple user groups.
 
-    It is linked to the provider with multiple projects and generates a
-    user group for each provider project.
+    It is linked to the provider with multiple projects and generates a user group for
+    each provider project.
     """
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_multiple_projects.projects]
@@ -45,11 +45,10 @@ def db_idp_with_multiple_providers(
     db_provider_with_single_project: Provider,
     db_provider_with_multiple_projects: Provider,
 ) -> IdentityProvider:
-    """Identity Provider with multiple user groups, linked to multiple
-    providers.
+    """Identity Provider with multiple user groups, linked to multiple providers.
 
-    It has a user group on a provider and 2 user groups on the other
-    one. Each user group points to exactly one project.
+    It has a user group on a provider and 2 user groups on the other one. Each user
+    group points to exactly one project.
     """
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_single_project.projects]
@@ -80,8 +79,7 @@ def db_provider_with_multiple_idps(
 ) -> Provider:
     """Provider with a multiple authorized IDP and multiple projects.
 
-    Each IDP has a single user group. Each user group points to a
-    different project.
+    Each IDP has a single user group. Each user group points to a different project.
     """
     db_project1 = db_provider_with_multiple_projects.projects.single()
     db_project2 = db_provider_with_multiple_projects.projects.all()[1]

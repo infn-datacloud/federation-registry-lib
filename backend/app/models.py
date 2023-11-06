@@ -12,8 +12,7 @@ class BaseNode(BaseModel):
 
     @root_validator(pre=True)
     def get_str_from_uuid(cls, data: Dict) -> Dict:
-        """Get hex attribute from UUID values from all the enumeration field
-        values."""
+        """Get hex attribute from UUID values from all the enumeration field values."""
         uuid_fields = {k: v.hex for k, v in data.items() if isinstance(v, UUID)}
         return {**data, **uuid_fields}
 
@@ -21,8 +20,7 @@ class BaseNode(BaseModel):
 class BaseNodeCreate(BaseModel):
     """Base Model when updating or creating a node in the DB.
 
-    When dealing with enumerations retrieve the enum value. Always
-    validate assignments.
+    When dealing with enumerations retrieve the enum value. Always validate assignments.
     """
 
     @root_validator
@@ -40,11 +38,10 @@ class BaseNodeCreate(BaseModel):
 class BaseNodeRead(BaseModel):
     """Base Model when reading nodes from the DB.
 
-    Use ORM mode to read data from DB models. Convert Neo4j datetime
-    objects into python datetime ones. When dealing with relationships
-    retrieve all connected items and show them as an object list. If a
-    relationships has a model return a dict with the data stored in it.
-    Always validate assignments.
+    Use ORM mode to read data from DB models. Convert Neo4j datetime objects into python
+    datetime ones. When dealing with relationships retrieve all connected items and show
+    them as an object list. If a relationships has a model return a dict with the data
+    stored in it. Always validate assignments.
     """
 
     uid: str = Field(description="Database item's unique identifier")
@@ -53,9 +50,9 @@ class BaseNodeRead(BaseModel):
     def get_relations(cls, data: Dict) -> Dict:
         """From One or ZeroOrOne relationships get that single relationship.
 
-        From OneOrMore or ZeroOrMore relationships get all
-        relationships; if that relationships has a model return a dict
-        with the data stored in the relationship.
+        From OneOrMore or ZeroOrMore relationships get all relationships; if that
+        relationships has a model return a dict with the data stored in the
+        relationship.
         """
         relations = {}
         for k, v in data.items():
@@ -90,8 +87,8 @@ class BaseNodeRead(BaseModel):
 
 
 class BaseNodeQuery(BaseModel):
-    """Base Model used to retrieve possible query parameters when performing
-    nodes get operations with filters.
+    """Base Model used to retrieve possible query parameters when performing nodes get
+    operations with filters.
 
     Always validate assignments.
     """

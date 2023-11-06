@@ -48,8 +48,8 @@ def test_read_identity_services_with_target_params(
     db_identity_serv: IdentityService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all identity_services matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all identity_services matching specific attributes
+    passed as query attributes."""
     settings = get_settings()
 
     for k in IdentityServiceBase.__fields__.keys():
@@ -70,8 +70,8 @@ def test_read_identity_services_with_limit(
     db_identity_serv2: IdentityService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all identity_services limiting the number
-    of output items."""
+    """Execute GET operations to read all identity_services limiting the number of
+    output items."""
     settings = get_settings()
 
     response = client.get(
@@ -143,8 +143,8 @@ def test_read_identity_services_with_skip(
     db_identity_serv2: IdentityService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all identity_services, skipping the first
-    N entries."""
+    """Execute GET operations to read all identity_services, skipping the first N
+    entries."""
     settings = get_settings()
 
     response = client.get(
@@ -228,8 +228,7 @@ def test_read_identity_services_with_conn(
     db_identity_serv2: IdentityService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all identity_services with their
-    relationships."""
+    """Execute GET operations to read all identity_services with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -313,8 +312,7 @@ def test_read_identity_service_with_conn(
     db_identity_serv: IdentityService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a identity_service with its
-    relationships."""
+    """Execute GET operations to read a identity_service with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/identity_services/{db_identity_serv.uid}",
@@ -331,8 +329,7 @@ def test_read_identity_service_short(
     db_identity_serv: IdentityService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a
-    identity_service."""
+    """Execute GET operations to read the shrunk version of a identity_service."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/identity_services/{db_identity_serv.uid}",
@@ -353,8 +350,7 @@ def test_read_identity_service_short(
 def test_read_not_existing_identity_service(
     client: TestClient,
 ) -> None:
-    """Execute GET operations to try to read a not existing
-    identity_service."""
+    """Execute GET operations to try to read a not existing identity_service."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(

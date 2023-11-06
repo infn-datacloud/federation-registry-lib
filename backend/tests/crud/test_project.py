@@ -23,8 +23,8 @@ def test_create_item(db_provider: Provider) -> None:
 
 
 def test_create_item_default_values(db_provider: Provider) -> None:
-    """Create a Project, with default values when possible, belonging to a
-    specific Provider."""
+    """Create a Project, with default values when possible, belonging to a specific
+    Provider."""
     item_in = create_random_project(default=True)
     item = project.create(obj_in=item_in, provider=db_provider)
     validate_create_project_attrs(obj_in=item_in, db_item=item)
@@ -99,11 +99,11 @@ def test_patch_item(db_project: Project) -> None:
 
 
 def test_patch_item_with_defaults(db_project: Project) -> None:
-    """Try to update the attributes of an existing Project, without updating
-    its relationships, with default values.
+    """Try to update the attributes of an existing Project, without updating its
+    relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_project_patch(default=True)
     assert not project.update(db_obj=db_project, obj_in=patch_in)
@@ -122,9 +122,9 @@ def test_force_update_without_changing_flavors(
 ) -> None:
     """Update the attributes and relationships of an existing Project.
 
-    Update a Project with a set of linked flavors, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Project with a set of linked flavors, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_provider = db_project_with_single_private_flavor.provider.single()
     db_flavor = db_project_with_single_private_flavor.private_flavors.single()
@@ -142,9 +142,9 @@ def test_force_update_without_changing_images(
 ) -> None:
     """Update the attributes and relationships of an existing Project.
 
-    Update a Project with a set of linked images, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Project with a set of linked images, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_provider = db_project_with_single_private_image.provider.single()
     db_image = db_project_with_single_private_image.private_images.single()
@@ -162,9 +162,9 @@ def test_force_update_without_changing_block_storage_quotas(
 ) -> None:
     """Update the attributes and relationships of an existing Project.
 
-    Update a Project with a set of linked quotas, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Project with a set of linked quotas, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_provider = db_project_with_single_block_storage_quota.provider.single()
     db_quota = db_project_with_single_block_storage_quota.quotas.single()
@@ -182,9 +182,9 @@ def test_force_update_without_changing_compute_quotas(
 ) -> None:
     """Update the attributes and relationships of an existing Project.
 
-    Update a Project with a set of linked quotas, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Project with a set of linked quotas, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_provider = db_project_with_single_compute_quota.provider.single()
     db_quota = db_project_with_single_compute_quota.quotas.single()
@@ -202,9 +202,9 @@ def test_force_update_without_changing_slas(
 ) -> None:
     """Update the attributes and relationships of an existing Project.
 
-    Update a Project with a set of linked quotas, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Project with a set of linked quotas, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_provider = db_project_with_sla.provider.single()
     db_quota = db_project_with_sla.quotas.single()

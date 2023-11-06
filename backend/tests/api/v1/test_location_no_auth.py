@@ -48,8 +48,8 @@ def test_read_locations_with_target_params(
     db_location: Location,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all locations matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all locations matching specific attributes passed
+    as query attributes."""
     settings = get_settings()
 
     for k in LocationBase.__fields__.keys():
@@ -70,8 +70,8 @@ def test_read_locations_with_limit(
     db_location2: Location,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all locations limiting the number of
-    output items."""
+    """Execute GET operations to read all locations limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/locations/", params={"limit": 0})
@@ -133,8 +133,7 @@ def test_read_locations_with_skip(
     db_location2: Location,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all locations, skipping the first N
-    entries."""
+    """Execute GET operations to read all locations, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/locations/", params={"skip": 0})
@@ -206,8 +205,7 @@ def test_read_locations_with_conn(
     db_location2: Location,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all locations with their
-    relationships."""
+    """Execute GET operations to read all locations with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -238,8 +236,7 @@ def test_read_locations_short(
     db_location2: Location,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all locations with their shrunk
-    version."""
+    """Execute GET operations to read all locations with their shrunk version."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/locations/", params={"short": True})

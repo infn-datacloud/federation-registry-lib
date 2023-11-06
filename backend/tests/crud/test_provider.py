@@ -62,8 +62,7 @@ def test_create_item_with_regions(
 
 
 def test_create_item_with_everything(setup_and_teardown_db: Generator) -> None:
-    """Create a Provider, with linked projects, identity providers and
-    regions."""
+    """Create a Provider, with linked projects, identity providers and regions."""
     item_in = create_random_provider(
         with_projects=True, with_identity_providers=True, with_regions=True
     )
@@ -140,11 +139,11 @@ def test_patch_item(db_provider: Provider) -> None:
 
 
 def test_patch_item_with_defaults(db_provider: Provider) -> None:
-    """Try to update the attributes of an existing Provider, without updating
-    its relationships, with default values.
+    """Try to update the attributes of an existing Provider, without updating its
+    relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_provider_patch(default=True)
     assert not provider.update(db_obj=db_provider, obj_in=patch_in)
@@ -161,8 +160,8 @@ def test_patch_item_with_defaults(db_provider: Provider) -> None:
 def test_add_project(db_provider: Provider) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with no projects, changing its attributes and
-    linking new projects.
+    Update a Provider with no projects, changing its attributes and linking new
+    projects.
     """
     item_in = create_random_provider(with_projects=True)
     item = provider.update(db_obj=db_provider, obj_in=item_in, force=True)
@@ -173,8 +172,8 @@ def test_add_project(db_provider: Provider) -> None:
 def test_remove_project(db_provider_with_single_project: Provider) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    At first update a Provider with a set of projects, updating its
-    attributes and removing the existing projects.
+    At first update a Provider with a set of projects, updating its attributes and
+    removing the existing projects.
     """
     item_in = create_random_provider()
     item = provider.update(
@@ -187,8 +186,8 @@ def test_remove_project(db_provider_with_single_project: Provider) -> None:
 def test_replace_projects(db_provider_with_single_project: Provider) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with a set of projects, changing both its
-    attributes and replacing the existing projects with new ones.
+    Update a Provider with a set of projects, changing both its attributes and replacing
+    the existing projects with new ones.
     """
     db_project = db_provider_with_single_project.projects.single()
     item_in = create_random_provider(with_projects=True)
@@ -205,9 +204,9 @@ def test_force_update_without_changing_projects(
 ) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with a set of projects, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Provider with a set of projects, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_project = db_provider_with_single_project.projects.single()
     item_in = create_random_provider(with_projects=True)
@@ -224,8 +223,8 @@ def test_force_update_without_changing_projects(
 def test_add_identity_provider(db_provider: Provider) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with no identity_providers, changing its
-    attributes and linking new identity_providers.
+    Update a Provider with no identity_providers, changing its attributes and linking
+    new identity_providers.
     """
     item_in = create_random_provider(with_projects=True, with_identity_providers=True)
     item = provider.update(db_obj=db_provider, obj_in=item_in, force=True)
@@ -236,9 +235,8 @@ def test_add_identity_provider(db_provider: Provider) -> None:
 def test_remove_identity_provider(db_provider_with_single_idp: Provider) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    At first update a Provider with a set of identity_providers,
-    updating its attributes and removing the existing
-    identity_providers.
+    At first update a Provider with a set of identity_providers, updating its attributes
+    and removing the existing identity_providers.
     """
     item_in = create_random_provider()
     item = provider.update(
@@ -249,11 +247,10 @@ def test_remove_identity_provider(db_provider_with_single_idp: Provider) -> None
 
 
 def test_remove_shared_identity_provider(db_provider_with_shared_idp: Provider) -> None:
-    """Update the attributes and relationships of an existing identity
-    provider.
+    """Update the attributes and relationships of an existing identity provider.
 
-    Update an identity provider with a set of linked identity_provider,
-    updating its attributes and removing all linked identity_provider.
+    Update an identity provider with a set of linked identity_provider, updating its
+    attributes and removing all linked identity_provider.
     """
     db_identity_provider = db_provider_with_shared_idp.identity_providers.single()
     item_in = create_random_provider()
@@ -270,9 +267,8 @@ def test_replace_identity_providers(
 ) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with a set of identity_providers, changing both
-    its attributes and replacing the existing identity_providers with
-    new ones.
+    Update a Provider with a set of identity_providers, changing both its attributes and
+    replacing the existing identity_providers with new ones.
     """
     db_identity_provider = db_provider_with_single_idp.identity_providers.single()
     item_in = create_random_provider(with_projects=True, with_identity_providers=True)
@@ -289,9 +285,9 @@ def test_force_update_without_changing_identity_providers(
 ) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with a set of identity_providers, changing only
-    its attributes leaving untouched its connections (this is different
-    from the previous test because the flag force is set to True).
+    Update a Provider with a set of identity_providers, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_identity_provider = db_provider_with_single_idp.identity_providers.single()
     rel = db_provider_with_single_idp.identity_providers.relationship(
@@ -316,8 +312,7 @@ def test_force_update_without_changing_identity_providers(
 def test_add_region(db_provider: Provider) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with no regions, changing its attributes and
-    linking new regions.
+    Update a Provider with no regions, changing its attributes and linking new regions.
     """
     item_in = create_random_provider(with_regions=True)
     item = provider.update(db_obj=db_provider, obj_in=item_in, force=True)
@@ -328,8 +323,8 @@ def test_add_region(db_provider: Provider) -> None:
 def test_remove_region(db_provider_with_single_region: Provider) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    At first update a Provider with a set of regions, updating its
-    attributes and removing the existing regions.
+    At first update a Provider with a set of regions, updating its attributes and
+    removing the existing regions.
     """
     item_in = create_random_provider()
     item = provider.update(
@@ -342,8 +337,8 @@ def test_remove_region(db_provider_with_single_region: Provider) -> None:
 def test_replace_regions(db_provider_with_single_region: Provider) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with a set of regions, changing both its
-    attributes and replacing the existing regions with new ones.
+    Update a Provider with a set of regions, changing both its attributes and replacing
+    the existing regions with new ones.
     """
     db_region = db_provider_with_single_region.regions.single()
     item_in = create_random_provider(with_regions=True)
@@ -360,9 +355,9 @@ def test_force_update_without_changing_regions(
 ) -> None:
     """Update the attributes and relationships of an existing Provider.
 
-    Update a Provider with a set of regions, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Provider with a set of regions, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_region = db_provider_with_single_region.regions.single()
     item_in = create_random_provider(with_regions=True)

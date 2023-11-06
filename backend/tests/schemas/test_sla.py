@@ -40,8 +40,8 @@ def test_invalid_create_schema():
 def test_read_schema_with_one_project(db_sla: SLA):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target SLA has one project.
     """

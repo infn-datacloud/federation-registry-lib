@@ -59,8 +59,8 @@ def test_invalid_create_schema():
 def test_read_schema(db_identity_serv: IdentityService):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked only to the parent region.
     """

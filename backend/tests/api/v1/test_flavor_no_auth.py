@@ -48,8 +48,8 @@ def test_read_flavors_with_target_params(
     db_public_flavor: Flavor,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all flavors matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all flavors matching specific attributes passed as
+    query attributes."""
     settings = get_settings()
 
     for k in FlavorBase.__fields__.keys():
@@ -133,8 +133,7 @@ def test_read_flavors_with_skip(
     db_private_flavor: Flavor,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all flavors, skipping the first N
-    entries."""
+    """Execute GET operations to read all flavors, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/flavors/", params={"skip": 0})
@@ -284,8 +283,7 @@ def test_read_public_flavor_with_conn(
     db_public_flavor: Flavor,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a public flavor with its
-    relationships."""
+    """Execute GET operations to read a public flavor with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}",
@@ -302,8 +300,7 @@ def test_read_private_flavor_with_conn(
     db_private_flavor: Flavor,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a private flavor with its
-    relationships."""
+    """Execute GET operations to read a private flavor with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}",

@@ -42,12 +42,11 @@ class CRUDUserGroup(
     ) -> UserGroup:
         """Create a new User Group.
 
-        Connect the user group to the given identity provider. Within
-        the provider projects, find the one pointed by the new user
-        group's SLA. If this project already has an SLA, if this SLA has
-        just one project delete it, otherwise, disconnect it from the
-        target project. In any case create (or just update if already
-        exists) the SLA.
+        Connect the user group to the given identity provider. Within the provider
+        projects, find the one pointed by the new user group's SLA. If this project
+        already has an SLA, if this SLA has just one project delete it, otherwise,
+        disconnect it from the target project. In any case create (or just update if
+        already exists) the SLA.
         """
         db_obj = super().create(obj_in=obj_in)
         db_obj.identity_provider.connect(identity_provider)
@@ -81,9 +80,8 @@ class CRUDUserGroup(
     ) -> Optional[UserGroup]:
         """Update User Group attributes.
 
-        By default do not update relationships or default values. If
-        force is True, update linked SLAs and apply default values when
-        explicit.
+        By default do not update relationships or default values. If force is True,
+        update linked SLAs and apply default values when explicit.
         """
         edit = False
         if force:
@@ -106,11 +104,10 @@ class CRUDUserGroup(
     ) -> bool:
         """Update user group linked SLAs.
 
-        Connect new SLA not already connect, leave untouched already
-        linked ones. Delete old ones no more connected to the user group
-        and pointing only to a project in this provider. If there are
-        SLAs pointing to a project in this provider but also to projects
-        of other providers, disconnect them.
+        Connect new SLA not already connect, leave untouched already linked ones. Delete
+        old ones no more connected to the user group and pointing only to a project in
+        this provider. If there are SLAs pointing to a project in this provider but also
+        to projects of other providers, disconnect them.
         """
         edit = False
         db_project = next(

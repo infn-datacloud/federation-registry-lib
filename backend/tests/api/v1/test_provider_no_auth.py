@@ -49,8 +49,8 @@ def test_read_providers_with_target_params(
     db_provider_with_single_project: Provider,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all providers matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all providers matching specific attributes passed
+    as query attributes."""
     settings = get_settings()
 
     for k in ProviderBase.__fields__.keys():
@@ -72,8 +72,8 @@ def test_read_providers_with_limit(
     db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all providers limiting the number of
-    output items."""
+    """Execute GET operations to read all providers limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/providers/", params={"limit": 0})
@@ -140,8 +140,7 @@ def test_read_providers_with_skip(
     db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all providers, skipping the first N
-    entries."""
+    """Execute GET operations to read all providers, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/providers/", params={"skip": 0})
@@ -213,8 +212,7 @@ def test_read_providers_with_conn(
     db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all providers with their
-    relationships."""
+    """Execute GET operations to read all providers with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -246,8 +244,7 @@ def test_read_providers_short(
     db_provider_with_multiple_projects: Provider,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all providers with their shrunk
-    version."""
+    """Execute GET operations to read all providers with their shrunk version."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/providers/", params={"short": True})

@@ -36,8 +36,7 @@ class CRUDBase(
         read_extended_schema: Type[ReadExtendedSchemaType],
         read_extended_public_schema: Type[ReadExtendedPublicSchemaType],
     ):
-        """CRUD object with default methods to Create, Read, Update, Delete
-        (CRUD)
+        """CRUD object with default methods to Create, Read, Update, Delete (CRUD)
 
         **Parameters**
 

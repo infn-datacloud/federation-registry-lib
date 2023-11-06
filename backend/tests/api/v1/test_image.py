@@ -50,8 +50,8 @@ def test_read_images_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all images matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all images matching specific attributes passed as
+    query attributes."""
     settings = get_settings()
 
     for k in ImageBase.__fields__.keys():
@@ -74,8 +74,7 @@ def test_read_images_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all images limiting the number of output
-    items."""
+    """Execute GET operations to read all images limiting the number of output items."""
     settings = get_settings()
 
     response = client.get(
@@ -152,8 +151,7 @@ def test_read_images_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all images, skipping the first N
-    entries."""
+    """Execute GET operations to read all images, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(
@@ -340,8 +338,7 @@ def test_read_private_image_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a private image with its
-    relationships."""
+    """Execute GET operations to read a private image with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/images/{db_private_image.uid}",
@@ -494,8 +491,7 @@ def test_patch_image_with_duplicated_uuid(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing UUID to a
-    image."""
+    """Execute PATCH operations to try to assign an already existing UUID to a image."""
     settings = get_settings()
     data = create_random_image_patch()
     data.is_public = db_private_image.is_public
@@ -517,8 +513,7 @@ def test_patch_image_with_duplicated_name(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign a name already in use to a
-    image."""
+    """Execute PATCH operations to try to assign a name already in use to a image."""
     settings = get_settings()
     data = create_random_image_patch()
     data.is_public = db_private_image.is_public

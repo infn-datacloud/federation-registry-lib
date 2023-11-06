@@ -57,8 +57,8 @@ def test_read_identity_services_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all identity_services matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all identity_services matching specific attributes
+    passed as query attributes."""
     settings = get_settings()
 
     for k in IdentityServiceBase.__fields__.keys():
@@ -81,8 +81,8 @@ def test_read_identity_services_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all identity_services limiting the number
-    of output items."""
+    """Execute GET operations to read all identity_services limiting the number of
+    output items."""
     settings = get_settings()
 
     response = client.get(
@@ -167,8 +167,8 @@ def test_read_identity_services_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all identity_services, skipping the first
-    N entries."""
+    """Execute GET operations to read all identity_services, skipping the first N
+    entries."""
     settings = get_settings()
 
     response = client.get(
@@ -270,8 +270,7 @@ def test_read_identity_services_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all identity_services with their
-    relationships."""
+    """Execute GET operations to read all identity_services with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -355,8 +354,7 @@ def test_read_identity_service_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a identity_service with its
-    relationships."""
+    """Execute GET operations to read a identity_service with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/identity_services/{db_identity_serv.uid}",
@@ -375,8 +373,7 @@ def test_read_identity_service_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a
-    identity_service."""
+    """Execute GET operations to read the shrunk version of a identity_service."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/identity_services/{db_identity_serv.uid}",
@@ -394,8 +391,7 @@ def test_read_not_existing_identity_service(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to try to read a not existing
-    identity_service."""
+    """Execute GET operations to try to read a not existing identity_service."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
@@ -448,8 +444,7 @@ def test_patch_not_existing_identity_service(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to update a not existing
-    identity_service."""
+    """Execute PATCH operations to try to update a not existing identity_service."""
     settings = get_settings()
     item_uuid = uuid4()
     data = create_random_identity_service_patch()
@@ -469,12 +464,11 @@ def test_patch_identity_service_changing_type(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to change the type of a
-    identity_service.
+    """Execute PATCH operations to try to change the type of a identity_service.
 
-    At first this should not be allowed by schema construction. In any
-    case, if a request arrives, it is discarded since the payload is not
-    an identity service object.
+    At first this should not be allowed by schema construction. In any case, if a
+    request arrives, it is discarded since the payload is not an identity service
+    object.
     """
     settings = get_settings()
     data = create_random_identity_service_patch()
@@ -500,8 +494,8 @@ def test_patch_identity_service_with_duplicated_endpoint(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing endpoint
-    to a identity_service."""
+    """Execute PATCH operations to try to assign an already existing endpoint to a
+    identity_service."""
     settings = get_settings()
     data = create_random_identity_service_patch()
     data.endpoint = db_identity_serv.endpoint
@@ -540,8 +534,7 @@ def test_delete_not_existing_identity_service(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute DELETE operations to try to delete a not existing
-    identity_service."""
+    """Execute DELETE operations to try to delete a not existing identity_service."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(

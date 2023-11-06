@@ -34,8 +34,8 @@ def is_unique_user_group(
     item: Union[UserGroupCreate, UserGroupUpdate],
     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
 ) -> None:
-    """Check there are no other user groups, belonging to the same identity
-    provider, with the same name.
+    """Check there are no other user groups, belonging to the same identity provider,
+    with the same name.
 
     Args:
         item (UserGroupCreate | UserGroupUpdate): new data.
@@ -59,8 +59,8 @@ def validate_new_user_group_values(
     update_data: UserGroupUpdate,
     item: UserGroup = Depends(valid_user_group_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other user groups,
-    belonging to the same identity provider, with the same name.
+    """Check given data are valid ones. Check there are no other user groups, belonging
+    to the same identity provider, with the same name.
 
     Args:
         update_data (UserGroupUpdate): new data.

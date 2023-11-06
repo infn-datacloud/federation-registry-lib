@@ -40,9 +40,8 @@ class CRUDProject(
     def remove(self, *, db_obj: Project) -> bool:
         """Delete an existing project and all its relationships.
 
-        At first delete its quotas. Then, if the linked SLA points only
-        to this project, delete it. Otherwise do nothing. Finally delete
-        the project.
+        At first delete its quotas. Then, if the linked SLA points only to this project,
+        delete it. Otherwise do nothing. Finally delete the project.
         """
         for item in db_obj.quotas:
             if isinstance(item, BlockStorageQuota):

@@ -10,11 +10,10 @@ from tests.utils.compute_quota import create_random_compute_quota
 def db_compute_quota(
     db_compute_serv2: BlockStorageService,
 ) -> BlockStorageQuota:
-    """Compute Quota of the C Service belonging to the first region of the
-    provider with multiple projects.
+    """Compute Quota of the C Service belonging to the first region of the provider with
+    multiple projects.
 
-    Quota points to the first project. Quota to apply to the whole user
-    group.
+    Quota points to the first project. Quota to apply to the whole user group.
     """
     db_region = db_compute_serv2.region.single()
     db_provider = db_region.provider.single()
@@ -31,12 +30,11 @@ def db_compute_quota(
 def db_compute_quota_per_user(
     db_compute_quota: ComputeQuota,
 ) -> ComputeQuota:
-    """Compute Quota of the C Service belonging to the first region of the
-    provider with multiple projects.
+    """Compute Quota of the C Service belonging to the first region of the provider with
+    multiple projects.
 
-    Quota points to the first project. Quota to apply to each user of
-    the user group. This is currently the second quota on the same
-    project and same service.
+    Quota points to the first project. Quota to apply to each user of the user group.
+    This is currently the second quota on the same project and same service.
     """
     db_service = db_compute_quota.service.single()
     db_region = db_service.region.single()
@@ -52,11 +50,11 @@ def db_compute_quota_per_user(
 def db_compute_quota2(
     db_compute_quota_per_user: ComputeQuota,
 ) -> ComputeQuota:
-    """Compute Quota of the C Service belonging to the first region of the
-    provider with multiple projects.
+    """Compute Quota of the C Service belonging to the first region of the provider with
+    multiple projects.
 
-    Quota points to the second project. Quota to apply to the whole user
-    group. This is the third quota on the same service.
+    Quota points to the second project. Quota to apply to the whole user group. This is
+    the third quota on the same service.
     """
     db_service = db_compute_quota_per_user.service.single()
     db_region = db_service.region.single()
@@ -73,11 +71,10 @@ def db_compute_quota3(
     db_compute_quota2: ComputeQuota,
     db_compute_serv3: ComputeService,
 ) -> ComputeQuota:
-    """Compute Quota of the C Service belonging to the second region of the
-    provider with a multiple projects.
+    """Compute Quota of the C Service belonging to the second region of the provider
+    with a multiple projects.
 
-    Quota points to the second project. Quota to apply to the whole user
-    group.
+    Quota points to the second project. Quota to apply to the whole user group.
     """
     db_region = db_compute_serv3.region.single()
     db_provider = db_region.provider.single()

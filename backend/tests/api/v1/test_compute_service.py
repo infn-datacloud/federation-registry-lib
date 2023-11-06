@@ -57,8 +57,8 @@ def test_read_compute_services_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_services matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all compute_services matching specific attributes
+    passed as query attributes."""
     settings = get_settings()
 
     for k in ComputeServiceBase.__fields__.keys():
@@ -81,8 +81,8 @@ def test_read_compute_services_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_services limiting the number
-    of output items."""
+    """Execute GET operations to read all compute_services limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(
@@ -167,8 +167,8 @@ def test_read_compute_services_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_services, skipping the first
-    N entries."""
+    """Execute GET operations to read all compute_services, skipping the first N
+    entries."""
     settings = get_settings()
 
     response = client.get(
@@ -270,8 +270,7 @@ def test_read_compute_services_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_services with their
-    relationships."""
+    """Execute GET operations to read all compute_services with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -304,8 +303,7 @@ def test_read_compute_services_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all compute_services with their shrunk
-    version."""
+    """Execute GET operations to read all compute_services with their shrunk version."""
     settings = get_settings()
 
     response = client.get(
@@ -355,8 +353,7 @@ def test_read_compute_service_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a compute_service with its
-    relationships."""
+    """Execute GET operations to read a compute_service with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/compute_services/{db_compute_serv.uid}",
@@ -375,8 +372,7 @@ def test_read_compute_service_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a
-    compute_service."""
+    """Execute GET operations to read the shrunk version of a compute_service."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/compute_services/{db_compute_serv.uid}",
@@ -447,8 +443,7 @@ def test_patch_not_existing_compute_service(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to update a not existing
-    compute_service."""
+    """Execute PATCH operations to try to update a not existing compute_service."""
     settings = get_settings()
     item_uuid = uuid4()
     data = create_random_compute_service_patch()
@@ -470,9 +465,8 @@ def test_patch_compute_service_changing_type(
 ) -> None:
     """Execute PATCH operations to try to change the type of a compute_service.
 
-    At first this should not be allowed by schema construction. In any
-    case, if a request arrives, it is discarded since the payload is not
-    an compute service object.
+    At first this should not be allowed by schema construction. In any case, if a
+    request arrives, it is discarded since the payload is not an compute service object.
     """
     settings = get_settings()
     data = create_random_compute_service_patch()
@@ -498,8 +492,8 @@ def test_patch_compute_service_with_duplicated_endpoint(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing endpoint
-    to a compute_service."""
+    """Execute PATCH operations to try to assign an already existing endpoint to a
+    compute_service."""
     settings = get_settings()
     data = create_random_compute_service_patch()
     data.endpoint = db_compute_serv.endpoint
@@ -538,8 +532,7 @@ def test_delete_not_existing_compute_service(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute DELETE operations to try to delete a not existing
-    compute_service."""
+    """Execute DELETE operations to try to delete a not existing compute_service."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(

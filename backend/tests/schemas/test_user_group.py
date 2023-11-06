@@ -40,8 +40,8 @@ def test_invalid_create_schema():
 def test_read_schema_with_one_sla(db_user_group: UserGroup):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target user group has one SLA.
     """
@@ -62,8 +62,8 @@ def test_read_schema_with_one_sla(db_user_group: UserGroup):
 def test_read_schema_with_multiple_slas(db_user_group_with_multiple_slas: UserGroup):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target user group has one SLA.
     """

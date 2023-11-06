@@ -44,8 +44,8 @@ def test_read_slas_with_target_params(
     db_sla: SLA,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all slas matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all slas matching specific attributes passed as
+    query attributes."""
     settings = get_settings()
 
     for k in SLABase.__fields__.keys():
@@ -64,8 +64,7 @@ def test_read_slas_with_limit(
     db_sla2: SLA,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all slas limiting the number of output
-    items."""
+    """Execute GET operations to read all slas limiting the number of output items."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/slas/", params={"limit": 0})
@@ -124,8 +123,7 @@ def test_read_slas_with_skip(
     db_sla2: SLA,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all slas, skipping the first N
-    entries."""
+    """Execute GET operations to read all slas, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/slas/", params={"skip": 0})

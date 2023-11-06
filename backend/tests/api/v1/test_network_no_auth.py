@@ -48,8 +48,8 @@ def test_read_networks_with_target_params(
     db_public_network: Network,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all networks matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all networks matching specific attributes passed
+    as query attributes."""
     settings = get_settings()
 
     for k in NetworkBase.__fields__.keys():
@@ -70,8 +70,8 @@ def test_read_networks_with_limit(
     db_private_network: Network,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all networks limiting the number of
-    output items."""
+    """Execute GET operations to read all networks limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/networks/", params={"limit": 0})
@@ -135,8 +135,7 @@ def test_read_networks_with_skip(
     db_private_network: Network,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all networks, skipping the first N
-    entries."""
+    """Execute GET operations to read all networks, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/networks/", params={"skip": 0})
@@ -240,8 +239,7 @@ def test_read_networks_short(
     db_private_network: Network,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all networks with their shrunk
-    version."""
+    """Execute GET operations to read all networks with their shrunk version."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/networks/", params={"short": True})
@@ -290,8 +288,7 @@ def test_read_public_network_with_conn(
     db_public_network: Network,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a public network with its
-    relationships."""
+    """Execute GET operations to read a public network with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
@@ -308,8 +305,7 @@ def test_read_private_network_with_conn(
     db_private_network: Network,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a private network with its
-    relationships."""
+    """Execute GET operations to read a private network with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/networks/{db_private_network.uid}",

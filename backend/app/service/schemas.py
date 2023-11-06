@@ -20,8 +20,8 @@ class ServiceBase(BaseNode):
 
 
 class BlockStorageServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for BlockStorage services.
+    """Model derived from ServiceBase to inherit attributes common to all services. It
+    adds the basic attributes for BlockStorage services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
@@ -41,16 +41,16 @@ class BlockStorageServiceBase(ServiceBase):
 class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageServiceBase):
     """Model to create a BlockStorage Service.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
     """
 
 
 class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
     """Model to update a BlockStorage service.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -66,12 +66,11 @@ class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
 class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
     """Model to read BlockStorage service data retrieved from DB.
 
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
+    Class to read data retrieved from the database. Expected as output when performing a
+    generic REST request. It contains all the non- sensible data written in the
     database.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
     """
 
 
@@ -89,8 +88,8 @@ BlockStorageServiceQuery = create_query_model(
 
 
 class ComputeServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Compute services.
+    """Model derived from ServiceBase to inherit attributes common to all services. It
+    adds the basic attributes for Compute services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
@@ -108,16 +107,16 @@ class ComputeServiceBase(ServiceBase):
 class ComputeServiceCreate(BaseNodeCreate, ComputeServiceBase):
     """Model to create a Compute Service.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
     """
 
 
 class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
     """Model to update a Compute service.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -133,12 +132,11 @@ class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
 class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
     """Model to read Compute service data retrieved from DB.
 
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
+    Class to read data retrieved from the database. Expected as output when performing a
+    generic REST request. It contains all the non- sensible data written in the
     database.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
     """
 
 
@@ -154,8 +152,8 @@ ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeServiceBa
 
 
 class IdentityServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Identity services.
+    """Model derived from ServiceBase to inherit attributes common to all services. It
+    adds the basic attributes for Identity services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
@@ -173,16 +171,16 @@ class IdentityServiceBase(ServiceBase):
 class IdentityServiceCreate(BaseNodeCreate, IdentityServiceBase):
     """Model to create a Identity Service.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
     """
 
 
 class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
     """Model to update a Identity service.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -198,12 +196,11 @@ class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
 class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
     """Model to read Identity service data retrieved from DB.
 
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
+    Class to read data retrieved from the database. Expected as output when performing a
+    generic REST request. It contains all the non- sensible data written in the
     database.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
     """
 
 
@@ -219,8 +216,8 @@ IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityServic
 
 
 class NetworkServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all
-    services. It adds the basic attributes for Network services.
+    """Model derived from ServiceBase to inherit attributes common to all services. It
+    adds the basic attributes for Network services.
 
     Validation: type value is exactly ServiceType.openstack_nova.
     """
@@ -238,16 +235,16 @@ class NetworkServiceBase(ServiceBase):
 class NetworkServiceCreate(BaseNodeCreate, NetworkServiceBase):
     """Model to create a Network Service.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a POST request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
     """
 
 
 class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
     """Model to update a Network service.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -263,12 +260,11 @@ class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
 class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
     """Model to read Network service data retrieved from DB.
 
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
+    Class to read data retrieved from the database. Expected as output when performing a
+    generic REST request. It contains all the non- sensible data written in the
     database.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
     """
 
 

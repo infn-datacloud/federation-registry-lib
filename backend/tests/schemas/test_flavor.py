@@ -60,8 +60,8 @@ def test_invalid_create_schema():
 def test_read_schema_public_flavor(db_public_flavor: Flavor):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target flavor is linked to a single service.
     """
@@ -80,11 +80,10 @@ def test_read_schema_public_flavor(db_public_flavor: Flavor):
 def test_read_schema_private_flavor_single_project(db_private_flavor: Flavor):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
-    Target flavor is linked to a single service and owned by a single
-    project.
+    Target flavor is linked to a single service and owned by a single project.
     """
     schema = FlavorRead.from_orm(db_private_flavor)
     validate_read_flavor_attrs(obj_out=schema, db_item=db_private_flavor)
@@ -105,11 +104,11 @@ def test_read_schema_private_flavor_multiple_projects(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
-    Target flavor is linked to a single service and owned by multiple
-    projects on the same provider.
+    Target flavor is linked to a single service and owned by multiple projects on the
+    same provider.
     """
     schema = FlavorRead.from_orm(db_private_flavor_multiple_projects)
     validate_read_flavor_attrs(
@@ -138,8 +137,8 @@ def test_read_schema_private_flavor_multiple_projects(
 def test_read_schema_flavor_shared_between_multiple_services(db_shared_flavor: Flavor):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target public flavor is linked to a multiple services.
     """

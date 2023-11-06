@@ -48,8 +48,8 @@ def test_read_user_groups_with_target_params(
     db_user_group: UserGroup,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all user_groups matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all user_groups matching specific attributes
+    passed as query attributes."""
     settings = get_settings()
 
     for k in UserGroupBase.__fields__.keys():
@@ -69,8 +69,8 @@ def test_read_user_groups_with_limit(
     db_user_group2: UserGroup,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all user_groups limiting the number of
-    output items."""
+    """Execute GET operations to read all user_groups limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/user_groups/", params={"limit": 0})
@@ -133,8 +133,7 @@ def test_read_user_groups_with_skip(
     db_user_group2: UserGroup,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all user_groups, skipping the first N
-    entries."""
+    """Execute GET operations to read all user_groups, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/user_groups/", params={"skip": 0})
@@ -206,8 +205,7 @@ def test_read_user_groups_with_conn(
     db_user_group3: UserGroup,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all user_groups with their
-    relationships."""
+    """Execute GET operations to read all user_groups with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -239,8 +237,7 @@ def test_read_user_groups_short(
     db_user_group3: UserGroup,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all user_groups with their shrunk
-    version."""
+    """Execute GET operations to read all user_groups with their shrunk version."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/user_groups/", params={"short": True})

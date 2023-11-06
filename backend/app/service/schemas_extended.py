@@ -45,36 +45,36 @@ class RegionReadExtendedPublic(RegionReadPublic):
 
 
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
-    """Model to extend the Num CPUs Quota data read from the DB with the lists
-    of related items."""
+    """Model to extend the Num CPUs Quota data read from the DB with the lists of
+    related items."""
 
     project: ProjectRead
 
 
 class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
-    """Model to extend the Num CPUs Quota data read from the DB with the lists
-    of related items."""
+    """Model to extend the Num CPUs Quota data read from the DB with the lists of
+    related items."""
 
     project: ProjectReadPublic
 
 
 class ComputeQuotaReadExtended(ComputeQuotaRead):
-    """Model to extend the Num CPUs Quota data read from the DB with the lists
-    of related items."""
+    """Model to extend the Num CPUs Quota data read from the DB with the lists of
+    related items."""
 
     project: ProjectRead
 
 
 class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
-    """Model to extend the Num CPUs Quota data read from the DB with the lists
-    of related items."""
+    """Model to extend the Num CPUs Quota data read from the DB with the lists of
+    related items."""
 
     project: ProjectReadPublic
 
 
 class BlockStorageServiceReadExtended(BlockStorageServiceRead):
-    """Model to extend the BlockStorage Service data read from the DB with the
-    lists of related items for authenticated users."""
+    """Model to extend the BlockStorage Service data read from the DB with the lists of
+    related items for authenticated users."""
 
     quotas: List[BlockStorageQuotaReadExtended] = Field(
         default_factory=list,
@@ -84,8 +84,8 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
 
 
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
-    """Model to extend the BlockStorage Service data read from the DB with the
-    lists of related items for non-authenticated users."""
+    """Model to extend the BlockStorage Service data read from the DB with the lists of
+    related items for non-authenticated users."""
 
     quotas: List[BlockStorageQuotaReadExtendedPublic] = Field(
         default_factory=list,
@@ -95,8 +95,8 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
-    """Model to extend the Compute Service data read from the DB with the lists
-    of related items for authenticated users."""
+    """Model to extend the Compute Service data read from the DB with the lists of
+    related items for authenticated users."""
 
     flavors: List[FlavorRead] = Field(
         default_factory=list, description="List of owned Flavors."
@@ -112,8 +112,8 @@ class ComputeServiceReadExtended(ComputeServiceRead):
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
-    """Model to extend the Compute Service data read from the DB with the lists
-    of related items for non-authenticated users."""
+    """Model to extend the Compute Service data read from the DB with the lists of
+    related items for non-authenticated users."""
 
     flavors: List[FlavorReadPublic] = Field(
         default_factory=list, description="List of owned Flavors."
@@ -129,22 +129,22 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
 
 
 class IdentityServiceReadExtended(IdentityServiceRead):
-    """Model to extend the Identity Service data read from the DB with the
-    lists of related items for authenticated users."""
+    """Model to extend the Identity Service data read from the DB with the lists of
+    related items for authenticated users."""
 
     region: RegionReadExtended
 
 
 class IdentityServiceReadExtendedPublic(IdentityServiceReadPublic):
-    """Model to extend the Identity Service data read from the DB with the
-    lists of related items for non-authenticated users."""
+    """Model to extend the Identity Service data read from the DB with the lists of
+    related items for non-authenticated users."""
 
     region: RegionReadExtendedPublic
 
 
 class NetworkServiceReadExtended(NetworkServiceRead):
-    """Model to extend the Network Service data read from the DB with the lists
-    of related items for authenticated users."""
+    """Model to extend the Network Service data read from the DB with the lists of
+    related items for authenticated users."""
 
     networks: List[NetworkReadPublic] = Field(
         default_factory=list, description="List of owned Networks."
@@ -153,8 +153,8 @@ class NetworkServiceReadExtended(NetworkServiceRead):
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
-    """Model to extend the Network Service data read from the DB with the lists
-    of related items for non-authenticated users."""
+    """Model to extend the Network Service data read from the DB with the lists of
+    related items for non-authenticated users."""
 
     networks: List[NetworkReadPublic] = Field(
         default_factory=list, description="List of owned Networks."

@@ -50,8 +50,8 @@ def test_read_providers_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all providers matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all providers matching specific attributes passed
+    as query attributes."""
     settings = get_settings()
 
     for k in ProviderBase.__fields__.keys():
@@ -74,8 +74,8 @@ def test_read_providers_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all providers limiting the number of
-    output items."""
+    """Execute GET operations to read all providers limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(
@@ -163,8 +163,7 @@ def test_read_providers_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all providers, skipping the first N
-    entries."""
+    """Execute GET operations to read all providers, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(
@@ -266,8 +265,7 @@ def test_read_providers_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all providers with their
-    relationships."""
+    """Execute GET operations to read all providers with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -302,8 +300,7 @@ def test_read_providers_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all providers with their shrunk
-    version."""
+    """Execute GET operations to read all providers with their shrunk version."""
     settings = get_settings()
 
     response = client.get(
@@ -465,8 +462,8 @@ def test_patch_provider_with_duplicated_name(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing name to a
-    provider with the same type."""
+    """Execute PATCH operations to try to assign an already existing name to a provider
+    with the same type."""
     settings = get_settings()
     data = create_random_provider_patch()
     data.name = db_provider_with_single_project.name

@@ -26,8 +26,8 @@ def test_create_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
-    """Create a Compute Quota, with default values when possible, belonging to
-    a specific Compute Service."""
+    """Create a Compute Quota, with default values when possible, belonging to a
+    specific Compute Service."""
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.single()
@@ -115,11 +115,11 @@ def test_patch_item(db_compute_quota: ComputeQuota) -> None:
 
 
 def test_patch_item_with_defaults(db_compute_quota: ComputeQuota) -> None:
-    """Try to update the attributes of an existing Compute Quota, without
-    updating its relationships, with default values.
+    """Try to update the attributes of an existing Compute Quota, without updating its
+    relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_compute_quota_patch(default=True)
     assert not compute_quota.update(db_obj=db_compute_quota, obj_in=patch_in)
@@ -138,8 +138,8 @@ def test_replace_project_with_another_same_provider(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Quota.
 
-    At first update a Compute Quota with a set of linked projects,
-    updating its attributes and removing all linked projects.
+    At first update a Compute Quota with a set of linked projects, updating its
+    attributes and removing all linked projects.
     """
     db_project = db_compute_quota.project.single()
     db_provider = db_project.provider.single()
@@ -161,9 +161,9 @@ def test_force_update_without_changing_relationships(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Quota.
 
-    Update a Compute Quota with a set of linked projects, changing only
-    its attributes leaving untouched its connections (this is different
-    from the previous test because the flag force is set to True).
+    Update a Compute Quota with a set of linked projects, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_service = db_compute_quota.service.single()
     db_project = db_compute_quota.project.single()

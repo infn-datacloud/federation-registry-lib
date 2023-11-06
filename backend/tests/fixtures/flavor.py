@@ -18,8 +18,7 @@ def db_public_flavor(db_compute_serv2: ComputeService) -> Flavor:
 def db_private_flavor(db_public_flavor: Flavor) -> Flavor:
     """First private flavor of a compute service.
 
-    It belongs to a specific project. It's the second flavor on the same
-    service.
+    It belongs to a specific project. It's the second flavor on the same service.
     """
     db_service = db_public_flavor.services.single()
     db_region = db_service.region.single()
@@ -36,8 +35,7 @@ def db_private_flavor(db_public_flavor: Flavor) -> Flavor:
 def db_private_flavor_multiple_projects(db_public_flavor: Flavor) -> Flavor:
     """First private flavor of a compute service.
 
-    It belongs to a all projects. It's the second flavor on the same
-    service.
+    It belongs to a all projects. It's the second flavor on the same service.
     """
     db_service = db_public_flavor.services.single()
     db_region = db_service.region.single()
@@ -53,8 +51,7 @@ def db_private_flavor_multiple_projects(db_public_flavor: Flavor) -> Flavor:
 def db_private_flavor2(db_private_flavor: Flavor) -> Flavor:
     """Second private flavor of a compute service.
 
-    It belongs to a specific project. It's the third flavor on the same
-    service.
+    It belongs to a specific project. It's the third flavor on the same service.
     """
     db_service = db_private_flavor.services.single()
     db_region = db_service.region.single()
@@ -73,8 +70,7 @@ def db_private_flavor3(
 ) -> Flavor:
     """First private flavor of another compute service.
 
-    It belongs to a specific project. It's the first flavor on a
-    different service.
+    It belongs to a specific project. It's the first flavor on a different service.
     """
     db_region = db_compute_serv3.region.single()
     db_provider = db_region.provider.single()
@@ -88,8 +84,7 @@ def db_private_flavor3(
 
 @pytest.fixture
 def db_shared_flavor(db_compute_serv2: ComputeService, db_compute_serv3) -> Flavor:
-    """Public flavor shared between different compute services of the same
-    provider."""
+    """Public flavor shared between different compute services of the same provider."""
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv2)
     item = flavor.create(obj_in=item_in, service=db_compute_serv3)

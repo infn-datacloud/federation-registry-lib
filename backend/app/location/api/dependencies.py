@@ -53,8 +53,8 @@ def valid_location_site(item: Union[LocationCreate, LocationUpdate]) -> None:
 def validate_new_location_values(
     update_data: LocationUpdate, item: Location = Depends(valid_location_id)
 ) -> None:
-    """Check given data are valid ones. Check there are no other locations with
-    the same site.
+    """Check given data are valid ones. Check there are no other locations with the same
+    site.
 
     Args:
         update_data (FlavorUpdate): new data.

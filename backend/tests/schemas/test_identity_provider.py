@@ -52,8 +52,8 @@ def test_read_schema_with_single_user_group(
 
     Target IDP has one user group.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
     """
     schema = IdentityProviderRead.from_orm(db_idp_with_single_user_group)
     validate_read_identity_provider_attrs(
@@ -84,8 +84,8 @@ def test_read_schema_with_multiple_user_groups(
 
     Target IDP has multiple user groups.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
     """
     schema = IdentityProviderRead.from_orm(db_idp_with_multiple_user_groups)
     validate_read_identity_provider_attrs(
@@ -120,8 +120,8 @@ def test_read_schema_with_multiple_providers(
 
     Target IDP has multiple user groups, one for each provider.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
     """
     schema = IdentityProviderRead.from_orm(db_idp_with_multiple_providers)
     validate_read_identity_provider_attrs(

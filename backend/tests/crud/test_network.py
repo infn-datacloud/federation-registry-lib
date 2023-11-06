@@ -21,8 +21,8 @@ def test_create_item(db_network_serv: NetworkService) -> None:
 
 
 def test_create_item_default_values(db_network_serv: NetworkService) -> None:
-    """Create a Network, with default values when possible, belonging to a
-    specific Network Service."""
+    """Create a Network, with default values when possible, belonging to a specific
+    Network Service."""
     item_in = create_random_network(default=True)
     item = network.create(obj_in=item_in, service=db_network_serv)
     validate_create_network_attrs(obj_in=item_in, db_item=item)
@@ -117,11 +117,11 @@ def test_patch_item(db_private_network: Network) -> None:
 
 
 def test_patch_item_with_defaults(db_private_network: Network) -> None:
-    """Try to update the attributes of an existing Network, without updating
-    its relationships, with default values.
+    """Try to update the attributes of an existing Network, without updating its
+    relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_network_patch(default=True)
     assert not network.update(db_obj=db_private_network, obj_in=patch_in)
@@ -143,9 +143,8 @@ def test_patch_item_with_defaults(db_private_network: Network) -> None:
 def test_change_network_from_private_to_public(db_private_network: Network) -> None:
     """Update the attributes and relationships of an existing Network.
 
-    Update a Network with a set of linked projects, updating its
-    attributes and removing all linked projects. Change it from private
-    to public.
+    Update a Network with a set of linked projects, updating its attributes and removing
+    all linked projects. Change it from private to public.
     """
     item_in = create_random_network()
     item = network.update(db_obj=db_private_network, obj_in=item_in, force=True)
@@ -155,8 +154,8 @@ def test_change_network_from_private_to_public(db_private_network: Network) -> N
 def test_change_network_from_public_to_private(db_public_network: Network) -> None:
     """Update the attributes and relationships of an existing Network.
 
-    Update a Network with no projects, changing its attributes and
-    linking a new project. Change it from public to private.
+    Update a Network with no projects, changing its attributes and linking a new
+    project. Change it from public to private.
     """
     db_service = db_public_network.service.single()
     db_region = db_service.region.single()
@@ -175,8 +174,8 @@ def test_change_network_from_public_to_private(db_public_network: Network) -> No
 def test_replace_private_network_projects(db_private_network: Network) -> None:
     """Update the attributes and relationships of an existing Network.
 
-    Update a Network with a set of linked projects, changing both its
-    attributes and replacing the linked projects with new ones.
+    Update a Network with a set of linked projects, changing both its attributes and
+    replacing the linked projects with new ones.
     """
     db_project = db_private_network.project.single()
     db_provider = db_project.provider.single()
@@ -196,9 +195,9 @@ def test_force_update_without_changing_relationships(
 ) -> None:
     """Update the attributes and relationships of an existing Network.
 
-    Update a Network with a set of linked projects, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Network with a set of linked projects, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_project = db_private_network.project.single()
     db_service = db_private_network.service.single()

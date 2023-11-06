@@ -75,8 +75,8 @@ def validate_new_block_storage_service_values(
     update_data: BlockStorageServiceUpdate,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other services with
-    the same endpoint.
+    """Check given data are valid ones. Check there are no other services with the same
+    endpoint.
 
     Args:
         update_data (FlavorUpdate): new data.
@@ -144,8 +144,8 @@ def validate_new_compute_service_values(
     update_data: ComputeServiceUpdate,
     item: ComputeService = Depends(valid_compute_service_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other services with
-    the same endpoint.
+    """Check given data are valid ones. Check there are no other services with the same
+    endpoint.
 
     Args:
         update_data (FlavorUpdate): new data.
@@ -213,8 +213,8 @@ def validate_new_identity_service_values(
     update_data: IdentityServiceUpdate,
     item: IdentityService = Depends(valid_identity_service_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other services with
-    the same endpoint.
+    """Check given data are valid ones. Check there are no other services with the same
+    endpoint.
 
     Args:
         update_data (FlavorUpdate): new data.
@@ -282,8 +282,8 @@ def validate_new_network_service_values(
     update_data: NetworkServiceUpdate,
     item: NetworkService = Depends(valid_network_service_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other services with
-    the same endpoint.
+    """Check given data are valid ones. Check there are no other services with the same
+    endpoint.
 
     Args:
         update_data (FlavorUpdate): new data.

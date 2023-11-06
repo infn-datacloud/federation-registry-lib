@@ -68,9 +68,9 @@ class CRUDBlockStorageQuota(
     ) -> Optional[BlockStorageQuota]:
         """Update Quota attributes.
 
-        By default do not update relationships or default values. If
-        force is True, if different from the current one, replace linked
-        project and apply default values when explicit.
+        By default do not update relationships or default values. If force is True, if
+        different from the current one, replace linked project and apply default values
+        when explicit.
         """
         edit = False
         if force:
@@ -128,9 +128,9 @@ class CRUDComputeQuota(
     ) -> Optional[ComputeQuota]:
         """Update Quota attributes.
 
-        By default do not update relationships or default values. If
-        force is True, if different from the current one, replace linked
-        project and apply default values when explicit.
+        By default do not update relationships or default values. If force is True, if
+        different from the current one, replace linked project and apply default values
+        when explicit.
         """
         edit = False
         if force:

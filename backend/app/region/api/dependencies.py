@@ -34,8 +34,8 @@ def is_unique_region(
     item: Union[RegionCreate, RegionUpdate],
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
-    """Check there are no other regions, belonging to the same provider, with
-    the same name.
+    """Check there are no other regions, belonging to the same provider, with the same
+    name.
 
     Args:
         item (RegionCreate | RegionUpdate): new data.
@@ -59,8 +59,8 @@ def validate_new_region_values(
     update_data: RegionUpdate,
     item: Region = Depends(valid_region_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other user groups,
-    belonging to the same identity provider, with the same name.
+    """Check given data are valid ones. Check there are no other user groups, belonging
+    to the same identity provider, with the same name.
 
     Args:
         update_data (RegionUpdate): new data.

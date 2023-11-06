@@ -21,8 +21,8 @@ def test_create_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
-    """Create a public Flavor, with default values when possible, belonging to
-    a specific Compute Service."""
+    """Create a public Flavor, with default values when possible, belonging to a
+    specific Compute Service."""
     item_in = create_random_flavor(default=True)
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
     validate_create_flavor_attrs(obj_in=item_in, db_item=item)
@@ -47,9 +47,8 @@ def test_create_item_with_same_uuid_diff_provider(
 ) -> None:
     """Create a public Flavor belonging to a specific Compute Service.
 
-    Connect a Flavor with the same UUID to another Provider. This
-    operation is allowed since the flavors belong to different
-    providers.
+    Connect a Flavor with the same UUID to another Provider. This operation is allowed
+    since the flavors belong to different providers.
     """
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
@@ -64,9 +63,8 @@ def test_connect_same_item_to_different_service(
 ) -> None:
     """Create a public Flavor belonging to a specific Compute Service.
 
-    Connect this same Flavor to another Compute Service of the same
-    Provider. This operation is performed creating again the same flavor
-    but passing another service.
+    Connect this same Flavor to another Compute Service of the same Provider. This
+    operation is performed creating again the same flavor but passing another service.
     """
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv2)
@@ -153,8 +151,8 @@ def test_patch_item_with_defaults(db_private_flavor: Flavor) -> None:
     """Try to update the attributes of an existing Flavor, without updating its
     relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_flavor_patch(default=True)
     assert not flavor.update(db_obj=db_private_flavor, obj_in=patch_in)
@@ -176,9 +174,8 @@ def test_patch_item_with_defaults(db_private_flavor: Flavor) -> None:
 def test_change_flavor_from_private_to_public(db_private_flavor: Flavor) -> None:
     """Update the attributes and relationships of an existing Flavor.
 
-    Update a Flavor with a set of linked projects, updating its
-    attributes and removing all linked projects. Change it from private
-    to public.
+    Update a Flavor with a set of linked projects, updating its attributes and removing
+    all linked projects. Change it from private to public.
     """
     item_in = create_random_flavor()
     item = flavor.update(db_obj=db_private_flavor, obj_in=item_in, force=True)
@@ -188,8 +185,8 @@ def test_change_flavor_from_private_to_public(db_private_flavor: Flavor) -> None
 def test_change_flavor_from_public_to_private(db_public_flavor: Flavor) -> None:
     """Update the attributes and relationships of an existing Flavor.
 
-    Update a Flavor with no projects, changing its attributes and
-    linking a new project. Change it from public to private.
+    Update a Flavor with no projects, changing its attributes and linking a new project.
+    Change it from public to private.
     """
     db_service = db_public_flavor.services.single()
     db_region = db_service.region.single()
@@ -207,8 +204,8 @@ def test_change_flavor_from_public_to_private(db_public_flavor: Flavor) -> None:
 def test_replace_private_flavor_projects(db_private_flavor: Flavor) -> None:
     """Update the attributes and relationships of an existing Flavor.
 
-    Update a Flavor with a set of linked projects, changing both its
-    attributes and replacing the linked projects with new ones.
+    Update a Flavor with a set of linked projects, changing both its attributes and
+    replacing the linked projects with new ones.
     """
     db_project = db_private_flavor.projects.single()
     db_provider = db_project.provider.single()
@@ -225,9 +222,9 @@ def test_replace_private_flavor_projects(db_private_flavor: Flavor) -> None:
 def test_force_update_without_changing_relationships(db_private_flavor: Flavor) -> None:
     """Update the attributes and relationships of an existing Flavor.
 
-    Update a Flavor with a set of linked projects, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Flavor with a set of linked projects, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_projects = sorted(db_private_flavor.projects, key=lambda x: x.uid)
     db_services = sorted(db_private_flavor.services, key=lambda x: x.uid)

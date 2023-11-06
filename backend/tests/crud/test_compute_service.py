@@ -25,8 +25,8 @@ def test_create_item(db_region: Region) -> None:
 
 
 def test_create_item_default_values(db_region: Region) -> None:
-    """Create a Compute Service, with default values when possible, belonging
-    to a specific Region."""
+    """Create a Compute Service, with default values when possible, belonging to a
+    specific Region."""
     item_in = create_random_compute_service(default=True)
     item = compute_service.create(obj_in=item_in, region=db_region)
     validate_create_compute_service_attrs(obj_in=item_in, db_item=item)
@@ -59,8 +59,8 @@ def test_create_item_with_images(db_region: Region) -> None:
 
 
 def test_create_item_with_everything(db_region: Region) -> None:
-    """Create a Compute Service belonging to a specific Region with flavors,
-    images and quotas."""
+    """Create a Compute Service belonging to a specific Region with flavors, images and
+    quotas."""
     db_provider = db_region.provider.single()
     item_in = create_random_compute_service(
         with_flavors=True,
@@ -141,8 +141,8 @@ def test_get_items_with_skip(
 
 
 def test_patch_item(db_compute_serv: ComputeService) -> None:
-    """Update the attributes of an existing Compute Service, without updating
-    its relationships."""
+    """Update the attributes of an existing Compute Service, without updating its
+    relationships."""
     patch_in = create_random_compute_service_patch()
     item = compute_service.update(db_obj=db_compute_serv, obj_in=patch_in)
     for k, v in patch_in.dict().items():
@@ -150,11 +150,11 @@ def test_patch_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
-    """Try to update the attributes of an existing Compute Service, without
-    updating its relationships, with default values.
+    """Try to update the attributes of an existing Compute Service, without updating its
+    relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_compute_service_patch(default=True)
     assert not compute_service.update(db_obj=db_compute_serv, obj_in=patch_in)
@@ -171,8 +171,8 @@ def test_patch_item_with_defaults(db_compute_serv: ComputeService) -> None:
 def test_add_quotas(db_compute_serv: ComputeService) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with no quotas, changing its attributes and
-    linking a new quota.
+    Update a Compute Service with no quotas, changing its attributes and linking a new
+    quota.
     """
     db_region = db_compute_serv.region.single()
     db_provider = db_region.provider.single()
@@ -200,8 +200,8 @@ def test_remove_quotas(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked quotas, updating its
-    attributes and removing all linked quotas.
+    Update a Compute Service with a set of linked quotas, updating its attributes and
+    removing all linked quotas.
     """
     db_region = db_compute_serv_with_multiple_quotas.region.single()
     item_in = create_random_compute_service()
@@ -218,8 +218,8 @@ def test_replace_quotas_with_ones_pointing_to_diff_project(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked quotas, changing both
-    its attributes and replacing the linked quotas with new ones.
+    Update a Compute Service with a set of linked quotas, changing both its attributes
+    and replacing the linked quotas with new ones.
     """
     db_region = db_compute_serv_with_multiple_quotas_same_project.region.single()
     db_provider = db_region.provider.single()
@@ -258,8 +258,8 @@ def test_replace_quotas_with_ones_pointing_to_same_project(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked quotas, changing both
-    its attributes and replacing the linked quotas with new ones.
+    Update a Compute Service with a set of linked quotas, changing both its attributes
+    and replacing the linked quotas with new ones.
     """
     db_region = db_compute_serv_with_multiple_quotas_same_project.region.single()
     db_provider = db_region.provider.single()
@@ -296,9 +296,9 @@ def test_force_update_without_changing_quotas(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked quotas, changing only
-    its attributes leaving untouched its connections (this is different
-    from the previous test because the flag force is set to True).
+    Update a Compute Service with a set of linked quotas, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_region = db_compute_serv_with_single_quota.region.single()
     db_provider = db_region.provider.single()
@@ -323,8 +323,8 @@ def test_force_update_without_changing_quotas(
 def test_add_flavors(db_compute_serv: ComputeService) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with no flavors, changing its attributes
-    and linking a new flavor.
+    Update a Compute Service with no flavors, changing its attributes and linking a new
+    flavor.
     """
     db_region = db_compute_serv.region.single()
     item_in = create_random_compute_service(with_flavors=True)
@@ -339,8 +339,8 @@ def test_remove_flavor(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked flavors, updating its
-    attributes and removing all linked flavors.
+    Update a Compute Service with a set of linked flavors, updating its attributes and
+    removing all linked flavors.
     """
     db_region = db_compute_serv_with_single_flavor.region.single()
     item_in = create_random_compute_service()
@@ -357,8 +357,8 @@ def test_remove_shared_flavor(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service removing a flavor which is shared between
-    other services. Check that the flavor still exists.
+    Update a Compute Service removing a flavor which is shared between other services.
+    Check that the flavor still exists.
     """
     db_region = db_compute_serv_with_shared_flavor.region.single()
     db_flavor = db_compute_serv_with_shared_flavor.flavors.single()
@@ -377,8 +377,8 @@ def test_replace_public_flavor_with_public(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked flavors, changing both
-    its attributes and replacing the linked flavors with new ones.
+    Update a Compute Service with a set of linked flavors, changing both its attributes
+    and replacing the linked flavors with new ones.
     """
     db_region = db_compute_serv_with_single_flavor.region.single()
     db_flavor = db_compute_serv_with_single_flavor.flavors.single()
@@ -397,9 +397,8 @@ def test_replace_public_flavor_with_private(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked flavors, changing both
-    its attributes and replacing the linked flavors with new ones (in
-    this case with a private one).
+    Update a Compute Service with a set of linked flavors, changing both its attributes
+    and replacing the linked flavors with new ones (in this case with a private one).
     """
     db_region = db_compute_serv_with_single_flavor.region.single()
     db_provider = db_region.provider.single()
@@ -425,9 +424,9 @@ def test_force_update_without_changing_flavors(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked flavors, changing only
-    its attributes leaving untouched its connections (this is different
-    from the previous test because the flag force is set to True).
+    Update a Compute Service with a set of linked flavors, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_region = db_compute_serv_with_single_flavor.region.single()
     db_flavor = db_compute_serv_with_single_flavor.flavors.single()
@@ -445,8 +444,8 @@ def test_force_update_without_changing_flavors(
 def test_add_images(db_compute_serv: ComputeService) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with no images, changing its attributes and
-    linking a new image.
+    Update a Compute Service with no images, changing its attributes and linking a new
+    image.
     """
     db_region = db_compute_serv.region.single()
     item_in = create_random_compute_service(with_images=True)
@@ -461,8 +460,8 @@ def test_remove_image(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked images, updating its
-    attributes and removing all linked images.
+    Update a Compute Service with a set of linked images, updating its attributes and
+    removing all linked images.
     """
     db_region = db_compute_serv_with_single_image.region.single()
     item_in = create_random_compute_service()
@@ -479,8 +478,8 @@ def test_remove_shared_image(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service removing a image which is shared between
-    other services. Check that the image still exists.
+    Update a Compute Service removing a image which is shared between other services.
+    Check that the image still exists.
     """
     db_region = db_compute_serv_with_shared_image.region.single()
     db_image = db_compute_serv_with_shared_image.images.single()
@@ -499,8 +498,8 @@ def test_replace_public_image_with_public(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked images, changing both
-    its attributes and replacing the linked images with new ones.
+    Update a Compute Service with a set of linked images, changing both its attributes
+    and replacing the linked images with new ones.
     """
     db_region = db_compute_serv_with_single_image.region.single()
     db_image = db_compute_serv_with_single_image.images.single()
@@ -519,9 +518,8 @@ def test_replace_public_image_with_private(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked images, changing both
-    its attributes and replacing the linked images with new ones (in
-    this case with a private one).
+    Update a Compute Service with a set of linked images, changing both its attributes
+    and replacing the linked images with new ones (in this case with a private one).
     """
     db_region = db_compute_serv_with_single_image.region.single()
     db_provider = db_region.provider.single()
@@ -547,9 +545,9 @@ def test_force_update_without_changing_images(
 ) -> None:
     """Update the attributes and relationships of an existing Compute Service.
 
-    Update a Compute Service with a set of linked images, changing only
-    its attributes leaving untouched its connections (this is different
-    from the previous test because the flag force is set to True).
+    Update a Compute Service with a set of linked images, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
     """
     db_region = db_compute_serv_with_single_image.region.single()
     db_image = db_compute_serv_with_single_image.images.single()
@@ -575,8 +573,7 @@ def test_delete_item(db_compute_serv: ComputeService) -> None:
 def test_delete_item_with_flavors(
     db_compute_serv_with_single_flavor: ComputeService,
 ) -> None:
-    """Delete an existing Compute Service and its linked flavors, images and
-    flavors."""
+    """Delete an existing Compute Service and its linked flavors, images and flavors."""
     db_region = db_compute_serv_with_single_flavor.region.single()
     db_flavor = db_compute_serv_with_single_flavor.flavors.single()
     assert compute_service.remove(db_obj=db_compute_serv_with_single_flavor)
@@ -588,8 +585,7 @@ def test_delete_item_with_flavors(
 def test_delete_item_with_images(
     db_compute_serv_with_single_image: ComputeService,
 ) -> None:
-    """Delete an existing Compute Service and its linked flavors, images and
-    images."""
+    """Delete an existing Compute Service and its linked flavors, images and images."""
     db_region = db_compute_serv_with_single_image.region.single()
     db_image = db_compute_serv_with_single_image.images.single()
     assert compute_service.remove(db_obj=db_compute_serv_with_single_image)
@@ -601,8 +597,7 @@ def test_delete_item_with_images(
 def test_delete_item_with_quotas(
     db_compute_serv_with_single_quota: ComputeService,
 ) -> None:
-    """Delete an existing Compute Service and its linked flavors, images and
-    quotas."""
+    """Delete an existing Compute Service and its linked flavors, images and quotas."""
     db_region = db_compute_serv_with_single_quota.region.single()
     db_quota = db_compute_serv_with_single_quota.quotas.single()
     assert compute_service.remove(db_obj=db_compute_serv_with_single_quota)

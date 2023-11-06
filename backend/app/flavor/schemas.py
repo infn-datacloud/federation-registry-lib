@@ -54,8 +54,8 @@ class FlavorCreate(BaseNodeCreate, FlavorBase):
 class FlavorUpdate(BaseNodeCreate, FlavorBase):
     """Model to update a Flavor.
 
-    Class without id (which is populated by the database). Expected as
-    input when performing a PUT request.
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
 
     Default to None mandatory attributes.
     """
@@ -69,15 +69,13 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
 
 
 class FlavorRead(BaseNodeRead, FlavorBase):
-    """Model, for authenticated users, to read all Flavor data retrieved from
-    DB.
+    """Model, for authenticated users, to read all Flavor data retrieved from DB.
 
-    Class to read data retrieved from the database. Expected as output
-    when performing a generic REST request. It contains all the non-
-    sensible data written in the database.
-
-    Add the *uid* attribute, which is the item unique identifier in the
+    Class to read data retrieved from the database. Expected as output when performing a
+    generic REST request. It contains all the non- sensible data written in the
     database.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
     """
 
 

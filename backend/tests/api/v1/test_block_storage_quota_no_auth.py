@@ -49,8 +49,8 @@ def test_read_block_storage_quotas_with_target_params(
     db_block_storage_quota: BlockStorageQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all block_storage_quotas matching
-    specific attributes passed as query attributes."""
+    """Execute GET operations to read all block_storage_quotas matching specific
+    attributes passed as query attributes."""
     settings = get_settings()
 
     for k in BlockStorageQuotaBase.__fields__.keys():
@@ -72,8 +72,8 @@ def test_read_block_storage_quotas_with_limit(
     db_block_storage_quota_per_user: BlockStorageQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all block_storage_quotas limiting the
-    number of output items."""
+    """Execute GET operations to read all block_storage_quotas limiting the number of
+    output items."""
     settings = get_settings()
 
     response = client.get(
@@ -148,8 +148,8 @@ def test_read_block_storage_quotas_with_skip(
     db_block_storage_quota_per_user: BlockStorageQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all block_storage_quotas, skipping the
-    first N entries."""
+    """Execute GET operations to read all block_storage_quotas, skipping the first N
+    entries."""
     settings = get_settings()
 
     response = client.get(
@@ -266,8 +266,8 @@ def test_read_block_storage_quotas_short(
     db_block_storage_quota_per_user: BlockStorageQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all block_storage_quotas with their
-    shrunk version.
+    """Execute GET operations to read all block_storage_quotas with their shrunk
+    version.
 
     With no authentication this param does nothing.
     """
@@ -322,8 +322,7 @@ def test_read_block_storage_quota_with_conn(
     db_block_storage_quota: BlockStorageQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a block_storage_quota with its
-    relationships."""
+    """Execute GET operations to read a block_storage_quota with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/block_storage_quotas/{db_block_storage_quota.uid}",
@@ -341,8 +340,7 @@ def test_read_block_storage_quota_short(
     db_block_storage_quota: BlockStorageQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a
-    block_storage_quota.
+    """Execute GET operations to read the shrunk version of a block_storage_quota.
 
     With no authentication this param does nothing.
     """
@@ -366,8 +364,7 @@ def test_read_block_storage_quota_short(
 def test_read_not_existing_block_storage_quota(
     client: TestClient,
 ) -> None:
-    """Execute GET operations to try to read a not existing
-    block_storage_quota."""
+    """Execute GET operations to try to read a not existing block_storage_quota."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(

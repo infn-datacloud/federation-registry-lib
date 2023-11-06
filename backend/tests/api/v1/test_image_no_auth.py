@@ -48,8 +48,8 @@ def test_read_images_with_target_params(
     db_public_image: Image,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all images matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all images matching specific attributes passed as
+    query attributes."""
     settings = get_settings()
 
     for k in ImageBase.__fields__.keys():
@@ -70,8 +70,7 @@ def test_read_images_with_limit(
     db_private_image: Image,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all images limiting the number of output
-    items."""
+    """Execute GET operations to read all images limiting the number of output items."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/images/", params={"limit": 0})
@@ -133,8 +132,7 @@ def test_read_images_with_skip(
     db_private_image: Image,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all images, skipping the first N
-    entries."""
+    """Execute GET operations to read all images, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/images/", params={"skip": 0})
@@ -301,8 +299,7 @@ def test_read_private_image_with_conn(
     db_private_image: Image,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a private image with its
-    relationships."""
+    """Execute GET operations to read a private image with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/images/{db_private_image.uid}",

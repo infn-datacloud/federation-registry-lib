@@ -35,6 +35,5 @@ def check_read_access(
 def check_write_access(
     client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ) -> bool:
-    """At first, validate user authentication, then, check user write access
-    rights."""
+    """At first, validate user authentication, then, check user write access rights."""
     flaat.access_level("write")

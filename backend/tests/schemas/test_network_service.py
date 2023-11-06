@@ -68,8 +68,8 @@ def test_invalid_create_schema():
 def test_read_schema(db_network_serv: NetworkService):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked only to the parent region.
     """
@@ -94,8 +94,8 @@ def test_read_schema_with_single_network(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked only to one network.
     """
@@ -128,8 +128,8 @@ def test_read_schema_with_multiple_networks(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked multiple networks.
     """

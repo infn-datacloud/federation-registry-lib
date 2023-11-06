@@ -48,8 +48,8 @@ def test_read_projects_with_target_params(
     db_project: Project,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all projects matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all projects matching specific attributes passed
+    as query attributes."""
     settings = get_settings()
 
     for k in ProjectBase.__fields__.keys():
@@ -70,8 +70,8 @@ def test_read_projects_with_limit(
     db_project2: Project,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all projects limiting the number of
-    output items."""
+    """Execute GET operations to read all projects limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/projects/", params={"limit": 0})
@@ -133,8 +133,7 @@ def test_read_projects_with_skip(
     db_project2: Project,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all projects, skipping the first N
-    entries."""
+    """Execute GET operations to read all projects, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/projects/", params={"skip": 0})
@@ -238,8 +237,7 @@ def test_read_projects_short(
     db_project2: Project,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all projects with their shrunk
-    version."""
+    """Execute GET operations to read all projects with their shrunk version."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/projects/", params={"short": True})

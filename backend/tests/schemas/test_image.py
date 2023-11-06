@@ -46,8 +46,8 @@ def test_invalid_create_schema():
 def test_read_schema_public_image(db_public_image: Image):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target image is linked to a single service.
     """
@@ -66,11 +66,10 @@ def test_read_schema_public_image(db_public_image: Image):
 def test_read_schema_private_image_single_project(db_private_image: Image):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
-    Target image is linked to a single service and owned by a single
-    project.
+    Target image is linked to a single service and owned by a single project.
     """
     schema = ImageRead.from_orm(db_private_image)
     validate_read_image_attrs(obj_out=schema, db_item=db_private_image)
@@ -89,11 +88,11 @@ def test_read_schema_private_image_multiple_projects(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
-    Target image is linked to a single service and owned by multiple
-    projects on the same provider.
+    Target image is linked to a single service and owned by multiple projects on the
+    same provider.
     """
     schema = ImageRead.from_orm(db_private_image_multiple_projects)
     validate_read_image_attrs(
@@ -122,8 +121,8 @@ def test_read_schema_private_image_multiple_projects(
 def test_read_schema_image_shared_between_multiple_services(db_shared_image: Image):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target public image is linked to a multiple services.
     """

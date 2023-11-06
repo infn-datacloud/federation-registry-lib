@@ -18,8 +18,7 @@ def db_public_image(db_compute_serv2: ComputeService) -> Image:
 def db_private_image(db_public_image: Image) -> Image:
     """First private image of a compute service.
 
-    It belongs to a specific project. It's the second image on the same
-    service.
+    It belongs to a specific project. It's the second image on the same service.
     """
     db_service = db_public_image.services.single()
     db_region = db_service.region.single()
@@ -36,8 +35,7 @@ def db_private_image(db_public_image: Image) -> Image:
 def db_private_image_multiple_projects(db_public_image: Image) -> Image:
     """First private image of a compute service.
 
-    It belongs to a all projects. It's the second image on the same
-    service.
+    It belongs to a all projects. It's the second image on the same service.
     """
     db_service = db_public_image.services.single()
     db_region = db_service.region.single()
@@ -53,8 +51,7 @@ def db_private_image_multiple_projects(db_public_image: Image) -> Image:
 def db_private_image2(db_private_image: Image) -> Image:
     """Second private image of a compute service.
 
-    It belongs to a specific project. It's the third image on the same
-    service.
+    It belongs to a specific project. It's the third image on the same service.
     """
     db_service = db_private_image.services.single()
     db_region = db_service.region.single()
@@ -73,8 +70,7 @@ def db_private_image3(
 ) -> Image:
     """First private image of another compute service.
 
-    It belongs to a specific project. It's the first image on a
-    different service.
+    It belongs to a specific project. It's the first image on a different service.
     """
     db_region = db_compute_serv3.region.single()
     db_provider = db_region.provider.single()
@@ -88,8 +84,7 @@ def db_private_image3(
 
 @pytest.fixture
 def db_shared_image(db_compute_serv2: ComputeService, db_compute_serv3) -> Image:
-    """Public image shared between different compute services of the same
-    provider."""
+    """Public image shared between different compute services of the same provider."""
     item_in = create_random_image()
     item = image.create(obj_in=item_in, service=db_compute_serv2)
     item = image.create(obj_in=item_in, service=db_compute_serv3)

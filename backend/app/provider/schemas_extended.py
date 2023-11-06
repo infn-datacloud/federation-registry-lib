@@ -150,8 +150,8 @@ class RegionReadExtendedPublic(RegionReadPublic):
 
 
 class ProviderReadExtended(ProviderRead):
-    """Model to extend the Provider data read from the DB with the lists of
-    related items for authenticated users."""
+    """Model to extend the Provider data read from the DB with the lists of related
+    items for authenticated users."""
 
     identity_providers: List[IdentityProviderReadExtended] = Field(
         default_factory=list,
@@ -166,8 +166,8 @@ class ProviderReadExtended(ProviderRead):
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
-    """Model to extend the Provider data read from the DB with the lists of
-    related items for non-authenticated users."""
+    """Model to extend the Provider data read from the DB with the lists of related
+    items for non-authenticated users."""
 
     identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
         default_factory=list,
@@ -212,8 +212,8 @@ class UserGroupCreateExtended(UserGroupCreate):
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
-    """Model to extend the Identity Provider data used to create a new instance
-    in the DB with the authentication method details."""
+    """Model to extend the Identity Provider data used to create a new instance in the
+    DB with the authentication method details."""
 
     relationship: AuthMethodCreate = Field(
         description="Authentication method used by the Provider"
@@ -412,8 +412,8 @@ class RegionCreateExtended(RegionCreate):
 
 
 class ProviderCreateExtended(ProviderCreate):
-    """Model to extend the Provider data used to create a new instance in the
-    DB with the lists of related items."""
+    """Model to extend the Provider data used to create a new instance in the DB with
+    the lists of related items."""
 
     identity_providers: List[IdentityProviderCreateExtended] = Field(
         default_factory=list,

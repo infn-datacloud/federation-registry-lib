@@ -82,8 +82,8 @@ def test_read_identity_providers_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all identity_providers limiting the
-    number of output items."""
+    """Execute GET operations to read all identity_providers limiting the number of
+    output items."""
     settings = get_settings()
 
     response = client.get(
@@ -171,8 +171,8 @@ def test_read_identity_providers_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all identity_providers, skipping the
-    first N entries."""
+    """Execute GET operations to read all identity_providers, skipping the first N
+    entries."""
     settings = get_settings()
 
     response = client.get(
@@ -363,8 +363,7 @@ def test_read_identity_provider_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a identity_provider with its
-    relationships."""
+    """Execute GET operations to read a identity_provider with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
@@ -384,8 +383,7 @@ def test_read_identity_provider_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a
-    identity_provider."""
+    """Execute GET operations to read the shrunk version of a identity_provider."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
@@ -404,8 +402,7 @@ def test_read_not_existing_identity_provider(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to try to read a not existing
-    identity_provider."""
+    """Execute GET operations to try to read a not existing identity_provider."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
@@ -460,8 +457,7 @@ def test_patch_not_existing_identity_provider(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to update a not existing
-    identity_provider."""
+    """Execute PATCH operations to try to update a not existing identity_provider."""
     settings = get_settings()
     item_uuid = uuid4()
     data = create_random_identity_provider_patch()
@@ -482,8 +478,8 @@ def test_patch_identity_provider_with_duplicated_endpoint(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing endpoint
-    to a identity_provider."""
+    """Execute PATCH operations to try to assign an already existing endpoint to a
+    identity_provider."""
     settings = get_settings()
     data = create_random_identity_provider_patch()
     data.endpoint = db_idp_with_single_user_group.endpoint
@@ -524,8 +520,7 @@ def test_delete_not_existing_identity_provider(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute DELETE operations to try to delete a not existing
-    identity_provider."""
+    """Execute DELETE operations to try to delete a not existing identity_provider."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(

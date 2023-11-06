@@ -38,11 +38,10 @@ class CRUDImage(
     ) -> Image:
         """Create a new Image.
 
-        At first check that a image with the given UUID does not already
-        exist. If it does not exist create it. Otherwise check the
-        provider of the existing one. If it is the same of the received
-        service, do nothing, otherwise create a new image. In any case
-        connect the image to the given service and to any received
+        At first check that a image with the given UUID does not already exist. If it
+        does not exist create it. Otherwise check the provider of the existing one. If
+        it is the same of the received service, do nothing, otherwise create a new
+        image. In any case connect the image to the given service and to any received
         project.
         """
         db_obj = self.get(uuid=obj_in.uuid)
@@ -74,9 +73,8 @@ class CRUDImage(
     ) -> Optional[Image]:
         """Update Image attributes.
 
-        By default do not update relationships or default values. If
-        force is True, update linked projects and apply default values
-        when explicit.
+        By default do not update relationships or default values. If force is True,
+        update linked projects and apply default values when explicit.
         """
         edit = False
         if force:
@@ -99,9 +97,8 @@ class CRUDImage(
     ) -> bool:
         """Update image linked projects.
 
-        Connect new projects not already connect, leave untouched
-        already linked ones and delete old ones no more connected to the
-        image.
+        Connect new projects not already connect, leave untouched already linked ones
+        and delete old ones no more connected to the image.
         """
         edit = False
         db_items = {db_item.uuid: db_item for db_item in db_obj.projects}

@@ -46,8 +46,8 @@ def test_read_projects_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all projects matching specific attributes
-    passed as query attributes."""
+    """Execute GET operations to read all projects matching specific attributes passed
+    as query attributes."""
     settings = get_settings()
 
     for k in ProjectBase.__fields__.keys():
@@ -70,8 +70,8 @@ def test_read_projects_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all projects limiting the number of
-    output items."""
+    """Execute GET operations to read all projects limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(
@@ -146,8 +146,7 @@ def test_read_projects_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all projects, skipping the first N
-    entries."""
+    """Execute GET operations to read all projects, skipping the first N entries."""
     settings = get_settings()
 
     response = client.get(
@@ -270,8 +269,7 @@ def test_read_projects_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all projects with their shrunk
-    version."""
+    """Execute GET operations to read all projects with their shrunk version."""
     settings = get_settings()
 
     response = client.get(
@@ -427,8 +425,8 @@ def test_patch_project_with_duplicated_uuid_same_provider(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing UUID to a
-    project belonging to the same provider."""
+    """Execute PATCH operations to try to assign an already existing UUID to a project
+    belonging to the same provider."""
     settings = get_settings()
     data = create_random_project_patch()
     data.uuid = db_project2.uuid
@@ -472,8 +470,8 @@ def test_patch_project_with_duplicated_name_same_provider(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign a name already in use to a
-    project belonging to the same provider."""
+    """Execute PATCH operations to try to assign a name already in use to a project
+    belonging to the same provider."""
     settings = get_settings()
     data = create_random_project_patch()
     data.name = db_project2.name

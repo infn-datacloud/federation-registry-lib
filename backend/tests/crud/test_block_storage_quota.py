@@ -14,8 +14,7 @@ from tests.utils.block_storage_quota import (
 
 
 def test_create_item(db_block_storage_serv: BlockStorageService) -> None:
-    """Create a BlockStorage Quota belonging to a specific BlockStorage
-    Service."""
+    """Create a BlockStorage Quota belonging to a specific BlockStorage Service."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.single()
@@ -27,8 +26,8 @@ def test_create_item(db_block_storage_serv: BlockStorageService) -> None:
 
 
 def test_create_item_default_values(db_block_storage_serv: BlockStorageService) -> None:
-    """Create a BlockStorage Quota, with default values when possible,
-    belonging to a specific BlockStorage Service."""
+    """Create a BlockStorage Quota, with default values when possible, belonging to a
+    specific BlockStorage Service."""
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.single()
@@ -113,8 +112,8 @@ def test_get_items_with_skip(
 
 
 def test_patch_item(db_block_storage_quota: BlockStorageQuota) -> None:
-    """Update the attributes of an existing BlockStorage Quota, do not update
-    linked relationships."""
+    """Update the attributes of an existing BlockStorage Quota, do not update linked
+    relationships."""
     patch_in = create_random_block_storage_quota_patch()
     item = block_storage_quota.update(db_obj=db_block_storage_quota, obj_in=patch_in)
     for k, v in patch_in.dict().items():
@@ -122,11 +121,11 @@ def test_patch_item(db_block_storage_quota: BlockStorageQuota) -> None:
 
 
 def test_patch_item_with_defaults(db_block_storage_quota: BlockStorageQuota) -> None:
-    """Try to update the attributes of an existing BlockStorage Quota, without
-    updating its relationships, with default values.
+    """Try to update the attributes of an existing BlockStorage Quota, without updating
+    its relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_block_storage_quota_patch(default=True)
     assert not block_storage_quota.update(
@@ -145,11 +144,10 @@ def test_patch_item_with_defaults(db_block_storage_quota: BlockStorageQuota) -> 
 def test_replace_project_with_another_same_provider(
     db_block_storage_quota: BlockStorageQuota,
 ) -> None:
-    """Update the attributes and relationships of an existing BlockStorage
-    Quota.
+    """Update the attributes and relationships of an existing BlockStorage Quota.
 
-    At first update a BlockStorage Quota with a set of linked projects,
-    updating its attributes and removing all linked projects.
+    At first update a BlockStorage Quota with a set of linked projects, updating its
+    attributes and removing all linked projects.
     """
     db_project = db_block_storage_quota.project.single()
     db_provider = db_project.provider.single()
@@ -169,13 +167,11 @@ def test_replace_project_with_another_same_provider(
 def test_force_update_without_changing_relationships(
     db_block_storage_quota: BlockStorageQuota,
 ) -> None:
-    """Update the attributes and relationships of an existing BlockStorage
-    Quota.
+    """Update the attributes and relationships of an existing BlockStorage Quota.
 
-    Update a BlockStorage Quota with a set of linked projects, changing
-    only its attributes leaving untouched its connections (this is
-    different from the previous test because the flag force is set to
-    True).
+    Update a BlockStorage Quota with a set of linked projects, changing only its
+    attributes leaving untouched its connections (this is different from the previous
+    test because the flag force is set to True).
     """
     db_service = db_block_storage_quota.service.single()
     db_project = db_block_storage_quota.project.single()

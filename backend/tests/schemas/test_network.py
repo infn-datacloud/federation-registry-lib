@@ -43,8 +43,8 @@ def test_invalid_create_schema():
 def test_read_schema_public_network(db_public_network: Network):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target network is linked to a single service.
     """
@@ -65,11 +65,10 @@ def test_read_schema_public_network(db_public_network: Network):
 def test_read_schema_private_network(db_private_network: Network):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
-    Target network is linked to a single service and owned by a single
-    project.
+    Target network is linked to a single service and owned by a single project.
     """
     schema = NetworkRead.from_orm(db_private_network)
     validate_read_network_attrs(obj_out=schema, db_item=db_private_network)

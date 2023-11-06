@@ -21,8 +21,8 @@ def test_create_item(db_compute_serv: ComputeService) -> None:
 
 
 def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
-    """Create an Image, with default values when possible, belonging to a
-    specific Compute Service."""
+    """Create an Image, with default values when possible, belonging to a specific
+    Compute Service."""
     item_in = create_random_image(default=True)
     item = image.create(obj_in=item_in, service=db_compute_serv)
     validate_create_image_attrs(obj_in=item_in, db_item=item)
@@ -47,8 +47,8 @@ def test_create_item_with_same_uuid_diff_provider(
 ) -> None:
     """Create a public Image belonging to a specific Compute Service.
 
-    Connect a Image with the same UUID to another Provider. This
-    operation is allowed since the images belong to different providers.
+    Connect a Image with the same UUID to another Provider. This operation is allowed
+    since the images belong to different providers.
     """
     item_in = create_random_image()
     item = image.create(obj_in=item_in, service=db_compute_serv)
@@ -63,9 +63,8 @@ def test_connect_same_item_to_different_service(
 ) -> None:
     """Create a public Image belonging to a specific Compute Service.
 
-    Connect this same Image to another Compute Service of the same
-    Provider. This operation is performed creating again the same image
-    but passing another service.
+    Connect this same Image to another Compute Service of the same Provider. This
+    operation is performed creating again the same image but passing another service.
     """
     item_in = create_random_image()
     item = image.create(obj_in=item_in, service=db_compute_serv2)
@@ -148,8 +147,8 @@ def test_patch_item_with_defaults(db_private_image: Image) -> None:
     """Try to update the attributes of an existing Image, without updating its
     relationships, with default values.
 
-    The first attempt fails (no updates); the second one, with explicit
-    default values, succeeds.
+    The first attempt fails (no updates); the second one, with explicit default values,
+    succeeds.
     """
     patch_in = create_random_image_patch(default=True)
     assert not image.update(db_obj=db_private_image, obj_in=patch_in)
@@ -171,9 +170,8 @@ def test_patch_item_with_defaults(db_private_image: Image) -> None:
 def test_change_image_from_private_to_public(db_private_image: Image) -> None:
     """Update the attributes and relationships of an existing Image.
 
-    Update a Image with a set of linked projects, updating its
-    attributes and removing all linked projects. Change it from private
-    to public.
+    Update a Image with a set of linked projects, updating its attributes and removing
+    all linked projects. Change it from private to public.
     """
     item_in = create_random_image()
     item = image.update(db_obj=db_private_image, obj_in=item_in, force=True)
@@ -183,8 +181,8 @@ def test_change_image_from_private_to_public(db_private_image: Image) -> None:
 def test_change_image_from_public_to_private(db_public_image: Image) -> None:
     """Update the attributes and relationships of an existing Image.
 
-    Update a Image with no projects, changing its attributes and linking
-    a new project. Change it from public to private.
+    Update a Image with no projects, changing its attributes and linking a new project.
+    Change it from public to private.
     """
     db_service = db_public_image.services.single()
     db_region = db_service.region.single()
@@ -202,8 +200,8 @@ def test_change_image_from_public_to_private(db_public_image: Image) -> None:
 def test_replace_private_image_projects(db_private_image: Image) -> None:
     """Update the attributes and relationships of an existing Image.
 
-    Update a Image with a set of linked projects, changing both its
-    attributes and replacing the linked projects with new ones.
+    Update a Image with a set of linked projects, changing both its attributes and
+    replacing the linked projects with new ones.
     """
     db_project = db_private_image.projects.single()
     db_provider = db_project.provider.single()
@@ -220,9 +218,9 @@ def test_replace_private_image_projects(db_private_image: Image) -> None:
 def test_force_update_without_changing_relationships(db_private_image: Image) -> None:
     """Update the attributes and relationships of an existing Image.
 
-    Update a Image with a set of linked projects, changing only its
-    attributes leaving untouched its connections (this is different from
-    the previous test because the flag force is set to True).
+    Update a Image with a set of linked projects, changing only its attributes leaving
+    untouched its connections (this is different from the previous test because the flag
+    force is set to True).
     """
     db_projects = sorted(db_private_image.projects, key=lambda x: x.uid)
     db_services = sorted(db_private_image.services, key=lambda x: x.uid)

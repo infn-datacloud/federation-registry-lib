@@ -57,8 +57,8 @@ def test_read_block_storage_quotas_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all block_storage_quotas matching
-    specific attributes passed as query attributes."""
+    """Execute GET operations to read all block_storage_quotas matching specific
+    attributes passed as query attributes."""
     settings = get_settings()
 
     for k in BlockStorageQuotaBase.__fields__.keys():
@@ -81,8 +81,8 @@ def test_read_block_storage_quotas_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all block_storage_quotas limiting the
-    number of output items."""
+    """Execute GET operations to read all block_storage_quotas limiting the number of
+    output items."""
     settings = get_settings()
 
     response = client.get(
@@ -170,8 +170,8 @@ def test_read_block_storage_quotas_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all block_storage_quotas, skipping the
-    first N entries."""
+    """Execute GET operations to read all block_storage_quotas, skipping the first N
+    entries."""
     settings = get_settings()
 
     response = client.get(
@@ -309,8 +309,8 @@ def test_read_block_storage_quotas_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all block_storage_quotas with their
-    shrunk version."""
+    """Execute GET operations to read all block_storage_quotas with their shrunk
+    version."""
     settings = get_settings()
 
     response = client.get(
@@ -361,8 +361,7 @@ def test_read_block_storage_quota_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a block_storage_quota with its
-    relationships."""
+    """Execute GET operations to read a block_storage_quota with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/block_storage_quotas/{db_block_storage_quota.uid}",
@@ -381,8 +380,7 @@ def test_read_block_storage_quota_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a
-    block_storage_quota."""
+    """Execute GET operations to read the shrunk version of a block_storage_quota."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/block_storage_quotas/{db_block_storage_quota.uid}",
@@ -400,8 +398,7 @@ def test_read_not_existing_block_storage_quota(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to try to read a not existing
-    block_storage_quota."""
+    """Execute GET operations to try to read a not existing block_storage_quota."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
@@ -457,8 +454,7 @@ def test_patch_not_existing_block_storage_quota(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to update a not existing
-    block_storage_quota."""
+    """Execute PATCH operations to try to update a not existing block_storage_quota."""
     settings = get_settings()
     item_uuid = uuid4()
     data = create_random_block_storage_quota_patch()
@@ -481,8 +477,7 @@ def test_patch_block_storage_quota_changing_per_user(
     """Execute PATCH operations to try to change the per_user property of a
     block_storage_quota.
 
-    Currently a per user block storage quota does not exist on the same
-    project.
+    Currently a per user block storage quota does not exist on the same project.
     """
     settings = get_settings()
     data = create_random_block_storage_quota_patch()
@@ -508,8 +503,7 @@ def test_patch_block_storage_quota_with_duplicated_per_user(
     """Execute PATCH operations to try to change the per_user property of a
     block_storage_quota.
 
-    Currently a per user block storage quota already exist s on the same
-    project.
+    Currently a per user block storage quota already exist s on the same project.
     """
     settings = get_settings()
     data = create_random_block_storage_quota_patch()
@@ -551,8 +545,7 @@ def test_delete_not_existing_block_storage_quota(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute DELETE operations to try to delete a not existing
-    block_storage_quota."""
+    """Execute DELETE operations to try to delete a not existing block_storage_quota."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(

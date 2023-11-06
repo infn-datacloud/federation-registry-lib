@@ -49,8 +49,8 @@ def test_read_compute_quotas_with_target_params(
     db_compute_quota: ComputeQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_quotas matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all compute_quotas matching specific attributes
+    passed as query attributes."""
     settings = get_settings()
 
     for k in ComputeQuotaBase.__fields__.keys():
@@ -72,8 +72,8 @@ def test_read_compute_quotas_with_limit(
     db_compute_quota_per_user: ComputeQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_quotas limiting the number of
-    output items."""
+    """Execute GET operations to read all compute_quotas limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"limit": 0})
@@ -217,8 +217,7 @@ def test_read_compute_quotas_with_conn(
     db_compute_quota_per_user: ComputeQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_quotas with their
-    relationships."""
+    """Execute GET operations to read all compute_quotas with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -250,8 +249,7 @@ def test_read_compute_quotas_short(
     db_compute_quota_per_user: ComputeQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_quotas with their shrunk
-    version.
+    """Execute GET operations to read all compute_quotas with their shrunk version.
 
     With no authentication this param does nothing.
     """
@@ -306,8 +304,7 @@ def test_read_compute_quota_with_conn(
     db_compute_quota: ComputeQuota,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a compute_quota with its
-    relationships."""
+    """Execute GET operations to read a compute_quota with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota.uid}",

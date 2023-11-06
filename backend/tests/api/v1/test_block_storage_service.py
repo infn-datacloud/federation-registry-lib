@@ -57,8 +57,8 @@ def test_read_block_storage_services_with_target_params(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all block_storage_services matching
-    specific attributes passed as query attributes."""
+    """Execute GET operations to read all block_storage_services matching specific
+    attributes passed as query attributes."""
     settings = get_settings()
 
     for k in BlockStorageServiceBase.__fields__.keys():
@@ -81,8 +81,8 @@ def test_read_block_storage_services_with_limit(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all block_storage_services limiting the
-    number of output items."""
+    """Execute GET operations to read all block_storage_services limiting the number of
+    output items."""
     settings = get_settings()
 
     response = client.get(
@@ -167,8 +167,8 @@ def test_read_block_storage_services_with_skip(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all block_storage_services, skipping the
-    first N entries."""
+    """Execute GET operations to read all block_storage_services, skipping the first N
+    entries."""
     settings = get_settings()
 
     response = client.get(
@@ -306,8 +306,8 @@ def test_read_block_storage_services_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read all block_storage_services with their
-    shrunk version."""
+    """Execute GET operations to read all block_storage_services with their shrunk
+    version."""
     settings = get_settings()
 
     response = client.get(
@@ -359,8 +359,7 @@ def test_read_block_storage_service_with_conn(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read a block_storage_service with its
-    relationships."""
+    """Execute GET operations to read a block_storage_service with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/block_storage_services/{db_block_storage_serv.uid}",
@@ -380,8 +379,7 @@ def test_read_block_storage_service_short(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a
-    block_storage_service."""
+    """Execute GET operations to read the shrunk version of a block_storage_service."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/block_storage_services/{db_block_storage_serv.uid}",
@@ -399,8 +397,7 @@ def test_read_not_existing_block_storage_service(
     client: TestClient,
     read_header: Dict,
 ) -> None:
-    """Execute GET operations to try to read a not existing
-    block_storage_service."""
+    """Execute GET operations to try to read a not existing block_storage_service."""
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
@@ -476,12 +473,11 @@ def test_patch_block_storage_service_changing_type(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to change the type of a
-    block_storage_service.
+    """Execute PATCH operations to try to change the type of a block_storage_service.
 
-    At first this should not be allowed by schema construction. In any
-    case, if a request arrives, it is discarded since the payload is not
-    an block_storage service object.
+    At first this should not be allowed by schema construction. In any case, if a
+    request arrives, it is discarded since the payload is not an block_storage service
+    object.
     """
     settings = get_settings()
     data = create_random_block_storage_service_patch()
@@ -508,8 +504,8 @@ def test_patch_block_storage_service_with_duplicated_endpoint(
     client: TestClient,
     write_header: Dict,
 ) -> None:
-    """Execute PATCH operations to try to assign an already existing endpoint
-    to a block_storage_service."""
+    """Execute PATCH operations to try to assign an already existing endpoint to a
+    block_storage_service."""
     settings = get_settings()
     data = create_random_block_storage_service_patch()
     data.endpoint = db_block_storage_serv.endpoint

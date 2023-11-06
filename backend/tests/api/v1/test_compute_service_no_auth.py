@@ -48,8 +48,8 @@ def test_read_compute_services_with_target_params(
     db_compute_serv: ComputeService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_services matching specific
-    attributes passed as query attributes."""
+    """Execute GET operations to read all compute_services matching specific attributes
+    passed as query attributes."""
     settings = get_settings()
 
     for k in ComputeServiceBase.__fields__.keys():
@@ -70,8 +70,8 @@ def test_read_compute_services_with_limit(
     db_compute_serv2: ComputeService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_services limiting the number
-    of output items."""
+    """Execute GET operations to read all compute_services limiting the number of output
+    items."""
     settings = get_settings()
 
     response = client.get(
@@ -143,8 +143,8 @@ def test_read_compute_services_with_skip(
     db_compute_serv2: ComputeService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_services, skipping the first
-    N entries."""
+    """Execute GET operations to read all compute_services, skipping the first N
+    entries."""
     settings = get_settings()
 
     response = client.get(
@@ -228,8 +228,7 @@ def test_read_compute_services_with_conn(
     db_compute_serv2: ComputeService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_services with their
-    relationships."""
+    """Execute GET operations to read all compute_services with their relationships."""
     settings = get_settings()
 
     response = client.get(
@@ -261,8 +260,7 @@ def test_read_compute_services_short(
     db_compute_serv2: ComputeService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read all compute_services with their shrunk
-    version."""
+    """Execute GET operations to read all compute_services with their shrunk version."""
     settings = get_settings()
 
     response = client.get(
@@ -313,8 +311,7 @@ def test_read_compute_service_with_conn(
     db_compute_serv: ComputeService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read a compute_service with its
-    relationships."""
+    """Execute GET operations to read a compute_service with its relationships."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/compute_services/{db_compute_serv.uid}",
@@ -331,8 +328,7 @@ def test_read_compute_service_short(
     db_compute_serv: ComputeService,
     client: TestClient,
 ) -> None:
-    """Execute GET operations to read the shrunk version of a
-    compute_service."""
+    """Execute GET operations to read the shrunk version of a compute_service."""
     settings = get_settings()
     response = client.get(
         f"{settings.API_V1_STR}/compute_services/{db_compute_serv.uid}",

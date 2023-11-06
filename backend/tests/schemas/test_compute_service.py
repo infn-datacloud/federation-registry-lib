@@ -93,8 +93,8 @@ def test_invalid_create_schema():
 def test_read_schema(db_compute_serv: ComputeService):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked only to the parent region.
     """
@@ -119,8 +119,8 @@ def test_read_schema_with_single_quota(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked only to one compute quota.
     """
@@ -153,8 +153,8 @@ def test_read_schema_with_multiple_quotas(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked multiple compute quotas.
     """
@@ -189,8 +189,8 @@ def test_read_schema_with_single_flavor(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked only to one flavor.
     """
@@ -223,8 +223,8 @@ def test_read_schema_with_multiple_flavors(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked multiple flavors.
     """
@@ -259,8 +259,8 @@ def test_read_schema_with_single_image(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked only to one image.
     """
@@ -293,8 +293,8 @@ def test_read_schema_with_multiple_images(
 ):
     """Create a valid 'Read' Schema from DB object.
 
-    Apply conversion for this item for all read schemas. No one of them
-    should raise errors.
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
 
     Target service is linked multiple images.
     """
