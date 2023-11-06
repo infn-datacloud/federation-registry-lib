@@ -431,6 +431,24 @@ def test_patch_private_image(
         assert content[k] == v
 
 
+def test_patch_image_no_edit(
+    db_public_image: Image, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a image.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_image_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/images/{db_public_image.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_image(
     client: TestClient,
     write_header: Dict,

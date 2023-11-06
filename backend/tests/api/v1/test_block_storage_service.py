@@ -431,6 +431,26 @@ def test_patch_block_storage_service(
         assert content[k] == v
 
 
+def test_patch_block_storage_service_no_edit(
+    db_block_storage_serv: BlockStorageService,
+    client: TestClient,
+    write_header: Dict,
+) -> None:
+    """Execute PATCH operations to update a block_storage_service.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_block_storage_service_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/block_storage_services/{db_block_storage_serv.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_block_storage_service(
     client: TestClient,
     write_header: Dict,

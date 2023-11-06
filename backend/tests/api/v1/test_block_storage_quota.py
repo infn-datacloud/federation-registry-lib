@@ -433,6 +433,26 @@ def test_patch_block_storage_quota(
         assert content[k] == v
 
 
+def test_patch_block_storage_quota_no_edit(
+    db_block_storage_quota: BlockStorageQuota,
+    client: TestClient,
+    write_header: Dict,
+) -> None:
+    """Execute PATCH operations to update a block_storage_quota.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_block_storage_quota_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/block_storage_quotas/{db_block_storage_quota.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_block_storage_quota(
     client: TestClient,
     write_header: Dict,

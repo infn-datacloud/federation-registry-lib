@@ -425,6 +425,24 @@ def test_patch_compute_service(
         assert content[k] == v
 
 
+def test_patch_compute_service_no_edit(
+    db_compute_serv: ComputeService, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a compute_service.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_compute_service_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/compute_services/{db_compute_serv.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_compute_service(
     client: TestClient,
     write_header: Dict,

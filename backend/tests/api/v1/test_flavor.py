@@ -412,9 +412,7 @@ def test_patch_public_flavor(
 
 
 def test_patch_private_flavor(
-    db_private_flavor: Flavor,
-    client: TestClient,
-    write_header: Dict,
+    db_private_flavor: Flavor, client: TestClient, write_header: Dict
 ) -> None:
     """Execute PATCH operations to update a private flavor."""
     settings = get_settings()
@@ -430,6 +428,24 @@ def test_patch_private_flavor(
     content = response.json()
     for k, v in data.dict().items():
         assert content[k] == v
+
+
+def test_patch_flavor_no_edit(
+    db_public_flavor: Flavor, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a flavor.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_flavor_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
 
 
 def test_patch_not_existing_flavor(

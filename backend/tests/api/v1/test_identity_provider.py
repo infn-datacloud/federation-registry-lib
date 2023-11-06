@@ -436,6 +436,26 @@ def test_patch_identity_provider(
         assert content[k] == v
 
 
+def test_patch_identity_provider_no_edit(
+    db_idp_with_single_user_group: IdentityProvider,
+    client: TestClient,
+    write_header: Dict,
+) -> None:
+    """Execute PATCH operations to update a identity_provider.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_identity_provider_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/identity_providers/{db_idp_with_single_user_group.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_identity_provider(
     client: TestClient,
     write_header: Dict,

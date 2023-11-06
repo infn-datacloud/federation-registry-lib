@@ -435,6 +435,24 @@ def test_patch_private_network(
         assert content[k] == v
 
 
+def test_patch_network_no_edit(
+    db_public_network: Network, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a network.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_network_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_network(
     client: TestClient,
     write_header: Dict,

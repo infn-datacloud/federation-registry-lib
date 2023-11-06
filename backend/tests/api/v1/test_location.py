@@ -389,6 +389,24 @@ def test_patch_location(
         assert content[k] == v
 
 
+def test_patch_location_no_edit(
+    db_location: Location, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a location.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_location_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/locations/{db_location.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_location(
     client: TestClient,
     write_header: Dict,

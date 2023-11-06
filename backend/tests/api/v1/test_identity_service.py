@@ -426,6 +426,24 @@ def test_patch_identity_service(
         assert content[k] == v
 
 
+def test_patch_identity_service_no_edit(
+    db_identity_serv: IdentityService, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a identity_service.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_identity_service_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/identity_services/{db_identity_serv.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_identity_service(
     client: TestClient,
     write_header: Dict,

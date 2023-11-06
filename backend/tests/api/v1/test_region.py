@@ -402,6 +402,24 @@ def test_patch_region(
         assert content[k] == v
 
 
+def test_patch_region_no_edit(
+    db_region: Region, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a region.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_region_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/regions/{db_region.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_region(
     client: TestClient,
     write_header: Dict,

@@ -412,6 +412,24 @@ def test_patch_user_group(
         assert content[k] == v
 
 
+def test_patch_user_group_no_edit(
+    db_user_group: UserGroup, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a user_group.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_user_group_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/user_groups/{db_user_group.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_user_group(
     client: TestClient,
     write_header: Dict,

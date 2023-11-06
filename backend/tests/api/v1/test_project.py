@@ -384,6 +384,24 @@ def test_patch_project(
         assert content[k] == v
 
 
+def test_patch_project_no_edit(
+    db_project: Project, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a project.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_project_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/projects/{db_project.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_project(
     client: TestClient,
     write_header: Dict,

@@ -425,6 +425,24 @@ def test_patch_network_service(
         assert content[k] == v
 
 
+def test_patch_network_service_no_edit(
+    db_network_serv: NetworkService, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a network_service.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_network_service_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/network_services/{db_network_serv.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_network_service(
     client: TestClient,
     write_header: Dict,

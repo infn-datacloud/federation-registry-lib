@@ -425,6 +425,24 @@ def test_patch_compute_quota(
         assert content[k] == v
 
 
+def test_patch_compute_quota_no_edit(
+    db_compute_quota: ComputeQuota, client: TestClient, write_header: Dict
+) -> None:
+    """Execute PATCH operations to update a compute_quota.
+
+    Nothing changes.
+    """
+    settings = get_settings()
+    data = create_random_compute_quota_patch(default=True)
+
+    response = client.patch(
+        f"{settings.API_V1_STR}/compute_quotas/{db_compute_quota.uid}",
+        json=json.loads(data.json(exclude_unset=True)),
+        headers=write_header,
+    )
+    assert response.status_code == status.HTTP_304_NOT_MODIFIED
+
+
 def test_patch_not_existing_compute_quota(
     client: TestClient,
     write_header: Dict,
