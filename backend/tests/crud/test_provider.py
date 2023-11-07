@@ -109,7 +109,7 @@ def test_get_items_with_limit(db_provider: Provider, db_provider2: Provider) -> 
 
 def test_get_sorted_items(db_provider: Provider, db_provider2: Provider) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(provider.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(provider.get_multi(), key=lambda x: x.uid)
 
     stored_items = provider.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

@@ -116,7 +116,7 @@ def test_get_items_with_limit(
 
 def test_get_sorted_items(db_public_flavor: Flavor, db_private_flavor: Flavor) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(flavor.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(flavor.get_multi(), key=lambda x: x.uid)
 
     stored_items = flavor.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

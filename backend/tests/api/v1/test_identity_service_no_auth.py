@@ -102,9 +102,7 @@ def test_read_sorted_identity_services(
 ) -> None:
     """Execute GET operations to read all sorted identity_services."""
     settings = get_settings()
-    sorted_items = list(
-        sorted([db_identity_serv, db_identity_serv2], key=lambda x: x.uid)
-    )
+    sorted_items = sorted([db_identity_serv, db_identity_serv2], key=lambda x: x.uid)
 
     response = client.get(
         f"{settings.API_V1_STR}/identity_services/", params={"sort": "uid"}

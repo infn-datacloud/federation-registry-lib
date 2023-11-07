@@ -55,11 +55,9 @@ def validate_new_block_storage_quota_values(
     if update_data.per_user != item.per_user:
         db_project = item.project.single()
         if any(
-            [
-                q.per_user == update_data.per_user
-                for q in db_project.quotas.all()
-                if q.type == QuotaType.BLOCK_STORAGE.value
-            ]
+            q.per_user == update_data.per_user
+            for q in db_project.quotas.all()
+            if q.type == QuotaType.BLOCK_STORAGE.value
         ):
             s = "" if update_data.per_user else "not"
             msg = f"Project '{db_project.uid}' already has "
@@ -116,11 +114,9 @@ def validate_new_compute_quota_values(
     if update_data.per_user != item.per_user:
         db_project = item.project.single()
         if any(
-            [
-                q.per_user == update_data.per_user
-                for q in db_project.quotas.all()
-                if q.type == QuotaType.COMPUTE.value
-            ]
+            q.per_user == update_data.per_user
+            for q in db_project.quotas.all()
+            if q.type == QuotaType.COMPUTE.value
         ):
             s = "" if update_data.per_user else "not"
             msg = f"Project '{db_project.uid}' already has "

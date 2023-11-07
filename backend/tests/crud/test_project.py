@@ -70,7 +70,7 @@ def test_get_items_with_limit(db_project: Project, db_project2: Project) -> None
 
 def test_get_sorted_items(db_project: Project, db_project2: Project) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(project.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(project.get_multi(), key=lambda x: x.uid)
 
     stored_items = project.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

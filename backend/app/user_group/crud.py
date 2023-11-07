@@ -119,7 +119,7 @@ class CRUDUserGroup(
         )
         db_sla_target_provider = next(
             filter(
-                lambda x: any([p in provider_projects for p in x.projects]), db_obj.slas
+                lambda x: any(p in provider_projects for p in x.projects), db_obj.slas
             ),
             None,
         )

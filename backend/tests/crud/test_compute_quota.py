@@ -84,7 +84,7 @@ def test_get_sorted_items(
     db_compute_quota: ComputeQuota, db_compute_quota_per_user: ComputeQuota
 ) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(compute_quota.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(compute_quota.get_multi(), key=lambda x: x.uid)
 
     stored_items = compute_quota.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

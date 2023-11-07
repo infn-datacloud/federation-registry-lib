@@ -98,14 +98,12 @@ def test_read_sorted_providers(
 ) -> None:
     """Execute GET operations to read all sorted providers."""
     settings = get_settings()
-    sorted_items = list(
-        sorted(
-            [
-                db_provider_with_single_project,
-                db_provider_with_multiple_projects,
-            ],
-            key=lambda x: x.uid,
-        )
+    sorted_items = sorted(
+        [
+            db_provider_with_single_project,
+            db_provider_with_multiple_projects,
+        ],
+        key=lambda x: x.uid,
     )
 
     response = client.get(f"{settings.API_V1_STR}/providers/", params={"sort": "uid"})

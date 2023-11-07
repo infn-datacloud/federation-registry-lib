@@ -105,11 +105,9 @@ def test_read_sorted_block_storage_quotas(
 ) -> None:
     """Execute GET operations to read all sorted block_storage_quotas."""
     settings = get_settings()
-    sorted_items = list(
-        sorted(
-            [db_block_storage_quota, db_block_storage_quota_per_user],
-            key=lambda x: x.uid,
-        )
+    sorted_items = sorted(
+        [db_block_storage_quota, db_block_storage_quota_per_user],
+        key=lambda x: x.uid,
     )
 
     response = client.get(

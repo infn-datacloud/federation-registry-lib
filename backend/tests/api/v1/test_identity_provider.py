@@ -117,11 +117,9 @@ def test_read_sorted_identity_providers(
 ) -> None:
     """Execute GET operations to read all sorted identity_providers."""
     settings = get_settings()
-    sorted_items = list(
-        sorted(
-            [db_idp_with_single_user_group, db_idp_with_multiple_user_groups],
-            key=lambda x: x.uid,
-        )
+    sorted_items = sorted(
+        [db_idp_with_single_user_group, db_idp_with_multiple_user_groups],
+        key=lambda x: x.uid,
     )
 
     response = client.get(

@@ -102,9 +102,7 @@ def test_read_sorted_network_services(
 ) -> None:
     """Execute GET operations to read all sorted network_services."""
     settings = get_settings()
-    sorted_items = list(
-        sorted([db_network_serv, db_network_serv2], key=lambda x: x.uid)
-    )
+    sorted_items = sorted([db_network_serv, db_network_serv2], key=lambda x: x.uid)
 
     response = client.get(
         f"{settings.API_V1_STR}/network_services/", params={"sort": "uid"}

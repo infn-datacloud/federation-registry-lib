@@ -97,9 +97,7 @@ def test_read_sorted_networks(
 ) -> None:
     """Execute GET operations to read all sorted networks."""
     settings = get_settings()
-    sorted_items = list(
-        sorted([db_public_network, db_private_network], key=lambda x: x.uid)
-    )
+    sorted_items = sorted([db_public_network, db_private_network], key=lambda x: x.uid)
 
     response = client.get(f"{settings.API_V1_STR}/networks/", params={"sort": "uid"})
     assert response.status_code == status.HTTP_200_OK

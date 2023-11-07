@@ -462,7 +462,7 @@ class ProviderCreateExtended(ProviderCreate):
         return v
 
     @root_validator
-    def check_referenced_projects_exist(cls, values):
+    def check_idp_projs_exits(cls, values):
         projects = [i.uuid for i in values.get("projects", [])]
         seen = set()
         for identity_provider in values.get("identity_providers", []):
@@ -477,7 +477,11 @@ class ProviderCreateExtended(ProviderCreate):
                 )
                 msg += f"not in this provider: {projects}"
                 assert user_group.sla.project in projects, msg
+        return values
 
+    @root_validator
+    def check_block_storage_serv_projs_exist(cls, values):
+        projects = [i.uuid for i in values.get("projects", [])]
         for region in values.get("regions", []):
             for service in region.block_storage_services:
                 for quota in service.quotas:
@@ -485,7 +489,12 @@ class ProviderCreateExtended(ProviderCreate):
                         msg = f"Block storage quota's project {quota.project} "
                         msg += f"not in this provider: {projects}"
                         assert quota.project in projects, msg
+        return values
 
+    @root_validator
+    def check_compute_serv_projs_exist(cls, values):
+        projects = [i.uuid for i in values.get("projects", [])]
+        for region in values.get("regions", []):
             for service in region.compute_services:
                 for flavor in service.flavors:
                     for project in flavor.projects:
@@ -502,12 +511,16 @@ class ProviderCreateExtended(ProviderCreate):
                         msg = f"Compute quota's project {quota.project} "
                         msg += f"not in this provider: {projects}"
                         assert quota.project in projects, msg
+        return values
 
+    @root_validator
+    def check_network_serv_projs_exist(cls, values):
+        projects = [i.uuid for i in values.get("projects", [])]
+        for region in values.get("regions", []):
             for service in region.network_services:
                 for network in service.networks:
                     if network.project is not None:
                         msg = f"Network {network.name}'s project {network.project} "
                         msg += f"not in this provider: {projects}"
                         assert network.project in projects, msg
-
         return values

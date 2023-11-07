@@ -97,11 +97,9 @@ def test_read_sorted_compute_quotas(
 ) -> None:
     """Execute GET operations to read all sorted compute_quotas."""
     settings = get_settings()
-    sorted_items = list(
-        sorted(
-            [db_compute_quota, db_compute_quota_per_user],
-            key=lambda x: x.uid,
-        )
+    sorted_items = sorted(
+        [db_compute_quota, db_compute_quota_per_user],
+        key=lambda x: x.uid,
     )
 
     response = client.get(

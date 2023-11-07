@@ -111,7 +111,7 @@ def test_read_sorted_user_groups(
 ) -> None:
     """Execute GET operations to read all sorted user_groups."""
     settings = get_settings()
-    sorted_items = list(sorted([db_user_group2, db_user_group3], key=lambda x: x.uid))
+    sorted_items = sorted([db_user_group2, db_user_group3], key=lambda x: x.uid)
 
     response = client.get(
         f"{settings.API_V1_STR}/user_groups/",

@@ -92,7 +92,7 @@ def test_get_items_with_limit(
 
 def test_get_sorted_items(db_user_group2: UserGroup, db_user_group3: UserGroup) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(user_group.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(user_group.get_multi(), key=lambda x: x.uid)
 
     stored_items = user_group.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

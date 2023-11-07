@@ -120,7 +120,7 @@ def test_get_sorted_items(
     db_compute_serv: ComputeService, db_compute_serv2: ComputeService
 ) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(compute_service.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(compute_service.get_multi(), key=lambda x: x.uid)
 
     stored_items = compute_service.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

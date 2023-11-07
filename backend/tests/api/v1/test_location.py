@@ -106,7 +106,7 @@ def test_read_sorted_locations(
 ) -> None:
     """Execute GET operations to read all sorted locations."""
     settings = get_settings()
-    sorted_items = list(sorted([db_location, db_location2], key=lambda x: x.uid))
+    sorted_items = sorted([db_location, db_location2], key=lambda x: x.uid)
 
     response = client.get(
         f"{settings.API_V1_STR}/locations/",

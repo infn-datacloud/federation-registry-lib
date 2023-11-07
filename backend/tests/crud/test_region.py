@@ -197,7 +197,7 @@ def test_get_items_with_limit(db_region: Region, db_region2: Region) -> None:
 
 def test_get_sorted_items(db_region: Region, db_region2: Region) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(region.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(region.get_multi(), key=lambda x: x.uid)
 
     stored_items = region.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

@@ -83,7 +83,7 @@ def test_get_sorted_items(
     db_network_serv: NetworkService, db_network_serv2: NetworkService
 ) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(network_service.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(network_service.get_multi(), key=lambda x: x.uid)
 
     stored_items = network_service.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

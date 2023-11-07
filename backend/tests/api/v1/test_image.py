@@ -106,9 +106,7 @@ def test_read_sorted_images(
 ) -> None:
     """Execute GET operations to read all sorted images."""
     settings = get_settings()
-    sorted_items = list(
-        sorted([db_public_image, db_private_image], key=lambda x: x.uid)
-    )
+    sorted_items = sorted([db_public_image, db_private_image], key=lambda x: x.uid)
 
     response = client.get(
         f"{settings.API_V1_STR}/images/",

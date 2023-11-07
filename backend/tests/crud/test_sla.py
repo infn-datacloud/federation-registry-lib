@@ -77,7 +77,7 @@ def test_get_items_with_limit(db_sla2: SLA, db_sla3: SLA) -> None:
 
 def test_get_sorted_items(db_sla2: SLA, db_sla3: SLA) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(sla.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(sla.get_multi(), key=lambda x: x.uid)
 
     stored_items = sla.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

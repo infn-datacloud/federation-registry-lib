@@ -115,9 +115,7 @@ def test_read_sorted_compute_services(
 ) -> None:
     """Execute GET operations to read all sorted compute_services."""
     settings = get_settings()
-    sorted_items = list(
-        sorted([db_compute_serv, db_compute_serv2], key=lambda x: x.uid)
-    )
+    sorted_items = sorted([db_compute_serv, db_compute_serv2], key=lambda x: x.uid)
 
     response = client.get(
         f"{settings.API_V1_STR}/compute_services/",

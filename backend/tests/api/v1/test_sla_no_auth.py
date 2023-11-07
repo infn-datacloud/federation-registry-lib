@@ -88,7 +88,7 @@ def test_read_sorted_slas(
 ) -> None:
     """Execute GET operations to read all sorted slas."""
     settings = get_settings()
-    sorted_items = list(sorted([db_sla2, db_sla3], key=lambda x: x.uid))
+    sorted_items = sorted([db_sla2, db_sla3], key=lambda x: x.uid)
 
     response = client.get(f"{settings.API_V1_STR}/slas/", params={"sort": "uid"})
     assert response.status_code == status.HTTP_200_OK

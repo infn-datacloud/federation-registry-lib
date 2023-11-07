@@ -34,9 +34,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.ruff.lint]
 # Add rules on PyFlakes(F), pycodestyle (E,W), isort (I), 
-# pep8-naming (N), pydocstyle (D), pyupgrade (UP), 
+# mccabe (C90) pep8-naming (N), pydocstyle (D), pyupgrade (UP), 
 # flake8-bugbear (B), flake8-logging-format (G), flake8-quotes (Q)
-extend-select = ["B", "E", "F", "G", "I", "N", "Q", "UP", "W"]
+extend-select = ["B", "C90", "E", "F", "G", "I", "N", "Q", "UP", "W"]
 
 [tool.ruff.lint.per-file-ignores]
 "dependencies.py" = ["B008"]
@@ -48,6 +48,7 @@ extend-select = ["B", "E", "F", "G", "I", "N", "Q", "UP", "W"]
 "scripts/models/provider.py" = ["N805"]
 "schemas.py" = ["N805"]
 "schemas_extended.py" = ["N805"]
+"scripts/providers/opnstk.py" = ["C901"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

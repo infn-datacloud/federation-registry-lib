@@ -97,9 +97,7 @@ def test_read_sorted_flavors(
 ) -> None:
     """Execute GET operations to read all sorted flavors."""
     settings = get_settings()
-    sorted_items = list(
-        sorted([db_public_flavor, db_private_flavor], key=lambda x: x.uid)
-    )
+    sorted_items = sorted([db_public_flavor, db_private_flavor], key=lambda x: x.uid)
 
     response = client.get(f"{settings.API_V1_STR}/flavors/", params={"sort": "uid"})
     assert response.status_code == status.HTTP_200_OK

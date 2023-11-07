@@ -100,7 +100,7 @@ class CRUDBase(
         obj_data = db_obj.__dict__
         update_data = obj_in.dict(exclude_unset=not force)
 
-        if all([obj_data.get(k) == v for k, v in update_data.items()]):
+        if all(obj_data.get(k) == v for k, v in update_data.items()):
             return None
 
         for field in obj_data:

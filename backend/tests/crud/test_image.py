@@ -114,7 +114,7 @@ def test_get_items_with_limit(db_public_image: Image, db_private_image: Image) -
 
 def test_get_sorted_items(db_public_image: Image, db_private_image: Image) -> None:
     """Test the 'sort' attribute in GET operations."""
-    sorted_items = list(sorted(image.get_multi(), key=lambda x: x.uid))
+    sorted_items = sorted(image.get_multi(), key=lambda x: x.uid)
 
     stored_items = image.get_multi(sort="uid")
     assert sorted_items[0].uid == stored_items[0].uid

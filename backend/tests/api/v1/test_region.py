@@ -101,7 +101,7 @@ def test_read_sorted_regions(
 ) -> None:
     """Execute GET operations to read all sorted regions."""
     settings = get_settings()
-    sorted_items = list(sorted([db_region2, db_region3], key=lambda x: x.uid))
+    sorted_items = sorted([db_region2, db_region3], key=lambda x: x.uid)
 
     response = client.get(
         f"{settings.API_V1_STR}/regions/",

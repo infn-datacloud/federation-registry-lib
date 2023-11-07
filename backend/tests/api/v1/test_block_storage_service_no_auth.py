@@ -105,11 +105,9 @@ def test_read_sorted_block_storage_services(
 ) -> None:
     """Execute GET operations to read all sorted block_storage_services."""
     settings = get_settings()
-    sorted_items = list(
-        sorted(
-            [db_block_storage_serv, db_block_storage_serv2],
-            key=lambda x: x.uid,
-        )
+    sorted_items = sorted(
+        [db_block_storage_serv, db_block_storage_serv2],
+        key=lambda x: x.uid,
     )
 
     response = client.get(
