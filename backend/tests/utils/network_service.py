@@ -1,5 +1,5 @@
 from random import choice
-from typing import List, Union
+from typing import List, Optional, Union
 
 from app.provider.schemas_extended import NetworkServiceCreateExtended
 from app.service.enum import NetworkServiceName
@@ -26,7 +26,7 @@ def create_random_network_service(
     *,
     default: bool = False,
     with_networks: bool = False,
-    projects: List[str] = None,
+    projects: Optional[List[str]] = None,
 ) -> NetworkServiceCreateExtended:
     if projects is None:
         projects = []

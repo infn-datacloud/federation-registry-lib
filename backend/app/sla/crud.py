@@ -53,7 +53,7 @@ class CRUDSLA(
         *,
         db_obj: SLA,
         obj_in: Union[SLAUpdate, SLACreateExtended],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[SLA]:
         """Update SLA attributes.

@@ -34,7 +34,7 @@ class CRUDFlavor(
         *,
         obj_in: FlavorCreate,
         service: ComputeService,
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
     ) -> Flavor:
         """Create a new Flavor.
 
@@ -70,7 +70,7 @@ class CRUDFlavor(
         *,
         db_obj: Flavor,
         obj_in: Union[FlavorUpdate, FlavorCreateExtended],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[Flavor]:
         """Update Flavor attributes.

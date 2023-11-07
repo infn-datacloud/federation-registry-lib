@@ -63,7 +63,7 @@ class CRUDBlockStorageQuota(
         *,
         db_obj: BlockStorageQuota,
         obj_in: Union[BlockStorageQuotaCreateExtended, BlockStorageQuotaUpdate],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[BlockStorageQuota]:
         """Update Quota attributes.
@@ -125,7 +125,7 @@ class CRUDComputeQuota(
         *,
         db_obj: ComputeQuota,
         obj_in: Union[ComputeQuotaCreateExtended, ComputeQuotaUpdate],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[ComputeQuota]:
         """Update Quota attributes.

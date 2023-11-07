@@ -107,7 +107,7 @@ class CRUDRegion(
         *,
         db_obj: Region,
         obj_in: Union[RegionCreateExtended, RegionUpdate],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[Region]:
         """Update Region attributes.

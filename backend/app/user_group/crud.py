@@ -38,7 +38,7 @@ class CRUDUserGroup(
         *,
         obj_in: UserGroupCreateExtended,
         identity_provider: IdentityProvider,
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
     ) -> UserGroup:
         """Create a new User Group.
 
@@ -77,7 +77,7 @@ class CRUDUserGroup(
         *,
         db_obj: UserGroup,
         obj_in: Union[UserGroupUpdate, UserGroupCreateExtended],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[UserGroup]:
         """Update User Group attributes.

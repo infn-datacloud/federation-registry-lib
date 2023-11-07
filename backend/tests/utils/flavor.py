@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Union
 from uuid import uuid4
 
 from app.flavor.models import Flavor
@@ -23,7 +23,7 @@ from tests.utils.utils import (
 
 
 def create_random_flavor(
-    *, default: bool = False, projects: List[str] = None
+    *, default: bool = False, projects: Optional[List[str]] = None
 ) -> FlavorCreateExtended:
     if projects is None:
         projects = []

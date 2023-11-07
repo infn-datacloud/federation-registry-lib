@@ -16,13 +16,13 @@ def load_cmdb_config(*, base_path: str = ".") -> SiteConfig:
     with open(os.path.join(base_path, ".cmdb-config.yaml")) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     config = CMDB(**config)
-    logger.debug(f"{repr(config)}")
+    logger.debug(f"{config!r}")
 
     d = {}
     for k, v in config.api_ver.dict().items():
         d[k] = os.path.join(config.base_url, "api", f"{v}", f"{k}")
     urls = URLs(**d)
-    logger.debug(f"{repr(urls)}")
+    logger.debug(f"{urls!r}")
     return urls
 
 
@@ -34,7 +34,7 @@ def load_config(*, fname: str) -> SiteConfig:
         config = SiteConfig(**config)
 
     logger.info("Configuration loaded")
-    logger.debug(f"{repr(config)}")
+    logger.debug(f"{config!r}")
     return config
 
 

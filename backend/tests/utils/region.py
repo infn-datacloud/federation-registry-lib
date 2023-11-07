@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import List, Optional, Union
 
 from app.provider.schemas_extended import RegionCreateExtended
 from app.region.models import Region
@@ -44,7 +44,7 @@ def create_random_region(
     with_compute_services: bool = False,
     with_identity_services: bool = False,
     with_network_services: bool = False,
-    projects: List[str] = None,
+    projects: Optional[List[str]] = None,
 ) -> RegionCreateExtended:
     if projects is None:
         projects = []

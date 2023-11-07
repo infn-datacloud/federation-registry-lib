@@ -54,7 +54,7 @@ class CRUDNetwork(
         *,
         db_obj: Network,
         obj_in: Union[NetworkUpdate, NetworkCreateExtended],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[Network]:
         """Update Network attributes.

@@ -1,5 +1,5 @@
 from random import choice
-from typing import List, Union
+from typing import List, Optional, Union
 
 from app.provider.schemas_extended import BlockStorageServiceCreateExtended
 from app.service.enum import BlockStorageServiceName
@@ -23,7 +23,7 @@ from tests.utils.utils import random_lower_string, random_url
 
 
 def create_random_block_storage_service(
-    *, default: bool = False, projects: List[str] = None
+    *, default: bool = False, projects: Optional[List[str]] = None
 ) -> BlockStorageServiceCreateExtended:
     if projects is None:
         projects = []

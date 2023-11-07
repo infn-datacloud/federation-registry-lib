@@ -1,5 +1,5 @@
 from random import choice
-from typing import List, Union
+from typing import List, Optional, Union
 from uuid import uuid4
 
 from app.image.enum import ImageOS
@@ -20,7 +20,7 @@ from tests.utils.utils import random_bool, random_lower_string
 
 
 def create_random_image(
-    *, default: bool = False, projects: List[str] = None
+    *, default: bool = False, projects: Optional[List[str]] = None
 ) -> ImageCreateExtended:
     if projects is None:
         projects = []

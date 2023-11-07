@@ -37,7 +37,7 @@ class CRUDImage(
         *,
         obj_in: ImageCreate,
         service: ComputeService,
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
     ) -> Image:
         """Create a new Image.
 
@@ -73,7 +73,7 @@ class CRUDImage(
         *,
         db_obj: Image,
         obj_in: Union[ImageUpdate, ImageCreateExtended],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[Image]:
         """Update Image attributes.

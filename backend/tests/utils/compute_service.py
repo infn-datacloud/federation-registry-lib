@@ -1,5 +1,5 @@
 from random import choice
-from typing import List, Union
+from typing import List, Optional, Union
 
 from app.provider.schemas_extended import ComputeServiceCreateExtended
 from app.service.enum import ComputeServiceName
@@ -29,7 +29,7 @@ def create_random_compute_service(
     default: bool = False,
     with_flavors: bool = False,
     with_images: bool = False,
-    projects: List[str] = None,
+    projects: Optional[List[str]] = None,
 ) -> ComputeServiceCreateExtended:
     if projects is None:
         projects = []

@@ -87,7 +87,7 @@ class CRUDIdentityProvider(
         *,
         db_obj: IdentityProvider,
         obj_in: Union[IdentityProviderUpdate, IdentityProviderCreateExtended],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         provider: Optional[Provider] = None,
         force: bool = False,
     ) -> Optional[IdentityProvider]:

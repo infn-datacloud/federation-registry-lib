@@ -71,7 +71,7 @@ class CRUDBlockStorageService(
         *,
         obj_in: BlockStorageServiceCreateExtended,
         region: Region,
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
     ) -> BlockStorageService:
         """Create a new Block Storage Service.
 
@@ -104,7 +104,7 @@ class CRUDBlockStorageService(
         *,
         db_obj: BlockStorageService,
         obj_in: Union[BlockStorageServiceCreateExtended, BlockStorageServiceUpdate],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[BlockStorageService]:
         """Update Block Storage Service attributes.
@@ -221,7 +221,7 @@ class CRUDComputeService(
         *,
         obj_in: ComputeServiceCreateExtended,
         region: Region,
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
     ) -> ComputeService:
         """Create a new Block Storage Service.
 
@@ -269,7 +269,7 @@ class CRUDComputeService(
         *,
         db_obj: ComputeService,
         obj_in: Union[ComputeServiceCreateExtended, ComputeServiceUpdate],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[ComputeService]:
         """Update Compute Service attributes.
@@ -491,7 +491,7 @@ class CRUDNetworkService(
         *,
         obj_in: NetworkServiceCreateExtended,
         region: Region,
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
     ) -> NetworkService:
         """Create a new Block Storage Service.
 
@@ -526,7 +526,7 @@ class CRUDNetworkService(
         *,
         db_obj: NetworkService,
         obj_in: Union[NetworkServiceCreateExtended, NetworkServiceUpdate],
-        projects: List[Project] = None,
+        projects: Optional[List[Project]] = None,
         force: bool = False,
     ) -> Optional[NetworkService]:
         """Update Network Service attributes.
