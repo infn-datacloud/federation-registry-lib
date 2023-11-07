@@ -26,7 +26,9 @@ def db_location2(db_region3: Region) -> Location:
 def db_location_with_multiple_regions(
     db_location: Location, db_region3: Region
 ) -> Location:
-    """Location connected to the region of the first provider and the second region of
+    """Shared Location.
+
+    Connected to the region of the first provider and the second region of
     the second provider.
     """
     item_in = create_random_location()

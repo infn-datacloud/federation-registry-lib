@@ -28,7 +28,9 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
 
 
 class FlavorReadExtended(FlavorRead):
-    """Model to extend the Flavor data read from the DB with the lists of related items
+    """Model to extend the Flavor data read from the DB.
+
+    Add the lists of related items
     for authenticated users.
     """
 
@@ -42,7 +44,9 @@ class FlavorReadExtended(FlavorRead):
 
 
 class FlavorReadExtendedPublic(FlavorReadPublic):
-    """Model to extend the Flavor data read from the DB with the lists of related items
+    """Model to extend the Flavor data read from the DB.
+
+    Add the lists of related items
     for non-authenticated users.
     """
 

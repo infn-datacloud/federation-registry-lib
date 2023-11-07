@@ -20,8 +20,9 @@ from tests.utils.user_group import (
 def test_create_item_with_projects(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
-    """Create a User Group belonging to a specific Identity Provider with an SLA for
-    each received project.
+    """Create a User Group belonging to a specific Identity Provider.
+
+    It has an SLA for each received project.
     """
     db_provider = db_idp_with_single_user_group.providers.single()
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
@@ -37,8 +38,10 @@ def test_create_item_with_projects(
 def test_create_item_default_values_with_projects(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
-    """Create a User Group, with default values when possible, belonging to a specific
-    Identity Provider with an SLA for each received project.
+    """Create a User Group belonging to a specific Identity Provider.
+
+    Set default values when possible.
+    It has an SLA for each received project.
     """
     db_provider = db_idp_with_single_user_group.providers.single()
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
@@ -115,8 +118,9 @@ def test_get_items_with_skip(
 
 
 def test_patch_item(db_user_group: UserGroup) -> None:
-    """Update the attributes of an existing User Group, without updating its
-    relationships.
+    """Update the attributes of an existing User Group.
+
+    Do not update its relationships.
     """
     patch_in = create_random_user_group_patch()
     item = user_group.update(db_obj=db_user_group, obj_in=patch_in)
@@ -125,11 +129,10 @@ def test_patch_item(db_user_group: UserGroup) -> None:
 
 
 def test_patch_item_with_defaults(db_user_group: UserGroup) -> None:
-    """Try to update the attributes of an existing User Group, without updating its
-    relationships, with default values.
+    """Try to update the attributes of an existing User Group with defaults.
 
     The first attempt fails (no updates); the second one, with explicit default values,
-    succeeds.
+    succeeds. Do not update its relationships.
     """
     patch_in = create_random_user_group_patch(default=True)
     assert not user_group.update(db_obj=db_user_group, obj_in=patch_in)
@@ -189,7 +192,9 @@ def test_replace_sla_with_another_same_provider(db_user_group: UserGroup) -> Non
 def test_add_new_sla_diff_provider_to_existing_user_group(
     db_user_group: UserGroup, db_provider_with_multiple_projects: Provider
 ) -> None:
-    """Update an existing User Group with a single SLA, adding a new SLA belonging to
+    """Add new SLA to User Group.
+
+    Update an existing User Group with a single SLA adding a new SLA belonging to
     another provider.
     """
     db_project = db_provider_with_multiple_projects.projects.single()

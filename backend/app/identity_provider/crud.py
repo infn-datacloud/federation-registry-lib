@@ -36,7 +36,9 @@ class CRUDIdentityProvider(
     def create(
         self, *, obj_in: IdentityProviderCreateExtended, provider: Provider
     ) -> IdentityProvider:
-        """Create a new Identity Provider. At first check that an identity provider with
+        """Create a new Identity Provider.
+
+        At first check that an identity provider with
         the given endpoint does not already exist. If it does not exist create it.
         Otherwise do nothing. In any case connect the identity provider to the given
         provider. For any received user group, check the identity provider is not

@@ -11,7 +11,9 @@ from tests.utils.block_storage_quota import create_random_block_storage_quota
 def db_block_storage_quota(
     db_block_storage_serv2: BlockStorageService,
 ) -> BlockStorageQuota:
-    """Block Storage Quota of the BS Service belonging to the first region of the
+    """Block Storage Quota.
+
+    It belongs to the BS Service belonging to the first region of the
     provider with multiple projects.
 
     Quota points to the first project. Quota to apply to the whole user group.
@@ -31,7 +33,9 @@ def db_block_storage_quota(
 def db_block_storage_quota_per_user(
     db_block_storage_quota: BlockStorageQuota,
 ) -> BlockStorageQuota:
-    """Block Storage Quota of the BS Service belonging to the first region of the
+    """Block Storage Quota.
+
+    It belongs to the BS Service belonging to the first region of the
     provider with multiple projects.
 
     Quota points to the first project. Quota to apply to each user of the user group.
@@ -51,7 +55,9 @@ def db_block_storage_quota_per_user(
 def db_block_storage_quota2(
     db_block_storage_quota_per_user: BlockStorageQuota,
 ) -> BlockStorageQuota:
-    """Block Storage Quota of the BS Service belonging to the first region of the
+    """Block Storage Quota.
+
+    It belongs to the BS Service belonging to the first region of the
     provider with multiple projects.
 
     Quota points to the second project. Quota to apply to the whole user group. This is
@@ -74,7 +80,9 @@ def db_block_storage_quota3(
     db_block_storage_quota2: BlockStorageQuota,
     db_block_storage_serv3: BlockStorageService,
 ) -> BlockStorageQuota:
-    """Block Storage Quota of the BS Service belonging to the second region of the
+    """Block Storage Quota.
+
+    It belongs to the BS Service belonging to the second region of the
     provider with a multiple projects.
 
     Quota points to the second project. Quota to apply to the whole user group.

@@ -65,7 +65,9 @@ def validate_new_identity_provider_values(
     update_data: IdentityProviderUpdate,
     item: IdentityProvider = Depends(valid_identity_provider_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other identity providers with
+    """Check given data are valid ones.
+
+    Check there are no other identity providers with
     the same endpoint.
 
     Args:

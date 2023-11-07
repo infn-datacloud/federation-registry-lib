@@ -11,7 +11,9 @@ from tests.utils.compute_quota import create_random_compute_quota
 def db_compute_quota(
     db_compute_serv2: BlockStorageService,
 ) -> BlockStorageQuota:
-    """Compute Quota of the C Service belonging to the first region of the provider with
+    """Compute Quota.
+
+    It belongs to the Compute Service belonging to the first region of the provider with
     multiple projects.
 
     Quota points to the first project. Quota to apply to the whole user group.
@@ -31,7 +33,9 @@ def db_compute_quota(
 def db_compute_quota_per_user(
     db_compute_quota: ComputeQuota,
 ) -> ComputeQuota:
-    """Compute Quota of the C Service belonging to the first region of the provider with
+    """Compute Quota.
+
+    It belongs to the Compute Service belonging to the first region of the provider with
     multiple projects.
 
     Quota points to the first project. Quota to apply to each user of the user group.
@@ -51,7 +55,9 @@ def db_compute_quota_per_user(
 def db_compute_quota2(
     db_compute_quota_per_user: ComputeQuota,
 ) -> ComputeQuota:
-    """Compute Quota of the C Service belonging to the first region of the provider with
+    """Compute Quota.
+
+    It belongs to the Compute Service belonging to the first region of the provider with
     multiple projects.
 
     Quota points to the second project. Quota to apply to the whole user group. This is
@@ -72,7 +78,9 @@ def db_compute_quota3(
     db_compute_quota2: ComputeQuota,
     db_compute_serv3: ComputeService,
 ) -> ComputeQuota:
-    """Compute Quota of the C Service belonging to the second region of the provider
+    """Compute Quota.
+
+    It belongs to the Compute Service belonging to the second region of the provider
     with a multiple projects.
 
     Quota points to the second project. Quota to apply to the whole user group.
