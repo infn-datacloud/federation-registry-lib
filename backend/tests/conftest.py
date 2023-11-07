@@ -1,8 +1,9 @@
-import subprocess
 from glob import glob
-from typing import Dict, Generator
+from typing import Any, Dict, Generator, Tuple
 
+import jwt
 import pytest
+from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
 from neomodel import clear_neo4j_database, db
 
@@ -31,38 +32,66 @@ def setup_and_teardown_db() -> Generator:
 # API specific fixtures
 
 
+def generate_public_private_key_pair() -> Tuple[str, str]:
+    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    public_key = private_key.public_key()
+    return (public_key, private_key)
+
+
+(public_key, private_key) = generate_public_private_key_pair()
+
+ALGORITHM = "RS256"
+PUBLIC_KEY_ID = "cra1"
+
+
+def encode_token(payload) -> str:
+    return jwt.encode(
+        payload=payload,
+        key=private_key,
+        algorithm=ALGORITHM,
+        headers={
+            "kid": PUBLIC_KEY_ID,
+        },
+    )
+
+
+def get_mock_user_claims() -> Dict[str, Any]:
+    return {
+        "sub": "123|auth0",
+        "iss": "some-issuer",  # Should match the issuer your app expects
+        "name": "some-name",
+        "groups": ["user-group"],
+        "preferred_username": "short-name",
+        "organisation_name": "organization-name",
+        "exp": 9999999999,  # One long-lasting token, expiring 11/20/2286
+        "iat": 0,  # Issued a long time ago: 1/1/1970
+        "jti": "JWT Unique ID",
+        "client_id": "Client ID",
+        "email": "user-email",
+    }
+
+
+def get_mock_token() -> str:
+    return encode_token(get_mock_user_claims())
+
+
 @pytest.fixture
 def client(setup_and_teardown_db: Generator) -> Generator:
     with TestClient(app) as c:
         yield c
 
 
-@pytest.fixture
-def token() -> str:
-    issuer = "https://iam.cloud.infn.it/"
-    token_cmd = subprocess.run(
-        [
-            "docker",
-            "exec",
-            "catalog-api-oidc-agent-1",
-            "oidc-token",
-            issuer,
-        ],
-        stdout=subprocess.PIPE,
-        text=True,
-    )
-    yield token_cmd.stdout.strip("\n")
+@pytest.fixture()
+def api_client_read_only(client: TestClient) -> TestClient:
+    client.headers = {"authorization": f"Bearer {get_mock_token()}"}
+    yield client
 
 
-@pytest.fixture
-def read_header(token: str) -> Dict:
-    return {"authorization": f"Bearer {token}"}
-
-
-@pytest.fixture
-def write_header(read_header: Dict) -> Dict:
-    return {
-        **read_header,
+@pytest.fixture()
+def api_client_read_write(client: TestClient) -> TestClient:
+    client.headers = {
+        "authorization": f"Bearer {get_mock_token()}",
         "accept": "application/json",
         "content-type": "application/json",
     }
+    yield client
