@@ -1,8 +1,9 @@
 from typing import List, Optional
 
+from pydantic import Field
+
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import Field
 
 
 class NetworkBase(BaseNode):
@@ -16,7 +17,8 @@ class NetworkBase(BaseNode):
     )
     is_router_external: bool = Field(default=False, description="External network")
     is_default: bool = Field(
-        default=False, description="Main network to use when creating a VM or docker"
+        default=False,
+        description="Main network to use when creating a VM or docker",
     )
     mtu: Optional[int] = Field(default=None, description="Metric transmission unit")
     proxy_ip: Optional[str] = Field(
@@ -24,7 +26,8 @@ class NetworkBase(BaseNode):
         description="Proxy IP address to use to access to private networks",
     )
     proxy_user: Optional[str] = Field(
-        default=None, description="Proxy username to use to access to private networks"
+        default=None,
+        description="Proxy username to use to access to private networks",
     )
     tags: List[str] = Field(default_factory=list, description="List of network tags")
 

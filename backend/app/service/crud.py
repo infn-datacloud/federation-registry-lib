@@ -71,13 +71,15 @@ class CRUDBlockStorageService(
         *,
         obj_in: BlockStorageServiceCreateExtended,
         region: Region,
-        projects: List[Project] = [],
+        projects: List[Project] = None,
     ) -> BlockStorageService:
         """Create a new Block Storage Service.
 
         Connect the service to the given region and create all relative quotas. Filter
         projects based on received ones and target one. It must be exactly one.
         """
+        if projects is None:
+            projects = []
         db_obj = super().create(obj_in=obj_in)
         db_obj.region.connect(region)
         for item in obj_in.quotas:
@@ -102,7 +104,7 @@ class CRUDBlockStorageService(
         *,
         db_obj: BlockStorageService,
         obj_in: Union[BlockStorageServiceCreateExtended, BlockStorageServiceUpdate],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[BlockStorageService]:
         """Update Block Storage Service attributes.
@@ -110,6 +112,8 @@ class CRUDBlockStorageService(
         By default do not update relationships or default values. If force is True,
         update linked quotas and apply default values when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             edit = self.__update_quotas(
@@ -217,7 +221,7 @@ class CRUDComputeService(
         *,
         obj_in: ComputeServiceCreateExtended,
         region: Region,
-        projects: List[Project] = [],
+        projects: List[Project] = None,
     ) -> ComputeService:
         """Create a new Block Storage Service.
 
@@ -225,6 +229,8 @@ class CRUDComputeService(
         and quotas. Filter projects based on received ones and target one. For quotas it
         must be exactly one.
         """
+        if projects is None:
+            projects = []
         db_obj = super().create(obj_in=obj_in)
         db_obj.region.connect(region)
         for item in obj_in.flavors:
@@ -263,7 +269,7 @@ class CRUDComputeService(
         *,
         db_obj: ComputeService,
         obj_in: Union[ComputeServiceCreateExtended, ComputeServiceUpdate],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[ComputeService]:
         """Update Compute Service attributes.
@@ -271,7 +277,8 @@ class CRUDComputeService(
         By default do not update relationships or default values. If force is True,
         update linked flavors, images, quotas and apply default values when explicit.
         """
-
+        if projects is None:
+            projects = []
         edit = False
         if force:
             flavors_updated = self.__update_flavors(
@@ -484,13 +491,15 @@ class CRUDNetworkService(
         *,
         obj_in: NetworkServiceCreateExtended,
         region: Region,
-        projects: List[Project] = [],
+        projects: List[Project] = None,
     ) -> NetworkService:
         """Create a new Block Storage Service.
 
         Connect the service to the given region and create all relative networks. Filter
         projects based on received ones and target one. It must be exactly one.
         """
+        if projects is None:
+            projects = []
         db_obj = super().create(obj_in=obj_in)
         db_obj.region.connect(region)
         for item in obj_in.networks:
@@ -517,7 +526,7 @@ class CRUDNetworkService(
         *,
         db_obj: NetworkService,
         obj_in: Union[NetworkServiceCreateExtended, NetworkServiceUpdate],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[NetworkService]:
         """Update Network Service attributes.
@@ -525,6 +534,8 @@ class CRUDNetworkService(
         By default do not update relationships or default values. If force is True,
         update linked networks and apply default values when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             edit = self.__update_networks(

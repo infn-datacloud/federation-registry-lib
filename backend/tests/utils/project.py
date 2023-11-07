@@ -10,7 +10,10 @@ from app.project.schemas import (
     ProjectReadShort,
     ProjectUpdate,
 )
-from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
+from app.project.schemas_extended import (
+    ProjectReadExtended,
+    ProjectReadExtendedPublic,
+)
 from tests.utils.utils import random_lower_string
 
 
@@ -43,7 +46,9 @@ def validate_attrs(*, obj_in: ProjectBase, db_item: Project) -> None:
 
 
 def validate_rels(
-    *, obj_out: Union[ProjectReadExtended, ProjectReadExtendedPublic], db_item: Project
+    *,
+    obj_out: Union[ProjectReadExtended, ProjectReadExtendedPublic],
+    db_item: Project,
 ) -> None:
     db_provider = db_item.provider.single()
     assert db_provider

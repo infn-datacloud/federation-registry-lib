@@ -2,6 +2,9 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
@@ -10,8 +13,6 @@ from app.identity_provider.schemas import (
     IdentityProviderReadShort,
 )
 from app.identity_provider.schemas_extended import IdentityProviderReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.identity_provider import (
     create_random_identity_provider_patch,
     validate_read_extended_identity_provider_attrs,
@@ -44,7 +45,8 @@ def test_read_identity_providers(
         resp_idp2 = content[0]
 
     validate_read_identity_provider_attrs(
-        obj_out=IdentityProviderRead(**resp_idp), db_item=db_idp_with_single_user_group
+        obj_out=IdentityProviderRead(**resp_idp),
+        db_item=db_idp_with_single_user_group,
     )
     validate_read_identity_provider_attrs(
         obj_out=IdentityProviderRead(**resp_idp2),
@@ -58,7 +60,8 @@ def test_read_identity_providers_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_providers matching specific
-    attributes passed as query attributes."""
+    attributes passed as query attributes.
+    """
     settings = get_settings()
 
     for k in IdentityProviderBase.__fields__.keys():
@@ -83,7 +86,8 @@ def test_read_identity_providers_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_providers limiting the number of
-    output items."""
+    output items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -172,7 +176,8 @@ def test_read_identity_providers_with_skip(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_providers, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -275,7 +280,8 @@ def test_read_identity_providers_with_conn(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_providers with their
-    relationships."""
+    relationships.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -311,7 +317,8 @@ def test_read_identity_providers_short(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_providers with their shrunk
-    version."""
+    version.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -354,7 +361,8 @@ def test_read_identity_provider(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_identity_provider_attrs(
-        obj_out=IdentityProviderRead(**content), db_item=db_idp_with_single_user_group
+        obj_out=IdentityProviderRead(**content),
+        db_item=db_idp_with_single_user_group,
     )
 
 
@@ -406,7 +414,8 @@ def test_read_not_existing_identity_provider(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/{item_uuid}", headers=read_header
+        f"{settings.API_V1_STR}/identity_providers/{item_uuid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()
@@ -479,7 +488,8 @@ def test_patch_identity_provider_with_duplicated_endpoint(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing endpoint to a
-    identity_provider."""
+    identity_provider.
+    """
     settings = get_settings()
     data = create_random_identity_provider_patch()
     data.endpoint = db_idp_with_single_user_group.endpoint
@@ -524,7 +534,8 @@ def test_delete_not_existing_identity_provider(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(
-        f"{settings.API_V1_STR}/identity_providers/{item_uuid}", headers=write_header
+        f"{settings.API_V1_STR}/identity_providers/{item_uuid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()

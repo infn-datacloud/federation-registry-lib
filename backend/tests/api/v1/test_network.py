@@ -2,12 +2,13 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.network.models import Network
 from app.network.schemas import NetworkBase, NetworkRead, NetworkReadShort
 from app.network.schemas_extended import NetworkReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.network import (
     create_random_network_patch,
     validate_read_extended_network_attrs,
@@ -51,7 +52,8 @@ def test_read_networks_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all networks matching specific attributes passed
-    as query attributes."""
+    as query attributes.
+    """
     settings = get_settings()
 
     for k in NetworkBase.__fields__.keys():
@@ -75,18 +77,23 @@ def test_read_networks_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all networks limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"limit": 0}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"limit": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"limit": 1}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"limit": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -106,7 +113,9 @@ def test_read_sorted_networks(
     )
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"sort": "uid"}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"sort": "uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -115,7 +124,9 @@ def test_read_sorted_networks(
     assert content[1]["uid"] == sorted_items[1].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"sort": "-uid"}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"sort": "-uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -156,28 +167,36 @@ def test_read_networks_with_skip(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"skip": 0}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"skip": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"skip": 1}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"skip": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"skip": 2}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"skip": 2},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"skip": 3}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"skip": 3},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -197,7 +216,9 @@ def test_read_networks_with_pagination(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"size": 1}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"size": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -219,7 +240,9 @@ def test_read_networks_with_pagination(
 
     # Page greater than 0 but size equals None, does nothing
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"page": 1}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"page": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -262,10 +285,12 @@ def test_read_networks_with_conn(
         resp_private_network = content[0]
 
     validate_read_extended_network_attrs(
-        obj_out=NetworkReadExtended(**resp_public_network), db_item=db_public_network
+        obj_out=NetworkReadExtended(**resp_public_network),
+        db_item=db_public_network,
     )
     validate_read_extended_network_attrs(
-        obj_out=NetworkReadExtended(**resp_private_network), db_item=db_private_network
+        obj_out=NetworkReadExtended(**resp_private_network),
+        db_item=db_private_network,
     )
 
 
@@ -279,7 +304,9 @@ def test_read_networks_short(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/networks/", params={"short": True}, headers=read_header
+        f"{settings.API_V1_STR}/networks/",
+        params={"short": True},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -293,10 +320,12 @@ def test_read_networks_short(
         resp_private_network = content[0]
 
     validate_read_short_network_attrs(
-        obj_out=NetworkReadShort(**resp_public_network), db_item=db_public_network
+        obj_out=NetworkReadShort(**resp_public_network),
+        db_item=db_public_network,
     )
     validate_read_short_network_attrs(
-        obj_out=NetworkReadShort(**resp_private_network), db_item=db_private_network
+        obj_out=NetworkReadShort(**resp_private_network),
+        db_item=db_private_network,
     )
 
 
@@ -308,7 +337,8 @@ def test_read_network(
     """Execute GET operations to read a network."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/networks/{db_public_network.uid}", headers=read_header
+        f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -495,7 +525,8 @@ def test_patch_network_with_duplicated_uuid(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing UUID to a
-    network."""
+    network.
+    """
     settings = get_settings()
     data = create_random_network_patch()
     data.is_shared = db_private_network.is_shared
@@ -522,7 +553,8 @@ def test_delete_public_network(
     """Execute DELETE to remove a public network."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/networks/{db_public_network.uid}", headers=write_header
+        f"{settings.API_V1_STR}/networks/{db_public_network.uid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -535,7 +567,8 @@ def test_delete_private_network(
     """Execute DELETE to remove a private network."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/networks/{db_private_network.uid}", headers=write_header
+        f"{settings.API_V1_STR}/networks/{db_private_network.uid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

@@ -11,14 +11,19 @@ from app.image.schemas import (
     ImageReadShort,
     ImageUpdate,
 )
-from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
+from app.image.schemas_extended import (
+    ImageReadExtended,
+    ImageReadExtendedPublic,
+)
 from app.provider.schemas_extended import ImageCreateExtended
 from tests.utils.utils import random_bool, random_lower_string
 
 
 def create_random_image(
-    *, default: bool = False, projects: List[str] = []
+    *, default: bool = False, projects: List[str] = None
 ) -> ImageCreateExtended:
+    if projects is None:
+        projects = []
     name = random_lower_string()
     uuid = uuid4()
     kwargs = {}
@@ -95,7 +100,9 @@ def validate_attrs(*, obj_in: ImageBase, db_item: Image) -> None:
 
 
 def validate_rels(
-    *, obj_out: Union[ImageReadExtended, ImageReadExtendedPublic], db_item: Image
+    *,
+    obj_out: Union[ImageReadExtended, ImageReadExtendedPublic],
+    db_item: Image,
 ) -> None:
     assert len(db_item.projects) == len(obj_out.projects)
     for db_proj, proj_out in zip(

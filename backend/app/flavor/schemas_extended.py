@@ -1,11 +1,12 @@
 from typing import List
 
+from pydantic import Field
+
 from app.flavor.schemas import FlavorRead, FlavorReadPublic
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.region.schemas import RegionRead, RegionReadPublic
 from app.service.schemas import ComputeServiceRead, ComputeServiceReadPublic
-from pydantic import Field
 
 
 class RegionReadExtended(RegionRead):
@@ -28,7 +29,8 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
 
 class FlavorReadExtended(FlavorRead):
     """Model to extend the Flavor data read from the DB with the lists of related items
-    for authenticated users."""
+    for authenticated users.
+    """
 
     projects: List[ProjectRead] = Field(
         description="Projects having access to this flavor. "
@@ -41,7 +43,8 @@ class FlavorReadExtended(FlavorRead):
 
 class FlavorReadExtendedPublic(FlavorReadPublic):
     """Model to extend the Flavor data read from the DB with the lists of related items
-    for non-authenticated users."""
+    for non-authenticated users.
+    """
 
     projects: List[ProjectReadPublic] = Field(
         description="Projects having access to this flavor. "

@@ -2,12 +2,13 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.region.models import Region
 from app.region.schemas import RegionBase, RegionRead, RegionReadShort
 from app.region.schemas_extended import RegionReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.region import (
     create_random_region_patch,
     validate_read_extended_region_attrs,
@@ -47,7 +48,8 @@ def test_read_regions_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all regions matching specific attributes passed as
-    query attributes."""
+    query attributes.
+    """
     settings = get_settings()
 
     for k in RegionBase.__fields__.keys():
@@ -68,7 +70,8 @@ def test_read_regions_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all regions limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -445,7 +448,8 @@ def test_patch_region_with_duplicated_name_same_provider(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing name to a region
-    belonging to the same provider."""
+    belonging to the same provider.
+    """
     settings = get_settings()
     data = create_random_region_patch()
     data.name = db_region2.name
@@ -467,7 +471,8 @@ def test_patch_region_with_duplicated_name_diff_provider(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing name to a region
-    belonging to a different provider."""
+    belonging to a different provider.
+    """
     settings = get_settings()
     data = create_random_region_patch()
     data.name = db_region.name

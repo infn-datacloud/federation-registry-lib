@@ -1,4 +1,5 @@
 import pytest
+
 from app.project.models import Project
 from app.sla.models import SLA
 from app.user_group.models import UserGroup

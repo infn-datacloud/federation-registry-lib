@@ -1,7 +1,13 @@
 from typing import List, Optional, Union
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
-from app.image.api.dependencies import valid_image_id, validate_new_image_values
+from app.image.api.dependencies import (
+    valid_image_id,
+    validate_new_image_values,
+)
 from app.image.crud import image
 from app.image.models import Image
 from app.image.schemas import (
@@ -11,10 +17,11 @@ from app.image.schemas import (
     ImageReadShort,
     ImageUpdate,
 )
-from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
+from app.image.schemas_extended import (
+    ImageReadExtended,
+    ImageReadExtendedPublic,
+)
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -80,7 +87,10 @@ def get_image(
     "/{image_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[ImageRead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_image_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_image_values),
+    ],
     summary="Edit a specific image",
     description="Update attribute values of a specific image. \
         The target image is identified using its uid. \

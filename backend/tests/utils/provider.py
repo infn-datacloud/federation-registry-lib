@@ -19,8 +19,14 @@ from tests.utils.identity_provider import (
     create_random_identity_provider,
     validate_create_identity_provider_attrs,
 )
-from tests.utils.project import create_random_project, validate_create_project_attrs
-from tests.utils.region import create_random_region, validate_create_region_attrs
+from tests.utils.project import (
+    create_random_project,
+    validate_create_project_attrs,
+)
+from tests.utils.region import (
+    create_random_region,
+    validate_create_region_attrs,
+)
 from tests.utils.utils import random_bool, random_email, random_lower_string
 
 

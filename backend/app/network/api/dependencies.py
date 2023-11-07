@@ -1,26 +1,29 @@
 from typing import Union
 
+from fastapi import Depends, HTTPException, status
+
 from app.network.crud import network
 from app.network.models import Network
 from app.network.schemas import NetworkCreate, NetworkUpdate
 from app.service.api.dependencies import valid_network_service_id
 from app.service.models import NetworkService
-from fastapi import Depends, HTTPException, status
 
 
 def valid_network_id(network_uid: str) -> Network:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         network_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Network: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = network.get(uid=network_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -38,16 +41,18 @@ def valid_network_uuid(
     uuid.
 
     Args:
+    ----
         item (NetworkCreate | NetworkUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with identical uuid,
             belonging to the same service, already exists.
     """
-
     service = valid_network_service_id(service.uid)
     db_item = service.networks.get_or_none(uuid=item.uuid)
     if db_item is not None:
@@ -64,18 +69,20 @@ def validate_new_network_values(
     the same service, with the same uuid and name.
 
     Args:
+    ----
         update_data (NetworkUpdate): new data.
         item (Network): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with identical name or uuid,
             belonging to the same service, already exists.
     """
-
     if update_data.uuid != item.uuid:
         valid_network_uuid(item=update_data, service=item.service.single())
     if update_data.is_shared != item.is_shared:
@@ -89,16 +96,18 @@ def is_private_network(item: Network = Depends(valid_network_id)) -> Network:
     """Check given network has private or shared visibility.
 
     Args:
+    ----
         item (Network): entity to validate.
 
     Returns:
+    -------
         Network: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity has not valid visibility
     """
-
     if item.is_shared:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

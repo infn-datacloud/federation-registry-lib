@@ -58,7 +58,7 @@ def validate_attrs(*, obj_in: IdentityServiceBase, db_item: IdentityService) -> 
 def validate_rels(
     *,
     obj_out: Union[IdentityServiceReadExtended, IdentityServiceReadExtendedPublic],
-    db_item: IdentityService
+    db_item: IdentityService,
 ):
     db_region = db_item.region.single()
     assert db_region

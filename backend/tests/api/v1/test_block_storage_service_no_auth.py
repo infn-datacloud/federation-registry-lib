@@ -1,12 +1,16 @@
 import json
 from uuid import uuid4
 
-from app.config import get_settings
-from app.service.models import BlockStorageService
-from app.service.schemas import BlockStorageServiceBase, BlockStorageServiceReadPublic
-from app.service.schemas_extended import BlockStorageServiceReadExtendedPublic
 from fastapi import status
 from fastapi.testclient import TestClient
+
+from app.config import get_settings
+from app.service.models import BlockStorageService
+from app.service.schemas import (
+    BlockStorageServiceBase,
+    BlockStorageServiceReadPublic,
+)
+from app.service.schemas_extended import BlockStorageServiceReadExtendedPublic
 from tests.utils.block_storage_service import (
     create_random_block_storage_service_patch,
     validate_read_extended_public_block_storage_service_attrs,
@@ -51,7 +55,8 @@ def test_read_block_storage_services_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_services matching specific
-    attributes passed as query attributes."""
+    attributes passed as query attributes.
+    """
     settings = get_settings()
 
     for k in BlockStorageServiceBase.__fields__.keys():
@@ -74,7 +79,8 @@ def test_read_block_storage_services_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_services limiting the number of
-    output items."""
+    output items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -100,11 +106,15 @@ def test_read_sorted_block_storage_services(
     """Execute GET operations to read all sorted block_storage_services."""
     settings = get_settings()
     sorted_items = list(
-        sorted([db_block_storage_serv, db_block_storage_serv2], key=lambda x: x.uid)
+        sorted(
+            [db_block_storage_serv, db_block_storage_serv2],
+            key=lambda x: x.uid,
+        )
     )
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_services/", params={"sort": "uid"}
+        f"{settings.API_V1_STR}/block_storage_services/",
+        params={"sort": "uid"},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -113,7 +123,8 @@ def test_read_sorted_block_storage_services(
     assert content[1]["uid"] == sorted_items[1].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_services/", params={"sort": "-uid"}
+        f"{settings.API_V1_STR}/block_storage_services/",
+        params={"sort": "-uid"},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -122,7 +133,8 @@ def test_read_sorted_block_storage_services(
     assert content[1]["uid"] == sorted_items[0].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_services/", params={"sort": "uid_asc"}
+        f"{settings.API_V1_STR}/block_storage_services/",
+        params={"sort": "uid_asc"},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -147,7 +159,8 @@ def test_read_block_storage_services_with_skip(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_services, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -202,7 +215,8 @@ def test_read_block_storage_services_with_pagination(
         next_page_uid = db_block_storage_serv.uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_services/", params={"size": 1, "page": 1}
+        f"{settings.API_V1_STR}/block_storage_services/",
+        params={"size": 1, "page": 1},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -219,7 +233,8 @@ def test_read_block_storage_services_with_pagination(
 
     # Page index greater than maximum number of pages. Return nothing
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_services/", params={"size": 1, "page": 2}
+        f"{settings.API_V1_STR}/block_storage_services/",
+        params={"size": 1, "page": 2},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -232,11 +247,13 @@ def test_read_block_storage_services_with_conn(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_services with their
-    relationships."""
+    relationships.
+    """
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_services/", params={"with_conn": True}
+        f"{settings.API_V1_STR}/block_storage_services/",
+        params={"with_conn": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -265,11 +282,13 @@ def test_read_block_storage_services_short(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_services with their shrunk
-    version."""
+    version.
+    """
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_services/", params={"short": True}
+        f"{settings.API_V1_STR}/block_storage_services/",
+        params={"short": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -310,7 +329,8 @@ def test_read_block_storage_service(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_public_block_storage_service_attrs(
-        obj_out=BlockStorageServiceReadPublic(**content), db_item=db_block_storage_serv
+        obj_out=BlockStorageServiceReadPublic(**content),
+        db_item=db_block_storage_serv,
     )
 
 
@@ -350,7 +370,8 @@ def test_read_block_storage_service_short(
     #     q = BlockStorageServiceReadShort(**content)
 
     validate_read_public_block_storage_service_attrs(
-        obj_out=BlockStorageServiceReadPublic(**content), db_item=db_block_storage_serv
+        obj_out=BlockStorageServiceReadPublic(**content),
+        db_item=db_block_storage_serv,
     )
 
 

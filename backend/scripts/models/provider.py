@@ -2,6 +2,8 @@ import subprocess
 from typing import List, Optional
 from uuid import UUID
 
+from pydantic import AnyHttpUrl, BaseModel, Field, root_validator, validator
+
 from app.auth_method.schemas import AuthMethodBase
 from app.identity_provider.schemas import IdentityProviderBase
 from app.location.schemas import LocationBase
@@ -12,7 +14,6 @@ from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase
 from app.region.schemas import RegionBase
 from app.sla.schemas import SLABase
 from app.user_group.schemas import UserGroupBase
-from pydantic import AnyHttpUrl, BaseModel, Field, root_validator, validator
 
 
 class SLA(SLABase):

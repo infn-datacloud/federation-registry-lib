@@ -2,10 +2,11 @@ from datetime import timedelta
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.sla.models import SLA
 from app.sla.schemas import SLARead, SLAReadPublic, SLAReadShort
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
-from pydantic import ValidationError
 from tests.utils.sla import (
     create_random_sla,
     validate_read_extended_public_sla_attrs,

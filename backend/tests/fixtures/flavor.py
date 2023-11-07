@@ -1,4 +1,5 @@
 import pytest
+
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.project.models import Project

@@ -22,7 +22,8 @@ def test_create_item(db_compute_serv: ComputeService) -> None:
 
 def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
     """Create a public Flavor, with default values when possible, belonging to a
-    specific Compute Service."""
+    specific Compute Service.
+    """
     item_in = create_random_flavor(default=True)
     item = flavor.create(obj_in=item_in, service=db_compute_serv)
     validate_create_flavor_attrs(obj_in=item_in, db_item=item)
@@ -139,7 +140,8 @@ def test_get_items_with_skip(
 
 def test_patch_item(db_private_flavor: Flavor) -> None:
     """Update the attributes of an existing Flavor, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_flavor_patch()
     patch_in.is_public = db_private_flavor.is_public
     item = flavor.update(db_obj=db_private_flavor, obj_in=patch_in)

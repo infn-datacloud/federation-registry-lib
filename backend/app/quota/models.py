@@ -17,6 +17,7 @@ class Quota(StructuredNode):
     Any quota belongs to a only a project.
 
     Attributes:
+    ----------
         uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
@@ -39,6 +40,7 @@ class BlockStorageQuota(Quota):
     Block Storage quota limitations apply on a Block Storage Service.
 
     Attributes:
+    ----------
         gigabytes (int): Number of max usable gigabytes (GiB).
         per_volume_gigabytes (int): Number of max usable gigabytes per volume (GiB).
         volumes (int): Number of max volumes a user group can create.
@@ -59,6 +61,7 @@ class ComputeQuota(Quota):
     Compute quota limitations apply on a Compute Service.
 
     Attributes:
+    ----------
         cores (int): Number of max usable cores.
         fixed_ips (int): Number of max fixed IPs.
         public_ips (int): Number of max usable IPs.

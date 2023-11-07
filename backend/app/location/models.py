@@ -14,6 +14,7 @@ class Location(StructuredNode):
     Providers or single Regions can have a Geographical location.
 
     Attributes:
+    ----------
         uid (int): Location unique ID.
         description (str): Brief description.
         site (str): Location unique name.

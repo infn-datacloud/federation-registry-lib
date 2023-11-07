@@ -2,12 +2,13 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.image.models import Image
 from app.image.schemas import ImageBase, ImageRead, ImageReadShort
 from app.image.schemas_extended import ImageReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.image import (
     create_random_image_patch,
     validate_read_extended_image_attrs,
@@ -51,7 +52,8 @@ def test_read_images_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all images matching specific attributes passed as
-    query attributes."""
+    query attributes.
+    """
     settings = get_settings()
 
     for k in ImageBase.__fields__.keys():
@@ -78,14 +80,18 @@ def test_read_images_with_limit(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"limit": 0}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"limit": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"limit": 1}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"limit": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -105,7 +111,9 @@ def test_read_sorted_images(
     )
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"sort": "uid"}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"sort": "uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -114,7 +122,9 @@ def test_read_sorted_images(
     assert content[1]["uid"] == sorted_items[1].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"sort": "-uid"}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"sort": "-uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -155,28 +165,36 @@ def test_read_images_with_skip(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"skip": 0}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"skip": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"skip": 1}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"skip": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"skip": 2}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"skip": 2},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"skip": 3}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"skip": 3},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -196,7 +214,9 @@ def test_read_images_with_pagination(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"size": 1}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"size": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -218,7 +238,9 @@ def test_read_images_with_pagination(
 
     # Page greater than 0 but size equals None, does nothing
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"page": 1}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"page": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -264,7 +286,8 @@ def test_read_images_with_conn(
         obj_out=ImageReadExtended(**resp_public_image), db_item=db_public_image
     )
     validate_read_extended_image_attrs(
-        obj_out=ImageReadExtended(**resp_private_image), db_item=db_private_image
+        obj_out=ImageReadExtended(**resp_private_image),
+        db_item=db_private_image,
     )
 
 
@@ -278,7 +301,9 @@ def test_read_images_short(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/images/", params={"short": True}, headers=read_header
+        f"{settings.API_V1_STR}/images/",
+        params={"short": True},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -307,7 +332,8 @@ def test_read_image(
     """Execute GET operations to read an image."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/images/{db_public_image.uid}", headers=read_header
+        f"{settings.API_V1_STR}/images/{db_public_image.uid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -540,7 +566,8 @@ def test_delete_public_image(
     """Execute DELETE to remove a public image."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/images/{db_public_image.uid}", headers=write_header
+        f"{settings.API_V1_STR}/images/{db_public_image.uid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -553,7 +580,8 @@ def test_delete_private_image(
     """Execute DELETE to remove a private image."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/images/{db_private_image.uid}", headers=write_header
+        f"{settings.API_V1_STR}/images/{db_private_image.uid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

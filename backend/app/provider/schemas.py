@@ -1,9 +1,10 @@
 from typing import List, Optional
 
+from pydantic import EmailStr, Field
+
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.provider.enum import ProviderStatus, ProviderType
 from app.query import create_query_model
-from pydantic import EmailStr, Field
 
 
 class ProviderBase(BaseNode):

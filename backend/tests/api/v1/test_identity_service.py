@@ -2,6 +2,9 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.service.enum import ServiceType
 from app.service.models import IdentityService
@@ -11,8 +14,6 @@ from app.service.schemas import (
     IdentityServiceReadShort,
 )
 from app.service.schemas_extended import IdentityServiceReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.identity_service import (
     create_random_identity_service_patch,
     validate_read_extended_identity_service_attrs,
@@ -58,7 +59,8 @@ def test_read_identity_services_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_services matching specific attributes
-    passed as query attributes."""
+    passed as query attributes.
+    """
     settings = get_settings()
 
     for k in IdentityServiceBase.__fields__.keys():
@@ -82,7 +84,8 @@ def test_read_identity_services_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_services limiting the number of
-    output items."""
+    output items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -168,7 +171,8 @@ def test_read_identity_services_with_skip(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_services, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -290,10 +294,12 @@ def test_read_identity_services_with_conn(
         resp_id_serv2 = content[0]
 
     validate_read_extended_identity_service_attrs(
-        obj_out=IdentityServiceReadExtended(**resp_id_serv), db_item=db_identity_serv
+        obj_out=IdentityServiceReadExtended(**resp_id_serv),
+        db_item=db_identity_serv,
     )
     validate_read_extended_identity_service_attrs(
-        obj_out=IdentityServiceReadExtended(**resp_id_serv2), db_item=db_identity_serv2
+        obj_out=IdentityServiceReadExtended(**resp_id_serv2),
+        db_item=db_identity_serv2,
     )
 
 
@@ -304,7 +310,8 @@ def test_read_identity_services_short(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all identity_services with their shrunk
-    version."""
+    version.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -324,10 +331,12 @@ def test_read_identity_services_short(
         resp_id_serv2 = content[0]
 
     validate_read_short_identity_service_attrs(
-        obj_out=IdentityServiceReadShort(**resp_id_serv), db_item=db_identity_serv
+        obj_out=IdentityServiceReadShort(**resp_id_serv),
+        db_item=db_identity_serv,
     )
     validate_read_short_identity_service_attrs(
-        obj_out=IdentityServiceReadShort(**resp_id_serv2), db_item=db_identity_serv2
+        obj_out=IdentityServiceReadShort(**resp_id_serv2),
+        db_item=db_identity_serv2,
     )
 
 
@@ -364,7 +373,8 @@ def test_read_identity_service_with_conn(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_extended_identity_service_attrs(
-        obj_out=IdentityServiceReadExtended(**content), db_item=db_identity_serv
+        obj_out=IdentityServiceReadExtended(**content),
+        db_item=db_identity_serv,
     )
 
 
@@ -395,7 +405,8 @@ def test_read_not_existing_identity_service(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
-        f"{settings.API_V1_STR}/identity_services/{item_uuid}", headers=read_header
+        f"{settings.API_V1_STR}/identity_services/{item_uuid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()
@@ -495,7 +506,8 @@ def test_patch_identity_service_with_duplicated_endpoint(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing endpoint to a
-    identity_service."""
+    identity_service.
+    """
     settings = get_settings()
     data = create_random_identity_service_patch()
     data.endpoint = db_identity_serv.endpoint
@@ -538,7 +550,8 @@ def test_delete_not_existing_identity_service(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(
-        f"{settings.API_V1_STR}/identity_services/{item_uuid}", headers=write_header
+        f"{settings.API_V1_STR}/identity_services/{item_uuid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()

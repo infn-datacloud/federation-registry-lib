@@ -1,5 +1,26 @@
 from typing import List, Optional, Union
 
+# from app.service.api.dependencies import valid_service_endpoint
+# from app.service.crud import (
+#     block_storage_service,
+#     compute_service,
+#     identity_service,
+#     network_service,
+# )
+# from app.service.schemas import (
+#     BlockStorageServiceCreate,
+#     ComputeServiceCreate,
+#     IdentityServiceCreate,
+#     NetworkServiceCreate,
+# )
+# from app.service.schemas_extended import (
+#     BlockStorageServiceReadExtended,
+#     ComputeServiceReadExtended,
+#     IdentityServiceReadExtended,
+# )
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
 
 # from app.auth_method.schemas import AuthMethodCreate
@@ -35,27 +56,6 @@ from app.provider.schemas_extended import (
     ProviderReadExtendedPublic,
 )
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-
-# from app.service.api.dependencies import valid_service_endpoint
-# from app.service.crud import (
-#     block_storage_service,
-#     compute_service,
-#     identity_service,
-#     network_service,
-# )
-# from app.service.schemas import (
-#     BlockStorageServiceCreate,
-#     ComputeServiceCreate,
-#     IdentityServiceCreate,
-#     NetworkServiceCreate,
-# )
-# from app.service.schemas_extended import (
-#     BlockStorageServiceReadExtended,
-#     ComputeServiceReadExtended,
-#     IdentityServiceReadExtended,
-# )
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 router = APIRouter(prefix="/providers", tags=["providers"])
 
@@ -139,7 +139,10 @@ def get_provider(
     "/{provider_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[ProviderRead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_provider_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_provider_values),
+    ],
     summary="Edit a specific provider",
     description="Update attribute values of a specific provider. \
         The target provider is identified using its uid. \

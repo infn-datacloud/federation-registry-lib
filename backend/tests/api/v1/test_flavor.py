@@ -2,12 +2,13 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorBase, FlavorRead, FlavorReadShort
 from app.flavor.schemas_extended import FlavorReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.flavor import (
     create_random_flavor_patch,
     validate_read_extended_flavor_attrs,
@@ -51,7 +52,8 @@ def test_read_flavors_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all flavors matching specific attributes passed as
-    query attributes."""
+    query attributes.
+    """
     settings = get_settings()
 
     for k in FlavorBase.__fields__.keys():
@@ -75,18 +77,23 @@ def test_read_flavors_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all flavors limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"limit": 0}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"limit": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"limit": 1}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"limit": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -106,7 +113,9 @@ def test_read_sorted_flavors(
     )
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"sort": "uid"}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"sort": "uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -115,7 +124,9 @@ def test_read_sorted_flavors(
     assert content[1]["uid"] == sorted_items[1].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"sort": "-uid"}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"sort": "-uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -156,28 +167,36 @@ def test_read_flavors_with_skip(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"skip": 0}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"skip": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"skip": 1}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"skip": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"skip": 2}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"skip": 2},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"skip": 3}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"skip": 3},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -197,7 +216,9 @@ def test_read_flavors_with_pagination(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"size": 1}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"size": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -219,7 +240,9 @@ def test_read_flavors_with_pagination(
 
     # Page greater than 0 but size equals None, does nothing
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"page": 1}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"page": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -262,10 +285,12 @@ def test_read_flavors_with_conn(
         resp_private_flavor = content[0]
 
     validate_read_extended_flavor_attrs(
-        obj_out=FlavorReadExtended(**resp_public_flavor), db_item=db_public_flavor
+        obj_out=FlavorReadExtended(**resp_public_flavor),
+        db_item=db_public_flavor,
     )
     validate_read_extended_flavor_attrs(
-        obj_out=FlavorReadExtended(**resp_private_flavor), db_item=db_private_flavor
+        obj_out=FlavorReadExtended(**resp_private_flavor),
+        db_item=db_private_flavor,
     )
 
 
@@ -279,7 +304,9 @@ def test_read_flavors_short(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/", params={"short": True}, headers=read_header
+        f"{settings.API_V1_STR}/flavors/",
+        params={"short": True},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -296,7 +323,8 @@ def test_read_flavors_short(
         obj_out=FlavorReadShort(**resp_public_flavor), db_item=db_public_flavor
     )
     validate_read_short_flavor_attrs(
-        obj_out=FlavorReadShort(**resp_private_flavor), db_item=db_private_flavor
+        obj_out=FlavorReadShort(**resp_private_flavor),
+        db_item=db_private_flavor,
     )
 
 
@@ -308,7 +336,8 @@ def test_read_flavor(
     """Execute GET operations to read a flavor."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}", headers=read_header
+        f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -491,7 +520,8 @@ def test_patch_flavor_with_duplicated_uuid(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing UUID to a
-    flavor."""
+    flavor.
+    """
     settings = get_settings()
     data = create_random_flavor_patch()
     data.is_public = db_private_flavor.is_public
@@ -540,7 +570,8 @@ def test_delete_public_flavor(
     """Execute DELETE to remove a public flavor."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}", headers=write_header
+        f"{settings.API_V1_STR}/flavors/{db_public_flavor.uid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -553,7 +584,8 @@ def test_delete_private_flavor(
     """Execute DELETE to remove a private flavor."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}", headers=write_header
+        f"{settings.API_V1_STR}/flavors/{db_private_flavor.uid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

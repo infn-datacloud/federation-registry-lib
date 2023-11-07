@@ -1,7 +1,13 @@
 from typing import List, Optional, Union
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
-from app.network.api.dependencies import valid_network_id, validate_new_network_values
+from app.network.api.dependencies import (
+    valid_network_id,
+    validate_new_network_values,
+)
 from app.network.crud import network
 from app.network.models import Network
 from app.network.schemas import (
@@ -11,10 +17,11 @@ from app.network.schemas import (
     NetworkReadShort,
     NetworkUpdate,
 )
-from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
+from app.network.schemas_extended import (
+    NetworkReadExtended,
+    NetworkReadExtendedPublic,
+)
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 router = APIRouter(prefix="/networks", tags=["networks"])
 
@@ -80,7 +87,10 @@ def get_network(
     "/{network_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[NetworkRead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_network_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_network_values),
+    ],
     summary="Edit a specific network",
     description="Update attribute values of a specific network. \
         The target network is identified using its uid. \

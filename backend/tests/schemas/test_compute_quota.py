@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.quota.enum import QuotaType
 from app.quota.models import ComputeQuota
 from app.quota.schemas import (
@@ -12,7 +14,6 @@ from app.quota.schemas_extended import (
     ComputeQuotaReadExtended,
     ComputeQuotaReadExtendedPublic,
 )
-from pydantic import ValidationError
 from tests.utils.compute_quota import (
     create_random_compute_quota,
     validate_read_compute_quota_attrs,

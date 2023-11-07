@@ -21,7 +21,8 @@ def test_create_item(db_region: Region) -> None:
 
 def test_create_item_default_values(db_region: Region) -> None:
     """Create a Location, with default values when possible, belonging to a specific
-    Region."""
+    Region.
+    """
     item_in = create_random_location(default=True)
     item = location.create(obj_in=item_in, region=db_region)
     validate_create_location_attrs(obj_in=item_in, db_item=item)
@@ -120,7 +121,8 @@ def test_get_items_with_skip(db_location: Location, db_location2: Location) -> N
 
 def test_patch_item(db_location: Location) -> None:
     """Update the attributes of an existing Location, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_location_patch()
     item = location.update(db_obj=db_location, obj_in=patch_in)
     for k, v in patch_in.dict().items():

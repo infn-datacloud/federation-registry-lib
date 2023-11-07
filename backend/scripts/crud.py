@@ -2,11 +2,12 @@ import os
 from typing import Any, Dict, List, Optional
 
 import requests
-from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
 from fastapi import status
 from fastapi.encoders import jsonable_encoder
 from logger import logger
 from pydantic import AnyHttpUrl
+
+from app.provider.schemas_extended import ProviderCreateExtended, ProviderReadExtended
 
 TIMEOUT = 5  # s
 

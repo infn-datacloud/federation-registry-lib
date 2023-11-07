@@ -1,9 +1,5 @@
 from typing import List
 
-from app.flavor.models import Flavor
-from app.image.models import Image
-from app.provider.models import Provider
-from app.service.models import Service
 from neomodel import (
     One,
     RelationshipTo,
@@ -12,6 +8,11 @@ from neomodel import (
     UniqueIdProperty,
     ZeroOrMore,
 )
+
+from app.flavor.models import Flavor
+from app.image.models import Image
+from app.provider.models import Provider
+from app.service.models import Service
 
 
 class UserGroup(StructuredNode):
@@ -24,6 +25,7 @@ class UserGroup(StructuredNode):
     images, flavors, networks and quotas.
 
     Attributes:
+    ----------
         uid (int): User Group unique ID.
         description (str): Brief description.
         name (str): User Group name.
@@ -42,7 +44,7 @@ class UserGroup(StructuredNode):
 
     query_prefix = """
         MATCH (g:UserGroup)
-        WHERE (id(g)=$self)
+        WHERE (elementId(g)=$self)
         MATCH (g)-[:AGREE]-(s)-[:REFER_TO]->(p)
         """
 
@@ -81,7 +83,7 @@ class UserGroup(StructuredNode):
             filters = ""
         else:
             filters = []
-            for k, v in kwargs.items():
+            for k in kwargs.keys():
                 if k.startswith("service_"):
                     start_idx = len("service_")
                     attr = k[start_idx:]

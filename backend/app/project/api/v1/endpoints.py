@@ -1,5 +1,8 @@
 from typing import List, Optional, Union
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
@@ -12,7 +15,10 @@ from app.auth.dependencies import check_read_access, check_write_access
 # from app.image.models import Image
 # from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
 # from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
-from app.project.api.dependencies import valid_project_id, validate_new_project_values
+from app.project.api.dependencies import (
+    valid_project_id,
+    validate_new_project_values,
+)
 from app.project.crud import project
 from app.project.models import Project
 from app.project.schemas import (
@@ -22,10 +28,11 @@ from app.project.schemas import (
     ProjectReadShort,
     ProjectUpdate,
 )
-from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
+from app.project.schemas_extended import (
+    ProjectReadExtended,
+    ProjectReadExtendedPublic,
+)
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -91,7 +98,10 @@ def get_project(
     "/{project_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[ProjectRead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_project_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_project_values),
+    ],
     summary="Edit a specific project",
     description="Update attribute values of a specific project. \
         The target project is identified using its uid. \

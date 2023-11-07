@@ -15,13 +15,21 @@ from app.service.schemas_extended import (
     NetworkServiceReadExtended,
     NetworkServiceReadExtendedPublic,
 )
-from tests.utils.network import create_random_network, validate_create_network_attrs
+from tests.utils.network import (
+    create_random_network,
+    validate_create_network_attrs,
+)
 from tests.utils.utils import random_lower_string, random_url
 
 
 def create_random_network_service(
-    *, default: bool = False, with_networks: bool = False, projects: List[str] = []
+    *,
+    default: bool = False,
+    with_networks: bool = False,
+    projects: List[str] = None,
 ) -> NetworkServiceCreateExtended:
+    if projects is None:
+        projects = []
     endpoint = random_url()
     name = random_network_service_name()
     kwargs = {}
@@ -64,7 +72,7 @@ def validate_attrs(*, obj_in: NetworkServiceBase, db_item: NetworkService) -> No
 def validate_rels(
     *,
     obj_out: Union[NetworkServiceReadExtended, NetworkServiceReadExtendedPublic],
-    db_item: NetworkService
+    db_item: NetworkService,
 ) -> None:
     db_region = db_item.region.single()
     assert db_region

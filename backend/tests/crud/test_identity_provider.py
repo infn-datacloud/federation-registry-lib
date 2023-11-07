@@ -15,7 +15,8 @@ from tests.utils.identity_provider import (
 
 def test_create_item_with_projects(db_provider_with_single_project: Provider) -> None:
     """Create an Identity Provider accepted by a specific Provider with a User Group for
-    each received project."""
+    each received project.
+    """
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_single_project.projects]
     )
@@ -29,7 +30,8 @@ def test_create_item_default_values_with_projects(
     db_provider_with_single_project: Provider,
 ) -> None:
     """Create an Identity Provider, with default values when possible, accepted by a
-    specific Provider with a User Group for each received project."""
+    specific Provider with a User Group for each received project.
+    """
     item_in = create_random_identity_provider(
         projects=[i.uuid for i in db_provider_with_single_project.projects]
     )
@@ -112,7 +114,8 @@ def test_get_items_with_skip(
 
 def test_patch_item(db_idp_with_single_user_group: IdentityProvider) -> None:
     """Update the attributes of an existing Identity Provider, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_identity_provider_patch()
     item = identity_provider.update(
         db_obj=db_idp_with_single_user_group, obj_in=patch_in

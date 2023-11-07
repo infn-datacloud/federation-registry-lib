@@ -10,11 +10,12 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from typing import List
 
-from app.provider.schemas_extended import ProviderCreateExtended
 from logger import logger
 from models.provider import Openstack, TrustedIDP
 from providers.opnstk import get_provider
 from utils import load_cmdb_config, load_config, update_database
+
+from app.provider.schemas_extended import ProviderCreateExtended
 
 MAX_WORKERS = 7
 data_lock = Lock()

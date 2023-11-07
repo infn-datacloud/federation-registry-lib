@@ -18,6 +18,7 @@ class Service(StructuredNode):
     TODO: function using cypher to retrieve IDPs?
 
     Attributes:
+    ----------
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.

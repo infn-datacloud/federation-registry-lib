@@ -48,7 +48,7 @@ def validate_attrs(*, obj_in: UserGroupBase, db_item: UserGroup) -> None:
 def validate_rels(
     *,
     obj_out: Union[UserGroupReadExtended, UserGroupReadExtendedPublic],
-    db_item: UserGroup
+    db_item: UserGroup,
 ) -> None:
     db_idp = db_item.identity_provider.single()
     assert db_idp

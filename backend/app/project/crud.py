@@ -7,7 +7,10 @@ from app.project.schemas import (
     ProjectReadShort,
     ProjectUpdate,
 )
-from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
+from app.project.schemas_extended import (
+    ProjectReadExtended,
+    ProjectReadExtendedPublic,
+)
 from app.provider.models import Provider
 from app.quota.crud import block_storage_quota, compute_quota
 from app.quota.models import BlockStorageQuota, ComputeQuota

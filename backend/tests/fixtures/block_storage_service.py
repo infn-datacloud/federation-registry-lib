@@ -1,8 +1,11 @@
 import pytest
+
 from app.region.models import Region
 from app.service.crud import block_storage_service
 from app.service.models import BlockStorageService
-from tests.utils.block_storage_service import create_random_block_storage_service
+from tests.utils.block_storage_service import (
+    create_random_block_storage_service,
+)
 
 
 @pytest.fixture

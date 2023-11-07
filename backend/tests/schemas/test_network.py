@@ -1,10 +1,18 @@
 from uuid import uuid4
 
 import pytest
-from app.network.models import Network
-from app.network.schemas import NetworkRead, NetworkReadPublic, NetworkReadShort
-from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
 from pydantic import ValidationError
+
+from app.network.models import Network
+from app.network.schemas import (
+    NetworkRead,
+    NetworkReadPublic,
+    NetworkReadShort,
+)
+from app.network.schemas_extended import (
+    NetworkReadExtended,
+    NetworkReadExtendedPublic,
+)
 from tests.utils.network import (
     create_random_network,
     validate_read_extended_network_attrs,

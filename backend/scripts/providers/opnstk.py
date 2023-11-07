@@ -4,6 +4,17 @@ from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
 from typing import List, Optional
 
+from logger import logger
+from models.provider import (
+    AuthMethod,
+    Openstack,
+    PrivateNetProxy,
+    Project,
+    TrustedIDP,
+)
+from openstack import connect
+from openstack.connection import Connection
+
 from app.provider.enum import ProviderStatus
 from app.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
@@ -27,10 +38,6 @@ from app.service.enum import (
     IdentityServiceName,
     NetworkServiceName,
 )
-from logger import logger
-from models.provider import AuthMethod, Openstack, PrivateNetProxy, Project, TrustedIDP
-from openstack import connect
-from openstack.connection import Connection
 
 TIMEOUT = 2  # s
 
@@ -42,7 +49,7 @@ def get_block_storage_quotas(conn: Connection) -> BlockStorageQuotaCreateExtende
     logger.info("Retrieve current project accessible block storage quotas")
     quota = conn.block_storage.get_quota_set(conn.current_project_id)
     data = quota.to_dict()
-    logger.debug(f"Block storage service data={data}")
+    logger.debug(f"Block storage service quotas={data}")
     return BlockStorageQuotaCreateExtended(**data, project=conn.current_project_id)
 
 
@@ -50,7 +57,7 @@ def get_compute_quotas(conn: Connection) -> ComputeQuotaCreateExtended:
     logger.info("Retrieve current project accessible compute quotas")
     quota = conn.compute.get_quota_set(conn.current_project_id)
     data = quota.to_dict()
-    logger.debug(f"Compute service data={data}")
+    logger.debug(f"Compute service quotas={data}")
     return ComputeQuotaCreateExtended(**data, project=conn.current_project_id)
 
 
@@ -81,7 +88,9 @@ def get_flavors(conn: Connection) -> List[FlavorCreateExtended]:
     return flavors
 
 
-def get_images(conn: Connection, tags: List[str] = []) -> List[ImageCreateExtended]:
+def get_images(conn: Connection, tags: List[str] = None) -> List[ImageCreateExtended]:
+    if tags is None:
+        tags = []
     logger.info("Retrieve current project accessible images")
     images = []
     for image in conn.image.images(
@@ -113,8 +122,10 @@ def get_networks(
     default_private_net: Optional[str] = None,
     default_public_net: Optional[str] = None,
     proxy: Optional[PrivateNetProxy] = None,
-    tags: List[str] = [],
+    tags: List[str] = None,
 ) -> List[NetworkCreateExtended]:
+    if tags is None:
+        tags = []
     logger.info("Retrieve current project accessible networks")
     networks = []
     for network in conn.network.networks(
@@ -338,8 +349,9 @@ def get_per_project_details(
 def get_provider(
     *, os_conf: Openstack, trusted_idps: List[TrustedIDP]
 ) -> ProviderCreateExtended:
-    """Generate an Openstack virtual provider, reading information from a real
-    openstack instance."""
+    """Generate an Openstack virtual provider, reading information from a real openstack
+    instance.
+    """
     if os_conf.status != ProviderStatus.ACTIVE:
         logger.info(f"Provider={os_conf.name} not active: {os_conf.status}")
         return ProviderCreateExtended(

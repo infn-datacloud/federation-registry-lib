@@ -63,7 +63,7 @@ class CRUDBlockStorageQuota(
         *,
         db_obj: BlockStorageQuota,
         obj_in: Union[BlockStorageQuotaCreateExtended, BlockStorageQuotaUpdate],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[BlockStorageQuota]:
         """Update Quota attributes.
@@ -72,6 +72,8 @@ class CRUDBlockStorageQuota(
         different from the current one, replace linked project and apply default values
         when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             db_projects = {db_item.uuid: db_item for db_item in projects}
@@ -123,7 +125,7 @@ class CRUDComputeQuota(
         *,
         db_obj: ComputeQuota,
         obj_in: Union[ComputeQuotaCreateExtended, ComputeQuotaUpdate],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[ComputeQuota]:
         """Update Quota attributes.
@@ -132,6 +134,8 @@ class CRUDComputeQuota(
         different from the current one, replace linked project and apply default values
         when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             db_projects = {db_item.uuid: db_item for db_item in projects}

@@ -25,6 +25,7 @@ class Network(StructuredNode):
     To use the Proxy they require the proxy IP and the username to use to access.
 
     Attributes:
+    ----------
         uid (int): Network unique ID.
         description (str): Brief description.
         name (str): Network name in the Provider.

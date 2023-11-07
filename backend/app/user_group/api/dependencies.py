@@ -1,26 +1,29 @@
 from typing import Union
 
+from fastapi import Depends, HTTPException, status
+
 from app.identity_provider.api.dependencies import valid_identity_provider_id
 from app.identity_provider.models import IdentityProvider
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
-from fastapi import Depends, HTTPException, status
 
 
 def valid_user_group_id(user_group_uid: str) -> UserGroup:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         user_group_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         UserGroup: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = user_group.get(uid=user_group_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -38,15 +41,17 @@ def is_unique_user_group(
     with the same name.
 
     Args:
+    ----
         item (UserGroupCreate | UserGroupUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with given name already exists.
     """
-
     db_item = identity_provider.user_groups.get_or_none(name=item.name)
     if db_item is not None:
         raise HTTPException(
@@ -63,17 +68,19 @@ def validate_new_user_group_values(
     to the same identity provider, with the same name.
 
     Args:
+    ----
         update_data (UserGroupUpdate): new data.
         item (UserGroup): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with given name already exists.
     """
-
     if update_data.name != item.name:
         is_unique_user_group(
             item=update_data, identity_provider=item.identity_provider.single()

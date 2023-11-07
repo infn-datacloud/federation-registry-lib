@@ -16,7 +16,8 @@ from tests.utils.sla import (
 
 def test_create_item(db_user_group: UserGroup) -> None:
     """Create an SLA belonging to a specific user group and pointing to an existing
-    projects."""
+    projects.
+    """
     db_idp = db_user_group.identity_provider.single()
     db_provider = db_idp.providers.single()
     db_project = db_provider.projects.single()
@@ -27,7 +28,8 @@ def test_create_item(db_user_group: UserGroup) -> None:
 
 def test_create_item_default_values(db_user_group: UserGroup) -> None:
     """Create an SLA, with default values when possible, belonging to a specific user
-    group and pointing to existing projects."""
+    group and pointing to existing projects.
+    """
     db_idp = db_user_group.identity_provider.single()
     db_provider = db_idp.providers.single()
     db_project = db_provider.projects.single()
@@ -144,7 +146,8 @@ def test_force_update_without_changing_relationships(db_sla: SLA) -> None:
 
 def test_replace_project_with_another_same_provider(db_sla2: SLA) -> None:
     """Update an existing SLA with a single project on a provider, replacing the project
-    with another project of the same provider."""
+    with another project of the same provider.
+    """
     db_project = db_sla2.projects.single()
     db_provider = db_project.provider.single()
     for db_project2 in db_provider.projects:
@@ -162,7 +165,8 @@ def test_add_new_project_diff_provider_to_existing_sla(
     db_sla: SLA, db_provider_with_multiple_projects: Provider
 ) -> None:
     """Update an existing SLA with a single project, adding a new project belonging to
-    another provider."""
+    another provider.
+    """
     db_project = db_provider_with_multiple_projects.projects.single()
     item_in = create_random_sla(project=db_project.uuid)
     item = sla.update(

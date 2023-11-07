@@ -2,12 +2,13 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.location.models import Location
 from app.location.schemas import LocationBase, LocationRead, LocationReadShort
 from app.location.schemas_extended import LocationReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.location import (
     create_random_location_patch,
     validate_read_extended_location_attrs,
@@ -49,7 +50,8 @@ def test_read_locations_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all locations matching specific attributes passed
-    as query attributes."""
+    as query attributes.
+    """
     settings = get_settings()
 
     for k in LocationBase.__fields__.keys():
@@ -73,18 +75,23 @@ def test_read_locations_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all locations limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"limit": 0}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"limit": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"limit": 1}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"limit": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -102,7 +109,9 @@ def test_read_sorted_locations(
     sorted_items = list(sorted([db_location, db_location2], key=lambda x: x.uid))
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"sort": "uid"}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"sort": "uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -154,28 +163,36 @@ def test_read_locations_with_skip(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"skip": 0}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"skip": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"skip": 1}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"skip": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"skip": 2}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"skip": 2},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"skip": 3}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"skip": 3},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -195,7 +212,9 @@ def test_read_locations_with_pagination(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"size": 1}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"size": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -217,7 +236,9 @@ def test_read_locations_with_pagination(
 
     # Page greater than 0 but size equals None, does nothing
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"page": 1}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"page": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -277,7 +298,9 @@ def test_read_locations_short(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/locations/", params={"short": True}, headers=read_header
+        f"{settings.API_V1_STR}/locations/",
+        params={"short": True},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -306,7 +329,8 @@ def test_read_location(
     """Execute GET operations to read a location."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/locations/{db_location.uid}", headers=read_header
+        f"{settings.API_V1_STR}/locations/{db_location.uid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -455,7 +479,8 @@ def test_delete_location(
     """Execute DELETE to remove a location."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/locations/{db_location.uid}", headers=write_header
+        f"{settings.API_V1_STR}/locations/{db_location.uid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

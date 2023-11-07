@@ -38,7 +38,7 @@ class CRUDUserGroup(
         *,
         obj_in: UserGroupCreateExtended,
         identity_provider: IdentityProvider,
-        projects: List[Project] = []
+        projects: List[Project] = None,
     ) -> UserGroup:
         """Create a new User Group.
 
@@ -48,6 +48,8 @@ class CRUDUserGroup(
         disconnect it from the target project. In any case create (or just update if
         already exists) the SLA.
         """
+        if projects is None:
+            projects = []
         db_obj = super().create(obj_in=obj_in)
         db_obj.identity_provider.connect(identity_provider)
         db_project = next(
@@ -75,14 +77,16 @@ class CRUDUserGroup(
         *,
         db_obj: UserGroup,
         obj_in: Union[UserGroupUpdate, UserGroupCreateExtended],
-        projects: List[Project] = [],
-        force: bool = False
+        projects: List[Project] = None,
+        force: bool = False,
     ) -> Optional[UserGroup]:
         """Update User Group attributes.
 
         By default do not update relationships or default values. If force is True,
         update linked SLAs and apply default values when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             edit = self.__update_slas(
@@ -100,7 +104,7 @@ class CRUDUserGroup(
         *,
         obj_in: UserGroupCreateExtended,
         db_obj: UserGroup,
-        provider_projects: List[Project]
+        provider_projects: List[Project],
     ) -> bool:
         """Update user group linked SLAs.
 

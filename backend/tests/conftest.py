@@ -3,9 +3,10 @@ from glob import glob
 from typing import Dict, Generator
 
 import pytest
-from app.main import app
 from fastapi.testclient import TestClient
 from neomodel import clear_neo4j_database, db
+
+from app.main import app
 
 
 def refactor(string: str) -> str:

@@ -2,6 +2,9 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.service.enum import ServiceType
 from app.service.models import NetworkService
@@ -11,8 +14,6 @@ from app.service.schemas import (
     NetworkServiceReadShort,
 )
 from app.service.schemas_extended import NetworkServiceReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.network_service import (
     create_random_network_service_patch,
     validate_read_extended_network_service_attrs,
@@ -58,7 +59,8 @@ def test_read_network_services_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all network_services matching specific attributes
-    passed as query attributes."""
+    passed as query attributes.
+    """
     settings = get_settings()
 
     for k in NetworkServiceBase.__fields__.keys():
@@ -82,7 +84,8 @@ def test_read_network_services_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all network_services limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -168,7 +171,8 @@ def test_read_network_services_with_skip(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all network_services, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -290,10 +294,12 @@ def test_read_network_services_with_conn(
         resp_id_serv2 = content[0]
 
     validate_read_extended_network_service_attrs(
-        obj_out=NetworkServiceReadExtended(**resp_id_serv), db_item=db_network_serv
+        obj_out=NetworkServiceReadExtended(**resp_id_serv),
+        db_item=db_network_serv,
     )
     validate_read_extended_network_service_attrs(
-        obj_out=NetworkServiceReadExtended(**resp_id_serv2), db_item=db_network_serv2
+        obj_out=NetworkServiceReadExtended(**resp_id_serv2),
+        db_item=db_network_serv2,
     )
 
 
@@ -323,10 +329,12 @@ def test_read_network_services_short(
         resp_id_serv2 = content[0]
 
     validate_read_short_network_service_attrs(
-        obj_out=NetworkServiceReadShort(**resp_id_serv), db_item=db_network_serv
+        obj_out=NetworkServiceReadShort(**resp_id_serv),
+        db_item=db_network_serv,
     )
     validate_read_short_network_service_attrs(
-        obj_out=NetworkServiceReadShort(**resp_id_serv2), db_item=db_network_serv2
+        obj_out=NetworkServiceReadShort(**resp_id_serv2),
+        db_item=db_network_serv2,
     )
 
 
@@ -394,7 +402,8 @@ def test_read_not_existing_network_service(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
-        f"{settings.API_V1_STR}/network_services/{item_uuid}", headers=read_header
+        f"{settings.API_V1_STR}/network_services/{item_uuid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()
@@ -493,7 +502,8 @@ def test_patch_network_service_with_duplicated_endpoint(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing endpoint to a
-    network_service."""
+    network_service.
+    """
     settings = get_settings()
     data = create_random_network_service_patch()
     data.endpoint = db_network_serv.endpoint
@@ -536,7 +546,8 @@ def test_delete_not_existing_network_service(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(
-        f"{settings.API_V1_STR}/network_services/{item_uuid}", headers=write_header
+        f"{settings.API_V1_STR}/network_services/{item_uuid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()

@@ -1,5 +1,7 @@
 from typing import Union
 
+from fastapi import Depends, HTTPException, status
+
 from app.service.crud import (
     block_storage_service,
     compute_service,
@@ -22,7 +24,6 @@ from app.service.schemas import (
     NetworkServiceCreate,
     NetworkServiceUpdate,
 )
-from fastapi import Depends, HTTPException, status
 
 
 def valid_block_storage_service_id(
@@ -31,15 +32,17 @@ def valid_block_storage_service_id(
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         service_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Service: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = block_storage_service.get(uid=service_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -55,15 +58,17 @@ def valid_block_storage_service_endpoint(
     """Check there are no other services with the same endpoint.
 
     Args:
+    ----
         item (ServiceCreate | ServiceUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with given endpoint already exists.
     """
-
     db_item = block_storage_service.get(endpoint=item.endpoint)
     if db_item is not None:
         msg = f"Block Storage Service with endpoint '{item.endpoint}' "
@@ -79,17 +84,19 @@ def validate_new_block_storage_service_values(
     endpoint.
 
     Args:
+    ----
         update_data (FlavorUpdate): new data.
         item (Flavor): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with given endpoint already exists.
     """
-
     if str(update_data.endpoint) != item.endpoint:
         valid_block_storage_service_endpoint(update_data)
 
@@ -100,15 +107,17 @@ def valid_compute_service_id(
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         service_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Service: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = compute_service.get(uid=service_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -124,15 +133,17 @@ def valid_compute_service_endpoint(
     """Check there are no other services with the same endpoint.
 
     Args:
+    ----
         item (ServiceCreate | ServiceUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with given endpoint already exists.
     """
-
     db_item = compute_service.get(endpoint=item.endpoint)
     if db_item is not None:
         msg = f"Compute Service with endpoint '{item.endpoint}' "
@@ -148,17 +159,19 @@ def validate_new_compute_service_values(
     endpoint.
 
     Args:
+    ----
         update_data (FlavorUpdate): new data.
         item (Flavor): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with given endpoint already exists.
     """
-
     if str(update_data.endpoint) != item.endpoint:
         valid_compute_service_endpoint(update_data)
 
@@ -169,15 +182,17 @@ def valid_identity_service_id(
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         service_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Service: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = identity_service.get(uid=service_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -193,15 +208,17 @@ def valid_identity_service_endpoint(
     """Check there are no other services with the same endpoint.
 
     Args:
+    ----
         item (ServiceCreate | ServiceUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with given endpoint already exists.
     """
-
     db_item = identity_service.get(endpoint=item.endpoint)
     if db_item is not None:
         msg = f"Identity Service with endpoint '{item.endpoint}' "
@@ -217,17 +234,19 @@ def validate_new_identity_service_values(
     endpoint.
 
     Args:
+    ----
         update_data (FlavorUpdate): new data.
         item (Flavor): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with given endpoint already exists.
     """
-
     if str(update_data.endpoint) != item.endpoint:
         valid_identity_service_endpoint(update_data)
 
@@ -238,15 +257,17 @@ def valid_network_service_id(
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         service_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Service: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = network_service.get(uid=service_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -262,15 +283,17 @@ def valid_network_service_endpoint(
     """Check there are no other services with the same endpoint.
 
     Args:
+    ----
         item (ServiceCreate | ServiceUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with given endpoint already exists.
     """
-
     db_item = network_service.get(endpoint=item.endpoint)
     if db_item is not None:
         msg = f"Network Service with endpoint '{item.endpoint}' "
@@ -286,16 +309,18 @@ def validate_new_network_service_values(
     endpoint.
 
     Args:
+    ----
         update_data (FlavorUpdate): new data.
         item (Flavor): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with given endpoint already exists.
     """
-
     if str(update_data.endpoint) != item.endpoint:
         valid_network_service_endpoint(update_data)

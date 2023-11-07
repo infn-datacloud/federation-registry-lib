@@ -5,6 +5,7 @@ class AuthMethod(StructuredRel):
     """Relationship linking a Provider with an Identity Provider.
 
     Attributes:
+    ----------
         idp_name (str): Identity Provider name saved in the Provider.
         protocol (str): Protocol to use when authenticating on this
             identity provider.

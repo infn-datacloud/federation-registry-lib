@@ -1,5 +1,8 @@
 from typing import Union
 
+from fastapi import Depends, HTTPException, status
+from pydantic import UUID4
+
 from app.identity_provider.crud import identity_provider
 from app.location.crud import location
 from app.provider.crud import provider
@@ -17,23 +20,23 @@ from app.service.api.dependencies import (
     valid_network_service_endpoint,
 )
 from app.sla.crud import sla
-from fastapi import Depends, HTTPException, status
-from pydantic import UUID4
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         provider_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Provider: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = provider.get(uid=str(provider_uid).replace("-", ""))
     if not item:
         raise HTTPException(
@@ -47,15 +50,17 @@ def is_unique_provider(item: Union[ProviderCreateExtended, ProviderUpdate]) -> N
     """Check there are no other providers with the same name.
 
     Args:
+    ----
         item (ProviderCreateExtended | ProviderUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with given name already exists.
     """
-
     db_item = provider.get(name=item.name)
     if db_item is not None:
         if db_item.type == item.type:
@@ -74,24 +79,27 @@ def validate_new_provider_values(
     name.
 
     Args:
+    ----
         update_data (ProviderUpdate): new data.
         item (Provider): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with given name already exists.
     """
-
     if update_data.name != item.name:
         is_unique_provider(update_data)
 
 
 def valid_provider(item: ProviderCreateExtended) -> None:
     """Check provider does not already exists and validate identity providers and
-    regions."""
+    regions.
+    """
     is_unique_provider(item)
     for idp in item.identity_providers:
         valid_identity_provider(idp)
@@ -108,12 +116,15 @@ def valid_identity_provider(
     same endpoint, it matches the given attributes.
 
     Args:
+    ----
         item (ProviderCreateExtended): provider data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: multiple items with identical name or uuid,
             or DB entity with given endpoint already exists but has
             different attributes.

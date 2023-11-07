@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.network.models import Network
 from app.network.schemas import NetworkBase, NetworkReadPublic
 from app.network.schemas_extended import NetworkReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.network import (
     create_random_network_patch,
     validate_read_extended_public_network_attrs,
@@ -37,10 +38,12 @@ def test_read_networks(
         resp_private_network = content[0]
 
     validate_read_public_network_attrs(
-        obj_out=NetworkReadPublic(**resp_public_network), db_item=db_public_network
+        obj_out=NetworkReadPublic(**resp_public_network),
+        db_item=db_public_network,
     )
     validate_read_public_network_attrs(
-        obj_out=NetworkReadPublic(**resp_private_network), db_item=db_private_network
+        obj_out=NetworkReadPublic(**resp_private_network),
+        db_item=db_private_network,
     )
 
 
@@ -49,7 +52,8 @@ def test_read_networks_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all networks matching specific attributes passed
-    as query attributes."""
+    as query attributes.
+    """
     settings = get_settings()
 
     for k in NetworkBase.__fields__.keys():
@@ -71,7 +75,8 @@ def test_read_networks_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all networks limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/networks/", params={"limit": 0})
@@ -261,10 +266,12 @@ def test_read_networks_short(
     #     q = NetworkReadShort(**resp_private_network)
 
     validate_read_public_network_attrs(
-        obj_out=NetworkReadPublic(**resp_public_network), db_item=db_public_network
+        obj_out=NetworkReadPublic(**resp_public_network),
+        db_item=db_public_network,
     )
     validate_read_public_network_attrs(
-        obj_out=NetworkReadPublic(**resp_private_network), db_item=db_private_network
+        obj_out=NetworkReadPublic(**resp_private_network),
+        db_item=db_private_network,
     )
 
 
@@ -314,7 +321,8 @@ def test_read_private_network_with_conn(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_extended_public_network_attrs(
-        obj_out=NetworkReadExtendedPublic(**content), db_item=db_private_network
+        obj_out=NetworkReadExtendedPublic(**content),
+        db_item=db_private_network,
     )
 
 

@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
     IdentityProviderRead,
@@ -11,7 +13,6 @@ from app.identity_provider.schemas_extended import (
     IdentityProviderReadExtended,
     IdentityProviderReadExtendedPublic,
 )
-from pydantic import ValidationError
 from tests.utils.identity_provider import (
     create_random_identity_provider,
     validate_read_extended_identity_provider_attrs,

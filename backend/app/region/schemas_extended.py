@@ -1,5 +1,7 @@
 from typing import List, Optional, Union
 
+from pydantic import Field
+
 from app.location.schemas import LocationRead, LocationReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.region.schemas import RegionRead, RegionReadPublic
@@ -13,7 +15,6 @@ from app.service.schemas import (
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
-from pydantic import Field
 
 
 class RegionReadExtended(RegionRead):

@@ -1,24 +1,27 @@
 from typing import Union
 
+from fastapi import Depends, HTTPException, status
+
 from app.sla.crud import sla
 from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLAUpdate
-from fastapi import Depends, HTTPException, status
 
 
 def valid_sla_id(sla_uid: str) -> SLA:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         sla_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         SLA: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = sla.get(uid=sla_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -32,15 +35,17 @@ def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
     """Check there are no other SLAs with the same document uuid.
 
     Args:
+    ----
         item (SLACreate | SLAUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with given document uuid already exists.
     """
-
     db_item = sla.get(doc_uuid=item.doc_uuid)
     if db_item is not None:
         msg = f"Document '{item.doc_uuid}' already used "
@@ -58,16 +63,18 @@ def validate_new_sla_values(
     document uuid.
 
     Args:
+    ----
         update_data (FlavorUpdate): new data.
         item (Flavor): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with given document uuid already exists.
     """
-
     if update_data.doc_uuid is not None and update_data.doc_uuid != item.doc_uuid:
         is_unique_sla(update_data)

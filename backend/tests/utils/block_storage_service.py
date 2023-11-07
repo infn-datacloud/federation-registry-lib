@@ -23,8 +23,10 @@ from tests.utils.utils import random_lower_string, random_url
 
 
 def create_random_block_storage_service(
-    *, default: bool = False, projects: List[str] = []
+    *, default: bool = False, projects: List[str] = None
 ) -> BlockStorageServiceCreateExtended:
+    if projects is None:
+        projects = []
     endpoint = random_url()
     name = random_block_storage_service_name()
     kwargs = {}
@@ -72,7 +74,7 @@ def validate_rels(
     obj_out: Union[
         BlockStorageServiceReadExtended, BlockStorageServiceReadExtendedPublic
     ],
-    db_item: BlockStorageService
+    db_item: BlockStorageService,
 ) -> None:
     db_region = db_item.region.single()
     assert db_region

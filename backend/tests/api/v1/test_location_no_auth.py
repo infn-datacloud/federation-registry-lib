@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.location.models import Location
 from app.location.schemas import LocationBase, LocationReadPublic
 from app.location.schemas_extended import LocationReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.location import (
     create_random_location_patch,
     validate_read_extended_public_location_attrs,
@@ -49,7 +50,8 @@ def test_read_locations_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all locations matching specific attributes passed
-    as query attributes."""
+    as query attributes.
+    """
     settings = get_settings()
 
     for k in LocationBase.__fields__.keys():
@@ -71,7 +73,8 @@ def test_read_locations_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all locations limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/locations/", params={"limit": 0})
@@ -305,7 +308,8 @@ def test_read_location_short(
     """Execute GET operations to read the shrunk version of a location."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/locations/{db_location.uid}", params={"short": True}
+        f"{settings.API_V1_STR}/locations/{db_location.uid}",
+        params={"short": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()

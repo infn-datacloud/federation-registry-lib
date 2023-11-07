@@ -1,10 +1,14 @@
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.image.models import Image
 from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
-from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
-from pydantic import ValidationError
+from app.image.schemas_extended import (
+    ImageReadExtended,
+    ImageReadExtendedPublic,
+)
 from tests.utils.image import (
     create_random_image,
     validate_read_extended_image_attrs,

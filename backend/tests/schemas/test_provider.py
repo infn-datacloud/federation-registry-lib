@@ -2,13 +2,18 @@ import copy
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.provider.models import Provider
-from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadShort
+from app.provider.schemas import (
+    ProviderRead,
+    ProviderReadPublic,
+    ProviderReadShort,
+)
 from app.provider.schemas_extended import (
     ProviderReadExtended,
     ProviderReadExtendedPublic,
 )
-from pydantic import ValidationError
 from tests.utils.provider import (
     create_random_provider,
     validate_read_extended_provider_attrs,
@@ -60,7 +65,10 @@ def test_invalid_create_schema():
         a.status = random_lower_string()
     with pytest.raises(ValidationError):
         # Duplicated identity providers
-        a.identity_providers = [a.identity_providers[0], a.identity_providers[0]]
+        a.identity_providers = [
+            a.identity_providers[0],
+            a.identity_providers[0],
+        ]
     with pytest.raises(ValidationError):
         # Duplicated identity projects
         a.projects = [a.projects[0], a.projects[0]]

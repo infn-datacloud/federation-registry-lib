@@ -1,10 +1,14 @@
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
-from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
-from pydantic import ValidationError
+from app.flavor.schemas_extended import (
+    FlavorReadExtended,
+    FlavorReadExtendedPublic,
+)
 from tests.utils.flavor import (
     create_random_flavor,
     validate_read_extended_flavor_attrs,

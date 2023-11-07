@@ -9,7 +9,10 @@ from app.region.schemas import (
     RegionReadShort,
     RegionUpdate,
 )
-from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
+from app.region.schemas_extended import (
+    RegionReadExtended,
+    RegionReadExtendedPublic,
+)
 from app.service.enum import ServiceType
 from tests.utils.block_storage_service import (
     create_random_block_storage_service,
@@ -23,7 +26,10 @@ from tests.utils.identity_service import (
     create_random_identity_service,
     validate_create_identity_service_attrs,
 )
-from tests.utils.location import create_random_location, validate_create_location_attrs
+from tests.utils.location import (
+    create_random_location,
+    validate_create_location_attrs,
+)
 from tests.utils.network_service import (
     create_random_network_service,
     validate_create_network_service_attrs,
@@ -38,8 +44,10 @@ def create_random_region(
     with_compute_services: bool = False,
     with_identity_services: bool = False,
     with_network_services: bool = False,
-    projects: List[str] = [],
+    projects: List[str] = None,
 ) -> RegionCreateExtended:
+    if projects is None:
+        projects = []
     name = random_lower_string()
     kwargs = {}
     if not default:
@@ -83,7 +91,9 @@ def validate_attrs(*, obj_in: RegionBase, db_item: Region) -> None:
 
 
 def validate_rels(
-    *, obj_out: Union[RegionReadExtended, RegionReadExtendedPublic], db_item: Region
+    *,
+    obj_out: Union[RegionReadExtended, RegionReadExtendedPublic],
+    db_item: Region,
 ) -> None:
     db_provider = db_item.provider.single()
     assert db_provider
@@ -109,7 +119,8 @@ def validate_create_region_attrs(
     if len(db_item.services) > 0:
         db_block_storage_services = list(
             filter(
-                lambda x: x.type == ServiceType.BLOCK_STORAGE.value, db_item.services
+                lambda x: x.type == ServiceType.BLOCK_STORAGE.value,
+                db_item.services,
             )
         )
         assert len(db_block_storage_services) == len(obj_in.block_storage_services)
@@ -130,7 +141,10 @@ def validate_create_region_attrs(
             validate_create_compute_service_attrs(obj_in=serv_in, db_item=db_serv)
 
         db_identity_services = list(
-            filter(lambda x: x.type == ServiceType.IDENTITY.value, db_item.services)
+            filter(
+                lambda x: x.type == ServiceType.IDENTITY.value,
+                db_item.services,
+            )
         )
         assert len(db_identity_services) == len(obj_in.identity_services)
         for db_serv, serv_in in zip(

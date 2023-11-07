@@ -13,7 +13,10 @@ from app.region.schemas import (
     RegionReadShort,
     RegionUpdate,
 )
-from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
+from app.region.schemas_extended import (
+    RegionReadExtended,
+    RegionReadExtendedPublic,
+)
 from app.service.crud import (
     block_storage_service,
     compute_service,
@@ -77,7 +80,6 @@ class CRUDRegion(
         At first delete its services. Then, if the location points only to this
         provider, delete it. Finally delete the region.
         """
-
         if not from_provider:
             item = db_obj.provider.single()
             if len(item.regions) == 1:
@@ -105,7 +107,7 @@ class CRUDRegion(
         *,
         db_obj: Region,
         obj_in: Union[RegionCreateExtended, RegionUpdate],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[Region]:
         """Update Region attributes.
@@ -113,6 +115,8 @@ class CRUDRegion(
         By default do not update relationships or default values. If force is True,
         update linked projects and apply default values when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             locations_updated = self.__update_location(db_obj=db_obj, obj_in=obj_in)
@@ -205,7 +209,10 @@ class CRUDRegion(
                 edit = True
             else:
                 updated_data = block_storage_service.update(
-                    db_obj=db_item, obj_in=item, projects=provider_projects, force=True
+                    db_obj=db_item,
+                    obj_in=item,
+                    projects=provider_projects,
+                    force=True,
                 )
                 if not edit and updated_data is not None:
                     edit = True
@@ -241,7 +248,10 @@ class CRUDRegion(
                 edit = True
             else:
                 updated_data = compute_service.update(
-                    db_obj=db_item, obj_in=item, projects=provider_projects, force=True
+                    db_obj=db_item,
+                    obj_in=item,
+                    projects=provider_projects,
+                    force=True,
                 )
                 if not edit and updated_data is not None:
                     edit = True
@@ -310,7 +320,10 @@ class CRUDRegion(
                 edit = True
             else:
                 updated_data = network_service.update(
-                    db_obj=db_item, obj_in=item, projects=provider_projects, force=True
+                    db_obj=db_item,
+                    obj_in=item,
+                    projects=provider_projects,
+                    force=True,
                 )
                 if not edit and updated_data is not None:
                     edit = True

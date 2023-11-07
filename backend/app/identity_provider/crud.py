@@ -87,15 +87,17 @@ class CRUDIdentityProvider(
         *,
         db_obj: IdentityProvider,
         obj_in: Union[IdentityProviderUpdate, IdentityProviderCreateExtended],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         provider: Optional[Provider] = None,
-        force: bool = False
+        force: bool = False,
     ) -> Optional[IdentityProvider]:
         """Update Identity Provider attributes.
 
         By default do not update relationships or default values. If force is True,
         update linked user groups and apply default values when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             edit = self.__update_user_groups(
@@ -121,7 +123,7 @@ class CRUDIdentityProvider(
         *,
         obj_in: IdentityProviderCreateExtended,
         db_obj: IdentityProvider,
-        provider_projects: List[Project]
+        provider_projects: List[Project],
     ) -> bool:
         """Update identity provider linked user groups.
 

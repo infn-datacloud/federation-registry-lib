@@ -1,5 +1,7 @@
 from typing import Optional
 
+from pydantic import AnyHttpUrl, Field, validator
+
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 from app.service.enum import (
@@ -9,7 +11,6 @@ from app.service.enum import (
     NetworkServiceName,
     ServiceType,
 )
-from pydantic import AnyHttpUrl, Field, validator
 
 
 class ServiceBase(BaseNode):

@@ -1,4 +1,5 @@
 import pytest
+
 from app.region.models import Region
 from app.service.crud import compute_service
 from app.service.models import ComputeService

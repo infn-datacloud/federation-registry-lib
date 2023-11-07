@@ -2,11 +2,12 @@ import os
 from typing import Dict, List, Tuple
 
 import yaml
-from app.provider.schemas_extended import ProviderCreateExtended
 from crud import CRUD
 from logger import logger
 from models.cmdb import CMDB, URLs
 from models.provider import SiteConfig
+
+from app.provider.schemas_extended import ProviderCreateExtended
 
 
 def load_cmdb_config(*, base_path: str = ".") -> SiteConfig:
@@ -51,8 +52,9 @@ def get_read_write_headers(*, token: str) -> Tuple[Dict[str, str], Dict[str, str
 def update_database(
     *, cmdb_urls: URLs, items: List[ProviderCreateExtended], token: str
 ) -> None:
-    """Use the read and write headers to create, update or remove providers
-    from the CMDB."""
+    """Use the read and write headers to create, update or remove providers from the
+    CMDB.
+    """
     read_header, write_header = get_read_write_headers(token=token)
     crud = CRUD(
         url=cmdb_urls.providers, read_headers=read_header, write_headers=write_header

@@ -1,5 +1,11 @@
 from typing import List, Optional, Union
 
+# from app.user_group.api.dependencies import is_unique_user_group
+# from app.user_group.crud import user_group
+# from app.user_group.schemas import UserGroupCreate
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
 
 # from app.auth_method.schemas import AuthMethodCreate
@@ -25,12 +31,6 @@ from app.identity_provider.schemas_extended import (
 # from app.provider.api.dependencies import valid_provider_id
 # from app.provider.models import Provider
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-
-# from app.user_group.api.dependencies import is_unique_user_group
-# from app.user_group.crud import user_group
-# from app.user_group.schemas import UserGroupCreate
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 

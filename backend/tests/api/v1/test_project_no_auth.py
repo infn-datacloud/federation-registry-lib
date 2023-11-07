@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.project.models import Project
 from app.project.schemas import ProjectBase, ProjectReadPublic
 from app.project.schemas_extended import ProjectReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.project import (
     create_random_project_patch,
     validate_read_extended_public_project_attrs,
@@ -49,7 +50,8 @@ def test_read_projects_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all projects matching specific attributes passed
-    as query attributes."""
+    as query attributes.
+    """
     settings = get_settings()
 
     for k in ProjectBase.__fields__.keys():
@@ -71,7 +73,8 @@ def test_read_projects_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all projects limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/projects/", params={"limit": 0})

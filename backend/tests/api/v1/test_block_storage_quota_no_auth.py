@@ -1,12 +1,16 @@
 import json
 from uuid import uuid4
 
-from app.config import get_settings
-from app.quota.models import BlockStorageQuota
-from app.quota.schemas import BlockStorageQuotaBase, BlockStorageQuotaReadPublic
-from app.quota.schemas_extended import BlockStorageQuotaReadExtendedPublic
 from fastapi import status
 from fastapi.testclient import TestClient
+
+from app.config import get_settings
+from app.quota.models import BlockStorageQuota
+from app.quota.schemas import (
+    BlockStorageQuotaBase,
+    BlockStorageQuotaReadPublic,
+)
+from app.quota.schemas_extended import BlockStorageQuotaReadExtendedPublic
 from tests.utils.block_storage_quota import (
     create_random_block_storage_quota_patch,
     validate_read_extended_public_block_storage_quota_attrs,
@@ -37,7 +41,8 @@ def test_read_block_storage_quotas(
         resp_bsq_per_user = content[0]
 
     validate_read_public_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaReadPublic(**resp_bsq), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaReadPublic(**resp_bsq),
+        db_item=db_block_storage_quota,
     )
     validate_read_public_block_storage_quota_attrs(
         obj_out=BlockStorageQuotaReadPublic(**resp_bsq_per_user),
@@ -50,7 +55,8 @@ def test_read_block_storage_quotas_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas matching specific
-    attributes passed as query attributes."""
+    attributes passed as query attributes.
+    """
     settings = get_settings()
 
     for k in BlockStorageQuotaBase.__fields__.keys():
@@ -73,7 +79,8 @@ def test_read_block_storage_quotas_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas limiting the number of
-    output items."""
+    output items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -124,7 +131,8 @@ def test_read_sorted_block_storage_quotas(
     assert content[1]["uid"] == sorted_items[0].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_quotas/", params={"sort": "uid_asc"}
+        f"{settings.API_V1_STR}/block_storage_quotas/",
+        params={"sort": "uid_asc"},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -149,7 +157,8 @@ def test_read_block_storage_quotas_with_skip(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -204,7 +213,8 @@ def test_read_block_storage_quotas_with_pagination(
         next_page_uid = db_block_storage_quota.uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_quotas/", params={"size": 1, "page": 1}
+        f"{settings.API_V1_STR}/block_storage_quotas/",
+        params={"size": 1, "page": 1},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -221,7 +231,8 @@ def test_read_block_storage_quotas_with_pagination(
 
     # Page index greater than maximum number of pages. Return nothing
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_quotas/", params={"size": 1, "page": 2}
+        f"{settings.API_V1_STR}/block_storage_quotas/",
+        params={"size": 1, "page": 2},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -234,11 +245,13 @@ def test_read_block_storage_quotas_with_conn(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas with their
-    relationships."""
+    relationships.
+    """
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_quotas/", params={"with_conn": True}
+        f"{settings.API_V1_STR}/block_storage_quotas/",
+        params={"with_conn": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -294,7 +307,8 @@ def test_read_block_storage_quotas_short(
     #     q = BlockStorageQuotaReadShort(**resp_bsq_per_user)
 
     validate_read_public_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaReadPublic(**resp_bsq), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaReadPublic(**resp_bsq),
+        db_item=db_block_storage_quota,
     )
     validate_read_public_block_storage_quota_attrs(
         obj_out=BlockStorageQuotaReadPublic(**resp_bsq_per_user),
@@ -314,7 +328,8 @@ def test_read_block_storage_quota(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_public_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaReadPublic(**content), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaReadPublic(**content),
+        db_item=db_block_storage_quota,
     )
 
 
@@ -357,7 +372,8 @@ def test_read_block_storage_quota_short(
     #     q = BlockStorageQuotaReadShort(**content)
 
     validate_read_public_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaReadPublic(**content), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaReadPublic(**content),
+        db_item=db_block_storage_quota,
     )
 
 

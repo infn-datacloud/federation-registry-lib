@@ -1,6 +1,8 @@
 from typing import Any, List, Optional, Union
 from uuid import UUID
 
+from pydantic import Field, root_validator, validator
+
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
 from app.identity_provider.schemas import (
@@ -9,10 +11,18 @@ from app.identity_provider.schemas import (
     IdentityProviderReadPublic,
 )
 from app.image.schemas import ImageCreate, ImageRead, ImageReadPublic
-from app.location.schemas import LocationCreate, LocationRead, LocationReadPublic
+from app.location.schemas import (
+    LocationCreate,
+    LocationRead,
+    LocationReadPublic,
+)
 from app.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
 from app.project.schemas import ProjectCreate, ProjectRead
-from app.provider.schemas import ProviderCreate, ProviderRead, ProviderReadPublic
+from app.provider.schemas import (
+    ProviderCreate,
+    ProviderRead,
+    ProviderReadPublic,
+)
 from app.quota.schemas import (
     BlockStorageQuotaCreate,
     BlockStorageQuotaRead,
@@ -37,8 +47,11 @@ from app.service.schemas import (
     NetworkServiceReadPublic,
 )
 from app.sla.schemas import SLACreate, SLARead, SLAReadPublic
-from app.user_group.schemas import UserGroupCreate, UserGroupRead, UserGroupReadPublic
-from pydantic import Field, root_validator, validator
+from app.user_group.schemas import (
+    UserGroupCreate,
+    UserGroupRead,
+    UserGroupReadPublic,
+)
 
 
 class UserGroupReadExtended(UserGroupRead):
@@ -51,7 +64,8 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
 
 class IdentityProviderReadExtended(IdentityProviderRead):
     """Model to extend the Identity Provider data read from the DB with the
-    authentication method details."""
+    authentication method details.
+    """
 
     relationship: AuthMethodRead = Field(
         description="Authentication method used by the Provider"
@@ -63,7 +77,8 @@ class IdentityProviderReadExtended(IdentityProviderRead):
 
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
     """Model to extend the Identity Provider data read from the DB with the
-    authentication method details."""
+    authentication method details.
+    """
 
     relationship: AuthMethodRead = Field(
         description="Authentication method used by the Provider"
@@ -151,7 +166,8 @@ class RegionReadExtendedPublic(RegionReadPublic):
 
 class ProviderReadExtended(ProviderRead):
     """Model to extend the Provider data read from the DB with the lists of related
-    items for authenticated users."""
+    items for authenticated users.
+    """
 
     identity_providers: List[IdentityProviderReadExtended] = Field(
         default_factory=list,
@@ -167,7 +183,8 @@ class ProviderReadExtended(ProviderRead):
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
     """Model to extend the Provider data read from the DB with the lists of related
-    items for non-authenticated users."""
+    items for non-authenticated users.
+    """
 
     identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
         default_factory=list,
@@ -213,7 +230,8 @@ class UserGroupCreateExtended(UserGroupCreate):
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
     """Model to extend the Identity Provider data used to create a new instance in the
-    DB with the authentication method details."""
+    DB with the authentication method details.
+    """
 
     relationship: AuthMethodCreate = Field(
         description="Authentication method used by the Provider"
@@ -413,7 +431,8 @@ class RegionCreateExtended(RegionCreate):
 
 class ProviderCreateExtended(ProviderCreate):
     """Model to extend the Provider data used to create a new instance in the DB with
-    the lists of related items."""
+    the lists of related items.
+    """
 
     identity_providers: List[IdentityProviderCreateExtended] = Field(
         default_factory=list,

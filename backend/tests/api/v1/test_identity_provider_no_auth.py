@@ -1,15 +1,18 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
     IdentityProviderBase,
     IdentityProviderReadPublic,
 )
-from app.identity_provider.schemas_extended import IdentityProviderReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
+from app.identity_provider.schemas_extended import (
+    IdentityProviderReadExtendedPublic,
+)
 from tests.utils.identity_provider import (
     create_random_identity_provider_patch,
     validate_read_extended_public_identity_provider_attrs,
@@ -54,7 +57,8 @@ def test_read_identity_providers_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all identity_providers matching specific
-    attributes passed as query attributes."""
+    attributes passed as query attributes.
+    """
     settings = get_settings()
 
     for k in IdentityProviderBase.__fields__.keys():
@@ -77,7 +81,8 @@ def test_read_identity_providers_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all identity_providers limiting the number of
-    output items."""
+    output items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -128,7 +133,8 @@ def test_read_sorted_identity_providers(
     assert content[1]["uid"] == sorted_items[0].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/", params={"sort": "uid_asc"}
+        f"{settings.API_V1_STR}/identity_providers/",
+        params={"sort": "uid_asc"},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -153,7 +159,8 @@ def test_read_identity_providers_with_skip(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all identity_providers, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -208,7 +215,8 @@ def test_read_identity_providers_with_pagination(
         next_page_uid = db_idp_with_single_user_group.uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/", params={"size": 1, "page": 1}
+        f"{settings.API_V1_STR}/identity_providers/",
+        params={"size": 1, "page": 1},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -225,7 +233,8 @@ def test_read_identity_providers_with_pagination(
 
     # Page index greater than maximum number of pages. Return nothing
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/", params={"size": 1, "page": 2}
+        f"{settings.API_V1_STR}/identity_providers/",
+        params={"size": 1, "page": 2},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -238,11 +247,13 @@ def test_read_identity_providers_with_conn(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all identity_providers with their
-    relationships."""
+    relationships.
+    """
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/identity_providers/", params={"with_conn": True}
+        f"{settings.API_V1_STR}/identity_providers/",
+        params={"with_conn": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -271,7 +282,8 @@ def test_read_identity_providers_short(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all identity_providers with their shrunk
-    version."""
+    version.
+    """
     settings = get_settings()
 
     response = client.get(

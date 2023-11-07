@@ -69,7 +69,7 @@ class CRUDProvider(
         *,
         db_obj: Provider,
         obj_in: Union[ProviderUpdate, ProviderCreateExtended],
-        force: bool = False
+        force: bool = False,
     ) -> Optional[Provider]:
         """Update Provider attributes.
 

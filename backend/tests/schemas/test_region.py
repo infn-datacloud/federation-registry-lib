@@ -1,10 +1,14 @@
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.region.models import Region
 from app.region.schemas import RegionRead, RegionReadPublic, RegionReadShort
-from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
-from pydantic import ValidationError
+from app.region.schemas_extended import (
+    RegionReadExtended,
+    RegionReadExtendedPublic,
+)
 from tests.utils.region import (
     create_random_region,
     validate_read_extended_public_region_attrs,

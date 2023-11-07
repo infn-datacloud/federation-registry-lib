@@ -24,7 +24,8 @@ def test_create_item(db_provider: Provider) -> None:
 
 def test_create_item_default_values(db_provider: Provider) -> None:
     """Create a Project, with default values when possible, belonging to a specific
-    Provider."""
+    Provider.
+    """
     item_in = create_random_project(default=True)
     item = project.create(obj_in=item_in, provider=db_provider)
     validate_create_project_attrs(obj_in=item_in, db_item=item)
@@ -91,7 +92,8 @@ def test_get_items_with_skip(db_project: Project, db_project2: Project) -> None:
 
 def test_patch_item(db_project: Project) -> None:
     """Update the attributes of an existing Project, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_project_patch()
     item = project.update(db_obj=db_project, obj_in=patch_in)
     for k, v in patch_in.dict().items():

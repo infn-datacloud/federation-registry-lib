@@ -1,4 +1,6 @@
 import pytest
+from pydantic import ValidationError
+
 from app.service.enum import (
     BlockStorageServiceName,
     ComputeServiceName,
@@ -15,7 +17,6 @@ from app.service.schemas_extended import (
     IdentityServiceReadExtended,
     IdentityServiceReadExtendedPublic,
 )
-from pydantic import ValidationError
 from tests.utils.identity_service import (
     create_random_identity_service,
     validate_read_extended_identity_service_attrs,

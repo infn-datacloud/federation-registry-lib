@@ -24,7 +24,8 @@ def test_create_item(db_region: Region) -> None:
 
 def test_create_item_default_values(db_region: Region) -> None:
     """Create a BlockStorage Service, with default values when possible, belonging to a
-    specific Region."""
+    specific Region.
+    """
     item_in = create_random_block_storage_service(default=True)
     item = block_storage_service.create(obj_in=item_in, region=db_region)
     validate_create_block_storage_service_attrs(obj_in=item_in, db_item=item)
@@ -32,7 +33,8 @@ def test_create_item_default_values(db_region: Region) -> None:
 
 def test_create_item_with_projects(db_region: Region) -> None:
     """Create a BlockStorage Service belonging to a specific Region with a set of
-    quotas."""
+    quotas.
+    """
     db_provider = db_region.provider.single()
     item_in = create_random_block_storage_service(
         projects=[i.uuid for i in db_provider.projects]
@@ -116,7 +118,8 @@ def test_get_items_with_skip(
 
 def test_patch_item(db_block_storage_serv: BlockStorageService) -> None:
     """Update the attributes of an existing BlockStorage Service, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_block_storage_service_patch()
     item = block_storage_service.update(db_obj=db_block_storage_serv, obj_in=patch_in)
     for k, v in patch_in.dict().items():

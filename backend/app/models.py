@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Dict
 from uuid import UUID
 
-from neo4j.data import DateTime
+from neo4j.time import DateTime
 from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
 from pydantic import BaseModel, Field, root_validator
 

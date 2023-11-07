@@ -2,6 +2,8 @@ import copy
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.service.enum import (
     ComputeServiceName,
     IdentityServiceName,
@@ -18,7 +20,6 @@ from app.service.schemas_extended import (
     BlockStorageServiceReadExtended,
     BlockStorageServiceReadExtendedPublic,
 )
-from pydantic import ValidationError
 from tests.utils.block_storage_service import (
     create_random_block_storage_service,
     validate_read_block_storage_service_attrs,

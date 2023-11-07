@@ -27,7 +27,8 @@ def test_create_item(db_block_storage_serv: BlockStorageService) -> None:
 
 def test_create_item_default_values(db_block_storage_serv: BlockStorageService) -> None:
     """Create a BlockStorage Quota, with default values when possible, belonging to a
-    specific BlockStorage Service."""
+    specific BlockStorage Service.
+    """
     db_region = db_block_storage_serv.region.single()
     db_provider = db_region.provider.single()
     db_project = db_provider.projects.single()
@@ -113,7 +114,8 @@ def test_get_items_with_skip(
 
 def test_patch_item(db_block_storage_quota: BlockStorageQuota) -> None:
     """Update the attributes of an existing BlockStorage Quota, do not update linked
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_block_storage_quota_patch()
     item = block_storage_quota.update(db_obj=db_block_storage_quota, obj_in=patch_in)
     for k, v in patch_in.dict().items():

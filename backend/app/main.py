@@ -1,8 +1,9 @@
 import uvicorn
-from app.config import get_settings
-from app.router import router_v1
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.config import get_settings
+from app.router import router_v1
 
 summary = """
 Configuration Management Database (CMDB)

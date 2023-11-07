@@ -22,7 +22,8 @@ def test_create_item(db_region: Region) -> None:
 
 def test_create_item_default_values(db_region: Region) -> None:
     """Create an Network Service, with default values when possible, belonging to a
-    specific Compute Service."""
+    specific Compute Service.
+    """
     item_in = create_random_network_service(default=True)
     item = network_service.create(obj_in=item_in, region=db_region)
     validate_create_network_service_attrs(obj_in=item_in, db_item=item)
@@ -30,7 +31,8 @@ def test_create_item_default_values(db_region: Region) -> None:
 
 def test_create_item_with_networks(db_region: Region) -> None:
     """Create an Network Service, with default values when possible, belonging to a
-    specific Compute Service, with related networks."""
+    specific Compute Service, with related networks.
+    """
     item_in = create_random_network_service(with_networks=True)
     item = network_service.create(obj_in=item_in, region=db_region)
     validate_create_network_service_attrs(obj_in=item_in, db_item=item)
@@ -105,7 +107,8 @@ def test_get_items_with_skip(
 
 def test_patch_item(db_network_serv: NetworkService) -> None:
     """Update the attributes of an existing Network Service, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_network_service_patch()
     item = network_service.update(db_obj=db_network_serv, obj_in=patch_in)
     for k, v in patch_in.dict().items():

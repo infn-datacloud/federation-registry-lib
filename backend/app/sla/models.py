@@ -20,6 +20,7 @@ class SLA(StructuredNode):
     An SLA has a start and end date (which must be greater then the start date).
 
     Attributes:
+    ----------
         uid (int): SLA unique ID.
         description (str): Brief description.
         doc_uuid (str): Unique ID of the document with the SLA details.

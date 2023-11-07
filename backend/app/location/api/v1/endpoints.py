@@ -1,5 +1,8 @@
 from typing import List, Optional, Union
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
 from app.location.api.dependencies import (
     valid_location_id,
@@ -19,8 +22,6 @@ from app.location.schemas_extended import (
     LocationReadExtendedPublic,
 )
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 # from app.region.models import Region
 # from app.region.api.dependencies import valid_region_id
@@ -89,7 +90,10 @@ def get_location(
     "/{location_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[LocationRead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_location_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_location_values),
+    ],
     summary="Edit a specific Location",
     description="Update attribute values of a specific location. \
         The target location is identified using its uid. \

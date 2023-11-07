@@ -1,6 +1,7 @@
 from typing import Generator
 
 import pytest
+
 from app.provider.crud import provider
 from app.provider.models import Provider
 from tests.utils.provider import create_random_provider, random_type

@@ -131,7 +131,8 @@ def test_get_items_with_skip(db_provider: Provider, db_provider2: Provider) -> N
 
 def test_patch_item(db_provider: Provider) -> None:
     """Update the attributes of an existing Provider, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_provider_patch()
     item = provider.update(db_obj=db_provider, obj_in=patch_in)
     for k, v in patch_in.dict().items():

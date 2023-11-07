@@ -9,7 +9,10 @@ from app.image.schemas import (
     ImageReadShort,
     ImageUpdate,
 )
-from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
+from app.image.schemas_extended import (
+    ImageReadExtended,
+    ImageReadExtendedPublic,
+)
 from app.project.models import Project
 from app.provider.schemas_extended import ImageCreateExtended
 from app.service.models import ComputeService
@@ -34,7 +37,7 @@ class CRUDImage(
         *,
         obj_in: ImageCreate,
         service: ComputeService,
-        projects: List[Project] = [],
+        projects: List[Project] = None,
     ) -> Image:
         """Create a new Image.
 
@@ -44,6 +47,8 @@ class CRUDImage(
         image. In any case connect the image to the given service and to any received
         project.
         """
+        if projects is None:
+            projects = []
         db_obj = self.get(uuid=obj_in.uuid)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
@@ -68,7 +73,7 @@ class CRUDImage(
         *,
         db_obj: Image,
         obj_in: Union[ImageUpdate, ImageCreateExtended],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[Image]:
         """Update Image attributes.
@@ -76,6 +81,8 @@ class CRUDImage(
         By default do not update relationships or default values. If force is True,
         update linked projects and apply default values when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             edit = self.__update_projects(

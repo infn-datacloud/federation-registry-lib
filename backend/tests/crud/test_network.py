@@ -22,7 +22,8 @@ def test_create_item(db_network_serv: NetworkService) -> None:
 
 def test_create_item_default_values(db_network_serv: NetworkService) -> None:
     """Create a Network, with default values when possible, belonging to a specific
-    Network Service."""
+    Network Service.
+    """
     item_in = create_random_network(default=True)
     item = network.create(obj_in=item_in, service=db_network_serv)
     validate_create_network_attrs(obj_in=item_in, db_item=item)
@@ -108,7 +109,8 @@ def test_get_items_with_skip(
 
 def test_patch_item(db_private_network: Network) -> None:
     """Update the attributes of an existing Network, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_network_patch()
     patch_in.is_shared = db_private_network.is_shared
     item = network.update(db_obj=db_private_network, obj_in=patch_in)

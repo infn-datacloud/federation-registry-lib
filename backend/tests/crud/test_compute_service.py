@@ -26,7 +26,8 @@ def test_create_item(db_region: Region) -> None:
 
 def test_create_item_default_values(db_region: Region) -> None:
     """Create a Compute Service, with default values when possible, belonging to a
-    specific Region."""
+    specific Region.
+    """
     item_in = create_random_compute_service(default=True)
     item = compute_service.create(obj_in=item_in, region=db_region)
     validate_create_compute_service_attrs(obj_in=item_in, db_item=item)
@@ -60,7 +61,8 @@ def test_create_item_with_images(db_region: Region) -> None:
 
 def test_create_item_with_everything(db_region: Region) -> None:
     """Create a Compute Service belonging to a specific Region with flavors, images and
-    quotas."""
+    quotas.
+    """
     db_provider = db_region.provider.single()
     item_in = create_random_compute_service(
         with_flavors=True,
@@ -142,7 +144,8 @@ def test_get_items_with_skip(
 
 def test_patch_item(db_compute_serv: ComputeService) -> None:
     """Update the attributes of an existing Compute Service, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_compute_service_patch()
     item = compute_service.update(db_obj=db_compute_serv, obj_in=patch_in)
     for k, v in patch_in.dict().items():

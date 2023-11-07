@@ -1,23 +1,26 @@
+from fastapi import Depends, HTTPException, status
+
 from app.quota.crud import block_storage_quota, compute_quota
 from app.quota.enum import QuotaType
 from app.quota.models import BlockStorageQuota, ComputeQuota
 from app.quota.schemas import BlockStorageQuotaUpdate, ComputeQuotaUpdate
-from fastapi import Depends, HTTPException, status
 
 
 def valid_block_storage_quota_id(quota_uid: str) -> BlockStorageQuota:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         quota_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Service: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = block_storage_quota.get(uid=quota_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -35,13 +38,16 @@ def validate_new_block_storage_quota_values(
     the same project, with the same type and per_user flag.
 
     Args:
+    ----
         update_data (BlockStorageQuotaUpdate): new data.
         item (BlockStorageQuota): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with identical name or uuid,
             belonging to the same service, already exists.
@@ -65,15 +71,17 @@ def valid_compute_quota_id(quota_uid: str) -> ComputeQuota:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         quota_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Service: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = compute_quota.get(uid=quota_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -91,13 +99,16 @@ def validate_new_compute_quota_values(
     the same project, with the same type and per_user flag.
 
     Args:
+    ----
         update_data (ComputeQuotaUpdate): new data.
         item (ComputeQuota): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with identical name or uuid,
             belonging to the same service, already exists.

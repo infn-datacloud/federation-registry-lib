@@ -29,7 +29,8 @@ def test_create_item(db_provider: Provider) -> None:
 
 def test_create_item_default_values(db_provider: Provider) -> None:
     """Create a Region, with default values when possible, belonging to a specific
-    Provider."""
+    Provider.
+    """
     item_in = create_random_region(default=True)
     item = region.create(obj_in=item_in, provider=db_provider)
     validate_create_region_attrs(obj_in=item_in, db_item=item)
@@ -145,7 +146,8 @@ def test_create_item_with_network_services(db_provider: Provider) -> None:
 
 def test_create_item_with_everything(db_provider: Provider) -> None:
     """Create a Region belonging to a specific Provider with Location, BlockStorage
-    Services, Compute Services, Identity Services and Network Services."""
+    Services, Compute Services, Identity Services and Network Services.
+    """
     item_in = create_random_region(
         with_location=True,
         with_block_storage_services=True,
@@ -217,7 +219,8 @@ def test_get_items_with_skip(db_region: Region, db_region2: Region) -> None:
 
 def test_patch_item(db_region: Region) -> None:
     """Update the attributes of an existing Region, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_region_patch()
     item = region.update(db_obj=db_region, obj_in=patch_in)
     for k, v in patch_in.dict().items():

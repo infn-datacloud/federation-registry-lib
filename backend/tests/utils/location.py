@@ -1,6 +1,8 @@
 from random import choice, randrange
 from typing import Union
 
+from pycountry import countries
+
 from app.location.models import Location
 from app.location.schemas import (
     LocationCreate,
@@ -13,7 +15,6 @@ from app.location.schemas_extended import (
     LocationReadExtended,
     LocationReadExtendedPublic,
 )
-from pycountry import countries
 from tests.utils.utils import random_lower_string
 
 
@@ -74,7 +75,7 @@ def validate_attrs(*, obj_in: LocationCreate, db_item: Location) -> None:
 def validate_rels(
     *,
     obj_out: Union[LocationReadExtended, LocationReadExtendedPublic],
-    db_item: Location
+    db_item: Location,
 ) -> None:
     assert len(db_item.regions) == len(obj_out.regions)
     for db_reg, reg_out in zip(

@@ -3,7 +3,13 @@ from uuid import uuid4
 
 from app.provider.schemas_extended import SLACreateExtended
 from app.sla.models import SLA
-from app.sla.schemas import SLABase, SLARead, SLAReadPublic, SLAReadShort, SLAUpdate
+from app.sla.schemas import (
+    SLABase,
+    SLARead,
+    SLAReadPublic,
+    SLAReadShort,
+    SLAUpdate,
+)
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from tests.utils.utils import random_date, random_lower_string
 
@@ -26,7 +32,7 @@ def create_random_sla(*, default: bool = False, project: str) -> SLACreateExtend
         end_date=end_date,
         doc_uuid=doc_uuid,
         project=project,
-        **kwargs
+        **kwargs,
     )
 
 

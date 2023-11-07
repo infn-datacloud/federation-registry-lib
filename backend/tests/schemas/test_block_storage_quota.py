@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.quota.enum import QuotaType
 from app.quota.models import BlockStorageQuota
 from app.quota.schemas import (
@@ -12,7 +14,6 @@ from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtended,
     BlockStorageQuotaReadExtendedPublic,
 )
-from pydantic import ValidationError
 from tests.utils.block_storage_quota import (
     create_random_block_storage_quota,
     validate_read_block_storage_quota_attrs,

@@ -1,5 +1,10 @@
 from typing import List, Optional, Union
 
+# from app.user_group.api.dependencies import valid_user_group_id
+# from app.user_group.models import UserGroup
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
 
 # from app.project.api.dependencies import project_has_no_sla
@@ -11,13 +16,14 @@ from app.sla.api.dependencies import (  # is_unique_sla,
 )
 from app.sla.crud import sla
 from app.sla.models import SLA
-from app.sla.schemas import SLAQuery, SLARead, SLAReadPublic, SLAReadShort, SLAUpdate
+from app.sla.schemas import (
+    SLAQuery,
+    SLARead,
+    SLAReadPublic,
+    SLAReadShort,
+    SLAUpdate,
+)
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
-
-# from app.user_group.api.dependencies import valid_user_group_id
-# from app.user_group.models import UserGroup
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 router = APIRouter(prefix="/slas", tags=["slas"])
 
@@ -98,7 +104,11 @@ def get_slas(
 @router.get(
     "/{sla_uid}",
     response_model=Union[
-        SLAReadExtended, SLARead, SLAReadShort, SLAReadExtendedPublic, SLAReadPublic
+        SLAReadExtended,
+        SLARead,
+        SLAReadShort,
+        SLAReadExtendedPublic,
+        SLAReadPublic,
     ],
     summary="Read a specific SLA",
     description="Retrieve a specific SLA using its *uid*. \
@@ -120,7 +130,10 @@ def get_sla(
     "/{sla_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[SLARead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_sla_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_sla_values),
+    ],
     summary="Edit a specific SLA",
     description="Update attribute values of a specific SLA. \
         The target SLA is identified using its uid. \

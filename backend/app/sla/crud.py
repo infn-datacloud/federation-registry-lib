@@ -4,7 +4,13 @@ from app.crud import CRUDBase
 from app.project.models import Project
 from app.provider.schemas_extended import SLACreateExtended
 from app.sla.models import SLA
-from app.sla.schemas import SLACreate, SLARead, SLAReadPublic, SLAReadShort, SLAUpdate
+from app.sla.schemas import (
+    SLACreate,
+    SLARead,
+    SLAReadPublic,
+    SLAReadShort,
+    SLAUpdate,
+)
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from app.user_group.models import UserGroup
 
@@ -47,7 +53,7 @@ class CRUDSLA(
         *,
         db_obj: SLA,
         obj_in: Union[SLAUpdate, SLACreateExtended],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[SLA]:
         """Update SLA attributes.
@@ -61,6 +67,8 @@ class CRUDSLA(
         replace the old one with the new one, otherwise we immediately connect the new
         one.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             provider_projects = {db_item.uuid: db_item for db_item in projects}

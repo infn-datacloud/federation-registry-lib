@@ -1,5 +1,7 @@
 from typing import List, Optional, Union
 
+from pydantic import Field
+
 from app.flavor.schemas import FlavorRead, FlavorReadPublic
 from app.identity_provider.schemas import (
     IdentityProviderRead,
@@ -24,7 +26,6 @@ from app.service.schemas import (
 )
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
-from pydantic import Field
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
@@ -53,7 +54,8 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
 
 class ComputeQuotaReadExtended(ComputeQuotaRead):
     """Model to extend the Quota data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     service: ComputeServiceReadExtended = Field(
         description="A generic Quota applies to only one generic Service."
@@ -62,7 +64,8 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
 
 class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     service: ComputeServiceReadExtendedPublic = Field(
         description="A generic Quota applies to only one generic Service."
@@ -71,7 +74,8 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
 
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
     """Model to extend the Quota data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     service: BlockStorageServiceReadExtended = Field(
         description="A generic Quota applies to only one generic Service."
@@ -80,7 +84,8 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
 
 class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     service: BlockStorageServiceReadExtendedPublic = Field(
         description="A generic Quota applies to only one generic Service."
@@ -89,7 +94,8 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
 
 class UserGroupReadExtended(UserGroupRead):
     """Model to extend the User Group data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     identity_provider: IdentityProviderRead = Field(
         description="Identity Provider owning this User Group."
@@ -98,7 +104,8 @@ class UserGroupReadExtended(UserGroupRead):
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
     """Model to extend the User Group data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     identity_provider: IdentityProviderReadPublic = Field(
         description="Identity Provider owning this User Group."
@@ -119,7 +126,8 @@ class SLAReadExtendedPublic(SLAReadPublic):
 
 class ProjectReadExtended(ProjectRead):
     """Model to extend the Project data read from the DB with the lists of related items
-    for authenticated users."""
+    for authenticated users.
+    """
 
     private_networks: List[NetworkRead] = Field(
         default_factory=list, description="List of accessible networks"
@@ -141,7 +149,8 @@ class ProjectReadExtended(ProjectRead):
 
 class ProjectReadExtendedPublic(ProjectReadPublic):
     """Model to extend the Project data read from the DB with the lists of related items
-    for non-authenticated users."""
+    for non-authenticated users.
+    """
 
     private_networks: List[NetworkReadPublic] = Field(
         default_factory=list, description="List of accessible networks"

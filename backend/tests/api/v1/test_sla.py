@@ -3,12 +3,13 @@ from datetime import date
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.sla.models import SLA
 from app.sla.schemas import SLABase, SLARead, SLAReadShort
 from app.sla.schemas_extended import SLAReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.sla import (
     create_random_sla_patch,
     validate_read_extended_sla_attrs,
@@ -48,7 +49,8 @@ def test_read_slas_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all slas matching specific attributes passed as
-    query attributes."""
+    query attributes.
+    """
     settings = get_settings()
 
     for k in SLABase.__fields__.keys():
@@ -72,14 +74,18 @@ def test_read_slas_with_limit(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/slas/", params={"limit": 0}, headers=read_header
+        f"{settings.API_V1_STR}/slas/",
+        params={"limit": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/slas/", params={"limit": 1}, headers=read_header
+        f"{settings.API_V1_STR}/slas/",
+        params={"limit": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -97,7 +103,9 @@ def test_read_sorted_slas(
     sorted_items = list(sorted([db_sla2, db_sla3], key=lambda x: x.uid))
 
     response = client.get(
-        f"{settings.API_V1_STR}/slas/", params={"sort": "uid"}, headers=read_header
+        f"{settings.API_V1_STR}/slas/",
+        params={"sort": "uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -106,7 +114,9 @@ def test_read_sorted_slas(
     assert content[1]["uid"] == sorted_items[1].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/slas/", params={"sort": "-uid"}, headers=read_header
+        f"{settings.API_V1_STR}/slas/",
+        params={"sort": "-uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -269,7 +279,9 @@ def test_read_slas_short(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/slas/", params={"short": True}, headers=read_header
+        f"{settings.API_V1_STR}/slas/",
+        params={"short": True},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()

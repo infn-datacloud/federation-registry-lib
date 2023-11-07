@@ -1,8 +1,5 @@
 from typing import List
 
-from app.flavor.models import Flavor
-from app.image.models import Image
-from app.network.models import Network
 from neomodel import (
     One,
     RelationshipFrom,
@@ -13,6 +10,10 @@ from neomodel import (
     ZeroOrMore,
     ZeroOrOne,
 )
+
+from app.flavor.models import Flavor
+from app.image.models import Image
+from app.network.models import Network
 
 
 class Project(StructuredNode):
@@ -27,6 +28,7 @@ class Project(StructuredNode):
     A project should always be pointed by an SLA.
 
     Attributes:
+    ----------
         uid (uuid): AssociatedProject unique ID.
         description (str): Brief description.
         name (str): Name of the project in the Provider.
@@ -71,7 +73,7 @@ class Project(StructuredNode):
 
     query_prefix = """
         MATCH (p:Project)
-        WHERE (id(p)=$self)
+        WHERE (elementId(p)=$self)
         MATCH (p)-[:USE_SERVICE_WITH]-(q)
         WHERE q.type = compute
         MATCH (q)-[:APPLY_TO]-(s)

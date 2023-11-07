@@ -1,4 +1,5 @@
 import pytest
+
 from app.location.crud import location
 from app.location.models import Location
 from app.region.models import Region
@@ -26,7 +27,8 @@ def db_location_with_multiple_regions(
     db_location: Location, db_region3: Region
 ) -> Location:
     """Location connected to the region of the first provider and the second region of
-    the second provider."""
+    the second provider.
+    """
     item_in = create_random_location()
     item_in.site = db_location.site
     item = location.create(obj_in=item_in, region=db_region3)

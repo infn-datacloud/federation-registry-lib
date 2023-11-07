@@ -34,7 +34,7 @@ class CRUDFlavor(
         *,
         obj_in: FlavorCreate,
         service: ComputeService,
-        projects: List[Project] = [],
+        projects: List[Project] = None,
     ) -> Flavor:
         """Create a new Flavor.
 
@@ -44,6 +44,8 @@ class CRUDFlavor(
         flavor. In any case connect the flavor to the given service and to any received
         project.
         """
+        if projects is None:
+            projects = []
         db_obj = self.get(uuid=obj_in.uuid)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
@@ -68,7 +70,7 @@ class CRUDFlavor(
         *,
         db_obj: Flavor,
         obj_in: Union[FlavorUpdate, FlavorCreateExtended],
-        projects: List[Project] = [],
+        projects: List[Project] = None,
         force: bool = False,
     ) -> Optional[Flavor]:
         """Update Flavor attributes.
@@ -76,6 +78,8 @@ class CRUDFlavor(
         By default do not update relationships or default values. If force is True,
         update linked projects and apply default values when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             edit = self.__update_projects(

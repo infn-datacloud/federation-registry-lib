@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.service.models import ComputeService
 from app.service.schemas import ComputeServiceBase, ComputeServiceReadPublic
 from app.service.schemas_extended import ComputeServiceReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.compute_service import (
     create_random_compute_service_patch,
     validate_read_extended_public_compute_service_attrs,
@@ -37,10 +38,12 @@ def test_read_compute_services(
         resp_bs_serv2 = content[0]
 
     validate_read_public_compute_service_attrs(
-        obj_out=ComputeServiceReadPublic(**resp_bs_serv), db_item=db_compute_serv
+        obj_out=ComputeServiceReadPublic(**resp_bs_serv),
+        db_item=db_compute_serv,
     )
     validate_read_public_compute_service_attrs(
-        obj_out=ComputeServiceReadPublic(**resp_bs_serv2), db_item=db_compute_serv2
+        obj_out=ComputeServiceReadPublic(**resp_bs_serv2),
+        db_item=db_compute_serv2,
     )
 
 
@@ -49,7 +52,8 @@ def test_read_compute_services_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all compute_services matching specific attributes
-    passed as query attributes."""
+    passed as query attributes.
+    """
     settings = get_settings()
 
     for k in ComputeServiceBase.__fields__.keys():
@@ -61,7 +65,8 @@ def test_read_compute_services_with_target_params(
         content = response.json()
         assert len(content) == 1
         validate_read_public_compute_service_attrs(
-            obj_out=ComputeServiceReadPublic(**content[0]), db_item=db_compute_serv
+            obj_out=ComputeServiceReadPublic(**content[0]),
+            db_item=db_compute_serv,
         )
 
 
@@ -71,7 +76,8 @@ def test_read_compute_services_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all compute_services limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -144,7 +150,8 @@ def test_read_compute_services_with_skip(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all compute_services, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -199,7 +206,8 @@ def test_read_compute_services_with_pagination(
         next_page_uid = db_compute_serv.uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/compute_services/", params={"size": 1, "page": 1}
+        f"{settings.API_V1_STR}/compute_services/",
+        params={"size": 1, "page": 1},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -216,7 +224,8 @@ def test_read_compute_services_with_pagination(
 
     # Page index greater than maximum number of pages. Return nothing
     response = client.get(
-        f"{settings.API_V1_STR}/compute_services/", params={"size": 1, "page": 2}
+        f"{settings.API_V1_STR}/compute_services/",
+        params={"size": 1, "page": 2},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -284,10 +293,12 @@ def test_read_compute_services_short(
     #     q = ComputeServiceReadShort(**resp_bs_serv2)
 
     validate_read_public_compute_service_attrs(
-        obj_out=ComputeServiceReadPublic(**resp_bs_serv), db_item=db_compute_serv
+        obj_out=ComputeServiceReadPublic(**resp_bs_serv),
+        db_item=db_compute_serv,
     )
     validate_read_public_compute_service_attrs(
-        obj_out=ComputeServiceReadPublic(**resp_bs_serv2), db_item=db_compute_serv2
+        obj_out=ComputeServiceReadPublic(**resp_bs_serv2),
+        db_item=db_compute_serv2,
     )
 
 
@@ -320,7 +331,8 @@ def test_read_compute_service_with_conn(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_extended_public_compute_service_attrs(
-        obj_out=ComputeServiceReadExtendedPublic(**content), db_item=db_compute_serv
+        obj_out=ComputeServiceReadExtendedPublic(**content),
+        db_item=db_compute_serv,
     )
 
 

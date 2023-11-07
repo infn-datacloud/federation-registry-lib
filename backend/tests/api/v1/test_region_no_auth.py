@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.region.models import Region
 from app.region.schemas import RegionBase, RegionReadPublic
 from app.region.schemas_extended import RegionReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.region import (
     create_random_region_patch,
     validate_read_extended_public_region_attrs,
@@ -49,7 +50,8 @@ def test_read_regions_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all regions matching specific attributes passed as
-    query attributes."""
+    query attributes.
+    """
     settings = get_settings()
 
     for k in RegionBase.__fields__.keys():
@@ -70,7 +72,8 @@ def test_read_regions_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all regions limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/regions/", params={"limit": 0})

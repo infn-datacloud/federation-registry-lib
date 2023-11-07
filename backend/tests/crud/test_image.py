@@ -22,7 +22,8 @@ def test_create_item(db_compute_serv: ComputeService) -> None:
 
 def test_create_item_default_values(db_compute_serv: ComputeService) -> None:
     """Create an Image, with default values when possible, belonging to a specific
-    Compute Service."""
+    Compute Service.
+    """
     item_in = create_random_image(default=True)
     item = image.create(obj_in=item_in, service=db_compute_serv)
     validate_create_image_attrs(obj_in=item_in, db_item=item)
@@ -135,7 +136,8 @@ def test_get_items_with_skip(db_public_image: Image, db_private_image: Image) ->
 
 def test_patch_item(db_private_image: Image) -> None:
     """Update the attributes of an existing Image, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_image_patch()
     patch_in.is_public = db_private_image.is_public
     item = image.update(db_obj=db_private_image, obj_in=patch_in)

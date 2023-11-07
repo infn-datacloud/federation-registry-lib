@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.quota.models import ComputeQuota
 from app.quota.schemas import ComputeQuotaBase, ComputeQuotaReadPublic
 from app.quota.schemas_extended import ComputeQuotaReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.compute_quota import (
     create_random_compute_quota_patch,
     validate_read_extended_public_compute_quota_attrs,
@@ -50,7 +51,8 @@ def test_read_compute_quotas_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all compute_quotas matching specific attributes
-    passed as query attributes."""
+    passed as query attributes.
+    """
     settings = get_settings()
 
     for k in ComputeQuotaBase.__fields__.keys():
@@ -73,7 +75,8 @@ def test_read_compute_quotas_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all compute_quotas limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"limit": 0})
@@ -145,7 +148,8 @@ def test_read_compute_quotas_with_skip(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all compute_quotas, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/compute_quotas/", params={"skip": 0})

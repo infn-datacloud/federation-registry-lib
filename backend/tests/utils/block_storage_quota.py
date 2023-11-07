@@ -13,7 +13,11 @@ from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtended,
     BlockStorageQuotaReadExtendedPublic,
 )
-from tests.utils.utils import random_bool, random_lower_string, random_non_negative_int
+from tests.utils.utils import (
+    random_bool,
+    random_lower_string,
+    random_non_negative_int,
+)
 
 
 def create_random_block_storage_quota(
@@ -70,7 +74,7 @@ def validate_attrs(
 def validate_rels(
     *,
     obj_out: Union[BlockStorageQuotaReadExtended, BlockStorageQuotaReadExtendedPublic],
-    db_item: BlockStorageQuota
+    db_item: BlockStorageQuota,
 ) -> None:
     db_project = db_item.project.single()
     assert db_project

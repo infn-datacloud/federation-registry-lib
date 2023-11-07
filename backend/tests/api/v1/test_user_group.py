@@ -2,12 +2,17 @@ import json
 from typing import Dict
 from uuid import uuid4
 
-from app.config import get_settings
-from app.user_group.models import UserGroup
-from app.user_group.schemas import UserGroupBase, UserGroupRead, UserGroupReadShort
-from app.user_group.schemas_extended import UserGroupReadExtended
 from fastapi import status
 from fastapi.testclient import TestClient
+
+from app.config import get_settings
+from app.user_group.models import UserGroup
+from app.user_group.schemas import (
+    UserGroupBase,
+    UserGroupRead,
+    UserGroupReadShort,
+)
+from app.user_group.schemas_extended import UserGroupReadExtended
 from tests.utils.user_group import (
     create_random_user_group_patch,
     validate_read_extended_user_group_attrs,
@@ -51,7 +56,8 @@ def test_read_user_groups_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all user_groups matching specific attributes
-    passed as query attributes."""
+    passed as query attributes.
+    """
     settings = get_settings()
 
     for k in UserGroupBase.__fields__.keys():
@@ -74,7 +80,8 @@ def test_read_user_groups_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all user_groups limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -453,7 +460,8 @@ def test_patch_user_group_with_duplicated_name_same_idp(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing name to a
-    user_group."""
+    user_group.
+    """
     settings = get_settings()
     data = create_random_user_group_patch()
     data.name = db_user_group2.name
@@ -475,7 +483,8 @@ def test_patch_user_group_with_duplicated_name_diff_idp(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing name to a
-    user_group."""
+    user_group.
+    """
     settings = get_settings()
     data = create_random_user_group_patch()
     data.name = db_user_group.name

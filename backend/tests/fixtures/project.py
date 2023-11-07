@@ -1,4 +1,5 @@
 import pytest
+
 from app.project.crud import project
 from app.project.models import Project
 from app.provider.models import Provider

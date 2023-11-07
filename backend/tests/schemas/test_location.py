@@ -1,11 +1,16 @@
 import pytest
+from pydantic import ValidationError
+
 from app.location.models import Location
-from app.location.schemas import LocationRead, LocationReadPublic, LocationReadShort
+from app.location.schemas import (
+    LocationRead,
+    LocationReadPublic,
+    LocationReadShort,
+)
 from app.location.schemas_extended import (
     LocationReadExtended,
     LocationReadExtendedPublic,
 )
-from pydantic import ValidationError
 from tests.utils.location import (
     create_random_location,
     validate_read_extended_location_attrs,

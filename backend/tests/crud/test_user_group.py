@@ -21,7 +21,8 @@ def test_create_item_with_projects(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
     """Create a User Group belonging to a specific Identity Provider with an SLA for
-    each received project."""
+    each received project.
+    """
     db_provider = db_idp_with_single_user_group.providers.single()
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
@@ -37,7 +38,8 @@ def test_create_item_default_values_with_projects(
     db_idp_with_single_user_group: IdentityProvider,
 ) -> None:
     """Create a User Group, with default values when possible, belonging to a specific
-    Identity Provider with an SLA for each received project."""
+    Identity Provider with an SLA for each received project.
+    """
     db_provider = db_idp_with_single_user_group.providers.single()
     db_project = project.create(obj_in=create_random_project(), provider=db_provider)
     item_in = create_random_user_group(project=db_project.uuid)
@@ -114,7 +116,8 @@ def test_get_items_with_skip(
 
 def test_patch_item(db_user_group: UserGroup) -> None:
     """Update the attributes of an existing User Group, without updating its
-    relationships."""
+    relationships.
+    """
     patch_in = create_random_user_group_patch()
     item = user_group.update(db_obj=db_user_group, obj_in=patch_in)
     for k, v in patch_in.dict().items():
@@ -187,7 +190,8 @@ def test_add_new_sla_diff_provider_to_existing_user_group(
     db_user_group: UserGroup, db_provider_with_multiple_projects: Provider
 ) -> None:
     """Update an existing User Group with a single SLA, adding a new SLA belonging to
-    another provider."""
+    another provider.
+    """
     db_project = db_provider_with_multiple_projects.projects.single()
     item_in = create_random_user_group(project=db_project.uuid)
     item_in.name = db_user_group.name

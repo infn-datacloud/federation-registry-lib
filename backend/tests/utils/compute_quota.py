@@ -13,7 +13,11 @@ from app.quota.schemas_extended import (
     ComputeQuotaReadExtended,
     ComputeQuotaReadExtendedPublic,
 )
-from tests.utils.utils import random_bool, random_lower_string, random_non_negative_int
+from tests.utils.utils import (
+    random_bool,
+    random_lower_string,
+    random_non_negative_int,
+)
 
 
 def create_random_compute_quota(
@@ -72,7 +76,7 @@ def validate_attrs(*, obj_in: ComputeQuotaBase, db_item: ComputeQuota) -> None:
 def validate_rels(
     *,
     obj_out: Union[ComputeQuotaReadExtended, ComputeQuotaReadExtendedPublic],
-    db_item: ComputeQuota
+    db_item: ComputeQuota,
 ) -> None:
     db_project = db_item.project.single()
     assert db_project

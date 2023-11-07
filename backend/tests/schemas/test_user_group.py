@@ -1,6 +1,8 @@
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
+
 from app.user_group.models import UserGroup
 from app.user_group.schemas import (
     UserGroupRead,
@@ -11,7 +13,6 @@ from app.user_group.schemas_extended import (
     UserGroupReadExtended,
     UserGroupReadExtendedPublic,
 )
-from pydantic import ValidationError
 from tests.utils.user_group import (
     create_random_user_group,
     validate_read_extended_public_user_group_attrs,

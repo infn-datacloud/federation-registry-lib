@@ -9,9 +9,16 @@ from app.network.schemas import (
     NetworkReadShort,
     NetworkUpdate,
 )
-from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
+from app.network.schemas_extended import (
+    NetworkReadExtended,
+    NetworkReadExtendedPublic,
+)
 from app.provider.schemas_extended import NetworkCreateExtended
-from tests.utils.utils import random_bool, random_lower_string, random_non_negative_int
+from tests.utils.utils import (
+    random_bool,
+    random_lower_string,
+    random_non_negative_int,
+)
 
 
 def create_random_network(
@@ -81,7 +88,9 @@ def validate_attrs(*, obj_in: NetworkBase, db_item: Network) -> None:
 
 
 def validate_rels(
-    *, obj_out: Union[NetworkReadExtended, NetworkReadExtendedPublic], db_item: Network
+    *,
+    obj_out: Union[NetworkReadExtended, NetworkReadExtendedPublic],
+    db_item: Network,
 ) -> None:
     db_service = db_item.service.single()
     assert db_service

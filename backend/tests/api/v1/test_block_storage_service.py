@@ -2,6 +2,9 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.service.enum import ServiceType
 from app.service.models import BlockStorageService
@@ -11,8 +14,6 @@ from app.service.schemas import (
     BlockStorageServiceReadShort,
 )
 from app.service.schemas_extended import BlockStorageServiceReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.block_storage_service import (
     create_random_block_storage_service_patch,
     validate_read_block_storage_service_attrs,
@@ -45,10 +46,12 @@ def test_read_block_storage_services(
         resp_id_serv2 = content[0]
 
     validate_read_block_storage_service_attrs(
-        obj_out=BlockStorageServiceRead(**resp_id_serv), db_item=db_block_storage_serv
+        obj_out=BlockStorageServiceRead(**resp_id_serv),
+        db_item=db_block_storage_serv,
     )
     validate_read_block_storage_service_attrs(
-        obj_out=BlockStorageServiceRead(**resp_id_serv2), db_item=db_block_storage_serv2
+        obj_out=BlockStorageServiceRead(**resp_id_serv2),
+        db_item=db_block_storage_serv2,
     )
 
 
@@ -58,7 +61,8 @@ def test_read_block_storage_services_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_services matching specific
-    attributes passed as query attributes."""
+    attributes passed as query attributes.
+    """
     settings = get_settings()
 
     for k in BlockStorageServiceBase.__fields__.keys():
@@ -71,7 +75,8 @@ def test_read_block_storage_services_with_target_params(
         content = response.json()
         assert len(content) == 1
         validate_read_block_storage_service_attrs(
-            obj_out=BlockStorageServiceRead(**content[0]), db_item=db_block_storage_serv
+            obj_out=BlockStorageServiceRead(**content[0]),
+            db_item=db_block_storage_serv,
         )
 
 
@@ -82,7 +87,8 @@ def test_read_block_storage_services_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_services limiting the number of
-    output items."""
+    output items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -113,7 +119,10 @@ def test_read_sorted_block_storage_services(
     """Execute GET operations to read all sorted block_storage_services."""
     settings = get_settings()
     sorted_items = list(
-        sorted([db_block_storage_serv, db_block_storage_serv2], key=lambda x: x.uid)
+        sorted(
+            [db_block_storage_serv, db_block_storage_serv2],
+            key=lambda x: x.uid,
+        )
     )
 
     response = client.get(
@@ -168,7 +177,8 @@ def test_read_block_storage_services_with_skip(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_services, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -271,7 +281,8 @@ def test_read_block_storage_services_with_conn(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_services with their
-    relationships."""
+    relationships.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -307,7 +318,8 @@ def test_read_block_storage_services_short(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_services with their shrunk
-    version."""
+    version.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -350,7 +362,8 @@ def test_read_block_storage_service(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_block_storage_service_attrs(
-        obj_out=BlockStorageServiceRead(**content), db_item=db_block_storage_serv
+        obj_out=BlockStorageServiceRead(**content),
+        db_item=db_block_storage_serv,
     )
 
 
@@ -389,7 +402,8 @@ def test_read_block_storage_service_short(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_short_block_storage_service_attrs(
-        obj_out=BlockStorageServiceReadShort(**content), db_item=db_block_storage_serv
+        obj_out=BlockStorageServiceReadShort(**content),
+        db_item=db_block_storage_serv,
     )
 
 
@@ -401,7 +415,8 @@ def test_read_not_existing_block_storage_service(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_services/{item_uuid}", headers=read_header
+        f"{settings.API_V1_STR}/block_storage_services/{item_uuid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()
@@ -453,7 +468,8 @@ def test_patch_not_existing_block_storage_service(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to update a not existing
-    block_storage_service."""
+    block_storage_service.
+    """
     settings = get_settings()
     item_uuid = uuid4()
     data = create_random_block_storage_service_patch()
@@ -505,7 +521,8 @@ def test_patch_block_storage_service_with_duplicated_endpoint(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing endpoint to a
-    block_storage_service."""
+    block_storage_service.
+    """
     settings = get_settings()
     data = create_random_block_storage_service_patch()
     data.endpoint = db_block_storage_serv.endpoint
@@ -545,7 +562,8 @@ def test_delete_not_existing_block_storage_service(
     write_header: Dict,
 ) -> None:
     """Execute DELETE operations to try to delete a not existing
-    block_storage_service."""
+    block_storage_service.
+    """
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(

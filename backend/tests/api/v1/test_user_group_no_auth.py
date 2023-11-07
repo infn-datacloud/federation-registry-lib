@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupBase, UserGroupReadPublic
 from app.user_group.schemas_extended import UserGroupReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.user_group import (
     create_random_user_group_patch,
     validate_read_extended_public_user_group_attrs,
@@ -49,7 +50,8 @@ def test_read_user_groups_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all user_groups matching specific attributes
-    passed as query attributes."""
+    passed as query attributes.
+    """
     settings = get_settings()
 
     for k in UserGroupBase.__fields__.keys():
@@ -70,7 +72,8 @@ def test_read_user_groups_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all user_groups limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/user_groups/", params={"limit": 0})

@@ -1,7 +1,13 @@
 from typing import List, Optional, Union
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
-from app.flavor.api.dependencies import valid_flavor_id, validate_new_flavor_values
+from app.flavor.api.dependencies import (
+    valid_flavor_id,
+    validate_new_flavor_values,
+)
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.flavor.schemas import (
@@ -11,10 +17,11 @@ from app.flavor.schemas import (
     FlavorReadShort,
     FlavorUpdate,
 )
-from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
+from app.flavor.schemas_extended import (
+    FlavorReadExtended,
+    FlavorReadExtendedPublic,
+)
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 router = APIRouter(prefix="/flavors", tags=["flavors"])
 
@@ -80,7 +87,10 @@ def get_flavor(
     "/{flavor_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[FlavorRead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_flavor_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_flavor_values),
+    ],
     summary="Edit a specific flavor",
     description="Update attribute values of a specific flavor. \
         The target flavor is identified using its *uid*. \

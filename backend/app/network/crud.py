@@ -9,7 +9,10 @@ from app.network.schemas import (
     NetworkReadShort,
     NetworkUpdate,
 )
-from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
+from app.network.schemas_extended import (
+    NetworkReadExtended,
+    NetworkReadExtendedPublic,
+)
 from app.project.models import Project
 from app.provider.schemas_extended import NetworkCreateExtended
 from app.service.models import NetworkService
@@ -34,7 +37,7 @@ class CRUDNetwork(
         *,
         obj_in: NetworkCreate,
         service: NetworkService,
-        project: Optional[Project] = None
+        project: Optional[Project] = None,
     ) -> Network:
         """Create a new Network.
 
@@ -51,14 +54,16 @@ class CRUDNetwork(
         *,
         db_obj: Network,
         obj_in: Union[NetworkUpdate, NetworkCreateExtended],
-        projects: List[Project] = [],
-        force: bool = False
+        projects: List[Project] = None,
+        force: bool = False,
     ) -> Optional[Network]:
         """Update Network attributes.
 
         By default do not update relationships or default values. If force is True,
         update linked project and apply default values when explicit.
         """
+        if projects is None:
+            projects = []
         edit = False
         if force:
             db_projects = {db_item.uuid: db_item for db_item in projects}

@@ -2,12 +2,13 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.provider.models import Provider
 from app.provider.schemas import ProviderBase, ProviderRead, ProviderReadShort
 from app.provider.schemas_extended import ProviderReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.provider import (
     create_random_provider_patch,
     validate_read_extended_provider_attrs,
@@ -38,10 +39,12 @@ def test_read_providers(
         resp_prov2 = content[0]
 
     validate_read_provider_attrs(
-        obj_out=ProviderRead(**resp_prov), db_item=db_provider_with_single_project
+        obj_out=ProviderRead(**resp_prov),
+        db_item=db_provider_with_single_project,
     )
     validate_read_provider_attrs(
-        obj_out=ProviderRead(**resp_prov2), db_item=db_provider_with_multiple_projects
+        obj_out=ProviderRead(**resp_prov2),
+        db_item=db_provider_with_multiple_projects,
     )
 
 
@@ -51,7 +54,8 @@ def test_read_providers_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all providers matching specific attributes passed
-    as query attributes."""
+    as query attributes.
+    """
     settings = get_settings()
 
     for k in ProviderBase.__fields__.keys():
@@ -64,7 +68,8 @@ def test_read_providers_with_target_params(
         content = response.json()
         assert len(content) == 1
         validate_read_provider_attrs(
-            obj_out=ProviderRead(**content[0]), db_item=db_provider_with_single_project
+            obj_out=ProviderRead(**content[0]),
+            db_item=db_provider_with_single_project,
         )
 
 
@@ -75,7 +80,8 @@ def test_read_providers_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all providers limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -107,7 +113,10 @@ def test_read_sorted_providers(
     settings = get_settings()
     sorted_items = list(
         sorted(
-            [db_provider_with_single_project, db_provider_with_multiple_projects],
+            [
+                db_provider_with_single_project,
+                db_provider_with_multiple_projects,
+            ],
             key=lambda x: x.uid,
         )
     )
@@ -320,7 +329,8 @@ def test_read_providers_short(
         resp_prov2 = content[0]
 
     validate_read_short_provider_attrs(
-        obj_out=ProviderReadShort(**resp_prov), db_item=db_provider_with_single_project
+        obj_out=ProviderReadShort(**resp_prov),
+        db_item=db_provider_with_single_project,
     )
     validate_read_short_provider_attrs(
         obj_out=ProviderReadShort(**resp_prov2),
@@ -342,7 +352,8 @@ def test_read_provider(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_provider_attrs(
-        obj_out=ProviderRead(**content), db_item=db_provider_with_single_project
+        obj_out=ProviderRead(**content),
+        db_item=db_provider_with_single_project,
     )
 
 
@@ -361,7 +372,8 @@ def test_read_provider_with_conn(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_extended_provider_attrs(
-        obj_out=ProviderReadExtended(**content), db_item=db_provider_with_single_project
+        obj_out=ProviderReadExtended(**content),
+        db_item=db_provider_with_single_project,
     )
 
 
@@ -380,7 +392,8 @@ def test_read_provider_short(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_short_provider_attrs(
-        obj_out=ProviderReadShort(**content), db_item=db_provider_with_single_project
+        obj_out=ProviderReadShort(**content),
+        db_item=db_provider_with_single_project,
     )
 
 
@@ -463,7 +476,8 @@ def test_patch_provider_with_duplicated_name(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing name to a provider
-    with the same type."""
+    with the same type.
+    """
     settings = get_settings()
     data = create_random_provider_patch()
     data.name = db_provider_with_single_project.name

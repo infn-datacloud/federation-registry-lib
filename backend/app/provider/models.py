@@ -1,4 +1,3 @@
-from app.auth_method.models import AuthMethod
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
@@ -8,6 +7,8 @@ from neomodel import (
     UniqueIdProperty,
     ZeroOrMore,
 )
+
+from app.auth_method.models import AuthMethod
 
 
 class Provider(StructuredNode):
@@ -24,6 +25,7 @@ class Provider(StructuredNode):
     It support multiple Projects.
 
     Attributes:
+    ----------
         uid (int): Provider unique ID.
         description (str): Brief description.
         name (str): Provider name.

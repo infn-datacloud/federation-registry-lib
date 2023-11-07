@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.image.models import Image
 from app.image.schemas import ImageBase, ImageReadPublic
 from app.image.schemas_extended import ImageReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.image import (
     create_random_image_patch,
     validate_read_extended_public_image_attrs,
@@ -49,7 +50,8 @@ def test_read_images_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all images matching specific attributes passed as
-    query attributes."""
+    query attributes.
+    """
     settings = get_settings()
 
     for k in ImageBase.__fields__.keys():
@@ -220,7 +222,8 @@ def test_read_images_with_conn(
         resp_private_image = content[0]
 
     validate_read_extended_public_image_attrs(
-        obj_out=ImageReadExtendedPublic(**resp_public_image), db_item=db_public_image
+        obj_out=ImageReadExtendedPublic(**resp_public_image),
+        db_item=db_public_image,
     )
     validate_read_extended_public_image_attrs(
         obj_out=ImageReadExtendedPublic(**resp_private_image),
@@ -319,7 +322,8 @@ def test_read_image_short(
     """Execute GET operations to read the shrunk version of an image."""
     settings = get_settings()
     response = client.get(
-        f"{settings.API_V1_STR}/images/{db_public_image.uid}", params={"short": True}
+        f"{settings.API_V1_STR}/images/{db_public_image.uid}",
+        params={"short": True},
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()

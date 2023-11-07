@@ -1,4 +1,5 @@
 import pytest
+
 from app.network.crud import network
 from app.network.models import Network
 from app.project.models import Project

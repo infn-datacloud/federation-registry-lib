@@ -1,8 +1,16 @@
 import pytest
-from app.project.models import Project
-from app.project.schemas import ProjectRead, ProjectReadPublic, ProjectReadShort
-from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from pydantic import ValidationError
+
+from app.project.models import Project
+from app.project.schemas import (
+    ProjectRead,
+    ProjectReadPublic,
+    ProjectReadShort,
+)
+from app.project.schemas_extended import (
+    ProjectReadExtended,
+    ProjectReadExtendedPublic,
+)
 from tests.utils.project import (
     create_random_project,
     validate_read_extended_project_attrs,

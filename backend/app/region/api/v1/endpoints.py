@@ -1,8 +1,14 @@
 from typing import List, Optional, Union
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
-from app.region.api.dependencies import valid_region_id, validate_new_region_values
+from app.region.api.dependencies import (
+    valid_region_id,
+    validate_new_region_values,
+)
 from app.region.crud import region
 from app.region.models import Region
 from app.region.schemas import (
@@ -12,9 +18,10 @@ from app.region.schemas import (
     RegionReadShort,
     RegionUpdate,
 )
-from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
+from app.region.schemas_extended import (
+    RegionReadExtended,
+    RegionReadExtendedPublic,
+)
 
 router = APIRouter(prefix="/regions", tags=["regions"])
 
@@ -80,7 +87,10 @@ def get_region(
     "/{region_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[RegionRead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_region_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_region_values),
+    ],
     summary="Edit a specific region",
     description="Update attribute values of a specific region. \
         The target region is identified using its uid. \

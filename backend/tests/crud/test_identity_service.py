@@ -21,7 +21,8 @@ def test_create_item(db_region: Region) -> None:
 
 def test_create_item_default_values(db_region: Region) -> None:
     """Create an Identity Service, with default values when possible, belonging to a
-    specific Compute Service."""
+    specific Compute Service.
+    """
     item_in = create_random_identity_service(default=True)
     item = identity_service.create(obj_in=item_in, region=db_region)
     validate_create_identity_service_attrs(obj_in=item_in, db_item=item)
@@ -126,7 +127,8 @@ def test_force_update_without_changing_relationships(
 ) -> None:
     """Update the attributes of an existing Identity Service leaving untouched its
     connections (this is different from the previous test because the flag force is set
-    to True)."""
+    to True).
+    """
     db_region = db_identity_serv.region.single()
     item_in = create_random_identity_service()
     item = identity_service.update(db_obj=db_identity_serv, obj_in=item_in, force=True)

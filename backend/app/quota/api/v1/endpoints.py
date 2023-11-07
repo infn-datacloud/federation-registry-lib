@@ -1,5 +1,8 @@
 from typing import List, Optional, Union
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import (
@@ -28,8 +31,6 @@ from app.quota.schemas_extended import (
     ComputeQuotaReadExtended,
     ComputeQuotaReadExtendedPublic,
 )
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quotas"])
 

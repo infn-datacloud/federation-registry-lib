@@ -1,3 +1,5 @@
+from pydantic import Field
+
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.quota.schemas import (
@@ -13,7 +15,6 @@ from app.service.schemas import (
     ComputeServiceRead,
     ComputeServiceReadPublic,
 )
-from pydantic import Field
 
 
 class RegionReadExtended(RegionRead):

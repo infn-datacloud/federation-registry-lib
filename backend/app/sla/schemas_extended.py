@@ -1,5 +1,7 @@
 from typing import List, Union
 
+from pydantic import Field
+
 from app.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
@@ -20,7 +22,6 @@ from app.service.schemas import (
 )
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
-from pydantic import Field
 
 
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
@@ -41,7 +42,8 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
 
 class ProjectReadExtended(ProjectRead):
     """Model to extend the Project data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     provider: ProviderRead = Field(description="Provider owning this project")
     quotas: List[
@@ -54,7 +56,8 @@ class ProjectReadExtended(ProjectRead):
 
 class ProjectReadExtendedPublic(ProjectReadPublic):
     """Model to extend the Project data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     provider: ProviderReadPublic = Field(description="Provider owning this project")
     quotas: List[
@@ -67,7 +70,8 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
 
 class UserGroupReadExtended(UserGroupRead):
     """Model to extend the User Group data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     identity_provider: IdentityProviderRead = Field(
         description="Identity Provider owning this User Group."
@@ -76,7 +80,8 @@ class UserGroupReadExtended(UserGroupRead):
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
     """Model to extend the User Group data read from the DB with the lists of related
-    items."""
+    items.
+    """
 
     identity_provider: IdentityProviderReadPublic = Field(
         description="Identity Provider owning this User Group."
@@ -85,7 +90,8 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
 
 class SLAReadExtended(SLARead):
     """Model to extend the SLA data read from the DB with the lists of related items for
-    authenticated users."""
+    authenticated users.
+    """
 
     projects: List[ProjectReadExtended] = Field(
         default_factory=list, description="Involved Projects."
@@ -95,7 +101,8 @@ class SLAReadExtended(SLARead):
 
 class SLAReadExtendedPublic(SLAReadPublic):
     """Model to extend the SLA data read from the DB with the lists of related items for
-    non-authenticated users."""
+    non-authenticated users.
+    """
 
     projects: List[ProjectReadExtendedPublic] = Field(
         default_factory=list, description="Involved Projects."

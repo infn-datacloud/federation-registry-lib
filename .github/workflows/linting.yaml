@@ -16,23 +16,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-
-      # Lint using black, isort, flake8 and docformatter
-      - name: Linting
-        uses: weibullguy/python-lint-plus@v1.11.0
+      # Lint using Ruff
+      - name: Use Ruff linter and formatter
+        uses: chartboost/ruff-action@v1
         with:
-          python-root-list: "backend"
-          use-pylint: false
-          use-pycodestyle: false
-          use-mypy: false
-          use-yapf: false
-          use-autopep8: false
-          use-pydocstyle: false
-          use-mccabe: false
-          use-radon: false
-          use-rstcheck: false
-          use-check-manifest: false
-          use-pyroma: false
-          extra-isort-options: "--profile=black"
-          extra-flake8-options: "--max-line-length=88 --extend-ignore=E402"
-          extra-docformatter-options: "--black"
+          src: "backend"

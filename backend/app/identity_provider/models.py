@@ -1,4 +1,3 @@
-from app.auth_method.models import AuthMethod
 from neomodel import (
     OneOrMore,
     RelationshipFrom,
@@ -7,6 +6,8 @@ from neomodel import (
     UniqueIdProperty,
     ZeroOrMore,
 )
+
+from app.auth_method.models import AuthMethod
 
 
 class IdentityProvider(StructuredNode):
@@ -18,6 +19,7 @@ class IdentityProvider(StructuredNode):
     by a set of services owned by an authorized Provider.
 
     Attributes:
+    ----------
         uid (int): Identity Provider unique ID.
         description (str): Brief description.
         endpoint (str): URL of the Identity Provider.

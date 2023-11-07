@@ -21,6 +21,7 @@ class Image(StructuredNode):
     all and only the Projects who have access.
 
     Attributes:
+    ----------
         uid (int): Image unique ID.
         description (str): Brief description.
         name (str): Image name in the Provider.

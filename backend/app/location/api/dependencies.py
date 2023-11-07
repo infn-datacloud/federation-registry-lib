@@ -1,24 +1,27 @@
 from typing import Union
 
+from fastapi import Depends, HTTPException, status
+
 from app.location.crud import location
 from app.location.models import Location
 from app.location.schemas import LocationCreate, LocationUpdate
-from fastapi import Depends, HTTPException, status
 
 
 def valid_location_id(location_uid: str) -> Location:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         location_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Location: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = location.get(uid=location_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -32,15 +35,17 @@ def valid_location_site(item: Union[LocationCreate, LocationUpdate]) -> None:
     """Check there are no other locations with the same site.
 
     Args:
+    ----
         item (LocationCreate | LocationUpdate): input data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with given site already exists.
     """
-
     db_item = location.get(site=item.site)
     if db_item is not None:
         msg = f"Location with site '{item.site}' already registered"
@@ -57,16 +62,18 @@ def validate_new_location_values(
     site.
 
     Args:
+    ----
         update_data (FlavorUpdate): new data.
         item (Flavor): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with given site already exists.
     """
-
     if update_data.site != item.site:
         valid_location_site(update_data)

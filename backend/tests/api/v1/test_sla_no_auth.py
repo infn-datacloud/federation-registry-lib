@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.sla.models import SLA
 from app.sla.schemas import SLABase, SLAReadPublic
 from app.sla.schemas_extended import SLAReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.sla import (
     create_random_sla_patch,
     validate_read_extended_public_sla_attrs,
@@ -45,12 +46,14 @@ def test_read_slas_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all slas matching specific attributes passed as
-    query attributes."""
+    query attributes.
+    """
     settings = get_settings()
 
     for k in SLABase.__fields__.keys():
         response = client.get(
-            f"{settings.API_V1_STR}/slas/", params={k: db_sla.__getattribute__(k)}
+            f"{settings.API_V1_STR}/slas/",
+            params={k: db_sla.__getattribute__(k)},
         )
         assert response.status_code == status.HTTP_200_OK
         content = response.json()

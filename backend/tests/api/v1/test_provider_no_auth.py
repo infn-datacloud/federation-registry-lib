@@ -1,12 +1,13 @@
 import json
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.provider.models import Provider
 from app.provider.schemas import ProviderBase, ProviderReadPublic
 from app.provider.schemas_extended import ProviderReadExtendedPublic
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.provider import (
     create_random_provider_patch,
     validate_read_extended_public_provider_attrs,
@@ -37,7 +38,8 @@ def test_read_providers(
         resp_prov2 = content[0]
 
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**resp_prov), db_item=db_provider_with_single_project
+        obj_out=ProviderReadPublic(**resp_prov),
+        db_item=db_provider_with_single_project,
     )
     validate_read_public_provider_attrs(
         obj_out=ProviderReadPublic(**resp_prov2),
@@ -50,7 +52,8 @@ def test_read_providers_with_target_params(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers matching specific attributes passed
-    as query attributes."""
+    as query attributes.
+    """
     settings = get_settings()
 
     for k in ProviderBase.__fields__.keys():
@@ -73,7 +76,8 @@ def test_read_providers_with_limit(
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all providers limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(f"{settings.API_V1_STR}/providers/", params={"limit": 0})
@@ -96,7 +100,10 @@ def test_read_sorted_providers(
     settings = get_settings()
     sorted_items = list(
         sorted(
-            [db_provider_with_single_project, db_provider_with_multiple_projects],
+            [
+                db_provider_with_single_project,
+                db_provider_with_multiple_projects,
+            ],
             key=lambda x: x.uid,
         )
     )
@@ -266,7 +273,8 @@ def test_read_providers_short(
     #     q = ProviderReadShort(**resp_prov2)
 
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**resp_prov), db_item=db_provider_with_single_project
+        obj_out=ProviderReadPublic(**resp_prov),
+        db_item=db_provider_with_single_project,
     )
     validate_read_public_provider_attrs(
         obj_out=ProviderReadPublic(**resp_prov2),
@@ -286,7 +294,8 @@ def test_read_provider(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**content), db_item=db_provider_with_single_project
+        obj_out=ProviderReadPublic(**content),
+        db_item=db_provider_with_single_project,
     )
 
 
@@ -326,7 +335,8 @@ def test_read_provider_short(
     #     q = ProviderReadShort(**content)
 
     validate_read_public_provider_attrs(
-        obj_out=ProviderReadPublic(**content), db_item=db_provider_with_single_project
+        obj_out=ProviderReadPublic(**content),
+        db_item=db_provider_with_single_project,
     )
 
 

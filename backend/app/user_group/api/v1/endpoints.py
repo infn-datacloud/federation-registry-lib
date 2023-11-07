@@ -1,5 +1,8 @@
 from typing import List, Optional, Union
 
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from neomodel import db
+
 from app.auth.dependencies import check_read_access, check_write_access
 
 # from app.flavor.crud import flavor
@@ -52,8 +55,6 @@ from app.user_group.schemas_extended import (
     UserGroupReadExtended,
     UserGroupReadExtendedPublic,
 )
-from fastapi import APIRouter, Depends, HTTPException, Response, status
-from neomodel import db
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 
@@ -119,7 +120,10 @@ def get_user_group(
     "/{user_group_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[UserGroupRead],
-    dependencies=[Depends(check_write_access), Depends(validate_new_user_group_values)],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_user_group_values),
+    ],
     summary="Edit a specific user group",
     description="Update attribute values of a specific user group. \
         The target user group is identified using its uid. \

@@ -29,8 +29,10 @@ def create_random_compute_service(
     default: bool = False,
     with_flavors: bool = False,
     with_images: bool = False,
-    projects: List[str] = [],
+    projects: List[str] = None,
 ) -> ComputeServiceCreateExtended:
+    if projects is None:
+        projects = []
     endpoint = random_url()
     name = random_compute_service_name()
     kwargs = {}

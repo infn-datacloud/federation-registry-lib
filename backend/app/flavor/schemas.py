@@ -1,8 +1,9 @@
 from typing import Any, Dict, Optional
 
+from pydantic import Field, root_validator
+
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import Field, root_validator
 
 
 class FlavorBase(BaseNode):

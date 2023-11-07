@@ -1,9 +1,10 @@
 from typing import Optional
 
+from pydantic import Field, validator
+
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 from app.quota.enum import QuotaType
-from pydantic import Field, validator
 
 
 class QuotaBase(BaseNode):

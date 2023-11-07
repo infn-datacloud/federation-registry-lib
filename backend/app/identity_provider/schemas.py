@@ -1,8 +1,9 @@
 from typing import Optional
 
+from pydantic import AnyHttpUrl, Field
+
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
-from pydantic import AnyHttpUrl, Field
 
 
 class IdentityProviderBase(BaseNode):

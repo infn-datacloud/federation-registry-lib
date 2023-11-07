@@ -9,7 +9,10 @@ from app.flavor.schemas import (
     FlavorReadShort,
     FlavorUpdate,
 )
-from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
+from app.flavor.schemas_extended import (
+    FlavorReadExtended,
+    FlavorReadExtendedPublic,
+)
 from app.provider.schemas_extended import FlavorCreateExtended
 from tests.utils.utils import (
     random_bool,
@@ -20,8 +23,10 @@ from tests.utils.utils import (
 
 
 def create_random_flavor(
-    *, default: bool = False, projects: List[str] = []
+    *, default: bool = False, projects: List[str] = None
 ) -> FlavorCreateExtended:
+    if projects is None:
+        projects = []
     name = random_lower_string()
     uuid = uuid4()
     kwargs = {}
@@ -102,7 +107,9 @@ def validate_attr(*, obj_in: FlavorBase, db_item: Flavor) -> None:
 
 
 def validate_read_rels(
-    *, obj_out: Union[FlavorReadExtended, FlavorReadExtendedPublic], db_item: Flavor
+    *,
+    obj_out: Union[FlavorReadExtended, FlavorReadExtendedPublic],
+    db_item: Flavor,
 ) -> None:
     assert len(db_item.projects) == len(obj_out.projects)
     for db_proj, proj_out in zip(

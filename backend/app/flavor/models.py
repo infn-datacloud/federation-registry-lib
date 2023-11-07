@@ -21,6 +21,7 @@ class Flavor(StructuredNode):
     all and only the Projects who have access.
 
     Attributes:
+    ----------
         uid (str): Flavor unique ID.
         description (str): Brief description.
         name (str): Flavor name in the Provider.

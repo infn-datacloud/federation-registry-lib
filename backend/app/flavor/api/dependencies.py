@@ -1,26 +1,29 @@
 from typing import List, Union
 
+from fastapi import Depends, HTTPException, status
+
 from app.flavor.crud import flavor
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorCreate, FlavorUpdate
 from app.service.api.dependencies import valid_compute_service_id
 from app.service.models import ComputeService
-from fastapi import Depends, HTTPException, status
 
 
 def valid_flavor_id(flavor_uid: str) -> Flavor:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         flavor_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Flavor: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = flavor.get(uid=flavor_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -38,16 +41,18 @@ def valid_flavor_name(
     name.
 
     Args:
+    ----
         item (FlavorCreate | FlavorUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with identical name,
             belonging to the same service, already exists.
     """
-
     for service in services:
         service = valid_compute_service_id(service.uid)
         db_item = service.flavors.get_or_none(name=item.name)
@@ -66,16 +71,18 @@ def valid_flavor_uuid(
     uuid.
 
     Args:
+    ----
         item (FlavorCreate | FlavorUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with identical uuid,
             belonging to the same service, already exists.
     """
-
     for service in services:
         service = valid_compute_service_id(service.uid)
         db_item = service.flavors.get_or_none(uuid=item.uuid)
@@ -93,18 +100,20 @@ def validate_new_flavor_values(
     the same service, with the same uuid and name. Avoid to change flavor visibility.
 
     Args:
+    ----
         update_data (FlavorUpdate): new data.
         item (Flavor): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with identical name or uuid,
             belonging to the same service, already exists.
     """
-
     if update_data.name != item.name:
         valid_flavor_name(item=update_data, services=item.services.all())
     if update_data.uuid != item.uuid:
@@ -120,16 +129,18 @@ def is_private_flavor(item: Flavor = Depends(valid_flavor_id)) -> Flavor:
     """Check given flavor has private or shared visibility.
 
     Args:
+    ----
         item (Flavor): entity to validate.
 
     Returns:
+    -------
         Flavor: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity has not valid visibility
     """
-
     if item.is_public:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

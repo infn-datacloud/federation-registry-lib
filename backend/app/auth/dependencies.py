@@ -1,10 +1,11 @@
-from app.config import get_settings
 from fastapi import Depends
 from fastapi.security import HTTPBasicCredentials, HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
 from flaat.requirements import IsTrue
 from flaat.user_infos import UserInfos
+
+from app.config import get_settings
 
 strict_security = HTTPBearer()
 lazy_security = HTTPBearer(auto_error=False)

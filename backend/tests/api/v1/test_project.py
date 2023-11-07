@@ -2,12 +2,13 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.project.models import Project
 from app.project.schemas import ProjectBase, ProjectRead, ProjectReadShort
 from app.project.schemas_extended import ProjectReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.project import (
     create_random_project_patch,
     validate_read_extended_project_attrs,
@@ -47,7 +48,8 @@ def test_read_projects_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all projects matching specific attributes passed
-    as query attributes."""
+    as query attributes.
+    """
     settings = get_settings()
 
     for k in ProjectBase.__fields__.keys():
@@ -71,18 +73,23 @@ def test_read_projects_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all projects limiting the number of output
-    items."""
+    items.
+    """
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"limit": 0}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"limit": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"limit": 1}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"limit": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -100,7 +107,9 @@ def test_read_sorted_projects(
     sorted_items = list(sorted([db_project, db_project2], key=lambda x: x.uid))
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"sort": "uid"}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"sort": "uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -109,7 +118,9 @@ def test_read_sorted_projects(
     assert content[1]["uid"] == sorted_items[1].uid
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"sort": "-uid"}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"sort": "-uid"},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -150,28 +161,36 @@ def test_read_projects_with_skip(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"skip": 0}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"skip": 0},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 2
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"skip": 1}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"skip": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 1
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"skip": 2}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"skip": 2},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     assert len(content) == 0
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"skip": 3}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"skip": 3},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -191,7 +210,9 @@ def test_read_projects_with_pagination(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"size": 1}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"size": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -213,7 +234,9 @@ def test_read_projects_with_pagination(
 
     # Page greater than 0 but size equals None, does nothing
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"page": 1}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"page": 1},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -273,7 +296,9 @@ def test_read_projects_short(
     settings = get_settings()
 
     response = client.get(
-        f"{settings.API_V1_STR}/projects/", params={"short": True}, headers=read_header
+        f"{settings.API_V1_STR}/projects/",
+        params={"short": True},
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
@@ -426,7 +451,8 @@ def test_patch_project_with_duplicated_uuid_same_provider(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign an already existing UUID to a project
-    belonging to the same provider."""
+    belonging to the same provider.
+    """
     settings = get_settings()
     data = create_random_project_patch()
     data.uuid = db_project2.uuid
@@ -448,7 +474,8 @@ def test_patch_project_with_duplicated_uuid_diff_provider(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to assign an already existing UUID to a project
-    belonging to a different provider."""
+    belonging to a different provider.
+    """
     settings = get_settings()
     data = create_random_project_patch()
     data.uuid = db_project.uuid
@@ -471,7 +498,8 @@ def test_patch_project_with_duplicated_name_same_provider(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to try to assign a name already in use to a project
-    belonging to the same provider."""
+    belonging to the same provider.
+    """
     settings = get_settings()
     data = create_random_project_patch()
     data.name = db_project2.name
@@ -493,7 +521,8 @@ def test_patch_project_with_duplicated_name_diff_provider(
     write_header: Dict,
 ) -> None:
     """Execute PATCH operations to assign an already existing UUID to a project
-    belonging to a different provider."""
+    belonging to a different provider.
+    """
     settings = get_settings()
     data = create_random_project_patch()
     data.name = db_project.name
@@ -520,7 +549,8 @@ def test_delete_project(
     """Execute DELETE to remove a project."""
     settings = get_settings()
     response = client.delete(
-        f"{settings.API_V1_STR}/projects/{db_project.uid}", headers=write_header
+        f"{settings.API_V1_STR}/projects/{db_project.uid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_204_NO_CONTENT
 

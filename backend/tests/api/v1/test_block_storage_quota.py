@@ -2,6 +2,9 @@ import json
 from typing import Dict
 from uuid import uuid4
 
+from fastapi import status
+from fastapi.testclient import TestClient
+
 from app.config import get_settings
 from app.quota.models import BlockStorageQuota
 from app.quota.schemas import (
@@ -10,8 +13,6 @@ from app.quota.schemas import (
     BlockStorageQuotaReadShort,
 )
 from app.quota.schemas_extended import BlockStorageQuotaReadExtended
-from fastapi import status
-from fastapi.testclient import TestClient
 from tests.utils.block_storage_quota import (
     create_random_block_storage_quota_patch,
     validate_read_block_storage_quota_attrs,
@@ -44,7 +45,8 @@ def test_read_block_storage_quotas(
         resp_bsq_per_user = content[0]
 
     validate_read_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaRead(**resp_bsq), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaRead(**resp_bsq),
+        db_item=db_block_storage_quota,
     )
     validate_read_block_storage_quota_attrs(
         obj_out=BlockStorageQuotaRead(**resp_bsq_per_user),
@@ -58,7 +60,8 @@ def test_read_block_storage_quotas_with_target_params(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas matching specific
-    attributes passed as query attributes."""
+    attributes passed as query attributes.
+    """
     settings = get_settings()
 
     for k in BlockStorageQuotaBase.__fields__.keys():
@@ -71,7 +74,8 @@ def test_read_block_storage_quotas_with_target_params(
         content = response.json()
         assert len(content) == 1
         validate_read_block_storage_quota_attrs(
-            obj_out=BlockStorageQuotaRead(**content[0]), db_item=db_block_storage_quota
+            obj_out=BlockStorageQuotaRead(**content[0]),
+            db_item=db_block_storage_quota,
         )
 
 
@@ -82,7 +86,8 @@ def test_read_block_storage_quotas_with_limit(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas limiting the number of
-    output items."""
+    output items.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -171,7 +176,8 @@ def test_read_block_storage_quotas_with_skip(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas, skipping the first N
-    entries."""
+    entries.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -274,7 +280,8 @@ def test_read_block_storage_quotas_with_conn(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas with their
-    relationships."""
+    relationships.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -310,7 +317,8 @@ def test_read_block_storage_quotas_short(
     read_header: Dict,
 ) -> None:
     """Execute GET operations to read all block_storage_quotas with their shrunk
-    version."""
+    version.
+    """
     settings = get_settings()
 
     response = client.get(
@@ -330,7 +338,8 @@ def test_read_block_storage_quotas_short(
         resp_bsq_per_user = content[0]
 
     validate_read_short_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaReadShort(**resp_bsq), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaReadShort(**resp_bsq),
+        db_item=db_block_storage_quota,
     )
     validate_read_short_block_storage_quota_attrs(
         obj_out=BlockStorageQuotaReadShort(**resp_bsq_per_user),
@@ -352,7 +361,8 @@ def test_read_block_storage_quota(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaRead(**content), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaRead(**content),
+        db_item=db_block_storage_quota,
     )
 
 
@@ -371,7 +381,8 @@ def test_read_block_storage_quota_with_conn(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_extended_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaReadExtended(**content), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaReadExtended(**content),
+        db_item=db_block_storage_quota,
     )
 
 
@@ -390,7 +401,8 @@ def test_read_block_storage_quota_short(
     assert response.status_code == status.HTTP_200_OK
     content = response.json()
     validate_read_short_block_storage_quota_attrs(
-        obj_out=BlockStorageQuotaReadShort(**content), db_item=db_block_storage_quota
+        obj_out=BlockStorageQuotaReadShort(**content),
+        db_item=db_block_storage_quota,
     )
 
 
@@ -402,7 +414,8 @@ def test_read_not_existing_block_storage_quota(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.get(
-        f"{settings.API_V1_STR}/block_storage_quotas/{item_uuid}", headers=read_header
+        f"{settings.API_V1_STR}/block_storage_quotas/{item_uuid}",
+        headers=read_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()
@@ -549,7 +562,8 @@ def test_delete_not_existing_block_storage_quota(
     settings = get_settings()
     item_uuid = uuid4()
     response = client.delete(
-        f"{settings.API_V1_STR}/block_storage_quotas/{item_uuid}", headers=write_header
+        f"{settings.API_V1_STR}/block_storage_quotas/{item_uuid}",
+        headers=write_header,
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND
     content = response.json()

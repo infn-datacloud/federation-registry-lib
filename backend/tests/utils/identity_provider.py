@@ -38,7 +38,7 @@ def create_random_identity_provider(
         group_claim=group_claim,
         relationship=relationship,
         user_groups=user_groups,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -74,7 +74,7 @@ def validate_attrs(*, obj_in: IdentityProviderBase, db_item: IdentityProvider) -
 def validate_rels(
     *,
     obj_out: Union[IdentityProviderReadExtended, IdentityProviderReadExtendedPublic],
-    db_item: IdentityProvider
+    db_item: IdentityProvider,
 ) -> None:
     assert len(db_item.providers) == len(obj_out.providers)
     for db_prov, prov_out in zip(

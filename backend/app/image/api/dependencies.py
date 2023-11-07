@@ -1,26 +1,29 @@
 from typing import List, Union
 
+from fastapi import Depends, HTTPException, status
+
 from app.image.crud import image
 from app.image.models import Image
 from app.image.schemas import ImageCreate, ImageUpdate
 from app.service.api.dependencies import valid_compute_service_id
 from app.service.models import ComputeService
-from fastapi import Depends, HTTPException, status
 
 
 def valid_image_id(image_uid: str) -> Image:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
+    ----
         image_uid (UUID4): uid of the target DB entity.
 
     Returns:
+    -------
         Image: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
     """
-
     item = image.get(uid=image_uid.replace("-", ""))
     if not item:
         raise HTTPException(
@@ -38,16 +41,18 @@ def valid_image_name(
     name.
 
     Args:
+    ----
         item (ImageCreate | ImageUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with identical name,
             belonging to the same service, already exists.
     """
-
     for service in services:
         service = valid_compute_service_id(service.uid)
         db_item = service.images.get_or_none(name=item.name)
@@ -66,16 +71,18 @@ def valid_image_uuid(
     uuid.
 
     Args:
+    ----
         item (ImageCreate | ImageUpdate): new data.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         BadRequestError: DB entity with identical uuid,
             belonging to the same service, already exists.
     """
-
     for service in services:
         service = valid_compute_service_id(service.uid)
         db_item = service.images.get_or_none(uuid=item.uuid)
@@ -93,18 +100,20 @@ def validate_new_image_values(
     the same service, with the same uuid and name. Avoid to change image visibility.
 
     Args:
+    ----
         update_data (ImageUpdate): new data.
         item (Image): DB entity to update.
 
     Returns:
+    -------
         None
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity with identical name or uuid,
             belonging to the same service, already exists.
     """
-
     if update_data.name != item.name:
         valid_image_name(item=update_data, services=item.services.all())
     if update_data.uuid != item.uuid:
@@ -120,16 +129,18 @@ def is_private_image(item: Image = Depends(valid_image_id)) -> Image:
     """Check given image has private or shared visibility.
 
     Args:
+    ----
         item (Image): entity to validate.
 
     Returns:
+    -------
         Image: DB entity with given uid.
 
     Raises:
+    ------
         NotFoundError: DB entity with given uid not found.
         BadRequestError: DB entity has not valid visibility
     """
-
     if item.is_public:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

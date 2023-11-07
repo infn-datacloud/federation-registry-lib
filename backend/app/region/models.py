@@ -18,6 +18,7 @@ class Region(StructuredNode):
     different services (compute, block storage, network...).
 
     Attributes:
+    ----------
         uid (uuid): AssociatedRegion unique ID.
         description (str): Brief description.
         name (str): Name of the Region in the Provider.
