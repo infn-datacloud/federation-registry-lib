@@ -17,12 +17,55 @@ jobs:
       fail-fast: true
       matrix:
         python-version: ["3.8"]
+        #, "3.9", "3.10", "3.11"]
+
+    services:
+      # Set up neo4j DB with APOC extension for UUIDs.
+      neo4j:
+        image: neo4j:5.8.0
+        ports:
+          - 7474:7474
+          - 7687:7687
+        env:
+          NEO4J_AUTH: none
+          NEO4J_PLUGINS: "apoc"
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      # Install and configure poetry
+      - name: Install Poetry
+        id: install-poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+        #   virtualenvs-in-project: true
+        #   installer-parallel: true
+
       # Set up python versions to use
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: poetry
+          cache-dependency-path: ${{ steps.install-poetry.cache-dir }}
+
+      # Install dependencies if cache does not exist
+      - name: Install dependencies
+        working-directory: backend
+        run: poetry install --no-interaction --no-root
+
+      # Run tests
+      - name: Run tests
+        working-directory: backend
+        run: poetry run pytest --cov=app --cov-report=xml
+        env:
+          NEO4J_SERVER: localhost:7687
+
+      # Upload coverage as artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: code-coverage-${{ matrix.python-version }}
+          path: htmlcov
