@@ -282,6 +282,32 @@ def test_read_user_groups_short(
     )
 
 
+def test_read_user_group_with_name_and_idp(
+    db_user_group2: UserGroup, api_client_read_only: TestClient
+) -> None:
+    """Execute GET operations to read a specific user group.
+
+    Specify user group name and identity provider endpoint."""
+    settings = get_settings()
+
+    db_idp = db_user_group2.identity_provider.single()
+    response = api_client_read_only.get(
+        f"{settings.API_V1_STR}/user_groups/",
+        params={
+            "with_conn": True,
+            "name": db_user_group2.name,
+            "idp_endpoint": db_idp.endpoint,
+        },
+    )
+    assert response.status_code == status.HTTP_200_OK
+    content = response.json()
+    assert len(content) == 1
+    validate_read_extended_user_group_attrs(
+        obj_out=UserGroupReadExtended(**content[0]),
+        db_item=db_user_group2,
+    )
+
+
 def test_read_user_group(
     db_user_group: UserGroup, api_client_read_only: TestClient
 ) -> None:

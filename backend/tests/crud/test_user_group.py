@@ -117,6 +117,15 @@ def test_get_items_with_skip(
     assert len(stored_items) == 1
 
 
+def test_get_items_with_from_idp_endpoint(db_user_group3: UserGroup) -> None:
+    """Retrieve User Groups belonging to a specific provider."""
+    db_idp = db_user_group3.identity_provider.single()
+    stored_items = user_group.get_multi(sort="uid", endpoint=db_idp.endpoint)
+    assert len(stored_items) == 2
+    for i, j in zip(user_group.get_multi(sort="uid"), stored_items):
+        assert i.uid == j.uid
+
+
 def test_patch_item(db_user_group: UserGroup) -> None:
     """Update the attributes of an existing User Group.
 

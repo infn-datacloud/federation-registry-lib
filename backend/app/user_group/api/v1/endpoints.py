@@ -80,9 +80,12 @@ def get_user_groups(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: UserGroupQuery = Depends(),
+    idp_endpoint: Optional[str] = None,
 ):
     items = user_group.get_multi(
-        **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
+        endpoint=idp_endpoint,
+        **comm.dict(exclude_none=True),
+        **item.dict(exclude_none=True),
     )
     items = user_group.paginate(items=items, page=page.page, size=page.size)
     return user_group.choose_out_schema(

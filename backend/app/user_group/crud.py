@@ -1,5 +1,7 @@
 from typing import List, Optional, Union
 
+from pydantic import AnyHttpUrl
+
 from app.crud import CRUDBase
 from app.identity_provider.models import IdentityProvider
 from app.project.models import Project
@@ -62,6 +64,22 @@ class CRUDUserGroup(
                     sla.remove(db_obj=db_sla)
             sla.create(obj_in=obj_in.sla, user_group=db_obj, project=db_project)
         return db_obj
+
+    def get_multi(
+        self,
+        *,
+        skip: int = 0,
+        limit: Optional[int] = None,
+        sort: Optional[str] = None,
+        endpoint: Optional[AnyHttpUrl] = None,
+        **kwargs,
+    ) -> List[UserGroup]:
+        items = super().get_multi(skip=skip, limit=limit, sort=sort, **kwargs)
+        if endpoint is None:
+            return items
+        return list(
+            filter(lambda x: x.identity_provider.single().endpoint == endpoint, items)
+        )
 
     def remove(self, *, db_obj: UserGroup) -> bool:
         """Delete an existing user group and all its relationships.

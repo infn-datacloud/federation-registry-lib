@@ -7,7 +7,6 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
 from neomodel import clear_neo4j_database, db
 
-from app.config import get_settings
 from app.main import app
 
 
@@ -21,8 +20,6 @@ pytest.register_assert_rewrite("tests.utils")
 
 
 # DB specific fixtures
-
-settings = get_settings()
 
 
 @pytest.fixture
