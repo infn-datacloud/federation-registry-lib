@@ -282,7 +282,7 @@ def test_read_schema_with_multiple_flavors(
     schema = ProjectReadExtended.from_orm(
         db_project_with_multiple_private_flavors_diff_service
     )
-    assert len(schema.private_flavors) > 1
+    assert len(schema.flavors) > 1
     validate_read_extended_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_flavors_diff_service,
@@ -290,7 +290,7 @@ def test_read_schema_with_multiple_flavors(
     schema = ProjectReadExtendedPublic.from_orm(
         db_project_with_multiple_private_flavors_diff_service
     )
-    assert len(schema.private_flavors) > 1
+    assert len(schema.flavors) > 1
     validate_read_extended_public_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_flavors_diff_service,
@@ -361,7 +361,7 @@ def test_read_schema_with_multiple_images(
     schema = ProjectReadExtended.from_orm(
         db_project_with_multiple_private_images_diff_service
     )
-    assert len(schema.private_images) > 1
+    assert len(schema.images) > 1
     validate_read_extended_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_images_diff_service,
@@ -369,7 +369,7 @@ def test_read_schema_with_multiple_images(
     schema = ProjectReadExtendedPublic.from_orm(
         db_project_with_multiple_private_images_diff_service
     )
-    assert len(schema.private_images) > 1
+    assert len(schema.images) > 1
     validate_read_extended_public_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_images_diff_service,
@@ -442,7 +442,7 @@ def test_read_schema_with_multiple_private_networks(
     schema = ProjectReadExtended.from_orm(
         db_project_with_multiple_private_networks_diff_service
     )
-    assert len(schema.private_networks) > 1
+    assert len(schema.networks) > 1
     validate_read_extended_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_networks_diff_service,
@@ -450,7 +450,7 @@ def test_read_schema_with_multiple_private_networks(
     schema = ProjectReadExtendedPublic.from_orm(
         db_project_with_multiple_private_networks_diff_service
     )
-    assert len(schema.private_networks) > 1
+    assert len(schema.networks) > 1
     validate_read_extended_public_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_networks_diff_service,

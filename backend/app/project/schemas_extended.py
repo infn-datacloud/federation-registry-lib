@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from pydantic import Field
 
@@ -129,14 +129,12 @@ class ProjectReadExtended(ProjectRead):
     for authenticated users.
     """
 
-    private_networks: List[NetworkRead] = Field(
-        default_factory=list, description="List of accessible networks"
+    flavors: List[FlavorRead] = Field(
+        default_factory=list, description="List of flavors"
     )
-    private_flavors: List[FlavorRead] = Field(
-        default_factory=list, description="List of private flavors"
-    )
-    private_images: List[ImageRead] = Field(
-        default_factory=list, description="List of private images"
+    images: List[ImageRead] = Field(default_factory=list, description="List of images")
+    networks: List[NetworkRead] = Field(
+        default_factory=list, description="List of networks"
     )
     provider: ProviderRead = Field(description="Provider owning this Project.")
     quotas: List[
@@ -146,20 +144,28 @@ class ProjectReadExtended(ProjectRead):
         default=None, description="SLA involving this Project."
     )
 
+    @classmethod
+    def from_orm(cls, obj: Any) -> "ProjectReadExtended":
+        # `obj` is the orm model instance
+        obj.flavors = obj.public_flavors() + obj.private_flavors.all()
+        obj.images = obj.public_images() + obj.private_images.all()
+        obj.networks = obj.public_networks() + obj.private_networks.all()
+        return super().from_orm(obj)
+
 
 class ProjectReadExtendedPublic(ProjectReadPublic):
     """Model to extend the Project data read from the DB with the lists of related items
     for non-authenticated users.
     """
 
-    private_networks: List[NetworkReadPublic] = Field(
-        default_factory=list, description="List of accessible networks"
+    networks: List[NetworkReadPublic] = Field(
+        default_factory=list, description="List of networks"
     )
-    private_flavors: List[FlavorReadPublic] = Field(
-        default_factory=list, description="List of private flavors"
+    flavors: List[FlavorReadPublic] = Field(
+        default_factory=list, description="List of flavors"
     )
-    private_images: List[ImageReadPublic] = Field(
-        default_factory=list, description="List of private images"
+    images: List[ImageReadPublic] = Field(
+        default_factory=list, description="List of images"
     )
     provider: ProviderReadPublic = Field(description="Provider owning this Project.")
     quotas: List[
@@ -168,3 +174,11 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     sla: Optional[SLAReadExtendedPublic] = Field(
         default=None, description="SLA involving this Project."
     )
+
+    @classmethod
+    def from_orm(cls, obj: Any) -> "ProjectReadExtended":
+        # `obj` is the orm model instance
+        obj.flavors = obj.public_flavors() + obj.private_flavors.all()
+        obj.images = obj.public_images() + obj.private_images.all()
+        obj.networks = obj.public_networks() + obj.private_networks.all()
+        return super().from_orm(obj)

@@ -58,30 +58,58 @@ def validate_rels(
         assert db_sla.uid == obj_out.sla.uid
     else:
         assert not obj_out.sla
-    assert len(db_item.private_networks) == len(obj_out.private_networks)
-    for db_net, net_out in zip(
-        sorted(db_item.private_networks, key=lambda x: x.uid),
-        sorted(obj_out.private_networks, key=lambda x: x.uid),
-    ):
-        assert db_net.uid == net_out.uid
-    assert len(db_item.private_flavors) == len(obj_out.private_flavors)
-    for db_net, net_out in zip(
+
+    out_obj_private_flavors = list(filter(lambda x: not x.is_public, obj_out.flavors))
+    assert len(db_item.private_flavors) == len(out_obj_private_flavors)
+    for i, j in zip(
         sorted(db_item.private_flavors, key=lambda x: x.uid),
-        sorted(obj_out.private_flavors, key=lambda x: x.uid),
+        sorted(out_obj_private_flavors, key=lambda x: x.uid),
     ):
-        assert db_net.uid == net_out.uid
-    assert len(db_item.private_images) == len(obj_out.private_images)
-    for db_net, net_out in zip(
+        assert i.uid == j.uid
+    out_obj_public_flavors = list(filter(lambda x: x.is_public, obj_out.flavors))
+    assert len(db_item.public_flavors()) == len(out_obj_public_flavors)
+    for i, j in zip(
+        sorted(db_item.public_flavors(), key=lambda x: x.uid),
+        sorted(out_obj_public_flavors, key=lambda x: x.uid),
+    ):
+        assert i.uid == j.uid
+
+    out_obj_private_images = list(filter(lambda x: not x.is_public, obj_out.images))
+    assert len(db_item.private_images) == len(out_obj_private_images)
+    for i, j in zip(
         sorted(db_item.private_images, key=lambda x: x.uid),
-        sorted(obj_out.private_images, key=lambda x: x.uid),
+        sorted(out_obj_private_images, key=lambda x: x.uid),
     ):
-        assert db_net.uid == net_out.uid
+        assert i.uid == j.uid
+    out_obj_public_images = list(filter(lambda x: x.is_public, obj_out.images))
+    assert len(db_item.public_images()) == len(out_obj_public_images)
+    for i, j in zip(
+        sorted(db_item.public_images(), key=lambda x: x.uid),
+        sorted(out_obj_public_images, key=lambda x: x.uid),
+    ):
+        assert i.uid == j.uid
+
+    out_obj_private_networks = list(filter(lambda x: not x.is_shared, obj_out.networks))
+    assert len(db_item.private_networks) == len(out_obj_private_networks)
+    for i, j in zip(
+        sorted(db_item.private_networks, key=lambda x: x.uid),
+        sorted(out_obj_private_networks, key=lambda x: x.uid),
+    ):
+        assert i.uid == j.uid
+    out_obj_public_networks = list(filter(lambda x: x.is_shared, obj_out.networks))
+    assert len(db_item.public_networks()) == len(out_obj_public_networks)
+    for i, j in zip(
+        sorted(db_item.public_networks(), key=lambda x: x.uid),
+        sorted(out_obj_public_networks, key=lambda x: x.uid),
+    ):
+        assert i.uid == j.uid
+
     assert len(db_item.quotas) == len(obj_out.quotas)
-    for db_net, net_out in zip(
+    for i, j in zip(
         sorted(db_item.quotas, key=lambda x: x.uid),
         sorted(obj_out.quotas, key=lambda x: x.uid),
     ):
-        assert db_net.uid == net_out.uid
+        assert i.uid == j.uid
 
 
 def validate_create_project_attrs(*, obj_in: ProjectCreate, db_item: Project) -> None:

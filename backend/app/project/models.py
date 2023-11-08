@@ -14,6 +14,7 @@ from neomodel import (
 from app.flavor.models import Flavor
 from app.image.models import Image
 from app.network.models import Network
+from app.service.enum import ServiceType
 
 
 class Project(StructuredNode):
@@ -71,11 +72,11 @@ class Project(StructuredNode):
         cardinality=ZeroOrMore,
     )
 
-    query_prefix = """
+    query_prefix = f"""
         MATCH (p:Project)
         WHERE (elementId(p)=$self)
         MATCH (p)-[:USE_SERVICE_WITH]-(q)
-        WHERE q.type = compute
+        WHERE q.type = "{ServiceType.COMPUTE.value}"
         MATCH (q)-[:APPLY_TO]-(s)
         """
 
@@ -107,7 +108,7 @@ class Project(StructuredNode):
                 {self.query_prefix}
                 MATCH (s)-[:SUPPLY]-(r)
                 MATCH (r)-[:SUPPLY]-(n)
-                WHERE n.type = network
+                WHERE n.type = "{ServiceType.NETWORK.value}"
                 MATCH (n)-[:AVAILABLE_NETWORK]->(u)
                 WHERE u.is_shared = True
                 RETURN u
