@@ -25,6 +25,7 @@ from app.provider.schemas_extended import (
     IdentityServiceCreate,
     ImageCreateExtended,
     NetworkCreateExtended,
+    NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
     ProjectCreate,
     ProviderCreateExtended,
@@ -61,11 +62,20 @@ def get_compute_quotas(conn: Connection) -> ComputeQuotaCreateExtended:
     return ComputeQuotaCreateExtended(**data, project=conn.current_project_id)
 
 
+def get_network_quotas(conn: Connection) -> NetworkQuotaCreateExtended:
+    logger.info("Retrieve current project accessible network quotas")
+    quota = conn.network.get_quota(conn.current_project_id)
+    data = quota.to_dict()
+    data["public_ips"] = data.pop("floating_ips")
+    logger.debug(f"Network service quotas={data}")
+    return NetworkQuotaCreateExtended(**data, project=conn.current_project_id)
+
+
 def get_flavors(conn: Connection) -> List[FlavorCreateExtended]:
     logger.info("Retrieve current project accessible flavors")
     flavors = []
     for flavor in conn.compute.flavors(is_disabled=False):
-        logger.debug(f"Flavor received data={repr(flavor)}")
+        logger.debug(f"Flavor received data={flavor!r}")
         projects = []
         if not flavor.is_public:
             for i in conn.compute.get_flavor_access(flavor):
@@ -88,7 +98,9 @@ def get_flavors(conn: Connection) -> List[FlavorCreateExtended]:
     return flavors
 
 
-def get_images(conn: Connection, tags: List[str] = None) -> List[ImageCreateExtended]:
+def get_images(
+    conn: Connection, tags: Optional[List[str]] = None
+) -> List[ImageCreateExtended]:
     if tags is None:
         tags = []
     logger.info("Retrieve current project accessible images")
@@ -96,7 +108,7 @@ def get_images(conn: Connection, tags: List[str] = None) -> List[ImageCreateExte
     for image in conn.image.images(
         status="active", tag=None if len(tags) == 0 else tags
     ):
-        logger.debug(f"Image received data={repr(image)}")
+        logger.debug(f"Image received data={image!r}")
         is_public = True
         projects = []
         if image.visibility in ["private", "shared"]:
@@ -122,7 +134,7 @@ def get_networks(
     default_private_net: Optional[str] = None,
     default_public_net: Optional[str] = None,
     proxy: Optional[PrivateNetProxy] = None,
-    tags: List[str] = None,
+    tags: Optional[List[str]] = None,
 ) -> List[NetworkCreateExtended]:
     if tags is None:
         tags = []
@@ -131,7 +143,7 @@ def get_networks(
     for network in conn.network.networks(
         status="active", tag=None if len(tags) == 0 else tags
     ):
-        logger.debug(f"Network received data={repr(network)}")
+        logger.debug(f"Network received data={network!r}")
         project = None
         if not network.is_shared:
             project = conn.current_project_id
@@ -157,7 +169,7 @@ def get_networks(
 def get_project(conn: Connection) -> ProjectCreate:
     logger.info("Retrieve current project data")
     project = conn.identity.get_project(conn.current_project_id)
-    logger.debug(f"Project received data={repr(project)}")
+    logger.debug(f"Project received data={project!r}")
     data = project.to_dict()
     data["uuid"] = data.pop("id")
     if data.get("description") is None:
@@ -197,7 +209,7 @@ def get_per_project_details(
     region: RegionCreateExtended,
     trusted_idps: List[TrustedIDP],
     projects: List[ProjectCreate],
-):
+) -> None:
     default_private_net = project_conf.default_private_net
     default_public_net = project_conf.default_public_net
     proxy = project_conf.private_net_proxy
@@ -313,6 +325,15 @@ def get_per_project_details(
         proxy=proxy,
         tags=os_conf.network_tags,
     )
+    network_service.quotas = [get_network_quotas(conn)]
+    if per_user_limits is not None and per_user_limits.network is not None:
+        network_service.quotas.append(
+            NetworkQuotaCreateExtended(
+                **per_user_limits.compute.dict(exclude_none=True),
+                project=project_conf.id,
+            )
+        )
+
     with region_lock:
         for i, region_service in enumerate(region.network_services):
             if region_service.endpoint == network_service.endpoint:

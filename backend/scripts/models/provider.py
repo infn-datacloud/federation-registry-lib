@@ -10,7 +10,7 @@ from app.location.schemas import LocationBase
 from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderBase
 from app.provider.schemas_extended import find_duplicates
-from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase
+from app.quota.schemas import BlockStorageQuotaBase, ComputeQuotaBase, NetworkQuotaBase
 from app.region.schemas import RegionBase
 from app.sla.schemas import SLABase
 from app.user_group.schemas import UserGroupBase
@@ -80,6 +80,9 @@ class Limits(BaseModel):
     compute: Optional[ComputeQuotaBase] = Field(
         default=None, description="Compute per user quota"
     )
+    network: Optional[NetworkQuotaBase] = Field(
+        default=None, description="Network per user quota"
+    )
 
     @validator("block_storage")
     def set_per_user_block_storage(
@@ -93,6 +96,14 @@ class Limits(BaseModel):
     def set_per_user_compute(
         cls, v: Optional[ComputeQuotaBase]
     ) -> Optional[ComputeQuotaBase]:
+        if v is not None:
+            v.per_user = True
+        return v
+
+    @validator("network")
+    def set_per_user_network(
+        cls, v: Optional[NetworkQuotaBase]
+    ) -> Optional[NetworkQuotaBase]:
         if v is not None:
             v.per_user = True
         return v
