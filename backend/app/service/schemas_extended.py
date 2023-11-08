@@ -13,6 +13,8 @@ from app.quota.schemas import (
     BlockStorageQuotaReadPublic,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
+    NetworkQuotaRead,
+    NetworkQuotaReadPublic,
 )
 from app.region.schemas import RegionRead, RegionReadPublic
 from app.service.schemas import (
@@ -70,6 +72,22 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
 
 
 class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
+    """Model to extend the Num CPUs Quota data read from the DB with the lists of
+    related items.
+    """
+
+    project: ProjectReadPublic
+
+
+class NetworkQuotaReadExtended(NetworkQuotaRead):
+    """Model to extend the Num CPUs Quota data read from the DB with the lists of
+    related items.
+    """
+
+    project: ProjectRead
+
+
+class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     """Model to extend the Num CPUs Quota data read from the DB with the lists of
     related items.
     """
@@ -162,6 +180,9 @@ class NetworkServiceReadExtended(NetworkServiceRead):
         default_factory=list, description="List of owned Networks."
     )
     region: RegionReadExtended
+    quotas: List[NetworkQuotaReadExtended] = Field(
+        default_factory=list, description="List of quotas."
+    )
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
@@ -173,3 +194,6 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         default_factory=list, description="List of owned Networks."
     )
     region: RegionReadExtendedPublic
+    quotas: List[NetworkQuotaReadExtendedPublic] = Field(
+        default_factory=list, description="List of quotas."
+    )

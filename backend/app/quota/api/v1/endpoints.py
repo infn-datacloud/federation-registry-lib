@@ -8,11 +8,13 @@ from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import (
     valid_block_storage_quota_id,
     valid_compute_quota_id,
+    valid_network_quota_id,
     validate_new_block_storage_quota_values,
     validate_new_compute_quota_values,
+    validate_new_network_quota_values,
 )
-from app.quota.crud import block_storage_quota, compute_quota
-from app.quota.models import BlockStorageQuota, ComputeQuota
+from app.quota.crud import block_storage_quota, compute_quota, network_quota
+from app.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 from app.quota.schemas import (
     BlockStorageQuotaQuery,
     BlockStorageQuotaRead,
@@ -24,12 +26,19 @@ from app.quota.schemas import (
     ComputeQuotaReadPublic,
     ComputeQuotaReadShort,
     ComputeQuotaUpdate,
+    NetworkQuotaQuery,
+    NetworkQuotaRead,
+    NetworkQuotaReadPublic,
+    NetworkQuotaReadShort,
+    NetworkQuotaUpdate,
 )
 from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtended,
     BlockStorageQuotaReadExtendedPublic,
     ComputeQuotaReadExtended,
     ComputeQuotaReadExtendedPublic,
+    NetworkQuotaReadExtended,
+    NetworkQuotaReadExtendedPublic,
 )
 
 bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quotas"])
@@ -318,6 +327,114 @@ def put_compute_quota(
 )
 def delete_compute_quotas(item: ComputeQuota = Depends(valid_compute_quota_id)):
     if not compute_quota.remove(db_obj=item):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete item",
+        )
+
+
+n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
+
+
+@db.read_transaction
+@n_router.get(
+    "/",
+    response_model=Union[
+        List[NetworkQuotaReadExtended],
+        List[NetworkQuotaRead],
+        List[NetworkQuotaReadShort],
+        List[NetworkQuotaReadExtendedPublic],
+        List[NetworkQuotaReadPublic],
+    ],
+    summary="Read all network quotas",
+    description="Retrieve all network quotas stored in the database. \
+        It is possible to filter on quotas attributes and other \
+        common query parameters.",
+)
+def get_network_quotas(
+    auth: bool = Depends(check_read_access),
+    comm: DbQueryCommonParams = Depends(),
+    page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
+    item: NetworkQuotaQuery = Depends(),
+):
+    items = network_quota.get_multi(
+        **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
+    )
+    items = network_quota.paginate(items=items, page=page.page, size=page.size)
+    return network_quota.choose_out_schema(
+        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+    )
+
+
+@db.read_transaction
+@n_router.get(
+    "/{quota_uid}",
+    response_model=Union[
+        NetworkQuotaReadExtended,
+        NetworkQuotaRead,
+        NetworkQuotaReadShort,
+        NetworkQuotaReadExtendedPublic,
+        NetworkQuotaReadPublic,
+    ],
+    summary="Read a specific quota",
+    description="Retrieve a specific quota using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
+def get_network_quota(
+    auth: bool = Depends(check_read_access),
+    size: SchemaSize = Depends(),
+    item: NetworkQuota = Depends(valid_network_quota_id),
+):
+    return network_quota.choose_out_schema(
+        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+    )[0]
+
+
+@db.write_transaction
+@n_router.patch(
+    "/{quota_uid}",
+    status_code=status.HTTP_200_OK,
+    response_model=Optional[NetworkQuotaRead],
+    dependencies=[
+        Depends(check_write_access),
+        Depends(validate_new_network_quota_values),
+    ],
+    summary="Edit a specific quota",
+    description="Update attribute values of a specific quota. \
+        The target quota is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message.",
+)
+def put_network_quota(
+    update_data: NetworkQuotaUpdate,
+    response: Response,
+    item: NetworkQuota = Depends(valid_network_quota_id),
+):
+    db_item = network_quota.update(db_obj=item, obj_in=update_data)
+    if not db_item:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
+
+
+@db.write_transaction
+@n_router.delete(
+    "/{quota_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(check_write_access)],
+    summary="Delete a specific quota",
+    description="Delete a specific quota using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        If the deletion procedure fails, raises a `internal \
+        server` error",
+)
+def delete_network_quotas(item: NetworkQuota = Depends(valid_network_quota_id)):
+    if not network_quota.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

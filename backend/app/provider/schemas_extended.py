@@ -30,6 +30,9 @@ from app.quota.schemas import (
     ComputeQuotaCreate,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
+    NetworkQuotaCreate,
+    NetworkQuotaRead,
+    NetworkQuotaReadPublic,
 )
 from app.region.schemas import RegionCreate, RegionRead, RegionReadPublic
 from app.service.schemas import (
@@ -128,11 +131,17 @@ class NetworkServiceReadExtended(NetworkServiceRead):
     networks: List[NetworkRead] = Field(
         default_factory=list, description="List of owned networks"
     )
+    quotas: List[NetworkQuotaRead] = Field(
+        default_factory=list, description="List of quotas"
+    )
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     networks: List[NetworkReadPublic] = Field(
         default_factory=list, description="List of owned networks"
+    )
+    quotas: List[NetworkQuotaReadPublic] = Field(
+        default_factory=list, description="List of quotas"
     )
 
 
@@ -255,6 +264,10 @@ class ComputeQuotaCreateExtended(ComputeQuotaCreate):
     project: str = Field(description="Project UUID")
 
 
+class NetworkQuotaCreateExtended(NetworkQuotaCreate):
+    project: str = Field(description="Project UUID")
+
+
 class FlavorCreateExtended(FlavorCreate):
     projects: List[str] = Field(
         default_factory=list,
@@ -365,7 +378,7 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
         return v
 
     @validator("quotas")
-    def max_two_quotas_on_same_project(cls, v: List[BlockStorageQuotaCreateExtended]):
+    def max_two_quotas_on_same_project(cls, v: List[ComputeQuotaCreateExtended]):
         d = {}
         for quota in v:
             if quota.project is not None:
@@ -384,10 +397,27 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
         default_factory=list,
         description="List of networks accessible through this service",
     )
+    quotas: List[NetworkQuotaCreateExtended] = Field(
+        default_factory=list, description="List or related quotas"
+    )
 
     @validator("networks")
     def validate_networks(cls, v):
         find_duplicates(v, "uuid")
+        return v
+
+    @validator("quotas")
+    def max_two_quotas_on_same_project(cls, v: List[NetworkQuotaCreateExtended]):
+        d = {}
+        for quota in v:
+            if quota.project is not None:
+                msg = f"Multiple quotas on same project {quota.project}"
+                q = d.get(quota.project)
+                if not q:
+                    d[quota.project] = [1, quota.per_user]
+                else:
+                    q[0] += 1
+                    assert q[0] <= 2 and q[1] != quota.per_user, msg
         return v
 
 
@@ -523,4 +553,9 @@ class ProviderCreateExtended(ProviderCreate):
                         msg = f"Network {network.name}'s project {network.project} "
                         msg += f"not in this provider: {projects}"
                         assert network.project in projects, msg
+                for quota in service.quotas:
+                    if quota.project is not None:
+                        msg = f"Network quota's project {quota.project} "
+                        msg += f"not in this provider: {projects}"
+                        assert quota.project in projects, msg
         return values

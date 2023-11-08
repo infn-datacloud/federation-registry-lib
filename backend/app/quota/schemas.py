@@ -15,8 +15,9 @@ class QuotaBase(BaseNode):
 
 
 class BlockStorageQuotaBase(QuotaBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for BlockStorage services.
+    """Model derived from ServiceBase to inherit attributes common to all services.
+
+    It adds the basic attributes for BlockStorage services.
 
     Validation: type value is exactly QuotaType.openstack_nova.
     """
@@ -61,16 +62,15 @@ BlockStorageQuotaQuery = create_query_model(
 
 
 class ComputeQuotaBase(QuotaBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for Compute services.
+    """Model derived from ServiceBase to inherit attributes common to all services.
+
+    It adds the basic attributes for Compute services.
 
     Validation: type value is exactly QuotaType.openstack_nova.
     """
 
     type: QuotaType = Field(default=QuotaType.COMPUTE, description="Compute type")
     cores: Optional[int] = Field(default=None, ge=0, description="")
-    fixed_ips: Optional[int] = Field(default=None, ge=0, description="")
-    public_ips: Optional[int] = Field(default=None, ge=0, description="")
     instances: Optional[int] = Field(default=None, ge=0, description="")
     ram: Optional[int] = Field(default=None, ge=0, description="")
 
@@ -102,3 +102,45 @@ class ComputeQuotaReadShort(BaseNodeRead, ComputeQuotaBase):
 
 
 ComputeQuotaQuery = create_query_model("ComputeQuotaQuery", ComputeQuotaBase)
+
+
+class NetworkQuotaBase(QuotaBase):
+    """Model derived from ServiceBase to inherit attributes common to all services.
+
+    It adds the basic attributes for Network services.
+
+    Validation: type value is exactly QuotaType.openstack_nova.
+    """
+
+    type: QuotaType = Field(default=QuotaType.NETWORK, description="Network type")
+    fixed_ips: Optional[int] = Field(default=None, ge=0, description="")
+    public_ips: Optional[int] = Field(default=None, ge=0, description="")
+
+    @validator("type", check_fields=False)
+    def check_type(cls, v):
+        if v != QuotaType.NETWORK:
+            raise ValueError(f"Not valid type: {v}")
+        return v
+
+
+class NetworkQuotaCreate(BaseNodeCreate, NetworkQuotaBase):
+    pass
+
+
+class NetworkQuotaUpdate(BaseNodeCreate, NetworkQuotaBase):
+    pass
+
+
+class NetworkQuotaRead(BaseNodeRead, NetworkQuotaBase):
+    pass
+
+
+class NetworkQuotaReadPublic(BaseNodeRead, NetworkQuotaBase):
+    pass
+
+
+class NetworkQuotaReadShort(BaseNodeRead, NetworkQuotaBase):
+    pass
+
+
+NetworkQuotaQuery = create_query_model("NetworkQuotaQuery", NetworkQuotaBase)

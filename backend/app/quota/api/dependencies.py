@@ -1,9 +1,13 @@
 from fastapi import Depends, HTTPException, status
 
-from app.quota.crud import block_storage_quota, compute_quota
+from app.quota.crud import block_storage_quota, compute_quota, network_quota
 from app.quota.enum import QuotaType
-from app.quota.models import BlockStorageQuota, ComputeQuota
-from app.quota.schemas import BlockStorageQuotaUpdate, ComputeQuotaUpdate
+from app.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from app.quota.schemas import (
+    BlockStorageQuotaUpdate,
+    ComputeQuotaUpdate,
+    NetworkQuotaUpdate,
+)
 
 
 def valid_block_storage_quota_id(quota_uid: str) -> BlockStorageQuota:
@@ -121,4 +125,63 @@ def validate_new_compute_quota_values(
             s = "" if update_data.per_user else "not"
             msg = f"Project '{db_project.uid}' already has "
             msg += f"a Compute Quota to {s} apply to each user"
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
+
+
+def valid_network_quota_id(quota_uid: str) -> NetworkQuota:
+    """Check given uid corresponds to an entity in the DB.
+
+    Args:
+    ----
+        quota_uid (UUID4): uid of the target DB entity.
+
+    Returns:
+    -------
+        Service: DB entity with given uid.
+
+    Raises:
+    ------
+        NotFoundError: DB entity with given uid not found.
+    """
+    item = network_quota.get(uid=quota_uid.replace("-", ""))
+    if not item:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Network Quota '{quota_uid}' not found",
+        )
+    return item
+
+
+def validate_new_network_quota_values(
+    update_data: NetworkQuotaUpdate,
+    item: NetworkQuota = Depends(valid_network_quota_id),
+) -> None:
+    """Check given data are valid ones. Check there are no other quotas, belonging to
+    the same project, with the same type and per_user flag.
+
+    Args:
+    ----
+        update_data (NetworkQuotaUpdate): new data.
+        item (NetworkQuota): DB entity to update.
+
+    Returns:
+    -------
+        None
+
+    Raises:
+    ------
+        NotFoundError: DB entity with given uid not found.
+        BadRequestError: DB entity with identical name or uuid,
+            belonging to the same service, already exists.
+    """
+    if update_data.per_user != item.per_user:
+        db_project = item.project.single()
+        if any(
+            q.per_user == update_data.per_user
+            for q in db_project.quotas.all()
+            if q.type == QuotaType.COMPUTE.value
+        ):
+            s = "" if update_data.per_user else "not"
+            msg = f"Project '{db_project.uid}' already has "
+            msg += f"a Network Quota to {s} apply to each user"
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)

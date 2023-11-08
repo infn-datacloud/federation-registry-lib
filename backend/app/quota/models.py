@@ -63,18 +63,35 @@ class ComputeQuota(Quota):
     Attributes:
     ----------
         cores (int): Number of max usable cores.
-        fixed_ips (int): Number of max fixed IPs.
-        public_ips (int): Number of max usable IPs.
         instance (int): Number of max VM instances.
         ram (int): Number of max usable RAM (MiB).
     """
 
     cores = IntegerProperty()
-    fixed_ips = IntegerProperty()
-    public_ips = IntegerProperty()
     instances = IntegerProperty()
     ram = IntegerProperty()
 
     service = RelationshipTo(
         "..service.models.ComputeService", "APPLY_TO", cardinality=One
+    )
+
+
+class NetworkQuota(Quota):
+    """Resource limitations for Projects on Network Services.
+
+    Network quota limitations apply on a Network Service.
+
+    Attributes:
+    ----------
+        fixed_ips (int): Number of max fixed IPs.
+        public_ips (int): Number of max usable IPs.
+    """
+
+    fixed_ips = IntegerProperty()
+    public_ips = IntegerProperty()
+    networks = IntegerProperty()
+    ports = IntegerProperty()
+
+    service = RelationshipTo(
+        "..service.models.NetworkService", "APPLY_TO", cardinality=One
     )

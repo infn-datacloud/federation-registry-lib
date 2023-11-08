@@ -6,3 +6,4 @@ class QuotaType(Enum):
 
     BLOCK_STORAGE: str = "block-storage"
     COMPUTE: str = "compute"
+    NETWORK: str = "network"

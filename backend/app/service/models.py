@@ -84,3 +84,6 @@ class NetworkService(Service):
         "AVAILABLE_NETWORK",
         cardinality=ZeroOrMore,
     )
+    quotas = RelationshipFrom(
+        "..quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )

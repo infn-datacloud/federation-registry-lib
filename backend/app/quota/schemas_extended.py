@@ -7,6 +7,8 @@ from app.quota.schemas import (
     BlockStorageQuotaReadPublic,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
+    NetworkQuotaRead,
+    NetworkQuotaReadPublic,
 )
 from app.region.schemas import RegionRead, RegionReadPublic
 from app.service.schemas import (
@@ -14,6 +16,8 @@ from app.service.schemas import (
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
+    NetworkServiceRead,
+    NetworkServiceReadPublic,
 )
 
 
@@ -41,6 +45,14 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadExtended = Field(description="Region hosting this service")
 
 
+class NetworkServiceReadExtended(NetworkServiceRead):
+    region: RegionReadExtended = Field(description="Region hosting this service")
+
+
+class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
+    region: RegionReadExtended = Field(description="Region hosting this service")
+
+
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
     project: ProjectRead
     service: BlockStorageServiceReadExtended
@@ -59,3 +71,13 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
 class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     project: ProjectReadPublic
     service: ComputeServiceReadExtendedPublic
+
+
+class NetworkQuotaReadExtended(NetworkQuotaRead):
+    project: ProjectRead
+    service: NetworkServiceReadExtended
+
+
+class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
+    project: ProjectReadPublic
+    service: NetworkServiceReadExtendedPublic
