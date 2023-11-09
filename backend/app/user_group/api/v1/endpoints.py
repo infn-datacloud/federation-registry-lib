@@ -83,7 +83,7 @@ def get_user_groups(
     idp_endpoint: Optional[str] = None,
 ):
     items = user_group.get_multi(
-        endpoint=idp_endpoint,
+        idp_endpoint=idp_endpoint,
         **comm.dict(exclude_none=True),
         **item.dict(exclude_none=True),
     )
