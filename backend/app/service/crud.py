@@ -10,7 +10,7 @@ from app.provider.schemas_extended import (
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
 )
-from app.quota.crud import block_storage_quota, compute_quota
+from app.quota.crud import block_storage_quota, compute_quota, network_quota
 from app.region.models import Region
 from app.service.models import (
     BlockStorageService,
@@ -508,6 +508,12 @@ class CRUDNetworkService(
             if len(db_projects) == 1:
                 db_project = db_projects[0]
             network.create(obj_in=item, service=db_obj, project=db_project)
+        for item in obj_in.quotas:
+            db_projects = list(filter(lambda x: x.uuid == item.project, projects))
+            if len(db_projects) == 1:
+                network_quota.create(
+                    obj_in=item, service=db_obj, project=db_projects[0]
+                )
         return db_obj
 
     def remove(self, *, db_obj: NetworkService) -> bool:
@@ -516,6 +522,8 @@ class CRUDNetworkService(
         At first delete its quotas. Then delete the flavors and images connected only to
         this service. Finally delete the service.
         """
+        for item in db_obj.quotas:
+            network_quota.remove(db_obj=item)
         for item in db_obj.networks:
             network.remove(db_obj=item)
         result = super().remove(db_obj=db_obj)
@@ -538,9 +546,13 @@ class CRUDNetworkService(
             projects = []
         edit = False
         if force:
-            edit = self.__update_networks(
+            networks_updated = self.__update_networks(
                 db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
+            quotas_updated = self.__update_quotas(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
+            edit = networks_updated or quotas_updated
 
         if isinstance(obj_in, NetworkServiceCreateExtended):
             obj_in = NetworkServiceUpdate.parse_obj(obj_in)
@@ -580,6 +592,81 @@ class CRUDNetworkService(
         for db_item in db_items.values():
             network.remove(db_obj=db_item)
             edit = True
+        return edit
+
+    def __update_quotas(
+        self,
+        *,
+        db_obj: NetworkService,
+        obj_in: NetworkServiceCreateExtended,
+        provider_projects: List[Project],
+    ) -> bool:
+        """Update service linked quotas.
+
+        Connect new quotas not already connect, leave untouched already linked ones and
+        delete old ones no more connected to the service.
+
+        Split quotas in per_user and total. For each one of them, check the linked
+        project. If the project already has a quota of that type, update that quota with
+        the new received values.
+        """
+        edit = False
+
+        db_items_per_user = {
+            db_item.project.single().uuid: db_item
+            for db_item in filter(lambda x: x.per_user, db_obj.quotas)
+        }
+        db_items_total = {
+            db_item.project.single().uuid: db_item
+            for db_item in filter(lambda x: not x.per_user, db_obj.quotas)
+        }
+        db_projects = {db_item.uuid: db_item for db_item in provider_projects}
+
+        for item in obj_in.quotas:
+            if item.per_user:
+                db_item = db_items_per_user.pop(item.project, None)
+                if not db_item:
+                    network_quota.create(
+                        obj_in=item,
+                        service=db_obj,
+                        project=db_projects.get(item.project),
+                    )
+                    edit = True
+                else:
+                    updated_data = network_quota.update(
+                        db_obj=db_item,
+                        obj_in=item,
+                        projects=provider_projects,
+                        force=True,
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+            else:
+                db_item = db_items_total.pop(item.project, None)
+                if not db_item:
+                    network_quota.create(
+                        obj_in=item,
+                        service=db_obj,
+                        project=db_projects.get(item.project),
+                    )
+                    edit = True
+                else:
+                    updated_data = network_quota.update(
+                        db_obj=db_item,
+                        obj_in=item,
+                        projects=provider_projects,
+                        force=True,
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+
+        for db_item in db_items_per_user.values():
+            network_quota.remove(db_obj=db_item)
+            edit = True
+        for db_item in db_items_total.values():
+            network_quota.remove(db_obj=db_item)
+            edit = True
+
         return edit
 
 
