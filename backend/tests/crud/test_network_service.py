@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Generator
 from uuid import uuid4
 
@@ -11,6 +12,7 @@ from tests.utils.network_service import (
     create_random_network_service_patch,
     validate_create_network_service_attrs,
 )
+from tests.utils.utils import random_lower_string
 
 
 def test_create_item(db_region: Region) -> None:
@@ -22,7 +24,7 @@ def test_create_item(db_region: Region) -> None:
 
 def test_create_item_default_values(db_region: Region) -> None:
     """Create an Network Service, with default values when possible, belonging to a
-    specific Compute Service.
+    specific Region.
     """
     item_in = create_random_network_service(default=True)
     item = network_service.create(obj_in=item_in, region=db_region)
@@ -31,10 +33,24 @@ def test_create_item_default_values(db_region: Region) -> None:
 
 def test_create_item_with_networks(db_region: Region) -> None:
     """Create an Network Service, with default values when possible, belonging to a
-    specific Compute Service, with related networks.
+    specific Region, with related networks.
     """
     item_in = create_random_network_service(with_networks=True)
     item = network_service.create(obj_in=item_in, region=db_region)
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+
+
+def test_create_item_with_everything(db_region: Region) -> None:
+    """Create a Network Service belonging to a specific Region with networks and
+    quotas.
+    """
+    db_provider = db_region.provider.single()
+    item_in = create_random_network_service(
+        with_networks=True, projects=[i.uuid for i in db_provider.projects]
+    )
+    item = network_service.create(
+        obj_in=item_in, region=db_region, projects=db_provider.projects
+    )
     validate_create_network_service_attrs(obj_in=item_in, db_item=item)
 
 
@@ -132,6 +148,158 @@ def test_patch_item_with_defaults(db_network_serv: NetworkService) -> None:
     for k, v in db_network_serv.__dict__.items():
         if k != "description":
             assert item.__getattribute__(k) == v
+
+
+def test_add_quotas(db_network_serv: NetworkService) -> None:
+    """Update the attributes and relationships of an existing Network Service.
+
+    Update a Network Service with no quotas, changing its attributes and linking a new
+    quota.
+    """
+    db_region = db_network_serv.region.single()
+    db_provider = db_region.provider.single()
+    item_in = create_random_network_service(
+        projects=[i.uuid for i in db_provider.projects]
+    )
+    db_quota = deepcopy(item_in.quotas[0])
+    db_quota.description = random_lower_string()
+    db_quota.per_user = not db_quota.per_user
+    item_in.quotas.append(db_quota)
+
+    item = network_service.update(
+        db_obj=db_network_serv,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.quotas) == 2
+
+
+def test_remove_quotas(
+    db_network_serv_with_multiple_quotas: NetworkService,
+) -> None:
+    """Update the attributes and relationships of an existing Network Service.
+
+    Update a Network Service with a set of linked quotas, updating its attributes and
+    removing all linked quotas.
+    """
+    db_region = db_network_serv_with_multiple_quotas.region.single()
+    item_in = create_random_network_service()
+    item = network_service.update(
+        db_obj=db_network_serv_with_multiple_quotas, obj_in=item_in, force=True
+    )
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.quotas) == 0
+
+
+def test_replace_quotas_with_ones_pointing_to_diff_project(
+    db_network_serv_with_multiple_quotas_same_project: NetworkService,
+) -> None:
+    """Update the attributes and relationships of an existing Network Service.
+
+    Update a Network Service with a set of linked quotas, changing both its attributes
+    and replacing the linked quotas with new ones.
+    """
+    db_region = db_network_serv_with_multiple_quotas_same_project.region.single()
+    db_provider = db_region.provider.single()
+    db_quota = db_network_serv_with_multiple_quotas_same_project.quotas.get(
+        per_user=True
+    )
+    for db_project in db_provider.projects:
+        if db_project.uid != db_quota.project.single().uid:
+            break
+
+    quotas_uids = [
+        i.uid for i in db_network_serv_with_multiple_quotas_same_project.quotas
+    ]
+
+    item_in = create_random_network_service(projects=[db_project.uuid])
+    db_quota = deepcopy(item_in.quotas[0])
+    db_quota.description = random_lower_string()
+    db_quota.per_user = not db_quota.per_user
+    item_in.quotas.append(db_quota)
+
+    item = network_service.update(
+        db_obj=db_network_serv_with_multiple_quotas_same_project,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.quotas) == 2
+    for i in item.quotas:
+        assert i.uid not in quotas_uids
+
+
+def test_replace_quotas_with_ones_pointing_to_same_project(
+    db_network_serv_with_multiple_quotas_same_project: NetworkService,
+) -> None:
+    """Update the attributes and relationships of an existing Network Service.
+
+    Update a Network Service with a set of linked quotas, changing both its attributes
+    and replacing the linked quotas with new ones.
+    """
+    db_region = db_network_serv_with_multiple_quotas_same_project.region.single()
+    db_provider = db_region.provider.single()
+    db_quota = db_network_serv_with_multiple_quotas_same_project.quotas.get(
+        per_user=True
+    )
+    db_project = db_quota.project.single()
+
+    quotas_uids = [
+        i.uid for i in db_network_serv_with_multiple_quotas_same_project.quotas
+    ]
+
+    item_in = create_random_network_service(projects=[db_project.uuid])
+    db_quota = deepcopy(item_in.quotas[0])
+    db_quota.description = random_lower_string()
+    db_quota.per_user = not db_quota.per_user
+    item_in.quotas.append(db_quota)
+
+    item = network_service.update(
+        db_obj=db_network_serv_with_multiple_quotas_same_project,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert len(item.quotas) == 2
+    for i in sorted(item.quotas, key=lambda x: x.uid):
+        assert i.uid in quotas_uids
+
+
+def test_force_update_without_changing_quotas(
+    db_network_serv_with_single_quota: NetworkService,
+) -> None:
+    """Update the attributes and relationships of an existing Network Service.
+
+    Update a Network Service with a set of linked quotas, changing only its attributes
+    leaving untouched its connections (this is different from the previous test because
+    the flag force is set to True).
+    """
+    db_region = db_network_serv_with_single_quota.region.single()
+    db_provider = db_region.provider.single()
+    db_quota = db_network_serv_with_single_quota.quotas.single()
+    item_in = create_random_network_service(
+        projects=[i.uuid for i in db_provider.projects]
+    )
+    for k in item_in.quotas[0].dict(exclude={"project"}).keys():
+        item_in.quotas[0].__setattr__(k, db_quota.__getattribute__(k))
+    item_in.quotas[0].project = db_quota.project.single().uuid
+    item = network_service.update(
+        db_obj=db_network_serv_with_single_quota,
+        obj_in=item_in,
+        projects=db_provider.projects,
+        force=True,
+    )
+    validate_create_network_service_attrs(obj_in=item_in, db_item=item)
+    assert item.region.single() == db_region
+    assert item.quotas.single() == db_quota
 
 
 def test_add_networks(db_network_serv: NetworkService) -> None:

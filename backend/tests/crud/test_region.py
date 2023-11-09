@@ -604,7 +604,7 @@ def test_force_update_without_changing_network_services(
     db_provider = db_region_with_network_service.provider.single()
     db_service = db_region_with_network_service.services.single()
     item_in = create_random_region(with_network_services=True)
-    for k in item_in.network_services[0].dict(exclude={"networks"}).keys():
+    for k in item_in.network_services[0].dict(exclude={"networks", "quotas"}).keys():
         item_in.network_services[0].__setattr__(k, db_service.__getattribute__(k))
     item = region.update(
         db_obj=db_region_with_network_service, obj_in=item_in, force=True
