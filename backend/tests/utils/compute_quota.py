@@ -29,8 +29,6 @@ def create_random_compute_quota(
             "description": random_lower_string(),
             "per_user": random_bool(),
             "cores": random_non_negative_int(),
-            "fixed_ips": random_non_negative_int(),
-            "public_ips": random_non_negative_int(),
             "instances": random_non_negative_int(),
             "ram": random_non_negative_int(),
         }
@@ -43,16 +41,12 @@ def create_random_compute_quota_patch(default: bool = False) -> ComputeQuotaUpda
     description = random_lower_string()
     per_user = random_bool()
     cores = random_non_negative_int()
-    fixed_ips = random_non_negative_int()
-    public_ips = random_non_negative_int()
     instances = random_non_negative_int()
     ram = random_non_negative_int()
     return ComputeQuotaUpdate(
         description=description,
         per_user=per_user,
         cores=cores,
-        fixed_ips=fixed_ips,
-        public_ips=public_ips,
         instances=instances,
         ram=ram,
     )
@@ -63,8 +57,6 @@ def validate_public_attrs(*, obj_in: ComputeQuotaBase, db_item: ComputeQuota) ->
     assert db_item.type == obj_in.type
     assert db_item.per_user == obj_in.per_user
     assert db_item.cores == obj_in.cores
-    assert db_item.fixed_ips == obj_in.fixed_ips
-    assert db_item.public_ips == obj_in.public_ips
     assert db_item.instances == obj_in.instances
     assert db_item.ram == obj_in.ram
 

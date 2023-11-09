@@ -2,15 +2,13 @@ import pytest
 
 from app.project.models import Project
 from app.quota.crud import compute_quota
-from app.quota.models import BlockStorageQuota, ComputeQuota
-from app.service.models import BlockStorageService, ComputeService
+from app.quota.models import ComputeQuota
+from app.service.models import ComputeService
 from tests.utils.compute_quota import create_random_compute_quota
 
 
 @pytest.fixture
-def db_compute_quota(
-    db_compute_serv2: BlockStorageService,
-) -> BlockStorageQuota:
+def db_compute_quota(db_compute_serv2: ComputeService) -> ComputeQuota:
     """Compute Quota.
 
     It belongs to the Compute Service belonging to the first region of the provider with
@@ -30,9 +28,7 @@ def db_compute_quota(
 
 
 @pytest.fixture
-def db_compute_quota_per_user(
-    db_compute_quota: ComputeQuota,
-) -> ComputeQuota:
+def db_compute_quota_per_user(db_compute_quota: ComputeQuota) -> ComputeQuota:
     """Compute Quota.
 
     It belongs to the Compute Service belonging to the first region of the provider with
@@ -52,9 +48,7 @@ def db_compute_quota_per_user(
 
 
 @pytest.fixture
-def db_compute_quota2(
-    db_compute_quota_per_user: ComputeQuota,
-) -> ComputeQuota:
+def db_compute_quota2(db_compute_quota_per_user: ComputeQuota) -> ComputeQuota:
     """Compute Quota.
 
     It belongs to the Compute Service belonging to the first region of the provider with
@@ -75,8 +69,7 @@ def db_compute_quota2(
 
 @pytest.fixture
 def db_compute_quota3(
-    db_compute_quota2: ComputeQuota,
-    db_compute_serv3: ComputeService,
+    db_compute_quota2: ComputeQuota, db_compute_serv3: ComputeService
 ) -> ComputeQuota:
     """Compute Quota.
 
@@ -97,16 +90,14 @@ def db_compute_quota3(
 
 
 @pytest.fixture
-def db_compute_serv_with_single_quota(
-    db_compute_quota: ComputeQuota,
-) -> ComputeService:
+def db_compute_serv_with_single_quota(db_compute_quota: ComputeQuota) -> ComputeService:
     """Project with single Compute Quota."""
     yield db_compute_quota.service.single()
 
 
 @pytest.fixture
 def db_compute_serv_with_multiple_quotas_same_project(
-    db_compute_quota_per_user: ComputeQuota,
+    db_compute_quota_per_user: ComputeQuota
 ) -> ComputeService:
     """Project with multiple Compute Quota on same project."""
     yield db_compute_quota_per_user.service.single()
@@ -114,23 +105,21 @@ def db_compute_serv_with_multiple_quotas_same_project(
 
 @pytest.fixture
 def db_compute_serv_with_multiple_quotas(
-    db_compute_quota2: ComputeQuota,
+    db_compute_quota2: ComputeQuota
 ) -> ComputeService:
     """Project with single Compute Quota."""
     yield db_compute_quota2.service.single()
 
 
 @pytest.fixture
-def db_project_with_single_compute_quota(
-    db_compute_quota: ComputeQuota,
-) -> Project:
+def db_project_with_single_compute_quota(db_compute_quota: ComputeQuota) -> Project:
     """Project with single Compute Quota."""
     yield db_compute_quota.project.single()
 
 
 @pytest.fixture
 def db_project_with_multiple_compute_quotas_same_service(
-    db_compute_quota_per_user: ComputeQuota,
+    db_compute_quota_per_user: ComputeQuota
 ) -> Project:
     """Project with multiple Compute Quotas on same service."""
     yield db_compute_quota_per_user.project.single()
@@ -138,7 +127,7 @@ def db_project_with_multiple_compute_quotas_same_service(
 
 @pytest.fixture
 def db_project_with_multiple_compute_quotas_diff_service(
-    db_compute_quota3: ComputeQuota,
+    db_compute_quota3: ComputeQuota
 ) -> Project:
     """Project with multiple Compute Quotas on different services."""
     yield db_compute_quota3.project.single()

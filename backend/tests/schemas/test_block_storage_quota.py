@@ -37,6 +37,8 @@ def test_invalid_create_schema():
     with pytest.raises(ValidationError):
         a.type = QuotaType.COMPUTE.value
     with pytest.raises(ValidationError):
+        a.type = QuotaType.NETWORK.value
+    with pytest.raises(ValidationError):
         a.type = random_lower_string()
     with pytest.raises(ValidationError):
         a.project = None

@@ -19,6 +19,10 @@ from tests.utils.network import (
     create_random_network,
     validate_create_network_attrs,
 )
+from tests.utils.network_quota import (
+    create_random_network_quota,
+    validate_create_network_quota_attrs,
+)
 from tests.utils.utils import random_lower_string, random_url
 
 
@@ -38,6 +42,8 @@ def create_random_network_service(
     if with_networks:
         project = None if len(projects) == 0 else projects[0]
         kwargs["networks"] = [create_random_network(project=project)]
+    if len(projects):
+        kwargs["quotas"] = [create_random_network_quota(project=projects[0])]
     return NetworkServiceCreateExtended(endpoint=endpoint, name=name, **kwargs)
 
 
@@ -83,6 +89,12 @@ def validate_rels(
         sorted(obj_out.networks, key=lambda x: x.uid),
     ):
         assert db_net.uid == net_out.uid
+    assert len(db_item.quotas) == len(obj_out.quotas)
+    for db_quota, quota_out in zip(
+        sorted(db_item.quotas, key=lambda x: x.uid),
+        sorted(obj_out.quotas, key=lambda x: x.uid),
+    ):
+        assert db_quota.uid == quota_out.uid
 
 
 def validate_create_network_service_attrs(
@@ -92,6 +104,12 @@ def validate_create_network_service_attrs(
     assert len(db_item.networks) == len(obj_in.networks)
     for db_net, net_in in zip(db_item.networks, obj_in.networks):
         validate_create_network_attrs(db_item=db_net, obj_in=net_in)
+    assert len(db_item.quotas) == len(obj_in.quotas)
+    for db_quota, quota_in in zip(
+        sorted(db_item.quotas, key=lambda x: x.description),
+        sorted(obj_in.quotas, key=lambda x: x.description),
+    ):
+        validate_create_network_quota_attrs(db_item=db_quota, obj_in=quota_in)
 
 
 def validate_read_network_service_attrs(

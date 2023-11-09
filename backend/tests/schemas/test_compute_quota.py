@@ -37,15 +37,13 @@ def test_invalid_create_schema():
     with pytest.raises(ValidationError):
         a.type = QuotaType.BLOCK_STORAGE.value
     with pytest.raises(ValidationError):
+        a.type = QuotaType.NETWORK.value
+    with pytest.raises(ValidationError):
         a.type = random_lower_string()
     with pytest.raises(ValidationError):
         a.project = None
     with pytest.raises(ValidationError):
         a.cores = -1
-    with pytest.raises(ValidationError):
-        a.fixed_ips = -1
-    with pytest.raises(ValidationError):
-        a.public_ips = -1
     with pytest.raises(ValidationError):
         a.instances = -1
     with pytest.raises(ValidationError):

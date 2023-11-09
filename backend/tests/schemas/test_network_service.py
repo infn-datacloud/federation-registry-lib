@@ -64,6 +64,9 @@ def test_invalid_create_schema():
     with pytest.raises(ValidationError):
         # Duplicated networks
         a.networks = [a.networks[0], a.networks[0]]
+    with pytest.raises(ValidationError):
+        # Duplicated quotas
+        a.quotas = [a.quotas[0], a.quotas[0]]
 
 
 def test_read_schema(db_network_serv: NetworkService):
@@ -157,4 +160,74 @@ def test_read_schema_with_multiple_networks(
     assert len(schema.networks) > 1
     validate_read_extended_public_network_service_attrs(
         obj_out=schema, db_item=db_network_serv_with_multiple_networks
+    )
+
+
+def test_read_schema_with_single_quota(
+    db_network_serv_with_single_quota: NetworkService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
+
+    Target service is linked only to one block storage quota.
+    """
+    schema = NetworkServiceRead.from_orm(db_network_serv_with_single_quota)
+    validate_read_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_quota
+    )
+    schema = NetworkServiceReadShort.from_orm(db_network_serv_with_single_quota)
+    validate_read_short_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_quota
+    )
+    schema = NetworkServiceReadPublic.from_orm(db_network_serv_with_single_quota)
+    validate_read_public_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_quota
+    )
+    schema = NetworkServiceReadExtended.from_orm(db_network_serv_with_single_quota)
+    validate_read_extended_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_quota
+    )
+    schema = NetworkServiceReadExtendedPublic.from_orm(
+        db_network_serv_with_single_quota
+    )
+    validate_read_extended_public_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_single_quota
+    )
+
+
+def test_read_schema_with_multiple_quotas(
+    db_network_serv_with_multiple_quotas: NetworkService,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
+
+    Target service is linked to multiple block storage quotas.
+    """
+    schema = NetworkServiceRead.from_orm(db_network_serv_with_multiple_quotas)
+    validate_read_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_quotas
+    )
+    schema = NetworkServiceReadShort.from_orm(db_network_serv_with_multiple_quotas)
+    validate_read_short_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_quotas
+    )
+    schema = NetworkServiceReadPublic.from_orm(db_network_serv_with_multiple_quotas)
+    validate_read_public_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_quotas
+    )
+    schema = NetworkServiceReadExtended.from_orm(db_network_serv_with_multiple_quotas)
+    assert len(schema.quotas) > 1
+    validate_read_extended_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_quotas
+    )
+    schema = NetworkServiceReadExtendedPublic.from_orm(
+        db_network_serv_with_multiple_quotas
+    )
+    assert len(schema.quotas) > 1
+    validate_read_extended_public_network_service_attrs(
+        obj_out=schema, db_item=db_network_serv_with_multiple_quotas
     )
