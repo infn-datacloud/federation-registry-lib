@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
 from app.auth.dependencies import check_read_access, check_write_access
+from app.provider.enum import ProviderType
+from app.provider.schemas import ProviderQuery
 
 # from app.flavor.crud import flavor
 # from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
@@ -18,6 +20,7 @@ from app.auth.dependencies import check_read_access, check_write_access
 # from app.provider.crud import provider
 # from app.provider.schemas import ProviderRead, ProviderReadPublic, ProviderReadShort
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
+from app.region.schemas import RegionQuery
 
 # from app.service.schemas import (
 #     BlockStorageServiceRead,
@@ -81,16 +84,72 @@ def get_user_groups(
     size: SchemaSize = Depends(),
     item: UserGroupQuery = Depends(),
     idp_endpoint: Optional[str] = None,
+    provider_name: Optional[str] = None,
+    provider_type: Optional[ProviderType] = None,
+    region_name: Optional[str] = None,
 ):
     items = user_group.get_multi(
-        idp_endpoint=idp_endpoint,
-        **comm.dict(exclude_none=True),
-        **item.dict(exclude_none=True),
+        **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
+    if idp_endpoint:
+        items = filter(
+            lambda x: x.identity_provider.single().endpoint == idp_endpoint, items
+        )
+
+    provider_query = ProviderQuery(name=provider_name, type=provider_type.value)
+    filter_on_provider_attr(items=items, provider_query=provider_query)
+
+    region_query = RegionQuery(name=region_name)
+    filter_on_region_attr(items=items, region_query=region_query)
+
     items = user_group.paginate(items=items, page=page.page, size=page.size)
     return user_group.choose_out_schema(
         items=items, auth=auth, short=size.short, with_conn=size.with_conn
     )
+
+
+def filter_on_provider_attr(
+    items: List[UserGroup], provider_query: ProviderQuery
+) -> List[UserGroup]:
+    """
+    Filter projects based on provider access.
+    """
+    for item in items:
+        for sla in item.slas:
+            for project in sla.projects:
+                if not project.provider.get_or_none(
+                    **provider_query.dict(exclude_none=True)
+                ):
+                    sla.projects = sla.projects.exclude(uid=project.uid)
+            if len(sla.projects) == 0:
+                item.slas = item.slas.exclude(uid=sla.uid)
+        if len(item.slas) == 0:
+            items.remove(item)
+    return items
+
+
+def filter_on_region_attr(
+    items: List[UserGroup], region_query: RegionQuery
+) -> List[UserGroup]:
+    """
+    Filter projects based on region access.
+    """
+    for item in items:
+        for sla in item.slas:
+            for project in sla.projects:
+                for quota in project.quotas:
+                    service = quota.service.single()
+                    if service.region.get_or_none(
+                        **region_query.dict(exclude_none=True)
+                    ):
+                        project.quotas = project.quotas.exclude(uid=quota.uid)
+                if len(project.quotas) == 0:
+                    sla.projects = sla.projects.exclude(uid=project.uid)
+            if len(sla.projects) == 0:
+                item.slas = item.slas.exclude(uid=sla.uid)
+        if len(item.slas) == 0:
+            items.remove(item)
+    return items
 
 
 @db.read_transaction

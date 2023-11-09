@@ -75,12 +75,7 @@ class CRUDBase(
         else:
             items = self.model.nodes.order_by(sort).all()
 
-        if limit is None:
-            return items[skip:]
-
-        start = skip
-        end = skip + limit
-        return items[start:end]
+        return self.__apply_limit_and_skip(items=items, skip=skip, limit=limit)
 
     def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in = self.create_schema.parse_obj(obj_in)
@@ -138,3 +133,12 @@ class CRUDBase(
         if with_conn:
             return [self.read_extended_public_schema.from_orm(i) for i in items]
         return [self.read_public_schema.from_orm(i) for i in items]
+
+    def __apply_limit_and_skip(
+        self, *, items: List[ModelType], skip: int = 0, limit: Optional[int] = None
+    ) -> List[ModelType]:
+        if limit is None:
+            return items[skip:]
+        start = skip
+        end = skip + limit
+        return items[start:end]

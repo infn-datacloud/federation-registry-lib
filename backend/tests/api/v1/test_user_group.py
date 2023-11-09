@@ -308,6 +308,54 @@ def test_read_user_group_with_name_and_idp(
     )
 
 
+def test_read_user_group_with_provider_name(
+    db_user_group: UserGroup, api_client_read_only: TestClient
+) -> None:
+    """Execute GET operations to read a specific user group.
+
+    Specify user group name and identity provider endpoint."""
+    settings = get_settings()
+
+    db_sla = db_user_group.slas.single()
+    db_project = db_sla.projects.single()
+    db_provider = db_project.provider.single()
+    response = api_client_read_only.get(
+        f"{settings.API_V1_STR}/user_groups/",
+        params={"with_conn": True, "provider_name": db_provider.name},
+    )
+    assert response.status_code == status.HTTP_200_OK
+    content = response.json()
+    assert len(content) == 1
+    validate_read_extended_user_group_attrs(
+        obj_out=UserGroupReadExtended(**content[0]),
+        db_item=db_user_group,
+    )
+
+
+def test_read_user_group_with_provider_type(
+    db_user_group: UserGroup, api_client_read_only: TestClient
+) -> None:
+    """Execute GET operations to read a specific user group.
+
+    Specify user group name and identity provider endpoint."""
+    settings = get_settings()
+
+    db_sla = db_user_group.slas.single()
+    db_project = db_sla.projects.single()
+    db_provider = db_project.provider.single()
+    response = api_client_read_only.get(
+        f"{settings.API_V1_STR}/user_groups/",
+        params={"with_conn": True, "provider_type": db_provider.type},
+    )
+    assert response.status_code == status.HTTP_200_OK
+    content = response.json()
+    assert len(content) == 1
+    validate_read_extended_user_group_attrs(
+        obj_out=UserGroupReadExtended(**content[0]),
+        db_item=db_user_group,
+    )
+
+
 def test_read_user_group(
     db_user_group: UserGroup, api_client_read_only: TestClient
 ) -> None:
