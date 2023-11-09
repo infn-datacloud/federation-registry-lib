@@ -16,7 +16,8 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 as backend
 WORKDIR /app/
 
 COPY --from=requirements /app/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install --user --upgrade pip
+RUN pip install --user --no-cache-dir --upgrade -r /app/requirements.txt
 
 # For development, Jupyter remote kernel, Hydrogen
 # Using inside the container:
