@@ -72,18 +72,18 @@ class Project(StructuredNode):
         cardinality=ZeroOrMore,
     )
 
-    query_prefix = f"""
+    query_prefix = """
         MATCH (p:Project)
         WHERE (elementId(p)=$self)
         MATCH (p)-[:USE_SERVICE_WITH]-(q)
-        WHERE q.type = "{ServiceType.COMPUTE.value}"
-        MATCH (q)-[:APPLY_TO]-(s)
         """
 
     def public_flavors(self) -> List[Flavor]:
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
+                WHERE q.type = "{ServiceType.COMPUTE.value}"
+                MATCH (q)-[:APPLY_TO]-(s)
                 MATCH (s)-[:AVAILABLE_VM_FLAVOR]->(u)
                 WHERE u.is_public = True
                 RETURN u
@@ -95,6 +95,8 @@ class Project(StructuredNode):
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
+                WHERE q.type = "{ServiceType.COMPUTE.value}"
+                MATCH (q)-[:APPLY_TO]-(s)
                 MATCH (s)-[:AVAILABLE_VM_IMAGE]->(u)
                 WHERE u.is_public = True
                 RETURN u
@@ -106,10 +108,9 @@ class Project(StructuredNode):
         results, columns = self.cypher(
             f"""
                 {self.query_prefix}
-                MATCH (s)-[:SUPPLY]-(r)
-                MATCH (r)-[:SUPPLY]-(n)
-                WHERE n.type = "{ServiceType.NETWORK.value}"
-                MATCH (n)-[:AVAILABLE_NETWORK]->(u)
+                WHERE q.type = "{ServiceType.NETWORK.value}"
+                MATCH (q)-[:APPLY_TO]-(s)
+                MATCH (s)-[:AVAILABLE_NETWORK]->(u)
                 WHERE u.is_shared = True
                 RETURN u
             """
