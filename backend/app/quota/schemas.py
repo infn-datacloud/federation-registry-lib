@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import Field, validator
 
@@ -30,7 +30,7 @@ class BlockStorageQuotaBase(QuotaBase):
     volumes: Optional[int] = Field(default=None, ge=-1, description="")
 
     @validator("type", check_fields=False)
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[QuotaType.BLOCK_STORAGE]:
         if v != QuotaType.BLOCK_STORAGE:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -75,7 +75,7 @@ class ComputeQuotaBase(QuotaBase):
     ram: Optional[int] = Field(default=None, ge=0, description="")
 
     @validator("type", check_fields=False)
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[QuotaType.COMPUTE]:
         if v != QuotaType.COMPUTE:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -113,11 +113,32 @@ class NetworkQuotaBase(QuotaBase):
     """
 
     type: QuotaType = Field(default=QuotaType.NETWORK, description="Network type")
-    fixed_ips: Optional[int] = Field(default=None, ge=0, description="")
-    public_ips: Optional[int] = Field(default=None, ge=0, description="")
+    public_ips: Optional[int] = Field(
+        default=None,
+        ge=-1,
+        description="The number of floating IP addresses allowed for each project.",
+    )
+    networks: Optional[int] = Field(
+        default=None,
+        ge=-1,
+        description="The number of networks allowed for each project.",
+    )
+    ports: Optional[int] = Field(
+        default=None, ge=-1, description="The number of ports allowed for each project."
+    )
+    security_groups: Optional[int] = Field(
+        default=None,
+        ge=-1,
+        description="The number of security groups allowed for each project.",
+    )
+    security_group_rules: Optional[int] = Field(
+        default=None,
+        ge=-1,
+        description="The number of security group rules allowed for each",
+    )
 
     @validator("type", check_fields=False)
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[QuotaType.NETWORK]:
         if v != QuotaType.NETWORK:
             raise ValueError(f"Not valid type: {v}")
         return v

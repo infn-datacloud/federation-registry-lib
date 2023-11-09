@@ -83,14 +83,19 @@ class NetworkQuota(Quota):
 
     Attributes:
     ----------
-        fixed_ips (int): Number of max fixed IPs.
-        public_ips (int): Number of max usable IPs.
+        public_ips (int): The number of floating IP addresses allowed for each project.
+        networks (int): The number of networks allowed for each project.
+        port (int): The number of ports allowed for each project.
+        security_groups (int): The number of security groups allowed for each project.
+        security_group_rules (int): The number of security group rules allowed for each
+            project.
     """
 
-    fixed_ips = IntegerProperty()
     public_ips = IntegerProperty()
     networks = IntegerProperty()
     ports = IntegerProperty()
+    security_groups = IntegerProperty()
+    security_group_rules = IntegerProperty()
 
     service = RelationshipTo(
         "..service.models.NetworkService", "APPLY_TO", cardinality=One
