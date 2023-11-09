@@ -179,7 +179,7 @@ def validate_new_network_quota_values(
         if any(
             q.per_user == update_data.per_user
             for q in db_project.quotas.all()
-            if q.type == QuotaType.COMPUTE.value
+            if q.type == QuotaType.NETWORK.value
         ):
             s = "" if update_data.per_user else "not"
             msg = f"Project '{db_project.uid}' already has "
