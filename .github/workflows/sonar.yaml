@@ -85,3 +85,5 @@ jobs:
             -Dsonar.projectKey=giosava94_catalog-api
             -Dsonar.python.version=${{ matrix.python-version }}
             -Dsonar.python.coverage.reportPaths=**/coverage*.xml
+            -Dsonar.sources=backend/app
+            -Dsonar.tests=backend/tests
