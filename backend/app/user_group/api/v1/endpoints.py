@@ -99,10 +99,10 @@ def get_user_groups(
     if provider_type:
         provider_type = provider_type.value
     provider_query = ProviderQuery(name=provider_name, type=provider_type)
-    filter_on_provider_attr(items=items, provider_query=provider_query)
+    items = filter_on_provider_attr(items=items, provider_query=provider_query)
 
     region_query = RegionQuery(name=region_name)
-    filter_on_region_attr(items=items, region_query=region_query)
+    items = filter_on_region_attr(items=items, region_query=region_query)
 
     items = user_group.paginate(items=items, page=page.page, size=page.size)
     return user_group.choose_out_schema(
@@ -116,17 +116,20 @@ def filter_on_provider_attr(
     """
     Filter projects based on provider access.
     """
+    attrs = provider_query.dict(exclude_none=True)
+    if not attrs:
+        return items
+
     for item in items:
         for sla in item.slas:
             for project in sla.projects:
-                if not project.provider.get_or_none(
-                    **provider_query.dict(exclude_none=True)
-                ):
+                if not project.provider.get_or_none(**attrs):
                     sla.projects = sla.projects.exclude(uid=project.uid)
             if len(sla.projects) == 0:
                 item.slas = item.slas.exclude(uid=sla.uid)
         if len(item.slas) == 0:
             items.remove(item)
+
     return items
 
 
@@ -136,14 +139,16 @@ def filter_on_region_attr(
     """
     Filter projects based on region access.
     """
+    attrs = region_query.dict(exclude_none=True)
+    if not attrs:
+        return items
+
     for item in items:
         for sla in item.slas:
             for project in sla.projects:
                 for quota in project.quotas:
                     service = quota.service.single()
-                    if service.region.get_or_none(
-                        **region_query.dict(exclude_none=True)
-                    ):
+                    if service.region.get_or_none(**attrs):
                         project.quotas = project.quotas.exclude(uid=quota.uid)
                 if len(project.quotas) == 0:
                     sla.projects = sla.projects.exclude(uid=project.uid)
@@ -151,6 +156,7 @@ def filter_on_region_attr(
                 item.slas = item.slas.exclude(uid=sla.uid)
         if len(item.slas) == 0:
             items.remove(item)
+
     return items
 
 
