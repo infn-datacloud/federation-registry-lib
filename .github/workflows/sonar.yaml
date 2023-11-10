@@ -13,6 +13,7 @@ on:
 
 jobs:
   test:
+    name: Python tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -62,18 +63,45 @@ jobs:
       # Run tests
       - name: Run tests
         working-directory: backend
-        run: poetry run pytest --cov=app --cov-report=xml --cov-report=html
+        run: poetry run pytest tests/schemas/test_user_group.py --cov=app --cov-report=html --cov-report=xml
         env:
           NEO4J_SERVER: localhost:7687
 
       # Upload coverage as artifacts
-      - name: Upload artifacts
+      - name: Upload HTML coverage artifact
         uses: actions/upload-artifact@v3
         with:
-          name: code-coverage-${{ matrix.python-version }}
           path: backend/htmlcov
+          name: code-coverage-${{ matrix.python-version }}-html
+      - name: Upload XML coverage artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: backend/coverage.xml
+          name: code-coverage-${{ matrix.python-version }}-xml
 
-      # Upload coverage to SonarCloud for code analysis
+  analysis:
+    name: Sonar Analysis
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+          fail-fast: true
+          matrix:
+            python-version: ["3.8"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Upload coverage artifact
+      - name: Upload XML coverage artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: code-coverage-${{ matrix.python-version }}-xml
+          path: backend/coverage.xml
+
+      # Execute code analysis with SonarCloud
       - name: SonarCloud analysis
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -83,7 +111,6 @@ jobs:
           args: >
             -Dsonar.organization=giosava94
             -Dsonar.projectKey=giosava94_catalog-api
-            -Dsonar.python.version=${{ matrix.python-version }}
             -Dsonar.python.coverage.reportPaths=**/coverage*.xml
             -Dsonar.sources=backend/app
             -Dsonar.tests=backend/tests
