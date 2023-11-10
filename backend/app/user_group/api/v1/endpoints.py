@@ -96,7 +96,9 @@ def get_user_groups(
             lambda x: x.identity_provider.single().endpoint == idp_endpoint, items
         )
 
-    provider_query = ProviderQuery(name=provider_name, type=provider_type.value)
+    if provider_type:
+        provider_type = provider_type.value
+    provider_query = ProviderQuery(name=provider_name, type=provider_type)
     filter_on_provider_attr(items=items, provider_query=provider_query)
 
     region_query = RegionQuery(name=region_name)
