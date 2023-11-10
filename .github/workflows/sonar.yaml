@@ -3,7 +3,8 @@ name: SonarCloud
 on:
   push:
     branches:
-      - master
+      - main
+      - devel
   pull_request:
     types:
       - opened
@@ -33,6 +34,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # Install and configure poetry
       - name: Install Poetry
@@ -63,9 +66,15 @@ jobs:
         env:
           NEO4J_SERVER: localhost:7687
 
-      # Upload coverage as artifacts
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
+      # Upload coverage to SonarCloud for code analysis
+      - name: SonarCloud analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          name: code-coverage-${{ matrix.python-version }}
-          path: htmlcov
+          args: >
+            -Dsonar.organization=giosava94
+            -Dsona.projectKey=giosava94_catalog-api
+            -Dsonar.python.version=${{ matrix.python-version }}
+            -Dsonar.python.coverage.reportPaths=*coverage*.xml
