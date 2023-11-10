@@ -68,11 +68,16 @@ jobs:
           NEO4J_SERVER: localhost:7687
 
       # Upload coverage as artifacts
-      - name: Upload coverage as artifact
+      - name: Upload HTML coverage as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: code-coverage-${{ matrix.python-version }}
+          name: code-coverage-${{ matrix.python-version }}-html
           path: backend/htmlcov
+      - name: Upload XML coverage as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-${{ matrix.python-version }}-xml
+          path: backend/coverage.xml
 
       # Upload coverage to SonarCloud for code analysis
       - name: SonarCloud analysis
@@ -85,7 +90,8 @@ jobs:
           args: >
             -Dsonar.organization=giosava94
             -Dsonar.projectKey=giosava94_catalog-api
-            -Dsonar.python.version=${{ matrix.python-version }}
-            -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.sources=app
             -Dsonar.tests=tests
+            -Dsonar.python.version=${{ matrix.python-version }}
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.log.level=DEBUG
