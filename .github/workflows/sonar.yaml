@@ -1,4 +1,4 @@
-name: SonarCloud
+name: Test and analysis
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
       - synchronize
 
 jobs:
-  test:
+  test-analysis:
     name: Python tests
     runs-on: ubuntu-latest
     strategy:
@@ -81,10 +81,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
+          projectBaseDir: backend/
           args: >
             -Dsonar.organization=giosava94
             -Dsonar.projectKey=giosava94_catalog-api
             -Dsonar.python.version=${{ matrix.python-version }}
-            -Dsonar.python.coverage.reportPaths=**/coverage*.xml
-            -Dsonar.sources=backend/app
-            -Dsonar.tests=backend/tests
+            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.sources=app
+            -Dsonar.tests=tests
