@@ -94,7 +94,7 @@ jobs:
           args: >
             -Dsonar.organization=giosava94
             -Dsonar.projectKey=giosava94_catalog-api
-            -Dsonar.sources=app
+            -Dsonar.sources=./app
             -Dsonar.tests=tests
             -Dsonar.python.version=${{ matrix.python-version }}
             -Dsonar.python.coverage.reportPaths=coverage.xml
