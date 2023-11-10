@@ -75,6 +75,6 @@ jobs:
         with:
           args: >
             -Dsonar.organization=giosava94
-            -Dsona.projectKey=giosava94_catalog-api
+            -Dsonar.projectKey=giosava94_catalog-api
             -Dsonar.python.version=${{ matrix.python-version }}
             -Dsonar.python.coverage.reportPaths=*coverage*.xml
