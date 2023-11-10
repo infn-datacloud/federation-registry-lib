@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: code-coverage-${{ matrix.python-version }}
-          path: htmlcov
+          path: backend/htmlcov
 
       # Upload coverage to SonarCloud for code analysis
       - name: SonarCloud analysis
