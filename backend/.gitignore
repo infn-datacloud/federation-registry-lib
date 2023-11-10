@@ -3,7 +3,7 @@
 **/*.pyc
 
 # Tests and coverage
-**/.coverage*
+**/.coverage
 **/coverage*.xml
 **/.nox
 
