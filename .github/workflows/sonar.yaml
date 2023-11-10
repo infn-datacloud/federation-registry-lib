@@ -79,6 +79,10 @@ jobs:
           name: code-coverage-${{ matrix.python-version }}-xml
           path: backend/coverage.xml
 
+      - name: Override Coverage Source Path for Sonar
+        working-directory: backend
+        run: sed -i "s/<source>app<\/source>/<source>\/github\/workspace\/backend\/app<\/source>/g" coverage.xml
+
       # Upload coverage to SonarCloud for code analysis
       - name: SonarCloud analysis
         uses: SonarSource/sonarcloud-github-action@master
@@ -90,7 +94,7 @@ jobs:
           args: >
             -Dsonar.organization=giosava94
             -Dsonar.projectKey=giosava94_catalog-api
-            -Dsonar.sources=backend
+            -Dsonar.sources=app
             -Dsonar.tests=tests
             -Dsonar.python.version=${{ matrix.python-version }}
             -Dsonar.python.coverage.reportPaths=coverage.xml
