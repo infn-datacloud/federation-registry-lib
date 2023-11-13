@@ -68,10 +68,10 @@ class CRUDNetwork(
         if force:
             db_projects = {db_item.uuid: db_item for db_item in projects}
             db_proj = db_obj.project.single()
-            if not obj_in.project and db_proj is not None:
+            if not obj_in.project and db_proj:
                 db_obj.project.disconnect(db_proj)
                 edit = True
-            elif not db_proj or obj_in.project != db_proj.uuid:
+            elif not db_proj or (db_proj and obj_in.project != db_proj.uuid):
                 db_item = db_projects.get(obj_in.project)
                 db_obj.project.replace(db_item)
                 edit = True
