@@ -18,8 +18,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.8"]
-        #, "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     services:
       # Set up neo4j DB with APOC extension for UUIDs.
@@ -44,8 +43,6 @@ jobs:
         uses: snok/install-poetry@v1
         with:
           virtualenvs-create: true
-        #   virtualenvs-in-project: true
-        #   installer-parallel: true
 
       # Set up python versions to use
       - name: Set up Python ${{ matrix.python-version }}
@@ -76,9 +73,6 @@ jobs:
         with:
           name: code-coverage-${{ matrix.python-version }}-xml
           path: coverage.xml
-
-      # - name: Override Coverage Source Path for Sonar
-      #   run: sed -i "s/<source>app<\/source>/<source>\/github\/workspace\/app<\/source>/g" coverage.xml
 
       # Upload coverage to SonarCloud for code analysis
       - name: SonarCloud analysis
