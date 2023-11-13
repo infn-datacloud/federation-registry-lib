@@ -12,24 +12,17 @@ services:
     environment:
       - NEO4J_AUTH=none
       - NEO4J_PLUGINS=["apoc"]
-    healthcheck:
-      test: wget http://localhost:7474 || exit 1
-      start_period: 10s
-      interval: 5s
-      timeout: 5s
-      retries: 10
 
   oidc-agent:
     image: opensciencegrid/oidc-agent:3.6-release-20230802-1615
 
   base:
     build:
-      context: ../backend
+      context: ../.
       args:
         INSTALL_DEV: ${INSTALL_DEV-true}
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     volumes:
       - ..:/workspace:cached
     environment:
@@ -41,4 +34,3 @@ services:
 volumes:
   dev-db-data:
   dev-db-logs:
-
