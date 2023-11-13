@@ -84,7 +84,7 @@ jobs:
         with:
           args: >
             -Dsonar.organization=${{ github.repository_owner }}
-            -Dsonar.projectKey=${{ github.repository_owner }}_catalog-api
+            -Dsonar.projectKey=${{ github.repository_owner }}_federation-registry
             -Dsonar.sources=app
             -Dsonar.tests=tests
             -Dsonar.python.version=${{ matrix.python-version }}
