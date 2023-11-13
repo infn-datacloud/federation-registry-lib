@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - devel
+      - sonar
   pull_request:
     types:
       - opened
@@ -77,8 +77,8 @@ jobs:
           name: code-coverage-${{ matrix.python-version }}-xml
           path: coverage.xml
 
-      - name: Override Coverage Source Path for Sonar
-        run: sed -i "s/<source>app<\/source>/<source>\/github\/workspace\/app<\/source>/g" coverage.xml
+      # - name: Override Coverage Source Path for Sonar
+      #   run: sed -i "s/<source>app<\/source>/<source>\/github\/workspace\/app<\/source>/g" coverage.xml
 
       # Upload coverage to SonarCloud for code analysis
       - name: SonarCloud analysis
@@ -88,10 +88,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.organization=giosava94
-            -Dsonar.projectKey=giosava94_catalog-api
+            -Dsonar.organization=${{ github.repository_owner }}
+            -Dsonar.projectKey=${{ github.repository_owner }}_catalog-api
             -Dsonar.sources=app
             -Dsonar.tests=tests
             -Dsonar.python.version=${{ matrix.python-version }}
             -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.log.level=DEBUG
