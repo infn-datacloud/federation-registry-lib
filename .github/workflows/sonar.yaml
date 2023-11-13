@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - sonar
+      - devel
   pull_request:
     types:
       - opened
@@ -12,13 +12,14 @@ on:
       - synchronize
 
 jobs:
-  test-analysis:
+  test:
     name: Python tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: [3.8]
+        #, 3.9, 3.10, 3.11]
 
     services:
       # Set up neo4j DB with APOC extension for UUIDs.
@@ -74,6 +75,31 @@ jobs:
           name: code-coverage-${{ matrix.python-version }}-xml
           path: coverage.xml
 
+  analysis:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: [3.8]
+        #, 3.9, 3.10, 3.11]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Download XML coverage from artifacts
+      - name: Download XML coverage from artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: code-coverage-${{ matrix.python-version }}-xml
+          path: coverage.xml
+
+      - env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       # Upload coverage to SonarCloud for code analysis
       - name: SonarCloud analysis
         uses: SonarSource/sonarcloud-github-action@master
