@@ -1,2 +1,15 @@
 # VSCode and other IDEs
 **/.vscode
+
+# Python Build
+**/__pycache__
+**/*.pyc
+
+# Tests and coverage
+**/.coverage
+**/coverage*.xml
+**/.nox
+
+# Mkdocs Documentation
+**/site
+**/.cache

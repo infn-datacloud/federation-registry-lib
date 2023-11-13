@@ -23,5 +23,3 @@ jobs:
       # Lint using Ruff
       - name: Use Ruff linter and formatter
         uses: chartboost/ruff-action@v1
-        with:
-          src: "backend"

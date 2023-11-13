@@ -57,12 +57,10 @@ jobs:
 
       # Install dependencies if cache does not exist
       - name: Install dependencies
-        working-directory: backend
         run: poetry install --no-interaction --no-root
 
       # Run tests
       - name: Run tests
-        working-directory: backend
         run: poetry run pytest --cov --cov-report=xml --cov-report=html
         env:
           NEO4J_SERVER: localhost:7687
@@ -72,16 +70,15 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: code-coverage-${{ matrix.python-version }}-html
-          path: backend/htmlcov
+          path: htmlcov
       - name: Upload XML coverage as artifact
         uses: actions/upload-artifact@v3
         with:
           name: code-coverage-${{ matrix.python-version }}-xml
-          path: backend/coverage.xml
+          path: coverage.xml
 
       - name: Override Coverage Source Path for Sonar
-        working-directory: backend
-        run: sed -i "s/<source>app<\/source>/<source>\/github\/workspace\/backend\/app<\/source>/g" coverage.xml
+        run: sed -i "s/<source>app<\/source>/<source>\/github\/workspace\/app<\/source>/g" coverage.xml
 
       # Upload coverage to SonarCloud for code analysis
       - name: SonarCloud analysis
@@ -90,7 +87,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          projectBaseDir: backend
           args: >
             -Dsonar.organization=giosava94
             -Dsonar.projectKey=giosava94_catalog-api

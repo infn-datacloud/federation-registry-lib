@@ -38,13 +38,12 @@ services:
       - "8888:8888"
       - "8000:80"
     volumes:
-      - ./backend/app:/app/app
+      - ./app:/app/app
     environment:
       - JUPYTER=jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.custom_display_url=http://127.0.0.1:8888
       - BACKEND_CORS_ORIGINS=["http://$DOMAIN", "http://localhost:3000"]
       # - SERVER_HOST=http://${DOMAIN?Variable not set}
     build:
-      context: ./backend
       args:
         INSTALL_DEV: ${INSTALL_DEV-true}
         INSTALL_JUPYTER: ${INSTALL_JUPYTER-true}
