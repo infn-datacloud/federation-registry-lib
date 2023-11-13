@@ -3,7 +3,8 @@ name: Linting
 on:
   push:
     branches:
-      - master
+      - main
+      - devel
   pull_request:
     types:
       - opened
@@ -16,8 +17,9 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       # Lint using Ruff
       - name: Use Ruff linter and formatter
         uses: chartboost/ruff-action@v1
-        with:
-          src: "backend"
