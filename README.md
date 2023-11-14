@@ -58,6 +58,8 @@ Using VSCode you can open the entire folder inside the provided container. The d
 
 > The _docker-outside-docker_ extension allows developers to connect to the docker daemon service running on their host from inside the container.
 
+> If you are using `docker compose` instead of `docker-compose`. Verify that in the VSCode User Settings `Dev › Containers: Docker Compose Path` you are using **docker compose** instead of **docker-compose**.
+
 ### Start up the app
 
 To run the application in development mode developers can use the following command(the --reload flag allows server reload on changes):
