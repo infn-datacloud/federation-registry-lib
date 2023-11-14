@@ -80,9 +80,7 @@ class CRUDBase(
     def create(self, *, obj_in: CreateSchemaType) -> ModelType:
         obj_in = self.create_schema.parse_obj(obj_in)
         obj_in_data = obj_in.dict(exclude_none=True)
-        db_obj = None
-        if not db_obj:
-            db_obj = self.model.create(obj_in_data)[0]
+        db_obj = self.model.create(obj_in_data)[0]
         return db_obj
 
     def update(
