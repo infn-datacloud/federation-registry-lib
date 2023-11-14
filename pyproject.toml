@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "catalog-api"
+name = "federation-registry"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "Python web application providing public REST API to inspect the configurations of the providers registered into the DataCloud project"
+authors = ["Giovanni Savarese <giovanni.savarese@ba.infn.it>", "Marica Antonacci <marica.antonacci@ba.infn.it>"]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
@@ -42,13 +42,13 @@ extend-select = ["B", "C90", "E", "F", "G", "I", "N", "Q", "RUF", "UP", "W"]
 [tool.ruff.lint.per-file-ignores]
 "dependencies.py" = ["B008"]
 "endpoints.py" = ["B008"]
-"scripts/main.py" = ["E402"]
 "config.py" = ["N805"]
 "app/models.py" = ["N805"]
 "app/query.py" = ["N805"]
-"scripts/models/provider.py" = ["N805"]
 "schemas.py" = ["N805"]
 "schemas_extended.py" = ["N805"]
+"scripts/main.py" = ["E402"]
+"scripts/models/provider.py" = ["N805"]
 "scripts/providers/opnstk.py" = ["C901"]
 
 [tool.ruff.lint.pydocstyle]
