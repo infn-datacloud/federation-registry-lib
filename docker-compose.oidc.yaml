@@ -1,5 +1,0 @@
-version: "3"
-services:
-  oidc-agent:
-    image: opensciencegrid/oidc-agent:3.6-release-20230802-1615
-    restart: unless-stopped
