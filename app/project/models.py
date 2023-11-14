@@ -79,7 +79,7 @@ class Project(StructuredNode):
         """
 
     def public_flavors(self) -> List[Flavor]:
-        results, columns = self.cypher(
+        results, _ = self.cypher(
             f"""
                 {self.query_prefix}
                 WHERE q.type = "{ServiceType.COMPUTE.value}"
@@ -92,7 +92,7 @@ class Project(StructuredNode):
         return [Flavor.inflate(row[0]) for row in results]
 
     def public_images(self) -> List[Image]:
-        results, columns = self.cypher(
+        results, _ = self.cypher(
             f"""
                 {self.query_prefix}
                 WHERE q.type = "{ServiceType.COMPUTE.value}"
@@ -105,7 +105,7 @@ class Project(StructuredNode):
         return [Image.inflate(row[0]) for row in results]
 
     def public_networks(self) -> List[Network]:
-        results, columns = self.cypher(
+        results, _ = self.cypher(
             f"""
                 {self.query_prefix}
                 WHERE q.type = "{ServiceType.NETWORK.value}"

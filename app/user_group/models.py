@@ -49,7 +49,7 @@ class UserGroup(StructuredNode):
         """
 
     def flavors(self) -> List[Flavor]:
-        results, columns = self.cypher(
+        results, _ = self.cypher(
             f"""
                 {self.query_prefix}
                 MATCH (p)-[:CAN_USE_VM_FLAVOR]->(u)
@@ -59,7 +59,7 @@ class UserGroup(StructuredNode):
         return [Flavor.inflate(row[0]) for row in results]
 
     def images(self) -> List[Image]:
-        results, columns = self.cypher(
+        results, _ = self.cypher(
             f"""
                 {self.query_prefix}
                 MATCH (p)-[:CAN_USE_VM_IMAGE]->(u)
@@ -69,7 +69,7 @@ class UserGroup(StructuredNode):
         return [Image.inflate(row[0]) for row in results]
 
     def providers(self) -> List[Provider]:
-        results, columns = self.cypher(
+        results, _ = self.cypher(
             f"""
                 {self.query_prefix}
                 MATCH (p)<-[:BOOK_PROJECT_FOR_SLA]-(u)
@@ -95,7 +95,7 @@ class UserGroup(StructuredNode):
             filters = ", ".join(filters)
             filters = "WHERE " + filters
 
-        results, columns = self.cypher(
+        results, _ = self.cypher(
             f"""
                 {self.query_prefix}
                 MATCH (p)-[:USE_SERVICE_WITH]->(q)-[:APPLY_TO]->(u)
