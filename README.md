@@ -27,7 +27,7 @@ cd federation-registry
 
 Developers can launch the project locally or using containers. In both cases, developers need a running **neo4j database** and an **oidc-agent service**. These two services can be started in containers.
 
-### Local Development
+### Local Development (suggested for Linux users)
 
 Requirements:
 
@@ -48,7 +48,7 @@ poetry install
 poetry shell
 ```
 
-### VSCode Dev-Container
+### VSCode Dev-Container (suggested for MacOS users)
 
 Requirements:
 
@@ -67,6 +67,8 @@ To run the application in development mode developers can use the following comm
 ```bash
 uvicorn app.main --reload
 ```
+
+> Warning for Linux users who want to use devcontainer: when creating or editing a file inside the container, that file will belong to the root user. This way, you must be super-user to edit that file outside the container.
 
 ### Browser access
 
