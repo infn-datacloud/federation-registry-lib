@@ -13,8 +13,6 @@ uvicorn = "^0.22.0"
 neomodel = "5.0.1"
 pydantic = {extras = ["email"], version = "^1.10.9"}
 pycountry = "^22.3.5"
-python-openstackclient = "^6.2.0"
-python-glanceclient = "^4.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.3.1"
