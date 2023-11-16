@@ -2,11 +2,11 @@ from typing import Generator
 from uuid import uuid4
 
 from app.project.crud import project
+from app.provider.models import Provider
 from app.sla.crud import sla
 from app.sla.models import SLA
 from app.user_group.crud import user_group
 from app.user_group.models import UserGroup
-from scripts.models.provider import Provider
 from tests.utils.sla import (
     create_random_sla,
     create_random_sla_patch,

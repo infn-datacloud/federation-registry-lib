@@ -29,7 +29,7 @@ trio = ["trio (>=0.22)"]
 
 [[package]]
 name = "argcomplete"
-version = "3.1.4"
+version = "3.1.6"
 description = "Bash tab completion for argparse"
 category = "dev"
 optional = false
@@ -37,29 +37,6 @@ python-versions = ">=3.8"
 
 [package.extras]
 test = ["coverage", "pexpect", "wheel", "ruff", "mypy"]
-
-[[package]]
-name = "attrs"
-version = "23.1.0"
-description = "Classes Without Boilerplate"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-
-[package.extras]
-cov = ["attrs", "coverage[toml] (>=5.3)"]
-dev = ["attrs", "pre-commit"]
-docs = ["furo", "myst-parser", "sphinx", "sphinx-notfound-page", "sphinxcontrib-towncrier", "towncrier", "zope-interface"]
-tests = ["attrs", "zope-interface"]
-tests-no-zope = ["cloudpickle", "hypothesis", "mypy (>=1.1.1)", "pympler", "pytest-mypy-plugins", "pytest-xdist", "pytest (>=4.3.0)"]
-
-[[package]]
-name = "autopage"
-version = "0.5.2"
-description = "A library to provide automatic paging for console output"
-category = "main"
-optional = false
-python-versions = ">=3.6"
 
 [[package]]
 name = "babel"
@@ -165,41 +142,6 @@ python-versions = ">=3.7"
 colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
-name = "cliff"
-version = "4.3.0"
-description = "Command Line Interface Formulation Framework"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-autopage = ">=0.4.0"
-cmd2 = ">=1.0.0"
-importlib-metadata = ">=4.4"
-PrettyTable = ">=0.7.2"
-PyYAML = ">=3.12"
-stevedore = ">=2.0.1"
-
-[[package]]
-name = "cmd2"
-version = "2.4.3"
-description = "cmd2 - quickly build feature-rich and user-friendly interactive command line applications in Python"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-attrs = ">=16.3.0"
-pyperclip = ">=1.6"
-pyreadline3 = {version = "*", markers = "sys_platform == \"win32\""}
-wcwidth = ">=0.1.7"
-
-[package.extras]
-dev = ["codecov", "doc8", "flake8", "invoke", "mypy", "nox", "pytest (>=4.6)", "pytest-cov", "pytest-mock", "sphinx", "sphinx-rtd-theme", "sphinx-autobuild", "twine (>=1.11)"]
-test = ["codecov", "coverage", "pytest (>=4.6)", "pytest-cov", "pytest-mock", "gnureadline"]
-validate = ["flake8", "mypy", "types-pkg-resources"]
-
-[[package]]
 name = "colorama"
 version = "0.4.6"
 description = "Cross-platform colored terminal text."
@@ -285,25 +227,6 @@ doc = ["sphinx", "sphinx-rtd-theme"]
 test = ["pytest", "isort", "flake8"]
 
 [[package]]
-name = "debtcollector"
-version = "2.5.0"
-description = "A collection of Python deprecation patterns and strategies that help you collect your technical debt in a non-destructive manner."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-wrapt = ">=1.7.0"
-
-[[package]]
-name = "decorator"
-version = "5.1.1"
-description = "Decorators for Humans"
-category = "main"
-optional = false
-python-versions = ">=3.5"
-
-[[package]]
 name = "defusedxml"
 version = "0.7.1"
 description = "XML bomb protection for Python stdlib modules"
@@ -334,19 +257,6 @@ doh = ["h2 (>=4.1.0)", "httpcore (>=0.17.3)", "httpx (>=0.24.1)"]
 idna = ["idna (>=2.1,<4.0)"]
 trio = ["trio (>=0.14,<0.23)"]
 wmi = ["wmi (>=1.5.1,<2.0.0)"]
-
-[[package]]
-name = "dogpile.cache"
-version = "1.2.2"
-description = "A caching front-end based on the Dogpile lock."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-decorator = ">=4.0.0"
-stevedore = ">=3.0.0"
-typing-extensions = {version = ">=4.0.1", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "email-validator"
@@ -442,7 +352,7 @@ dev = ["twine", "markdown", "flake8", "wheel"]
 
 [[package]]
 name = "griffe"
-version = "0.36.9"
+version = "0.38.0"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 category = "dev"
 optional = false
@@ -531,7 +441,7 @@ python-versions = ">=3.5"
 name = "importlib-metadata"
 version = "6.8.0"
 description = "Read metadata from Python packages"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
 
@@ -544,35 +454,12 @@ perf = ["ipython"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ruff", "packaging", "pyfakefs", "flufl.flake8", "pytest-perf (>=0.9.2)", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)", "importlib-resources (>=1.3)"]
 
 [[package]]
-name = "importlib-resources"
-version = "6.1.1"
-description = "Read resources from Python packages"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-zipp = {version = ">=3.1.0", markers = "python_version < \"3.10\""}
-
-[package.extras]
-docs = ["sphinx (>=3.5)", "sphinx (<7.2.5)", "jaraco.packaging (>=9.3)", "rst.linker (>=1.9)", "furo", "sphinx-lint", "jaraco.tidelift (>=1.4)"]
-testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ruff", "zipp (>=3.17)", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)"]
-
-[[package]]
 name = "iniconfig"
 version = "2.0.0"
 description = "brain-dead simple config-ini parsing"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
-
-[[package]]
-name = "iso8601"
-version = "2.1.0"
-description = "Simple module to parse ISO 8601 dates"
-category = "main"
-optional = false
-python-versions = ">=3.7,<4.0"
 
 [[package]]
 name = "jinja2"
@@ -587,87 +474,6 @@ MarkupSafe = ">=2.0"
 
 [package.extras]
 i18n = ["Babel (>=2.7)"]
-
-[[package]]
-name = "jmespath"
-version = "1.0.1"
-description = "JSON Matching Expressions"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-
-[[package]]
-name = "jsonpatch"
-version = "1.33"
-description = "Apply JSON-Patches (RFC 6902)"
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*"
-
-[package.dependencies]
-jsonpointer = ">=1.9"
-
-[[package]]
-name = "jsonpointer"
-version = "2.4"
-description = "Identify specific nodes in a JSON document (RFC 6901)"
-category = "main"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*"
-
-[[package]]
-name = "jsonschema"
-version = "4.19.2"
-description = "An implementation of JSON Schema validation for Python"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-attrs = ">=22.2.0"
-importlib-resources = {version = ">=1.4.0", markers = "python_version < \"3.9\""}
-jsonschema-specifications = ">=2023.03.6"
-pkgutil-resolve-name = {version = ">=1.3.10", markers = "python_version < \"3.9\""}
-referencing = ">=0.28.4"
-rpds-py = ">=0.7.1"
-
-[package.extras]
-format = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validator", "rfc3987", "uri-template", "webcolors (>=1.11)"]
-format-nongpl = ["fqdn", "idna", "isoduration", "jsonpointer (>1.13)", "rfc3339-validator", "rfc3986-validator (>0.1.0)", "uri-template", "webcolors (>=1.11)"]
-
-[[package]]
-name = "jsonschema-specifications"
-version = "2023.7.1"
-description = "The JSON Schema meta-schemas and vocabularies, exposed as a Registry"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-importlib-resources = {version = ">=1.4.0", markers = "python_version < \"3.9\""}
-referencing = ">=0.28.0"
-
-[[package]]
-name = "keystoneauth1"
-version = "5.3.0"
-description = "Authentication Library for OpenStack Identity"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-iso8601 = ">=0.1.11"
-os-service-types = ">=1.2.0"
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-requests = ">=2.14.2"
-stevedore = ">=1.20.0"
-
-[package.extras]
-betamax = ["betamax (>=0.7.0)", "fixtures (>=3.0.0)", "mock (>=2.0.0)"]
-kerberos = ["requests-kerberos (>=0.8.0)"]
-oauth1 = ["oauthlib (>=0.6.2)"]
-saml2 = ["lxml (>=4.2.0)"]
-test = ["PyYAML (>=3.12)", "bandit (>=1.1.0,<1.6.0)", "betamax (>=0.7.0)", "coverage (>=4.0,!=4.4)", "fixtures (>=3.0.0)", "flake8-docstrings (>=1.6.0,<1.7.0)", "flake8-import-order (>=0.17.1)", "hacking (>=4.1.0,<4.2.0)", "lxml (>=4.2.0)", "oauthlib (>=0.6.2)", "oslo.config (>=5.2.0)", "oslo.utils (>=3.33.0)", "oslotest (>=3.2.0)", "reno (>=3.1.0)", "requests-kerberos (>=0.8.0)", "requests-mock (>=1.2.0)", "stestr (>=1.0.0)", "testresources (>=2.0.0)", "testtools (>=2.2.0)"]
 
 [[package]]
 name = "liboidcagent"
@@ -798,19 +604,21 @@ python-versions = ">=3.8"
 
 [[package]]
 name = "mkdocstrings"
-version = "0.23.0"
+version = "0.24.0"
 description = "Automatic documentation from sources, for MkDocs."
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 
 [package.dependencies]
+click = ">=7.0"
 importlib-metadata = {version = ">=4.6", markers = "python_version < \"3.10\""}
 Jinja2 = ">=2.11.1"
 Markdown = ">=3.3"
 MarkupSafe = ">=1.1"
-mkdocs = ">=1.2"
+mkdocs = ">=1.4"
 mkdocs-autorefs = ">=0.3.1"
+platformdirs = ">=2.2.0"
 pymdown-extensions = ">=6.3"
 typing-extensions = {version = ">=4.1", markers = "python_version < \"3.10\""}
 
@@ -821,23 +629,15 @@ python = ["mkdocstrings-python (>=0.5.2)"]
 
 [[package]]
 name = "mkdocstrings-python"
-version = "1.7.3"
+version = "1.7.4"
 description = "A Python handler for mkdocstrings."
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 
 [package.dependencies]
-griffe = ">=0.35"
+griffe = ">=0.37"
 mkdocstrings = ">=0.20"
-
-[[package]]
-name = "msgpack"
-version = "1.0.7"
-description = "MessagePack serializer"
-category = "main"
-optional = false
-python-versions = ">=3.8"
 
 [[package]]
 name = "neo4j-driver"
@@ -876,22 +676,6 @@ six = "1.16.0"
 dev = ["pytest (>=7.1)", "pytest-cov (>=4.0)", "pre-commit", "black", "isort", "Shapely (>=1.8.1,<1.9)"]
 
 [[package]]
-name = "netaddr"
-version = "0.9.0"
-description = "A network address manipulation library for Python"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
-name = "netifaces"
-version = "0.11.0"
-description = "Portable network interface information."
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "nodeenv"
 version = "1.8.0"
 description = "Node.js virtual environment builder"
@@ -917,128 +701,10 @@ virtualenv = ">=14"
 tox_to_nox = ["jinja2", "tox (<4)"]
 
 [[package]]
-name = "openstacksdk"
-version = "2.0.0"
-description = "An SDK for building applications to work with OpenStack"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-cryptography = ">=2.7"
-decorator = ">=4.4.1"
-"dogpile.cache" = ">=0.6.5"
-iso8601 = ">=0.1.11"
-jmespath = ">=0.9.0"
-jsonpatch = ">=1.16,<1.20 || >1.20"
-keystoneauth1 = ">=3.18.0"
-netifaces = ">=0.10.4"
-os-service-types = ">=1.7.0"
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-platformdirs = ">=3"
-PyYAML = ">=3.13"
-requestsexceptions = ">=1.2.0"
-
-[[package]]
-name = "os-service-types"
-version = "1.7.0"
-description = "Python library for consuming OpenStack sevice-types-authority data"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-
-[[package]]
-name = "osc-lib"
-version = "2.8.1"
-description = "OpenStackClient Library"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[package.dependencies]
-cliff = ">=3.2.0"
-keystoneauth1 = ">=3.14.0"
-openstacksdk = ">=0.15.0"
-"oslo.i18n" = ">=3.15.3"
-"oslo.utils" = ">=3.33.0"
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-simplejson = ">=3.5.1"
-stevedore = ">=1.20.0"
-
-[[package]]
-name = "oslo.config"
-version = "9.2.0"
-description = "Oslo Configuration API"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-debtcollector = ">=1.2.0"
-netaddr = ">=0.7.18"
-"oslo.i18n" = ">=3.15.3"
-PyYAML = ">=5.1"
-requests = ">=2.18.0"
-rfc3986 = ">=1.2.0"
-stevedore = ">=1.20.0"
-
-[package.extras]
-rst_generator = ["rst2txt (>=1.1.0)", "sphinx (>=1.8.0,!=2.1.0)"]
-test = ["bandit (>=1.7.0,<1.8.0)", "coverage (>=4.0,!=4.4)", "fixtures (>=3.0.0)", "hacking (>=3.0.1,<3.1.0)", "mypy (>=0.720)", "oslo.log (>=3.36.0)", "oslotest (>=3.2.0)", "pre-commit (>=2.6.0)", "requests-mock (>=1.5.0)", "stestr (>=2.1.0)", "testscenarios (>=0.4)", "testtools (>=2.2.0)"]
-
-[[package]]
-name = "oslo.i18n"
-version = "6.1.0"
-description = "Oslo i18n library"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-
-[[package]]
-name = "oslo.serialization"
-version = "5.2.0"
-description = "Oslo Serialization library"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-msgpack = ">=0.5.2"
-"oslo.utils" = ">=3.33.0"
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-pytz = ">=2013.6"
-tzdata = ">=2022.4"
-
-[[package]]
-name = "oslo.utils"
-version = "6.2.1"
-description = "Oslo Utility library"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-debtcollector = ">=1.2.0"
-iso8601 = ">=0.1.11"
-netaddr = ">=0.7.18"
-netifaces = ">=0.10.4"
-"oslo.i18n" = ">=3.15.3"
-packaging = ">=20.4"
-pyparsing = ">=2.1.0"
-pytz = ">=2013.6"
-tzdata = ">=2022.4"
-
-[[package]]
 name = "packaging"
 version = "23.2"
 description = "Core utilities for Python packages"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -1059,14 +725,6 @@ optional = false
 python-versions = ">=3.7"
 
 [[package]]
-name = "pbr"
-version = "5.11.1"
-description = "Python Build Reasonableness"
-category = "main"
-optional = false
-python-versions = ">=2.6"
-
-[[package]]
 name = "pillow"
 version = "9.5.0"
 description = "Python Imaging Library (Fork)"
@@ -1079,18 +737,10 @@ docs = ["furo", "olefile", "sphinx (>=2.4)", "sphinx-copybutton", "sphinx-inline
 tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
-name = "pkgutil-resolve-name"
-version = "1.3.10"
-description = "Resolve a name to an object."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-
-[[package]]
 name = "platformdirs"
 version = "3.11.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.7"
 
@@ -1124,20 +774,6 @@ identify = ">=1.0.0"
 nodeenv = ">=0.11.1"
 pyyaml = ">=5.1"
 virtualenv = ">=20.10.0"
-
-[[package]]
-name = "prettytable"
-version = "3.9.0"
-description = "A simple Python library for easily displaying tabular data in a visually appealing ASCII table format"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-wcwidth = "*"
-
-[package.extras]
-tests = ["pytest", "pytest-cov", "pytest-lazy-fixture"]
 
 [[package]]
 name = "pycountry"
@@ -1201,7 +837,7 @@ tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
 
 [[package]]
 name = "pymdown-extensions"
-version = "10.3.1"
+version = "10.4"
 description = "Extension pack for Python Markdown."
 category = "dev"
 optional = false
@@ -1228,40 +864,6 @@ cffi = ">=1.4.1"
 [package.extras]
 docs = ["sphinx (>=1.6.5)", "sphinx-rtd-theme"]
 tests = ["pytest (>=3.2.1,!=3.3.0)", "hypothesis (>=3.27.0)"]
-
-[[package]]
-name = "pyopenssl"
-version = "23.3.0"
-description = "Python wrapper module around the OpenSSL library"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-
-[package.dependencies]
-cryptography = ">=41.0.5,<42"
-
-[package.extras]
-docs = ["sphinx (!=5.2.0,!=5.2.0.post0,!=7.2.5)", "sphinx-rtd-theme"]
-test = ["flaky", "pretend", "pytest (>=3.0.1)"]
-
-[[package]]
-name = "pyparsing"
-version = "3.1.1"
-description = "pyparsing module - Classes and methods to define and execute parsing grammars"
-category = "main"
-optional = false
-python-versions = ">=3.6.8"
-
-[package.extras]
-diagrams = ["railroad-diagrams", "jinja2"]
-
-[[package]]
-name = "pyperclip"
-version = "1.8.2"
-description = "A cross-platform clipboard module for Python. (Only handles plain text for now.)"
-category = "main"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "pyreadline3"
@@ -1306,23 +908,6 @@ pytest = ">=4.6"
 testing = ["fields", "hunter", "process-tests", "six", "pytest-xdist", "virtualenv"]
 
 [[package]]
-name = "python-cinderclient"
-version = "9.4.0"
-description = "OpenStack Block Storage API Client Library"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-keystoneauth1 = ">=5.0.0"
-"oslo.i18n" = ">=5.0.1"
-"oslo.utils" = ">=4.8.0"
-pbr = ">=5.5.0"
-PrettyTable = ">=0.7.2"
-requests = ">=2.25.1"
-stevedore = ">=3.3.0"
-
-[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -1332,86 +917,6 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 
 [package.dependencies]
 six = ">=1.5"
-
-[[package]]
-name = "python-glanceclient"
-version = "4.4.0"
-description = "OpenStack Image API Client Library"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-keystoneauth1 = ">=3.6.2"
-"oslo.i18n" = ">=3.15.3"
-"oslo.utils" = ">=3.33.0"
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-PrettyTable = ">=0.7.1"
-pyOpenSSL = ">=17.1.0"
-requests = ">=2.14.2"
-warlock = ">=1.2.0"
-wrapt = ">=1.7.0"
-
-[[package]]
-name = "python-keystoneclient"
-version = "5.2.0"
-description = "Client Library for OpenStack Identity"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-debtcollector = ">=1.2.0"
-keystoneauth1 = ">=3.4.0"
-"oslo.config" = ">=5.2.0"
-"oslo.i18n" = ">=3.15.3"
-"oslo.serialization" = ">=2.18.0,<2.19.1 || >2.19.1"
-"oslo.utils" = ">=3.33.0"
-packaging = ">=20.4"
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-requests = ">=2.14.2"
-six = ">=1.10.0"
-stevedore = ">=1.20.0"
-
-[[package]]
-name = "python-novaclient"
-version = "18.4.0"
-description = "Client library for OpenStack Compute API"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-iso8601 = ">=0.1.11"
-keystoneauth1 = ">=3.5.0"
-"oslo.i18n" = ">=3.15.3"
-"oslo.serialization" = ">=2.18.0,<2.19.1 || >2.19.1"
-"oslo.utils" = ">=3.33.0"
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-PrettyTable = ">=0.7.2"
-stevedore = ">=2.0.1"
-
-[[package]]
-name = "python-openstackclient"
-version = "6.3.0"
-description = "OpenStack Command-line Client"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-cliff = ">=3.5.0"
-cryptography = ">=2.7"
-iso8601 = ">=0.1.11"
-openstacksdk = ">=1.4.0"
-osc-lib = ">=2.3.0"
-"oslo.i18n" = ">=3.15.3"
-"oslo.utils" = ">=3.33.0"
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-python-cinderclient = ">=3.3.0"
-python-keystoneclient = ">=3.22.0"
-python-novaclient = ">=18.1.0"
-stevedore = ">=2.0.1"
 
 [[package]]
 name = "pytz"
@@ -1425,7 +930,7 @@ python-versions = "*"
 name = "pyyaml"
 version = "6.0.1"
 description = "YAML parser and emitter for Python"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.6"
 
@@ -1439,18 +944,6 @@ python-versions = ">=3.6"
 
 [package.dependencies]
 pyyaml = "*"
-
-[[package]]
-name = "referencing"
-version = "0.30.2"
-description = "JSON Referencing + Python"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-attrs = ">=22.2.0"
-rpds-py = ">=0.7.0"
 
 [[package]]
 name = "regex"
@@ -1479,47 +972,12 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
-name = "requestsexceptions"
-version = "1.4.0"
-description = "Import exceptions from potentially bundled packages in requests."
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
-name = "rfc3986"
-version = "2.0.0"
-description = "Validating URI References per RFC 3986"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-
-[package.extras]
-idna2008 = ["idna"]
-
-[[package]]
-name = "rpds-py"
-version = "0.12.0"
-description = "Python bindings to Rust's persistent data structures (rpds)"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[[package]]
 name = "ruff"
-version = "0.1.4"
+version = "0.1.5"
 description = "An extremely fast Python linter and code formatter, written in Rust."
 category = "dev"
 optional = false
 python-versions = ">=3.7"
-
-[[package]]
-name = "simplejson"
-version = "3.19.2"
-description = "Simple, fast, extensible JSON encoder/decoder for Python"
-category = "main"
-optional = false
-python-versions = ">=2.5, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "six"
@@ -1553,17 +1011,6 @@ typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""
 full = ["httpx (>=0.22.0)", "itsdangerous", "jinja2", "python-multipart", "pyyaml"]
 
 [[package]]
-name = "stevedore"
-version = "5.1.0"
-description = "Manage dynamic plugins for Python applications"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-pbr = ">=2.0.0,<2.1.0 || >2.1.0"
-
-[[package]]
 name = "tinycss2"
 version = "1.2.1"
 description = "A tiny CSS parser"
@@ -1595,24 +1042,15 @@ optional = false
 python-versions = ">=3.8"
 
 [[package]]
-name = "tzdata"
-version = "2023.3"
-description = "Provider of IANA time zone data"
-category = "main"
-optional = false
-python-versions = ">=2"
-
-[[package]]
 name = "urllib3"
-version = "2.0.7"
+version = "2.1.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 category = "main"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.extras]
 brotli = ["brotli (>=1.0.9)", "brotlicffi (>=0.8.0)"]
-secure = ["certifi", "cryptography (>=1.9)", "idna (>=2.0.0)", "pyopenssl (>=17.1.0)", "urllib3-secure-extra"]
 socks = ["pysocks (>=1.5.6,!=1.5.7,<2.0)"]
 zstd = ["zstandard (>=0.18.0)"]
 
@@ -1649,18 +1087,6 @@ docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx-argparse (>=0.4)", "
 test = ["covdefaults (>=2.3)", "coverage-enable-subprocess (>=1)", "coverage (>=7.2.7)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8)", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "pytest (>=7.4)", "setuptools (>=68)", "time-machine (>=2.10)"]
 
 [[package]]
-name = "warlock"
-version = "2.0.1"
-description = "Python object model built on JSON schema and JSON patch."
-category = "main"
-optional = false
-python-versions = ">=3.7,<4.0"
-
-[package.dependencies]
-jsonpatch = ">=1,<2"
-jsonschema = ">=4,<5"
-
-[[package]]
 name = "watchdog"
 version = "3.0.0"
 description = "Filesystem events monitoring"
@@ -1672,14 +1098,6 @@ python-versions = ">=3.7"
 watchmedo = ["PyYAML (>=3.10)"]
 
 [[package]]
-name = "wcwidth"
-version = "0.2.9"
-description = "Measures the displayed width of unicode strings in a terminal"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "webencodings"
 version = "0.5.1"
 description = "Character encoding aliases for legacy web content"
@@ -1688,18 +1106,10 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "wrapt"
-version = "1.15.0"
-description = "Module for decorators, wrappers and monkey patching."
-category = "main"
-optional = false
-python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
-
-[[package]]
 name = "zipp"
 version = "3.17.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-category = "main"
+category = "dev"
 optional = false
 python-versions = ">=3.8"
 
@@ -1710,14 +1120,12 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-ena
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.1"
-content-hash = "45959f659275802244645038bbe426cb8b2c62b2bb2a4acab20b04f577465523"
+content-hash = "ed1e3367e154467c93740cd8ed8b0b7f5086d4517815185312c6285cdc31b485"
 
 [metadata.files]
 aarc-entitlement = []
 anyio = []
 argcomplete = []
-attrs = []
-autopage = []
 babel = []
 cachetools = []
 cairocffi = []
@@ -1727,20 +1135,15 @@ cffi = []
 cfgv = []
 charset-normalizer = []
 click = []
-cliff = []
-cmd2 = []
 colorama = []
 colorlog = []
 configargparse = []
 coverage = []
 cryptography = []
 cssselect2 = []
-debtcollector = []
-decorator = []
 defusedxml = []
 distlib = []
 dnspython = []
-"dogpile.cache" = []
 email-validator = []
 exceptiongroup = []
 fastapi = []
@@ -1755,19 +1158,11 @@ humanfriendly = []
 identify = []
 idna = []
 importlib-metadata = []
-importlib-resources = []
 iniconfig = []
-iso8601 = []
 jinja2 = [
     {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
     {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
 ]
-jmespath = []
-jsonpatch = []
-jsonpointer = []
-jsonschema = []
-jsonschema-specifications = []
-keystoneauth1 = []
 liboidcagent = []
 markdown = []
 markupsafe = []
@@ -1779,31 +1174,18 @@ mkdocs-material = []
 mkdocs-material-extensions = []
 mkdocstrings = []
 mkdocstrings-python = []
-msgpack = []
 neo4j-driver = []
 neobolt = []
 neomodel = []
-netaddr = []
-netifaces = []
 nodeenv = []
 nox = []
-openstacksdk = []
-os-service-types = []
-osc-lib = []
-"oslo.config" = []
-"oslo.i18n" = []
-"oslo.serialization" = []
-"oslo.utils" = []
 packaging = []
 paginate = []
 pathspec = []
-pbr = []
 pillow = []
-pkgutil-resolve-name = []
 platformdirs = []
 pluggy = []
 pre-commit = []
-prettytable = []
 pycountry = []
 pycparser = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
@@ -1814,49 +1196,31 @@ pygments = []
 pyjwt = []
 pymdown-extensions = []
 pynacl = []
-pyopenssl = []
-pyparsing = []
-pyperclip = []
 pyreadline3 = []
 pytest = []
 pytest-cov = []
-python-cinderclient = []
 python-dateutil = []
-python-glanceclient = []
-python-keystoneclient = []
-python-novaclient = []
-python-openstackclient = []
 pytz = []
 pyyaml = []
 pyyaml-env-tag = []
-referencing = []
 regex = []
 requests = []
-requestsexceptions = []
-rfc3986 = []
-rpds-py = []
 ruff = []
-simplejson = []
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
 ]
 sniffio = []
 starlette = []
-stevedore = []
 tinycss2 = []
 tomli = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
 typing-extensions = []
-tzdata = []
 urllib3 = []
 uvicorn = []
 virtualenv = []
-warlock = []
 watchdog = []
-wcwidth = []
 webencodings = []
-wrapt = []
 zipp = []

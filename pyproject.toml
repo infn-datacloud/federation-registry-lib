@@ -3,6 +3,7 @@ name = "federation-registry"
 version = "0.1.0"
 description = "Python web application providing public REST API to inspect the configurations of the providers registered into the DataCloud project"
 authors = ["Giovanni Savarese <giovanni.savarese@ba.infn.it>", "Marica Antonacci <marica.antonacci@ba.infn.it>"]
+packages = [{ include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
@@ -12,11 +13,8 @@ uvicorn = "^0.22.0"
 neomodel = "5.0.1"
 pydantic = {extras = ["email"], version = "^1.10.9"}
 pycountry = "^22.3.5"
-python-openstackclient = "^6.2.0"
-python-glanceclient = "^4.4.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.3.1"
 pytest-cov = "^4.1.0"
 nox = "^2023.4.22"
 mkdocs-material = "^9.1.17"
@@ -47,9 +45,6 @@ extend-select = ["B", "C90", "E", "F", "G", "I", "N", "Q", "RUF", "UP", "W"]
 "app/query.py" = ["N805"]
 "schemas.py" = ["N805"]
 "schemas_extended.py" = ["N805"]
-"scripts/main.py" = ["E402"]
-"scripts/models/provider.py" = ["N805"]
-"scripts/providers/opnstk.py" = ["C901"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
