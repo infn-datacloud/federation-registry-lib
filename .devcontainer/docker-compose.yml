@@ -20,6 +20,7 @@ services:
   base:
     build:
       context: ../.
+      target: development
       args:
         INSTALL_DEV: ${INSTALL_DEV-true}
     depends_on:
@@ -29,8 +30,8 @@ services:
     environment:
       - TRUSTED_IDP_LIST=["https://iam.cloud.infn.it"]
       - NEO4J_SERVER=db
-    # command: bash -c "while true; do sleep 1; done"  # Infinite loop to keep container live doing nothing
-    command: /start-reload.sh
+    # Infinite loop to keep container live doing nothing
+    command: bash -c "while true; do sleep 1; done"
 
 volumes:
   dev-db-data:
