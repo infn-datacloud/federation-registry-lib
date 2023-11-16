@@ -46,9 +46,6 @@ extend-select = ["B", "C90", "E", "F", "G", "I", "N", "Q", "RUF", "UP", "W"]
 "app/query.py" = ["N805"]
 "schemas.py" = ["N805"]
 "schemas_extended.py" = ["N805"]
-"scripts/main.py" = ["E402"]
-"scripts/models/provider.py" = ["N805"]
-"scripts/providers/opnstk.py" = ["C901"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
