@@ -16,6 +16,7 @@ class Neo4jUriScheme(Enum):
 class Settings(BaseSettings):
     PROJECT_NAME: str = "CMDB"
     API_V1_STR: str = "/api/v1"
+    DOMAIN: str = "localhost:8000"
 
     NEO4J_SERVER: str = "localhost:7687"
     NEO4J_USER: str = "neo4j"
