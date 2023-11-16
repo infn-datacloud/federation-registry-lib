@@ -15,7 +15,6 @@ pydantic = {extras = ["email"], version = "^1.10.9"}
 pycountry = "^22.3.5"
 
 [tool.poetry.dev-dependencies]
-pytest = "^7.3.1"
 pytest-cov = "^4.1.0"
 nox = "^2023.4.22"
 mkdocs-material = "^9.1.17"
