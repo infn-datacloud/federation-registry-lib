@@ -1,3 +1,6 @@
+from functools import wraps
+from typing import Any, Callable
+
 from fastapi import Depends
 from fastapi.security import HTTPBasicCredentials, HTTPBearer
 from flaat.config import AccessLevel
@@ -23,14 +26,23 @@ flaat.set_trusted_OP_list(get_settings().TRUSTED_IDP_LIST)
 flaat.set_request_timeout(30)
 
 
-def check_read_access(
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-) -> bool:
+def check_read_access(view_func: Callable) -> Callable[..., Any]:
     """Return True if the request contains a valid token."""
-    if client_credentials:
-        flaat.is_authenticated()
-        return True
-    return False
+
+    @wraps(view_func)
+    def wrapper(
+        auth: bool,
+        client_credentials: HTTPBasicCredentials,
+        *args,
+        **kwargs,
+    ):
+        if client_credentials:
+            return flaat.is_authenticated(
+                on_failure=view_func(*args, **kwargs, auth=False)
+            )(view_func(*args, **kwargs, auth=True))
+        return view_func(*args, **kwargs, auth=False)
+
+    return wrapper
 
 
 def check_write_access(

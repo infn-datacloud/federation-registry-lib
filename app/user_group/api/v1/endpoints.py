@@ -1,9 +1,10 @@
 from typing import List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth.dependencies import check_read_access, check_write_access
+from app.auth.dependencies import check_read_access, check_write_access, lazy_security
 from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderQuery
 
@@ -175,10 +176,12 @@ def filter_on_region_attr(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_user_group(
-    auth: bool = Depends(check_read_access),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
+    auth: bool = False,
 ):
     return user_group.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
