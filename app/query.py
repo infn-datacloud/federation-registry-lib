@@ -1,11 +1,11 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional, get_origin
+from typing import Optional, Type, get_origin
 
 from pydantic import BaseModel, Field, create_model, root_validator
 from pydantic.fields import SHAPE_LIST
 
-from app.models import BaseNodeQuery
+from app.models import BaseNode, BaseNodeQuery
 
 
 class SchemaSize(BaseModel):
@@ -62,7 +62,9 @@ class DbQueryCommonParams(BaseModel):
         return values
 
 
-def create_query_model(model_name: str, base_model: BaseModel):
+def create_query_model(
+    model_name: str, base_model: Type[BaseNode]
+) -> Type[BaseNodeQuery]:
     """Create a Query Model with the given model name and starting from the received
     base model.
     """
