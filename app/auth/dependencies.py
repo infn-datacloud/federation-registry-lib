@@ -48,7 +48,7 @@ def check_read_access(view_func: Callable) -> Callable[..., Any]:
             )(view_func(*args, **kwargs, auth=True))
         return view_func(*args, **kwargs, auth=False)
 
-    return wrapper
+    return wrapper.__wrapped__
 
 
 def check_write_access(view_func: Callable) -> Callable[..., Any]:
