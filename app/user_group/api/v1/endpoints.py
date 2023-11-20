@@ -4,7 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth.dependencies import check_read_access, check_write_access, lazy_security
+from app.auth.dependencies import (
+    check_read_access,
+    check_write_access,
+    lazy_security,
+    strict_security,
+)
 from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderQuery
 
@@ -78,8 +83,8 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
         It is possible to filter on user groups attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_user_groups(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
@@ -88,6 +93,8 @@ def get_user_groups(
     provider_name: Optional[str] = None,
     provider_type: Optional[ProviderType] = None,
     region_name: Optional[str] = None,
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = user_group.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -178,9 +185,9 @@ def filter_on_region_attr(
 )
 @check_read_access
 def get_user_group(
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     auth: bool = False,
 ):
     return user_group.choose_out_schema(
@@ -193,10 +200,7 @@ def get_user_group(
     "/{user_group_uid}",
     status_code=status.HTTP_200_OK,
     response_model=Optional[UserGroupRead],
-    dependencies=[
-        Depends(check_write_access),
-        Depends(validate_new_user_group_values),
-    ],
+    dependencies=[Depends(validate_new_user_group_values)],
     summary="Edit a specific user group",
     description="Update attribute values of a specific user group. \
         The target user group is identified using its uid. \
@@ -208,10 +212,12 @@ def get_user_group(
         no other items, belonging to same identity provider, \
         with the given *name*.",
 )
+@check_write_access
 def put_user_group(
     update_data: UserGroupUpdate,
     response: Response,
     item: UserGroup = Depends(valid_user_group_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = user_group.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -223,7 +229,6 @@ def put_user_group(
 @router.delete(
     "/{user_group_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific user group",
     description="Delete a specific user group using its *uid*. \
         Returns `no content`. \
@@ -231,7 +236,11 @@ def put_user_group(
         raises a `not found` error. \
         On cascade, delete related SLAs.",
 )
-def delete_user_group(item: UserGroup = Depends(valid_user_group_id)):
+@check_write_access
+def delete_user_group(
+    item: UserGroup = Depends(valid_user_group_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not user_group.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

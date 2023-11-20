@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Any, Callable
 
-from fastapi import Depends
+from fastapi import HTTPException, status
 from fastapi.security import HTTPBasicCredentials, HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
@@ -27,7 +27,13 @@ flaat.set_request_timeout(30)
 
 
 def check_read_access(view_func: Callable) -> Callable[..., Any]:
-    """Return True if the request contains a valid token."""
+    """Check read access for the given function and return a wrapper.
+
+    If the client_credentials object has a token, check it is a valid one using the
+    flaat is_authenticated function. On failure execute the received function setting
+    the authentication to False.
+    If the client_credentials object is None, return the function setting the
+    authentication to False."""
 
     @wraps(view_func)
     def wrapper(
@@ -45,8 +51,23 @@ def check_read_access(view_func: Callable) -> Callable[..., Any]:
     return wrapper
 
 
-def check_write_access(
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
-) -> bool:
-    """At first, validate user authentication, then, check user write access rights."""
-    flaat.access_level("write")
+def check_write_access(view_func: Callable) -> Callable[..., Any]:
+    """Check write access for the given function and return a wrapper.
+
+    Verify that client_credentials object has a valid token with write access."""
+
+    @wraps(view_func)
+    def wrapper(
+        client_credentials: HTTPBasicCredentials,
+        *args,
+        **kwargs,
+    ):
+        return flaat.access_level(
+            "write",
+            on_failure=HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                msg="Not authenticated",
+            ),
+        )(view_func(*args, **kwargs))
+
+    return wrapper
