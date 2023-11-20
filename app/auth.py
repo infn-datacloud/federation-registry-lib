@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
 from fastapi.security import HTTPBasicCredentials, HTTPBearer
 from flaat.config import AccessLevel
@@ -39,7 +39,7 @@ def check_read_access(view_func: Callable) -> Callable[..., Any]:
     @wraps(view_func)
     def wrapper(
         auth: bool,
-        client_credentials: HTTPBasicCredentials,
+        client_credentials: Optional[HTTPBasicCredentials],
         *args,
         **kwargs,
     ):
