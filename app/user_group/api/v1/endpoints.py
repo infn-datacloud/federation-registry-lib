@@ -1,12 +1,12 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
 from app.auth.dependencies import (
     check_read_access,
-    check_write_access,
+    flaat,
     lazy_security,
     strict_security,
 )
@@ -212,8 +212,9 @@ def get_user_group(
         no other items, belonging to same identity provider, \
         with the given *name*.",
 )
-@check_write_access
+@flaat.access_level("write")
 def put_user_group(
+    request: Request,
     update_data: UserGroupUpdate,
     response: Response,
     item: UserGroup = Depends(valid_user_group_id),
@@ -236,8 +237,9 @@ def put_user_group(
         raises a `not found` error. \
         On cascade, delete related SLAs.",
 )
-@check_write_access
+@flaat.access_level("write")
 def delete_user_group(
+    request: Request,
     item: UserGroup = Depends(valid_user_group_id),
     client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
