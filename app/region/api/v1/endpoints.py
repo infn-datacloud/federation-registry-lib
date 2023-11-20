@@ -1,9 +1,10 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.region.api.dependencies import (
     valid_region_id,
@@ -88,7 +89,6 @@ def get_region(
     status_code=status.HTTP_200_OK,
     response_model=Optional[RegionRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_region_values),
     ],
     summary="Edit a specific region",
@@ -102,10 +102,13 @@ def get_region(
         no other items, belonging to the same provider with \
         the given *name*.",
 )
+@flaat.access_level("write")
 def put_region(
+    request: Request,
     update_data: RegionUpdate,
     response: Response,
     item: Region = Depends(valid_region_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = region.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -117,7 +120,6 @@ def put_region(
 @router.delete(
     "/{region_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific region",
     description="Delete a specific region using its *uid*. \
         Returns `no content`. \
@@ -126,7 +128,12 @@ def put_region(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_regions(item: Region = Depends(valid_region_id)):
+@flaat.access_level("write")
+def delete_regions(
+    request: Request,
+    item: Region = Depends(valid_region_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not region.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

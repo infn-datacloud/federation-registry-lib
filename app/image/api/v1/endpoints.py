@@ -1,9 +1,10 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 from app.image.api.dependencies import (
     valid_image_id,
     validate_new_image_values,
@@ -88,7 +89,6 @@ def get_image(
     status_code=status.HTTP_200_OK,
     response_model=Optional[ImageRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_image_values),
     ],
     summary="Edit a specific image",
@@ -101,10 +101,13 @@ def get_image(
         At first validate new image values checking there are \
         no other items with the given *uuid* and *name*.",
 )
+@flaat.access_level("write")
 def put_image(
+    request: Request,
     update_data: ImageUpdate,
     response: Response,
     item: Image = Depends(valid_image_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = image.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -116,7 +119,6 @@ def put_image(
 @router.delete(
     "/{image_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific image",
     description="Delete a specific image using its *uid*. \
         Returns `no content`. \
@@ -125,7 +127,12 @@ def put_image(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_images(item: Image = Depends(valid_image_id)):
+@flaat.access_level("write")
+def delete_images(
+    request: Request,
+    item: Image = Depends(valid_image_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not image.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

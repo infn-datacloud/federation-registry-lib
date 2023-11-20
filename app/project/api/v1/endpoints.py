@@ -1,9 +1,10 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
 # from app.flavor.crud import flavor
@@ -137,7 +138,6 @@ def filter_on_region_attr(  # noqa: C901
     status_code=status.HTTP_200_OK,
     response_model=Optional[ProjectRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_project_values),
     ],
     summary="Edit a specific project",
@@ -150,10 +150,13 @@ def filter_on_region_attr(  # noqa: C901
         At first validate new project values checking there are \
         no other items with the given *uuid* and *name*.",
 )
+@flaat.access_level("write")
 def put_project(
+    request: Request,
     update_data: ProjectUpdate,
     response: Response,
     item: Project = Depends(valid_project_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = project.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -165,7 +168,6 @@ def put_project(
 @router.delete(
     "/{project_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific project",
     description="Delete a specific project using its *uid*. \
         Returns `no content`. \
@@ -175,7 +177,12 @@ def put_project(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_project(item: Project = Depends(valid_project_id)):
+@flaat.access_level("write")
+def delete_project(
+    request: Request,
+    item: Project = Depends(valid_project_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not project.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -214,7 +221,7 @@ def delete_project(item: Project = Depends(valid_project_id)):
 # @router.put(
 #     "/{project_uid}/flavors/{flavor_uid}",
 #     response_model=Optional[List[FlavorRead]],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Connect project to flavor",
 #     description="Connect a project to a specific flavor \
 #         knowing their *uid*s. \
@@ -237,7 +244,7 @@ def delete_project(item: Project = Depends(valid_project_id)):
 # @router.delete(
 #     "/{project_uid}/flavors/{flavor_uid}",
 #     response_model=Optional[List[FlavorRead]],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Disconnect project from flavor",
 #     description="Disconnect a project from a specific flavor \
 #         knowing their *uid*s. \
@@ -287,7 +294,7 @@ def delete_project(item: Project = Depends(valid_project_id)):
 # @router.put(
 #     "/{project_uid}/images/{image_uid}",
 #     response_model=Optional[List[ImageRead]],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Connect project to image",
 #     description="Connect a project to a specific image \
 #         knowing their *uid*s. \
@@ -310,7 +317,7 @@ def delete_project(item: Project = Depends(valid_project_id)):
 # @router.delete(
 #     "/{project_uid}/images/{image_uid}",
 #     response_model=Optional[List[ImageRead]],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Disconnect project from image",
 #     description="Disconnect a project from a specific image \
 #         knowing their *uid*s. \

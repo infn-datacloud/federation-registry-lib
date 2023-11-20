@@ -1,9 +1,10 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 
 # from app.identity_provider.crud import identity_provider
 # from app.identity_provider.schemas import (
@@ -136,7 +137,6 @@ def get_block_storage_service(
     status_code=status.HTTP_200_OK,
     response_model=Optional[BlockStorageServiceRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_block_storage_service_values),
     ],
     summary="Edit a specific BlockStorage service",
@@ -149,10 +149,13 @@ def get_block_storage_service(
         At first validate new service values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_block_storage_service(
+    request: Request,
     update_data: BlockStorageServiceUpdate,
     response: Response,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = block_storage_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -164,7 +167,6 @@ def put_block_storage_service(
 @bs_router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific BlockStorage service",
     description="Delete a specific service using its *uid*. \
         Returns `no content`. \
@@ -174,8 +176,11 @@ def put_block_storage_service(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
+@flaat.access_level("write")
 def delete_block_storage_services(
+    request: Request,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     if not block_storage_service.remove(db_obj=item):
         raise HTTPException(
@@ -249,7 +254,6 @@ def get_compute_service(
     status_code=status.HTTP_200_OK,
     response_model=Optional[ComputeServiceRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_compute_service_values),
     ],
     summary="Edit a specific Compute service",
@@ -262,10 +266,13 @@ def get_compute_service(
         At first validate new service values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_compute_service(
+    request: Request,
     update_data: ComputeServiceUpdate,
     response: Response,
     item: ComputeService = Depends(valid_compute_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = compute_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -277,7 +284,6 @@ def put_compute_service(
 @c_router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific Compute service",
     description="Delete a specific service using its *uid*. \
         Returns `no content`. \
@@ -287,7 +293,12 @@ def put_compute_service(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_compute_services(item: ComputeService = Depends(valid_compute_service_id)):
+@flaat.access_level("write")
+def delete_compute_services(
+    request: Request,
+    item: ComputeService = Depends(valid_compute_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not compute_service.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -360,7 +371,6 @@ def get_identity_sservice(
     status_code=status.HTTP_200_OK,
     response_model=Optional[IdentityServiceRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_identity_service_values),
     ],
     summary="Edit a specific Identity service",
@@ -373,10 +383,13 @@ def get_identity_sservice(
         At first validate new service values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_identity_sservice(
+    request: Request,
     update_data: IdentityServiceUpdate,
     response: Response,
     item: IdentityService = Depends(valid_identity_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = identity_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -388,7 +401,6 @@ def put_identity_sservice(
 @i_router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific Identity service",
     description="Delete a specific service using its *uid*. \
         Returns `no content`. \
@@ -398,8 +410,11 @@ def put_identity_sservice(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
+@flaat.access_level("write")
 def delete_identity_sservices(
+    request: Request,
     item: IdentityService = Depends(valid_identity_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     if not identity_service.remove(db_obj=item):
         raise HTTPException(
@@ -473,7 +488,6 @@ def get_network_service(
     status_code=status.HTTP_200_OK,
     response_model=Optional[NetworkServiceRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_network_service_values),
     ],
     summary="Edit a specific Network service",
@@ -486,10 +500,13 @@ def get_network_service(
         At first validate new service values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_network_service(
+    request: Request,
     update_data: NetworkServiceUpdate,
     response: Response,
     item: NetworkService = Depends(valid_network_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = network_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -501,7 +518,6 @@ def put_network_service(
 @n_router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific Network service",
     description="Delete a specific service using its *uid*. \
         Returns `no content`. \
@@ -511,7 +527,12 @@ def put_network_service(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_network_services(item: NetworkService = Depends(valid_network_service_id)):
+@flaat.access_level("write")
+def delete_network_services(
+    request: Request,
+    item: NetworkService = Depends(valid_network_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not network_service.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

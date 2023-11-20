@@ -2,10 +2,11 @@ from typing import List, Optional, Union
 
 # from app.user_group.api.dependencies import valid_user_group_id
 # from app.user_group.models import UserGroup
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 
 # from app.project.api.dependencies import project_has_no_sla
 # from app.project.models import Project
@@ -64,7 +65,7 @@ def get_slas(
 #     "/",
 #     status_code=status.HTTP_201_CREATED,
 #     response_model=SLAReadExtended,
-#     dependencies=[Depends(check_write_access), Depends(is_unique_sla)],
+#     dependencies=[ Depends(is_unique_sla)],
 #     summary="Create an SLA",
 #     description="Create an SLA associated to a user group \
 #         and a project each identified by the given *uid*s. \
@@ -131,7 +132,6 @@ def get_sla(
     status_code=status.HTTP_200_OK,
     response_model=Optional[SLARead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_sla_values),
     ],
     summary="Edit a specific SLA",
@@ -144,10 +144,13 @@ def get_sla(
         At first validate new SLA values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_sla(
+    request: Request,
     update_data: SLAUpdate,
     response: Response,
     item: SLA = Depends(valid_sla_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = sla.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -159,7 +162,6 @@ def put_sla(
 @router.delete(
     "/{sla_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific SLA",
     description="Delete a specific SLA using its *uid*. \
         Returns `no content`. \
@@ -168,7 +170,12 @@ def put_sla(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_slas(item: SLA = Depends(valid_sla_id)):
+@flaat.access_level("write")
+def delete_slas(
+    request: Request,
+    item: SLA = Depends(valid_sla_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not sla.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

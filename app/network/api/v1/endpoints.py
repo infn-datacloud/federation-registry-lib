@@ -1,9 +1,10 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 from app.network.api.dependencies import (
     valid_network_id,
     validate_new_network_values,
@@ -88,7 +89,6 @@ def get_network(
     status_code=status.HTTP_200_OK,
     response_model=Optional[NetworkRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_network_values),
     ],
     summary="Edit a specific network",
@@ -101,10 +101,13 @@ def get_network(
         At first validate new network values checking there are \
         no other items with the given *uuid* and *name*.",
 )
+@flaat.access_level("write")
 def put_network(
+    request: Request,
     update_data: NetworkUpdate,
     response: Response,
     item: Network = Depends(valid_network_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = network.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -116,7 +119,6 @@ def put_network(
 @router.delete(
     "/{network_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific network",
     description="Delete a specific network using its *uid*. \
         Returns `no content`. \
@@ -125,7 +127,12 @@ def put_network(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_networks(item: Network = Depends(valid_network_id)):
+@flaat.access_level("write")
+def delete_networks(
+    request: Request,
+    item: Network = Depends(valid_network_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not network.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

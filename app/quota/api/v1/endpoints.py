@@ -1,9 +1,10 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import (
     valid_block_storage_quota_id,
@@ -80,7 +81,7 @@ def get_block_storage_quotas(
 #     "/",
 #     status_code=status.HTTP_201_CREATED,
 #     response_model=BlockStorageQuotaReadExtended,
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Create quota",
 #     description="Create a quota and connect it to its related entities: \
 #         project and service. \
@@ -143,7 +144,6 @@ def get_block_storage_quota(
     status_code=status.HTTP_200_OK,
     response_model=Optional[BlockStorageQuotaRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_block_storage_quota_values),
     ],
     summary="Edit a specific quota",
@@ -154,10 +154,13 @@ def get_block_storage_quota(
         current ones, the database entity is left unchanged \
         and the endpoint returns the `not modified` message.",
 )
+@flaat.access_level("write")
 def put_block_storage_quota(
+    request: Request,
     update_data: BlockStorageQuotaUpdate,
     response: Response,
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = block_storage_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -169,7 +172,6 @@ def put_block_storage_quota(
 @bs_router.delete(
     "/{quota_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific quota",
     description="Delete a specific quota using its *uid*. \
         Returns `no content`. \
@@ -178,8 +180,11 @@ def put_block_storage_quota(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
+@flaat.access_level("write")
 def delete_block_storage_quotas(
+    request: Request,
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     if not block_storage_quota.remove(db_obj=item):
         raise HTTPException(
@@ -227,7 +232,7 @@ def get_compute_quotas(
 #     "/",
 #     status_code=status.HTTP_201_CREATED,
 #     response_model=ComputeQuotaReadExtended,
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Create compute quota",
 #     description="Create a compute quota and connect it to its related entities: \
 #         project and service. \
@@ -290,7 +295,6 @@ def get_compute_quota(
     status_code=status.HTTP_200_OK,
     response_model=Optional[ComputeQuotaRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_compute_quota_values),
     ],
     summary="Edit a specific quota",
@@ -301,10 +305,13 @@ def get_compute_quota(
         current ones, the database entity is left unchanged \
         and the endpoint returns the `not modified` message.",
 )
+@flaat.access_level("write")
 def put_compute_quota(
+    request: Request,
     update_data: ComputeQuotaUpdate,
     response: Response,
     item: ComputeQuota = Depends(valid_compute_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = compute_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -316,7 +323,6 @@ def put_compute_quota(
 @c_router.delete(
     "/{quota_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific quota",
     description="Delete a specific quota using its *uid*. \
         Returns `no content`. \
@@ -325,7 +331,12 @@ def put_compute_quota(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_compute_quotas(item: ComputeQuota = Depends(valid_compute_quota_id)):
+@flaat.access_level("write")
+def delete_compute_quotas(
+    request: Request,
+    item: ComputeQuota = Depends(valid_compute_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not compute_quota.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -398,7 +409,6 @@ def get_network_quota(
     status_code=status.HTTP_200_OK,
     response_model=Optional[NetworkQuotaRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_network_quota_values),
     ],
     summary="Edit a specific quota",
@@ -409,10 +419,13 @@ def get_network_quota(
         current ones, the database entity is left unchanged \
         and the endpoint returns the `not modified` message.",
 )
+@flaat.access_level("write")
 def put_network_quota(
+    request: Request,
     update_data: NetworkQuotaUpdate,
     response: Response,
     item: NetworkQuota = Depends(valid_network_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = network_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -424,7 +437,6 @@ def put_network_quota(
 @n_router.delete(
     "/{quota_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific quota",
     description="Delete a specific quota using its *uid*. \
         Returns `no content`. \
@@ -433,7 +445,12 @@ def put_network_quota(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_network_quotas(item: NetworkQuota = Depends(valid_network_quota_id)):
+@flaat.access_level("write")
+def delete_network_quotas(
+    request: Request,
+    item: NetworkQuota = Depends(valid_network_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not network_quota.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

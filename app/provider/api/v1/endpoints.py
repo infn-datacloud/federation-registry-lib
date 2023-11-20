@@ -18,10 +18,11 @@ from typing import List, Optional, Union
 #     ComputeServiceReadExtended,
 #     IdentityServiceReadExtended,
 # )
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 
 # from app.auth_method.schemas import AuthMethodCreate
 # from app.identity_provider.api.dependencies import (
@@ -96,7 +97,7 @@ def get_providers(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=ProviderReadExtended,
-    dependencies=[Depends(check_write_access), Depends(valid_provider)],
+    dependencies=[Depends(valid_provider)],
     summary="Create provider",
     description="Create a provider and its related entities: \
         flavors, identity providers, images, location, \
@@ -140,7 +141,6 @@ def get_provider(
     status_code=status.HTTP_200_OK,
     response_model=Optional[ProviderRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_provider_values),
     ],
     summary="Edit a specific provider",
@@ -153,10 +153,13 @@ def get_provider(
         At first validate new provider values checking there are \
         no other items with the given *name*.",
 )
+@flaat.access_level("write")
 def put_provider(
+    request: Request,
     update_data: ProviderUpdate,
     response: Response,
     item: Provider = Depends(valid_provider_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = provider.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -168,7 +171,6 @@ def put_provider(
 @router.delete(
     "/{provider_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific provider",
     description="Delete a specific provider using its *uid*. \
         Returns `no content`. \
@@ -177,7 +179,12 @@ def put_provider(
         On cascade, delete related flavors, images, projects \
         and services.",
 )
-def delete_providers(item: Provider = Depends(valid_provider_id)):
+@flaat.access_level("write")
+def delete_providers(
+    request: Request,
+    item: Provider = Depends(valid_provider_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not provider.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -191,7 +198,7 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 #    response_model=FlavorReadExtended,
 #    status_code=status.HTTP_201_CREATED,
 #    dependencies=[
-#        Depends(check_write_access),
+#
 #        Depends(valid_flavor_name),
 #        Depends(valid_flavor_uuid),
 #    ],
@@ -217,7 +224,7 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 #     status_code=status.HTTP_201_CREATED,
 #     response_model=IdentityProviderReadExtended,
 #     dependencies=[
-#         Depends(check_write_access),
+#
 #         Depends(valid_identity_provider_endpoint),
 #     ],
 #     summary="Create location",
@@ -233,7 +240,7 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 # @router.put(
 #     "/{provider_uid}/identity_providers/{identity_provider_uid}",
 #     response_model=Optional[ProviderReadExtended],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Connect provider to identity provider",
 #     description="Connect a provider to a specific identity \
 #         provider knowing their *uid*s. \
@@ -265,7 +272,7 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 # @router.delete(
 #     "/{provider_uid}/identity_providers/{identity_provider_uid}",
 #     response_model=Optional[ProviderReadExtended],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Disconnect provider from identity provider",
 #     description="Disconnect a provider from a specific identity \
 #         provider knowing their *uid*s. \
@@ -290,7 +297,7 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 #    response_model=ImageReadExtended,
 #    status_code=status.HTTP_201_CREATED,
 #    dependencies=[
-#        Depends(check_write_access),
+#
 #        Depends(valid_image_name),
 #        Depends(valid_image_uuid),
 #    ],
@@ -315,7 +322,7 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 #     response_model=ProjectReadExtended,
 #     status_code=status.HTTP_201_CREATED,
 #     dependencies=[
-#         Depends(check_write_access),
+#
 #         Depends(valid_project_name),
 #         Depends(valid_project_uuid),
 #     ],
@@ -343,7 +350,7 @@ def delete_providers(item: Provider = Depends(valid_provider_id)):
 #         ComputeServiceReadExtended,
 #     ],
 #     status_code=status.HTTP_201_CREATED,
-#     dependencies=[Depends(check_write_access)],  # , Depends(valid_service_endpoint)],
+#       # , Depends(valid_service_endpoint)],
 #     summary="Add new service to provider",
 #     description="Create a service and connect it to a \
 #         provider knowing it *uid*. \

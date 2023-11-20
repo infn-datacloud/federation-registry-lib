@@ -3,10 +3,11 @@ from typing import List, Optional, Union
 # from app.user_group.api.dependencies import is_unique_user_group
 # from app.user_group.crud import user_group
 # from app.user_group.schemas import UserGroupCreate
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 
 # from app.auth_method.schemas import AuthMethodCreate
 from app.identity_provider.api.dependencies import (
@@ -97,7 +98,6 @@ def get_identity_provider(
     status_code=status.HTTP_200_OK,
     response_model=Optional[IdentityProviderRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_identity_provider_values),
     ],
     summary="Edit a specific identity provider",
@@ -110,10 +110,13 @@ def get_identity_provider(
         At first validate new identity provider values checking there are \
         no other items with the given *endpoint*.",
 )
+@flaat.access_level("write")
 def put_identity_provider(
+    request: Request,
     update_data: IdentityProviderUpdate,
     response: Response,
     item: IdentityProvider = Depends(valid_identity_provider_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     db_item = identity_provider.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -125,7 +128,6 @@ def put_identity_provider(
 @router.delete(
     "/{identity_provider_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific identity provider",
     description="Delete a specific identity provider using its *uid*. \
         Returns `no content`. \
@@ -133,8 +135,11 @@ def put_identity_provider(
         raises a `not found` error. \
         On cascade, delete related user groups.",
 )
+@flaat.access_level("write")
 def delete_identity_providers(
+    request: Request,
     item: IdentityProvider = Depends(valid_identity_provider_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
 ):
     if not identity_provider.remove(db_obj=item):
         raise HTTPException(
@@ -147,7 +152,7 @@ def delete_identity_providers(
 # @router.put(
 #     "/{identity_provider_uid}/providers/{provider_uid}",
 #     response_model=Optional[IdentityProviderReadExtended],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Connect provider to identity provider",
 #     description="Connect a provider to a specific identity \
 #         provider knowing their *uid*s. \
@@ -179,7 +184,7 @@ def delete_identity_providers(
 # @router.delete(
 #     "/{identity_provider_uid}/providers/{provider_uid}",
 #     response_model=Optional[IdentityProviderReadExtended],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Disconnect provider from identity provider",
 #     description="Disconnect a provider from a specific identity \
 #         provider knowing their *uid*s. \
@@ -203,7 +208,7 @@ def delete_identity_providers(
 #     "/{identity_provider_uid}/user_groups",
 #     status_code=status.HTTP_201_CREATED,
 #     response_model=UserGroupReadExtended,
-#     dependencies=[Depends(check_write_access), Depends(is_unique_user_group)],
+#     dependencies=[ Depends(is_unique_user_group)],
 #     summary="Create a user group",
 #     description="Create a user group belonging to identity provider \
 #         identified by the given *uid*. \

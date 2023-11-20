@@ -1,9 +1,10 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, check_write_access
+from app.auth import check_read_access, flaat, strict_security
 from app.location.api.dependencies import (
     valid_location_id,
     validate_new_location_values,
@@ -91,7 +92,6 @@ def get_location(
     status_code=status.HTTP_200_OK,
     response_model=Optional[LocationRead],
     dependencies=[
-        Depends(check_write_access),
         Depends(validate_new_location_values),
     ],
     summary="Edit a specific Location",
@@ -104,7 +104,9 @@ def get_location(
         At first validate new location values checking there are \
         no other items with the given *site*.",
 )
+@flaat.access_level("write")
 def put_location(
+    request: Request,
     update_data: LocationUpdate,
     response: Response,
     item: Location = Depends(valid_location_id),
@@ -119,7 +121,6 @@ def put_location(
 @router.delete(
     "/{location_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(check_write_access)],
     summary="Delete a specific location",
     description="Delete a specific location using its *uid*. \
         Returns `no content`. \
@@ -128,7 +129,12 @@ def put_location(
         If the deletion procedure fails, raises a `internal \
         server` error",
 )
-def delete_location(item: Location = Depends(valid_location_id)):
+@flaat.access_level("write")
+def delete_location(
+    request: Request,
+    item: Location = Depends(valid_location_id),
+    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+):
     if not location.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -140,7 +146,7 @@ def delete_location(item: Location = Depends(valid_location_id)):
 # @router.put(
 #     "/{location_uid}/regions/{region_uid}",
 #     response_model=Optional[LocationReadExtended],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Connect location to region",
 #     description="Connect a location to a specific region \
 #         knowing their *uid*s. \
@@ -171,7 +177,7 @@ def delete_location(item: Location = Depends(valid_location_id)):
 # @router.delete(
 #     "/{location_uid}/regions/{region_uid}",
 #     response_model=Optional[LocationReadExtended],
-#     dependencies=[Depends(check_write_access)],
+#
 #     summary="Disconnect location from region",
 #     description="Disconnect a location from a specific region \
 #         knowing their *uid*s. \
