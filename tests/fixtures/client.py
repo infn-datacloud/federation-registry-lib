@@ -74,6 +74,7 @@ def client(setup_and_teardown_db: Generator) -> Generator:
 
 @pytest.fixture(
     params=[
+        None,
         User(iss=MOCK_ISSUER, email=MOCK_READ_EMAIL),
         User(sub=MOCK_USER, email=MOCK_READ_EMAIL),
         User(sub=MOCK_USER, iss=FAKE_ISSUER, email=MOCK_READ_EMAIL),
@@ -86,18 +87,20 @@ def api_client_read_only(
     """
     API client with only read access rights.
 
-    The first case has an invalid token: lost sub.
-    The second case has an invalid token: lost iss.
-    The third case has an invalid token: the iss does not exist.
-    The fourth case has an valid token but the subject has an email with only read
+    1. No token
+    2. Invalid token: lost sub.
+    3. Invalid token: lost iss.
+    4. Invalid token: the iss does not exist.
+    5. Valid token but the subject has an email with only read
     access rights.
     """
-    token = encode_token(
-        get_mock_user_claims(
-            sub=request.param.sub, iss=request.param.iss, email=request.param.email
+    if request.param:
+        token = encode_token(
+            get_mock_user_claims(
+                sub=request.param.sub, iss=request.param.iss, email=request.param.email
+            )
         )
-    )
-    client.headers = {"authorization": f"Bearer {token}"}
+        client.headers = {"authorization": f"Bearer {token}"}
     yield client
 
 
