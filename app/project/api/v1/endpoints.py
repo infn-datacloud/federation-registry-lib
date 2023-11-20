@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
-from app.auth.dependencies import check_read_access, check_write_access
+from app.auth import check_read_access, check_write_access
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
 # from app.flavor.crud import flavor

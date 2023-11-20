@@ -21,7 +21,7 @@ from typing import List, Optional, Union
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
-from app.auth.dependencies import check_read_access, check_write_access
+from app.auth import check_read_access, check_write_access
 
 # from app.auth_method.schemas import AuthMethodCreate
 # from app.identity_provider.api.dependencies import (

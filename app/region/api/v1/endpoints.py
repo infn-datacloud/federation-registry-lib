@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
-from app.auth.dependencies import check_read_access, check_write_access
+from app.auth import check_read_access, check_write_access
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.region.api.dependencies import (
     valid_region_id,

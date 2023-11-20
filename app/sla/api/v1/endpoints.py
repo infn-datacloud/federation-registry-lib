@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from neomodel import db
 
-from app.auth.dependencies import check_read_access, check_write_access
+from app.auth import check_read_access, check_write_access
 
 # from app.project.api.dependencies import project_has_no_sla
 # from app.project.models import Project

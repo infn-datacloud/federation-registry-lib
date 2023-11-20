@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth.dependencies import (
+from app.auth import (
     check_read_access,
     flaat,
     lazy_security,
