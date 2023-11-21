@@ -11,7 +11,7 @@ def refactor(string: str) -> str:
 
 pytest_plugins = [refactor(fixture) for fixture in glob("tests/fixtures/[!__]*.py")]
 
-pytest.register_assert_rewrite("tests.utils")
+pytest.register_assert_rewrite("tests.utils", "tests.user_group")
 
 
 # DB specific fixtures
