@@ -64,7 +64,7 @@ def get_mock_user_claims(
 
 
 @pytest.fixture
-def client(setup_and_teardown_db: Generator) -> Generator:
+def api_client_no_token(setup_and_teardown_db: Generator) -> Generator:
     """
     API Client with no token.
     """
@@ -74,25 +74,20 @@ def client(setup_and_teardown_db: Generator) -> Generator:
 
 @pytest.fixture(
     params=[
-        None,
         User(iss=MOCK_ISSUER, email=MOCK_READ_EMAIL),
         User(sub=MOCK_USER, email=MOCK_READ_EMAIL),
         User(sub=MOCK_USER, iss=FAKE_ISSUER, email=MOCK_READ_EMAIL),
-        User(sub=MOCK_USER, iss=MOCK_ISSUER, email=MOCK_READ_EMAIL),
     ]
 )
-def api_client_read_only(
-    client: TestClient, request: Type[pytest.FixtureRequest]
+def api_client_invalid_token(
+    api_client_no_token: TestClient, request: Type[pytest.FixtureRequest]
 ) -> TestClient:
     """
     API client with only read access rights.
 
-    1. No token
-    2. Invalid token: lost sub.
-    3. Invalid token: lost iss.
-    4. Invalid token: the iss does not exist.
-    5. Valid token but the subject has an email with only read
-    access rights.
+    1. Invalid token: lost sub.
+    2. Invalid token: lost iss.
+    3. Invalid token: the iss does not exist.
     """
     if request.param:
         token = encode_token(
@@ -100,21 +95,38 @@ def api_client_read_only(
                 sub=request.param.sub, iss=request.param.iss, email=request.param.email
             )
         )
-        client.headers = {"authorization": f"Bearer {token}"}
-    yield client
+        api_client_no_token.headers = {"authorization": f"Bearer {token}"}
+    yield api_client_no_token
 
 
 @pytest.fixture()
-def api_client_read_write(client: TestClient) -> TestClient:
+def api_client_read_only_authz(
+    api_client_no_token: TestClient, request: Type[pytest.FixtureRequest]
+) -> TestClient:
+    """
+    API client with only read access rights.
+
+    Valid token but the subject has an email with only read access rights.
+    """
+    if request.param:
+        token = encode_token(
+            get_mock_user_claims(sub=MOCK_USER, iss=MOCK_ISSUER, email=MOCK_READ_EMAIL)
+        )
+        api_client_no_token.headers = {"authorization": f"Bearer {token}"}
+    yield api_client_no_token
+
+
+@pytest.fixture()
+def api_client_read_write_authz(api_client_no_token: TestClient) -> TestClient:
     """
     API client with read and write access rights.
     """
     token = encode_token(
         get_mock_user_claims(sub=MOCK_USER, iss=MOCK_ISSUER, email=MOKE_WRITE_EMAIL)
     )
-    client.headers = {
+    api_client_no_token.headers = {
         "authorization": f"Bearer {token}",
         "accept": "application/json",
         "content-type": "application/json",
     }
-    yield client
+    yield api_client_no_token
