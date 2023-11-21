@@ -1,6 +1,4 @@
-import json
 from typing import Dict, Optional
-from uuid import uuid4
 
 import pytest
 from fastapi import status
@@ -18,7 +16,6 @@ from tests.fixtures.client import (
 )
 from tests.user_group.common import API_PARAMS_SINGLE_ITEM, UserGroupTest
 from tests.utils.user_group import (
-    create_random_user_group_patch,
     validate_read_extended_public_user_group_attrs,
     validate_read_public_user_group_attrs,
 )
@@ -351,41 +348,57 @@ def test_read_user_group_with_name_and_idp(
     )
 
 
-def test_patch_user_group(
-    db_user_group: UserGroup,
-    client: TestClient,
+@pytest.mark.parametrize("client", ["api_client_no_token"])
+def test_patch_user_group_no_authn(
+    request: pytest.FixtureRequest, db_user_group: UserGroup, client: TestClient
 ) -> None:
-    """Execute PATCH operations to update a user_group.
+    """Execute PATCH operations to update a specific User Group.
 
-    No access rights. Permission denied
+    Client not authenticated. The endpoints raises a 403 error.
     """
-    settings = get_settings()
-    data = create_random_user_group_patch()
-    response = client.patch(
-        f"{settings.API_V1_STR}/user_groups/{db_user_group.uid}",
-        json=json.loads(data.json()),
+    a.patch(
+        client=request.getfixturevalue(client),
+        db_item=db_user_group,
+        target_status_code=status.HTTP_403_FORBIDDEN,
     )
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    content = response.json()
-    assert content["detail"] == "Not authenticated"
 
 
+@pytest.mark.parametrize("client", CLIENTS_NO_WRITE_AUTHZ)
+def test_patch_user_group_no_authz(
+    request: pytest.FixtureRequest, db_user_group: UserGroup, client: TestClient
+) -> None:
+    """Execute PATCH operations to update a specific User Group.
+
+    Client with no write access. The endpoints raises a 401 error.
+    """
+    a.patch(
+        client=request.getfixturevalue(client),
+        db_item=db_user_group,
+        target_status_code=status.HTTP_401_UNAUTHORIZED,
+    )
+
+
+@pytest.mark.parametrize("client", ["api_client_read_write_authz"])
+def test_patch_user_group_authz(
+    request: pytest.FixtureRequest, db_user_group: UserGroup, client: TestClient
+) -> None:
+    """Execute PATCH operations to update a specific User Group.
+
+    Update the User Group attributes in the database.
+    """
+    a.patch(client=request.getfixturevalue(client), db_item=db_user_group)
+
+
+@pytest.mark.parametrize("client", CLIENTS)
 def test_patch_not_existing_user_group(
-    client: TestClient,
+    request: pytest.FixtureRequest, client: TestClient
 ) -> None:
-    """Execute PATCH operations to update a not existing user_group.
+    """Execute PATCH operations to try to update a not existing User Group.
 
-    No access rights. Permission denied
+    Execute this operation using both authenticated and not-authenticated clients.
+    The endpoint returns a 404 error.
     """
-    settings = get_settings()
-    data = create_random_user_group_patch()
-    response = client.patch(
-        f"{settings.API_V1_STR}/user_groups/{uuid4()}",
-        json=json.loads(data.json()),
-    )
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    content = response.json()
-    assert content["detail"] == "Not authenticated"
+    a.patch(client=request.getfixturevalue(client))
 
 
 @pytest.mark.parametrize("client", ["api_client_no_token"])

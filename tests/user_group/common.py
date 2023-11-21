@@ -4,13 +4,14 @@ from uuid import uuid4
 
 from fastapi import status
 from fastapi.testclient import TestClient
-from neomodel import StructuredNode, UniqueIdProperty
+from neomodel import StructuredNode
 from pydantic import BaseModel
 
 from app.config import get_settings
 from app.models import BaseNode
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupBase, UserGroupUpdate
+from tests.utils.utils import random_lower_string
 
 API_PARAMS_SINGLE_ITEM = [{}, {"short": True}, {"with_conn": True}]
 API_PARAMS_MULTIPLE_ITEMS = [None, {"short": True}, {"with_conn": True}]
@@ -22,7 +23,17 @@ BasicPublicSchemaType = TypeVar("BasicPublicSchemaType", bound=BaseNode)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class SchemaValidation(Generic[ModelType, BasicSchemaType, BasicPublicSchemaType]):
+class SchemaCreation:
+    def __init__(self) -> None:
+        super().__init__()
+
+    def _random_patch_item(self, *, default: bool = False) -> None:
+        pass
+
+
+class SchemaValidation(
+    SchemaCreation, Generic[ModelType, BasicSchemaType, BasicPublicSchemaType]
+):
     def __init__(
         self,
         *,
@@ -65,7 +76,7 @@ class SchemaValidation(Generic[ModelType, BasicSchemaType, BasicPublicSchemaType
         assert not obj
 
 
-class BaseAPI(SchemaValidation, Generic[UpdateSchemaType]):
+class BaseAPI(SchemaValidation):
     def __init__(
         self,
         *,
@@ -130,20 +141,35 @@ class BaseAPI(SchemaValidation, Generic[UpdateSchemaType]):
         self,
         *,
         client: TestClient,
-        uid: UniqueIdProperty,
-        new_data: UpdateSchemaType,
+        db_item: Optional[ModelType] = None,
         target_status_code: int = status.HTTP_200_OK,
-    ) -> Any:
+    ) -> None:
         """Execute a PATCH operation to update a specific item.
 
         Retrieve the item using its UID and send, as json data, the new data.
         """
+        target_uid = db_item.uid if db_item else uuid4()
+        new_data = self._random_patch_item()
         response = client.patch(
-            f"{self.api_v1}/{self.endpoint_group}/{uid}",
+            f"{self.api_v1}/{self.endpoint_group}/{target_uid}",
             json=json.loads(new_data.json()),
         )
+        if not db_item:
+            target_status_code = status.HTTP_404_NOT_FOUND
+
         assert response.status_code == target_status_code
-        return response.json()
+        if target_status_code == status.HTTP_200_OK:
+            self._validate_read_attrs(obj=response.json(), db_item=db_item)
+        elif target_status_code == status.HTTP_401_UNAUTHORIZED:
+            assert response.json()["error"] == "Unauthenticated"
+            # TODO assert the item is still there
+        elif target_status_code == status.HTTP_403_FORBIDDEN:
+            assert response.json()["detail"] == "Not authenticated"
+        elif target_status_code == status.HTTP_404_NOT_FOUND:
+            assert (
+                response.json()["detail"]
+                == f"{self.item_name} '{target_uid}' not found"
+            )
 
     def delete(
         self,
@@ -167,15 +193,15 @@ class BaseAPI(SchemaValidation, Generic[UpdateSchemaType]):
         elif target_status_code == status.HTTP_403_FORBIDDEN:
             assert response.json()["detail"] == "Not authenticated"
             # TODO assert the item is still there
-        else:
-            pass
+        elif target_status_code == status.HTTP_404_NOT_FOUND:
+            assert (
+                response.json()["detail"]
+                == f"{self.item_name} '{target_uid}' not found"
+            )
             # TODO assert the item does not exists.
 
 
-class UserGroupTest(
-    BaseAPI[UserGroupUpdate],
-    SchemaValidation[UserGroup, UserGroupBase, UserGroupBase],
-):
+class UserGroupTest(BaseAPI):
     """Class with the basic API calls to User Group endpoints."""
 
     def __init__(self) -> None:
@@ -203,3 +229,10 @@ class UserGroupTest(
             assert db_sla.uid == sla_schema.get("uid")
 
         return super()._validate_relationships(obj=obj, db_item=db_item, public=public)
+
+    def _random_patch_item(self, *, default: bool = False) -> UserGroupUpdate:
+        if default:
+            return UserGroupUpdate()
+        name = random_lower_string()
+        description = random_lower_string()
+        return UserGroupUpdate(name=name, description=description)
