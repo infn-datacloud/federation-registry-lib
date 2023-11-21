@@ -91,6 +91,7 @@ class BaseAPI(SchemaValidation, Generic[UpdateSchemaType]):
         client: TestClient,
         db_item: Optional[ModelType] = None,
         params: Optional[Dict[str, str]] = None,
+        target_status_code: int = status.HTTP_200_OK,
         public: bool = False,
     ) -> None:
         """Execute a GET operation to read an item from its UID.
@@ -100,16 +101,16 @@ class BaseAPI(SchemaValidation, Generic[UpdateSchemaType]):
         response = client.get(
             f"{self.api_v1}/{self.endpoint_group}/{target_uid}", params=params
         )
-        if db_item:
-            target_status_code = status.HTTP_200_OK
+        if not db_item:
+            target_status_code = status.HTTP_404_NOT_FOUND
+
+        assert response.status_code == target_status_code
+        if target_status_code == status.HTTP_200_OK:
             extended = params.get("with_conn") is not None
-            assert response.status_code == target_status_code
             self._validate_read_attrs(
                 obj=response.json(), db_item=db_item, public=public, extended=extended
             )
-        else:
-            target_status_code = status.HTTP_404_NOT_FOUND
-            assert response.status_code == target_status_code
+        elif target_status_code == status.HTTP_404_NOT_FOUND:
             assert (
                 response.json()["detail"]
                 == f"{self.item_name} '{target_uid}' not found"
@@ -148,14 +149,27 @@ class BaseAPI(SchemaValidation, Generic[UpdateSchemaType]):
         self,
         *,
         client: TestClient,
-        uid: UniqueIdProperty,
+        db_item: Optional[ModelType] = None,
         target_status_code: int = status.HTTP_204_NO_CONTENT,
     ) -> None:
         """Execute a DELETE operation to delete a specific item.
 
         Delete the item using its UID."""
-        response = client.delete(f"{self.api_v1}/{self.endpoint_group}/{uid}")
+        target_uid = db_item.uid if db_item else uuid4()
+        response = client.delete(f"{self.api_v1}/{self.endpoint_group}/{target_uid}")
+        if not db_item:
+            target_status_code = status.HTTP_404_NOT_FOUND
+
         assert response.status_code == target_status_code
+        if target_status_code == status.HTTP_401_UNAUTHORIZED:
+            assert response.json()["error"] == "Unauthenticated"
+            # TODO assert the item is still there
+        elif target_status_code == status.HTTP_403_FORBIDDEN:
+            assert response.json()["detail"] == "Not authenticated"
+            # TODO assert the item is still there
+        else:
+            pass
+            # TODO assert the item does not exists.
 
 
 class UserGroupTest(

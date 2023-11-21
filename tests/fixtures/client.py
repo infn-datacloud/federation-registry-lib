@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
 from pydantic import AnyHttpUrl, BaseModel, EmailStr
 
-from app.main import app
+from app.main import app, settings
 
 # API specific fixtures
 
@@ -17,7 +17,7 @@ PUBLIC_KEY_ID = "cra1"
 MOCK_USER = "test-user"
 MOCK_ISSUER = "http://idp.test.it/"
 MOCK_READ_EMAIL = "user@test.it"
-MOKE_WRITE_EMAIL = "admin@test.it"
+MOCK_WRITE_EMAIL = "admin@test.it"
 FAKE_ISSUER = "http://another-idp.test.it/"
 
 
@@ -68,6 +68,8 @@ def api_client_no_token(setup_and_teardown_db: Generator) -> Generator:
     """
     API Client with no token.
     """
+    settings.ADMIN_EMAIL_LIST = [MOCK_WRITE_EMAIL]
+    settings.TRUSTED_IDP_LIST = [MOCK_ISSUER]
     with TestClient(app) as c:
         yield c
 
@@ -138,7 +140,7 @@ def api_client_read_write_authz(api_client_no_token: TestClient) -> TestClient:
     API client with read and write access rights.
     """
     token = encode_token(
-        get_mock_user_claims(sub=MOCK_USER, iss=MOCK_ISSUER, email=MOKE_WRITE_EMAIL)
+        get_mock_user_claims(sub=MOCK_USER, iss=MOCK_ISSUER, email=MOCK_WRITE_EMAIL)
     )
     api_client_no_token.headers = {
         "authorization": f"Bearer {token}",
@@ -154,5 +156,11 @@ CLIENTS_NO_AUTHN = [
     "api_client_invalid_token_no_sub",
     "api_client_invalid_token_no_iss",
     "api_client_invalid_token_fake_iss",
+]
+CLIENTS_NO_WRITE_AUTHZ = [
+    "api_client_invalid_token_no_sub",
+    "api_client_invalid_token_no_iss",
+    "api_client_invalid_token_fake_iss",
+    "api_client_read_only_authz",
 ]
 CLIENTS = CLIENTS_AUTHN + CLIENTS_NO_AUTHN

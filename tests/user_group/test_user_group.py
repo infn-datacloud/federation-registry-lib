@@ -10,7 +10,12 @@ from app.config import get_settings
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupBase, UserGroupReadPublic
 from app.user_group.schemas_extended import UserGroupReadExtendedPublic
-from tests.fixtures.client import CLIENTS, CLIENTS_AUTHN, CLIENTS_NO_AUTHN
+from tests.fixtures.client import (
+    CLIENTS,
+    CLIENTS_AUTHN,
+    CLIENTS_NO_AUTHN,
+    CLIENTS_NO_WRITE_AUTHZ,
+)
 from tests.user_group.common import API_PARAMS_SINGLE_ITEM, UserGroupTest
 from tests.utils.user_group import (
     create_random_user_group_patch,
@@ -24,8 +29,8 @@ a = UserGroupTest()
 @pytest.mark.parametrize("client", CLIENTS_NO_AUTHN)
 @pytest.mark.parametrize("params", API_PARAMS_SINGLE_ITEM)
 def test_read_user_group_no_authn(
-    db_user_group: UserGroup,
     request: pytest.FixtureRequest,
+    db_user_group: UserGroup,
     client: TestClient,
     params: Optional[Dict[str, str]],
 ) -> None:
@@ -45,8 +50,8 @@ def test_read_user_group_no_authn(
 @pytest.mark.parametrize("client", CLIENTS_AUTHN)
 @pytest.mark.parametrize("params", API_PARAMS_SINGLE_ITEM)
 def test_read_user_group_authn(
-    db_user_group: UserGroup,
     request: pytest.FixtureRequest,
+    db_user_group: UserGroup,
     client: TestClient,
     params: Optional[Dict[str, str]],
 ) -> None:
@@ -55,11 +60,7 @@ def test_read_user_group_authn(
     Execute this operation using authenticated clients.
     For each, repeat the operation passing 'short', 'with_conn' and no params.
     """
-    a.read(
-        client=request.getfixturevalue(client),
-        db_item=db_user_group,
-        params=params,
-    )
+    a.read(client=request.getfixturevalue(client), db_item=db_user_group, params=params)
 
 
 @pytest.mark.parametrize("client", CLIENTS)
@@ -69,17 +70,16 @@ def test_read_not_existing_user_group(
     """Execute GET operations to try to read a not existing User Group.
 
     Execute this operation using both authenticated and not-authenticated clients.
+    The endpoint returns a 404 error.
     """
-    a.read(
-        client=request.getfixturevalue(client),
-    )
+    a.read(client=request.getfixturevalue(client))
 
 
 @pytest.mark.parametrize("client", CLIENTS_NO_AUTHN)
 def test_read_user_groups(
+    request: pytest.FixtureRequest,
     db_user_group2: UserGroup,
     db_user_group3: UserGroup,
-    request: pytest.FixtureRequest,
     client: TestClient,
 ) -> None:
     """Execute GET operations to read all User Groups."""
@@ -388,30 +388,54 @@ def test_patch_not_existing_user_group(
     assert content["detail"] == "Not authenticated"
 
 
-def test_delete_user_group(
-    db_user_group: UserGroup,
-    client: TestClient,
+@pytest.mark.parametrize("client", ["api_client_no_token"])
+def test_delete_user_group_no_authn(
+    request: pytest.FixtureRequest, db_user_group: UserGroup, client: TestClient
 ) -> None:
-    """Execute PATCH operations to update a user_group.
+    """Execute DELETE operations to delete a specific User Group.
 
-    No access rights. Permission denied
+    Client not authenticated. The endpoints raises a 403 error.
     """
-    settings = get_settings()
-    response = client.delete(f"{settings.API_V1_STR}/user_groups/{db_user_group.uid}")
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    content = response.json()
-    assert content["detail"] == "Not authenticated"
+    a.delete(
+        client=request.getfixturevalue(client),
+        db_item=db_user_group,
+        target_status_code=status.HTTP_403_FORBIDDEN,
+    )
 
 
+@pytest.mark.parametrize("client", CLIENTS_NO_WRITE_AUTHZ)
+def test_delete_user_group_no_authz(
+    request: pytest.FixtureRequest, db_user_group: UserGroup, client: TestClient
+) -> None:
+    """Execute DELETE operations to delete a specific User Group.
+
+    Client with no write access. The endpoints raises a 401 error.
+    """
+    a.delete(
+        client=request.getfixturevalue(client),
+        db_item=db_user_group,
+        target_status_code=status.HTTP_401_UNAUTHORIZED,
+    )
+
+
+@pytest.mark.parametrize("client", ["api_client_read_write_authz"])
+def test_delete_user_group_authz(
+    request: pytest.FixtureRequest, db_user_group: UserGroup, client: TestClient
+) -> None:
+    """Execute DELETE operations to delete a specific User Group.
+
+    Delete the User Group from the database.
+    """
+    a.delete(client=request.getfixturevalue(client), db_item=db_user_group)
+
+
+@pytest.mark.parametrize("client", CLIENTS)
 def test_delete_not_existing_user_group(
-    client: TestClient,
+    request: pytest.FixtureRequest, client: TestClient
 ) -> None:
-    """Execute PATCH operations to update a not existing user_group.
+    """Execute DELETE operations to try to delete a not existing User Group.
 
-    No access rights. Permission denied
+    Execute this operation using both authenticated and not-authenticated clients.
+    The endpoint returns a 404 error.
     """
-    settings = get_settings()
-    response = client.delete(f"{settings.API_V1_STR}/user_groups/{uuid4()}")
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    content = response.json()
-    assert content["detail"] == "Not authenticated"
+    a.delete(client=request.getfixturevalue(client))
