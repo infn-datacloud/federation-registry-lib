@@ -8,33 +8,17 @@ from fastapi.testclient import TestClient
 
 from app.config import get_settings
 from app.user_group.models import UserGroup
-from app.user_group.schemas import (
-    UserGroupBase,
-    UserGroupRead,
-    UserGroupReadPublic,
-    UserGroupUpdate,
-)
+from app.user_group.schemas import UserGroupBase, UserGroupReadPublic
 from app.user_group.schemas_extended import UserGroupReadExtendedPublic
 from tests.fixtures.client import CLIENTS, CLIENTS_AUTHN, CLIENTS_NO_AUTHN
-from tests.user_group.common import (
-    API_PARAMS_SINGLE_ITEM,
-    BaseAPI,
-)
+from tests.user_group.common import API_PARAMS_SINGLE_ITEM, UserGroupTest
 from tests.utils.user_group import (
     create_random_user_group_patch,
     validate_read_extended_public_user_group_attrs,
     validate_read_public_user_group_attrs,
 )
 
-
-class UserGroupAPI(BaseAPI[UserGroupUpdate]):
-    """Class with the basic API calls to User Group endpoints."""
-
-    def __init__(self) -> None:
-        super().__init__(endpoint_group="user_groups")
-
-
-a = UserGroupAPI()
+a = UserGroupTest()
 
 
 @pytest.mark.parametrize("client", CLIENTS_NO_AUTHN)
@@ -50,15 +34,12 @@ def test_read_user_group_no_authn(
     Execute this operation using not-authenticated clients.
     For each, repeat the operation passing 'short', 'with_conn' and no params.
     """
-    content = a.read(
+    a.read(
         client=request.getfixturevalue(client),
-        target_uid=db_user_group.uid,
+        db_item=db_user_group,
         params=params,
+        public=True,
     )
-    validate_read_public_user_group_attrs(
-        obj_out=UserGroupReadPublic(**content), db_item=db_user_group
-    )
-    # TODO check it really is a 'public' class (no other attributes).
 
 
 @pytest.mark.parametrize("client", CLIENTS_AUTHN)
@@ -74,13 +55,10 @@ def test_read_user_group_authn(
     Execute this operation using authenticated clients.
     For each, repeat the operation passing 'short', 'with_conn' and no params.
     """
-    content = a.read(
+    a.read(
         client=request.getfixturevalue(client),
-        target_uid=db_user_group.uid,
+        db_item=db_user_group,
         params=params,
-    )
-    validate_read_public_user_group_attrs(
-        obj_out=UserGroupRead(**content), db_item=db_user_group
     )
 
 
@@ -92,13 +70,9 @@ def test_read_not_existing_user_group(
 
     Execute this operation using both authenticated and not-authenticated clients.
     """
-    target_uid = uuid4()
-    content = a.read(
+    a.read(
         client=request.getfixturevalue(client),
-        target_uid=target_uid,
-        target_status_code=status.HTTP_404_NOT_FOUND,
     )
-    assert content["detail"] == f"User Group '{target_uid}' not found"
 
 
 @pytest.mark.parametrize("client", CLIENTS_NO_AUTHN)

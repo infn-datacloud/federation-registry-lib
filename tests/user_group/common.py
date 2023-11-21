@@ -1,44 +1,119 @@
 import json
 from typing import Any, Dict, Generic, Optional, Type, TypeVar
+from uuid import uuid4
 
 from fastapi import status
 from fastapi.testclient import TestClient
-from neomodel import UniqueIdProperty
+from neomodel import StructuredNode, UniqueIdProperty
 from pydantic import BaseModel
 
 from app.config import get_settings
-from app.models import BaseNodeRead
+from app.models import BaseNode
+from app.user_group.models import UserGroup
+from app.user_group.schemas import UserGroupBase, UserGroupUpdate
 
-API_PARAMS_SINGLE_ITEM = [None, {"short": True}, {"with_conn": True}]
+API_PARAMS_SINGLE_ITEM = [{}, {"short": True}, {"with_conn": True}]
 API_PARAMS_MULTIPLE_ITEMS = [None, {"short": True}, {"with_conn": True}]
 
 
+ModelType = TypeVar("ModelType", bound=StructuredNode)
+BasicSchemaType = TypeVar("BasicSchemaType", bound=BaseNode)
+BasicPublicSchemaType = TypeVar("BasicPublicSchemaType", bound=BaseNode)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
-ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseModel)
 
 
-class BaseAPI(Generic[UpdateSchemaType]):
-    def __init__(self, *, endpoint_group: str) -> None:
+class SchemaValidation(Generic[ModelType, BasicSchemaType, BasicPublicSchemaType]):
+    def __init__(
+        self,
+        *,
+        db_model: Type[ModelType],
+        base_schema: Type[BasicSchemaType],
+        base_public_schema: Type[BasicPublicSchemaType],
+    ) -> None:
+        super().__init__()
+        self.db_model = db_model
+        self.base_schema = base_schema
+        self.base_public_schema = base_public_schema
+
+    def _validate_attrs(
+        self, *, obj: Dict[str, Any], db_item: ModelType, public: bool = False
+    ) -> None:
+        if public:
+            attrs = self.base_public_schema.__fields__
+        else:
+            attrs = self.base_schema.__fields__
+        for attr in attrs:
+            assert db_item.__getattribute__(attr) == obj.pop(attr, None)
+
+    def _validate_relationships(
+        self, *, obj: Dict[str, Any], db_item: ModelType, public: bool = False
+    ) -> None:
+        pass
+
+    def _validate_read_attrs(
+        self,
+        *,
+        obj: Dict[str, Any],
+        db_item: ModelType,
+        public: bool = False,
+        extended: bool = False,
+    ) -> None:
+        assert db_item.uid == obj.pop("uid", None)
+        self._validate_attrs(obj=obj, db_item=db_item, public=public)
+        if extended:
+            self._validate_relationships(obj=obj, db_item=db_item, public=public)
+        assert not obj
+
+
+class BaseAPI(SchemaValidation, Generic[UpdateSchemaType]):
+    def __init__(
+        self,
+        *,
+        db_model: type,
+        base_schema: type,
+        base_public_schema: type,
+        endpoint_group: str,
+        item_name: str,
+    ) -> None:
+        super().__init__(
+            db_model=db_model,
+            base_schema=base_schema,
+            base_public_schema=base_public_schema,
+        )
         settings = get_settings()
         self.api_v1 = settings.API_V1_STR
         self.endpoint_group = endpoint_group
+        self.item_name = item_name
 
     def read(
         self,
         *,
         client: TestClient,
-        target_uid: UniqueIdProperty,
-        target_status_code: int = status.HTTP_200_OK,
+        db_item: Optional[ModelType] = None,
         params: Optional[Dict[str, str]] = None,
-    ) -> Any:
+        public: bool = False,
+    ) -> None:
         """Execute a GET operation to read an item from its UID.
 
         Assert response is 200 and return jsonified data."""
+        target_uid = db_item.uid if db_item else uuid4()
         response = client.get(
             f"{self.api_v1}/{self.endpoint_group}/{target_uid}", params=params
         )
-        assert response.status_code == target_status_code
-        return response.json()
+        if db_item:
+            target_status_code = status.HTTP_200_OK
+            extended = params.get("with_conn") is not None
+            assert response.status_code == target_status_code
+            self._validate_read_attrs(
+                obj=response.json(), db_item=db_item, public=public, extended=extended
+            )
+        else:
+            target_status_code = status.HTTP_404_NOT_FOUND
+            assert response.status_code == target_status_code
+            assert (
+                response.json()["detail"]
+                == f"{self.item_name} '{target_uid}' not found"
+            )
 
     def read_multi(
         self, *, client: TestClient, target_status_code: int = status.HTTP_200_OK
@@ -83,14 +158,34 @@ class BaseAPI(Generic[UpdateSchemaType]):
         assert response.status_code == target_status_code
 
 
-class BaseAPITests(BaseAPI, Generic[UpdateSchemaType, ReadSchemaType]):
-    def __init__(
-        self, *, endpoint_group: str, read_schema: Type[ReadSchemaType]
-    ) -> None:
-        super().__init__(endpoint_group=endpoint_group)
-        self.read_schema = read_schema
+class UserGroupTest(
+    BaseAPI[UserGroupUpdate],
+    SchemaValidation[UserGroup, UserGroupBase, UserGroupBase],
+):
+    """Class with the basic API calls to User Group endpoints."""
 
-    def test_read_item(self, *, client: TestClient, item: BaseNodeRead) -> None:
-        """Execute GET operations to read all user_groups."""
-        obj = self.read(client=client, target_uid=item.uid)
-        return obj
+    def __init__(self) -> None:
+        super().__init__(
+            db_model=UserGroup,
+            base_schema=UserGroupBase,
+            base_public_schema=UserGroupBase,
+            endpoint_group="user_groups",
+            item_name="User Group",
+        )
+
+    def _validate_relationships(
+        self, *, obj: Dict[str, Any], db_item: UserGroup, public: bool = False
+    ) -> None:
+        db_idp = db_item.identity_provider.single()
+        assert db_idp
+        assert db_idp.uid == obj.pop("identity_provider").get("uid")
+
+        slas = obj.pop("slas")
+        assert len(db_item.slas) == len(slas)
+        for db_sla, sla_schema in zip(
+            sorted(db_item.slas, key=lambda x: x.uid),
+            sorted(slas, key=lambda x: x.get("uid")),
+        ):
+            assert db_sla.uid == sla_schema.get("uid")
+
+        return super()._validate_relationships(obj=obj, db_item=db_item, public=public)
