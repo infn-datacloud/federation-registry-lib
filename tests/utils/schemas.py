@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generic, Type, TypeVar
+from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 from neomodel import StructuredNode
 from pydantic import BaseModel
@@ -11,13 +11,16 @@ BasicPublicSchemaType = TypeVar("BasicPublicSchemaType", bound=BaseNode)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class SchemaCreation:
-    def _random_patch_item(self, *, default: bool = False) -> None:
+class SchemaCreation(Generic[ModelType, UpdateSchemaType]):
+    def random_patch_item(
+        self, *, default: bool = False, from_item: Optional[ModelType] = None
+    ) -> UpdateSchemaType:
         pass
 
 
 class SchemaValidation(
-    SchemaCreation, Generic[ModelType, BasicSchemaType, BasicPublicSchemaType]
+    SchemaCreation[ModelType, UpdateSchemaType],
+    Generic[ModelType, BasicSchemaType, BasicPublicSchemaType, UpdateSchemaType],
 ):
     def __init__(
         self,

@@ -5,6 +5,7 @@ from uuid import uuid4
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
+from httpx import Response
 
 from app.config import get_settings
 from tests.fixtures.client import (
@@ -19,6 +20,7 @@ from tests.utils.schemas import (
     BasicSchemaType,
     ModelType,
     SchemaValidation,
+    UpdateSchemaType,
 )
 
 API_PARAMS_SINGLE_ITEM = [{}, {"short": True}, {"with_conn": True}]
@@ -43,7 +45,11 @@ API_PARAMS_MULTIPLE_ITEMS = [
 ]
 
 
-class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType]):
+class BaseAPI(
+    SchemaValidation[
+        ModelType, BasicSchemaType, BasicPublicSchemaType, UpdateSchemaType
+    ]
+):
     def __init__(
         self,
         *,
@@ -66,7 +72,7 @@ class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType
         params: Optional[Dict[str, str]] = None,
         target_status_code: int = status.HTTP_200_OK,
         public: bool = False,
-    ) -> None:
+    ) -> Response:
         """Execute a GET operation to read an item from its UID.
 
         Assert response is 200 and return jsonified data."""
@@ -89,6 +95,8 @@ class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType
                 == f"{self.item_name} '{target_uid}' not found"
             )
 
+        return response
+
     def read_multi(
         self,
         *,
@@ -97,7 +105,7 @@ class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType
         params: Optional[Dict[str, str]] = None,
         target_status_code: int = status.HTTP_200_OK,
         public: bool = False,
-    ) -> None:
+    ) -> Response:
         """Execute a GET operation to read an item from its UID.
 
         Assert response is 200 and return jsonified data."""
@@ -133,22 +141,24 @@ class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType
                 obj=obj, db_item=db_item, public=public, extended=extended
             )
 
+        return response
+
     def patch(
         self,
         *,
         client: TestClient,
+        new_data: UpdateSchemaType,
         db_item: Optional[ModelType] = None,
         target_status_code: int = status.HTTP_200_OK,
-    ) -> None:
+    ) -> Response:
         """Execute a PATCH operation to update a specific item.
 
         Retrieve the item using its UID and send, as json data, the new data.
         """
         target_uid = db_item.uid if db_item else uuid4()
-        new_data = self._random_patch_item()
         response = client.patch(
             f"{self.api_v1}/{self.endpoint_group}/{target_uid}",
-            json=json.loads(new_data.json()),
+            json=json.loads(new_data.json(exclude_unset=True)),
         )
         if not db_item:
             target_status_code = status.HTTP_404_NOT_FOUND
@@ -156,16 +166,21 @@ class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType
         assert response.status_code == target_status_code
         if target_status_code == status.HTTP_200_OK:
             self._validate_read_attrs(obj=response.json(), db_item=db_item)
+        elif target_status_code == status.HTTP_304_NOT_MODIFIED:
+            pass
         elif target_status_code == status.HTTP_401_UNAUTHORIZED:
             assert response.json()["error"] == "Unauthenticated"
             # TODO assert the item is still there
         elif target_status_code == status.HTTP_403_FORBIDDEN:
             assert response.json()["detail"] == "Not authenticated"
+            # TODO assert the item is still there
         elif target_status_code == status.HTTP_404_NOT_FOUND:
             assert (
                 response.json()["detail"]
                 == f"{self.item_name} '{target_uid}' not found"
             )
+
+        return response
 
     def delete(
         self,
@@ -173,7 +188,7 @@ class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType
         client: TestClient,
         db_item: Optional[ModelType] = None,
         target_status_code: int = status.HTTP_204_NO_CONTENT,
-    ) -> None:
+    ) -> Response:
         """Execute a DELETE operation to delete a specific item.
 
         Delete the item using its UID."""
@@ -196,6 +211,8 @@ class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType
             )
             # TODO assert the item does not exists.
 
+        return response
+
 
 class TestBaseAPI:
     __test__ = False
@@ -206,7 +223,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     @pytest.mark.parametrize("params", API_PARAMS_SINGLE_ITEM)
-    def test_read_user_group(
+    def test_read_item(
         self,
         request: pytest.FixtureRequest,
         client: TestClient,
@@ -227,7 +244,7 @@ class TestBaseAPI:
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS)
-    def test_read_not_existing_user_group(
+    def test_read_not_existing_item(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute GET operations to try to read a not existing item.
@@ -240,7 +257,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     @pytest.mark.parametrize("params", API_PARAMS_MULTIPLE_ITEMS)
-    def test_read_user_groups(
+    def test_read_items(
         self,
         request: pytest.FixtureRequest,
         client: TestClient,
@@ -267,7 +284,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     @pytest.mark.parametrize("params", API_PARAMS_MULTIPLE_ITEMS)
-    def test_read_user_groups_no_entries(
+    def test_read_items_no_entries(
         self,
         request: pytest.FixtureRequest,
         client: TestClient,
@@ -282,7 +299,7 @@ class TestBaseAPI:
         api.read_multi(client=request.getfixturevalue(client), params=params)
 
     @pytest.mark.parametrize("client, public", CLIENTS)
-    def test_read_user_groups_with_target_params(
+    def test_read_item_with_target_params(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute GET operations to read all items matching specific attributes.
@@ -305,7 +322,7 @@ class TestBaseAPI:
             )
 
     @pytest.mark.parametrize("client, public", CLIENTS_NO_TOKEN)
-    def test_patch_user_group_no_authn(
+    def test_patch_item_no_authn(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to update a specific item.
@@ -313,16 +330,18 @@ class TestBaseAPI:
         Client not authenticated. The endpoints raises a 403 error.
         """
         api: BaseAPI = request.getfixturevalue(self.api)
+        new_data = api.random_patch_item()
         api.patch(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             target_status_code=status.HTTP_403_FORBIDDEN,
+            new_data=new_data,
         )
 
     @pytest.mark.parametrize(
         "client, public", CLIENTS_FAILING_AUTHN + CLIENTS_READ_ONLY
     )
-    def test_patch_user_group_no_authz(
+    def test_patch_item_no_authz(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to update a specific item.
@@ -330,14 +349,16 @@ class TestBaseAPI:
         Client with no write access. The endpoints raises a 401 error.
         """
         api: BaseAPI = request.getfixturevalue(self.api)
+        new_data = api.random_patch_item()
         api.patch(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             target_status_code=status.HTTP_401_UNAUTHORIZED,
+            new_data=new_data,
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_user_group_authz(
+    def test_patch_item_authz(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to update a specific item.
@@ -345,13 +366,52 @@ class TestBaseAPI:
         Update the item attributes in the database.
         """
         api: BaseAPI = request.getfixturevalue(self.api)
+        new_data = api.random_patch_item()
         api.patch(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
+            new_data=new_data,
+        )
+
+    @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
+    def test_patch_item_empty_obj(
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
+    ) -> None:
+        """Execute PATCH operations to update a specific item.
+
+        New item is an empty object (none values has been discarded).
+        No changes. The endpoint returns a 304 message.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        new_data = api.random_patch_item(default=True)
+        api.patch(
+            client=request.getfixturevalue(client),
+            db_item=request.getfixturevalue(self.db_item1),
+            target_status_code=status.HTTP_304_NOT_MODIFIED,
+            new_data=new_data,
+        )
+
+    @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
+    def test_patch_item_no_edit(
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
+    ) -> None:
+        """Execute PATCH operations to update a specific item.
+
+        New item attributes are the same as the existing one.
+        No changes. The endpoint returns a 304 message.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        db_item = request.getfixturevalue(self.db_item1)
+        new_data = api.random_patch_item(from_item=db_item)
+        api.patch(
+            client=request.getfixturevalue(client),
+            db_item=db_item,
+            target_status_code=status.HTTP_304_NOT_MODIFIED,
+            new_data=new_data,
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS)
-    def test_patch_not_existing_user_group(
+    def test_patch_not_existing_item(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a not existing item.
@@ -360,10 +420,11 @@ class TestBaseAPI:
         The endpoint returns a 404 error.
         """
         api: BaseAPI = request.getfixturevalue(self.api)
-        api.patch(client=request.getfixturevalue(client))
+        new_data = api.random_patch_item()
+        api.patch(client=request.getfixturevalue(client), new_data=new_data)
 
     @pytest.mark.parametrize("client, public", CLIENTS_NO_TOKEN)
-    def test_delete_user_group_no_authn(
+    def test_delete_item_no_authn(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute DELETE operations to delete a specific item.
@@ -380,7 +441,7 @@ class TestBaseAPI:
     @pytest.mark.parametrize(
         "client, public", CLIENTS_FAILING_AUTHN + CLIENTS_READ_ONLY
     )
-    def test_delete_user_group_no_authz(
+    def test_delete_item_no_authz(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute DELETE operations to delete a specific item.
@@ -395,7 +456,7 @@ class TestBaseAPI:
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_delete_user_group_authz(
+    def test_delete_item_authz(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute DELETE operations to delete a specific item.
@@ -409,7 +470,7 @@ class TestBaseAPI:
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS)
-    def test_delete_not_existing_user_group(
+    def test_delete_not_existing_item(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute DELETE operations to try to delete a not existing item.
