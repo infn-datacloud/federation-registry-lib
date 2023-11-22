@@ -150,17 +150,14 @@ def api_client_read_write_authz(api_client_no_token: TestClient) -> TestClient:
     yield api_client_no_token
 
 
-CLIENTS_AUTHN = ["api_client_read_only_authz", "api_client_read_write_authz"]
-CLIENTS_NO_AUTHN = [
-    "api_client_no_token",
-    "api_client_invalid_token_no_sub",
-    "api_client_invalid_token_no_iss",
-    "api_client_invalid_token_fake_iss",
+CLIENTS_NO_TOKEN = [("api_client_no_token", True)]
+CLIENTS_FAILING_AUTHN = [
+    ("api_client_invalid_token_no_sub", True),
+    ("api_client_invalid_token_no_iss", True),
+    ("api_client_invalid_token_fake_iss", True),
 ]
-CLIENTS_NO_WRITE_AUTHZ = [
-    "api_client_invalid_token_no_sub",
-    "api_client_invalid_token_no_iss",
-    "api_client_invalid_token_fake_iss",
-    "api_client_read_only_authz",
-]
-CLIENTS = CLIENTS_AUTHN + CLIENTS_NO_AUTHN
+CLIENTS_READ_ONLY = [("api_client_read_only_authz", False)]
+CLIENTS_READ_WRITE = [("api_client_read_write_authz", False)]
+CLIENTS = (
+    CLIENTS_NO_TOKEN + CLIENTS_FAILING_AUTHN + CLIENTS_READ_ONLY + CLIENTS_READ_WRITE
+)
