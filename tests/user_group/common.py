@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, Generic, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 from uuid import uuid4
 
 from fastapi import status
@@ -14,7 +14,25 @@ from app.user_group.schemas import UserGroupBase, UserGroupUpdate
 from tests.utils.utils import random_lower_string
 
 API_PARAMS_SINGLE_ITEM = [{}, {"short": True}, {"with_conn": True}]
-API_PARAMS_MULTIPLE_ITEMS = [None, {"short": True}, {"with_conn": True}]
+API_PARAMS_MULTIPLE_ITEMS = [
+    {},
+    {"sort": "uid"},
+    {"sort": "-uid"},
+    {"sort": "uid_asc"},
+    {"sort": "uid_desc"},
+    {"sort": "uid", "limit": 0},
+    {"sort": "uid", "limit": 1},
+    {"sort": "uid", "limit": 2},
+    {"sort": "uid", "skip": 0},
+    {"sort": "uid", "skip": 1},
+    {"sort": "uid", "skip": 2},
+    {"sort": "uid", "size": 1},
+    {"sort": "uid", "size": 1, "page": 1},
+    {"sort": "uid", "page": 1},
+    {"sort": "uid", "size": 1, "page": 2},
+    {"short": True},
+    {"with_conn": True},
+]
 
 
 ModelType = TypeVar("ModelType", bound=StructuredNode)
@@ -128,14 +146,48 @@ class BaseAPI(SchemaValidation):
             )
 
     def read_multi(
-        self, *, client: TestClient, target_status_code: int = status.HTTP_200_OK
+        self,
+        *,
+        client: TestClient,
+        db_items: Optional[List[ModelType]] = None,
+        params: Optional[Dict[str, str]] = None,
+        target_status_code: int = status.HTTP_200_OK,
+        public: bool = False,
     ) -> Any:
         """Execute a GET operation to read an item from its UID.
 
         Assert response is 200 and return jsonified data."""
-        response = client.get(f"{self.api_v1}/{self.endpoint_group}/")
+        if not db_items:
+            db_items = []
+
+        response = client.get(f"{self.api_v1}/{self.endpoint_group}/", params=params)
         assert response.status_code == target_status_code
-        return response.json()
+
+        extended = params.get("with_conn") is not None
+
+        db_sorted_items = list(sorted(db_items, key=lambda x: x.uid))
+        sorted_items = response.json()
+        if not params.get("sort"):
+            sorted_items = sorted(sorted_items, key=lambda x: x.get("uid"))
+        elif params.get("sort").startswith("-") or params.get("sort").endswith("_desc"):
+            db_sorted_items.reverse()
+
+        if params.get("limit") is not None:
+            db_sorted_items = db_sorted_items[: params.get("limit")]
+        if params.get("skip") is not None:
+            db_sorted_items = db_sorted_items[params.get("skip") :]
+        page = params.get("page", 0)
+        if params.get("size") is not None:
+            start = page * params.get("size")
+            end = start + params.get("size")
+            db_sorted_items = db_sorted_items[start:end]
+        assert len(response.json()) == len(db_sorted_items)
+
+        for obj, db_item in zip(sorted_items, db_sorted_items):
+            assert obj.get("uid") == db_item.uid
+            self._validate_read_attrs(
+                obj=obj, db_item=db_item, public=public, extended=extended
+            )
 
     def patch(
         self,
