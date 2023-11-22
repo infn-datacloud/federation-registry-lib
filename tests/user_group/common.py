@@ -2,6 +2,7 @@ import json
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
 from uuid import uuid4
 
+import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
 from neomodel import StructuredNode
@@ -9,9 +10,13 @@ from pydantic import BaseModel
 
 from app.config import get_settings
 from app.models import BaseNode
-from app.user_group.models import UserGroup
-from app.user_group.schemas import UserGroupBase, UserGroupUpdate
-from tests.utils.utils import random_lower_string
+from tests.fixtures.client import (
+    CLIENTS,
+    CLIENTS_FAILING_AUTHN,
+    CLIENTS_NO_TOKEN,
+    CLIENTS_READ_ONLY,
+    CLIENTS_READ_WRITE,
+)
 
 API_PARAMS_SINGLE_ITEM = [{}, {"short": True}, {"with_conn": True}]
 API_PARAMS_MULTIPLE_ITEMS = [
@@ -42,9 +47,6 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
 class SchemaCreation:
-    def __init__(self) -> None:
-        super().__init__()
-
     def _random_patch_item(self, *, default: bool = False) -> None:
         pass
 
@@ -153,7 +155,7 @@ class BaseAPI(SchemaValidation):
         params: Optional[Dict[str, str]] = None,
         target_status_code: int = status.HTTP_200_OK,
         public: bool = False,
-    ) -> Any:
+    ) -> None:
         """Execute a GET operation to read an item from its UID.
 
         Assert response is 200 and return jsonified data."""
@@ -253,38 +255,255 @@ class BaseAPI(SchemaValidation):
             # TODO assert the item does not exists.
 
 
-class UserGroupTest(BaseAPI):
-    """Class with the basic API calls to User Group endpoints."""
+class TestBaseAPI:
+    __test__ = False
+    api: str
+    db_item1: str
+    db_item2: str
+    db_item3: str
 
-    def __init__(self) -> None:
-        super().__init__(
-            db_model=UserGroup,
-            base_schema=UserGroupBase,
-            base_public_schema=UserGroupBase,
-            endpoint_group="user_groups",
-            item_name="User Group",
+    @pytest.mark.parametrize("client, public", CLIENTS)
+    @pytest.mark.parametrize("params", API_PARAMS_SINGLE_ITEM)
+    def test_read_user_group(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+        params: Optional[Dict[str, str]],
+    ) -> None:
+        """Execute GET operations to read a specific item.
+
+        Execute this operation using both authenticated and not-authenticated clients.
+        For each, repeat the operation passing 'short', 'with_conn' and no params.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.read(
+            client=request.getfixturevalue(client),
+            db_item=request.getfixturevalue(self.db_item1),
+            params=params,
+            public=public,
         )
 
-    def _validate_relationships(
-        self, *, obj: Dict[str, Any], db_item: UserGroup, public: bool = False
+    @pytest.mark.parametrize("client, public", CLIENTS)
+    def test_read_not_existing_user_group(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
     ) -> None:
-        db_idp = db_item.identity_provider.single()
-        assert db_idp
-        assert db_idp.uid == obj.pop("identity_provider").get("uid")
+        """Execute GET operations to try to read a not existing item.
 
-        slas = obj.pop("slas")
-        assert len(db_item.slas) == len(slas)
-        for db_sla, sla_schema in zip(
-            sorted(db_item.slas, key=lambda x: x.uid),
-            sorted(slas, key=lambda x: x.get("uid")),
-        ):
-            assert db_sla.uid == sla_schema.get("uid")
+        Execute this operation using both authenticated and not-authenticated clients.
+        The endpoint returns a 404 error.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.read(client=request.getfixturevalue(client))
 
-        return super()._validate_relationships(obj=obj, db_item=db_item, public=public)
+    @pytest.mark.parametrize("client, public", CLIENTS)
+    @pytest.mark.parametrize("params", API_PARAMS_MULTIPLE_ITEMS)
+    def test_read_user_groups(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+        params: Optional[Dict[str, str]],
+    ) -> None:
+        """Execute GET operations to read all items.
 
-    def _random_patch_item(self, *, default: bool = False) -> UserGroupUpdate:
-        if default:
-            return UserGroupUpdate()
-        name = random_lower_string()
-        description = random_lower_string()
-        return UserGroupUpdate(name=name, description=description)
+        Execute this operation using both authenticated and not-authenticated clients.
+        For each, repeat the operation passing 'sort', 'limit', 'skip', 'size', 'page',
+        'short', 'with_conn' and no params. When using params limiting the size of the
+        returned list use also sort to have a predictable response.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.read_multi(
+            client=request.getfixturevalue(client),
+            db_items=[
+                request.getfixturevalue(self.db_item2),
+                request.getfixturevalue(self.db_item3),
+            ],
+            params=params,
+            public=public,
+        )
+
+    @pytest.mark.parametrize("client, public", CLIENTS)
+    @pytest.mark.parametrize("params", API_PARAMS_MULTIPLE_ITEMS)
+    def test_read_user_groups_no_entries(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+        params: Optional[Dict[str, str]],
+    ) -> None:
+        """Execute GET operations to read all items. But there are no items.
+
+        Execute this operation using both authenticated and not-authenticated clients.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.read_multi(client=request.getfixturevalue(client), params=params)
+
+    @pytest.mark.parametrize("client, public", CLIENTS)
+    def test_read_user_groups_with_target_params(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute GET operations to read all items matching specific attributes.
+
+        Execute this operation using both authenticated and not-authenticated clients.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        if public:
+            keys = api.base_public_schema.__fields__.keys()
+        else:
+            keys = api.base_schema.__fields__.keys()
+
+        db_item = request.getfixturevalue(self.db_item2)
+        for k in keys:
+            api.read_multi(
+                client=request.getfixturevalue(client),
+                db_items=[db_item],
+                params={k: db_item.__getattribute__(k)},
+                public=public,
+            )
+
+    @pytest.mark.parametrize("client, public", CLIENTS_NO_TOKEN)
+    def test_patch_user_group_no_authn(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute PATCH operations to update a specific item.
+
+        Client not authenticated. The endpoints raises a 403 error.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.patch(
+            client=request.getfixturevalue(client),
+            db_item=request.getfixturevalue(self.db_item1),
+            target_status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+    @pytest.mark.parametrize(
+        "client, public", CLIENTS_FAILING_AUTHN + CLIENTS_READ_ONLY
+    )
+    def test_patch_user_group_no_authz(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute PATCH operations to update a specific item.
+
+        Client with no write access. The endpoints raises a 401 error.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.patch(
+            client=request.getfixturevalue(client),
+            db_item=request.getfixturevalue(self.db_item1),
+            target_status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
+    def test_patch_user_group_authz(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute PATCH operations to update a specific item.
+
+        Update the item attributes in the database.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.patch(
+            client=request.getfixturevalue(client),
+            db_item=request.getfixturevalue(self.db_item1),
+        )
+
+    @pytest.mark.parametrize("client, public", CLIENTS)
+    def test_patch_not_existing_user_group(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute PATCH operations to try to update a not existing item.
+
+        Execute this operation using both authenticated and not-authenticated clients.
+        The endpoint returns a 404 error.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.patch(client=request.getfixturevalue(client))
+
+    @pytest.mark.parametrize("client, public", CLIENTS_NO_TOKEN)
+    def test_delete_user_group_no_authn(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute DELETE operations to delete a specific item.
+
+        Client not authenticated. The endpoints raises a 403 error.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.delete(
+            client=request.getfixturevalue(client),
+            db_item=request.getfixturevalue(self.db_item1),
+            target_status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+    @pytest.mark.parametrize(
+        "client, public", CLIENTS_FAILING_AUTHN + CLIENTS_READ_ONLY
+    )
+    def test_delete_user_group_no_authz(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute DELETE operations to delete a specific item.
+
+        Client with no write access. The endpoints raises a 401 error.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.delete(
+            client=request.getfixturevalue(client),
+            db_item=request.getfixturevalue(self.db_item1),
+            target_status_code=status.HTTP_401_UNAUTHORIZED,
+        )
+
+    @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
+    def test_delete_user_group_authz(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute DELETE operations to delete a specific item.
+
+        Delete the item from the database.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.delete(
+            client=request.getfixturevalue(client),
+            db_item=request.getfixturevalue(self.db_item1),
+        )
+
+    @pytest.mark.parametrize("client, public", CLIENTS)
+    def test_delete_not_existing_user_group(
+        self,
+        request: pytest.FixtureRequest,
+        client: TestClient,
+        public: bool,
+    ) -> None:
+        """Execute DELETE operations to try to delete a not existing item.
+
+        Execute this operation using both authenticated and not-authenticated clients.
+        The endpoint returns a 404 error.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        api.delete(client=request.getfixturevalue(client))
