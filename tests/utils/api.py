@@ -1,21 +1,24 @@
 import json
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar
+from typing import Dict, List, Optional, Type
 from uuid import uuid4
 
 import pytest
 from fastapi import status
 from fastapi.testclient import TestClient
-from neomodel import StructuredNode
-from pydantic import BaseModel
 
 from app.config import get_settings
-from app.models import BaseNode
 from tests.fixtures.client import (
     CLIENTS,
     CLIENTS_FAILING_AUTHN,
     CLIENTS_NO_TOKEN,
     CLIENTS_READ_ONLY,
     CLIENTS_READ_WRITE,
+)
+from tests.utils.schemas import (
+    BasicPublicSchemaType,
+    BasicSchemaType,
+    ModelType,
+    SchemaValidation,
 )
 
 API_PARAMS_SINGLE_ITEM = [{}, {"short": True}, {"with_conn": True}]
@@ -40,77 +43,16 @@ API_PARAMS_MULTIPLE_ITEMS = [
 ]
 
 
-ModelType = TypeVar("ModelType", bound=StructuredNode)
-BasicSchemaType = TypeVar("BasicSchemaType", bound=BaseNode)
-BasicPublicSchemaType = TypeVar("BasicPublicSchemaType", bound=BaseNode)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
-
-
-class SchemaCreation:
-    def _random_patch_item(self, *, default: bool = False) -> None:
-        pass
-
-
-class SchemaValidation(
-    SchemaCreation, Generic[ModelType, BasicSchemaType, BasicPublicSchemaType]
-):
+class BaseAPI(SchemaValidation[ModelType, BasicSchemaType, BasicPublicSchemaType]):
     def __init__(
         self,
         *,
-        db_model: Type[ModelType],
         base_schema: Type[BasicSchemaType],
         base_public_schema: Type[BasicPublicSchemaType],
-    ) -> None:
-        super().__init__()
-        self.db_model = db_model
-        self.base_schema = base_schema
-        self.base_public_schema = base_public_schema
-
-    def _validate_attrs(
-        self, *, obj: Dict[str, Any], db_item: ModelType, public: bool = False
-    ) -> None:
-        if public:
-            attrs = self.base_public_schema.__fields__
-        else:
-            attrs = self.base_schema.__fields__
-        for attr in attrs:
-            assert db_item.__getattribute__(attr) == obj.pop(attr, None)
-
-    def _validate_relationships(
-        self, *, obj: Dict[str, Any], db_item: ModelType, public: bool = False
-    ) -> None:
-        pass
-
-    def _validate_read_attrs(
-        self,
-        *,
-        obj: Dict[str, Any],
-        db_item: ModelType,
-        public: bool = False,
-        extended: bool = False,
-    ) -> None:
-        assert db_item.uid == obj.pop("uid", None)
-        self._validate_attrs(obj=obj, db_item=db_item, public=public)
-        if extended:
-            self._validate_relationships(obj=obj, db_item=db_item, public=public)
-        assert not obj
-
-
-class BaseAPI(SchemaValidation):
-    def __init__(
-        self,
-        *,
-        db_model: type,
-        base_schema: type,
-        base_public_schema: type,
         endpoint_group: str,
         item_name: str,
     ) -> None:
-        super().__init__(
-            db_model=db_model,
-            base_schema=base_schema,
-            base_public_schema=base_public_schema,
-        )
+        super().__init__(base_schema=base_schema, base_public_schema=base_public_schema)
         settings = get_settings()
         self.api_v1 = settings.API_V1_STR
         self.endpoint_group = endpoint_group
@@ -286,10 +228,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     def test_read_not_existing_user_group(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute GET operations to try to read a not existing item.
 
@@ -344,10 +283,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     def test_read_user_groups_with_target_params(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute GET operations to read all items matching specific attributes.
 
@@ -370,10 +306,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS_NO_TOKEN)
     def test_patch_user_group_no_authn(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to update a specific item.
 
@@ -390,10 +323,7 @@ class TestBaseAPI:
         "client, public", CLIENTS_FAILING_AUTHN + CLIENTS_READ_ONLY
     )
     def test_patch_user_group_no_authz(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to update a specific item.
 
@@ -408,10 +338,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
     def test_patch_user_group_authz(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to update a specific item.
 
@@ -425,10 +352,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     def test_patch_not_existing_user_group(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a not existing item.
 
@@ -440,10 +364,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS_NO_TOKEN)
     def test_delete_user_group_no_authn(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute DELETE operations to delete a specific item.
 
@@ -460,10 +381,7 @@ class TestBaseAPI:
         "client, public", CLIENTS_FAILING_AUTHN + CLIENTS_READ_ONLY
     )
     def test_delete_user_group_no_authz(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute DELETE operations to delete a specific item.
 
@@ -478,10 +396,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
     def test_delete_user_group_authz(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute DELETE operations to delete a specific item.
 
@@ -495,10 +410,7 @@ class TestBaseAPI:
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     def test_delete_not_existing_user_group(
-        self,
-        request: pytest.FixtureRequest,
-        client: TestClient,
-        public: bool,
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute DELETE operations to try to delete a not existing item.
 
