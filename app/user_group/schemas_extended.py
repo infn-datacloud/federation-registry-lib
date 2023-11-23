@@ -32,7 +32,6 @@ class UserGroupReadExtended(UserGroupRead):
         description="Identity Provider owning this User Group."
     )
     slas: List[SLAReadExtended] = Field(
-        default_factory=list,
         description="List of SLAs involving this User Group.",
     )
 
@@ -46,6 +45,5 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
         description="Identity Provider owning this User Group."
     )
     slas: List[SLAReadExtendedPublic] = Field(
-        default_factory=list,
         description="List of SLAs involving this User Group.",
     )

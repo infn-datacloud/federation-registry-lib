@@ -165,13 +165,9 @@ class ProjectReadExtended(ProjectRead):
     for authenticated users.
     """
 
-    flavors: List[FlavorRead] = Field(
-        default_factory=list, description="List of flavors"
-    )
-    images: List[ImageRead] = Field(default_factory=list, description="List of images")
-    networks: List[NetworkRead] = Field(
-        default_factory=list, description="List of networks"
-    )
+    flavors: List[FlavorRead] = Field(description="List of flavors")
+    images: List[ImageRead] = Field(description="List of images")
+    networks: List[NetworkRead] = Field(description="List of networks")
     provider: ProviderRead = Field(description="Provider owning this Project.")
     quotas: List[
         Union[
@@ -179,7 +175,7 @@ class ProjectReadExtended(ProjectRead):
             BlockStorageQuotaReadExtended,
             NetworkQuotaReadExtended,
         ]
-    ] = Field(default_factory=list, description="List of owned quotas.")
+    ] = Field(description="List of owned quotas.")
     sla: Optional[SLAReadExtended] = Field(
         default=None, description="SLA involving this Project."
     )
@@ -198,15 +194,9 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     for non-authenticated users.
     """
 
-    networks: List[NetworkReadPublic] = Field(
-        default_factory=list, description="List of networks"
-    )
-    flavors: List[FlavorReadPublic] = Field(
-        default_factory=list, description="List of flavors"
-    )
-    images: List[ImageReadPublic] = Field(
-        default_factory=list, description="List of images"
-    )
+    networks: List[NetworkReadPublic] = Field(description="List of networks")
+    flavors: List[FlavorReadPublic] = Field(description="List of flavors")
+    images: List[ImageReadPublic] = Field(description="List of images")
     provider: ProviderReadPublic = Field(description="Provider owning this Project.")
     quotas: List[
         Union[
@@ -214,7 +204,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
             BlockStorageQuotaReadExtendedPublic,
             NetworkQuotaReadExtendedPublic,
         ]
-    ] = Field(default_factory=list, description="List of owned quotas.")
+    ] = Field(description="List of owned quotas.")
     sla: Optional[SLAReadExtendedPublic] = Field(
         default=None, description="SLA involving this Project."
     )

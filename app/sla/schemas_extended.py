@@ -49,7 +49,6 @@ class ProjectReadExtended(ProjectRead):
     quotas: List[
         Union[BlockStorageQuotaReadExtended, ComputeQuotaReadExtended]
     ] = Field(
-        default_factory=list,
         description="List of quotas owned by this Project.",
     )
 
@@ -63,7 +62,6 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     quotas: List[
         Union[BlockStorageQuotaReadExtendedPublic, ComputeQuotaReadExtendedPublic]
     ] = Field(
-        default_factory=list,
         description="List of quotas owned by this Project.",
     )
 
@@ -93,9 +91,7 @@ class SLAReadExtended(SLARead):
     authenticated users.
     """
 
-    projects: List[ProjectReadExtended] = Field(
-        default_factory=list, description="Involved Projects."
-    )
+    projects: List[ProjectReadExtended] = Field(description="Involved Projects.")
     user_group: UserGroupReadExtended = Field(description="Involved User Group.")
 
 
@@ -104,7 +100,5 @@ class SLAReadExtendedPublic(SLAReadPublic):
     non-authenticated users.
     """
 
-    projects: List[ProjectReadExtendedPublic] = Field(
-        default_factory=list, description="Involved Projects."
-    )
+    projects: List[ProjectReadExtendedPublic] = Field(description="Involved Projects.")
     user_group: UserGroupReadExtendedPublic = Field(description="Involved User Group.")

@@ -31,7 +31,7 @@ class RegionReadExtended(RegionRead):
             IdentityServiceRead,
             NetworkServiceRead,
         ]
-    ] = Field(default_factory=list, description="List of hosted Services.")
+    ] = Field(description="List of hosted Services.")
 
 
 class RegionReadExtendedPublic(RegionReadPublic):
@@ -48,4 +48,4 @@ class RegionReadExtendedPublic(RegionReadPublic):
             IdentityServiceReadPublic,
             NetworkServiceReadPublic,
         ]
-    ] = Field(default_factory=list, description="List of hosted Services.")
+    ] = Field(description="List of hosted Services.")
