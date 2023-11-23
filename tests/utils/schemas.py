@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
 from neomodel import StructuredNode
@@ -59,7 +60,10 @@ class SchemaValidation(
         else:
             attrs = self.base_schema.__fields__
         for attr in attrs:
-            assert db_item.__getattribute__(attr) == obj.pop(attr, None)
+            db_attr = db_item.__getattribute__(attr)
+            if isinstance(db_attr, date):
+                db_attr = db_attr.isoformat()
+            assert db_attr == obj.pop(attr, None)
 
     def _validate_relationships(
         self, *, obj: Dict[str, Any], db_item: ModelType, public: bool = False
