@@ -20,34 +20,26 @@ class UserGroupAPI(BaseAPI[UserGroup, UserGroupBase, UserGroupBase, UserGroupUpd
     def _validate_relationships(
         self, *, obj: Dict[str, Any], db_item: UserGroup, public: bool = False
     ) -> None:
-        db_idp = db_item.identity_provider.single()
+        db_idp: IdentityProvider = db_item.identity_provider.single()
         assert db_idp
         assert db_idp.uid == obj.pop("identity_provider").get("uid")
 
         slas = obj.pop("slas")
         assert len(db_item.slas) == len(slas)
-        for db_sla, sla_schema in zip(
+        for db_sla, sla_dict in zip(
             sorted(db_item.slas, key=lambda x: x.uid),
             sorted(slas, key=lambda x: x.get("uid")),
         ):
-            assert db_sla.uid == sla_schema.get("uid")
+            assert db_sla.uid == sla_dict.get("uid")
 
         return super()._validate_relationships(obj=obj, db_item=db_item, public=public)
 
     def random_patch_item(
         self, *, default: bool = False, from_item: Optional[UserGroup] = None
     ) -> UserGroupUpdate:
-        if default:
-            return UserGroupUpdate()
-        if from_item:
-            d = {
-                k: from_item.__getattribute__(k)
-                for k in UserGroupBase.__fields__.keys()
-            }
-            return UserGroupUpdate(**d)
-        name = random_lower_string()
-        description = random_lower_string()
-        return UserGroupUpdate(name=name, description=description)
+        item = super().random_patch_item(default=default, from_item=from_item)
+        item.name = random_lower_string()
+        return item
 
 
 @pytest.fixture(scope="class")
@@ -55,6 +47,7 @@ def user_group_api() -> UserGroupAPI:
     return UserGroupAPI(
         base_schema=UserGroupBase,
         base_public_schema=UserGroupBase,
+        update_schema=UserGroupUpdate,
         endpoint_group="user_groups",
         item_name="User Group",
     )

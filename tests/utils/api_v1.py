@@ -55,10 +55,15 @@ class BaseAPI(
         *,
         base_schema: Type[BasicSchemaType],
         base_public_schema: Type[BasicPublicSchemaType],
+        update_schema: Type[UpdateSchemaType],
         endpoint_group: str,
         item_name: str,
     ) -> None:
-        super().__init__(base_schema=base_schema, base_public_schema=base_public_schema)
+        super().__init__(
+            base_schema=base_schema,
+            base_public_schema=base_public_schema,
+            update_schema=update_schema,
+        )
         settings = get_settings()
         self.api_v1 = settings.API_V1_STR
         self.endpoint_group = endpoint_group

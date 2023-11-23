@@ -4,6 +4,7 @@ from neomodel import StructuredNode
 from pydantic import BaseModel
 
 from app.models import BaseNode
+from tests.utils.utils import random_lower_string
 
 ModelType = TypeVar("ModelType", bound=StructuredNode)
 BasicSchemaType = TypeVar("BasicSchemaType", bound=BaseNode)
@@ -11,15 +12,33 @@ BasicPublicSchemaType = TypeVar("BasicPublicSchemaType", bound=BaseNode)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 
-class SchemaCreation(Generic[ModelType, UpdateSchemaType]):
+class SchemaCreation(Generic[ModelType, BasicSchemaType, UpdateSchemaType]):
+    def __init__(
+        self,
+        *,
+        base_schema: Type[BasicSchemaType],
+        update_schema: Type[UpdateSchemaType],
+    ) -> None:
+        super().__init__()
+        self.base_schema = base_schema
+        self.update_schema = update_schema
+
     def random_patch_item(
         self, *, default: bool = False, from_item: Optional[ModelType] = None
     ) -> UpdateSchemaType:
-        pass
+        if default:
+            return self.update_schema()
+        if from_item:
+            d = {
+                k: from_item.__getattribute__(k)
+                for k in self.base_schema.__fields__.keys()
+            }
+            return self.update_schema(**d)
+        return self.update_schema(description=random_lower_string())
 
 
 class SchemaValidation(
-    SchemaCreation[ModelType, UpdateSchemaType],
+    SchemaCreation[ModelType, BasicSchemaType, UpdateSchemaType],
     Generic[ModelType, BasicSchemaType, BasicPublicSchemaType, UpdateSchemaType],
 ):
     def __init__(
@@ -27,9 +46,9 @@ class SchemaValidation(
         *,
         base_schema: Type[BasicSchemaType],
         base_public_schema: Type[BasicPublicSchemaType],
+        update_schema: Type[UpdateSchemaType],
     ) -> None:
-        super().__init__()
-        self.base_schema = base_schema
+        super().__init__(base_schema=base_schema, update_schema=update_schema)
         self.base_public_schema = base_public_schema
 
     def _validate_attrs(
