@@ -12,7 +12,7 @@ from app.sla.models import SLA
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupBase, UserGroupUpdate
 from tests.fixtures.client import CLIENTS, CLIENTS_READ_WRITE
-from tests.utils.api import BaseAPI, TestBaseAPI
+from tests.utils.api_v1 import BaseAPI, TestBaseAPI
 from tests.utils.utils import random_lower_string
 
 
@@ -164,7 +164,7 @@ class TestUserGroupTest(TestBaseAPI):
         new_data: UserGroupUpdate = api.random_patch_item(from_item=db_item)
         response: Response = api.patch(
             client=request.getfixturevalue(client),
-            db_item=db_item,
+            db_item=request.getfixturevalue(self.db_item2),
             target_status_code=status.HTTP_400_BAD_REQUEST,
             new_data=new_data,
         )
