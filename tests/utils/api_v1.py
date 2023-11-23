@@ -215,6 +215,8 @@ class BaseAPI(
                 == f"{self.item_name} '{target_uid}' not found"
             )
             # TODO assert the item does not exists.
+        elif target_status_code == status.HTTP_500_INTERNAL_SERVER_ERROR:
+            assert response.json()["detail"] == "Failed to delete item"
 
         return response
 
