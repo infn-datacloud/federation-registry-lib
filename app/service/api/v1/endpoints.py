@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 
 # from app.identity_provider.crud import identity_provider
 # from app.identity_provider.schemas import (
@@ -90,12 +90,14 @@ bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_ser
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_block_storage_services(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageServiceQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = block_storage_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -121,10 +123,12 @@ def get_block_storage_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_block_storage_service(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: BlockStorageService = Depends(valid_block_storage_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return block_storage_service.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
@@ -207,12 +211,14 @@ c_router = APIRouter(prefix="/compute_services", tags=["compute_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_compute_services(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeServiceQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = compute_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -238,10 +244,12 @@ def get_compute_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_compute_service(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: ComputeService = Depends(valid_compute_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return compute_service.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
@@ -324,12 +332,14 @@ i_router = APIRouter(prefix="/identity_services", tags=["identity_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_identity_services(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: IdentityServiceQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = identity_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -355,10 +365,12 @@ def get_identity_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-def get_identity_sservice(
-    auth: bool = Depends(check_read_access),
+@check_read_access
+def get_identity_service(
     size: SchemaSize = Depends(),
     item: IdentityService = Depends(valid_identity_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return identity_service.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
@@ -384,7 +396,7 @@ def get_identity_sservice(
         no other items with the given *endpoint*.",
 )
 @flaat.access_level("write")
-def put_identity_sservice(
+def put_identity_service(
     request: Request,
     update_data: IdentityServiceUpdate,
     response: Response,
@@ -411,7 +423,7 @@ def put_identity_sservice(
         server` error",
 )
 @flaat.access_level("write")
-def delete_identity_sservices(
+def delete_identity_services(
     request: Request,
     item: IdentityService = Depends(valid_identity_service_id),
     client_credentials: HTTPBasicCredentials = Depends(strict_security),
@@ -441,12 +453,14 @@ n_router = APIRouter(prefix="/network_services", tags=["network_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_network_services(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkServiceQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = network_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -472,10 +486,12 @@ def get_network_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_network_service(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: NetworkService = Depends(valid_network_service_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return network_service.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn

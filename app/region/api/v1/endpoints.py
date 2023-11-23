@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.region.api.dependencies import (
     valid_region_id,
@@ -42,12 +42,14 @@ router = APIRouter(prefix="/regions", tags=["regions"])
         It is possible to filter on regions attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_regions(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: RegionQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = region.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -73,10 +75,12 @@ def get_regions(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_region(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: Region = Depends(valid_region_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return region.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn

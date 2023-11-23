@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import (
     valid_block_storage_quota_id,
@@ -60,12 +60,14 @@ bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quota
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_block_storage_quotas(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageQuotaQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = block_storage_quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -128,10 +130,12 @@ def get_block_storage_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_block_storage_quota(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return block_storage_quota.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
@@ -211,12 +215,14 @@ c_router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_compute_quotas(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeQuotaQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = compute_quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -279,10 +285,12 @@ def get_compute_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_compute_quota(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: ComputeQuota = Depends(valid_compute_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return compute_quota.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
@@ -362,12 +370,14 @@ n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_network_quotas(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkQuotaQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = network_quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -393,10 +403,12 @@ def get_network_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_network_quota(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: NetworkQuota = Depends(valid_network_quota_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return network_quota.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn

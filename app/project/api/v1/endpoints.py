@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
 # from app.flavor.crud import flavor
@@ -20,6 +20,7 @@ from app.project.api.dependencies import (
     valid_project_id,
     validate_new_project_values,
 )
+from app.project.api.utils import filter_on_region_attr
 from app.project.crud import project
 from app.project.models import Project
 from app.project.schemas import (
@@ -54,13 +55,15 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         It is possible to filter on projects attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_projects(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ProjectQuery = Depends(),
     region_name: Optional[str] = None,
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = project.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -88,11 +91,13 @@ def get_projects(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_project(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: Project = Depends(valid_project_id),
     region_name: Optional[str] = None,
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=[item], region_query=region_query)
@@ -100,36 +105,6 @@ def get_project(
         items=items, auth=auth, short=size.short, with_conn=size.with_conn
     )
     return items[0]
-
-
-def filter_on_region_attr(  # noqa: C901
-    items: List[Project], region_query: RegionQuery
-) -> List[Project]:
-    """
-    Filter projects based on region access.
-    """
-    attrs = region_query.dict(exclude_none=True)
-    if not attrs:
-        return items
-
-    for item in items:
-        for quota in item.quotas:
-            service = quota.service.single()
-            if not service.region.get_or_none(**attrs):
-                item.quotas = item.quotas.exclude(uid=quota.uid)
-        for flavor in item.private_flavors:
-            service = flavor.service.single()
-            if not service.region.get_or_none(**attrs):
-                item.private_flavors = item.private_flavors.exclude(uid=flavor.uid)
-        for image in item.private_images:
-            service = image.service.single()
-            if not service.region.get_or_none(**attrs):
-                item.private_images = item.private_images.exclude(uid=image.uid)
-        for network in item.private_networks:
-            service = network.service.single()
-            if not service.region.get_or_none(**attrs):
-                item.private_networks = item.private_networks.exclude(uid=network.uid)
-    return items
 
 
 @db.write_transaction

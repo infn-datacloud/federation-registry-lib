@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 from app.location.api.dependencies import (
     valid_location_id,
     validate_new_location_values,
@@ -45,12 +45,14 @@ router = APIRouter(prefix="/locations", tags=["locations"])
         It is possible to filter on locations attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_locations(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: LocationQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = location.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -76,10 +78,12 @@ def get_locations(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_location(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: Location = Depends(valid_location_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return location.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn

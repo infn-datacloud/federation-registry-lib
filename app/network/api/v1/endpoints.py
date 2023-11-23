@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 from app.network.api.dependencies import (
     valid_network_id,
     validate_new_network_values,
@@ -42,12 +42,14 @@ router = APIRouter(prefix="/networks", tags=["networks"])
         It is possible to filter on networks attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_networks(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = network.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -73,10 +75,12 @@ def get_networks(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_network(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: Network = Depends(valid_network_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return network.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn

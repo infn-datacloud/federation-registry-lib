@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 from app.flavor.api.dependencies import (
     valid_flavor_id,
     validate_new_flavor_values,
@@ -42,12 +42,14 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
         It is possible to filter on flavors attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_flavors(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: FlavorQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = flavor.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -73,10 +75,12 @@ def get_flavors(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_flavor(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: Flavor = Depends(valid_flavor_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return flavor.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn

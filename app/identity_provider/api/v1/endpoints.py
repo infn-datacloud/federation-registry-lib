@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 
 # from app.auth_method.schemas import AuthMethodCreate
 from app.identity_provider.api.dependencies import (
@@ -51,12 +51,14 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
         It is possible to filter on identity providers attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_identity_providers(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: IdentityProviderQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = identity_provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -82,10 +84,12 @@ def get_identity_providers(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_identity_provider(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: IdentityProvider = Depends(valid_identity_provider_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return identity_provider.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, strict_security
+from app.auth import check_read_access, flaat, lazy_security, strict_security
 from app.image.api.dependencies import (
     valid_image_id,
     validate_new_image_values,
@@ -42,12 +42,14 @@ router = APIRouter(prefix="/images", tags=["images"])
         It is possible to filter on images attributes and other \
         common query parameters.",
 )
+@check_read_access
 def get_images(
-    auth: bool = Depends(check_read_access),
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ImageQuery = Depends(),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     items = image.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -73,10 +75,12 @@ def get_images(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
+@check_read_access
 def get_image(
-    auth: bool = Depends(check_read_access),
     size: SchemaSize = Depends(),
     item: Image = Depends(valid_image_id),
+    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
+    auth: bool = False,
 ):
     return image.choose_out_schema(
         items=[item], auth=auth, short=size.short, with_conn=size.with_conn
