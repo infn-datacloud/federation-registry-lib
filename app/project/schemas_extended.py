@@ -16,6 +16,8 @@ from app.quota.schemas import (
     BlockStorageQuotaReadPublic,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
+    NetworkQuotaRead,
+    NetworkQuotaReadPublic,
 )
 from app.region.schemas import RegionRead, RegionReadPublic
 from app.service.schemas import (
@@ -23,9 +25,23 @@ from app.service.schemas import (
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
+    NetworkServiceRead,
+    NetworkServiceReadPublic,
 )
 from app.sla.schemas import SLARead, SLAReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
+
+
+class BlockStorageServiceReadExtended(BlockStorageServiceRead):
+    """Model to extend the Service data read from the DB with the parent region."""
+
+    region: RegionRead = Field(description="Region hosting this service.")
+
+
+class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
+    """Model to extend the Service data read from the DB with the parent region."""
+
+    region: RegionReadPublic = Field(description="Region hosting this service.")
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
@@ -40,16 +56,36 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadPublic = Field(description="Region hosting this service.")
 
 
-class BlockStorageServiceReadExtended(BlockStorageServiceRead):
+class NetworkServiceReadExtended(NetworkServiceRead):
     """Model to extend the Service data read from the DB with the parent region."""
 
     region: RegionRead = Field(description="Region hosting this service.")
 
 
-class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
+class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     """Model to extend the Service data read from the DB with the parent region."""
 
     region: RegionReadPublic = Field(description="Region hosting this service.")
+
+
+class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
+    """Model to extend the Quota data read from the DB with the lists of related
+    items.
+    """
+
+    service: BlockStorageServiceReadExtended = Field(
+        description="A generic Quota applies to only one generic Service."
+    )
+
+
+class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
+    """Model to extend the Quota data read from the DB with the lists of related
+    items.
+    """
+
+    service: BlockStorageServiceReadExtendedPublic = Field(
+        description="A generic Quota applies to only one generic Service."
+    )
 
 
 class ComputeQuotaReadExtended(ComputeQuotaRead):
@@ -72,22 +108,22 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     )
 
 
-class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
+class NetworkQuotaReadExtended(NetworkQuotaRead):
     """Model to extend the Quota data read from the DB with the lists of related
     items.
     """
 
-    service: BlockStorageServiceReadExtended = Field(
+    service: NetworkServiceReadExtended = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
 
-class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
+class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     """Model to extend the Quota data read from the DB with the lists of related
     items.
     """
 
-    service: BlockStorageServiceReadExtendedPublic = Field(
+    service: NetworkServiceReadExtendedPublic = Field(
         description="A generic Quota applies to only one generic Service."
     )
 
@@ -138,7 +174,11 @@ class ProjectReadExtended(ProjectRead):
     )
     provider: ProviderRead = Field(description="Provider owning this Project.")
     quotas: List[
-        Union[ComputeQuotaReadExtended, BlockStorageQuotaReadExtended]
+        Union[
+            ComputeQuotaReadExtended,
+            BlockStorageQuotaReadExtended,
+            NetworkQuotaReadExtended,
+        ]
     ] = Field(default_factory=list, description="List of owned quotas.")
     sla: Optional[SLAReadExtended] = Field(
         default=None, description="SLA involving this Project."
@@ -169,7 +209,11 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     )
     provider: ProviderReadPublic = Field(description="Provider owning this Project.")
     quotas: List[
-        Union[ComputeQuotaReadExtendedPublic, BlockStorageQuotaReadExtendedPublic]
+        Union[
+            ComputeQuotaReadExtendedPublic,
+            BlockStorageQuotaReadExtendedPublic,
+            NetworkQuotaReadExtendedPublic,
+        ]
     ] = Field(default_factory=list, description="List of owned quotas.")
     sla: Optional[SLAReadExtendedPublic] = Field(
         default=None, description="SLA involving this Project."
