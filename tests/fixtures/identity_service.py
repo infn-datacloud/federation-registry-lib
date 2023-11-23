@@ -15,7 +15,15 @@ def db_identity_serv(db_region: Region) -> IdentityService:
 
 
 @pytest.fixture
-def db_identity_serv2(db_region3: Region) -> IdentityService:
+def db_identity_serv2(db_region2: Region) -> IdentityService:
+    """Identity service on first region of the second provider."""
+    item_in = create_random_identity_service()
+    item = identity_service.create(obj_in=item_in, region=db_region2)
+    yield item
+
+
+@pytest.fixture
+def db_identity_serv3(db_region3: Region) -> IdentityService:
     """Identity service on second region of the second provider."""
     item_in = create_random_identity_service()
     item = identity_service.create(obj_in=item_in, region=db_region3)
@@ -30,10 +38,10 @@ def db_region_with_identity_service(db_identity_serv: IdentityService) -> Region
 
 @pytest.fixture
 def db_deletable_region_with_identity_service(
-    db_identity_serv2: IdentityService,
+    db_identity_serv3: IdentityService,
 ) -> Region:
     """Region with a identity service.
 
     Region can be deleted.
     """
-    yield db_identity_serv2.region.single()
+    yield db_identity_serv3.region.single()

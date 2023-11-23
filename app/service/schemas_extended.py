@@ -101,7 +101,6 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
     """
 
     quotas: List[BlockStorageQuotaReadExtended] = Field(
-        default_factory=list,
         description="List of quotas.",
     )
     region: RegionReadExtended
@@ -113,7 +112,6 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
     """
 
     quotas: List[BlockStorageQuotaReadExtendedPublic] = Field(
-        default_factory=list,
         description="List of quotas.",
     )
     region: RegionReadExtendedPublic
@@ -124,14 +122,9 @@ class ComputeServiceReadExtended(ComputeServiceRead):
     related items for authenticated users.
     """
 
-    flavors: List[FlavorRead] = Field(
-        default_factory=list, description="List of owned Flavors."
-    )
-    images: List[ImageRead] = Field(
-        default_factory=list, description="List of owned Images."
-    )
+    flavors: List[FlavorRead] = Field(description="List of owned Flavors.")
+    images: List[ImageRead] = Field(description="List of owned Images.")
     quotas: List[ComputeQuotaReadExtended] = Field(
-        default_factory=list,
         description="List of quotas.",
     )
     region: RegionReadExtended
@@ -142,14 +135,9 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     related items for non-authenticated users.
     """
 
-    flavors: List[FlavorReadPublic] = Field(
-        default_factory=list, description="List of owned Flavors."
-    )
-    images: List[ImageReadPublic] = Field(
-        default_factory=list, description="List of owned Images."
-    )
+    flavors: List[FlavorReadPublic] = Field(description="List of owned Flavors.")
+    images: List[ImageReadPublic] = Field(description="List of owned Images.")
     quotas: List[ComputeQuotaReadExtendedPublic] = Field(
-        default_factory=list,
         description="List of quotas.",
     )
     region: RegionReadExtendedPublic
@@ -176,13 +164,9 @@ class NetworkServiceReadExtended(NetworkServiceRead):
     related items for authenticated users.
     """
 
-    networks: List[NetworkReadPublic] = Field(
-        default_factory=list, description="List of owned Networks."
-    )
+    networks: List[NetworkReadPublic] = Field(description="List of owned Networks.")
     region: RegionReadExtended
-    quotas: List[NetworkQuotaReadExtended] = Field(
-        default_factory=list, description="List of quotas."
-    )
+    quotas: List[NetworkQuotaReadExtended] = Field(description="List of quotas.")
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
@@ -190,10 +174,6 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     related items for non-authenticated users.
     """
 
-    networks: List[NetworkReadPublic] = Field(
-        default_factory=list, description="List of owned Networks."
-    )
+    networks: List[NetworkReadPublic] = Field(description="List of owned Networks.")
     region: RegionReadExtendedPublic
-    quotas: List[NetworkQuotaReadExtendedPublic] = Field(
-        default_factory=list, description="List of quotas."
-    )
+    quotas: List[NetworkQuotaReadExtendedPublic] = Field(description="List of quotas.")
