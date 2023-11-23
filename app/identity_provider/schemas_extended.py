@@ -37,11 +37,9 @@ class IdentityProviderReadExtended(IdentityProviderRead):
     """
 
     providers: List[ProviderReadExtended] = Field(
-        default_factory=list, description="List of supported providers."
+        description="List of supported providers."
     )
-    user_groups: List[UserGroupRead] = Field(
-        default_factory=list, description="List of owned user groups."
-    )
+    user_groups: List[UserGroupRead] = Field(description="List of owned user groups.")
 
 
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
@@ -50,8 +48,8 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
     """
 
     providers: List[ProviderReadExtendedPublic] = Field(
-        default_factory=list, description="List of supported providers."
+        description="List of supported providers."
     )
     user_groups: List[UserGroupReadPublic] = Field(
-        default_factory=list, description="List of owned user groups."
+        description="List of owned user groups."
     )
