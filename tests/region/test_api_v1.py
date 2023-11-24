@@ -30,11 +30,11 @@ class RegionAPI(BaseAPI[Region, RegionBase, RegionBase, RegionUpdate]):
 
         services = obj.pop("services")
         assert len(db_item.services) == len(services)
-        for db_serv, serv_schema in zip(
+        for db_serv, serv_dict in zip(
             sorted(db_item.services, key=lambda x: x.uid),
             sorted(services, key=lambda x: x.get("uid")),
         ):
-            assert db_serv.uid == serv_schema.get("uid")
+            assert db_serv.uid == serv_dict.get("uid")
 
         return super()._validate_relationships(obj=obj, db_item=db_item, public=public)
 
