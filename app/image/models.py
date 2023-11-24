@@ -46,9 +46,9 @@ class Image(StructuredNode):
     os_version = StringProperty()
     architecture = StringProperty()
     kernel_id = StringProperty()
-    # TODO Understand what does it mean
+    # TODO Understand what does it mean and add to documentation
     cuda_support = BooleanProperty(default=False)
-    # TODO Understand what does it mean
+    # TODO Understand what does it mean and add to documentation
     gpu_driver = BooleanProperty(default=False)
     is_public = BooleanProperty(default=True)
     tags = ArrayProperty(StringProperty())

@@ -32,7 +32,6 @@ class Flavor(StructuredNode):
         vcpus (int): Number of Virtual CPUs.
         swap (int): Swap size (GiB).
         ephemeral (int): Ephemeral disk size (GiB).
-        swap (int): Swap size (GiB).
         infiniband (bool): MPI - parallel multi-process enabled.
         gpus (int): Number of GPUs.
         gpu_model (str | None): GPU model name.

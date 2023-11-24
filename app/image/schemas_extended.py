@@ -37,7 +37,7 @@ class ImageReadExtended(ImageRead):
         "Empty list if the flavor is public"
     )
     services: List[ComputeServiceReadExtended] = Field(
-        default_factory=list, description="ComputeService owning this Image."
+        description="ComputeService owning this Image."
     )
 
 
@@ -51,5 +51,5 @@ class ImageReadExtendedPublic(ImageReadPublic):
         "Empty list if the flavor is public"
     )
     services: List[ComputeServiceReadExtendedPublic] = Field(
-        default_factory=list, description="ComputeService owning this Image."
+        description="ComputeService owning this Image."
     )
