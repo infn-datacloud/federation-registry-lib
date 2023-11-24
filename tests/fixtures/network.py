@@ -10,6 +10,30 @@ from tests.utils.network import create_random_network
 
 
 @pytest.fixture
+def db_network(db_network_serv: NetworkService) -> Network:
+    """Network of the network service of the first provider."""
+    item_in = create_random_network()
+    item = network.create(obj_in=item_in, service=db_network_serv)
+    yield item
+
+
+@pytest.fixture
+def db_network2(db_network_serv2: NetworkService) -> Network:
+    """First network of one of the network services of the first provider."""
+    item_in = create_random_network()
+    item = network.create(obj_in=item_in, service=db_network_serv2)
+    yield item
+
+
+@pytest.fixture
+def db_network3(db_network_serv3: NetworkService) -> Network:
+    """Network of the other network service of the second provider."""
+    item_in = create_random_network()
+    item = network.create(obj_in=item_in, service=db_network_serv3)
+    yield item
+
+
+@pytest.fixture
 def db_public_network(db_network_serv2: NetworkService) -> Network:
     """Public network of a network service."""
     item_in = create_random_network()
