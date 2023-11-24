@@ -1,5 +1,5 @@
 import json
-from typing import Dict, List, Optional, Type
+from typing import Any, Dict, List, Optional, Type, Union
 from uuid import uuid4
 
 import pytest
@@ -152,7 +152,7 @@ class BaseAPI(
         self,
         *,
         client: TestClient,
-        new_data: UpdateSchemaType,
+        new_data: Union[UpdateSchemaType, Dict[str, Any]],
         db_item: Optional[ModelType] = None,
         target_status_code: int = status.HTTP_200_OK,
     ) -> Response:
@@ -160,10 +160,14 @@ class BaseAPI(
 
         Retrieve the item using its UID and send, as json data, the new data.
         """
+        if isinstance(new_data, self.update_schema):
+            new_data = json.loads(new_data.json(exclude_unset=True))
+        else:
+            new_data = json.loads(json.dumps(new_data))
+
         target_uid = db_item.uid if db_item else uuid4()
         response = client.patch(
-            f"{self.api_v1}/{self.endpoint_group}/{target_uid}",
-            json=json.loads(new_data.json(exclude_unset=True)),
+            f"{self.api_v1}/{self.endpoint_group}/{target_uid}", json=new_data
         )
         if not db_item:
             target_status_code = status.HTTP_404_NOT_FOUND
@@ -184,6 +188,8 @@ class BaseAPI(
                 response.json()["detail"]
                 == f"{self.item_name} '{target_uid}' not found"
             )
+        elif target_status_code == status.HTTP_422_UNPROCESSABLE_ENTITY:
+            assert "Not valid type" in str(response.json()["detail"])
 
         return response
 
