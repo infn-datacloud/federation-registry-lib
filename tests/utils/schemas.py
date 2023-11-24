@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from datetime import date
 from typing import Any, Dict, Generic, Optional, Type, TypeVar
 
@@ -39,6 +40,7 @@ class SchemaCreation(Generic[ModelType, BasicSchemaType, UpdateSchemaType]):
 
 
 class SchemaValidation(
+    ABC,
     SchemaCreation[ModelType, BasicSchemaType, UpdateSchemaType],
     Generic[ModelType, BasicSchemaType, BasicPublicSchemaType, UpdateSchemaType],
 ):
@@ -65,6 +67,7 @@ class SchemaValidation(
                 db_attr = db_attr.isoformat()
             assert db_attr == obj.pop(attr, None)
 
+    @abstractmethod
     def _validate_relationships(
         self, *, obj: Dict[str, Any], db_item: ModelType, public: bool = False
     ) -> None:
