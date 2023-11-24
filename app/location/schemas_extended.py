@@ -11,9 +11,7 @@ class LocationReadExtended(LocationRead):
     items for authenticated users.
     """
 
-    regions: List[RegionRead] = Field(
-        default_factory=list, description="List of hosted regions."
-    )
+    regions: List[RegionRead] = Field(description="List of hosted regions.")
 
 
 class LocationReadExtendedPublic(LocationReadPublic):
@@ -21,6 +19,4 @@ class LocationReadExtendedPublic(LocationReadPublic):
     items for non-authenticated users.
     """
 
-    regions: List[RegionReadPublic] = Field(
-        default_factory=list, description="List of hosted regions."
-    )
+    regions: List[RegionReadPublic] = Field(description="List of hosted regions.")
