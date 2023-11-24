@@ -69,7 +69,7 @@ class TestIdentityProviderTest(TestBaseAPI):
     db_item3 = "db_idp_with_multiple_providers"
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_identity_provider_with_duplicated_endpoint(
+    def test_patch_item_with_duplicated_endpoint(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.

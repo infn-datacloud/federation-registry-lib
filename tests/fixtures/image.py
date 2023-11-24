@@ -17,7 +17,7 @@ def db_image(db_compute_serv: ComputeService) -> Image:
 
 @pytest.fixture
 def db_image2(db_compute_serv2: ComputeService) -> Image:
-    """First image of one of the compute service of the second provider."""
+    """Image of one of the compute service of the second provider."""
     item_in = create_random_image()
     item = image.create(obj_in=item_in, service=db_compute_serv2)
     yield item
@@ -25,7 +25,7 @@ def db_image2(db_compute_serv2: ComputeService) -> Image:
 
 @pytest.fixture
 def db_image3(db_compute_serv3: ComputeService) -> Image:
-    """Second image of the other compute service of the second provider."""
+    """Image of the other compute service of the second provider."""
     item_in = create_random_image()
     item = image.create(obj_in=item_in, service=db_compute_serv3)
     yield item

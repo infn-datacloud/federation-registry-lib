@@ -17,7 +17,7 @@ def db_flavor(db_compute_serv: ComputeService) -> Flavor:
 
 @pytest.fixture
 def db_flavor2(db_compute_serv2: ComputeService) -> Flavor:
-    """First flavor of one of the compute service of the second provider."""
+    """Flavor of one of the compute service of the second provider."""
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv2)
     yield item
@@ -25,7 +25,7 @@ def db_flavor2(db_compute_serv2: ComputeService) -> Flavor:
 
 @pytest.fixture
 def db_flavor3(db_compute_serv3: ComputeService) -> Flavor:
-    """Second flavor of the other compute service of the second provider."""
+    """Flavor of the other compute service of the second provider."""
     item_in = create_random_flavor()
     item = flavor.create(obj_in=item_in, service=db_compute_serv3)
     yield item

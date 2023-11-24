@@ -85,7 +85,7 @@ class TestUserGroupTest(TestBaseAPI):
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS)
-    def test_read_user_group_from_provider_name(
+    def test_read_item_from_provider_name(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute GET operations to read a specific User Group.
@@ -105,7 +105,7 @@ class TestUserGroupTest(TestBaseAPI):
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS)
-    def test_read_user_group_from_provider_type(
+    def test_read_item_from_provider_type(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute GET operations to read a specific User Group.
@@ -125,7 +125,7 @@ class TestUserGroupTest(TestBaseAPI):
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_user_group_with_duplicated_name_diff_idp(
+    def test_patch_item_with_duplicated_name_diff_idp(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.
@@ -143,7 +143,7 @@ class TestUserGroupTest(TestBaseAPI):
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_user_group_with_duplicated_name_same_idp(
+    def test_patch_item_with_duplicated_name_same_idp(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.

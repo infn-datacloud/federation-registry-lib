@@ -69,7 +69,7 @@ class TestSLATest(TestBaseAPI):
     db_item3 = "db_sla3"
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_sla_with_duplicated_doc_uuid(
+    def test_patch_item_with_duplicated_doc_uuid(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.

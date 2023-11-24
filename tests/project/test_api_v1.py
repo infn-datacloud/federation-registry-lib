@@ -117,7 +117,7 @@ class TestProjectTest(TestBaseAPI):
     db_item3 = "db_project3"
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_project_with_duplicated_name_diff_provider(
+    def test_patch_item_with_duplicated_name_diff_provider(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.
@@ -135,7 +135,7 @@ class TestProjectTest(TestBaseAPI):
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_project_with_duplicated_name_same_provider(
+    def test_patch_item_with_duplicated_name_same_provider(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.
@@ -159,7 +159,7 @@ class TestProjectTest(TestBaseAPI):
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_project_with_duplicated_uuid_diff_provider(
+    def test_patch_item_with_duplicated_uuid_diff_provider(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.
@@ -177,7 +177,7 @@ class TestProjectTest(TestBaseAPI):
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_project_with_duplicated_uuid_same_provider(
+    def test_patch_item_with_duplicated_uuid_same_provider(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.
