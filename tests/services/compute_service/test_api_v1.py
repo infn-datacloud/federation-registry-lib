@@ -1,9 +1,11 @@
 from typing import Any, Dict, Optional
 
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.region.models import Region
+from app.service.enum import ServiceType
 from app.service.models import ComputeService
 from app.service.schemas import ComputeServiceBase, ComputeServiceUpdate
 from tests.fixtures.client import CLIENTS_READ_WRITE
@@ -83,7 +85,7 @@ class TestComputeServiceTest(TestBaseAPI):
     db_item3 = "db_compute_serv3"
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_compute_service_with_duplicated_endpoint(
+    def test_patch_item_with_duplicated_endpoint(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.
@@ -99,3 +101,27 @@ class TestComputeServiceTest(TestBaseAPI):
             db_item=request.getfixturevalue(self.db_item2),
             new_data=new_data,
         )
+
+    @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
+    def test_patch_item_changing_type(
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
+    ) -> None:
+        """Execute PATCH operations to try to change the type of a compute service.
+
+        At first this should not be allowed by schema construction. In any case, if a
+        request arrives, it is discarded since the payload is not a compute service
+        object.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        db_item: ComputeService = request.getfixturevalue(self.db_item1)
+        new_data: ComputeServiceUpdate = api.random_patch_item(from_item=db_item)
+        for t in [i.value for i in ServiceType]:
+            if t != ServiceType.COMPUTE.value:
+                d = new_data.dict(exclude_unset=True)
+                d["type"] = t
+                api.patch(
+                    client=request.getfixturevalue(client),
+                    db_item=request.getfixturevalue(self.db_item2),
+                    new_data=d,
+                    target_status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                )

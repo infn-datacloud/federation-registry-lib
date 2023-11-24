@@ -1,9 +1,11 @@
 from typing import Any, Dict, Optional
 
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.region.models import Region
+from app.service.enum import ServiceType
 from app.service.models import IdentityService
 from app.service.schemas import IdentityServiceBase, IdentityServiceUpdate
 from tests.fixtures.client import CLIENTS_READ_WRITE
@@ -75,3 +77,28 @@ class TestIdentityServiceTest(TestBaseAPI):
             db_item=request.getfixturevalue(self.db_item2),
             new_data=new_data,
         )
+
+    @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
+    def test_patch_item_service_changing_type(
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
+    ) -> None:
+        """
+        Execute PATCH operations to try to change the type of a identity service.
+
+        At first this should not be allowed by schema construction. In any case, if a
+        request arrives, it is discarded since the payload is not a identity
+        service object.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        db_item: IdentityService = request.getfixturevalue(self.db_item1)
+        new_data: IdentityServiceUpdate = api.random_patch_item(from_item=db_item)
+        for t in [i.value for i in ServiceType]:
+            if t != ServiceType.IDENTITY.value:
+                d = new_data.dict(exclude_unset=True)
+                d["type"] = t
+                api.patch(
+                    client=request.getfixturevalue(client),
+                    db_item=request.getfixturevalue(self.db_item2),
+                    new_data=d,
+                    target_status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                )

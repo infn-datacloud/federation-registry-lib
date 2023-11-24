@@ -1,9 +1,11 @@
 from typing import Any, Dict, Optional
 
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from app.region.models import Region
+from app.service.enum import ServiceType
 from app.service.models import BlockStorageService
 from app.service.schemas import BlockStorageServiceBase, BlockStorageServiceUpdate
 from tests.fixtures.client import CLIENTS_READ_WRITE
@@ -67,7 +69,7 @@ class TestBlockStorageServiceTest(TestBaseAPI):
     db_item3 = "db_block_storage_serv3"
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_block_storage_service_with_duplicated_endpoint(
+    def test_patch_item_service_with_duplicated_endpoint(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.
@@ -83,3 +85,28 @@ class TestBlockStorageServiceTest(TestBaseAPI):
             db_item=request.getfixturevalue(self.db_item2),
             new_data=new_data,
         )
+
+    @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
+    def test_patch_item_service_changing_type(
+        self, request: pytest.FixtureRequest, client: TestClient, public: bool
+    ) -> None:
+        """
+        Execute PATCH operations to try to change the type of a block storage service.
+
+        At first this should not be allowed by schema construction. In any case, if a
+        request arrives, it is discarded since the payload is not a block storage
+        service object.
+        """
+        api: BaseAPI = request.getfixturevalue(self.api)
+        db_item: BlockStorageService = request.getfixturevalue(self.db_item1)
+        new_data: BlockStorageServiceUpdate = api.random_patch_item(from_item=db_item)
+        for t in [i.value for i in ServiceType]:
+            if t != ServiceType.BLOCK_STORAGE.value:
+                d = new_data.dict(exclude_unset=True)
+                d["type"] = t
+                api.patch(
+                    client=request.getfixturevalue(client),
+                    db_item=request.getfixturevalue(self.db_item2),
+                    new_data=d,
+                    target_status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                )
