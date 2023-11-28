@@ -1,7 +1,6 @@
 from fastapi import Depends, HTTPException, status
 
 from app.quota.crud import block_storage_quota, compute_quota, network_quota
-from app.quota.enum import QuotaType
 from app.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 from app.quota.schemas import (
     BlockStorageQuotaUpdate,
@@ -39,7 +38,8 @@ def validate_new_block_storage_quota_values(
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
 ) -> None:
     """Check given data are valid ones. Check there are no other quotas, belonging to
-    the same project, with the same type and per_user flag.
+    the same project, with the same type and per_user flag, pointing to the same
+    service.
 
     Args:
     ----
@@ -58,14 +58,15 @@ def validate_new_block_storage_quota_values(
     """
     if update_data.per_user != item.per_user:
         db_project = item.project.single()
-        if any(
-            q.per_user == update_data.per_user
-            for q in db_project.quotas.all()
-            if q.type == QuotaType.BLOCK_STORAGE.value
-        ):
+        db_service = item.service.single()
+        proj_quotas = db_project.quotas.filter(type=update_data.type)
+        serv_quotas_matching_proj = db_service.quotas.filter(
+            uid__in=[i.uid for i in proj_quotas], per_user=update_data.per_user
+        )
+        if len(serv_quotas_matching_proj.all()) > 0:
             s = "" if update_data.per_user else "not"
-            msg = f"Project '{db_project.uid}' already has "
-            msg += f"a Block Storage Quota to {s} apply to each user"
+            msg = f"Duplicated Block Storage Quota, to {s} apply to each user, on "
+            msg += f"Project '{db_project.uid}' and Service {db_service.uid}"
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
@@ -98,7 +99,8 @@ def validate_new_compute_quota_values(
     item: ComputeQuota = Depends(valid_compute_quota_id),
 ) -> None:
     """Check given data are valid ones. Check there are no other quotas, belonging to
-    the same project, with the same type and per_user flag.
+    the same project, with the same type and per_user flag, pointing to the same
+    service.
 
     Args:
     ----
@@ -117,14 +119,15 @@ def validate_new_compute_quota_values(
     """
     if update_data.per_user != item.per_user:
         db_project = item.project.single()
-        if any(
-            q.per_user == update_data.per_user
-            for q in db_project.quotas.all()
-            if q.type == QuotaType.COMPUTE.value
-        ):
+        db_service = item.service.single()
+        proj_quotas = db_project.quotas.filter(type=update_data.type)
+        serv_quotas_matching_proj = db_service.quotas.filter(
+            uid__in=[i.uid for i in proj_quotas], per_user=update_data.per_user
+        )
+        if len(serv_quotas_matching_proj.all()) > 0:
             s = "" if update_data.per_user else "not"
-            msg = f"Project '{db_project.uid}' already has "
-            msg += f"a Compute Quota to {s} apply to each user"
+            msg = f"Duplicated Compute Quota, to {s} apply to each user, on "
+            msg += f"Project '{db_project.uid}' and Service {db_service.uid}"
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
@@ -157,7 +160,8 @@ def validate_new_network_quota_values(
     item: NetworkQuota = Depends(valid_network_quota_id),
 ) -> None:
     """Check given data are valid ones. Check there are no other quotas, belonging to
-    the same project, with the same type and per_user flag.
+    the same project, with the same type and per_user flag, pointing to the same
+    service.
 
     Args:
     ----
@@ -176,12 +180,13 @@ def validate_new_network_quota_values(
     """
     if update_data.per_user != item.per_user:
         db_project = item.project.single()
-        if any(
-            q.per_user == update_data.per_user
-            for q in db_project.quotas.all()
-            if q.type == QuotaType.NETWORK.value
-        ):
+        db_service = item.service.single()
+        proj_quotas = db_project.quotas.filter(type=update_data.type)
+        serv_quotas_matching_proj = db_service.quotas.filter(
+            uid__in=[i.uid for i in proj_quotas], per_user=update_data.per_user
+        )
+        if len(serv_quotas_matching_proj.all()) > 0:
             s = "" if update_data.per_user else "not"
-            msg = f"Project '{db_project.uid}' already has "
-            msg += f"a Network Quota to {s} apply to each user"
+            msg = f"Duplicated Network Quota, to {s} apply to each user, on "
+            msg += f"Project '{db_project.uid}' and Service {db_service.uid}"
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
