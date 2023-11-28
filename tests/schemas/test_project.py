@@ -218,6 +218,85 @@ def test_read_schema_with_multiple_compute_quotas(
     )
 
 
+def test_read_schema_with_single_network_quota(
+    db_project_with_single_network_quota: Project,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
+
+    Target project has a provider and a network quota.
+    """
+    schema = ProjectRead.from_orm(db_project_with_single_network_quota)
+    validate_read_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_network_quota
+    )
+    schema = ProjectReadShort.from_orm(db_project_with_single_network_quota)
+    validate_read_short_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_network_quota
+    )
+    schema = ProjectReadPublic.from_orm(db_project_with_single_network_quota)
+    validate_read_public_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_network_quota
+    )
+    schema = ProjectReadExtended.from_orm(db_project_with_single_network_quota)
+    validate_read_extended_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_network_quota
+    )
+    schema = ProjectReadExtendedPublic.from_orm(db_project_with_single_network_quota)
+    validate_read_extended_public_project_attrs(
+        obj_out=schema, db_item=db_project_with_single_network_quota
+    )
+
+
+def test_read_schema_with_multiple_network_quotas(
+    db_project_with_multiple_network_quotas_diff_service: Project,
+):
+    """Create a valid 'Read' Schema from DB object.
+
+    Apply conversion for this item for all read schemas. No one of them should raise
+    errors.
+
+    Target project has a provider and multiple network quotas.
+    """
+    schema = ProjectRead.from_orm(db_project_with_multiple_network_quotas_diff_service)
+    validate_read_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_network_quotas_diff_service,
+    )
+    schema = ProjectReadShort.from_orm(
+        db_project_with_multiple_network_quotas_diff_service
+    )
+    validate_read_short_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_network_quotas_diff_service,
+    )
+    schema = ProjectReadPublic.from_orm(
+        db_project_with_multiple_network_quotas_diff_service
+    )
+    validate_read_public_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_network_quotas_diff_service,
+    )
+    schema = ProjectReadExtended.from_orm(
+        db_project_with_multiple_network_quotas_diff_service
+    )
+    assert len(schema.quotas) > 1
+    validate_read_extended_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_network_quotas_diff_service,
+    )
+    schema = ProjectReadExtendedPublic.from_orm(
+        db_project_with_multiple_network_quotas_diff_service
+    )
+    assert len(schema.quotas) > 1
+    validate_read_extended_public_project_attrs(
+        obj_out=schema,
+        db_item=db_project_with_multiple_network_quotas_diff_service,
+    )
+
+
 def test_read_schema_with_single_flavor(
     db_project_with_single_private_flavor: Project,
 ):

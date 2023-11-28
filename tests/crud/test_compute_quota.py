@@ -51,7 +51,7 @@ def test_get_non_existing_item(setup_and_teardown_db: Generator) -> None:
 
 
 def test_get_items(
-    db_compute_quota: ComputeQuota, db_compute_quota_per_user: ComputeQuota
+    db_compute_quota: ComputeQuota, db_compute_quota2: ComputeQuota
 ) -> None:
     """Retrieve multiple Compute Quotas."""
     stored_items = compute_quota.get_multi()
@@ -61,13 +61,13 @@ def test_get_items(
     assert len(stored_items) == 1
     assert stored_items[0].uid == db_compute_quota.uid
 
-    stored_items = compute_quota.get_multi(uid=db_compute_quota_per_user.uid)
+    stored_items = compute_quota.get_multi(uid=db_compute_quota2.uid)
     assert len(stored_items) == 1
-    assert stored_items[0].uid == db_compute_quota_per_user.uid
+    assert stored_items[0].uid == db_compute_quota2.uid
 
 
 def test_get_items_with_limit(
-    db_compute_quota: ComputeQuota, db_compute_quota_per_user: ComputeQuota
+    db_compute_quota: ComputeQuota, db_compute_quota2: ComputeQuota
 ) -> None:
     """Test the 'limit' attribute in GET operations."""
     stored_items = compute_quota.get_multi(limit=0)
@@ -81,7 +81,7 @@ def test_get_items_with_limit(
 
 
 def test_get_sorted_items(
-    db_compute_quota: ComputeQuota, db_compute_quota_per_user: ComputeQuota
+    db_compute_quota: ComputeQuota, db_compute_quota2: ComputeQuota
 ) -> None:
     """Test the 'sort' attribute in GET operations."""
     sorted_items = sorted(compute_quota.get_multi(), key=lambda x: x.uid)
@@ -96,7 +96,7 @@ def test_get_sorted_items(
 
 
 def test_get_items_with_skip(
-    db_compute_quota: ComputeQuota, db_compute_quota_per_user: ComputeQuota
+    db_compute_quota: ComputeQuota, db_compute_quota2: ComputeQuota
 ) -> None:
     """Test the 'skip' attribute in GET operations."""
     stored_items = compute_quota.get_multi(skip=0)

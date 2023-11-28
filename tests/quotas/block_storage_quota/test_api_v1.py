@@ -6,13 +6,11 @@ from fastapi.testclient import TestClient
 from httpx import Response
 
 from app.project.models import Project
-from app.quota.crud import block_storage_quota
 from app.quota.models import BlockStorageQuota
 from app.quota.schemas import BlockStorageQuotaBase, BlockStorageQuotaUpdate
 from app.service.models import BlockStorageService
 from tests.fixtures.client import CLIENTS, CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.block_storage_quota import create_random_block_storage_quota
 from tests.utils.utils import random_non_negative_int
 
 
@@ -56,95 +54,6 @@ def block_storage_quota_api() -> BlockStorageQuotaAPI:
         endpoint_group="block_storage_quotas",
         item_name="Block Storage Quota",
     )
-
-
-@pytest.fixture
-def db_block_storage_quota(
-    db_block_storage_serv: BlockStorageService
-) -> BlockStorageQuota:
-    """BlockStorage Quota.
-
-    It belongs to the BlockStorage Service belonging to the first region of the provider
-    with multiple projects.
-
-    Quota points to the first project. Quota to apply to the whole user group.
-    """
-    db_region = db_block_storage_serv.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item_in.per_user = False
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv, project=db_project
-    )
-    yield item
-
-
-@pytest.fixture
-def db_block_storage_quota2(
-    db_block_storage_serv2: BlockStorageService
-) -> BlockStorageQuota:
-    """BlockStorage Quota.
-
-    It belongs to the BlockStorage Service belonging to the first region of the provider
-    with multiple projects.
-
-    Quota points to the second project. Quota to apply to the whole user group. This is
-    the third quota on the same service.
-    """
-    db_region = db_block_storage_serv2.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item_in.per_user = False
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv2, project=db_project
-    )
-    yield item
-
-
-@pytest.fixture
-def db_block_storage_quota3(
-    db_block_storage_serv3: BlockStorageService
-) -> BlockStorageQuota:
-    """BlockStorage Quota.
-
-    It belongs to the BlockStorage Service belonging to the second region of the
-    provider with a multiple projects.
-
-    Quota points to the second project. Quota to apply to the whole user group.
-    """
-    db_region = db_block_storage_serv3.region.single()
-    db_provider = db_region.provider.single()
-    db_project = db_provider.projects.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item_in.per_user = False
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_block_storage_serv3, project=db_project
-    )
-    yield item
-
-
-@pytest.fixture
-def db_block_storage_quota_per_user(
-    db_block_storage_quota3: BlockStorageQuota
-) -> BlockStorageQuota:
-    """Block Storage Quota.
-
-    It belongs to the BS Service belonging to the first region of the
-    provider with multiple projects.
-
-    Quota points to the first project. Quota to apply to each user of the user group.
-    This is currently the second quota on the same project and same service.
-    """
-    db_service = db_block_storage_quota3.service.single()
-    db_project = db_block_storage_quota3.project.single()
-    item_in = create_random_block_storage_quota(project=db_project.uuid)
-    item_in.per_user = True
-    item = block_storage_quota.create(
-        obj_in=item_in, service=db_service, project=db_project
-    )
-    yield item
 
 
 class TestBlockStorageQuotaTest(TestBaseAPI):
