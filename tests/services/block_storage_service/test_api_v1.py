@@ -69,7 +69,7 @@ class TestBlockStorageServiceTest(TestBaseAPI):
     db_item3 = "db_block_storage_serv3"
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_item_service_with_duplicated_endpoint(
+    def test_patch_item_with_duplicated_endpoint(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """Execute PATCH operations to try to update a specific item.
@@ -87,7 +87,7 @@ class TestBlockStorageServiceTest(TestBaseAPI):
         )
 
     @pytest.mark.parametrize("client, public", CLIENTS_READ_WRITE)
-    def test_patch_item_service_changing_type(
+    def test_patch_item_changing_type(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
         """
