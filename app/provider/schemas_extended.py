@@ -179,15 +179,10 @@ class ProviderReadExtended(ProviderRead):
     """
 
     identity_providers: List[IdentityProviderReadExtended] = Field(
-        default_factory=list,
         description="List of supported identity providers.",
     )
-    projects: List[ProjectRead] = Field(
-        default_factory=list, description="List of owned Projects."
-    )
-    regions: List[RegionReadExtended] = Field(
-        default_factory=list, description="List of available regions"
-    )
+    projects: List[ProjectRead] = Field(description="List of owned Projects.")
+    regions: List[RegionReadExtended] = Field(description="List of available regions")
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
@@ -196,14 +191,11 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     """
 
     identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
-        default_factory=list,
         description="List of supported identity providers.",
     )
-    projects: List[ProjectRead] = Field(
-        default_factory=list, description="List of owned Projects."
-    )
+    projects: List[ProjectRead] = Field(description="List of owned Projects.")
     regions: List[RegionReadExtendedPublic] = Field(
-        default_factory=list, description="List of available regions"
+        description="List of available regions"
     )
 
 

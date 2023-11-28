@@ -64,8 +64,8 @@ def is_unique_provider(item: Union[ProviderCreateExtended, ProviderUpdate]) -> N
     db_item = provider.get(name=item.name)
     if db_item is not None:
         if db_item.type == item.type:
-            msg = f"{db_item.type.capitalize()} provider with name "
-            msg += f"'{item.name}' already registered"
+            msg = f"Provider with name '{item.name}' and type '{db_item.type}' "
+            msg += "already registered"
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=msg,
