@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from httpx import Response
 
 from app.config import get_settings
+from app.crud import CRUDBase
 from tests.fixtures.client import (
     CLIENTS,
     CLIENTS_FAILING_AUTHN,
@@ -15,11 +16,12 @@ from tests.fixtures.client import (
     CLIENTS_READ_ONLY,
     CLIENTS_READ_WRITE,
 )
+from tests.utils.crud import BaseCRUD
 from tests.utils.schemas import (
     BasicPublicSchemaType,
     BasicSchemaType,
+    CreateSchemaType,
     ModelType,
-    SchemaValidation,
     UpdateSchemaType,
 )
 
@@ -46,8 +48,12 @@ API_PARAMS_MULTIPLE_ITEMS = [
 
 
 class BaseAPI(
-    SchemaValidation[
-        ModelType, BasicSchemaType, BasicPublicSchemaType, UpdateSchemaType
+    BaseCRUD[
+        ModelType,
+        BasicSchemaType,
+        BasicPublicSchemaType,
+        CreateSchemaType,
+        UpdateSchemaType,
     ]
 ):
     def __init__(
@@ -55,21 +61,25 @@ class BaseAPI(
         *,
         base_schema: Type[BasicSchemaType],
         base_public_schema: Type[BasicPublicSchemaType],
+        create_schema: Type[CreateSchemaType],
         update_schema: Type[UpdateSchemaType],
+        crud: CRUDBase,
         endpoint_group: str,
         item_name: str,
     ) -> None:
         super().__init__(
             base_schema=base_schema,
             base_public_schema=base_public_schema,
+            create_schema=create_schema,
             update_schema=update_schema,
+            crud=crud,
         )
         settings = get_settings()
         self.api_v1 = settings.API_V1_STR
         self.endpoint_group = endpoint_group
         self.item_name = item_name
 
-    def read(
+    def api_read(
         self,
         *,
         client: TestClient,
@@ -102,7 +112,7 @@ class BaseAPI(
 
         return response
 
-    def read_multi(
+    def api_read_multi(
         self,
         *,
         client: TestClient,
@@ -138,17 +148,16 @@ class BaseAPI(
             start = page * params.get("size")
             end = start + params.get("size")
             db_sorted_items = db_sorted_items[start:end]
-        assert len(response.json()) == len(db_sorted_items)
+        assert len(sorted_items) == len(db_sorted_items)
 
         for obj, db_item in zip(sorted_items, db_sorted_items):
-            assert obj.get("uid") == db_item.uid
             self._validate_read_attrs(
                 obj=obj, db_item=db_item, public=public, extended=extended
             )
 
         return response
 
-    def patch(
+    def api_patch(
         self,
         *,
         client: TestClient,
@@ -193,7 +202,7 @@ class BaseAPI(
 
         return response
 
-    def delete(
+    def api_delete(
         self,
         *,
         client: TestClient,
@@ -229,7 +238,7 @@ class BaseAPI(
 
 class TestBaseAPI:
     __test__ = False
-    api: str
+    controller: str
     db_item1: str
     db_item2: str
     db_item3: str
@@ -248,8 +257,8 @@ class TestBaseAPI:
         Execute this operation using both authenticated and not-authenticated clients.
         For each, repeat the operation passing 'short', 'with_conn' and no params.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
-        api.read(
+        api: BaseAPI = request.getfixturevalue(self.controller)
+        api.api_read(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             params=params,
@@ -265,8 +274,8 @@ class TestBaseAPI:
         Execute this operation using both authenticated and not-authenticated clients.
         The endpoint returns a 404 error.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
-        api.read(client=request.getfixturevalue(client))
+        api: BaseAPI = request.getfixturevalue(self.controller)
+        api.api_read(client=request.getfixturevalue(client))
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     @pytest.mark.parametrize("params", API_PARAMS_MULTIPLE_ITEMS)
@@ -284,8 +293,8 @@ class TestBaseAPI:
         'short', 'with_conn' and no params. When using params limiting the size of the
         returned list use also sort to have a predictable response.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
-        api.read_multi(
+        api: BaseAPI = request.getfixturevalue(self.controller)
+        api.api_read_multi(
             client=request.getfixturevalue(client),
             db_items=[
                 request.getfixturevalue(self.db_item2),
@@ -308,8 +317,8 @@ class TestBaseAPI:
 
         Execute this operation using both authenticated and not-authenticated clients.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
-        api.read_multi(client=request.getfixturevalue(client), params=params)
+        api: BaseAPI = request.getfixturevalue(self.controller)
+        api.api_read_multi(client=request.getfixturevalue(client), params=params)
 
     @pytest.mark.parametrize("client, public", CLIENTS)
     def test_read_item_with_target_params(
@@ -319,18 +328,23 @@ class TestBaseAPI:
 
         Execute this operation using both authenticated and not-authenticated clients.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
+        api: BaseAPI = request.getfixturevalue(self.controller)
         if public:
-            keys = api.base_public_schema.__fields__.keys()
+            keys = list(api.base_public_schema.__fields__.keys())
         else:
-            keys = api.base_schema.__fields__.keys()
+            keys = list(api.base_schema.__fields__.keys())
 
-        db_item = request.getfixturevalue(self.db_item2)
+        db_item1 = request.getfixturevalue(self.db_item1)
+        db_item2 = request.getfixturevalue(self.db_item2)
         for k in keys:
-            api.read_multi(
+            v = db_item1.__getattribute__(k)
+            db_items = [db_item1]
+            if db_item2.__getattribute__(k) == v:
+                db_items.append(db_item2)
+            api.api_read_multi(
                 client=request.getfixturevalue(client),
-                db_items=[db_item],
-                params={k: db_item.__getattribute__(k)},
+                db_items=db_items,
+                params={k: v},
                 public=public,
             )
 
@@ -342,9 +356,9 @@ class TestBaseAPI:
 
         Client not authenticated. The endpoints raises a 403 error.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
+        api: BaseAPI = request.getfixturevalue(self.controller)
         new_data = api.random_patch_item()
-        api.patch(
+        api.api_patch(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             target_status_code=status.HTTP_403_FORBIDDEN,
@@ -361,9 +375,9 @@ class TestBaseAPI:
 
         Client with no write access. The endpoints raises a 401 error.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
+        api: BaseAPI = request.getfixturevalue(self.controller)
         new_data = api.random_patch_item()
-        api.patch(
+        api.api_patch(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             target_status_code=status.HTTP_401_UNAUTHORIZED,
@@ -378,9 +392,9 @@ class TestBaseAPI:
 
         Update the item attributes in the database.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
+        api: BaseAPI = request.getfixturevalue(self.controller)
         new_data = api.random_patch_item()
-        api.patch(
+        api.api_patch(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             new_data=new_data,
@@ -395,9 +409,9 @@ class TestBaseAPI:
         New item is an empty object (none values has been discarded).
         No changes. The endpoint returns a 304 message.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
+        api: BaseAPI = request.getfixturevalue(self.controller)
         new_data = api.random_patch_item(default=True)
-        api.patch(
+        api.api_patch(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             target_status_code=status.HTTP_304_NOT_MODIFIED,
@@ -413,10 +427,10 @@ class TestBaseAPI:
         New item attributes are the same as the existing one.
         No changes. The endpoint returns a 304 message.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
+        api: BaseAPI = request.getfixturevalue(self.controller)
         db_item = request.getfixturevalue(self.db_item1)
         new_data = api.random_patch_item(from_item=db_item)
-        api.patch(
+        api.api_patch(
             client=request.getfixturevalue(client),
             db_item=db_item,
             target_status_code=status.HTTP_304_NOT_MODIFIED,
@@ -432,9 +446,9 @@ class TestBaseAPI:
         Execute this operation using both authenticated and not-authenticated clients.
         The endpoint returns a 404 error.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
+        api: BaseAPI = request.getfixturevalue(self.controller)
         new_data = api.random_patch_item()
-        api.patch(client=request.getfixturevalue(client), new_data=new_data)
+        api.api_patch(client=request.getfixturevalue(client), new_data=new_data)
 
     @pytest.mark.parametrize("client, public", CLIENTS_NO_TOKEN)
     def test_delete_item_no_authn(
@@ -444,8 +458,8 @@ class TestBaseAPI:
 
         Client not authenticated. The endpoints raises a 403 error.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
-        api.delete(
+        api: BaseAPI = request.getfixturevalue(self.controller)
+        api.api_delete(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             target_status_code=status.HTTP_403_FORBIDDEN,
@@ -461,8 +475,8 @@ class TestBaseAPI:
 
         Client with no write access. The endpoints raises a 401 error.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
-        api.delete(
+        api: BaseAPI = request.getfixturevalue(self.controller)
+        api.api_delete(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
             target_status_code=status.HTTP_401_UNAUTHORIZED,
@@ -476,8 +490,8 @@ class TestBaseAPI:
 
         Delete the item from the database.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
-        api.delete(
+        api: BaseAPI = request.getfixturevalue(self.controller)
+        api.api_delete(
             client=request.getfixturevalue(client),
             db_item=request.getfixturevalue(self.db_item1),
         )
@@ -491,5 +505,5 @@ class TestBaseAPI:
         Execute this operation using both authenticated and not-authenticated clients.
         The endpoint returns a 404 error.
         """
-        api: BaseAPI = request.getfixturevalue(self.api)
-        api.delete(client=request.getfixturevalue(client))
+        api: BaseAPI = request.getfixturevalue(self.controller)
+        api.api_delete(client=request.getfixturevalue(client))
