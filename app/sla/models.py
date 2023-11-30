@@ -1,3 +1,4 @@
+"""Service Level Agreement between a Project and a User Group neomodel model."""
 from neomodel import (
     DateProperty,
     One,

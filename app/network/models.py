@@ -1,3 +1,4 @@
+"""Virtual Machine Network owned by a Provider neomodel model."""
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
@@ -33,9 +34,9 @@ class Network(StructuredNode):
         is_shared (bool): Public or private Network.
         is_router_external (bool): Network with access to the outside.
         is_default (bool): Network to use as default.
-        mtu (int): Metric transmission unit (B).
-        proxy_ip (str): Proxy IP address.
-        proxy_user (str): Proxy username.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_ip (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
         tags (list of str): List of tags associated to this Network.
     """
 

@@ -1,3 +1,4 @@
+"""Service supplied by a Provider on a specific Region neomodel models."""
 from neomodel import (
     One,
     RelationshipFrom,
@@ -40,6 +41,14 @@ class BlockStorageService(Service):
 
     A Block Storage Service, for each project, support a set of quotas managing the
     block storage resources.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     quotas = RelationshipFrom(
@@ -52,6 +61,14 @@ class ComputeService(Service):
 
     A Compute Service, for each project, support a set of quotas managing the block
     storage resources. A Compute Service provides public and private Flavors and Images.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     flavors = RelationshipTo(
@@ -70,13 +87,30 @@ class ComputeService(Service):
 
 
 class IdentityService(Service):
-    """Service managing user access to the Provider."""
+    """Service managing user access to the Provider.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+    """
 
 
 class NetworkService(Service):
     """Service managing Network resources.
 
     A Network Service provides public and private Networks.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     networks = RelationshipTo(

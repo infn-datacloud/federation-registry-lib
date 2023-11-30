@@ -1,3 +1,4 @@
+"""Core pydantic models."""
 from enum import Enum
 from typing import Dict
 from uuid import UUID
@@ -8,6 +9,11 @@ from pydantic import BaseModel, Field, root_validator
 
 
 class BaseNode(BaseModel):
+    """Common attributes and validators for a schema of a generic neo4j Node.
+
+    Add description field and a validator converting UUIDs to str.
+    """
+
     description: str = Field(default="", description="Brief item description")
 
     @root_validator(pre=True)
@@ -18,9 +24,10 @@ class BaseNode(BaseModel):
 
 
 class BaseNodeCreate(BaseModel):
-    """Base Model when updating or creating a node in the DB.
+    """Common validator when updating or creating a node in the DB.
 
-    When dealing with enumerations retrieve the enum value. Always validate assignments.
+    When dealing with enumerations retrieve the enum value.
+    Always validate assignments.
     """
 
     @root_validator
@@ -32,16 +39,22 @@ class BaseNodeCreate(BaseModel):
         return {**data, **enumeration_fields}
 
     class Config:
+        """Sub class to validate assignments."""
+
         validate_assignment = True
 
 
 class BaseNodeRead(BaseModel):
-    """Base Model when reading nodes from the DB.
+    """Common attributes and validators when reading nodes from the DB.
 
-    Use ORM mode to read data from DB models. Convert Neo4j datetime objects into python
-    datetime ones. When dealing with relationships retrieve all connected items and show
+    Use ORM mode to read data from DB models.
+    Add the uid attribute.
+    Convert Neo4j datetime objects into python
+    datetime ones.
+    When dealing with relationships retrieve all connected items and show
     them as an object list. If a relationships has a model return a dict with the data
-    stored in it. Always validate assignments.
+    stored in it.
+    Always validate assignments.
     """
 
     uid: str = Field(description="Database item's unique identifier")
@@ -82,16 +95,19 @@ class BaseNodeRead(BaseModel):
         return {**data, **datetime_fields, **enumeration_fields}
 
     class Config:
+        """Sub class to validate assignments and enable orm mode."""
+
         validate_assignment = True
         orm_mode = True
 
 
 class BaseNodeQuery(BaseModel):
-    """Base Model used to retrieve possible query parameters when performing nodes get
-    operations with filters.
+    """Schema used to retrieve possible query parameters when performing GET operations.
 
     Always validate assignments.
     """
 
     class Config:
+        """Sub class to validate assignments."""
+
         validate_assignment = True

@@ -1,3 +1,4 @@
+"""Site geographical Location neomodel model."""
 from neomodel import (
     FloatProperty,
     OneOrMore,
@@ -19,8 +20,8 @@ class Location(StructuredNode):
         description (str): Brief description.
         site (str): Location unique name.
         country (str): Country name.
-        latitude (float): Latitude coordinate.
-        longitude (float): Longitude coordinate.
+        latitude (float | None): Latitude coordinate.
+        longitude (float | None): Longitude coordinate.
     """
 
     uid = UniqueIdProperty()

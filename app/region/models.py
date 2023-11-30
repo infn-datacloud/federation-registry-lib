@@ -1,3 +1,4 @@
+"""Region owned by a Provider neomodel model."""
 from neomodel import (
     One,
     RelationshipFrom,

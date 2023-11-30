@@ -1,3 +1,4 @@
+"""Virtual Machine Image owned by a Provider neomodel model."""
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
@@ -26,11 +27,11 @@ class Image(StructuredNode):
         description (str): Brief description.
         name (str): Image name in the Provider.
         uuid (str): Image unique ID in the Provider
-        os_type (str): OS type.
-        os_distro (str): OS distribution.
-        os_version (str): Distribution version.
-        architecture (str): OS architecture.
-        kernel_id (str): Kernel version.
+        os_type (str | None): OS type.
+        os_distro (str | None): OS distribution.
+        os_version (str | None): Distribution version.
+        architecture (str | None): OS architecture.
+        kernel_id (str | None): Kernel version.
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
