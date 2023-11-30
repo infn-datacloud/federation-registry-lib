@@ -1,3 +1,4 @@
+"""Virtual Machine Network owned by a Provider pydantic models."""
 from typing import List, Optional
 
 from pydantic import Field
@@ -7,7 +8,21 @@ from app.query import create_query_model
 
 
 class NetworkBase(BaseNode):
-    """Model with Network basic attributes."""
+    """Model with Network basic attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        is_shared (bool): Public or private Network.
+        is_router_external (bool): Network with access to the outside.
+        is_default (bool): Network to use as default.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_ip (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
+        tags (list of str): List of tags associated to this Network.
+    """
 
     name: str = Field(description="Network name in the provider.")
     uuid: str = Field(description="Network UUID in the provider.")
@@ -37,6 +52,19 @@ class NetworkCreate(BaseNodeCreate, NetworkBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        is_shared (bool): Public or private Network.
+        is_router_external (bool): Network with access to the outside.
+        is_default (bool): Network to use as default.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_ip (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
+        tags (list of str): List of tags associated to this Network.
     """
 
 
@@ -46,7 +74,20 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        name (str | None): Network name in the Provider.
+        uuid (str | None): Network unique ID in the Provider
+        is_shared (bool | None): Public or private Network.
+        is_router_external (bool | None): Network with access to the outside.
+        is_default (bool | None): Network to use as default.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_ip (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
+        tags (list of str | None): List of tags associated to this Network.
     """
 
     name: Optional[str] = Field(
@@ -65,6 +106,20 @@ class NetworkRead(BaseNodeRead, NetworkBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Network unique ID.
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        is_shared (bool): Public or private Network.
+        is_router_external (bool): Network with access to the outside.
+        is_default (bool): Network to use as default.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_ip (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
+        tags (list of str): List of tags associated to this Network.
     """
 
 

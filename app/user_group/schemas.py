@@ -1,3 +1,4 @@
+"""User Group owned by an Identity Provider pydantic models."""
 from typing import Optional
 
 from pydantic import Field
@@ -7,7 +8,13 @@ from app.query import create_query_model
 
 
 class UserGroupBase(BaseNode):
-    """Model with User Group basic attributes."""
+    """Model with User Group basic attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): User Group name.
+    """
 
     name: str = Field(description="User group name.")
 
@@ -18,8 +25,10 @@ class UserGroupCreate(BaseNodeCreate, UserGroupBase):
     Class without id (which is populated by the database).
     Expected as input when performing a POST request.
 
-    Validation: If *num GPUs* is 0, then *gpu model*
-    and *gpu vendor* must be none.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): User Group name.
     """
 
 
@@ -29,7 +38,12 @@ class UserGroupUpdate(BaseNodeCreate, UserGroupBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        name (str | None): User Group name.
     """
 
     name: Optional[str] = Field(default=None, description="User group name.")
@@ -43,6 +57,12 @@ class UserGroupRead(BaseNodeRead, UserGroupBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): User Group unique ID.
+        description (str): Brief description.
+        name (str): User Group name.
     """
 
 

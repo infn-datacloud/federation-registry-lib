@@ -1,3 +1,4 @@
+"""Identity Provider pydantic models."""
 from typing import Optional
 
 from pydantic import AnyHttpUrl, Field
@@ -7,7 +8,15 @@ from app.query import create_query_model
 
 
 class IdentityProviderBase(BaseNode):
-    """Model with Identity Provider basic attributes."""
+    """Model with Identity Provider basic attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from an authentication token.
+    """
 
     endpoint: AnyHttpUrl = Field(description="URL of the identity provider")
     group_claim: str = Field(
@@ -20,16 +29,30 @@ class IdentityProviderCreate(BaseNodeCreate, IdentityProviderBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from an authentication token.
     """
 
 
 class IdentityProviderUpdate(BaseNodeCreate, IdentityProviderBase):
-    """Model to update a Identity Provider.
+    """Model to update an Identity Provider.
 
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the Identity Provider.
+        group_claim (str | None): value of the key from which retrieve
+            the user group name from an authentication token.
     """
 
     endpoint: Optional[AnyHttpUrl] = Field(
@@ -49,6 +72,14 @@ class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Identity Provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from an authentication token.
     """
 
 
