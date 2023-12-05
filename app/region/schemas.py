@@ -1,3 +1,4 @@
+"""Region owned by a Provider pydantic models."""
 from typing import Optional
 
 from pydantic import Field
@@ -7,7 +8,13 @@ from app.query import create_query_model
 
 
 class RegionBase(BaseNode):
-    """Model with Region basic attributes."""
+    """Model with Region basic attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+    """
 
     name: str = Field(description="Region name in the provider.")
 
@@ -17,6 +24,11 @@ class RegionCreate(BaseNodeCreate, RegionBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
     """
 
 
@@ -26,7 +38,12 @@ class RegionUpdate(BaseNodeCreate, RegionBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        name (str | None): Name of the Region in the Provider.
     """
 
     name: Optional[str] = Field(
@@ -42,6 +59,12 @@ class RegionRead(BaseNodeRead, RegionBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
     """
 
 

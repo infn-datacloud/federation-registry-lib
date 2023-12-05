@@ -1,3 +1,4 @@
+"""Identity Provider neomodel model."""
 from neomodel import (
     OneOrMore,
     RelationshipFrom,

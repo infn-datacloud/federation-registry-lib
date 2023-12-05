@@ -1,4 +1,5 @@
-from typing import Optional
+"""Service supplied by a Provider on a specific Region pydantic models."""
+from typing import Literal, Optional
 
 from pydantic import AnyHttpUrl, Field, validator
 
@@ -14,17 +15,29 @@ from app.service.enum import (
 
 
 class ServiceBase(BaseNode):
-    """Model with Service basic attributes."""
+    """Model with Service basic attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
 
     endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
-    type: ServiceType = Field(description="Service type.")
 
 
 class BlockStorageServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for BlockStorage services.
+    """Block Storage Service.
 
-    Validation: type value is exactly ServiceType.openstack_nova.
+    Model derived from ServiceBase to inherit attributes common to all services.
+    It adds the basic attributes for Block Storage services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     type: ServiceType = Field(
@@ -33,7 +46,8 @@ class BlockStorageServiceBase(ServiceBase):
     name: BlockStorageServiceName = Field(description="Service name.")
 
     @validator("type")
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[ServiceType.BLOCK_STORAGE]:
+        """Verify that the type value is exactly ServiceType.BLOCK_STORAGE."""
         if v != ServiceType.BLOCK_STORAGE:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -44,6 +58,13 @@ class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageServiceBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
 
@@ -53,7 +74,14 @@ class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name.
     """
 
     endpoint: Optional[AnyHttpUrl] = Field(
@@ -72,6 +100,14 @@ class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
 
@@ -89,17 +125,25 @@ BlockStorageServiceQuery = create_query_model(
 
 
 class ComputeServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for Compute services.
+    """Compute Service.
 
-    Validation: type value is exactly ServiceType.openstack_nova.
+    Model derived from ServiceBase to inherit attributes common to all services.
+    It adds the basic attributes for Compute services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     type: ServiceType = Field(default=ServiceType.COMPUTE, description="Service type.")
     name: ComputeServiceName = Field(description="Service name.")
 
     @validator("type")
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[ServiceType.COMPUTE]:
+        """Verify that the type value is exactly ServiceType.COMPUTE."""
         if v != ServiceType.COMPUTE:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -110,6 +154,13 @@ class ComputeServiceCreate(BaseNodeCreate, ComputeServiceBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
 
@@ -119,7 +170,14 @@ class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name.
     """
 
     endpoint: Optional[AnyHttpUrl] = Field(
@@ -138,6 +196,14 @@ class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
 
@@ -153,17 +219,25 @@ ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeServiceBa
 
 
 class IdentityServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for Identity services.
+    """Identity Service.
 
-    Validation: type value is exactly ServiceType.openstack_nova.
+    Model derived from ServiceBase to inherit attributes common to all services.
+    It adds the basic attributes for Identity services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     type: ServiceType = Field(default=ServiceType.IDENTITY, description="Service type.")
     name: IdentityServiceName = Field(description="Service name.")
 
     @validator("type")
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[ServiceType.IDENTITY]:
+        """Verify that the type value is exactly ServiceType.IDENTITY."""
         if v != ServiceType.IDENTITY:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -174,6 +248,13 @@ class IdentityServiceCreate(BaseNodeCreate, IdentityServiceBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
 
@@ -183,7 +264,14 @@ class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name.
     """
 
     endpoint: Optional[AnyHttpUrl] = Field(
@@ -202,6 +290,13 @@ class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
 
@@ -217,17 +312,25 @@ IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityServic
 
 
 class NetworkServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for Network services.
+    """Network Service.
 
-    Validation: type value is exactly ServiceType.openstack_nova.
+    Model derived from ServiceBase to inherit attributes common to all services.
+    It adds the basic attributes for Network services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     type: ServiceType = Field(default=ServiceType.NETWORK, description="Service type.")
     name: NetworkServiceName = Field(description="Service name.")
 
     @validator("type")
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[ServiceType.NETWORK]:
+        """Verify that the type value is exactly ServiceType.NETWORK."""
         if v != ServiceType.NETWORK:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -238,6 +341,13 @@ class NetworkServiceCreate(BaseNodeCreate, NetworkServiceBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
 
@@ -247,7 +357,14 @@ class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name.
     """
 
     endpoint: Optional[AnyHttpUrl] = Field(
@@ -266,6 +383,14 @@ class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
 

@@ -1,3 +1,4 @@
+"""Project owned by a Provider neomodel model."""
 from typing import List
 
 from neomodel import (
@@ -79,6 +80,10 @@ class Project(StructuredNode):
         """
 
     def public_flavors(self) -> List[Flavor]:
+        """List public flavors this project can access.
+
+        Make a cypher query to retrieve all public flavors this project can access.
+        """
         results, _ = self.cypher(
             f"""
                 {self.query_prefix}
@@ -92,6 +97,10 @@ class Project(StructuredNode):
         return [Flavor.inflate(row[0]) for row in results]
 
     def public_images(self) -> List[Image]:
+        """List public images this project can access.
+
+        Make a cypher query to retrieve all public images this project can access.
+        """
         results, _ = self.cypher(
             f"""
                 {self.query_prefix}
@@ -105,6 +114,10 @@ class Project(StructuredNode):
         return [Image.inflate(row[0]) for row in results]
 
     def public_networks(self) -> List[Network]:
+        """List public networks this project can access.
+
+        Make a cypher query to retrieve all public networks this project can access.
+        """
         results, _ = self.cypher(
             f"""
                 {self.query_prefix}

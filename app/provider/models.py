@@ -1,3 +1,4 @@
+"""Resource Provider (openstack, kubernetes...) neomodel model."""
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
@@ -30,7 +31,7 @@ class Provider(StructuredNode):
         description (str): Brief description.
         name (str): Provider name.
         type (str): Provider type.
-        status (str): Provider status.
+        status (str | None): Provider status.
         is_public (bool): Public or private Provider.
         support_email (list of str): List of maintainers emails.
     """

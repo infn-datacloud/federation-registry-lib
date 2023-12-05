@@ -1,3 +1,4 @@
+"""Project owned by a Provider pydantic models."""
 from typing import Optional
 
 from pydantic import Field
@@ -7,7 +8,14 @@ from app.query import create_query_model
 
 
 class ProjectBase(BaseNode):
-    """Model with Project basic attributes."""
+    """Model with Project basic attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Name of the project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
+    """
 
     name: str = Field(description="Project name in the provider.")
     uuid: str = Field(description="Project UUID in the provider.")
@@ -18,6 +26,12 @@ class ProjectCreate(BaseNodeCreate, ProjectBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Name of the project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
     """
 
 
@@ -27,7 +41,13 @@ class ProjectUpdate(BaseNodeCreate, ProjectBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        name (str | None): Name of the project in the Provider.
+        uuid (uuid | None): Project Unique ID in the Provider.
     """
 
     name: Optional[str] = Field(
@@ -46,6 +66,13 @@ class ProjectRead(BaseNodeRead, ProjectBase):
     database.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (uuid): AssociatedProject unique ID.
+        description (str): Brief description.
+        name (str): Name of the project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
     """
 
 

@@ -1,3 +1,4 @@
+"""Provider - Identity Provider relationship neomodel model."""
 from neomodel import StringProperty, StructuredRel
 
 
