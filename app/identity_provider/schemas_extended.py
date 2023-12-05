@@ -1,3 +1,4 @@
+"""Pydantic extended models of the Identity Provider."""
 from typing import List
 
 from pydantic import Field
@@ -12,8 +13,10 @@ from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 
 
 class ProviderReadExtended(ProviderRead):
-    """Model to extend the Provider data read from the DB with the authentication method
-    details.
+    """Model to extend the Provider data read from the DB.
+
+    Add the authentication method data used by this provider to connect to the target
+    identity provider.
     """
 
     relationship: AuthMethodRead = Field(
@@ -22,8 +25,10 @@ class ProviderReadExtended(ProviderRead):
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
-    """Model to extend the Provider data read from the DB with the authentication method
-    details.
+    """Model to extend the Identity Provider public data read from the DB.
+
+    Add the authentication method data used by this provider to connect to the target
+    identity provider.
     """
 
     relationship: AuthMethodRead = Field(
@@ -32,8 +37,9 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
-    """Model to extend the Identity Provider data read from the DB with the lists of
-    related items for authenticated users.
+    """Model to extend the Identity Provider data read from the DB.
+
+    Add the lists of providers and user groups.
     """
 
     providers: List[ProviderReadExtended] = Field(
@@ -43,8 +49,9 @@ class IdentityProviderReadExtended(IdentityProviderRead):
 
 
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
-    """Model to extend the Identity Provider data read from the DB with the lists of
-    related items for non-authenticated users.
+    """Model to extend the Identity Provider public data read from the DB.
+
+    Add the lists of providers and user groups.
     """
 
     providers: List[ProviderReadExtendedPublic] = Field(

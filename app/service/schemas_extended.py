@@ -1,3 +1,4 @@
+"""Pydantic extended models of the Service supplied by Providers on specific Regions."""
 from typing import List, Optional
 
 from pydantic import Field

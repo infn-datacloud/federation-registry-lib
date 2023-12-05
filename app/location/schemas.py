@@ -1,4 +1,4 @@
-"""Site geographical Location pydantic models."""
+"""Pydantic models of the site geographical Location."""
 from typing import Any, Dict, Optional
 
 from pycountry import countries

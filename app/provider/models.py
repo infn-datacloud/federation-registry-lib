@@ -1,4 +1,4 @@
-"""Resource Provider (openstack, kubernetes...) neomodel model."""
+"""Neomodel model of the Resource Provider (openstack, kubernetes...)."""
 from neomodel import (
     ArrayProperty,
     BooleanProperty,

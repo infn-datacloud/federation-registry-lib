@@ -1,4 +1,4 @@
-"""Resource Provider (openstack, kubernetes...) pydantic models."""
+"""Pydantic models of the Resource Provider (openstack, kubernetes...)."""
 from typing import List, Optional
 
 from pydantic import EmailStr, Field

@@ -1,4 +1,4 @@
-"""Region owned by a Provider neomodel model."""
+"""Neomodel model of the Region owned by a Provider."""
 from neomodel import (
     One,
     RelationshipFrom,

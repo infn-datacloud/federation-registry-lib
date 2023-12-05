@@ -1,4 +1,4 @@
-"""Provider - Identity Provider relationship pydantic models."""
+"""Pydantic models of the Provider - Identity Provider relationship."""
 from pydantic import BaseModel, Field
 
 

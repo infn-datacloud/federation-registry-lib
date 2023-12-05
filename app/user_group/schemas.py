@@ -1,4 +1,4 @@
-"""User Group owned by an Identity Provider pydantic models."""
+"""Pydantic models of the User Group owned by an Identity Provider."""
 from typing import Optional
 
 from pydantic import Field

@@ -1,3 +1,4 @@
+"""Pydantic extended models of the Region owned by a Provider."""
 from typing import List, Optional, Union
 
 from pydantic import Field

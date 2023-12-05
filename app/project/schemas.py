@@ -1,4 +1,4 @@
-"""Project owned by a Provider pydantic models."""
+"""Pydantic models of the Project owned by a Provider."""
 from typing import Optional
 
 from pydantic import Field

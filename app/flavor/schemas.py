@@ -1,4 +1,4 @@
-"""Virtual Machine Flavor owned by a Provider pydantic models."""
+"""Pydantic models of the Virtual Machine Flavor owned by a Provider."""
 from typing import Any, Dict, Optional
 
 from pydantic import Field, root_validator

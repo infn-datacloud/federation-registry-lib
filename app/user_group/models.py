@@ -1,4 +1,4 @@
-"""User Group owned by an Identity Provider neomodel model."""
+"""Neomodel model of the User Group owned by an Identity Provider."""
 # from typing import List
 
 from neomodel import (

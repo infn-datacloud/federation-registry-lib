@@ -1,4 +1,4 @@
-"""Virtual Machine Image owned by a Provider pydantic models."""
+"""Pydantic models of the Virtual Machine Image owned by a Provider."""
 from typing import List, Optional
 
 from pydantic import Field

@@ -1,3 +1,4 @@
+"""Pydantic extended models of the Resource limitations for Projects on Services."""
 from pydantic import Field
 
 from app.project.schemas import ProjectRead, ProjectReadPublic

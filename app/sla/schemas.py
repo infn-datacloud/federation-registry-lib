@@ -1,4 +1,4 @@
-"""Service Level Agreement between a Project and a User Group pydantic models."""
+"""Pydantic models of the Service Level Agreement between a Project and a User Group."""
 from datetime import date
 from typing import Any, Dict, Optional
 

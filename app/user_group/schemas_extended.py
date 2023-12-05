@@ -1,3 +1,4 @@
+"""Pydantic extended models of the User Group owned by an Identity Provider."""
 from typing import List
 
 from pydantic import Field

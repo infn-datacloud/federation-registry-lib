@@ -1,4 +1,4 @@
-"""Site geographical Location neomodel model."""
+"""Neomodel model of the site geographical Location."""
 from neomodel import (
     FloatProperty,
     OneOrMore,

@@ -1,4 +1,4 @@
-"""Virtual Machine Image owned by a Provider neomodel model."""
+"""Neomodel model of the Virtual Machine Image owned by a Provider."""
 from neomodel import (
     ArrayProperty,
     BooleanProperty,

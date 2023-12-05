@@ -1,3 +1,4 @@
+"""Pydantic extended models of the Project owned by a Provider."""
 from typing import Any, List, Optional, Union
 
 from pydantic import Field

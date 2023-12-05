@@ -1,4 +1,4 @@
-"""Resource limitations for Projects on Services pydantic models."""
+"""Pydantic models of the Resource limitations for Projects on Services."""
 from typing import Literal, Optional
 
 from pydantic import Field, validator

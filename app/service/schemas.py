@@ -1,4 +1,4 @@
-"""Service supplied by a Provider on a specific Region pydantic models."""
+"""Pydantic models of the Service supplied by a Provider on a specific Region."""
 from typing import Literal, Optional
 
 from pydantic import AnyHttpUrl, Field, validator

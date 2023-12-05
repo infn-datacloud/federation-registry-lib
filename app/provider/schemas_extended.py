@@ -1,3 +1,4 @@
+"""Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
 from typing import Any, List, Optional, Union
 from uuid import UUID
 

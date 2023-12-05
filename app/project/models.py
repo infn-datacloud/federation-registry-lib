@@ -1,4 +1,4 @@
-"""Project owned by a Provider neomodel model."""
+"""Neomodel model of the Project owned by a Provider."""
 from typing import List
 
 from neomodel import (

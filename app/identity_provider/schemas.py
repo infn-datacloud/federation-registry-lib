@@ -1,4 +1,4 @@
-"""Identity Provider pydantic models."""
+"""Pydantic models of the Identity Provider."""
 from typing import Optional
 
 from pydantic import AnyHttpUrl, Field

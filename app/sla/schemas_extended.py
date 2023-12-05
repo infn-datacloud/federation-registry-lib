@@ -1,3 +1,4 @@
+"""Pydantic extended models of the SLA between a Project and a User Group."""
 from typing import List, Union
 
 from pydantic import Field
