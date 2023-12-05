@@ -1,6 +1,14 @@
 from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
@@ -162,7 +170,7 @@ def put_block_storage_quota(
     update_data: BlockStorageQuotaUpdate,
     response: Response,
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = block_storage_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -186,7 +194,7 @@ def put_block_storage_quota(
 def delete_block_storage_quotas(
     request: Request,
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not block_storage_quota.remove(db_obj=item):
         raise HTTPException(
@@ -315,7 +323,7 @@ def put_compute_quota(
     update_data: ComputeQuotaUpdate,
     response: Response,
     item: ComputeQuota = Depends(valid_compute_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = compute_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -339,7 +347,7 @@ def put_compute_quota(
 def delete_compute_quotas(
     request: Request,
     item: ComputeQuota = Depends(valid_compute_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not compute_quota.remove(db_obj=item):
         raise HTTPException(
@@ -431,7 +439,7 @@ def put_network_quota(
     update_data: NetworkQuotaUpdate,
     response: Response,
     item: NetworkQuota = Depends(valid_network_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = network_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -455,7 +463,7 @@ def put_network_quota(
 def delete_network_quotas(
     request: Request,
     item: NetworkQuota = Depends(valid_network_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not network_quota.remove(db_obj=item):
         raise HTTPException(

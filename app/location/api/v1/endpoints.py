@@ -1,6 +1,14 @@
 from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
@@ -135,7 +143,7 @@ def put_location(
 def delete_location(
     request: Request,
     item: Location = Depends(valid_location_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not location.remove(db_obj=item):
         raise HTTPException(

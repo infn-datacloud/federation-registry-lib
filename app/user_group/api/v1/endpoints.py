@@ -1,6 +1,14 @@
 from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
@@ -162,7 +170,7 @@ def put_user_group(
     update_data: UserGroupUpdate,
     response: Response,
     item: UserGroup = Depends(valid_user_group_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = user_group.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -185,7 +193,7 @@ def put_user_group(
 def delete_user_group(
     request: Request,
     item: UserGroup = Depends(valid_user_group_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not user_group.remove(db_obj=item):
         raise HTTPException(

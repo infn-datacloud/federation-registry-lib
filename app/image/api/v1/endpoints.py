@@ -1,6 +1,14 @@
 from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
@@ -109,7 +117,7 @@ def put_image(
     update_data: ImageUpdate,
     response: Response,
     item: Image = Depends(valid_image_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = image.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -133,7 +141,7 @@ def put_image(
 def delete_images(
     request: Request,
     item: Image = Depends(valid_image_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not image.remove(db_obj=item):
         raise HTTPException(

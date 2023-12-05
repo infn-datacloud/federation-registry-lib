@@ -2,7 +2,15 @@ from typing import Any, List, Optional, Union
 
 # from app.user_group.api.dependencies import valid_user_group_id
 # from app.user_group.models import UserGroup
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
@@ -152,7 +160,7 @@ def put_sla(
     update_data: SLAUpdate,
     response: Response,
     item: SLA = Depends(valid_sla_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = sla.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -176,7 +184,7 @@ def put_sla(
 def delete_slas(
     request: Request,
     item: SLA = Depends(valid_sla_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not sla.remove(db_obj=item):
         raise HTTPException(

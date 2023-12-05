@@ -3,7 +3,15 @@ from typing import Any, List, Optional, Union
 # from app.user_group.api.dependencies import is_unique_user_group
 # from app.user_group.crud import user_group
 # from app.user_group.schemas import UserGroupCreate
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
@@ -118,7 +126,7 @@ def put_identity_provider(
     update_data: IdentityProviderUpdate,
     response: Response,
     item: IdentityProvider = Depends(valid_identity_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = identity_provider.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -141,7 +149,7 @@ def put_identity_provider(
 def delete_identity_providers(
     request: Request,
     item: IdentityProvider = Depends(valid_identity_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not identity_provider.remove(db_obj=item):
         raise HTTPException(

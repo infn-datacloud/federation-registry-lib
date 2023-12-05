@@ -18,7 +18,15 @@ from typing import Any, List, Optional, Union
 #     ComputeServiceReadExtended,
 #     IdentityServiceReadExtended,
 # )
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
@@ -161,7 +169,7 @@ def put_provider(
     update_data: ProviderUpdate,
     response: Response,
     item: Provider = Depends(valid_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = provider.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -185,7 +193,7 @@ def put_provider(
 def delete_providers(
     request: Request,
     item: Provider = Depends(valid_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not provider.remove(db_obj=item):
         raise HTTPException(

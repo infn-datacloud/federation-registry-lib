@@ -7,7 +7,10 @@ from flaat.user_infos import UserInfos
 
 from app.config import get_settings
 
-security = HTTPBearer()
+
+def security() -> HTTPBearer:
+    """Return HTTP Bearer."""
+    return HTTPBearer()
 
 
 def has_write_access(user_infos: UserInfos) -> bool:

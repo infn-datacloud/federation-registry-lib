@@ -1,6 +1,14 @@
 from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
@@ -109,7 +117,7 @@ def put_flavor(
     update_data: FlavorUpdate,
     response: Response,
     item: Flavor = Depends(valid_flavor_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = flavor.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -133,7 +141,7 @@ def put_flavor(
 def delete_flavors(
     request: Request,
     item: Flavor = Depends(valid_flavor_id),
-    client_credentials: HTTPBasicCredentials = Depends(security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not flavor.remove(db_obj=item):
         raise HTTPException(
