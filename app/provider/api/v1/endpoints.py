@@ -22,7 +22,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 
 # from app.auth_method.schemas import AuthMethodCreate
 # from app.identity_provider.api.dependencies import (
@@ -82,7 +82,6 @@ def get_providers(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ProviderQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = provider.get_multi(
@@ -131,7 +130,6 @@ def post_provider(item: ProviderCreateExtended):
 def get_provider(
     size: SchemaSize = Depends(),
     item: Provider = Depends(valid_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return provider.choose_out_schema(
@@ -163,7 +161,7 @@ def put_provider(
     update_data: ProviderUpdate,
     response: Response,
     item: Provider = Depends(valid_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = provider.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -187,7 +185,7 @@ def put_provider(
 def delete_providers(
     request: Request,
     item: Provider = Depends(valid_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not provider.remove(db_obj=item):
         raise HTTPException(

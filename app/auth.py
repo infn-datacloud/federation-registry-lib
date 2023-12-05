@@ -6,8 +6,7 @@ from flaat.user_infos import UserInfos
 
 from app.config import get_settings
 
-strict_security = HTTPBearer()
-lazy_security = HTTPBearer(auto_error=False)
+security = HTTPBearer()
 
 
 def has_write_access(user_infos: UserInfos) -> bool:

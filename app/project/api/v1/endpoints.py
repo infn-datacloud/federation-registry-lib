@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
 # from app.flavor.crud import flavor
@@ -62,7 +62,6 @@ def get_projects(
     size: SchemaSize = Depends(),
     item: ProjectQuery = Depends(),
     region_name: Optional[str] = None,
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = project.get_multi(
@@ -96,7 +95,6 @@ def get_project(
     size: SchemaSize = Depends(),
     item: Project = Depends(valid_project_id),
     region_name: Optional[str] = None,
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     region_query = RegionQuery(name=region_name)
@@ -131,7 +129,7 @@ def put_project(
     update_data: ProjectUpdate,
     response: Response,
     item: Project = Depends(valid_project_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = project.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -156,7 +154,7 @@ def put_project(
 def delete_project(
     request: Request,
     item: Project = Depends(valid_project_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not project.remove(db_obj=item):
         raise HTTPException(

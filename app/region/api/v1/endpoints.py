@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.region.api.dependencies import (
     valid_region_id,
@@ -48,7 +48,6 @@ def get_regions(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: RegionQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = region.get_multi(
@@ -79,7 +78,6 @@ def get_regions(
 def get_region(
     size: SchemaSize = Depends(),
     item: Region = Depends(valid_region_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return region.choose_out_schema(
@@ -112,7 +110,7 @@ def put_region(
     update_data: RegionUpdate,
     response: Response,
     item: Region = Depends(valid_region_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = region.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -136,7 +134,7 @@ def put_region(
 def delete_regions(
     request: Request,
     item: Region = Depends(valid_region_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not region.remove(db_obj=item):
         raise HTTPException(

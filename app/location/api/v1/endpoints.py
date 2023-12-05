@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 from app.location.api.dependencies import (
     valid_location_id,
     validate_new_location_values,
@@ -51,7 +51,6 @@ def get_locations(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: LocationQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = location.get_multi(
@@ -82,7 +81,6 @@ def get_locations(
 def get_location(
     size: SchemaSize = Depends(),
     item: Location = Depends(valid_location_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return location.choose_out_schema(
@@ -137,7 +135,7 @@ def put_location(
 def delete_location(
     request: Request,
     item: Location = Depends(valid_location_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not location.remove(db_obj=item):
         raise HTTPException(

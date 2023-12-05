@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 from app.network.api.dependencies import (
     valid_network_id,
     validate_new_network_values,
@@ -48,7 +48,6 @@ def get_networks(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = network.get_multi(
@@ -79,7 +78,6 @@ def get_networks(
 def get_network(
     size: SchemaSize = Depends(),
     item: Network = Depends(valid_network_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return network.choose_out_schema(
@@ -111,7 +109,7 @@ def put_network(
     update_data: NetworkUpdate,
     response: Response,
     item: Network = Depends(valid_network_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = network.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -135,7 +133,7 @@ def put_network(
 def delete_networks(
     request: Request,
     item: Network = Depends(valid_network_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not network.remove(db_obj=item):
         raise HTTPException(
