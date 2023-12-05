@@ -57,12 +57,12 @@ class Flavor(StructuredNode):
     local_storage = StringProperty()
 
     services = RelationshipFrom(
-        "..service.models.ComputeService",
+        "app.service.models.ComputeService",
         "AVAILABLE_VM_FLAVOR",
         cardinality=OneOrMore,
     )
     projects = RelationshipFrom(
-        "..project.models.Project",
+        "app.project.models.Project",
         "CAN_USE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )

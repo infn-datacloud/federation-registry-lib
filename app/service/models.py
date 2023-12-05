@@ -33,7 +33,7 @@ class Service(StructuredNode):
     type = StringProperty(required=True)
     name = StringProperty(required=True)
 
-    region = RelationshipFrom("..region.models.Region", "SUPPLY", cardinality=One)
+    region = RelationshipFrom("app.region.models.Region", "SUPPLY", cardinality=One)
 
 
 class BlockStorageService(Service):
@@ -52,7 +52,7 @@ class BlockStorageService(Service):
     """
 
     quotas = RelationshipFrom(
-        "..quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "app.quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
 
 
@@ -72,17 +72,17 @@ class ComputeService(Service):
     """
 
     flavors = RelationshipTo(
-        "..flavor.models.Flavor",
+        "app.flavor.models.Flavor",
         "AVAILABLE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )
     images = RelationshipTo(
-        "..image.models.Image",
+        "app.image.models.Image",
         "AVAILABLE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )
     quotas = RelationshipFrom(
-        "..quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "app.quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
 
 
@@ -114,10 +114,10 @@ class NetworkService(Service):
     """
 
     networks = RelationshipTo(
-        "..network.models.Network",
+        "app.network.models.Network",
         "AVAILABLE_NETWORK",
         cardinality=ZeroOrMore,
     )
     quotas = RelationshipFrom(
-        "..quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "app.quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
     )

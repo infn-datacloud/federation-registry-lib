@@ -32,5 +32,5 @@ class Location(StructuredNode):
     longitude = FloatProperty()
 
     regions = RelationshipFrom(
-        "..region.models.Region", "LOCATED_AT", cardinality=OneOrMore
+        "app.region.models.Region", "LOCATED_AT", cardinality=OneOrMore
     )

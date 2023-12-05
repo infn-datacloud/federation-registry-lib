@@ -31,7 +31,7 @@ class Quota(StructuredNode):
     per_user = BooleanProperty(default=False)
 
     project = RelationshipFrom(
-        "..project.models.Project", "USE_SERVICE_WITH", cardinality=One
+        "app.project.models.Project", "USE_SERVICE_WITH", cardinality=One
     )
 
 
@@ -57,7 +57,7 @@ class BlockStorageQuota(Quota):
     volumes = IntegerProperty()
 
     service = RelationshipTo(
-        "..service.models.BlockStorageService", "APPLY_TO", cardinality=One
+        "app.service.models.BlockStorageService", "APPLY_TO", cardinality=One
     )
 
 
@@ -82,7 +82,7 @@ class ComputeQuota(Quota):
     ram = IntegerProperty()
 
     service = RelationshipTo(
-        "..service.models.ComputeService", "APPLY_TO", cardinality=One
+        "app.service.models.ComputeService", "APPLY_TO", cardinality=One
     )
 
 
@@ -114,5 +114,5 @@ class NetworkQuota(Quota):
     security_group_rules = IntegerProperty()
 
     service = RelationshipTo(
-        "..service.models.NetworkService", "APPLY_TO", cardinality=One
+        "app.service.models.NetworkService", "APPLY_TO", cardinality=One
     )

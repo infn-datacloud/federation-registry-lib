@@ -53,12 +53,12 @@ class Network(StructuredNode):
     tags = ArrayProperty(StringProperty())
 
     service = RelationshipFrom(
-        "..service.models.NetworkService",
+        "app.service.models.NetworkService",
         "AVAILABLE_NETWORK",
         cardinality=One,
     )
     project = RelationshipFrom(
-        "..project.models.Project",
+        "app.project.models.Project",
         "CAN_USE_NETWORK",
         cardinality=ZeroOrOne,
     )

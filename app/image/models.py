@@ -55,12 +55,12 @@ class Image(StructuredNode):
     tags = ArrayProperty(StringProperty())
 
     services = RelationshipFrom(
-        "..service.models.ComputeService",
+        "app.service.models.ComputeService",
         "AVAILABLE_VM_IMAGE",
         cardinality=OneOrMore,
     )
     projects = RelationshipFrom(
-        "..project.models.Project",
+        "app.project.models.Project",
         "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )

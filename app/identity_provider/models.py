@@ -34,13 +34,13 @@ class IdentityProvider(StructuredNode):
     group_claim = StringProperty(required=True)
 
     providers = RelationshipFrom(
-        "..provider.models.Provider",
+        "app.provider.models.Provider",
         "ALLOW_AUTH_THROUGH",
         cardinality=OneOrMore,
         model=AuthMethod,
     )
     user_groups = RelationshipFrom(
-        "..user_group.models.UserGroup",
+        "app.user_group.models.UserGroup",
         "BELONG_TO",
         cardinality=ZeroOrMore,
     )

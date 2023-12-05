@@ -43,32 +43,32 @@ class Project(StructuredNode):
     uuid = StringProperty(required=True)
 
     sla = RelationshipFrom(
-        "..sla.models.SLA",
+        "app.sla.models.SLA",
         "REFER_TO",
         cardinality=ZeroOrOne,
     )
     quotas = RelationshipTo(
-        "..quota.models.Quota",
+        "app.quota.models.Quota",
         "USE_SERVICE_WITH",
         cardinality=ZeroOrMore,
     )
     provider = RelationshipFrom(
-        "..provider.models.Provider",
+        "app.provider.models.Provider",
         "BOOK_PROJECT_FOR_SLA",
         cardinality=One,
     )
     private_flavors = RelationshipTo(
-        "..flavor.models.Flavor",
+        "app.flavor.models.Flavor",
         "CAN_USE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )
     private_images = RelationshipTo(
-        "..image.models.Image",
+        "app.image.models.Image",
         "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )
     private_networks = RelationshipTo(
-        "..network.models.Network",
+        "app.network.models.Network",
         "CAN_USE_NETWORK",
         cardinality=ZeroOrMore,
     )

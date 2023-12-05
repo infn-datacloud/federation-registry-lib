@@ -16,7 +16,7 @@ class Region(StructuredNode):
 
     A Region is used to split a provider resources and limit projects access.
     A Region can have a specific geographical location and supplies
-    different services (compute, block storage, network...).
+    different services (compute, block storage, networkapp..).
 
     Attributes:
     ----------
@@ -30,11 +30,11 @@ class Region(StructuredNode):
     name = StringProperty(required=True)
 
     location = RelationshipTo(
-        "..location.models.Location", "LOCATED_AT", cardinality=ZeroOrOne
+        "app.location.models.Location", "LOCATED_AT", cardinality=ZeroOrOne
     )
     provider = RelationshipFrom(
-        "..provider.models.Provider", "DIVIDED_INTO", cardinality=One
+        "app.provider.models.Provider", "DIVIDED_INTO", cardinality=One
     )
     services = RelationshipTo(
-        "..service.models.Service", "SUPPLY", cardinality=ZeroOrMore
+        "app.service.models.Service", "SUPPLY", cardinality=ZeroOrMore
     )

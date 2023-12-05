@@ -36,8 +36,8 @@ class SLA(StructuredNode):
     doc_uuid = StringProperty(required=True)
 
     user_group = RelationshipFrom(
-        "..user_group.models.UserGroup", "AGREE", cardinality=One
+        "app.user_group.models.UserGroup", "AGREE", cardinality=One
     )
     projects = RelationshipTo(
-        "..project.models.Project", "REFER_TO", cardinality=OneOrMore
+        "app.project.models.Project", "REFER_TO", cardinality=OneOrMore
     )
