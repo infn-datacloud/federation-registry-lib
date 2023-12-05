@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 from app.flavor.api.dependencies import (
     valid_flavor_id,
     validate_new_flavor_values,
@@ -48,7 +48,6 @@ def get_flavors(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: FlavorQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = flavor.get_multi(
@@ -79,7 +78,6 @@ def get_flavors(
 def get_flavor(
     size: SchemaSize = Depends(),
     item: Flavor = Depends(valid_flavor_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return flavor.choose_out_schema(
@@ -111,7 +109,7 @@ def put_flavor(
     update_data: FlavorUpdate,
     response: Response,
     item: Flavor = Depends(valid_flavor_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = flavor.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -135,7 +133,7 @@ def put_flavor(
 def delete_flavors(
     request: Request,
     item: Flavor = Depends(valid_flavor_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not flavor.remove(db_obj=item):
         raise HTTPException(

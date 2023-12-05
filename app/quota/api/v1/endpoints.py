@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import (
     valid_block_storage_quota_id,
@@ -66,7 +66,6 @@ def get_block_storage_quotas(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageQuotaQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = block_storage_quota.get_multi(
@@ -134,7 +133,6 @@ def get_block_storage_quotas(
 def get_block_storage_quota(
     size: SchemaSize = Depends(),
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return block_storage_quota.choose_out_schema(
@@ -164,7 +162,7 @@ def put_block_storage_quota(
     update_data: BlockStorageQuotaUpdate,
     response: Response,
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = block_storage_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -188,7 +186,7 @@ def put_block_storage_quota(
 def delete_block_storage_quotas(
     request: Request,
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not block_storage_quota.remove(db_obj=item):
         raise HTTPException(
@@ -221,7 +219,6 @@ def get_compute_quotas(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeQuotaQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = compute_quota.get_multi(
@@ -289,7 +286,6 @@ def get_compute_quotas(
 def get_compute_quota(
     size: SchemaSize = Depends(),
     item: ComputeQuota = Depends(valid_compute_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return compute_quota.choose_out_schema(
@@ -319,7 +315,7 @@ def put_compute_quota(
     update_data: ComputeQuotaUpdate,
     response: Response,
     item: ComputeQuota = Depends(valid_compute_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = compute_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -343,7 +339,7 @@ def put_compute_quota(
 def delete_compute_quotas(
     request: Request,
     item: ComputeQuota = Depends(valid_compute_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not compute_quota.remove(db_obj=item):
         raise HTTPException(
@@ -376,7 +372,6 @@ def get_network_quotas(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkQuotaQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = network_quota.get_multi(
@@ -407,7 +402,6 @@ def get_network_quotas(
 def get_network_quota(
     size: SchemaSize = Depends(),
     item: NetworkQuota = Depends(valid_network_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return network_quota.choose_out_schema(
@@ -437,7 +431,7 @@ def put_network_quota(
     update_data: NetworkQuotaUpdate,
     response: Response,
     item: NetworkQuota = Depends(valid_network_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = network_quota.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -461,7 +455,7 @@ def put_network_quota(
 def delete_network_quotas(
     request: Request,
     item: NetworkQuota = Depends(valid_network_quota_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not network_quota.remove(db_obj=item):
         raise HTTPException(

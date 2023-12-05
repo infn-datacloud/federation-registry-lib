@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 
 # from app.auth_method.schemas import AuthMethodCreate
 from app.identity_provider.api.dependencies import (
@@ -57,7 +57,6 @@ def get_identity_providers(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: IdentityProviderQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = identity_provider.get_multi(
@@ -88,7 +87,6 @@ def get_identity_providers(
 def get_identity_provider(
     size: SchemaSize = Depends(),
     item: IdentityProvider = Depends(valid_identity_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return identity_provider.choose_out_schema(
@@ -120,7 +118,7 @@ def put_identity_provider(
     update_data: IdentityProviderUpdate,
     response: Response,
     item: IdentityProvider = Depends(valid_identity_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = identity_provider.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -143,7 +141,7 @@ def put_identity_provider(
 def delete_identity_providers(
     request: Request,
     item: IdentityProvider = Depends(valid_identity_provider_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not identity_provider.remove(db_obj=item):
         raise HTTPException(

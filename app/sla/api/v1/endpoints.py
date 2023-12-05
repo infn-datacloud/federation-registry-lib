@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 
 # from app.project.api.dependencies import project_has_no_sla
 # from app.project.models import Project
@@ -50,7 +50,6 @@ def get_slas(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: SLAQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = sla.get_multi(
@@ -122,7 +121,6 @@ def get_slas(
 def get_sla(
     size: SchemaSize = Depends(),
     item: SLA = Depends(valid_sla_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return sla.choose_out_schema(
@@ -154,7 +152,7 @@ def put_sla(
     update_data: SLAUpdate,
     response: Response,
     item: SLA = Depends(valid_sla_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = sla.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -178,7 +176,7 @@ def put_sla(
 def delete_slas(
     request: Request,
     item: SLA = Depends(valid_sla_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not sla.remove(db_obj=item):
         raise HTTPException(

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, lazy_security, strict_security
+from app.auth import flaat, security
 
 # from app.identity_provider.crud import identity_provider
 # from app.identity_provider.schemas import (
@@ -96,7 +96,6 @@ def get_block_storage_services(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageServiceQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = block_storage_service.get_multi(
@@ -127,7 +126,6 @@ def get_block_storage_services(
 def get_block_storage_service(
     size: SchemaSize = Depends(),
     item: BlockStorageService = Depends(valid_block_storage_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return block_storage_service.choose_out_schema(
@@ -159,7 +157,7 @@ def put_block_storage_service(
     update_data: BlockStorageServiceUpdate,
     response: Response,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = block_storage_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -184,7 +182,7 @@ def put_block_storage_service(
 def delete_block_storage_services(
     request: Request,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not block_storage_service.remove(db_obj=item):
         raise HTTPException(
@@ -217,7 +215,6 @@ def get_compute_services(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeServiceQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = compute_service.get_multi(
@@ -248,7 +245,6 @@ def get_compute_services(
 def get_compute_service(
     size: SchemaSize = Depends(),
     item: ComputeService = Depends(valid_compute_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return compute_service.choose_out_schema(
@@ -280,7 +276,7 @@ def put_compute_service(
     update_data: ComputeServiceUpdate,
     response: Response,
     item: ComputeService = Depends(valid_compute_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = compute_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -305,7 +301,7 @@ def put_compute_service(
 def delete_compute_services(
     request: Request,
     item: ComputeService = Depends(valid_compute_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not compute_service.remove(db_obj=item):
         raise HTTPException(
@@ -338,7 +334,6 @@ def get_identity_services(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: IdentityServiceQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = identity_service.get_multi(
@@ -369,7 +364,6 @@ def get_identity_services(
 def get_identity_service(
     size: SchemaSize = Depends(),
     item: IdentityService = Depends(valid_identity_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return identity_service.choose_out_schema(
@@ -401,7 +395,7 @@ def put_identity_service(
     update_data: IdentityServiceUpdate,
     response: Response,
     item: IdentityService = Depends(valid_identity_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = identity_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -426,7 +420,7 @@ def put_identity_service(
 def delete_identity_services(
     request: Request,
     item: IdentityService = Depends(valid_identity_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not identity_service.remove(db_obj=item):
         raise HTTPException(
@@ -459,7 +453,6 @@ def get_network_services(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkServiceQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     items = network_service.get_multi(
@@ -490,7 +483,6 @@ def get_network_services(
 def get_network_service(
     size: SchemaSize = Depends(),
     item: NetworkService = Depends(valid_network_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
     user_infos: Optional[Any] = None,
 ):
     return network_service.choose_out_schema(
@@ -522,7 +514,7 @@ def put_network_service(
     update_data: NetworkServiceUpdate,
     response: Response,
     item: NetworkService = Depends(valid_network_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     db_item = network_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -547,7 +539,7 @@ def put_network_service(
 def delete_network_services(
     request: Request,
     item: NetworkService = Depends(valid_network_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Depends(security),
 ):
     if not network_service.remove(db_obj=item):
         raise HTTPException(
