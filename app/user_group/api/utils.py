@@ -8,9 +8,7 @@ from app.user_group.models import UserGroup
 def filter_on_provider_attr(
     items: List[UserGroup], provider_query: ProviderQuery
 ) -> List[UserGroup]:
-    """
-    Filter projects based on provider access.
-    """
+    """Filter projects based on provider access."""
     attrs = provider_query.dict(exclude_none=True)
     if not attrs:
         return items
@@ -31,9 +29,7 @@ def filter_on_provider_attr(
 def filter_on_region_attr(
     items: List[UserGroup], region_query: RegionQuery
 ) -> List[UserGroup]:
-    """
-    Filter projects based on region access.
-    """
+    """Filter projects based on region access."""
     attrs = region_query.dict(exclude_none=True)
     if not attrs:
         return items

@@ -7,9 +7,7 @@ from app.region.schemas import RegionQuery
 def filter_on_region_attr(  # noqa: C901
     items: List[Project], region_query: RegionQuery
 ) -> List[Project]:
-    """
-    Filter projects based on region access.
-    """
+    """Filter projects based on region access."""
     attrs = region_query.dict(exclude_none=True)
     if not attrs:
         return items

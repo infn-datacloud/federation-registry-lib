@@ -69,7 +69,8 @@ class TestUserGroupTest(TestBaseAPI):
         """Execute GET operations to read a specific User Group.
 
         Retrieve the User Group with the given name and belonging to the identity
-        provider with the given endpoint."""
+        provider with the given endpoint.
+        """
         api: BaseAPI = request.getfixturevalue(self.api)
         db_item: UserGroup = request.getfixturevalue(self.db_item2)
         db_idp: IdentityProvider = db_item.identity_provider.single()
@@ -91,7 +92,8 @@ class TestUserGroupTest(TestBaseAPI):
         """Execute GET operations to read a specific User Group.
 
         Retrieve the User Groups with an SLA on at least one project of the provider
-        with the given name."""
+        with the given name.
+        """
         api: BaseAPI = request.getfixturevalue(self.api)
         db_item: UserGroup = request.getfixturevalue(self.db_item1)
         db_sla: SLA = db_item.slas.single()
@@ -111,7 +113,8 @@ class TestUserGroupTest(TestBaseAPI):
         """Execute GET operations to read a specific User Group.
 
         Retrieve the User Groups with an SLA on at least one project of the provider
-        with the given type."""
+        with the given type.
+        """
         api: BaseAPI = request.getfixturevalue(self.api)
         db_item: UserGroup = request.getfixturevalue(self.db_item1)
         db_sla: SLA = db_item.slas.single()
