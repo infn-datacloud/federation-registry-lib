@@ -1,3 +1,4 @@
+"""Authentication and authorization rules."""
 from fastapi.security import HTTPBearer
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
@@ -10,7 +11,7 @@ security = HTTPBearer()
 
 
 def has_write_access(user_infos: UserInfos) -> bool:
-    """Target user has write access on CMDB."""
+    """Target user has write access on Federation-Registry."""
     settings = get_settings()
     return user_infos.user_info.get("email") in settings.ADMIN_EMAIL_LIST
 

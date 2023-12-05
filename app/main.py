@@ -1,3 +1,4 @@
+"""Entry point for the Federation-Registry web app."""
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,16 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.router import router_v1
 
-summary = """
-Configuration Management Database (CMDB)
-of the DataCloud project
-"""
+summary = "Federation-Registry (ex CMDB) of the DataCloud project"
 description = """
-Configuration Management Database (CMDB) stores providers data
-used by the DataCloud Orchestrator to deploy new services.
+Federation-Registry (ex CMDB) stores providers data used by the DataCloud Orchestrator
+to deploy new services.
 
-You can inspect providers data, identity providers user groups
-and Service Level Agreement connecting these data.
+You can inspect providers data, identity providers user groups and Service Level
+Agreement connecting these data.
 
 This database is mainly populated by scripts.
 """
