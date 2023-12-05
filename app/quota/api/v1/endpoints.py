@@ -1,10 +1,10 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, lazy_security, strict_security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import (
     valid_block_storage_quota_id,
@@ -60,21 +60,21 @@ bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quota
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_block_storage_quotas(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageQuotaQuery = Depends(),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = block_storage_quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = block_storage_quota.paginate(items=items, page=page.page, size=page.size)
     return block_storage_quota.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -130,15 +130,15 @@ def get_block_storage_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_block_storage_quota(
     size: SchemaSize = Depends(),
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return block_storage_quota.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 
@@ -215,21 +215,21 @@ c_router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_compute_quotas(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeQuotaQuery = Depends(),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = compute_quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = compute_quota.paginate(items=items, page=page.page, size=page.size)
     return compute_quota.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -285,15 +285,15 @@ def get_compute_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_compute_quota(
     size: SchemaSize = Depends(),
     item: ComputeQuota = Depends(valid_compute_quota_id),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return compute_quota.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 
@@ -370,21 +370,21 @@ n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_network_quotas(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkQuotaQuery = Depends(),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = network_quota.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = network_quota.paginate(items=items, page=page.page, size=page.size)
     return network_quota.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -403,15 +403,15 @@ def get_network_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_network_quota(
     size: SchemaSize = Depends(),
     item: NetworkQuota = Depends(valid_network_quota_id),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return network_quota.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 

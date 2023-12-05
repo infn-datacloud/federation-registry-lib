@@ -1,10 +1,10 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, lazy_security, strict_security
 from app.flavor.api.dependencies import (
     valid_flavor_id,
     validate_new_flavor_values,
@@ -42,21 +42,21 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
         It is possible to filter on flavors attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_flavors(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: FlavorQuery = Depends(),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = flavor.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = flavor.paginate(items=items, page=page.page, size=page.size)
     return flavor.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -75,15 +75,15 @@ def get_flavors(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_flavor(
     size: SchemaSize = Depends(),
     item: Flavor = Depends(valid_flavor_id),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return flavor.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 

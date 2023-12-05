@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 # from app.service.api.dependencies import valid_service_endpoint
 # from app.service.crud import (
@@ -22,7 +22,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, lazy_security, strict_security
 
 # from app.auth_method.schemas import AuthMethodCreate
 # from app.identity_provider.api.dependencies import (
@@ -76,21 +76,21 @@ router = APIRouter(prefix="/providers", tags=["providers"])
         It is possible to filter on providers attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_providers(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ProviderQuery = Depends(),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = provider.paginate(items=items, page=page.page, size=page.size)
     return provider.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -127,15 +127,15 @@ def post_provider(item: ProviderCreateExtended):
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_provider(
     size: SchemaSize = Depends(),
     item: Provider = Depends(valid_provider_id),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return provider.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 

@@ -1,10 +1,10 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, lazy_security, strict_security
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
 # from app.flavor.crud import flavor
@@ -55,7 +55,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         It is possible to filter on projects attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_projects(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
@@ -63,7 +63,7 @@ def get_projects(
     item: ProjectQuery = Depends(),
     region_name: Optional[str] = None,
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = project.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -72,7 +72,7 @@ def get_projects(
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=items, region_query=region_query)
     return project.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -91,18 +91,18 @@ def get_projects(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_project(
     size: SchemaSize = Depends(),
     item: Project = Depends(valid_project_id),
     region_name: Optional[str] = None,
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=[item], region_query=region_query)
     items = project.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
     return items[0]
 
@@ -188,7 +188,7 @@ def delete_project(
 # ):
 #     items = item.private_flavors.all() + item.public_flavors()
 #     return flavor.choose_out_schema(
-#         items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#         items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
 #     )
 
 
@@ -261,7 +261,7 @@ def delete_project(
 # ):
 #     items = item.private_images.all() + item.public_images()
 #     return image.choose_out_schema(
-#         items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#         items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
 #     )
 
 

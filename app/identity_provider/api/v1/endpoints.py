@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 # from app.user_group.api.dependencies import is_unique_user_group
 # from app.user_group.crud import user_group
@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, lazy_security, strict_security
 
 # from app.auth_method.schemas import AuthMethodCreate
 from app.identity_provider.api.dependencies import (
@@ -51,21 +51,21 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
         It is possible to filter on identity providers attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_identity_providers(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: IdentityProviderQuery = Depends(),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = identity_provider.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = identity_provider.paginate(items=items, page=page.page, size=page.size)
     return identity_provider.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -84,15 +84,15 @@ def get_identity_providers(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_identity_provider(
     size: SchemaSize = Depends(),
     item: IdentityProvider = Depends(valid_identity_provider_id),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return identity_provider.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 

@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 # from app.user_group.api.dependencies import valid_user_group_id
 # from app.user_group.models import UserGroup
@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, lazy_security, strict_security
 
 # from app.project.api.dependencies import project_has_no_sla
 # from app.project.models import Project
@@ -44,21 +44,21 @@ router = APIRouter(prefix="/slas", tags=["slas"])
         It is possible to filter on SLAs attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_slas(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: SLAQuery = Depends(),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = sla.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = sla.paginate(items=items, page=page.page, size=page.size)
     return sla.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -118,15 +118,15 @@ def get_slas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_sla(
     size: SchemaSize = Depends(),
     item: SLA = Depends(valid_sla_id),
     client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return sla.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 
