@@ -15,8 +15,17 @@ from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 class ProviderReadExtended(ProviderRead):
     """Model to extend the Provider data read from the DB.
 
-    Add the authentication method data used by this provider to connect to the target
-    identity provider.
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): List of maintainers emails.
+        relationship (AuthMethodRead): Authentication method used to connect to the
+            target identity provider.
     """
 
     relationship: AuthMethodRead = Field(
@@ -27,8 +36,17 @@ class ProviderReadExtended(ProviderRead):
 class ProviderReadExtendedPublic(ProviderReadPublic):
     """Model to extend the Identity Provider public data read from the DB.
 
-    Add the authentication method data used by this provider to connect to the target
-    identity provider.
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): List of maintainers emails.
+        relationship (AuthMethodRead): Authentication method used to connect to the
+            target identity provider.
     """
 
     relationship: AuthMethodRead = Field(
@@ -39,7 +57,15 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
 class IdentityProviderReadExtended(IdentityProviderRead):
     """Model to extend the Identity Provider data read from the DB.
 
-    Add the lists of providers and user groups.
+    Attributes:
+    ----------
+        uid (int): Identity Provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from an authentication token.
+        providers (list of ProviderReadExtended): Supported providers.
+        user_groups (list of UserGroupRead): Owned user groups.
     """
 
     providers: List[ProviderReadExtended] = Field(
@@ -51,7 +77,15 @@ class IdentityProviderReadExtended(IdentityProviderRead):
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
     """Model to extend the Identity Provider public data read from the DB.
 
-    Add the lists of providers and user groups.
+    Attributes:
+    ----------
+        uid (int): Identity Provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from an authentication token.
+        providers (list of ProviderReadExtendedPublic): Supported providers.
+        user_groups (list of UserGroupReadPublic): Owned user groups.
     """
 
     providers: List[ProviderReadExtendedPublic] = Field(

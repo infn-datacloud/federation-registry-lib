@@ -25,7 +25,12 @@ from app.service.schemas import (
 class RegionReadExtended(RegionRead):
     """Model to extend the Region data read from the DB.
 
-    Add the provider hosting this region.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        provider (ProviderRead): Provider hosting target region.
     """
 
     provider: ProviderRead
@@ -34,7 +39,12 @@ class RegionReadExtended(RegionRead):
 class RegionReadExtendedPublic(RegionReadPublic):
     """Model to extend the Region public data read from the DB.
 
-    Add the provider hosting this region.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        provider (ProviderReadPublic): Provider hosting target region.
     """
 
     provider: ProviderReadPublic
@@ -43,7 +53,14 @@ class RegionReadExtendedPublic(RegionReadPublic):
 class BlockStorageServiceReadExtended(BlockStorageServiceRead):
     """Model to extend the Block Storage Service data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtended): Region hosting this service.
     """
 
     region: RegionReadExtended = Field(description="Region hosting this service")
@@ -52,16 +69,30 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
     """Model to extend the Block Storage Service public data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description="Region hosting this service")
+    region: RegionReadExtendedPublic = Field(description="Region hosting this service")
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
     """Model to extend the Compute Service data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtended): Region hosting this service.
     """
 
     region: RegionReadExtended = Field(description="Region hosting this service")
@@ -70,16 +101,30 @@ class ComputeServiceReadExtended(ComputeServiceRead):
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     """Model to extend the Compute Service public data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description="Region hosting this service")
+    region: RegionReadExtendedPublic = Field(description="Region hosting this service")
 
 
 class NetworkServiceReadExtended(NetworkServiceRead):
     """Model to extend the Network Service data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtended): Region hosting this service.
     """
 
     region: RegionReadExtended = Field(description="Region hosting this service")
@@ -88,16 +133,34 @@ class NetworkServiceReadExtended(NetworkServiceRead):
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     """Model to extend the Network Service public data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description="Region hosting this service")
+    region: RegionReadExtendedPublic = Field(description="Region hosting this service")
 
 
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
     """Model to extend the Block Storage Quota data read from the DB.
 
-    Add the target project and block storage service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+        project (ProjectRead): Target project.
+        service (BlockStorageServiceReadExtended): Target block storage service.
     """
 
     project: ProjectRead
@@ -107,7 +170,18 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
 class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
     """Model to extend the Block Storage Quota public data read from the DB.
 
-    Add the target project and block storage service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+        project (ProjectReadPublic): Target project.
+        service (BlockStorageServiceReadExtendedPublic): Target block storage service.
     """
 
     project: ProjectReadPublic
@@ -117,7 +191,17 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
 class ComputeQuotaReadExtended(ComputeQuotaRead):
     """Model to extend the Compute Quota data read from the DB.
 
-    Add the target project and compute service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        cores (int | None): Number of max usable cores.
+        instance (int | None): Number of max VM instances.
+        ram (int | None): Number of max usable RAM (MiB).
+        project (ProjectRead): Target project.
+        service (ComputeServiceReadExtended): Target compute service.
     """
 
     project: ProjectRead
@@ -127,7 +211,17 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
 class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     """Model to extend the Compute Quota public data read from the DB.
 
-    Add the target project and compute service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        cores (int | None): Number of max usable cores.
+        instance (int | None): Number of max VM instances.
+        ram (int | None): Number of max usable RAM (MiB).
+        project (ProjectReadPublic): Target project.
+        service (ComputeServiceReadExtendedPublic): Target compute service.
     """
 
     project: ProjectReadPublic
@@ -137,7 +231,22 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
 class NetworkQuotaReadExtended(NetworkQuotaRead):
     """Model to extend the Network Quota data read from the DB.
 
-    Add the target project and network service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        public_ips (int | None): The number of floating IP addresses allowed for each
+            project.
+        networks (int | None): The number of networks allowed for each project.
+        port (int | None): The number of ports allowed for each project.
+        security_groups (int | None): The number of security groups allowed for each
+            project.
+        security_group_rules (int | None): The number of security group rules allowed
+            for each project.
+        project (ProjectRead): Target project.
+        service (NetworkServiceReadExtended): Target network service.
     """
 
     project: ProjectRead
@@ -147,7 +256,22 @@ class NetworkQuotaReadExtended(NetworkQuotaRead):
 class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     """Model to extend the Network Quota public data read from the DB.
 
-    Add the target project and network service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        public_ips (int | None): The number of floating IP addresses allowed for each
+            project.
+        networks (int | None): The number of networks allowed for each project.
+        port (int | None): The number of ports allowed for each project.
+        security_groups (int | None): The number of security groups allowed for each
+            project.
+        security_group_rules (int | None): The number of security group rules allowed
+            for each project.
+        project (ProjectReadPublic): Target project.
+        service (NetworkServiceReadExtendedPublic): Target network service.
     """
 
     project: ProjectReadPublic

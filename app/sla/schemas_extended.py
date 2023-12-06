@@ -16,7 +16,13 @@ from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 class ProjectReadExtended(ProjectRead):
     """Model to extend the Project data read from the DB.
 
-    Add the provider hosting it.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedProject unique ID.
+        description (str): Brief description.
+        name (str): Name of the project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
+        provider (ProviderRead): Hosting provider.
     """
 
     provider: ProviderRead = Field(description="Provider owning this project")
@@ -25,7 +31,13 @@ class ProjectReadExtended(ProjectRead):
 class ProjectReadExtendedPublic(ProjectReadPublic):
     """Model to extend the Project public data read from the DB.
 
-    Add the provider hosting it.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedProject unique ID.
+        description (str): Brief description.
+        name (str): Name of the project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
+        provider (ProviderReadPublic): Hosting provider.
     """
 
     provider: ProviderReadPublic = Field(description="Provider owning this project")
@@ -34,7 +46,13 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
 class UserGroupReadExtended(UserGroupRead):
     """Model to extend the User Group data read from the DB.
 
-    Add the identity provider owning this user group.
+    Attributes:
+    ----------
+        uid (int): User Group unique ID.
+        description (str): Brief description.
+        name (str): User Group name.
+        identity_provider (IdentityProviderRead): Identity provider owning this
+            user group.
     """
 
     identity_provider: IdentityProviderRead = Field(
@@ -45,7 +63,13 @@ class UserGroupReadExtended(UserGroupRead):
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
     """Model to extend the User Group public data read from the DB.
 
-    Add the identity provider owning this user group.
+    Attributes:
+    ----------
+        uid (int): User Group unique ID.
+        description (str): Brief description.
+        name (str): User Group name.
+        identity_provider (IdentityProviderReadPublic): Identity provider owning this
+            user group.
     """
 
     identity_provider: IdentityProviderReadPublic = Field(
@@ -56,7 +80,15 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
 class SLAReadExtended(SLARead):
     """Model to extend the SLA data read from the DB.
 
-    Add the user group involved in the SLA and the list of accessible projects.
+    Attributes:
+    ----------
+        uid (int): SLA unique ID.
+        description (str): Brief description.
+        doc_uuid (str): Unique ID of the document with the SLA details.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
+        projects (list of ProjectReadExtended): Target projects.
+        user_group (UserGroupReadExtended): Target user group.
     """
 
     projects: List[ProjectReadExtended] = Field(description="Involved Projects.")
@@ -66,7 +98,15 @@ class SLAReadExtended(SLARead):
 class SLAReadExtendedPublic(SLAReadPublic):
     """Model to extend the SLA public data read from the DB.
 
-    Add the user group involved in the SLA and the list of accessible projects.
+    Attributes:
+    ----------
+        uid (int): SLA unique ID.
+        description (str): Brief description.
+        doc_uuid (str): Unique ID of the document with the SLA details.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
+        projects (list of ProjectReadExtendedPublic): Target projects.
+        user_group (UserGroupReadExtendedPublic): Target user group.
     """
 
     projects: List[ProjectReadExtendedPublic] = Field(description="Involved Projects.")

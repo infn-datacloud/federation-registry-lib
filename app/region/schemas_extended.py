@@ -21,7 +21,15 @@ from app.service.schemas import (
 class RegionReadExtended(RegionRead):
     """Model to extend the Region data read from the DB.
 
-    Add the provider and location hosting this region and the list of supplied services.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        provider (ProviderRead): Provider hosting target region.
+        location (LocationRead | None): Location hosting the target region.
+        services (list of Service): Supplied services (block-storage, compute,
+            identity and network type).
     """
 
     location: Optional[LocationRead] = Field(
@@ -41,7 +49,15 @@ class RegionReadExtended(RegionRead):
 class RegionReadExtendedPublic(RegionReadPublic):
     """Model to extend the Region public data read from the DB.
 
-    Add the provider and location hosting this region and the list of supplied services.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        provider (ProviderReadPublic): Provider hosting target region.
+        location (LocationReadPublic | None): Location hosting the target region.
+        services (list of ServicePublic): Supplied services (block-storage, compute,
+            identity and network type).
     """
 
     location: Optional[LocationReadPublic] = Field(

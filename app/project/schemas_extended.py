@@ -1,5 +1,5 @@
 """Pydantic extended models of the Project owned by a Provider."""
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from pydantic import Field
 
@@ -10,6 +10,7 @@ from app.identity_provider.schemas import (
 )
 from app.image.schemas import ImageRead, ImageReadPublic
 from app.network.schemas import NetworkRead, NetworkReadPublic
+from app.project.models import Project
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.quota.schemas import (
@@ -36,7 +37,14 @@ from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 class BlockStorageServiceReadExtended(BlockStorageServiceRead):
     """Model to extend the Block Storage Service data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionRead): Region hosting this service.
     """
 
     region: RegionRead = Field(description="Region hosting this service.")
@@ -45,7 +53,14 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
     """Model to extend the Block Storage Service public data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadPublic): Region hosting this service.
     """
 
     region: RegionReadPublic = Field(description="Region hosting this service.")
@@ -54,7 +69,14 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
 class ComputeServiceReadExtended(ComputeServiceRead):
     """Model to extend the Compute Service data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionRead): Region hosting this service.
     """
 
     region: RegionRead = Field(description="Region hosting this service.")
@@ -63,7 +85,14 @@ class ComputeServiceReadExtended(ComputeServiceRead):
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     """Model to extend the Compute Service public data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadPublic): Region hosting this service.
     """
 
     region: RegionReadPublic = Field(description="Region hosting this service.")
@@ -72,7 +101,14 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
 class NetworkServiceReadExtended(NetworkServiceRead):
     """Model to extend the Network Service data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionRead): Region hosting this service.
     """
 
     region: RegionRead = Field(description="Region hosting this service.")
@@ -81,7 +117,14 @@ class NetworkServiceReadExtended(NetworkServiceRead):
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     """Model to extend the Network Service public data read from the DB.
 
-    Add the region hosting it.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadPublic): Region hosting this service.
     """
 
     region: RegionReadPublic = Field(description="Region hosting this service.")
@@ -90,7 +133,17 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
     """Model to extend the Block Storage Quota data read from the DB.
 
-    Add the target block storage service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+        service (BlockStorageServiceReadExtended): Target block storage service.
     """
 
     service: BlockStorageServiceReadExtended = Field(
@@ -101,7 +154,17 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
 class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
     """Model to extend the Block Storage Quota public data read from the DB.
 
-    Add the target block storage service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+        service (BlockStorageServiceReadExtendedPublic): Target block storage service.
     """
 
     service: BlockStorageServiceReadExtendedPublic = Field(
@@ -112,7 +175,16 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
 class ComputeQuotaReadExtended(ComputeQuotaRead):
     """Model to extend the Compute Quota data read from the DB.
 
-    Add the target compute service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        cores (int | None): Number of max usable cores.
+        instance (int | None): Number of max VM instances.
+        ram (int | None): Number of max usable RAM (MiB).
+        service (ComputeServiceReadExtended): Target compute service.
     """
 
     service: ComputeServiceReadExtended = Field(
@@ -123,7 +195,16 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
 class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     """Model to extend the Compute Quota public data read from the DB.
 
-    Add the target compute service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        cores (int | None): Number of max usable cores.
+        instance (int | None): Number of max VM instances.
+        ram (int | None): Number of max usable RAM (MiB).
+        service (ComputeServiceReadExtendedPublic): Target compute service.
     """
 
     service: ComputeServiceReadExtendedPublic = Field(
@@ -134,7 +215,21 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
 class NetworkQuotaReadExtended(NetworkQuotaRead):
     """Model to extend the Network Quota data read from the DB.
 
-    Add the target network service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        public_ips (int | None): The number of floating IP addresses allowed for each
+            project.
+        networks (int | None): The number of networks allowed for each project.
+        port (int | None): The number of ports allowed for each project.
+        security_groups (int | None): The number of security groups allowed for each
+            project.
+        security_group_rules (int | None): The number of security group rules allowed
+            for each project.
+        service (NetworkServiceReadExtended): Target network service.
     """
 
     service: NetworkServiceReadExtended = Field(
@@ -145,7 +240,21 @@ class NetworkQuotaReadExtended(NetworkQuotaRead):
 class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     """Model to extend the Network Quota public data read from the DB.
 
-    Add the target network service.
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        public_ips (int | None): The number of floating IP addresses allowed for each
+            project.
+        networks (int | None): The number of networks allowed for each project.
+        port (int | None): The number of ports allowed for each project.
+        security_groups (int | None): The number of security groups allowed for each
+            project.
+        security_group_rules (int | None): The number of security group rules allowed
+            for each project.
+        service (NetworkServiceReadExtendedPublic): Target network service.
     """
 
     service: NetworkServiceReadExtendedPublic = Field(
@@ -156,7 +265,13 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
 class UserGroupReadExtended(UserGroupRead):
     """Model to extend the User Group data read from the DB.
 
-    Add the identity provider owning this user group.
+    Attributes:
+    ----------
+        uid (int): User Group unique ID.
+        description (str): Brief description.
+        name (str): User Group name.
+        identity_provider (IdentityProviderRead): Identity provider owning this user
+            group.
     """
 
     identity_provider: IdentityProviderRead = Field(
@@ -167,7 +282,13 @@ class UserGroupReadExtended(UserGroupRead):
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
     """Model to extend the User Group public data read from the DB.
 
-    Add the identity provider owning this user group.
+    Attributes:
+    ----------
+        uid (int): User Group unique ID.
+        description (str): Brief description.
+        name (str): User Group name.
+        identity_provider (IdentityProviderReadPublic): Identity provider owning this
+            user group.
     """
 
     identity_provider: IdentityProviderReadPublic = Field(
@@ -178,7 +299,14 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
 class SLAReadExtended(SLARead):
     """Model to extend the SLA data read from the DB.
 
-    Add the user group involved in this SLA.
+    Attributes:
+    ----------
+        uid (int): SLA unique ID.
+        description (str): Brief description.
+        doc_uuid (str): Unique ID of the document with the SLA details.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
+        user_group (UserGroupReadExtended): Target user group.
     """
 
     user_group: UserGroupReadExtended = Field(description="Involved User Group.")
@@ -187,7 +315,14 @@ class SLAReadExtended(SLARead):
 class SLAReadExtendedPublic(SLAReadPublic):
     """Model to extend the SLA public data read from the DB.
 
-    Add the user group involved in this SLA.
+    Attributes:
+    ----------
+        uid (int): SLA unique ID.
+        description (str): Brief description.
+        doc_uuid (str): Unique ID of the document with the SLA details.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
+        user_group (UserGroupReadExtendedPublic): Target user group.
     """
 
     user_group: UserGroupReadExtendedPublic = Field(description="Involved User Group.")
@@ -196,8 +331,19 @@ class SLAReadExtendedPublic(SLAReadPublic):
 class ProjectReadExtended(ProjectRead):
     """Model to extend the Project data read from the DB.
 
-    Add the list of networks, flavors and images (publics and privates), the list of
-    quotas (any type), the SLA targeting this project and the provider hosting it.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedProject unique ID.
+        description (str): Brief description.
+        name (str): Name of the project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
+        provider (ProviderRead): Hosting provider.
+        sla (SLAReadExtended | None): SLA pointing to this project.
+        flavors (list of FlavorRead): Private and public accessible flavors.
+        images (list of ImageRead): Private and public accessible images.
+        networks (list of NetworkRead): Private and public accessible networks.
+        quotas (list of Quota): List of owned quotas pointing to the corresponding
+            service (block-storage, compute and network type).
     """
 
     flavors: List[FlavorRead] = Field(description="List of flavors")
@@ -216,7 +362,7 @@ class ProjectReadExtended(ProjectRead):
     )
 
     @classmethod
-    def from_orm(cls, obj: Any) -> "ProjectReadExtended":
+    def from_orm(cls, obj: Project) -> "ProjectReadExtended":
         """Method to merge public and private flavors, images and networks.
 
         `obj` is the orm model instance.
@@ -230,8 +376,19 @@ class ProjectReadExtended(ProjectRead):
 class ProjectReadExtendedPublic(ProjectReadPublic):
     """Model to extend the Project public data read from the DB.
 
-    Add the list of networks, flavors and images (publics and privates), the list of
-    quotas (any type), the SLA targeting this project and the provider hosting it.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedProject unique ID.
+        description (str): Brief description.
+        name (str): Name of the project in the Provider.
+        uuid (uuid): Project Unique ID in the Provider.
+        provider (ProviderReadPublic): Hosting provider.
+        sla (SLAReadExtendedPublic | None): SLA pointing to this project.
+        flavors (list of FlavorReadPublic): Private and public accessible flavors.
+        images (list of ImageReadPublic): Private and public accessible images.
+        networks (list of NetworkReadPublic): Private and public accessible networks.
+        quotas (list of QuotaPublic): List of owned quotas pointing to the corresponding
+            service (block-storage, compute and network type).
     """
 
     networks: List[NetworkReadPublic] = Field(description="List of networks")
@@ -250,7 +407,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     )
 
     @classmethod
-    def from_orm(cls, obj: Any) -> "ProjectReadExtended":
+    def from_orm(cls, obj: Project) -> "ProjectReadExtended":
         """Method to merge public and private flavors, images and networks.
 
         `obj` is the orm model instance.

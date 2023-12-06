@@ -10,7 +10,15 @@ from app.region.schemas import RegionRead, RegionReadPublic
 class LocationReadExtended(LocationRead):
     """Model to extend the Location data read from the DB.
 
-    Add the list of regions.
+    Attributes:
+    ----------
+        uid (int): Location unique ID.
+        description (str): Brief description.
+        site (str): Location unique name.
+        country (str): Country name.
+        latitude (float | None): Latitude coordinate.
+        longitude (float | None): Longitude coordinate.
+        regions (list of RegionRead): Hosted regions.
     """
 
     regions: List[RegionRead] = Field(description="List of hosted regions.")
@@ -19,7 +27,15 @@ class LocationReadExtended(LocationRead):
 class LocationReadExtendedPublic(LocationReadPublic):
     """Model to extend the Location public data read from the DB.
 
-    Add the list of regions.
+    Attributes:
+    ----------
+        uid (int): Location unique ID.
+        description (str): Brief description.
+        site (str): Location unique name.
+        country (str): Country name.
+        latitude (float | None): Latitude coordinate.
+        longitude (float | None): Longitude coordinate.
+        regions (list of RegionReadPublic): Hosted regions.
     """
 
     regions: List[RegionReadPublic] = Field(description="List of hosted regions.")

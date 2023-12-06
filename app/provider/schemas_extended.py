@@ -61,7 +61,12 @@ from app.user_group.schemas import (
 class UserGroupReadExtended(UserGroupRead):
     """Model to extend the User Group data read from the DB.
 
-    Add the list of involved SLAs.
+    Attributes:
+    ----------
+        uid (int): User Group unique ID.
+        description (str): Brief description.
+        name (str): User Group name.
+        slas (list of SLARead): Owned SLAs.
     """
 
     slas: List[SLARead] = Field(default_factory=list, description="List of SLA")
@@ -70,7 +75,12 @@ class UserGroupReadExtended(UserGroupRead):
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
     """Model to extend the User Group public data read from the DB.
 
-    Add the list of involved SLAs.
+    Attributes:
+    ----------
+        uid (int): User Group unique ID.
+        description (str): Brief description.
+        name (str): User Group name.
+        slas (list of SLARead): Owned SLAs.
     """
 
     slas: List[SLAReadPublic] = Field(default_factory=list, description="List of SLA")
@@ -79,8 +89,16 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
 class IdentityProviderReadExtended(IdentityProviderRead):
     """Model to extend the Identity Provider data read from the DB.
 
-    Add the list of owned user groups and the authentication method used by this
-    resource provider to connect to it.
+    Attributes:
+    ----------
+        uid (int): Identity Provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from an authentication token.
+        relationship (AuthMethodRead): Authentication method used by the target
+            provider to connect.
+        user_groups (list of UserGroupReadExtended): Owned user groups.
     """
 
     relationship: AuthMethodRead = Field(
@@ -94,8 +112,16 @@ class IdentityProviderReadExtended(IdentityProviderRead):
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
     """Model to extend the Identity Provider public data read from the DB.
 
-    Add the list of owned user groups and the authentication method used by this
-    resource provider to connect to it.
+    Attributes:
+    ----------
+        uid (int): Identity Provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from an authentication token.
+        relationship (AuthMethodRead): Authentication method used by the target
+            provider to connect.
+        user_groups (list of UserGroupReadExtendedPublic): Owned user groups.
     """
 
     relationship: AuthMethodRead = Field(
@@ -109,7 +135,14 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
 class BlockStorageServiceReadExtended(BlockStorageServiceRead):
     """Model to extend the Block Storage Service data read from the DB.
 
-    Add the list of owned quotas.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        quotas (list of BlockStorageQuotaReadExtended): Quotas pointing to this service.
     """
 
     quotas: List[BlockStorageQuotaRead] = Field(
@@ -120,7 +153,16 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
     """Model to extend the Block Storage Service data read from the DB.
 
-    Add the list of owned quotas.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtendedPublic): Region hosting this service.
+        quotas (list of BlockStorageQuotaReadExtendedPublic): Quotas pointing to this
+            service.
     """
 
     quotas: List[BlockStorageQuotaReadPublic] = Field(
@@ -131,7 +173,16 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
 class ComputeServiceReadExtended(ComputeServiceRead):
     """Model to extend the Compute Service data read from the DB.
 
-    Add the list of owned quotas, flavors and images.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        flavors (list of FlavorRead): Supplied flavors.
+        images (list of ImageRead): Supplied images.
+        quotas (list of ComputeQuotaReadExtended): Quotas pointing to this service.
     """
 
     flavors: List[FlavorRead] = Field(
@@ -148,7 +199,17 @@ class ComputeServiceReadExtended(ComputeServiceRead):
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     """Model to extend the Compute Service public data read from the DB.
 
-    Add the list of owned quotas, flavors and images.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        flavors (list of FlavorReadPublic): Supplied flavors.
+        images (list of ImageReadPublic): Supplied images.
+        quotas (list of ComputeQuotaReadExtendedPublic): Quotas pointing to this
+            service.
     """
 
     flavors: List[FlavorReadPublic] = Field(
@@ -165,7 +226,16 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
 class NetworkServiceReadExtended(NetworkServiceRead):
     """Model to extend the Network Service data read from the DB.
 
-    Add the list of owned quotas and networks.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        networks (list of NetworkRead): Supplied networks.
+        quotas (list of NetworkQuotaReadExtended): Quotas pointing to this
+            service.
     """
 
     networks: List[NetworkRead] = Field(
@@ -179,7 +249,16 @@ class NetworkServiceReadExtended(NetworkServiceRead):
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     """Model to extend the Network Service public data read from the DB.
 
-    Add the list of owned quotas and networks.
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        networks (list of NetworkReadPublic): Supplied networks.
+        quotas (list of NetworkQuotaReadExtendedPublic): Quotas pointing to this
+            service.
     """
 
     networks: List[NetworkReadPublic] = Field(
@@ -193,7 +272,14 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
 class RegionReadExtended(RegionRead):
     """Model to extend the Region data read from the DB.
 
-    Add the location hosting it and the list of supplied services.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        location (LocationRead | None): Location hosting the target region.
+        services (list of Service): Supplied services (block-storage, compute, identity
+            and network type).
     """
 
     location: Optional[LocationRead] = Field(
@@ -212,7 +298,14 @@ class RegionReadExtended(RegionRead):
 class RegionReadExtendedPublic(RegionReadPublic):
     """Model to extend the Region public data read from the DB.
 
-    Add the location hosting it and the list of supplied services.
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        location (LocationReadPublic | None): Location hosting the target region.
+        services (list of ServicePublic): Supplied services (block-storage, compute,
+            identity and network type).
     """
 
     location: Optional[LocationReadPublic] = Field(
@@ -231,8 +324,19 @@ class RegionReadExtendedPublic(RegionReadPublic):
 class ProviderReadExtended(ProviderRead):
     """Model to extend the Provider data read from the DB.
 
-    Add the list of allowed identity providers and the list of supplied projects and
-    regions.
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): List of maintainers emails.
+        identity_providers (list of IdentityProviderReadExtended): Supported identity
+            providers.
+        projects (list of ProjectRead): Supplied projects.
+        projects (list of RegionReadExtended): Supplied regions.
     """
 
     identity_providers: List[IdentityProviderReadExtended] = Field(
@@ -245,8 +349,19 @@ class ProviderReadExtended(ProviderRead):
 class ProviderReadExtendedPublic(ProviderReadPublic):
     """Model to extend the Provider public data read from the DB.
 
-    Add the list of allowed identity providers and the list of supplied projects and
-    regions.
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): List of maintainers emails.
+        identity_providers (list of IdentityProviderReadExtendedPublic): Supported
+            identity providers.
+        projects (list of ProjectReadPublic): Supplied projects.
+        projects (list of RegionReadExtendedPublic): Supplied regions.
     """
 
     identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
