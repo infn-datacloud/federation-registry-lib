@@ -95,7 +95,7 @@ def get_providers(
     )
     items = provider.paginate(items=items, page=page.page, size=page.size)
     return provider.choose_out_schema(
-        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -138,7 +138,7 @@ def get_provider(
     user_infos: Optional[Any] = None,
 ):
     return provider.choose_out_schema(
-        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 

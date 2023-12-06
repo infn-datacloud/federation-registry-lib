@@ -70,7 +70,7 @@ def get_identity_providers(
     )
     items = identity_provider.paginate(items=items, page=page.page, size=page.size)
     return identity_provider.choose_out_schema(
-        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -95,7 +95,7 @@ def get_identity_provider(
     user_infos: Optional[Any] = None,
 ):
     return identity_provider.choose_out_schema(
-        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 

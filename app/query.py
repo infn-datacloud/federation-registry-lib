@@ -11,13 +11,7 @@ from app.models import BaseNode, BaseNodeQuery
 class SchemaSize(BaseModel):
     """Model to add query attribute related to data response size."""
 
-    short: bool = Field(
-        default=False, description="Show a shortened version of the item."
-    )
-    with_conn: bool = Field(
-        default=False,
-        description="Show all related items. This flag overwrite the `short` flag",
-    )
+    with_conn: bool = Field(default=False, description="Show all related items.")
 
 
 class Pagination(BaseModel):

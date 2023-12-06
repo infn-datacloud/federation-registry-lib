@@ -62,9 +62,7 @@ def get_slas(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = sla.paginate(items=items, page=page.page, size=page.size)
-    return sla.choose_out_schema(
-        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
-    )
+    return sla.choose_out_schema(items=items, auth=user_infos, with_conn=size.with_conn)
 
 
 # @db.write_transaction
@@ -129,7 +127,7 @@ def get_sla(
     user_infos: Optional[Any] = None,
 ):
     return sla.choose_out_schema(
-        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 

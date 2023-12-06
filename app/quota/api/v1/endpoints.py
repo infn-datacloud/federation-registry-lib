@@ -77,7 +77,7 @@ def get_block_storage_quotas(
     )
     items = block_storage_quota.paginate(items=items, page=page.page, size=page.size)
     return block_storage_quota.choose_out_schema(
-        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -139,7 +139,7 @@ def get_block_storage_quota(
     user_infos: Optional[Any] = None,
 ):
     return block_storage_quota.choose_out_schema(
-        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -228,7 +228,7 @@ def get_compute_quotas(
     )
     items = compute_quota.paginate(items=items, page=page.page, size=page.size)
     return compute_quota.choose_out_schema(
-        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -290,7 +290,7 @@ def get_compute_quota(
     user_infos: Optional[Any] = None,
 ):
     return compute_quota.choose_out_schema(
-        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -379,7 +379,7 @@ def get_network_quotas(
     )
     items = network_quota.paginate(items=items, page=page.page, size=page.size)
     return network_quota.choose_out_schema(
-        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -404,7 +404,7 @@ def get_network_quota(
     user_infos: Optional[Any] = None,
 ):
     return network_quota.choose_out_schema(
-        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 

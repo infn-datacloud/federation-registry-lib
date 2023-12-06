@@ -61,7 +61,7 @@ def get_images(
     )
     items = image.paginate(items=items, page=page.page, size=page.size)
     return image.choose_out_schema(
-        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -86,7 +86,7 @@ def get_image(
     user_infos: Optional[Any] = None,
 ):
     return image.choose_out_schema(
-        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
