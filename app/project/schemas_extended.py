@@ -58,8 +58,6 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadPublic): Region hosting this service.
     """
 
@@ -90,8 +88,6 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadPublic): Region hosting this service.
     """
 
@@ -122,8 +118,6 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadPublic): Region hosting this service.
     """
 
@@ -158,12 +152,7 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
     ----------
         uid (int): Quota unique ID.
         description (str): Brief description.
-        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
-        gigabytes (int | None): Number of max usable gigabytes (GiB).
-        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
-            (GiB).
-        volumes (int | None): Number of max volumes a user group can create.
         service (BlockStorageServiceReadExtendedPublic): Target block storage service.
     """
 
@@ -199,11 +188,7 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     ----------
         uid (int): Quota unique ID.
         description (str): Brief description.
-        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
-        cores (int | None): Number of max usable cores.
-        instance (int | None): Number of max VM instances.
-        ram (int | None): Number of max usable RAM (MiB).
         service (ComputeServiceReadExtendedPublic): Target compute service.
     """
 
@@ -244,16 +229,7 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     ----------
         uid (int): Quota unique ID.
         description (str): Brief description.
-        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
-        public_ips (int | None): The number of floating IP addresses allowed for each
-            project.
-        networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
-        security_groups (int | None): The number of security groups allowed for each
-            project.
-        security_group_rules (int | None): The number of security group rules allowed
-            for each project.
         service (NetworkServiceReadExtendedPublic): Target network service.
     """
 
@@ -320,8 +296,6 @@ class SLAReadExtendedPublic(SLAReadPublic):
         uid (int): SLA unique ID.
         description (str): Brief description.
         doc_uuid (str): Unique ID of the document with the SLA details.
-        start_date (datetime): SLA validity start date.
-        end_date (datetime): SLA validity end date.
         user_group (UserGroupReadExtendedPublic): Target user group.
     """
 

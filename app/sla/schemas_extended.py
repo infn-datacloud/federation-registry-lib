@@ -103,8 +103,6 @@ class SLAReadExtendedPublic(SLAReadPublic):
         uid (int): SLA unique ID.
         description (str): Brief description.
         doc_uuid (str): Unique ID of the document with the SLA details.
-        start_date (datetime): SLA validity start date.
-        end_date (datetime): SLA validity end date.
         projects (list of ProjectReadExtendedPublic): Target projects.
         user_group (UserGroupReadExtendedPublic): Target user group.
     """

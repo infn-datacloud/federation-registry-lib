@@ -62,8 +62,6 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
@@ -116,17 +114,6 @@ class FlavorReadExtendedPublic(FlavorReadPublic):
         description (str): Brief description.
         name (str): Flavor name in the Provider.
         uuid (str): Flavor unique ID in the Provider
-        disk (int): Reserved disk size (GiB)
-        is_public (bool): Public or private Flavor.
-        ram (int): Reserved RAM (MiB)
-        vcpus (int): Number of Virtual CPUs.
-        swap (int): Swap size (GiB).
-        ephemeral (int): Ephemeral disk size (GiB).
-        infiniband (bool): MPI - parallel multi-process enabled.
-        gpus (int): Number of GPUs.
-        gpu_model (str | None): GPU model name.
-        gpu_vendor (str | None): Name of the GPU vendor.
-        local_storage (str | None): Local storage presence.
         projects (list of ProjectReadPublic): Projects having access to this flavor. The
             list is populated only if the flavor is a private one.
         services (list of ComputeServiceReadExtendedPublic): Compute Services exploiting

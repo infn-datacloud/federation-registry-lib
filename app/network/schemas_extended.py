@@ -62,8 +62,6 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
@@ -106,13 +104,6 @@ class NetworkReadExtendedPublic(NetworkReadPublic):
         description (str): Brief description.
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
-        is_shared (bool): Public or private Network.
-        is_router_external (bool): Network with access to the outside.
-        is_default (bool): Network to use as default.
-        mtu (int | None): Metric transmission unit (B).
-        proxy_ip (str | None): Proxy IP address.
-        proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
         project (ProjectRead | None): Projects having access to this network if the
             network is not shared.
         service (NetworkServiceReadExtendedPublic): Network Service supplying this

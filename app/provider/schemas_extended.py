@@ -117,8 +117,6 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
         uid (int): Identity Provider unique ID.
         description (str): Brief description.
         endpoint (str): URL of the Identity Provider.
-        group_claim (str): value of the key from which retrieve
-            the user group name from an authentication token.
         relationship (AuthMethodRead): Authentication method used by the target
             provider to connect.
         user_groups (list of UserGroupReadExtendedPublic): Owned user groups.
@@ -158,8 +156,6 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadExtendedPublic): Region hosting this service.
         quotas (list of BlockStorageQuotaReadExtendedPublic): Quotas pointing to this
             service.
@@ -204,8 +200,6 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         flavors (list of FlavorReadPublic): Supplied flavors.
         images (list of ImageReadPublic): Supplied images.
         quotas (list of ComputeQuotaReadExtendedPublic): Quotas pointing to this
@@ -254,8 +248,6 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         networks (list of NetworkReadPublic): Supplied networks.
         quotas (list of NetworkQuotaReadExtendedPublic): Quotas pointing to this
             service.
@@ -354,10 +346,6 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
         uid (int): Provider unique ID.
         description (str): Brief description.
         name (str): Provider name.
-        type (str): Provider type.
-        status (str | None): Provider status.
-        is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
         identity_providers (list of IdentityProviderReadExtendedPublic): Supported
             identity providers.
         projects (list of ProjectReadPublic): Supplied projects.

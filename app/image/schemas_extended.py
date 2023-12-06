@@ -62,8 +62,6 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
@@ -114,15 +112,6 @@ class ImageReadExtendedPublic(ImageReadPublic):
         description (str): Brief description.
         name (str): Image name in the Provider.
         uuid (str): Image unique ID in the Provider
-        os_type (str | None): OS type.
-        os_distro (str | None): OS distribution.
-        os_version (str | None): Distribution version.
-        architecture (str | None): OS architecture.
-        kernel_id (str | None): Kernel version.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs drivers.
-        is_public (bool): Public or private Image.
-        tags (list of str): List of tags associated to this Image.
         projects (list of ProjectReadPublic): Projects having access to this flavor. The
             list is populated only if the flavor is a private one.
         services (list of ComputeServiceReadExtendedPublic): Compute Services exploiting

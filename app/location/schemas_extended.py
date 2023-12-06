@@ -16,6 +16,7 @@ class LocationReadExtended(LocationRead):
         description (str): Brief description.
         site (str): Location unique name.
         country (str): Country name.
+        country_code (str): Country code with 3 chars.
         latitude (float | None): Latitude coordinate.
         longitude (float | None): Longitude coordinate.
         regions (list of RegionRead): Hosted regions.
@@ -32,9 +33,6 @@ class LocationReadExtendedPublic(LocationReadPublic):
         uid (int): Location unique ID.
         description (str): Brief description.
         site (str): Location unique name.
-        country (str): Country name.
-        latitude (float | None): Latitude coordinate.
-        longitude (float | None): Longitude coordinate.
         regions (list of RegionReadPublic): Hosted regions.
     """
 

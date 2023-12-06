@@ -83,12 +83,7 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
     ----------
         uid (int): Quota unique ID.
         description (str): Brief description.
-        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
-        gigabytes (int | None): Number of max usable gigabytes (GiB).
-        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
-            (GiB).
-        volumes (int | None): Number of max volumes a user group can create.
         project (ProjectReadPublic): Target project.
     """
 
@@ -120,11 +115,7 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     ----------
         uid (int): Quota unique ID.
         description (str): Brief description.
-        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
-        cores (int | None): Number of max usable cores.
-        instance (int | None): Number of max VM instances.
-        ram (int | None): Number of max usable RAM (MiB).
         project (ProjectReadPublic): Target project.
     """
 
@@ -161,16 +152,7 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     ----------
         uid (int): Quota unique ID.
         description (str): Brief description.
-        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
-        public_ips (int | None): The number of floating IP addresses allowed for each
-            project.
-        networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
-        security_groups (int | None): The number of security groups allowed for each
-            project.
-        security_group_rules (int | None): The number of security group rules allowed
-            for each project.
         project (ProjectReadPublic): Target project.
     """
 
@@ -203,8 +185,6 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadExtendedPublic): Region hosting this service.
         quotas (list of BlockStorageQuotaReadExtendedPublic): Quotas pointing to this
             service.
@@ -246,8 +226,6 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadExtendedPublic): Region hosting this service.
         flavors (list of FlavorReadPublic): Supplied flavors.
         images (list of ImageReadPublic): Supplied images.
@@ -285,8 +263,6 @@ class IdentityServiceReadExtendedPublic(IdentityServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
@@ -321,8 +297,6 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
         region (RegionReadExtendedPublic): Region hosting this service.
         networks (list of NetworkReadPublic): Supplied networks.
         quotas (list of NetworkQuotaReadExtendedPublic): Quotas pointing to this
