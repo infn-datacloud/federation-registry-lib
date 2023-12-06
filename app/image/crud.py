@@ -1,18 +1,10 @@
+"""Module with Create, Read, Update and Delete operations for an Image."""
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.image.models import Image
-from app.image.schemas import (
-    ImageCreate,
-    ImageRead,
-    ImageReadPublic,
-    ImageReadShort,
-    ImageUpdate,
-)
-from app.image.schemas_extended import (
-    ImageReadExtended,
-    ImageReadExtendedPublic,
-)
+from app.image.schemas import ImageCreate, ImageRead, ImageReadPublic, ImageUpdate
+from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.project.models import Project
 from app.provider.schemas_extended import ImageCreateExtended
 from app.service.models import ComputeService
@@ -25,7 +17,6 @@ class CRUDImage(
         ImageUpdate,
         ImageRead,
         ImageReadPublic,
-        ImageReadShort,
         ImageReadExtended,
         ImageReadExtendedPublic,
     ]
@@ -127,7 +118,6 @@ image = CRUDImage(
     create_schema=ImageCreate,
     read_schema=ImageRead,
     read_public_schema=ImageReadPublic,
-    read_short_schema=ImageReadShort,
     read_extended_schema=ImageReadExtended,
     read_extended_public_schema=ImageReadExtendedPublic,
 )

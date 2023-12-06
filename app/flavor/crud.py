@@ -1,14 +1,9 @@
+"""Module with Create, Read, Update and Delete operations for a Flavor."""
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.flavor.models import Flavor
-from app.flavor.schemas import (
-    FlavorCreate,
-    FlavorRead,
-    FlavorReadPublic,
-    FlavorReadShort,
-    FlavorUpdate,
-)
+from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic, FlavorUpdate
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.project.models import Project
 from app.provider.schemas_extended import FlavorCreateExtended
@@ -22,7 +17,6 @@ class CRUDFlavor(
         FlavorUpdate,
         FlavorRead,
         FlavorReadPublic,
-        FlavorReadShort,
         FlavorReadExtended,
         FlavorReadExtendedPublic,
     ]
@@ -124,7 +118,6 @@ flavor = CRUDFlavor(
     create_schema=FlavorCreate,
     read_schema=FlavorRead,
     read_public_schema=FlavorReadPublic,
-    read_short_schema=FlavorReadShort,
     read_extended_schema=FlavorReadExtended,
     read_extended_public_schema=FlavorReadExtendedPublic,
 )

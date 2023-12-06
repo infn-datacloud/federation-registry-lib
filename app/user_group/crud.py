@@ -1,3 +1,4 @@
+"""Module with Create, Read, Update and Delete operations for a User Group."""
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
@@ -10,7 +11,6 @@ from app.user_group.schemas import (
     UserGroupCreate,
     UserGroupRead,
     UserGroupReadPublic,
-    UserGroupReadShort,
     UserGroupUpdate,
 )
 from app.user_group.schemas_extended import (
@@ -26,7 +26,6 @@ class CRUDUserGroup(
         UserGroupUpdate,
         UserGroupRead,
         UserGroupReadPublic,
-        UserGroupReadShort,
         UserGroupReadExtended,
         UserGroupReadExtendedPublic,
     ]
@@ -152,7 +151,6 @@ user_group = CRUDUserGroup(
     create_schema=UserGroupCreate,
     read_schema=UserGroupRead,
     read_public_schema=UserGroupReadPublic,
-    read_short_schema=UserGroupReadShort,
     read_extended_schema=UserGroupReadExtended,
     read_extended_public_schema=UserGroupReadExtendedPublic,
 )

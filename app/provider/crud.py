@@ -1,3 +1,4 @@
+"""Module with Create, Read, Update and Delete operations for a Provider."""
 from typing import Optional, Union
 
 from app.crud import CRUDBase
@@ -8,7 +9,6 @@ from app.provider.schemas import (
     ProviderCreate,
     ProviderRead,
     ProviderReadPublic,
-    ProviderReadShort,
     ProviderUpdate,
 )
 from app.provider.schemas_extended import (
@@ -26,7 +26,6 @@ class CRUDProvider(
         ProviderUpdate,
         ProviderRead,
         ProviderReadPublic,
-        ProviderReadShort,
         ProviderReadExtended,
         ProviderReadExtendedPublic,
     ]
@@ -184,7 +183,6 @@ provider = CRUDProvider(
     create_schema=ProviderCreate,
     read_schema=ProviderRead,
     read_public_schema=ProviderReadPublic,
-    read_short_schema=ProviderReadShort,
     read_extended_schema=ProviderReadExtended,
     read_extended_public_schema=ProviderReadExtendedPublic,
 )

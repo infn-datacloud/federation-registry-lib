@@ -1,16 +1,13 @@
+"""Module with Create, Read, Update and Delete operations for a Project."""
 from app.crud import CRUDBase
 from app.project.models import Project
 from app.project.schemas import (
     ProjectCreate,
     ProjectRead,
     ProjectReadPublic,
-    ProjectReadShort,
     ProjectUpdate,
 )
-from app.project.schemas_extended import (
-    ProjectReadExtended,
-    ProjectReadExtendedPublic,
-)
+from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.provider.models import Provider
 from app.quota.crud import block_storage_quota, compute_quota
 from app.quota.models import BlockStorageQuota, ComputeQuota
@@ -24,7 +21,6 @@ class CRUDProject(
         ProjectUpdate,
         ProjectRead,
         ProjectReadPublic,
-        ProjectReadShort,
         ProjectReadExtended,
         ProjectReadExtendedPublic,
     ]
@@ -62,7 +58,6 @@ project = CRUDProject(
     create_schema=ProjectCreate,
     read_schema=ProjectRead,
     read_public_schema=ProjectReadPublic,
-    read_short_schema=ProjectReadShort,
     read_extended_schema=ProjectReadExtended,
     read_extended_public_schema=ProjectReadExtendedPublic,
 )

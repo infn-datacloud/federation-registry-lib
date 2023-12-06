@@ -1,3 +1,4 @@
+"""Module with Create, Read, Update and Delete operations for an Identity Provider."""
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
@@ -6,7 +7,6 @@ from app.identity_provider.schemas import (
     IdentityProviderCreate,
     IdentityProviderRead,
     IdentityProviderReadPublic,
-    IdentityProviderReadShort,
     IdentityProviderUpdate,
 )
 from app.identity_provider.schemas_extended import (
@@ -26,7 +26,6 @@ class CRUDIdentityProvider(
         IdentityProviderUpdate,
         IdentityProviderRead,
         IdentityProviderReadPublic,
-        IdentityProviderReadShort,
         IdentityProviderReadExtended,
         IdentityProviderReadExtendedPublic,
     ]
@@ -158,7 +157,6 @@ identity_provider = CRUDIdentityProvider(
     create_schema=IdentityProviderCreate,
     read_schema=IdentityProviderRead,
     read_public_schema=IdentityProviderReadPublic,
-    read_short_schema=IdentityProviderReadShort,
     read_extended_schema=IdentityProviderReadExtended,
     read_extended_public_schema=IdentityProviderReadExtendedPublic,
 )

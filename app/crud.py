@@ -1,16 +1,19 @@
+"""Class with common Create, Read, Update and delete operations."""
 from typing import Generic, List, Optional, Type, TypeVar, Union
 
 from neomodel import StructuredNode
-from pydantic import BaseModel
+
+from app.models import BaseNodeCreate, BaseNodeRead
 
 ModelType = TypeVar("ModelType", bound=StructuredNode)
-CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseModel)
-UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
-ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseModel)
-ReadPublicSchemaType = TypeVar("ReadPublicSchemaType", bound=BaseModel)
-ReadShortSchemaType = TypeVar("ReadShortSchemaType", bound=BaseModel)
-ReadExtendedSchemaType = TypeVar("ReadExtendedSchemaType", BaseModel, None)
-ReadExtendedPublicSchemaType = TypeVar("ReadExtendedPublicSchemaType", BaseModel, None)
+CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseNodeCreate)
+UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseNodeCreate)
+ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseNodeRead)
+ReadPublicSchemaType = TypeVar("ReadPublicSchemaType", bound=BaseNodeRead)
+ReadExtendedSchemaType = TypeVar("ReadExtendedSchemaType", BaseNodeRead, None)
+ReadExtendedPublicSchemaType = TypeVar(
+    "ReadExtendedPublicSchemaType", BaseNodeRead, None
+)
 
 
 class CRUDBase(
@@ -20,11 +23,12 @@ class CRUDBase(
         UpdateSchemaType,
         ReadSchemaType,
         ReadPublicSchemaType,
-        ReadShortSchemaType,
         ReadExtendedSchemaType,
         ReadExtendedPublicSchemaType,
     ]
 ):
+    """Class with common Create, Read, Update and delete operations."""
+
     def __init__(
         self,
         *,
@@ -32,34 +36,43 @@ class CRUDBase(
         create_schema: Type[CreateSchemaType],
         read_schema: Type[ReadSchemaType],
         read_public_schema: Type[ReadPublicSchemaType],
-        read_short_schema: Type[ReadShortSchemaType],
         read_extended_schema: Type[ReadExtendedSchemaType],
         read_extended_public_schema: Type[ReadExtendedPublicSchemaType],
     ):
-        """CRUD object with default methods to Create, Read, Update, Delete (CRUD)
+        """CRUD object with default methods to Create, Read, Update, Delete (CRUD).
 
-        **Parameters**
-
-        * `model`: A Neo4j model class
-        * `create schema`: A Pydantic model (schema) class to create items
-        * `read schema`: A Pydantic model (schema) class,
-            for authenticated users, to read items
-        * `read schema public`: A Pydantic model (schema) class,
-            for unauthenticated users, to read items
-        * `read schema short`: A Pydantic model (schema) class,
-            for authenticated users, to read essential items' data
-        * `read schema extended`: A Pydantic model (schema) class,
-            for authenticated users, to read items with their connections
+        Args:
+        ----
+            model (Type[ModelType]): A neomodel model used to read data from DB.
+            create_schema (Type[CreateSchemaType]): A pydantic model to create add items
+                to the DB.
+            read_schema (Type[ReadSchemaType]): A pydantic model to return to users
+                public and restricted data.
+            read_public_schema (Type[ReadPublicSchemaType]): A pydantic model to return
+                to users only public data.
+            read_extended_schema (Type[ReadSchemaExtendedType]): A pydantic model
+                to return to users public and restricted data.
+            read_extended_public_schema (Type[ReadExtendedPublicSchemaType]): A pydantic
+                model to return to users only public data.
         """
         self.model = model
         self.create_schema = create_schema
         self.read_schema = read_schema
         self.read_public_schema = read_public_schema
-        self.read_short_schema = read_short_schema
         self.read_extended_schema = read_extended_schema
         self.read_extended_public_schema = read_extended_public_schema
 
     def get(self, **kwargs) -> Optional[ModelType]:
+        """Try to retrieve from DB an object with the given attributes.
+
+        Args:
+        ----
+            **kwargs: Arbitrary keyword arguments usewd to filter the get operation.
+
+        Returns:
+        -------
+            ModelType | None.
+        """
         return self.model.nodes.get_or_none(**kwargs)
 
     def get_multi(
@@ -114,10 +127,9 @@ class CRUDBase(
         return items[start:end]
 
     def choose_out_schema(
-        self, *, items: List[ModelType], auth: bool, short: bool, with_conn: bool
+        self, *, items: List[ModelType], auth: bool, with_conn: bool
     ) -> Union[
         List[ReadPublicSchemaType],
-        List[ReadShortSchemaType],
         List[ReadSchemaType],
         List[ReadExtendedPublicSchemaType],
         List[ReadExtendedSchemaType],
@@ -125,8 +137,6 @@ class CRUDBase(
         if auth:
             if with_conn:
                 return [self.read_extended_schema.from_orm(i) for i in items]
-            if short:
-                return [self.read_short_schema.from_orm(i) for i in items]
             return [self.read_schema.from_orm(i) for i in items]
         if with_conn:
             return [self.read_extended_public_schema.from_orm(i) for i in items]
