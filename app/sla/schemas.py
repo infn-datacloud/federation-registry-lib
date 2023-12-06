@@ -8,8 +8,20 @@ from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
-class SLABase(BaseNode):
-    """Model with SLA basic attributes.
+class SLABasePublic(BaseNode):
+    """Model with SLA public attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        doc_uuid (str): Unique ID of the document with the SLA details.
+    """
+
+    doc_uuid: str = Field(description="UUID of the corresponding document.")
+
+
+class SLABase(SLABasePublic):
+    """Model with SLA public and restricted attributes.
 
     Attributes:
     ----------
@@ -24,7 +36,6 @@ class SLABase(BaseNode):
         description="End of life date for this SLA. \
             If not set it lasts forever.",
     )
-    doc_uuid: str = Field(description="UUID of the corresponding document.")
 
 
 class SLACreate(BaseNodeCreate, SLABase):
@@ -79,12 +90,27 @@ class SLAUpdate(BaseNodeCreate, SLABase):
     )
 
 
-class SLARead(BaseNodeRead, SLABase):
-    """Model to read SLA data retrieved from DB.
+class SLAReadPublic(BaseNodeRead, SLABasePublic):
+    """Model, for non-authenticated users, to read SLA data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): SLA unique ID.
+        description (str): Brief description.
+        doc_uuid (str): Unique ID of the document with the SLA details.
+    """
+
+
+class SLARead(BaseNodeRead, SLABase):
+    """Model, for authenticated users, to read SLA data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -96,14 +122,6 @@ class SLARead(BaseNodeRead, SLABase):
         start_date (datetime): SLA validity start date.
         end_date (datetime): SLA validity end date.
     """
-
-
-class SLAReadPublic(BaseNodeRead, SLABase):
-    pass
-
-
-class SLAReadShort(BaseNodeRead, SLABase):
-    pass
 
 
 SLAQuery = create_query_model("SLAQuery", SLABase)

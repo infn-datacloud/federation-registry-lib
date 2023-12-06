@@ -9,23 +9,23 @@ from app.quota.enum import QuotaType
 
 
 class QuotaBase(BaseNode):
-    """Model with Quota basic attributes.
+    """Model with Quota common attributes.
+
+    This model is used also as a public interface.
 
     Attributes:
     ----------
         description (str): Brief description.
-        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
 
-    type: QuotaType = Field(description="Quota type.")
     per_user: bool = Field(default=False, description="Quota to apply for each user")
 
 
 class BlockStorageQuotaBase(QuotaBase):
-    """Model derived from ServiceBase to inherit attributes common to all services.
+    """Model with the Block Storage Quota public and restricted attributes.
 
-    It adds the basic attributes for BlockStorage services.
+    Model derived from QuotaBase to inherit attributes common to all quotas.
 
     Attributes:
     ----------
@@ -91,12 +91,27 @@ class BlockStorageQuotaUpdate(BaseNodeCreate, BlockStorageQuotaBase):
     """
 
 
-class BlockStorageQuotaRead(BaseNodeRead, BlockStorageQuotaBase):
-    """Model to read Block Storage Quota data retrieved from DB.
+class BlockStorageQuotaReadPublic(BaseNodeRead, QuotaBase):
+    """Model, for non-authenticated users, to read Block Storage data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+
+class BlockStorageQuotaRead(BaseNodeRead, BlockStorageQuotaBase):
+    """Model, for authenticated users, to read Block Storage data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -113,23 +128,15 @@ class BlockStorageQuotaRead(BaseNodeRead, BlockStorageQuotaBase):
     """
 
 
-class BlockStorageQuotaReadPublic(BaseNodeRead, BlockStorageQuotaBase):
-    pass
-
-
-class BlockStorageQuotaReadShort(BaseNodeRead, BlockStorageQuotaBase):
-    pass
-
-
 BlockStorageQuotaQuery = create_query_model(
     "BlockStorageQuotaQuery", BlockStorageQuotaBase
 )
 
 
 class ComputeQuotaBase(QuotaBase):
-    """Model derived from ServiceBase to inherit attributes common to all services.
+    """Model with the Compute Quota public and restricted attributes.
 
-    It adds the basic attributes for Compute services.
+    Model derived from QuotaBase to inherit attributes common to all quotas.
 
     Attributes:
     ----------
@@ -193,12 +200,27 @@ class ComputeQuotaUpdate(BaseNodeCreate, ComputeQuotaBase):
     """
 
 
-class ComputeQuotaRead(BaseNodeRead, ComputeQuotaBase):
-    """Model to read Compute Quota data retrieved from DB.
+class ComputeQuotaReadPublic(BaseNodeRead, QuotaBase):
+    """Model, for non-authenticated users, to read Compute data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+
+class ComputeQuotaRead(BaseNodeRead, ComputeQuotaBase):
+    """Model, for authenticated users, to read Compute data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -214,21 +236,13 @@ class ComputeQuotaRead(BaseNodeRead, ComputeQuotaBase):
     """
 
 
-class ComputeQuotaReadPublic(BaseNodeRead, ComputeQuotaBase):
-    pass
-
-
-class ComputeQuotaReadShort(BaseNodeRead, ComputeQuotaBase):
-    pass
-
-
 ComputeQuotaQuery = create_query_model("ComputeQuotaQuery", ComputeQuotaBase)
 
 
 class NetworkQuotaBase(QuotaBase):
-    """Model derived from ServiceBase to inherit attributes common to all services.
+    """Model with the Network Quota public and restricted attributes.
 
-    It adds the basic attributes for Network services.
+    Model derived from QuotaBase to inherit attributes common to all quotas.
 
     Attributes:
     ----------
@@ -327,12 +341,27 @@ class NetworkQuotaUpdate(BaseNodeCreate, NetworkQuotaBase):
     """
 
 
-class NetworkQuotaRead(BaseNodeRead, NetworkQuotaBase):
-    """Model to read Network Quota data retrieved from DB.
+class NetworkQuotaReadPublic(BaseNodeRead, QuotaBase):
+    """Model, for non-authenticated users, to read Network data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+
+class NetworkQuotaRead(BaseNodeRead, NetworkQuotaBase):
+    """Model, for authenticated users, to read Network data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -351,14 +380,6 @@ class NetworkQuotaRead(BaseNodeRead, NetworkQuotaBase):
         security_group_rules (int | None): The number of security group rules allowed
             for each project.
     """
-
-
-class NetworkQuotaReadPublic(BaseNodeRead, NetworkQuotaBase):
-    pass
-
-
-class NetworkQuotaReadShort(BaseNodeRead, NetworkQuotaBase):
-    pass
 
 
 NetworkQuotaQuery = create_query_model("NetworkQuotaQuery", NetworkQuotaBase)

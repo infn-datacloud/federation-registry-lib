@@ -7,8 +7,22 @@ from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
-class NetworkBase(BaseNode):
-    """Model with Network basic attributes.
+class NetworkBasePublic(BaseNode):
+    """Model with Network public attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+    """
+
+    name: str = Field(description="Network name in the provider.")
+    uuid: str = Field(description="Network UUID in the provider.")
+
+
+class NetworkBase(NetworkBasePublic):
+    """Model with Network public and restricted attributes.
 
     Attributes:
     ----------
@@ -24,8 +38,6 @@ class NetworkBase(BaseNode):
         tags (list of str): List of tags associated to this Network.
     """
 
-    name: str = Field(description="Network name in the provider.")
-    uuid: str = Field(description="Network UUID in the provider.")
     is_shared: bool = Field(
         default=True,
         description="Public (accessible to all projects) or private network type",
@@ -98,12 +110,28 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
     )
 
 
-class NetworkRead(BaseNodeRead, NetworkBase):
-    """Model to read Network data retrieved from DB.
+class NetworkReadPublic(BaseNodeRead, NetworkBasePublic):
+    """Model, for non-authenticated users, to read Network data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Network unique ID.
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+    """
+
+
+class NetworkRead(BaseNodeRead, NetworkBase):
+    """Model, for authenticated users, to read Network data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -121,14 +149,6 @@ class NetworkRead(BaseNodeRead, NetworkBase):
         proxy_user (str | None): Proxy username.
         tags (list of str): List of tags associated to this Network.
     """
-
-
-class NetworkReadPublic(BaseNodeRead, NetworkBase):
-    pass
-
-
-class NetworkReadShort(BaseNodeRead, NetworkBase):
-    pass
 
 
 NetworkQuery = create_query_model("NetworkQuery", NetworkBase)

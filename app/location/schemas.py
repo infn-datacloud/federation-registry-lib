@@ -8,8 +8,20 @@ from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
-class LocationBase(BaseNode):
-    """Model with Location basic attributes.
+class LocationBasePublic(BaseNode):
+    """Model with Location public attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        site (str): Location unique name.
+    """
+
+    site: str = Field(description="Name of the Location hosting a provider.")
+
+
+class LocationBase(LocationBasePublic):
+    """Model with Location public and restricted attributes.
 
     Attributes:
     ----------
@@ -20,7 +32,6 @@ class LocationBase(BaseNode):
         longitude (float | None): Longitude coordinate.
     """
 
-    site: str = Field(description="Name of the Location hosting a provider.")
     country: str = Field(description="Location's country name.")
     latitude: Optional[float] = Field(
         default=None, ge=-180, le=180, description="Latitude coordinate."
@@ -75,15 +86,30 @@ class LocationUpdate(BaseNodeCreate, LocationBase):
     country: Optional[str] = Field(default=None, description="Location's country name.")
 
 
+class LocationReadPublic(BaseNodeRead, LocationBasePublic):
+    """Model, for non-authenticated users, to read Location data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Location unique ID.
+        description (str): Brief description.
+        site (str): Location unique name.
+    """
+
+
 class LocationRead(BaseNodeRead, LocationBase):
-    """Model to read Location data retrieved from DB.
+    """Model, for authenticated users, to read Location data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
-    Add the *uid* attribute, which is the item unique identifier in the database. Add
-    the *country_code* attribute.
+    Add the *uid* attribute, which is the item unique identifier in the database.
+    Add the *country_code* attribute.
 
     Attributes:
     ----------
@@ -91,12 +117,13 @@ class LocationRead(BaseNodeRead, LocationBase):
         description (str): Brief description.
         site (str): Location unique name.
         country (str): Country name.
+        country_code (str): Country code with 3 chars.
         latitude (float | None): Latitude coordinate.
         longitude (float | None): Longitude coordinate.
     """
 
     country_code: Optional[str] = Field(
-        default=None, description="Country code with 3 char"
+        default=None, description="Country code with 3 chars"
     )
 
     @root_validator(pre=True)
@@ -106,14 +133,6 @@ class LocationRead(BaseNodeRead, LocationBase):
         if len(matches) > 0:
             values["country_code"] = matches[0].alpha_3
         return values
-
-
-class LocationReadPublic(BaseNodeRead, LocationBase):
-    pass
-
-
-class LocationReadShort(BaseNodeRead, LocationBase):
-    pass
 
 
 LocationQuery = create_query_model("LocationQuery", LocationBase)

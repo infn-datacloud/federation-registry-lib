@@ -7,8 +7,22 @@ from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
-class FlavorBase(BaseNode):
-    """Model with Flavor basic attributes.
+class FlavorBasePublic(BaseNode):
+    """Model with Flavor public attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider
+    """
+
+    name: str = Field(description="Flavor name in the provider.")
+    uuid: str = Field(description="Flavor UUID in the provider.")
+
+
+class FlavorBase(FlavorBasePublic):
+    """Model with Flavor public and restricted attributes.
 
     Attributes:
     ----------
@@ -28,8 +42,6 @@ class FlavorBase(BaseNode):
         local_storage (str | None): Local storage presence.
     """
 
-    name: str = Field(description="Flavor name in the provider.")
-    uuid: str = Field(description="Flavor UUID in the provider.")
     disk: int = Field(default=0, ge=0, description="Reserved disk size (GB)")
     is_public: bool = Field(default=True, description="Public available")
     ram: int = Field(default=0, ge=0, description="Reserved RAM size (MB)")
@@ -120,12 +132,28 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
     )
 
 
-class FlavorRead(BaseNodeRead, FlavorBase):
-    """Model, for authenticated users, to read all Flavor data retrieved from DB.
+class FlavorReadPublic(BaseNodeRead, FlavorBasePublic):
+    """Model, for non-authenticated users, to read Flavor data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Flavor unique ID.
+        description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider
+    """
+
+
+class FlavorRead(BaseNodeRead, FlavorBase):
+    """Model, for authenticated users, to read Flavor data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -147,14 +175,6 @@ class FlavorRead(BaseNodeRead, FlavorBase):
         gpu_vendor (str | None): Name of the GPU vendor.
         local_storage (str | None): Local storage presence.
     """
-
-
-class FlavorReadPublic(BaseNodeRead, FlavorBase):
-    pass
-
-
-class FlavorReadShort(BaseNodeRead, FlavorBase):
-    pass
 
 
 FlavorQuery = create_query_model("FlavorQuery", FlavorBase)

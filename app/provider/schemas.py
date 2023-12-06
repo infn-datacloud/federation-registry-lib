@@ -8,8 +8,20 @@ from app.provider.enum import ProviderStatus, ProviderType
 from app.query import create_query_model
 
 
-class ProviderBase(BaseNode):
-    """Model with Provider basic attributes.
+class ProviderBasePublic(BaseNode):
+    """Model with Provider public attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Provider name.
+    """
+
+    name: str = Field(description="Provider name.")
+
+
+class ProviderBase(ProviderBasePublic):
+    """Model with Provider public and restricted attributes.
 
     Attributes:
     ----------
@@ -21,7 +33,6 @@ class ProviderBase(BaseNode):
         support_email (list of str): List of maintainers emails.
     """
 
-    name: str = Field(description="Provider name.")
     type: ProviderType = Field(description="Provider type.")
     status: ProviderStatus = Field(
         default=ProviderStatus.ACTIVE, description="Provider status"
@@ -71,12 +82,27 @@ class ProviderUpdate(BaseNodeCreate, ProviderBase):
     type: Optional[ProviderType] = Field(default=None, description="Provider type.")
 
 
-class ProviderRead(BaseNodeRead, ProviderBase):
-    """Model to read Provider data retrieved from DB.
+class ProviderReadPublic(BaseNodeRead, ProviderBasePublic):
+    """Model, for non-authenticated users, to read Provider data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+    """
+
+
+class ProviderRead(BaseNodeRead, ProviderBase):
+    """Model, for authenticated users, to read Provider data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -90,14 +116,6 @@ class ProviderRead(BaseNodeRead, ProviderBase):
         is_public (bool): Public or private Provider.
         support_email (list of str): List of maintainers emails.
     """
-
-
-class ProviderReadPublic(BaseNodeRead, ProviderBase):
-    pass
-
-
-class ProviderReadShort(BaseNodeRead, ProviderBase):
-    pass
 
 
 ProviderQuery = create_query_model("ProviderQuery", ProviderBase)

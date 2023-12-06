@@ -15,7 +15,9 @@ from app.service.enum import (
 
 
 class ServiceBase(BaseNode):
-    """Model with Service basic attributes.
+    """Model with Service common attributes.
+
+    This model is used also as a public interface.
 
     Attributes:
     ----------
@@ -27,10 +29,9 @@ class ServiceBase(BaseNode):
 
 
 class BlockStorageServiceBase(ServiceBase):
-    """Block Storage Service.
+    """Model with the Block Storage Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
-    It adds the basic attributes for Block Storage services.
 
     Attributes:
     ----------
@@ -54,7 +55,7 @@ class BlockStorageServiceBase(ServiceBase):
 
 
 class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageServiceBase):
-    """Model to create a BlockStorage Service.
+    """Model to create a Block Storage Service.
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
@@ -69,7 +70,7 @@ class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageServiceBase):
 
 
 class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
-    """Model to update a BlockStorage service.
+    """Model to update a Block Storage service.
 
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
@@ -92,12 +93,27 @@ class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
     )
 
 
-class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
-    """Model to read BlockStorage service data retrieved from DB.
+class BlockStorageServiceReadPublic(BaseNodeRead, ServiceBase):
+    """Model, for non-authenticated users, to read Block Storage data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
+
+
+class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
+    """Model, for authenticated users, to read Block Storage data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -111,24 +127,15 @@ class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
     """
 
 
-class BlockStorageServiceReadPublic(BaseNodeRead, BlockStorageServiceBase):
-    pass
-
-
-class BlockStorageServiceReadShort(BaseNodeRead, BlockStorageServiceBase):
-    pass
-
-
 BlockStorageServiceQuery = create_query_model(
     "BlockStorageServiceQuery", BlockStorageServiceBase
 )
 
 
 class ComputeServiceBase(ServiceBase):
-    """Compute Service.
+    """Model with the Compute Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
-    It adds the basic attributes for Compute services.
 
     Attributes:
     ----------
@@ -188,12 +195,27 @@ class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
     )
 
 
-class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
-    """Model to read Compute service data retrieved from DB.
+class ComputeServiceReadPublic(BaseNodeRead, ServiceBase):
+    """Model, for non-authenticated users, to read Compute data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
+
+
+class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
+    """Model, for authenticated users, to read Compute data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -207,22 +229,13 @@ class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
     """
 
 
-class ComputeServiceReadPublic(BaseNodeRead, ComputeServiceBase):
-    pass
-
-
-class ComputeServiceReadShort(BaseNodeRead, ComputeServiceBase):
-    pass
-
-
 ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeServiceBase)
 
 
 class IdentityServiceBase(ServiceBase):
-    """Identity Service.
+    """Model with the Identity Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
-    It adds the basic attributes for Identity services.
 
     Attributes:
     ----------
@@ -282,12 +295,27 @@ class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
     )
 
 
-class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
-    """Model to read Identity service data retrieved from DB.
+class IdentityServiceReadPublic(BaseNodeRead, ServiceBase):
+    """Model, for non-authenticated users, to read Identity data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
+
+
+class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
+    """Model, for authenticated users, to read Identity data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -300,22 +328,13 @@ class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
     """
 
 
-class IdentityServiceReadPublic(BaseNodeRead, IdentityServiceBase):
-    pass
-
-
-class IdentityServiceReadShort(BaseNodeRead, IdentityServiceBase):
-    pass
-
-
 IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityServiceBase)
 
 
 class NetworkServiceBase(ServiceBase):
-    """Network Service.
+    """Model with the Network Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
-    It adds the basic attributes for Network services.
 
     Attributes:
     ----------
@@ -375,12 +394,27 @@ class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
     )
 
 
-class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
-    """Model to read Network service data retrieved from DB.
+class NetworkServiceReadPublic(BaseNodeRead, ServiceBase):
+    """Model, for non-authenticated users, to read Network data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
+
+
+class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
+    """Model, for authenticated users, to read Network data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -392,14 +426,6 @@ class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
         type (str): Service type.
         name (str): Service name.
     """
-
-
-class NetworkServiceReadPublic(BaseNodeRead, NetworkServiceBase):
-    pass
-
-
-class NetworkServiceReadShort(BaseNodeRead, NetworkServiceBase):
-    pass
 
 
 NetworkServiceQuery = create_query_model("NetworkServiceQuery", NetworkServiceBase)

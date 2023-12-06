@@ -7,18 +7,29 @@ from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
-class IdentityProviderBase(BaseNode):
-    """Model with Identity Provider basic attributes.
+class IdentityProviderBasePublic(BaseNode):
+    """Model with Identity Provider public attributes.
 
     Attributes:
     ----------
         description (str): Brief description.
         endpoint (str): URL of the Identity Provider.
-        group_claim (str): value of the key from which retrieve
-            the user group name from an authentication token.
     """
 
     endpoint: AnyHttpUrl = Field(description="URL of the identity provider")
+
+
+class IdentityProviderBase(IdentityProviderBasePublic):
+    """Model with Identity Provider public and restricted attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): Value of the key from which retrieve the user group name from
+            an authentication token.
+    """
+
     group_claim: str = Field(
         description="Name to use to retrieve the user's group attribute"
     )
@@ -34,8 +45,8 @@ class IdentityProviderCreate(BaseNodeCreate, IdentityProviderBase):
     ----------
         description (str): Brief description.
         endpoint (str): URL of the Identity Provider.
-        group_claim (str): value of the key from which retrieve
-            the user group name from an authentication token.
+        group_claim (str): Value of the key from which retrieve the user group name from
+            an authentication token.
     """
 
 
@@ -51,8 +62,8 @@ class IdentityProviderUpdate(BaseNodeCreate, IdentityProviderBase):
     ----------
         description (str | None): Brief description.
         endpoint (str | None): URL of the Identity Provider.
-        group_claim (str | None): value of the key from which retrieve
-            the user group name from an authentication token.
+        group_claim (str): Value of the key from which retrieve the user group name from
+            an authentication token.
     """
 
     endpoint: Optional[AnyHttpUrl] = Field(
@@ -64,12 +75,11 @@ class IdentityProviderUpdate(BaseNodeCreate, IdentityProviderBase):
     )
 
 
-class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
-    """Model to read Identity Provider data retrieved from DB.
+class IdentityProviderReadPublic(BaseNodeRead, IdentityProviderBasePublic):
+    """Model, for non-authenticated users, to read IdentityProvider data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -78,17 +88,25 @@ class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
         uid (int): Identity Provider unique ID.
         description (str): Brief description.
         endpoint (str): URL of the Identity Provider.
-        group_claim (str): value of the key from which retrieve
-            the user group name from an authentication token.
     """
 
 
-class IdentityProviderReadPublic(BaseNodeRead, IdentityProviderBase):
-    pass
+class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
+    """Model, for authenticated users, to read IdentityProvider data from DB.
 
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
-class IdentityProviderReadShort(BaseNodeRead, IdentityProviderBase):
-    pass
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Identity Provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): Value of the key from which retrieve the user group name from
+            an authentication token.
+    """
 
 
 IdentityProviderQuery = create_query_model(

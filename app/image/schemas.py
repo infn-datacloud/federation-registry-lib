@@ -8,8 +8,22 @@ from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
-class ImageBase(BaseNode):
-    """Model with Image basic attributes.
+class ImageBasePublic(BaseNode):
+    """Model with Image public attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Image name in the Provider.
+        uuid (str): Image unique ID in the Provider
+    """
+
+    name: str = Field(description="Image name in the provider.")
+    uuid: str = Field(description="Image UUID in the provider.")
+
+
+class ImageBase(ImageBasePublic):
+    """Model with Image public and restricted attributes.
 
     Attributes:
     ----------
@@ -27,8 +41,6 @@ class ImageBase(BaseNode):
         tags (list of str): List of tags associated to this Image.
     """
 
-    name: str = Field(description="Image name in the provider.")
-    uuid: str = Field(description="Image UUID in the provider.")
     os_type: Optional[ImageOS] = Field(
         default=None, description="Image Operating System."
     )
@@ -97,12 +109,28 @@ class ImageUpdate(BaseNodeCreate, ImageBase):
     uuid: Optional[str] = Field(default=None, description="Image UUID in the provider.")
 
 
-class ImageRead(BaseNodeRead, ImageBase):
-    """Model to read Image data retrieved from DB.
+class ImageReadPublic(BaseNodeRead, ImageBasePublic):
+    """Model, for non-authenticated users, to read Image data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Image unique ID.
+        description (str): Brief description.
+        name (str): Image name in the Provider.
+        uuid (str): Image unique ID in the Provider
+    """
+
+
+class ImageRead(BaseNodeRead, ImageBase):
+    """Model, for authenticated users, to read Image data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
 
@@ -122,14 +150,6 @@ class ImageRead(BaseNodeRead, ImageBase):
         is_public (bool): Public or private Image.
         tags (list of str): List of tags associated to this Image.
     """
-
-
-class ImageReadPublic(BaseNodeRead, ImageBase):
-    pass
-
-
-class ImageReadShort(BaseNodeRead, ImageBase):
-    pass
 
 
 ImageQuery = create_query_model("ImageQuery", ImageBase)
