@@ -23,7 +23,6 @@ from app.flavor.schemas import (
     FlavorQuery,
     FlavorRead,
     FlavorReadPublic,
-    FlavorReadShort,
     FlavorUpdate,
 )
 from app.flavor.schemas_extended import (
@@ -41,7 +40,6 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
     response_model=Union[
         List[FlavorReadExtended],
         List[FlavorRead],
-        List[FlavorReadShort],
         List[FlavorReadExtendedPublic],
         List[FlavorReadPublic],
     ],
@@ -73,7 +71,6 @@ def get_flavors(
     response_model=Union[
         FlavorReadExtended,
         FlavorRead,
-        FlavorReadShort,
         FlavorReadExtendedPublic,
         FlavorReadPublic,
     ],

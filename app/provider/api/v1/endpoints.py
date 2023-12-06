@@ -56,7 +56,6 @@ from app.provider.schemas import (
     ProviderQuery,
     ProviderRead,
     ProviderReadPublic,
-    ProviderReadShort,
     ProviderUpdate,
 )
 from app.provider.schemas_extended import (
@@ -75,7 +74,6 @@ router = APIRouter(prefix="/providers", tags=["providers"])
     response_model=Union[
         List[ProviderReadExtended],
         List[ProviderRead],
-        List[ProviderReadShort],
         List[ProviderReadExtendedPublic],
         List[ProviderReadPublic],
     ],
@@ -125,7 +123,6 @@ def post_provider(item: ProviderCreateExtended):
     response_model=Union[
         ProviderReadExtended,
         ProviderRead,
-        ProviderReadShort,
         ProviderReadExtendedPublic,
         ProviderReadPublic,
     ],

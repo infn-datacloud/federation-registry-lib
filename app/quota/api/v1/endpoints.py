@@ -28,17 +28,14 @@ from app.quota.schemas import (
     BlockStorageQuotaQuery,
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
-    BlockStorageQuotaReadShort,
     BlockStorageQuotaUpdate,
     ComputeQuotaQuery,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
-    ComputeQuotaReadShort,
     ComputeQuotaUpdate,
     NetworkQuotaQuery,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    NetworkQuotaReadShort,
     NetworkQuotaUpdate,
 )
 from app.quota.schemas_extended import (
@@ -59,7 +56,6 @@ bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quota
     response_model=Union[
         List[BlockStorageQuotaReadExtended],
         List[BlockStorageQuotaRead],
-        List[BlockStorageQuotaReadShort],
         List[BlockStorageQuotaReadExtendedPublic],
         List[BlockStorageQuotaReadPublic],
     ],
@@ -128,7 +124,6 @@ def get_block_storage_quotas(
     response_model=Union[
         BlockStorageQuotaReadExtended,
         BlockStorageQuotaRead,
-        BlockStorageQuotaReadShort,
         BlockStorageQuotaReadExtendedPublic,
         BlockStorageQuotaReadPublic,
     ],
@@ -212,7 +207,6 @@ c_router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
     response_model=Union[
         List[ComputeQuotaReadExtended],
         List[ComputeQuotaRead],
-        List[ComputeQuotaReadShort],
         List[ComputeQuotaReadExtendedPublic],
         List[ComputeQuotaReadPublic],
     ],
@@ -281,7 +275,6 @@ def get_compute_quotas(
     response_model=Union[
         ComputeQuotaReadExtended,
         ComputeQuotaRead,
-        ComputeQuotaReadShort,
         ComputeQuotaReadExtendedPublic,
         ComputeQuotaReadPublic,
     ],
@@ -365,7 +358,6 @@ n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
     response_model=Union[
         List[NetworkQuotaReadExtended],
         List[NetworkQuotaRead],
-        List[NetworkQuotaReadShort],
         List[NetworkQuotaReadExtendedPublic],
         List[NetworkQuotaReadPublic],
     ],
@@ -397,7 +389,6 @@ def get_network_quotas(
     response_model=Union[
         NetworkQuotaReadExtended,
         NetworkQuotaRead,
-        NetworkQuotaReadShort,
         NetworkQuotaReadExtendedPublic,
         NetworkQuotaReadPublic,
     ],

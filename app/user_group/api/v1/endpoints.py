@@ -61,7 +61,6 @@ from app.user_group.schemas import (
     UserGroupQuery,
     UserGroupRead,
     UserGroupReadPublic,
-    UserGroupReadShort,
     UserGroupUpdate,
 )
 from app.user_group.schemas_extended import (
@@ -78,7 +77,6 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
     response_model=Union[
         List[UserGroupReadExtended],
         List[UserGroupRead],
-        List[UserGroupReadShort],
         List[UserGroupReadExtendedPublic],
         List[UserGroupReadPublic],
     ],
@@ -127,7 +125,6 @@ def get_user_groups(
     response_model=Union[
         UserGroupReadExtended,
         UserGroupRead,
-        UserGroupReadShort,
         UserGroupReadExtendedPublic,
         UserGroupReadPublic,
     ],

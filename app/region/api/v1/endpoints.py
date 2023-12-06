@@ -24,7 +24,6 @@ from app.region.schemas import (
     RegionQuery,
     RegionRead,
     RegionReadPublic,
-    RegionReadShort,
     RegionUpdate,
 )
 from app.region.schemas_extended import (
@@ -41,7 +40,6 @@ router = APIRouter(prefix="/regions", tags=["regions"])
     response_model=Union[
         List[RegionReadExtended],
         List[RegionRead],
-        List[RegionReadShort],
         List[RegionReadExtendedPublic],
         List[RegionReadPublic],
     ],
@@ -73,7 +71,6 @@ def get_regions(
     response_model=Union[
         RegionReadExtended,
         RegionRead,
-        RegionReadShort,
         RegionReadExtendedPublic,
         RegionReadPublic,
     ],

@@ -28,7 +28,6 @@ from app.identity_provider.schemas import (
     IdentityProviderQuery,
     IdentityProviderRead,
     IdentityProviderReadPublic,
-    IdentityProviderReadShort,
     IdentityProviderUpdate,
 )
 from app.identity_provider.schemas_extended import (
@@ -50,7 +49,6 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
     response_model=Union[
         List[IdentityProviderReadExtended],
         List[IdentityProviderRead],
-        List[IdentityProviderReadShort],
         List[IdentityProviderReadExtendedPublic],
         List[IdentityProviderReadPublic],
     ],
@@ -82,7 +80,6 @@ def get_identity_providers(
     response_model=Union[
         IdentityProviderReadExtended,
         IdentityProviderRead,
-        IdentityProviderReadShort,
         IdentityProviderReadExtendedPublic,
         IdentityProviderReadPublic,
     ],

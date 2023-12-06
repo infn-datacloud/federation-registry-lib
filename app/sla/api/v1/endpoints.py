@@ -29,7 +29,6 @@ from app.sla.schemas import (
     SLAQuery,
     SLARead,
     SLAReadPublic,
-    SLAReadShort,
     SLAUpdate,
 )
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
@@ -43,7 +42,6 @@ router = APIRouter(prefix="/slas", tags=["slas"])
     response_model=Union[
         List[SLAReadExtended],
         List[SLARead],
-        List[SLAReadShort],
         List[SLAReadExtendedPublic],
         List[SLAReadPublic],
     ],
@@ -116,7 +114,6 @@ def get_slas(
     response_model=Union[
         SLAReadExtended,
         SLARead,
-        SLAReadShort,
         SLAReadExtendedPublic,
         SLAReadPublic,
     ],

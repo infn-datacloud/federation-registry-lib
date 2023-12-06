@@ -35,7 +35,6 @@ from app.project.schemas import (
     ProjectQuery,
     ProjectRead,
     ProjectReadPublic,
-    ProjectReadShort,
     ProjectUpdate,
 )
 from app.project.schemas_extended import (
@@ -54,7 +53,6 @@ router = APIRouter(prefix="/projects", tags=["projects"])
     response_model=Union[
         List[ProjectReadExtended],
         List[ProjectRead],
-        List[ProjectReadShort],
         List[ProjectReadExtendedPublic],
         List[ProjectReadPublic],
     ],
@@ -89,7 +87,6 @@ def get_projects(
     response_model=Union[
         ProjectReadExtended,
         ProjectRead,
-        ProjectReadShort,
         ProjectReadExtendedPublic,
         ProjectReadPublic,
     ],

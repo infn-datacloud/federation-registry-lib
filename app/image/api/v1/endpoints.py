@@ -23,7 +23,6 @@ from app.image.schemas import (
     ImageQuery,
     ImageRead,
     ImageReadPublic,
-    ImageReadShort,
     ImageUpdate,
 )
 from app.image.schemas_extended import (
@@ -41,7 +40,6 @@ router = APIRouter(prefix="/images", tags=["images"])
     response_model=Union[
         List[ImageReadExtended],
         List[ImageRead],
-        List[ImageReadShort],
         List[ImageReadExtendedPublic],
         List[ImageReadPublic],
     ],
@@ -73,7 +71,6 @@ def get_images(
     response_model=Union[
         ImageReadExtended,
         ImageRead,
-        ImageReadShort,
         ImageReadExtendedPublic,
         ImageReadPublic,
     ],

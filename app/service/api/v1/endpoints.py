@@ -51,22 +51,18 @@ from app.service.schemas import (
     BlockStorageServiceQuery,
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
-    BlockStorageServiceReadShort,
     BlockStorageServiceUpdate,
     ComputeServiceQuery,
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    ComputeServiceReadShort,
     ComputeServiceUpdate,
     IdentityServiceQuery,
     IdentityServiceRead,
     IdentityServiceReadPublic,
-    IdentityServiceReadShort,
     IdentityServiceUpdate,
     NetworkServiceQuery,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    NetworkServiceReadShort,
     NetworkServiceUpdate,
 )
 from app.service.schemas_extended import (
@@ -89,7 +85,6 @@ bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_ser
     response_model=Union[
         List[BlockStorageServiceReadExtended],
         List[BlockStorageServiceRead],
-        List[BlockStorageServiceReadShort],
         List[BlockStorageServiceReadExtendedPublic],
         List[BlockStorageServiceReadPublic],
     ],
@@ -121,7 +116,6 @@ def get_block_storage_services(
     response_model=Union[
         BlockStorageServiceReadExtended,
         BlockStorageServiceRead,
-        BlockStorageServiceReadShort,
         BlockStorageServiceReadExtendedPublic,
         BlockStorageServiceReadPublic,
     ],
@@ -208,7 +202,6 @@ c_router = APIRouter(prefix="/compute_services", tags=["compute_services"])
     response_model=Union[
         List[ComputeServiceReadExtended],
         List[ComputeServiceRead],
-        List[ComputeServiceReadShort],
         List[ComputeServiceReadExtendedPublic],
         List[ComputeServiceReadPublic],
     ],
@@ -240,7 +233,6 @@ def get_compute_services(
     response_model=Union[
         ComputeServiceReadExtended,
         ComputeServiceRead,
-        ComputeServiceReadShort,
         ComputeServiceReadExtendedPublic,
         ComputeServiceReadPublic,
     ],
@@ -327,7 +319,6 @@ i_router = APIRouter(prefix="/identity_services", tags=["identity_services"])
     response_model=Union[
         List[IdentityServiceReadExtended],
         List[IdentityServiceRead],
-        List[IdentityServiceReadShort],
         List[IdentityServiceReadExtendedPublic],
         List[IdentityServiceReadPublic],
     ],
@@ -359,7 +350,6 @@ def get_identity_services(
     response_model=Union[
         IdentityServiceReadExtended,
         IdentityServiceRead,
-        IdentityServiceReadShort,
         IdentityServiceReadExtendedPublic,
         IdentityServiceReadPublic,
     ],
@@ -446,7 +436,6 @@ n_router = APIRouter(prefix="/network_services", tags=["network_services"])
     response_model=Union[
         List[NetworkServiceReadExtended],
         List[NetworkServiceRead],
-        List[NetworkServiceReadShort],
         List[NetworkServiceReadExtendedPublic],
         List[NetworkServiceReadPublic],
     ],
@@ -478,7 +467,6 @@ def get_network_services(
     response_model=Union[
         NetworkServiceReadExtended,
         NetworkServiceRead,
-        NetworkServiceReadShort,
         NetworkServiceReadExtendedPublic,
         NetworkServiceReadPublic,
     ],

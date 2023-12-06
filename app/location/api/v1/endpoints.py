@@ -23,7 +23,6 @@ from app.location.schemas import (
     LocationQuery,
     LocationRead,
     LocationReadPublic,
-    LocationReadShort,
     LocationUpdate,
 )
 from app.location.schemas_extended import (
@@ -44,7 +43,6 @@ router = APIRouter(prefix="/locations", tags=["locations"])
     response_model=Union[
         List[LocationReadExtended],
         List[LocationRead],
-        List[LocationReadShort],
         List[LocationReadExtendedPublic],
         List[LocationReadPublic],
     ],
@@ -76,7 +74,6 @@ def get_locations(
     response_model=Union[
         LocationReadExtended,
         LocationRead,
-        LocationReadShort,
         LocationReadExtendedPublic,
         LocationReadPublic,
     ],

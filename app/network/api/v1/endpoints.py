@@ -23,7 +23,6 @@ from app.network.schemas import (
     NetworkQuery,
     NetworkRead,
     NetworkReadPublic,
-    NetworkReadShort,
     NetworkUpdate,
 )
 from app.network.schemas_extended import (
@@ -41,7 +40,6 @@ router = APIRouter(prefix="/networks", tags=["networks"])
     response_model=Union[
         List[NetworkReadExtended],
         List[NetworkRead],
-        List[NetworkReadShort],
         List[NetworkReadExtendedPublic],
         List[NetworkReadPublic],
     ],
@@ -73,7 +71,6 @@ def get_networks(
     response_model=Union[
         NetworkReadExtended,
         NetworkRead,
-        NetworkReadShort,
         NetworkReadExtendedPublic,
         NetworkReadPublic,
     ],
