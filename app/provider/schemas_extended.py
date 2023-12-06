@@ -1,5 +1,5 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 from uuid import UUID
 
 from pydantic import Field, root_validator, validator
@@ -59,16 +59,28 @@ from app.user_group.schemas import (
 
 
 class UserGroupReadExtended(UserGroupRead):
+    """Model to extend the User Group data read from the DB.
+
+    Add the list of involved SLAs.
+    """
+
     slas: List[SLARead] = Field(default_factory=list, description="List of SLA")
 
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
+    """Model to extend the User Group public data read from the DB.
+
+    Add the list of involved SLAs.
+    """
+
     slas: List[SLAReadPublic] = Field(default_factory=list, description="List of SLA")
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
-    """Model to extend the Identity Provider data read from the DB with the
-    authentication method details.
+    """Model to extend the Identity Provider data read from the DB.
+
+    Add the list of owned user groups and the authentication method used by this
+    resource provider to connect to it.
     """
 
     relationship: AuthMethodRead = Field(
@@ -80,8 +92,10 @@ class IdentityProviderReadExtended(IdentityProviderRead):
 
 
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
-    """Model to extend the Identity Provider data read from the DB with the
-    authentication method details.
+    """Model to extend the Identity Provider public data read from the DB.
+
+    Add the list of owned user groups and the authentication method used by this
+    resource provider to connect to it.
     """
 
     relationship: AuthMethodRead = Field(
@@ -93,18 +107,33 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
 
 
 class BlockStorageServiceReadExtended(BlockStorageServiceRead):
+    """Model to extend the Block Storage Service data read from the DB.
+
+    Add the list of owned quotas.
+    """
+
     quotas: List[BlockStorageQuotaRead] = Field(
         default_factory=list, description="List of quotas"
     )
 
 
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
+    """Model to extend the Block Storage Service data read from the DB.
+
+    Add the list of owned quotas.
+    """
+
     quotas: List[BlockStorageQuotaReadPublic] = Field(
         default_factory=list, description="List of quotas"
     )
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
+    """Model to extend the Compute Service data read from the DB.
+
+    Add the list of owned quotas, flavors and images.
+    """
+
     flavors: List[FlavorRead] = Field(
         default_factory=list, description="List of owned flavors"
     )
@@ -117,6 +146,11 @@ class ComputeServiceReadExtended(ComputeServiceRead):
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
+    """Model to extend the Compute Service public data read from the DB.
+
+    Add the list of owned quotas, flavors and images.
+    """
+
     flavors: List[FlavorReadPublic] = Field(
         default_factory=list, description="List of owned flavors"
     )
@@ -129,6 +163,11 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
 
 
 class NetworkServiceReadExtended(NetworkServiceRead):
+    """Model to extend the Network Service data read from the DB.
+
+    Add the list of owned quotas and networks.
+    """
+
     networks: List[NetworkRead] = Field(
         default_factory=list, description="List of owned networks"
     )
@@ -138,6 +177,11 @@ class NetworkServiceReadExtended(NetworkServiceRead):
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
+    """Model to extend the Network Service public data read from the DB.
+
+    Add the list of owned quotas and networks.
+    """
+
     networks: List[NetworkReadPublic] = Field(
         default_factory=list, description="List of owned networks"
     )
@@ -147,6 +191,11 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
 
 
 class RegionReadExtended(RegionRead):
+    """Model to extend the Region data read from the DB.
+
+    Add the location hosting it and the list of supplied services.
+    """
+
     location: Optional[LocationRead] = Field(
         default=None, description="Region geographical location"
     )
@@ -161,6 +210,11 @@ class RegionReadExtended(RegionRead):
 
 
 class RegionReadExtendedPublic(RegionReadPublic):
+    """Model to extend the Region public data read from the DB.
+
+    Add the location hosting it and the list of supplied services.
+    """
+
     location: Optional[LocationReadPublic] = Field(
         default=None, description="Region geographical location"
     )
@@ -175,8 +229,10 @@ class RegionReadExtendedPublic(RegionReadPublic):
 
 
 class ProviderReadExtended(ProviderRead):
-    """Model to extend the Provider data read from the DB with the lists of related
-    items for authenticated users.
+    """Model to extend the Provider data read from the DB.
+
+    Add the list of allowed identity providers and the list of supplied projects and
+    regions.
     """
 
     identity_providers: List[IdentityProviderReadExtended] = Field(
@@ -187,8 +243,10 @@ class ProviderReadExtended(ProviderRead):
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
-    """Model to extend the Provider data read from the DB with the lists of related
-    items for non-authenticated users.
+    """Model to extend the Provider public data read from the DB.
+
+    Add the list of allowed identity providers and the list of supplied projects and
+    regions.
     """
 
     identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
@@ -223,16 +281,30 @@ def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
 
 
 class SLACreateExtended(SLACreate):
+    """Model to extend the SLA data to add to the DB.
+
+    Attributes:
+    ----------
+        project (str): Target project UUID.
+    """
+
     project: str = Field(description="Project UUID")
 
 
 class UserGroupCreateExtended(UserGroupCreate):
+    """Model to extend the User Group data to add to the DB.
+
+    Add the list of owned SLAs.
+    """
+
     sla: SLACreateExtended = Field(description="SLA related to this provider")
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
-    """Model to extend the Identity Provider data used to create a new instance in the
-    DB with the authentication method details.
+    """Model to extend the Identity Provider data to add to the DB.
+
+    Add the list of owned user groups and the authentication method used by the
+    provider containing this object.
     """
 
     relationship: AuthMethodCreate = Field(
@@ -243,38 +315,76 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
     )
 
     @validator("user_groups")
-    def validate_user_groups(cls, v):
+    def validate_user_groups(
+        cls, v: UserGroupCreateExtended
+    ) -> UserGroupCreateExtended:
+        """Verify the list is not empty and there are no duplicates."""
         find_duplicates(v, "name")
         assert len(v), "Identity provider's user group list can't be empty"
         return v
 
 
 class BlockStorageQuotaCreateExtended(BlockStorageQuotaCreate):
+    """Model to extend the Block Storage Quota data to add to the DB.
+
+    Attributes:
+    ----------
+        project (str): Target project UUID.
+    """
+
     project: str = Field(description="Project UUID")
 
 
 class ComputeQuotaCreateExtended(ComputeQuotaCreate):
+    """Model to extend the Compute Quota data to add to the DB.
+
+    Attributes:
+    ----------
+        project (str): Target project UUID.
+    """
+
     project: str = Field(description="Project UUID")
 
 
 class NetworkQuotaCreateExtended(NetworkQuotaCreate):
+    """Model to extend the Network Quota data to add to the DB.
+
+    Attributes:
+    ----------
+        project (str): Target project UUID.
+    """
+
     project: str = Field(description="Project UUID")
 
 
 class FlavorCreateExtended(FlavorCreate):
+    """Model to extend the Flavor data to add to the DB.
+
+    Attributes:
+    ----------
+        projects (list of str): List of project UUIDs having access to this flavor.
+    """
+
     projects: List[str] = Field(
         default_factory=list,
         description="List of projects having access to the private flavor",
     )
 
     @validator("projects", pre=True)
-    def validate_projects(cls, v):
+    def validate_projects(cls, v: Union[str, UUID]) -> str:
+        """Cast to string possible UUIDs and verify there are no duplicate values."""
         v = [i.hex if isinstance(i, UUID) else i for i in v]
         find_duplicates(v)
         return v
 
     @root_validator
-    def project_require_if_private_flavor(cls, values):
+    def project_require_if_private_flavor(
+        cls, values: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Verify list emptiness based on flavor type.
+
+        If public verify the projects list is empty, otherwise the list can't be empty.
+        """
         if not values.get("is_public"):
             assert len(
                 values.get("projects", [])
@@ -287,19 +397,31 @@ class FlavorCreateExtended(FlavorCreate):
 
 
 class ImageCreateExtended(ImageCreate):
+    """Model to extend the Image data to add to the DB.
+
+    Attributes:
+    ----------
+        projects (list of str): List of project UUIDs having access to this image.
+    """
+
     projects: List[str] = Field(
         default_factory=list,
         description="List of projects having access to the private image",
     )
 
     @validator("projects", pre=True)
-    def validate_projects(cls, v):
+    def validate_projects(cls, v: Union[str, UUID]) -> str:
+        """Cast to string possible UUIDs and verify there are no duplicate values."""
         v = [i.hex if isinstance(i, UUID) else i for i in v]
         find_duplicates(v)
         return v
 
     @root_validator
-    def project_require_if_private_image(cls, values):
+    def project_require_if_private_image(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify list emptiness based on image type.
+
+        If public verify the projects list is empty, otherwise the list can't be empty.
+        """
         if not values.get("is_public"):
             assert len(
                 values.get("projects", [])
@@ -312,12 +434,23 @@ class ImageCreateExtended(ImageCreate):
 
 
 class NetworkCreateExtended(NetworkCreate):
+    """Model to extend the Network data to add to the DB.
+
+    Attributes:
+    ----------
+        project (str | None): Target project UUID.
+    """
+
     project: Optional[str] = Field(
         default=None, description="Project having access to a private net"
     )
 
     @root_validator
-    def project_require_if_private_net(cls, values):
+    def project_require_if_private_net(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify target project is defined based on network type.
+
+        If shared verify the project is None, otherwise the project must be defined.
+        """
         if not values.get("is_shared"):
             assert values.get("project") is not None
         else:
@@ -326,12 +459,24 @@ class NetworkCreateExtended(NetworkCreate):
 
 
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
+    """Model to extend the Block Storage Service data to add to the DB.
+
+    Add the list of quotas targeting this service.
+    """
+
     quotas: List[BlockStorageQuotaCreateExtended] = Field(
         default_factory=list, description="List or related quotas"
     )
 
     @validator("quotas")
-    def max_two_quotas_on_same_project(cls, v: List[BlockStorageQuotaCreateExtended]):
+    def max_two_quotas_on_same_project(
+        cls, v: List[BlockStorageQuotaCreateExtended]
+    ) -> List[BlockStorageQuotaCreateExtended]:
+        """Verify maximum number of quotas on same project.
+
+        A project can have at most one `project` quota and one `per-user` quota on a
+        specific service.
+        """
         d = {}
         for quota in v:
             if quota.project is not None:
@@ -346,6 +491,12 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
 
 
 class ComputeServiceCreateExtended(ComputeServiceCreate):
+    """Model to extend the Compute Service data to add to the DB.
+
+    Add the list of supplied flavors and images and the list of quotas targeting this
+    service.
+    """
+
     flavors: List[FlavorCreateExtended] = Field(
         default_factory=list,
         description="List of flavors accessible through this service",
@@ -359,19 +510,30 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
     )
 
     @validator("flavors")
-    def validate_flavors(cls, v):
+    def validate_flavors(
+        cls, v: List[FlavorCreateExtended]
+    ) -> List[FlavorCreateExtended]:
+        """Verify there are no duplicated names or UUIDs in the flavor list."""
         find_duplicates(v, "uuid")
         find_duplicates(v, "name")
         return v
 
     @validator("images")
-    def validate_images(cls, v):
+    def validate_images(cls, v: List[ImageCreateExtended]) -> List[ImageCreateExtended]:
+        """Verify there are no duplicated names or UUIDs in the image list."""
         find_duplicates(v, "uuid")
         find_duplicates(v, "name")
         return v
 
     @validator("quotas")
-    def max_two_quotas_on_same_project(cls, v: List[ComputeQuotaCreateExtended]):
+    def max_two_quotas_on_same_project(
+        cls, v: List[ComputeQuotaCreateExtended]
+    ) -> List[ComputeQuotaCreateExtended]:
+        """Verify maximum number of quotas on same project.
+
+        A project can have at most one `project` quota and one `per-user` quota on a
+        specific service.
+        """
         d = {}
         for quota in v:
             if quota.project is not None:
@@ -386,6 +548,11 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
 
 
 class NetworkServiceCreateExtended(NetworkServiceCreate):
+    """Model to extend the Network Service data to add to the DB.
+
+    Add the list of supplied networks and the list of quotas targeting this service.
+    """
+
     networks: List[NetworkCreateExtended] = Field(
         default_factory=list,
         description="List of networks accessible through this service",
@@ -395,12 +562,22 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
     )
 
     @validator("networks")
-    def validate_networks(cls, v):
+    def validate_networks(
+        cls, v: List[NetworkCreateExtended]
+    ) -> List[NetworkCreateExtended]:
+        """Verify there are no duplicated UUIDs in the network list."""
         find_duplicates(v, "uuid")
         return v
 
     @validator("quotas")
-    def max_two_quotas_on_same_project(cls, v: List[NetworkQuotaCreateExtended]):
+    def max_two_quotas_on_same_project(
+        cls, v: List[NetworkQuotaCreateExtended]
+    ) -> List[NetworkQuotaCreateExtended]:
+        """Verify maximum number of quotas on same project.
+
+        A project can have at most one `project` quota and one `per-user` quota on a
+        specific service.
+        """
         d = {}
         for quota in v:
             if quota.project is not None:
@@ -415,6 +592,11 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
 
 
 class RegionCreateExtended(RegionCreate):
+    """Model to extend the Region data to add to the DB.
+
+    Add the location hosting it, and the list of supplied services (divided by type).
+    """
+
     location: Optional[LocationCreate] = Field(
         default=None, description="Geographical site"
     )
@@ -432,29 +614,43 @@ class RegionCreateExtended(RegionCreate):
     )
 
     @validator("block_storage_services")
-    def validate_block_storage_services(cls, v):
+    def validate_block_storage_services(
+        cls, v: List[BlockStorageServiceCreateExtended]
+    ) -> List[BlockStorageServiceCreateExtended]:
+        """Verify there are no duplicated endpoints in the service list."""
         find_duplicates(v, "endpoint")
         return v
 
     @validator("compute_services")
-    def validate_compute_services(cls, v):
+    def validate_compute_services(
+        cls, v: List[ComputeServiceCreateExtended]
+    ) -> List[ComputeServiceCreateExtended]:
+        """Verify there are no duplicated endpoints in the service list."""
         find_duplicates(v, "endpoint")
         return v
 
     @validator("identity_services")
-    def validate_identity_services(cls, v):
+    def validate_identity_services(
+        cls, v: List[IdentityServiceCreate]
+    ) -> List[IdentityServiceCreate]:
+        """Verify there are no duplicated endpoints in the service list."""
         find_duplicates(v, "endpoint")
         return v
 
     @validator("network_services")
-    def validate_network_services(cls, v):
+    def validate_network_services(
+        cls, v: List[NetworkServiceCreateExtended]
+    ) -> List[NetworkServiceCreateExtended]:
+        """Verify there are no duplicated endpoints in the service list."""
         find_duplicates(v, "endpoint")
         return v
 
 
 class ProviderCreateExtended(ProviderCreate):
-    """Model to extend the Provider data used to create a new instance in the DB with
-    the lists of related items.
+    """Model to extend the Provider data to add to the DB.
+
+    Add the list of allowed identity providers and the list of supplied projects and
+    regions.
     """
 
     identity_providers: List[IdentityProviderCreateExtended] = Field(
@@ -469,26 +665,41 @@ class ProviderCreateExtended(ProviderCreate):
     )
 
     @validator("identity_providers")
-    def validate_identity_providers(cls, v: List[IdentityProviderCreateExtended]):
+    def validate_identity_providers(
+        cls, v: List[IdentityProviderCreateExtended]
+    ) -> List[IdentityProviderCreateExtended]:
+        """Verify there are no duplicated endpoints in the identity provider list."""
         find_duplicates(v, "endpoint")
         return v
 
     @validator("projects")
-    def validate_projects(cls, v):
+    def validate_projects(cls, v: List[ProjectCreate]) -> List[ProjectCreate]:
+        """Verify there are no duplicated names and UUIDs in the project list."""
         find_duplicates(v, "uuid")
         find_duplicates(v, "name")
         return v
 
     @validator("regions")
-    def validate_regions(cls, v):
+    def validate_regions(
+        cls, v: List[RegionCreateExtended]
+    ) -> List[RegionCreateExtended]:
+        """Verify there are no duplicated names in the region list."""
         find_duplicates(v, "name")
         return v
 
     @root_validator
-    def check_idp_projs_exits(cls, values):
-        projects = [i.uuid for i in values.get("projects", [])]
+    def check_idp_projs_exits(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify SLA and Projects relations.
+
+        Check that an SLA is not used by multiple user groups.
+        Check that the SLA's projects belong to the target provider.
+        """
+        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
         seen = set()
-        for identity_provider in values.get("identity_providers", []):
+        identity_providers: List[IdentityProviderCreateExtended] = values.get(
+            "identity_providers", []
+        )
+        for identity_provider in identity_providers:
             for user_group in identity_provider.user_groups:
                 assert (
                     user_group.sla.doc_uuid not in seen
@@ -503,9 +714,13 @@ class ProviderCreateExtended(ProviderCreate):
         return values
 
     @root_validator
-    def check_block_storage_serv_projs_exist(cls, values):
-        projects = [i.uuid for i in values.get("projects", [])]
-        for region in values.get("regions", []):
+    def check_block_storage_serv_projs_exist(
+        cls, values: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Verify Block Storage Service projects belong to the target provider."""
+        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        regions: List[RegionCreateExtended] = values.get("regions", [])
+        for region in regions:
             for service in region.block_storage_services:
                 for quota in service.quotas:
                     if quota.project is not None:
@@ -515,9 +730,15 @@ class ProviderCreateExtended(ProviderCreate):
         return values
 
     @root_validator
-    def check_compute_serv_projs_exist(cls, values):
-        projects = [i.uuid for i in values.get("projects", [])]
-        for region in values.get("regions", []):
+    def check_compute_serv_projs_exist(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify Compute Service and Projects relations.
+
+        Check that the Compute Service's projects, flavors and images belong to the
+        target provider.
+        """
+        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        regions: List[RegionCreateExtended] = values.get("regions", [])
+        for region in regions:
             for service in region.compute_services:
                 for flavor in service.flavors:
                     for project in flavor.projects:
@@ -537,9 +758,15 @@ class ProviderCreateExtended(ProviderCreate):
         return values
 
     @root_validator
-    def check_network_serv_projs_exist(cls, values):
-        projects = [i.uuid for i in values.get("projects", [])]
-        for region in values.get("regions", []):
+    def check_network_serv_projs_exist(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify Network Service and Projects relations.
+
+        Check that the Compute Service's projects, networks belong to the target
+        provider.
+        """
+        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        regions: List[RegionCreateExtended] = values.get("regions", [])
+        for region in regions:
             for service in region.network_services:
                 for network in service.networks:
                     if network.project is not None:

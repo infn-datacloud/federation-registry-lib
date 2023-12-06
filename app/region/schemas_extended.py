@@ -19,7 +19,10 @@ from app.service.schemas import (
 
 
 class RegionReadExtended(RegionRead):
-    """Model with Region basic attributes."""
+    """Model to extend the Region data read from the DB.
+
+    Add the provider and location hosting this region and the list of supplied services.
+    """
 
     location: Optional[LocationRead] = Field(
         default=None, description="Provider location."
@@ -36,7 +39,10 @@ class RegionReadExtended(RegionRead):
 
 
 class RegionReadExtendedPublic(RegionReadPublic):
-    """Model with Region basic attributes."""
+    """Model to extend the Region public data read from the DB.
+
+    Add the provider and location hosting this region and the list of supplied services.
+    """
 
     location: Optional[LocationReadPublic] = Field(
         default=None, description="Provider location."
