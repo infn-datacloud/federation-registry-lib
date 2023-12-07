@@ -22,7 +22,7 @@ from app.identity_provider.api.dependencies import (
     valid_identity_provider_id,
     validate_new_identity_provider_values,
 )
-from app.identity_provider.crud import identity_provider
+from app.identity_provider.crud import identity_provider_mng
 from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
     IdentityProviderQuery,
@@ -65,11 +65,11 @@ def get_identity_providers(
     item: IdentityProviderQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = identity_provider.get_multi(
+    items = identity_provider_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = identity_provider.paginate(items=items, page=page.page, size=page.size)
-    return identity_provider.choose_out_schema(
+    items = identity_provider_mng.paginate(items=items, page=page.page, size=page.size)
+    return identity_provider_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -94,7 +94,7 @@ def get_identity_provider(
     item: IdentityProvider = Depends(valid_identity_provider_id),
     user_infos: Optional[Any] = None,
 ):
-    return identity_provider.choose_out_schema(
+    return identity_provider_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -125,7 +125,7 @@ def put_identity_provider(
     item: IdentityProvider = Depends(valid_identity_provider_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = identity_provider.update(db_obj=item, obj_in=update_data)
+    db_item = identity_provider_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -148,7 +148,7 @@ def delete_identity_providers(
     item: IdentityProvider = Depends(valid_identity_provider_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not identity_provider.remove(db_obj=item):
+    if not identity_provider_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

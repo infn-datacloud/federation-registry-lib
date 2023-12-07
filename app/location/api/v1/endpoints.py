@@ -17,7 +17,7 @@ from app.location.api.dependencies import (
     valid_location_id,
     validate_new_location_values,
 )
-from app.location.crud import location
+from app.location.crud import location_mng
 from app.location.models import Location
 from app.location.schemas import (
     LocationQuery,
@@ -59,11 +59,11 @@ def get_locations(
     item: LocationQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = location.get_multi(
+    items = location_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = location.paginate(items=items, page=page.page, size=page.size)
-    return location.choose_out_schema(
+    items = location_mng.paginate(items=items, page=page.page, size=page.size)
+    return location_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -88,7 +88,7 @@ def get_location(
     item: Location = Depends(valid_location_id),
     user_infos: Optional[Any] = None,
 ):
-    return location.choose_out_schema(
+    return location_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -118,7 +118,7 @@ def put_location(
     response: Response,
     item: Location = Depends(valid_location_id),
 ):
-    db_item = location.update(db_obj=item, obj_in=update_data)
+    db_item = location_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -142,7 +142,7 @@ def delete_location(
     item: Location = Depends(valid_location_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not location.remove(db_obj=item):
+    if not location_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

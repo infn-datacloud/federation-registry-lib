@@ -22,7 +22,7 @@ from app.quota.api.dependencies import (
     validate_new_compute_quota_values,
     validate_new_network_quota_values,
 )
-from app.quota.crud import block_storage_quota, compute_quota, network_quota
+from app.quota.crud import block_storage_quota_mng, compute_quota_mng, network_quota_mng
 from app.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 from app.quota.schemas import (
     BlockStorageQuotaQuery,
@@ -72,11 +72,13 @@ def get_block_storage_quotas(
     item: BlockStorageQuotaQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = block_storage_quota.get_multi(
+    items = block_storage_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = block_storage_quota.paginate(items=items, page=page.page, size=page.size)
-    return block_storage_quota.choose_out_schema(
+    items = block_storage_quota_mng.paginate(
+        items=items, page=page.page, size=page.size
+    )
+    return block_storage_quota_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -138,7 +140,7 @@ def get_block_storage_quota(
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
     user_infos: Optional[Any] = None,
 ):
-    return block_storage_quota.choose_out_schema(
+    return block_storage_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -167,7 +169,7 @@ def put_block_storage_quota(
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = block_storage_quota.update(db_obj=item, obj_in=update_data)
+    db_item = block_storage_quota_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -191,7 +193,7 @@ def delete_block_storage_quotas(
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not block_storage_quota.remove(db_obj=item):
+    if not block_storage_quota_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
@@ -223,11 +225,11 @@ def get_compute_quotas(
     item: ComputeQuotaQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = compute_quota.get_multi(
+    items = compute_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = compute_quota.paginate(items=items, page=page.page, size=page.size)
-    return compute_quota.choose_out_schema(
+    items = compute_quota_mng.paginate(items=items, page=page.page, size=page.size)
+    return compute_quota_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -289,7 +291,7 @@ def get_compute_quota(
     item: ComputeQuota = Depends(valid_compute_quota_id),
     user_infos: Optional[Any] = None,
 ):
-    return compute_quota.choose_out_schema(
+    return compute_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -318,7 +320,7 @@ def put_compute_quota(
     item: ComputeQuota = Depends(valid_compute_quota_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = compute_quota.update(db_obj=item, obj_in=update_data)
+    db_item = compute_quota_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -342,7 +344,7 @@ def delete_compute_quotas(
     item: ComputeQuota = Depends(valid_compute_quota_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not compute_quota.remove(db_obj=item):
+    if not compute_quota_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
@@ -374,11 +376,11 @@ def get_network_quotas(
     item: NetworkQuotaQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = network_quota.get_multi(
+    items = network_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = network_quota.paginate(items=items, page=page.page, size=page.size)
-    return network_quota.choose_out_schema(
+    items = network_quota_mng.paginate(items=items, page=page.page, size=page.size)
+    return network_quota_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -403,7 +405,7 @@ def get_network_quota(
     item: NetworkQuota = Depends(valid_network_quota_id),
     user_infos: Optional[Any] = None,
 ):
-    return network_quota.choose_out_schema(
+    return network_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -432,7 +434,7 @@ def put_network_quota(
     item: NetworkQuota = Depends(valid_network_quota_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = network_quota.update(db_obj=item, obj_in=update_data)
+    db_item = network_quota_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -456,7 +458,7 @@ def delete_network_quotas(
     item: NetworkQuota = Depends(valid_network_quota_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not network_quota.remove(db_obj=item):
+    if not network_quota_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

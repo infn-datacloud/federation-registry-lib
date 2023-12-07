@@ -17,7 +17,7 @@ from app.network.api.dependencies import (
     valid_network_id,
     validate_new_network_values,
 )
-from app.network.crud import network
+from app.network.crud import network_mng
 from app.network.models import Network
 from app.network.schemas import (
     NetworkQuery,
@@ -56,11 +56,11 @@ def get_networks(
     item: NetworkQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = network.get_multi(
+    items = network_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = network.paginate(items=items, page=page.page, size=page.size)
-    return network.choose_out_schema(
+    items = network_mng.paginate(items=items, page=page.page, size=page.size)
+    return network_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -85,7 +85,7 @@ def get_network(
     item: Network = Depends(valid_network_id),
     user_infos: Optional[Any] = None,
 ):
-    return network.choose_out_schema(
+    return network_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -116,7 +116,7 @@ def put_network(
     item: Network = Depends(valid_network_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = network.update(db_obj=item, obj_in=update_data)
+    db_item = network_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -140,7 +140,7 @@ def delete_networks(
     item: Network = Depends(valid_network_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not network.remove(db_obj=item):
+    if not network_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

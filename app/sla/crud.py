@@ -83,7 +83,7 @@ class CRUDSLA(
         return db_obj if edit else updated_data
 
 
-sla = CRUDSLA(
+sla_mng = CRUDSLA(
     model=SLA,
     create_schema=SLACreate,
     read_schema=SLARead,

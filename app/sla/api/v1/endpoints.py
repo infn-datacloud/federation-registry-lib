@@ -23,7 +23,7 @@ from app.sla.api.dependencies import (  # is_unique_sla,
     valid_sla_id,
     validate_new_sla_values,
 )
-from app.sla.crud import sla
+from app.sla.crud import sla_mng
 from app.sla.models import SLA
 from app.sla.schemas import (
     SLAQuery,
@@ -58,11 +58,13 @@ def get_slas(
     item: SLAQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = sla.get_multi(
+    items = sla_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = sla.paginate(items=items, page=page.page, size=page.size)
-    return sla.choose_out_schema(items=items, auth=user_infos, with_conn=size.with_conn)
+    items = sla_mng.paginate(items=items, page=page.page, size=page.size)
+    return sla_mng.choose_out_schema(
+        items=items, auth=user_infos, with_conn=size.with_conn
+    )
 
 
 # @db.write_transaction
@@ -126,7 +128,7 @@ def get_sla(
     item: SLA = Depends(valid_sla_id),
     user_infos: Optional[Any] = None,
 ):
-    return sla.choose_out_schema(
+    return sla_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -157,7 +159,7 @@ def put_sla(
     item: SLA = Depends(valid_sla_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = sla.update(db_obj=item, obj_in=update_data)
+    db_item = sla_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -181,7 +183,7 @@ def delete_slas(
     item: SLA = Depends(valid_sla_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not sla.remove(db_obj=item):
+    if not sla_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

@@ -19,7 +19,7 @@ from app.region.api.dependencies import (
     valid_region_id,
     validate_new_region_values,
 )
-from app.region.crud import region
+from app.region.crud import region_mng
 from app.region.models import Region
 from app.region.schemas import (
     RegionQuery,
@@ -57,11 +57,11 @@ def get_regions(
     item: RegionQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = region.get_multi(
+    items = region_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = region.paginate(items=items, page=page.page, size=page.size)
-    return region.choose_out_schema(
+    items = region_mng.paginate(items=items, page=page.page, size=page.size)
+    return region_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -86,7 +86,7 @@ def get_region(
     item: Region = Depends(valid_region_id),
     user_infos: Optional[Any] = None,
 ):
-    return region.choose_out_schema(
+    return region_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -118,7 +118,7 @@ def put_region(
     item: Region = Depends(valid_region_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = region.update(db_obj=item, obj_in=update_data)
+    db_item = region_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -143,7 +143,7 @@ def delete_regions(
     item: Region = Depends(valid_region_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not region.remove(db_obj=item):
+    if not region_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

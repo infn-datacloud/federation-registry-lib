@@ -17,7 +17,7 @@ from app.flavor.api.dependencies import (
     valid_flavor_id,
     validate_new_flavor_values,
 )
-from app.flavor.crud import flavor
+from app.flavor.crud import flavor_mng
 from app.flavor.models import Flavor
 from app.flavor.schemas import (
     FlavorQuery,
@@ -56,11 +56,11 @@ def get_flavors(
     item: FlavorQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = flavor.get_multi(
+    items = flavor_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = flavor.paginate(items=items, page=page.page, size=page.size)
-    return flavor.choose_out_schema(
+    items = flavor_mng.paginate(items=items, page=page.page, size=page.size)
+    return flavor_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -85,7 +85,7 @@ def get_flavor(
     item: Flavor = Depends(valid_flavor_id),
     user_infos: Optional[Any] = None,
 ):
-    return flavor.choose_out_schema(
+    return flavor_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -99,7 +99,7 @@ def get_flavor(
         Depends(validate_new_flavor_values),
     ],
     summary="Edit a specific flavor",
-    description="Update attribute values of a specific flavor. \
+    description="Update attribute values of a specific flavor_mng. \
         The target flavor is identified using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error. If new values equal \
@@ -116,7 +116,7 @@ def put_flavor(
     item: Flavor = Depends(valid_flavor_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = flavor.update(db_obj=item, obj_in=update_data)
+    db_item = flavor_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -140,7 +140,7 @@ def delete_flavors(
     item: Flavor = Depends(valid_flavor_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not flavor.remove(db_obj=item):
+    if not flavor_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

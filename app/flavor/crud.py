@@ -113,7 +113,7 @@ class CRUDFlavor(
         return edit
 
 
-flavor = CRUDFlavor(
+flavor_mng = CRUDFlavor(
     model=Flavor,
     create_schema=FlavorCreate,
     read_schema=FlavorRead,

@@ -36,10 +36,10 @@ from app.service.api.dependencies import (
     validate_new_network_service_values,
 )
 from app.service.crud import (
-    block_storage_service,
-    compute_service,
-    identity_service,
-    network_service,
+    block_storage_service_mng,
+    compute_service_mng,
+    identity_service_mng,
+    network_service_mng,
 )
 from app.service.models import (
     BlockStorageService,
@@ -101,11 +101,13 @@ def get_block_storage_services(
     item: BlockStorageServiceQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = block_storage_service.get_multi(
+    items = block_storage_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = block_storage_service.paginate(items=items, page=page.page, size=page.size)
-    return block_storage_service.choose_out_schema(
+    items = block_storage_service_mng.paginate(
+        items=items, page=page.page, size=page.size
+    )
+    return block_storage_service_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -130,7 +132,7 @@ def get_block_storage_service(
     item: BlockStorageService = Depends(valid_block_storage_service_id),
     user_infos: Optional[Any] = None,
 ):
-    return block_storage_service.choose_out_schema(
+    return block_storage_service_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -161,7 +163,7 @@ def put_block_storage_service(
     item: BlockStorageService = Depends(valid_block_storage_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = block_storage_service.update(db_obj=item, obj_in=update_data)
+    db_item = block_storage_service_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -186,7 +188,7 @@ def delete_block_storage_services(
     item: BlockStorageService = Depends(valid_block_storage_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not block_storage_service.remove(db_obj=item):
+    if not block_storage_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
@@ -218,11 +220,11 @@ def get_compute_services(
     item: ComputeServiceQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = compute_service.get_multi(
+    items = compute_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = compute_service.paginate(items=items, page=page.page, size=page.size)
-    return compute_service.choose_out_schema(
+    items = compute_service_mng.paginate(items=items, page=page.page, size=page.size)
+    return compute_service_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -247,7 +249,7 @@ def get_compute_service(
     item: ComputeService = Depends(valid_compute_service_id),
     user_infos: Optional[Any] = None,
 ):
-    return compute_service.choose_out_schema(
+    return compute_service_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -278,7 +280,7 @@ def put_compute_service(
     item: ComputeService = Depends(valid_compute_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = compute_service.update(db_obj=item, obj_in=update_data)
+    db_item = compute_service_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -303,7 +305,7 @@ def delete_compute_services(
     item: ComputeService = Depends(valid_compute_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not compute_service.remove(db_obj=item):
+    if not compute_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
@@ -335,11 +337,11 @@ def get_identity_services(
     item: IdentityServiceQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = identity_service.get_multi(
+    items = identity_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = identity_service.paginate(items=items, page=page.page, size=page.size)
-    return identity_service.choose_out_schema(
+    items = identity_service_mng.paginate(items=items, page=page.page, size=page.size)
+    return identity_service_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -364,7 +366,7 @@ def get_identity_service(
     item: IdentityService = Depends(valid_identity_service_id),
     user_infos: Optional[Any] = None,
 ):
-    return identity_service.choose_out_schema(
+    return identity_service_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -395,7 +397,7 @@ def put_identity_service(
     item: IdentityService = Depends(valid_identity_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = identity_service.update(db_obj=item, obj_in=update_data)
+    db_item = identity_service_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -420,7 +422,7 @@ def delete_identity_services(
     item: IdentityService = Depends(valid_identity_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not identity_service.remove(db_obj=item):
+    if not identity_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",
@@ -452,11 +454,11 @@ def get_network_services(
     item: NetworkServiceQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = network_service.get_multi(
+    items = network_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = network_service.paginate(items=items, page=page.page, size=page.size)
-    return network_service.choose_out_schema(
+    items = network_service_mng.paginate(items=items, page=page.page, size=page.size)
+    return network_service_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -481,7 +483,7 @@ def get_network_service(
     item: NetworkService = Depends(valid_network_service_id),
     user_infos: Optional[Any] = None,
 ):
-    return network_service.choose_out_schema(
+    return network_service_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -512,7 +514,7 @@ def put_network_service(
     item: NetworkService = Depends(valid_network_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = network_service.update(db_obj=item, obj_in=update_data)
+    db_item = network_service_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -537,7 +539,7 @@ def delete_network_services(
     item: NetworkService = Depends(valid_network_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not network_service.remove(db_obj=item):
+    if not network_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

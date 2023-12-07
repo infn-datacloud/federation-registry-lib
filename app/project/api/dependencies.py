@@ -2,7 +2,7 @@ from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
-from app.project.crud import project
+from app.project.crud import project_mng
 from app.project.models import Project
 from app.project.schemas import ProjectCreate, ProjectUpdate
 from app.provider.api.dependencies import valid_provider_id
@@ -24,7 +24,7 @@ def valid_project_id(project_uid: str) -> Project:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = project.get(uid=project_uid.replace("-", ""))
+    item = project_mng.get(uid=project_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

@@ -2,7 +2,7 @@ from typing import List, Union
 
 from fastapi import Depends, HTTPException, status
 
-from app.image.crud import image
+from app.image.crud import image_mng
 from app.image.models import Image
 from app.image.schemas import ImageCreate, ImageUpdate
 from app.service.api.dependencies import valid_compute_service_id
@@ -24,7 +24,7 @@ def valid_image_id(image_uid: str) -> Image:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = image.get(uid=image_uid.replace("-", ""))
+    item = image_mng.get(uid=image_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

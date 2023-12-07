@@ -5,7 +5,7 @@ from app.crud import CRUDBase
 from app.identity_provider.models import IdentityProvider
 from app.project.models import Project
 from app.provider.schemas_extended import UserGroupCreateExtended
-from app.sla.crud import sla
+from app.sla.crud import sla_mng
 from app.user_group.models import UserGroup
 from app.user_group.schemas import (
     UserGroupCreate,
@@ -58,8 +58,8 @@ class CRUDUserGroup(
             db_sla = db_project.sla.single()
             if db_sla is not None:
                 if len(db_sla.projects) == 1:
-                    sla.remove(db_obj=db_sla)
-            sla.create(obj_in=obj_in.sla, user_group=db_obj, project=db_project)
+                    sla_mng.remove(db_obj=db_sla)
+            sla_mng.create(obj_in=obj_in.sla, user_group=db_obj, project=db_project)
         return db_obj
 
     def remove(self, *, db_obj: UserGroup) -> bool:
@@ -68,7 +68,7 @@ class CRUDUserGroup(
         At first delete its SLAs. Finally delete the user group.
         """
         for item in db_obj.slas:
-            sla.remove(db_obj=item)
+            sla_mng.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
     def update(
@@ -128,11 +128,11 @@ class CRUDUserGroup(
         if db_sla_target_provider:
             if db_sla_target_provider.doc_uuid != obj_in.sla.doc_uuid:
                 if len(db_sla_target_provider.projects) == 1:
-                    sla.remove(db_obj=db_sla_target_provider)
-                sla.create(obj_in=obj_in.sla, project=db_project, user_group=db_obj)
+                    sla_mng.remove(db_obj=db_sla_target_provider)
+                sla_mng.create(obj_in=obj_in.sla, project=db_project, user_group=db_obj)
                 edit = True
             else:
-                updated_data = sla.update(
+                updated_data = sla_mng.update(
                     db_obj=db_sla_target_provider,
                     obj_in=obj_in.sla,
                     projects=provider_projects,
@@ -141,12 +141,12 @@ class CRUDUserGroup(
                 if updated_data:
                     edit = True
         else:
-            sla.create(obj_in=obj_in.sla, project=db_project, user_group=db_obj)
+            sla_mng.create(obj_in=obj_in.sla, project=db_project, user_group=db_obj)
             edit = True
         return edit
 
 
-user_group = CRUDUserGroup(
+user_group_mng = CRUDUserGroup(
     model=UserGroup,
     create_schema=UserGroupCreate,
     read_schema=UserGroupRead,

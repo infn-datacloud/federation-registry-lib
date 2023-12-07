@@ -217,7 +217,7 @@ class CRUDNetworkQuota(
         return db_obj if edit else updated_data
 
 
-block_storage_quota = CRUDBlockStorageQuota(
+block_storage_quota_mng = CRUDBlockStorageQuota(
     model=BlockStorageQuota,
     create_schema=BlockStorageQuotaCreate,
     read_schema=BlockStorageQuotaRead,
@@ -225,7 +225,7 @@ block_storage_quota = CRUDBlockStorageQuota(
     read_extended_schema=BlockStorageQuotaReadExtended,
     read_extended_public_schema=BlockStorageQuotaReadExtendedPublic,
 )
-compute_quota = CRUDComputeQuota(
+compute_quota_mng = CRUDComputeQuota(
     model=ComputeQuota,
     create_schema=ComputeQuotaCreate,
     read_schema=ComputeQuotaRead,
@@ -233,7 +233,7 @@ compute_quota = CRUDComputeQuota(
     read_extended_schema=ComputeQuotaReadExtended,
     read_extended_public_schema=ComputeQuotaReadExtendedPublic,
 )
-network_quota = CRUDNetworkQuota(
+network_quota_mng = CRUDNetworkQuota(
     model=NetworkQuota,
     create_schema=NetworkQuotaCreate,
     read_schema=NetworkQuotaRead,

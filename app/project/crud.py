@@ -9,9 +9,9 @@ from app.project.schemas import (
 )
 from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.provider.models import Provider
-from app.quota.crud import block_storage_quota, compute_quota
-from app.quota.models import BlockStorageQuota, ComputeQuota
-from app.sla.crud import sla
+from app.quota.crud import block_storage_quota_mng, compute_quota_mng, network_quota_mng
+from app.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from app.sla.crud import sla_mng
 
 
 class CRUDProject(
@@ -44,16 +44,18 @@ class CRUDProject(
         """
         for item in db_obj.quotas:
             if isinstance(item, BlockStorageQuota):
-                block_storage_quota.remove(db_obj=item)
+                block_storage_quota_mng.remove(db_obj=item)
             elif isinstance(item, ComputeQuota):
-                compute_quota.remove(db_obj=item)
+                compute_quota_mng.remove(db_obj=item)
+            elif isinstance(item, NetworkQuota):
+                network_quota_mng.remove(db_obj=item)
         item = db_obj.sla.single()
         if item and len(item.projects) == 1:
-            sla.remove(db_obj=item)
+            sla_mng.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
 
-project = CRUDProject(
+project_mng = CRUDProject(
     model=Project,
     create_schema=ProjectCreate,
     read_schema=ProjectRead,

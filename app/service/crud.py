@@ -2,16 +2,16 @@
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from app.crud import CRUDBase
-from app.flavor.crud import flavor
-from app.image.crud import image
-from app.network.crud import network
+from app.flavor.crud import flavor_mng
+from app.image.crud import image_mng
+from app.network.crud import network_mng
 from app.project.models import Project
 from app.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
 )
-from app.quota.crud import block_storage_quota, compute_quota, network_quota
+from app.quota.crud import block_storage_quota_mng, compute_quota_mng, network_quota_mng
 from app.region.models import Region
 from app.service.models import (
     BlockStorageService,
@@ -50,7 +50,7 @@ from app.service.schemas_extended import (
 
 
 def split_quota(quotas: List[Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    """Split quotas in total and per-users"""
+    """Split quotas in total and per-users."""
     db_items_per_user = {
         db_item.project.single().uuid: db_item
         for db_item in filter(lambda x: x.per_user, quotas)
@@ -94,7 +94,7 @@ class CRUDBlockStorageService(
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
-                block_storage_quota.create(
+                block_storage_quota_mng.create(
                     obj_in=item, service=db_obj, project=db_projects[0]
                 )
         return db_obj
@@ -105,7 +105,7 @@ class CRUDBlockStorageService(
         At first delete its quotas. Finally delete the service.
         """
         for item in db_obj.quotas:
-            block_storage_quota.remove(db_obj=item)
+            block_storage_quota_mng.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
     def update(
@@ -160,14 +160,14 @@ class CRUDBlockStorageService(
             if item.per_user:
                 db_item = db_items_per_user.pop(item.project, None)
                 if not db_item:
-                    block_storage_quota.create(
+                    block_storage_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = block_storage_quota.update(
+                    updated_data = block_storage_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -178,14 +178,14 @@ class CRUDBlockStorageService(
             else:
                 db_item = db_items_total.pop(item.project, None)
                 if not db_item:
-                    block_storage_quota.create(
+                    block_storage_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = block_storage_quota.update(
+                    updated_data = block_storage_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -195,10 +195,10 @@ class CRUDBlockStorageService(
                         edit = True
 
         for db_item in db_items_per_user.values():
-            block_storage_quota.remove(db_obj=db_item)
+            block_storage_quota_mng.remove(db_obj=db_item)
             edit = True
         for db_item in db_items_total.values():
-            block_storage_quota.remove(db_obj=db_item)
+            block_storage_quota_mng.remove(db_obj=db_item)
             edit = True
 
         return edit
@@ -236,14 +236,14 @@ class CRUDComputeService(
         db_obj.region.connect(region)
         for item in obj_in.flavors:
             db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
-            flavor.create(obj_in=item, service=db_obj, projects=db_projects)
+            flavor_mng.create(obj_in=item, service=db_obj, projects=db_projects)
         for item in obj_in.images:
             db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
-            image.create(obj_in=item, service=db_obj, projects=db_projects)
+            image_mng.create(obj_in=item, service=db_obj, projects=db_projects)
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
-                compute_quota.create(
+                compute_quota_mng.create(
                     obj_in=item, service=db_obj, project=db_projects[0]
                 )
         return db_obj
@@ -255,13 +255,13 @@ class CRUDComputeService(
         this service. Finally delete the service.
         """
         for item in db_obj.quotas:
-            compute_quota.remove(db_obj=item)
+            compute_quota_mng.remove(db_obj=item)
         for item in db_obj.flavors:
             if len(item.services) == 1:
-                flavor.remove(db_obj=item)
+                flavor_mng.remove(db_obj=item)
         for item in db_obj.images:
             if len(item.services) == 1:
-                image.remove(db_obj=item)
+                image_mng.remove(db_obj=item)
         result = super().remove(db_obj=db_obj)
         return result
 
@@ -319,17 +319,17 @@ class CRUDComputeService(
                 filter(lambda x: x.uuid in item.projects, provider_projects)
             )
             if not db_item:
-                flavor.create(obj_in=item, service=db_obj, projects=db_projects)
+                flavor_mng.create(obj_in=item, service=db_obj, projects=db_projects)
                 edit = True
             else:
-                updated_data = flavor.update(
+                updated_data = flavor_mng.update(
                     db_obj=db_item, obj_in=item, projects=db_projects
                 )
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
             if len(db_item.services) == 1:
-                flavor.remove(db_obj=db_item)
+                flavor_mng.remove(db_obj=db_item)
             else:
                 db_obj.flavors.disconnect(db_item)
             edit = True
@@ -355,17 +355,17 @@ class CRUDComputeService(
                 filter(lambda x: x.uuid in item.projects, provider_projects)
             )
             if not db_item:
-                image.create(obj_in=item, service=db_obj, projects=db_projects)
+                image_mng.create(obj_in=item, service=db_obj, projects=db_projects)
                 edit = True
             else:
-                updated_data = image.update(
+                updated_data = image_mng.update(
                     db_obj=db_item, obj_in=item, projects=db_projects
                 )
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
             if len(db_item.services) == 1:
-                image.remove(db_obj=db_item)
+                image_mng.remove(db_obj=db_item)
             else:
                 db_obj.images.disconnect(db_item)
             edit = True
@@ -396,14 +396,14 @@ class CRUDComputeService(
             if item.per_user:
                 db_item = db_items_per_user.pop(item.project, None)
                 if not db_item:
-                    compute_quota.create(
+                    compute_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = compute_quota.update(
+                    updated_data = compute_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -414,14 +414,14 @@ class CRUDComputeService(
             else:
                 db_item = db_items_total.pop(item.project, None)
                 if not db_item:
-                    compute_quota.create(
+                    compute_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = compute_quota.update(
+                    updated_data = compute_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -431,10 +431,10 @@ class CRUDComputeService(
                         edit = True
 
         for db_item in db_items_per_user.values():
-            compute_quota.remove(db_obj=db_item)
+            compute_quota_mng.remove(db_obj=db_item)
             edit = True
         for db_item in db_items_total.values():
-            compute_quota.remove(db_obj=db_item)
+            compute_quota_mng.remove(db_obj=db_item)
             edit = True
 
         return edit
@@ -499,11 +499,11 @@ class CRUDNetworkService(
             db_project = None
             if len(db_projects) == 1:
                 db_project = db_projects[0]
-            network.create(obj_in=item, service=db_obj, project=db_project)
+            network_mng.create(obj_in=item, service=db_obj, project=db_project)
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
-                network_quota.create(
+                network_quota_mng.create(
                     obj_in=item, service=db_obj, project=db_projects[0]
                 )
         return db_obj
@@ -515,9 +515,9 @@ class CRUDNetworkService(
         this service. Finally delete the service.
         """
         for item in db_obj.quotas:
-            network_quota.remove(db_obj=item)
+            network_quota_mng.remove(db_obj=item)
         for item in db_obj.networks:
-            network.remove(db_obj=item)
+            network_mng.remove(db_obj=item)
         result = super().remove(db_obj=db_obj)
         return result
 
@@ -573,16 +573,16 @@ class CRUDNetworkService(
             )
             if not db_item:
                 project = None if len(db_projects) == 0 else db_projects[0]
-                network.create(obj_in=item, service=db_obj, project=project)
+                network_mng.create(obj_in=item, service=db_obj, project=project)
                 edit = True
             else:
-                updated_data = network.update(
+                updated_data = network_mng.update(
                     db_obj=db_item, obj_in=item, projects=db_projects
                 )
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
-            network.remove(db_obj=db_item)
+            network_mng.remove(db_obj=db_item)
             edit = True
         return edit
 
@@ -611,14 +611,14 @@ class CRUDNetworkService(
             if item.per_user:
                 db_item = db_items_per_user.pop(item.project, None)
                 if not db_item:
-                    network_quota.create(
+                    network_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = network_quota.update(
+                    updated_data = network_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -629,14 +629,14 @@ class CRUDNetworkService(
             else:
                 db_item = db_items_total.pop(item.project, None)
                 if not db_item:
-                    network_quota.create(
+                    network_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = network_quota.update(
+                    updated_data = network_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -646,16 +646,16 @@ class CRUDNetworkService(
                         edit = True
 
         for db_item in db_items_per_user.values():
-            network_quota.remove(db_obj=db_item)
+            network_quota_mng.remove(db_obj=db_item)
             edit = True
         for db_item in db_items_total.values():
-            network_quota.remove(db_obj=db_item)
+            network_quota_mng.remove(db_obj=db_item)
             edit = True
 
         return edit
 
 
-compute_service = CRUDComputeService(
+compute_service_mng = CRUDComputeService(
     model=ComputeService,
     create_schema=ComputeServiceCreate,
     read_schema=ComputeServiceRead,
@@ -663,7 +663,7 @@ compute_service = CRUDComputeService(
     read_extended_schema=ComputeServiceReadExtended,
     read_extended_public_schema=ComputeServiceReadExtendedPublic,
 )
-block_storage_service = CRUDBlockStorageService(
+block_storage_service_mng = CRUDBlockStorageService(
     model=BlockStorageService,
     create_schema=BlockStorageServiceCreate,
     read_schema=BlockStorageServiceRead,
@@ -671,7 +671,7 @@ block_storage_service = CRUDBlockStorageService(
     read_extended_schema=BlockStorageServiceReadExtended,
     read_extended_public_schema=BlockStorageServiceReadExtendedPublic,
 )
-identity_service = CRUDIdentityService(
+identity_service_mng = CRUDIdentityService(
     model=IdentityService,
     create_schema=IdentityServiceCreate,
     read_schema=IdentityServiceRead,
@@ -679,7 +679,7 @@ identity_service = CRUDIdentityService(
     read_extended_schema=IdentityServiceReadExtended,
     read_extended_public_schema=IdentityServiceReadExtendedPublic,
 )
-network_service = CRUDNetworkService(
+network_service_mng = CRUDNetworkService(
     model=NetworkService,
     create_schema=NetworkServiceCreate,
     read_schema=NetworkServiceRead,

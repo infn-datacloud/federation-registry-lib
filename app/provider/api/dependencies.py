@@ -3,9 +3,9 @@ from typing import Union
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
-from app.identity_provider.crud import identity_provider
-from app.location.crud import location
-from app.provider.crud import provider
+from app.identity_provider.crud import identity_provider_mng
+from app.location.crud import location_mng
+from app.provider.crud import provider_mng
 from app.provider.models import Provider
 from app.provider.schemas import ProviderUpdate
 from app.provider.schemas_extended import (
@@ -19,7 +19,7 @@ from app.service.api.dependencies import (
     valid_identity_service_endpoint,
     valid_network_service_endpoint,
 )
-from app.sla.crud import sla
+from app.sla.crud import sla_mng
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
@@ -37,7 +37,7 @@ def valid_provider_id(provider_uid: UUID4) -> Provider:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = provider.get(uid=str(provider_uid).replace("-", ""))
+    item = provider_mng.get(uid=str(provider_uid).replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -61,7 +61,7 @@ def is_unique_provider(item: Union[ProviderCreateExtended, ProviderUpdate]) -> N
     ------
         BadRequestError: DB entity with given name already exists.
     """
-    db_item = provider.get(name=item.name)
+    db_item = provider_mng.get(name=item.name)
     if db_item is not None:
         if db_item.type == item.type:
             msg = f"Provider with name '{item.name}' and type '{db_item.type}' "
@@ -129,7 +129,7 @@ def valid_identity_provider(
             or DB entity with given endpoint already exists but has
             different attributes.
     """
-    db_item = identity_provider.get(endpoint=item.endpoint)
+    db_item = identity_provider_mng.get(endpoint=item.endpoint)
     if db_item is not None:
         data = item.dict(exclude={"relationship", "user_groups"}, exclude_unset=True)
         for k, v in data.items():
@@ -139,10 +139,10 @@ def valid_identity_provider(
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
     for group in item.user_groups:
-        db_item = sla.get(doc_uuid=group.sla.doc_uuid)
+        db_item = sla_mng.get(doc_uuid=group.sla.doc_uuid)
         if db_item is not None:
             db_group = db_item.user_group.single()
-            db_idp = db_group.identity_provider.single()
+            db_idp = db_group.identity_provider_mng.single()
             if db_group.name != group.name or db_idp.endpoint != item.endpoint:
                 msg = f"SLA {group.sla.doc_uuid} already used by another group"
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
@@ -151,7 +151,7 @@ def valid_identity_provider(
 def valid_region(item: RegionCreateExtended) -> None:
     """"""
     if item.location is not None:
-        db_item = location.get(site=item.location.site)
+        db_item = location_mng.get(site=item.location.site)
         if db_item is not None:
             for k, v in item.location.dict(exclude_unset=True).items():
                 if db_item.__getattribute__(k) != v:

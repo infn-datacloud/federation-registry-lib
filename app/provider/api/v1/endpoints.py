@@ -50,7 +50,7 @@ from app.provider.api.dependencies import (
     valid_provider_id,
     validate_new_provider_values,
 )
-from app.provider.crud import provider
+from app.provider.crud import provider_mng
 from app.provider.models import Provider
 from app.provider.schemas import (
     ProviderQuery,
@@ -90,11 +90,11 @@ def get_providers(
     item: ProviderQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
-    items = provider.get_multi(
+    items = provider_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = provider.paginate(items=items, page=page.page, size=page.size)
-    return provider.choose_out_schema(
+    items = provider_mng.paginate(items=items, page=page.page, size=page.size)
+    return provider_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -114,7 +114,7 @@ def get_providers(
         Moreover check the received lists do not contain duplicates.",
 )
 def post_provider(item: ProviderCreateExtended):
-    return provider.create(obj_in=item)
+    return provider_mng.create(obj_in=item)
 
 
 @db.read_transaction
@@ -137,7 +137,7 @@ def get_provider(
     item: Provider = Depends(valid_provider_id),
     user_infos: Optional[Any] = None,
 ):
-    return provider.choose_out_schema(
+    return provider_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -168,7 +168,7 @@ def put_provider(
     item: Provider = Depends(valid_provider_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = provider.update(db_obj=item, obj_in=update_data)
+    db_item = provider_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -192,7 +192,7 @@ def delete_providers(
     item: Provider = Depends(valid_provider_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not provider.remove(db_obj=item):
+    if not provider_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

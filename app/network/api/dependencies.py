@@ -2,7 +2,7 @@ from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
-from app.network.crud import network
+from app.network.crud import network_mng
 from app.network.models import Network
 from app.network.schemas import NetworkCreate, NetworkUpdate
 from app.service.api.dependencies import valid_network_service_id
@@ -24,7 +24,7 @@ def valid_network_id(network_uid: str) -> Network:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = network.get(uid=network_uid.replace("-", ""))
+    item = network_mng.get(uid=network_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

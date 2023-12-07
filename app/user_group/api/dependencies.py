@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 
 from app.identity_provider.api.dependencies import valid_identity_provider_id
 from app.identity_provider.models import IdentityProvider
-from app.user_group.crud import user_group
+from app.user_group.crud import user_group_mng
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupCreate, UserGroupUpdate
 
@@ -24,7 +24,7 @@ def valid_user_group_id(user_group_uid: str) -> UserGroup:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = user_group.get(uid=user_group_uid.replace("-", ""))
+    item = user_group_mng.get(uid=user_group_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

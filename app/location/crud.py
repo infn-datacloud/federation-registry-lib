@@ -46,7 +46,7 @@ class CRUDLocation(
         return db_obj
 
 
-location = CRUDLocation(
+location_mng = CRUDLocation(
     model=Location,
     create_schema=LocationCreate,
     read_schema=LocationRead,

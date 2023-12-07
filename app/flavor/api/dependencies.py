@@ -2,7 +2,7 @@ from typing import List, Union
 
 from fastapi import Depends, HTTPException, status
 
-from app.flavor.crud import flavor
+from app.flavor.crud import flavor_mng
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorCreate, FlavorUpdate
 from app.service.api.dependencies import valid_compute_service_id
@@ -24,7 +24,7 @@ def valid_flavor_id(flavor_uid: str) -> Flavor:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = flavor.get(uid=flavor_uid.replace("-", ""))
+    item = flavor_mng.get(uid=flavor_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

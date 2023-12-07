@@ -2,7 +2,7 @@ from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
-from app.sla.crud import sla
+from app.sla.crud import sla_mng
 from app.sla.models import SLA
 from app.sla.schemas import SLACreate, SLAUpdate
 
@@ -22,7 +22,7 @@ def valid_sla_id(sla_uid: str) -> SLA:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = sla.get(uid=sla_uid.replace("-", ""))
+    item = sla_mng.get(uid=sla_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -46,7 +46,7 @@ def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
     ------
         BadRequestError: DB entity with given document uuid already exists.
     """
-    db_item = sla.get(doc_uuid=item.doc_uuid)
+    db_item = sla_mng.get(doc_uuid=item.doc_uuid)
     if db_item is not None:
         msg = f"Document '{item.doc_uuid}' already used "
         msg += "by another SLA"

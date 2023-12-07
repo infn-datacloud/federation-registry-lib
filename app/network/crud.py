@@ -79,7 +79,7 @@ class CRUDNetwork(
         return db_obj if edit else updated_data
 
 
-network = CRUDNetwork(
+network_mng = CRUDNetwork(
     model=Network,
     create_schema=NetworkCreate,
     read_schema=NetworkRead,

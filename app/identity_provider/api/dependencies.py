@@ -2,7 +2,7 @@ from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
-from app.identity_provider.crud import identity_provider
+from app.identity_provider.crud import identity_provider_mng
 from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
     IdentityProviderCreate,
@@ -25,7 +25,7 @@ def valid_identity_provider_id(identity_provider_uid: str) -> IdentityProvider:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = identity_provider.get(uid=identity_provider_uid.replace("-", ""))
+    item = identity_provider_mng.get(uid=identity_provider_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -51,7 +51,7 @@ def valid_identity_provider_endpoint(
     ------
         BadRequestError: DB entity with given endpoint already exists.
     """
-    db_item = identity_provider.get(endpoint=item.endpoint)
+    db_item = identity_provider_mng.get(endpoint=item.endpoint)
     if db_item is not None:
         msg = f"Identity Provider with endpoint '{item.endpoint}' "
         msg += "already registered"

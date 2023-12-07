@@ -113,7 +113,7 @@ class CRUDImage(
         return edit
 
 
-image = CRUDImage(
+image_mng = CRUDImage(
     model=Image,
     create_schema=ImageCreate,
     read_schema=ImageRead,

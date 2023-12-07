@@ -55,7 +55,7 @@ from app.user_group.api.dependencies import (
     validate_new_user_group_values,
 )
 from app.user_group.api.utils import filter_on_provider_attr, filter_on_region_attr
-from app.user_group.crud import user_group
+from app.user_group.crud import user_group_mng
 from app.user_group.models import UserGroup
 from app.user_group.schemas import (
     UserGroupQuery,
@@ -97,7 +97,7 @@ def get_user_groups(
     region_name: Optional[str] = None,
     user_infos: Optional[Any] = None,
 ):
-    items = user_group.get_multi(
+    items = user_group_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     if idp_endpoint:
@@ -113,8 +113,8 @@ def get_user_groups(
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=items, region_query=region_query)
 
-    items = user_group.paginate(items=items, page=page.page, size=page.size)
-    return user_group.choose_out_schema(
+    items = user_group_mng.paginate(items=items, page=page.page, size=page.size)
+    return user_group_mng.choose_out_schema(
         items=items, auth=user_infos, with_conn=size.with_conn
     )
 
@@ -139,7 +139,7 @@ def get_user_group(
     item: UserGroup = Depends(valid_user_group_id),
     user_infos: Optional[Any] = None,
 ):
-    return user_group.choose_out_schema(
+    return user_group_mng.choose_out_schema(
         items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
@@ -169,7 +169,7 @@ def put_user_group(
     item: UserGroup = Depends(valid_user_group_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    db_item = user_group.update(db_obj=item, obj_in=update_data)
+    db_item = user_group_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -192,7 +192,7 @@ def delete_user_group(
     item: UserGroup = Depends(valid_user_group_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
-    if not user_group.remove(db_obj=item):
+    if not user_group_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

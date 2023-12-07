@@ -2,7 +2,7 @@
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
-from app.location.crud import location
+from app.location.crud import location_mng
 from app.project.models import Project
 from app.provider.models import Provider
 from app.provider.schemas_extended import RegionCreateExtended
@@ -10,10 +10,10 @@ from app.region.models import Region
 from app.region.schemas import RegionCreate, RegionRead, RegionReadPublic, RegionUpdate
 from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
 from app.service.crud import (
-    block_storage_service,
-    compute_service,
-    identity_service,
-    network_service,
+    block_storage_service_mng,
+    compute_service_mng,
+    identity_service_mng,
+    network_service_mng,
 )
 from app.service.models import (
     BlockStorageService,
@@ -45,19 +45,19 @@ class CRUDRegion(
         db_obj = super().create(obj_in=obj_in)
         db_obj.provider.connect(provider)
         if obj_in.location is not None:
-            location.create(obj_in=obj_in.location, region=db_obj)
+            location_mng.create(obj_in=obj_in.location, region=db_obj)
         for item in obj_in.block_storage_services:
-            block_storage_service.create(
+            block_storage_service_mng.create(
                 obj_in=item, region=db_obj, projects=provider.projects
             )
         for item in obj_in.compute_services:
-            compute_service.create(
+            compute_service_mng.create(
                 obj_in=item, region=db_obj, projects=provider.projects
             )
         for item in obj_in.identity_services:
-            identity_service.create(obj_in=item, region=db_obj)
+            identity_service_mng.create(obj_in=item, region=db_obj)
         for item in obj_in.network_services:
-            network_service.create(
+            network_service_mng.create(
                 obj_in=item, region=db_obj, projects=provider.projects
             )
         return db_obj
@@ -73,17 +73,17 @@ class CRUDRegion(
         """
         for db_serv in db_obj.services:
             if isinstance(db_serv, BlockStorageService):
-                block_storage_service.remove(db_obj=db_serv)
+                block_storage_service_mng.remove(db_obj=db_serv)
             elif isinstance(db_serv, ComputeService):
-                compute_service.remove(db_obj=db_serv)
+                compute_service_mng.remove(db_obj=db_serv)
             elif isinstance(db_serv, IdentityService):
-                identity_service.remove(db_obj=db_serv)
+                identity_service_mng.remove(db_obj=db_serv)
             elif isinstance(db_serv, NetworkService):
-                network_service.remove(db_obj=db_serv)
+                network_service_mng.remove(db_obj=db_serv)
 
         item = db_obj.location.single()
         if item and len(item.regions) == 1:
-            location.remove(db_obj=item)
+            location_mng.remove(db_obj=item)
 
         result = super().remove(db_obj=db_obj)
         return result
@@ -150,7 +150,7 @@ class CRUDRegion(
 
         if db_loc and (not loc_in or db_loc.site != loc_in.site):
             if len(db_loc.regions) == 1:
-                location.remove(db_obj=db_loc)
+                location_mng.remove(db_obj=db_loc)
             else:
                 db_obj.location.disconnect(db_loc)
             edit = True
@@ -160,10 +160,10 @@ class CRUDRegion(
         if (not db_loc and loc_in) or (
             db_loc and loc_in and db_loc.site != loc_in.site
         ):
-            location.create(obj_in=loc_in, region=db_obj)
+            location_mng.create(obj_in=loc_in, region=db_obj)
             edit = True
         elif db_loc and loc_in and db_loc.site == loc_in.site:
-            updated_data = location.update(db_obj=db_loc, obj_in=loc_in, force=True)
+            updated_data = location_mng.update(db_obj=db_loc, obj_in=loc_in, force=True)
             edit = updated_data is not None
 
         return edit
@@ -189,12 +189,12 @@ class CRUDRegion(
         for item in obj_in.block_storage_services:
             db_item = db_items.pop(item.endpoint, None)
             if not db_item:
-                block_storage_service.create(
+                block_storage_service_mng.create(
                     obj_in=item, region=db_obj, projects=provider_projects
                 )
                 edit = True
             else:
-                updated_data = block_storage_service.update(
+                updated_data = block_storage_service_mng.update(
                     db_obj=db_item,
                     obj_in=item,
                     projects=provider_projects,
@@ -203,7 +203,7 @@ class CRUDRegion(
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
-            block_storage_service.remove(db_obj=db_item)
+            block_storage_service_mng.remove(db_obj=db_item)
             edit = True
         return edit
 
@@ -228,12 +228,12 @@ class CRUDRegion(
         for item in obj_in.compute_services:
             db_item = db_items.pop(item.endpoint, None)
             if not db_item:
-                compute_service.create(
+                compute_service_mng.create(
                     obj_in=item, region=db_obj, projects=provider_projects
                 )
                 edit = True
             else:
-                updated_data = compute_service.update(
+                updated_data = compute_service_mng.update(
                     db_obj=db_item,
                     obj_in=item,
                     projects=provider_projects,
@@ -242,7 +242,7 @@ class CRUDRegion(
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
-            compute_service.remove(db_obj=db_item)
+            compute_service_mng.remove(db_obj=db_item)
             edit = True
         return edit
 
@@ -266,16 +266,16 @@ class CRUDRegion(
         for item in obj_in.identity_services:
             db_item = db_items.pop(item.endpoint, None)
             if not db_item:
-                identity_service.create(obj_in=item, region=db_obj)
+                identity_service_mng.create(obj_in=item, region=db_obj)
                 edit = True
             else:
-                updated_data = identity_service.update(
+                updated_data = identity_service_mng.update(
                     db_obj=db_item, obj_in=item, force=True
                 )
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
-            identity_service.remove(db_obj=db_item)
+            identity_service_mng.remove(db_obj=db_item)
             edit = True
         return edit
 
@@ -300,12 +300,12 @@ class CRUDRegion(
         for item in obj_in.network_services:
             db_item = db_items.pop(item.endpoint, None)
             if not db_item:
-                network_service.create(
+                network_service_mng.create(
                     obj_in=item, region=db_obj, projects=provider_projects
                 )
                 edit = True
             else:
-                updated_data = network_service.update(
+                updated_data = network_service_mng.update(
                     db_obj=db_item,
                     obj_in=item,
                     projects=provider_projects,
@@ -314,12 +314,12 @@ class CRUDRegion(
                 if not edit and updated_data is not None:
                     edit = True
         for db_item in db_items.values():
-            network_service.remove(db_obj=db_item)
+            network_service_mng.remove(db_obj=db_item)
         edit = True
         return edit
 
 
-region = CRUDRegion(
+region_mng = CRUDRegion(
     model=Region,
     create_schema=RegionCreate,
     read_schema=RegionRead,
