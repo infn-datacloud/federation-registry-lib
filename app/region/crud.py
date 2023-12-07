@@ -62,7 +62,7 @@ class CRUDRegion(
             )
         return db_obj
 
-    def remove(self, *, db_obj: Region, from_provider: bool = False) -> bool:
+    def remove(self, *, db_obj: Region) -> bool:
         """Delete an existing region and all its relationships.
 
         If the corresponding provider has no other regions, abort region deletion in
@@ -71,11 +71,6 @@ class CRUDRegion(
         At first delete its services. Then, if the location points only to this
         provider, delete it. Finally delete the region.
         """
-        if not from_provider:
-            item = db_obj.provider.single()
-            if len(item.regions) == 1:
-                return False
-
         for db_serv in db_obj.services:
             if isinstance(db_serv, BlockStorageService):
                 block_storage_service.remove(db_obj=db_serv)

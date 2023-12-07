@@ -15,6 +15,7 @@ from neomodel import db
 from app.auth import flaat, security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.region.api.dependencies import (
+    not_last_region,
     valid_region_id,
     validate_new_region_values,
 )
@@ -127,6 +128,7 @@ def put_region(
 @router.delete(
     "/{region_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(not_last_region)],
     summary="Delete a specific region",
     description="Delete a specific region using its *uid*. \
         Returns `no content`. \

@@ -83,3 +83,14 @@ def validate_new_region_values(
     """
     if update_data.name != item.name:
         is_unique_region(item=update_data, provider=item.provider.single())
+
+
+def not_last_region(item: Region = Depends(valid_region_id)) -> None:
+    """ """
+
+    db_provider: Provider = item.provider.single()
+    if len(db_provider.regions) == 1:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"This region is the provider's {db_provider.uid} last one.",
+        )
