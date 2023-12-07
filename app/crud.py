@@ -1,4 +1,4 @@
-"""Class with common Create, Read, Update and delete operations."""
+"""Module with common Create, Read, Update and delete operations."""
 from typing import Generic, List, Optional, Type, TypeVar, Union
 
 from neomodel import StructuredNode
@@ -67,7 +67,7 @@ class CRUDBase(
 
         Args:
         ----
-            **kwargs: Arbitrary keyword arguments usewd to filter the get operation.
+            **kwargs: Arbitrary keyword arguments used to filter the get operation.
 
         Returns:
         -------
@@ -83,6 +83,19 @@ class CRUDBase(
         sort: Optional[str] = None,
         **kwargs,
     ) -> List[ModelType]:
+        """Try to retrieve from DB a list of objects with the given attributes.
+
+        Args:
+        ----
+            skip (int): Number of items to skip from the first one received.
+            limit (int | None): Maximum number of items to return.
+            sort (int | None): Sorting rule.
+            **kwargs: Arbitrary keyword arguments used to filter the get operation.
+
+        Returns:
+        -------
+            List[ModelType].
+        """
         if kwargs:
             items = self.model.nodes.filter(**kwargs).order_by(sort).all()
         else:
@@ -91,6 +104,16 @@ class CRUDBase(
         return self.__apply_limit_and_skip(items=items, skip=skip, limit=limit)
 
     def create(self, *, obj_in: CreateSchemaType) -> ModelType:
+        """Create a new node in the graph.
+
+        Args:
+        ----
+            obj_in (CreateSchemaType): Input data to add to the DB.
+
+        Returns:
+        -------
+            ModelType. The database object.
+        """
         obj_in = self.create_schema.parse_obj(obj_in)
         obj_in_data = obj_in.dict(exclude_none=True)
         db_obj = self.model.create(obj_in_data)[0]
@@ -103,6 +126,21 @@ class CRUDBase(
         obj_in: UpdateSchemaType,
         force: bool = False,
     ) -> Optional[ModelType]:
+        """Update and existing database object.
+
+        Args:
+        ----
+            db_obj (ModelType): DB object to update.
+            obj_in (UpdateSchemaType): Data to use to patch the DB object.
+            force (bool): When this flag is True, if the new data contains unset values
+                (alias default values), they will override the values written in the DB.
+                By default unset values are ignored.
+
+        Returns:
+        -------
+            ModelType | None. The updated DB object or None if there are no changes to
+                apply.
+        """
         obj_data = db_obj.__dict__
         update_data = obj_in.dict(exclude_unset=not force)
 
@@ -115,11 +153,34 @@ class CRUDBase(
         return db_obj.save()
 
     def remove(self, *, db_obj: ModelType) -> bool:
+        """Delete the target instance from the DB.
+
+        Args:
+        ----
+            db_obj (ModelType): DB object to delete.
+
+        Returns:
+        -------
+            bool. True if the operations succeeded, False otherwise.
+        """
         return db_obj.delete()
 
     def paginate(
         self, *, items: List[ModelType], page: int, size: Optional[int]
     ) -> List[ModelType]:
+        """Divide the list in chunks.
+
+        Args:
+        ----
+            items (list[ModelType]): List to split.
+            page (int): Target chunk (start from 0).
+            size (int | None): Chunk size.
+
+        Returns:
+        -------
+            List[ModelType]. Chunk with index equal to page and length equal to, at
+            most, size.
+        """
         if size is None:
             return items
         start = page * size
@@ -134,6 +195,22 @@ class CRUDBase(
         List[ReadExtendedPublicSchemaType],
         List[ReadExtendedSchemaType],
     ]:
+        """Choose which read model use to return data to users.
+
+        Based on authorization, and on the user request to retrieve linked items, choose
+        one of the read schemas.
+
+        Args:
+        ----
+            items (List[ModelType]): List of items to cast.
+            auth (bool): Flag for authorization.
+            with_conn (bool): Flag to retrieve linked items.
+
+        Returns:
+        -------
+            List[ReadPublicSchemaType] | List[ReadSchemaType] |
+            List[ReadExtendedPublicSchemaType] | List[ReadExtendedSchemaType].
+        """
         if auth:
             if with_conn:
                 return [self.read_extended_schema.from_orm(i) for i in items]
@@ -145,6 +222,18 @@ class CRUDBase(
     def __apply_limit_and_skip(
         self, *, items: List[ModelType], skip: int = 0, limit: Optional[int] = None
     ) -> List[ModelType]:
+        """Function to apply the limit and skip attributes on the list of values.
+
+        Args:
+        ----
+            items (list[ModelType]): List to filter.
+            skip (int): Number of items to skip from the first one received.
+            limit (int | None): Maximum number of items to return.
+
+        Returns:
+        -------
+            List[ModelType]. Restricted list
+        """
         if limit is None:
             return items[skip:]
         start = skip

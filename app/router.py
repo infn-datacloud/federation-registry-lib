@@ -1,3 +1,4 @@
+"""Module with the router architecture."""
 from fastapi import APIRouter
 
 from app.config import get_settings

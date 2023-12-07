@@ -12,6 +12,10 @@ class BaseNode(BaseModel):
     """Common attributes and validators for a schema of a generic neo4j Node.
 
     Add description field and a validator converting UUIDs to str.
+
+    Attributes:
+    ----------
+        description (str): Brief item description
     """
 
     description: str = Field(default="", description="Brief item description")
@@ -55,9 +59,13 @@ class BaseNodeRead(BaseModel):
     them as an object list. If a relationships has a model return a dict with the data
     stored in it.
     Always validate assignments.
+
+    Attributes:
+    ----------
+        uid (str): Database item's unique identifier.
     """
 
-    uid: str = Field(description="Database item's unique identifier")
+    uid: str = Field(description="Database item's unique identifier.")
 
     @root_validator(pre=True)
     def get_relations(cls, data: Dict) -> Dict:
