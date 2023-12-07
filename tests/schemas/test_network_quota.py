@@ -8,7 +8,6 @@ from app.quota.models import NetworkQuota
 from app.quota.schemas import (
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    NetworkQuotaReadShort,
 )
 from app.quota.schemas_extended import (
     NetworkQuotaReadExtended,
@@ -20,7 +19,6 @@ from tests.utils.network_quota import (
     validate_read_extended_public_network_quota_attrs,
     validate_read_network_quota_attrs,
     validate_read_public_network_quota_attrs,
-    validate_read_short_network_quota_attrs,
 )
 from tests.utils.utils import random_lower_string
 
@@ -58,8 +56,6 @@ def test_read_schema(db_network_quota: NetworkQuota):
     """Create a valid 'Read' Schema."""
     schema = NetworkQuotaRead.from_orm(db_network_quota)
     validate_read_network_quota_attrs(obj_out=schema, db_item=db_network_quota)
-    schema = NetworkQuotaReadShort.from_orm(db_network_quota)
-    validate_read_short_network_quota_attrs(obj_out=schema, db_item=db_network_quota)
     schema = NetworkQuotaReadPublic.from_orm(db_network_quota)
     validate_read_public_network_quota_attrs(obj_out=schema, db_item=db_network_quota)
     schema = NetworkQuotaReadExtended.from_orm(db_network_quota)

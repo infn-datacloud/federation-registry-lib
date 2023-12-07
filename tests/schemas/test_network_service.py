@@ -13,7 +13,6 @@ from app.service.models import NetworkService
 from app.service.schemas import (
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    NetworkServiceReadShort,
 )
 from app.service.schemas_extended import (
     NetworkServiceReadExtended,
@@ -25,7 +24,6 @@ from tests.utils.network_service import (
     validate_read_extended_public_network_service_attrs,
     validate_read_network_service_attrs,
     validate_read_public_network_service_attrs,
-    validate_read_short_network_service_attrs,
 )
 from tests.utils.utils import random_lower_string
 
@@ -79,8 +77,6 @@ def test_read_schema(db_network_serv: NetworkService):
     """
     schema = NetworkServiceRead.from_orm(db_network_serv)
     validate_read_network_service_attrs(obj_out=schema, db_item=db_network_serv)
-    schema = NetworkServiceReadShort.from_orm(db_network_serv)
-    validate_read_short_network_service_attrs(obj_out=schema, db_item=db_network_serv)
     schema = NetworkServiceReadPublic.from_orm(db_network_serv)
     validate_read_public_network_service_attrs(obj_out=schema, db_item=db_network_serv)
     schema = NetworkServiceReadExtended.from_orm(db_network_serv)
@@ -105,10 +101,6 @@ def test_read_schema_with_single_network(
     """
     schema = NetworkServiceRead.from_orm(db_network_serv_with_single_network)
     validate_read_network_service_attrs(
-        obj_out=schema, db_item=db_network_serv_with_single_network
-    )
-    schema = NetworkServiceReadShort.from_orm(db_network_serv_with_single_network)
-    validate_read_short_network_service_attrs(
         obj_out=schema, db_item=db_network_serv_with_single_network
     )
     schema = NetworkServiceReadPublic.from_orm(db_network_serv_with_single_network)
@@ -139,10 +131,6 @@ def test_read_schema_with_multiple_networks(
     """
     schema = NetworkServiceRead.from_orm(db_network_serv_with_multiple_networks)
     validate_read_network_service_attrs(
-        obj_out=schema, db_item=db_network_serv_with_multiple_networks
-    )
-    schema = NetworkServiceReadShort.from_orm(db_network_serv_with_multiple_networks)
-    validate_read_short_network_service_attrs(
         obj_out=schema, db_item=db_network_serv_with_multiple_networks
     )
     schema = NetworkServiceReadPublic.from_orm(db_network_serv_with_multiple_networks)
@@ -177,10 +165,6 @@ def test_read_schema_with_single_quota(
     validate_read_network_service_attrs(
         obj_out=schema, db_item=db_network_serv_with_single_quota
     )
-    schema = NetworkServiceReadShort.from_orm(db_network_serv_with_single_quota)
-    validate_read_short_network_service_attrs(
-        obj_out=schema, db_item=db_network_serv_with_single_quota
-    )
     schema = NetworkServiceReadPublic.from_orm(db_network_serv_with_single_quota)
     validate_read_public_network_service_attrs(
         obj_out=schema, db_item=db_network_serv_with_single_quota
@@ -209,10 +193,6 @@ def test_read_schema_with_multiple_quotas(
     """
     schema = NetworkServiceRead.from_orm(db_network_serv_with_multiple_quotas)
     validate_read_network_service_attrs(
-        obj_out=schema, db_item=db_network_serv_with_multiple_quotas
-    )
-    schema = NetworkServiceReadShort.from_orm(db_network_serv_with_multiple_quotas)
-    validate_read_short_network_service_attrs(
         obj_out=schema, db_item=db_network_serv_with_multiple_quotas
     )
     schema = NetworkServiceReadPublic.from_orm(db_network_serv_with_multiple_quotas)

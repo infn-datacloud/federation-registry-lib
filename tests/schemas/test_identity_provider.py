@@ -7,7 +7,6 @@ from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
-    IdentityProviderReadShort,
 )
 from app.identity_provider.schemas_extended import (
     IdentityProviderReadExtended,
@@ -19,7 +18,6 @@ from tests.utils.identity_provider import (
     validate_read_extended_public_identity_provider_attrs,
     validate_read_identity_provider_attrs,
     validate_read_public_identity_provider_attrs,
-    validate_read_short_identity_provider_attrs,
 )
 
 
@@ -60,10 +58,6 @@ def test_read_schema_with_single_user_group(
     validate_read_identity_provider_attrs(
         obj_out=schema, db_item=db_idp_with_single_user_group
     )
-    schema = IdentityProviderReadShort.from_orm(db_idp_with_single_user_group)
-    validate_read_short_identity_provider_attrs(
-        obj_out=schema, db_item=db_idp_with_single_user_group
-    )
     schema = IdentityProviderReadPublic.from_orm(db_idp_with_single_user_group)
     validate_read_public_identity_provider_attrs(
         obj_out=schema, db_item=db_idp_with_single_user_group
@@ -90,10 +84,6 @@ def test_read_schema_with_multiple_user_groups(
     """
     schema = IdentityProviderRead.from_orm(db_idp_with_multiple_user_groups)
     validate_read_identity_provider_attrs(
-        obj_out=schema, db_item=db_idp_with_multiple_user_groups
-    )
-    schema = IdentityProviderReadShort.from_orm(db_idp_with_multiple_user_groups)
-    validate_read_short_identity_provider_attrs(
         obj_out=schema, db_item=db_idp_with_multiple_user_groups
     )
     schema = IdentityProviderReadPublic.from_orm(db_idp_with_multiple_user_groups)
@@ -126,10 +116,6 @@ def test_read_schema_with_multiple_providers(
     """
     schema = IdentityProviderRead.from_orm(db_idp_with_multiple_providers)
     validate_read_identity_provider_attrs(
-        obj_out=schema, db_item=db_idp_with_multiple_providers
-    )
-    schema = IdentityProviderReadShort.from_orm(db_idp_with_multiple_providers)
-    validate_read_short_identity_provider_attrs(
         obj_out=schema, db_item=db_idp_with_multiple_providers
     )
     schema = IdentityProviderReadPublic.from_orm(db_idp_with_multiple_providers)

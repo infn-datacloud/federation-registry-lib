@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorReadShort
+from app.flavor.schemas import FlavorRead, FlavorReadPublic
 from app.flavor.schemas_extended import (
     FlavorReadExtended,
     FlavorReadExtendedPublic,
@@ -15,7 +15,6 @@ from tests.utils.flavor import (
     validate_read_extended_public_flavor_attrs,
     validate_read_flavor_attrs,
     validate_read_public_flavor_attrs,
-    validate_read_short_flavor_attrs,
 )
 
 
@@ -71,8 +70,6 @@ def test_read_schema_public_flavor(db_public_flavor: Flavor):
     """
     schema = FlavorRead.from_orm(db_public_flavor)
     validate_read_flavor_attrs(obj_out=schema, db_item=db_public_flavor)
-    schema = FlavorReadShort.from_orm(db_public_flavor)
-    validate_read_short_flavor_attrs(obj_out=schema, db_item=db_public_flavor)
     schema = FlavorReadPublic.from_orm(db_public_flavor)
     validate_read_public_flavor_attrs(obj_out=schema, db_item=db_public_flavor)
     schema = FlavorReadExtended.from_orm(db_public_flavor)
@@ -91,8 +88,6 @@ def test_read_schema_private_flavor_single_project(db_private_flavor: Flavor):
     """
     schema = FlavorRead.from_orm(db_private_flavor)
     validate_read_flavor_attrs(obj_out=schema, db_item=db_private_flavor)
-    schema = FlavorReadShort.from_orm(db_private_flavor)
-    validate_read_short_flavor_attrs(obj_out=schema, db_item=db_private_flavor)
     schema = FlavorReadPublic.from_orm(db_private_flavor)
     validate_read_public_flavor_attrs(obj_out=schema, db_item=db_private_flavor)
     schema = FlavorReadExtended.from_orm(db_private_flavor)
@@ -116,10 +111,6 @@ def test_read_schema_private_flavor_multiple_projects(
     """
     schema = FlavorRead.from_orm(db_private_flavor_multiple_projects)
     validate_read_flavor_attrs(
-        obj_out=schema, db_item=db_private_flavor_multiple_projects
-    )
-    schema = FlavorReadShort.from_orm(db_private_flavor_multiple_projects)
-    validate_read_short_flavor_attrs(
         obj_out=schema, db_item=db_private_flavor_multiple_projects
     )
     schema = FlavorReadPublic.from_orm(db_private_flavor_multiple_projects)
@@ -148,8 +139,6 @@ def test_read_schema_flavor_shared_between_multiple_services(db_shared_flavor: F
     """
     schema = FlavorRead.from_orm(db_shared_flavor)
     validate_read_flavor_attrs(obj_out=schema, db_item=db_shared_flavor)
-    schema = FlavorReadShort.from_orm(db_shared_flavor)
-    validate_read_short_flavor_attrs(obj_out=schema, db_item=db_shared_flavor)
     schema = FlavorReadPublic.from_orm(db_shared_flavor)
     validate_read_public_flavor_attrs(obj_out=schema, db_item=db_shared_flavor)
     schema = FlavorReadExtended.from_orm(db_shared_flavor)

@@ -8,7 +8,6 @@ from app.provider.models import Provider
 from app.provider.schemas import (
     ProviderRead,
     ProviderReadPublic,
-    ProviderReadShort,
 )
 from app.provider.schemas_extended import (
     ProviderReadExtended,
@@ -20,7 +19,6 @@ from tests.utils.provider import (
     validate_read_extended_public_provider_attrs,
     validate_read_provider_attrs,
     validate_read_public_provider_attrs,
-    validate_read_short_provider_attrs,
 )
 from tests.utils.utils import random_lower_string, random_url
 
@@ -123,8 +121,6 @@ def test_read_schema(db_provider: Provider):
     """
     schema = ProviderRead.from_orm(db_provider)
     validate_read_provider_attrs(obj_out=schema, db_item=db_provider)
-    schema = ProviderReadShort.from_orm(db_provider)
-    validate_read_short_provider_attrs(obj_out=schema, db_item=db_provider)
     schema = ProviderReadPublic.from_orm(db_provider)
     validate_read_public_provider_attrs(obj_out=schema, db_item=db_provider)
     schema = ProviderReadExtended.from_orm(db_provider)
@@ -143,10 +139,6 @@ def test_read_schema_with_single_idp(db_provider_with_single_idp: Provider):
     """
     schema = ProviderRead.from_orm(db_provider_with_single_idp)
     validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_single_idp)
-    schema = ProviderReadShort.from_orm(db_provider_with_single_idp)
-    validate_read_short_provider_attrs(
-        obj_out=schema, db_item=db_provider_with_single_idp
-    )
     schema = ProviderReadPublic.from_orm(db_provider_with_single_idp)
     validate_read_public_provider_attrs(
         obj_out=schema, db_item=db_provider_with_single_idp
@@ -173,10 +165,6 @@ def test_read_schema_with_multiple_idps(
     """
     schema = ProviderRead.from_orm(db_provider_with_multiple_idps)
     validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_multiple_idps)
-    schema = ProviderReadShort.from_orm(db_provider_with_multiple_idps)
-    validate_read_short_provider_attrs(
-        obj_out=schema, db_item=db_provider_with_multiple_idps
-    )
     schema = ProviderReadPublic.from_orm(db_provider_with_multiple_idps)
     validate_read_public_provider_attrs(
         obj_out=schema, db_item=db_provider_with_multiple_idps
@@ -203,10 +191,6 @@ def test_read_schema_with_single_region(db_provider_with_single_region: Provider
     """
     schema = ProviderRead.from_orm(db_provider_with_single_region)
     validate_read_provider_attrs(obj_out=schema, db_item=db_provider_with_single_region)
-    schema = ProviderReadShort.from_orm(db_provider_with_single_region)
-    validate_read_short_provider_attrs(
-        obj_out=schema, db_item=db_provider_with_single_region
-    )
     schema = ProviderReadPublic.from_orm(db_provider_with_single_region)
     validate_read_public_provider_attrs(
         obj_out=schema, db_item=db_provider_with_single_region
@@ -233,10 +217,6 @@ def test_read_schema_with_multiple_regions(
     """
     schema = ProviderRead.from_orm(db_provider_with_multiple_regions)
     validate_read_provider_attrs(
-        obj_out=schema, db_item=db_provider_with_multiple_regions
-    )
-    schema = ProviderReadShort.from_orm(db_provider_with_multiple_regions)
-    validate_read_short_provider_attrs(
         obj_out=schema, db_item=db_provider_with_multiple_regions
     )
     schema = ProviderReadPublic.from_orm(db_provider_with_multiple_regions)

@@ -5,14 +5,13 @@ import pytest
 from pydantic import ValidationError
 
 from app.sla.models import SLA
-from app.sla.schemas import SLARead, SLAReadPublic, SLAReadShort
+from app.sla.schemas import SLARead, SLAReadPublic
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from tests.utils.sla import (
     create_random_sla,
     validate_read_extended_public_sla_attrs,
     validate_read_extended_sla_attrs,
     validate_read_public_sla_attrs,
-    validate_read_short_sla_attrs,
     validate_read_sla_attrs,
 )
 
@@ -48,8 +47,6 @@ def test_read_schema_with_one_project(db_sla: SLA):
     """
     schema = SLARead.from_orm(db_sla)
     validate_read_sla_attrs(obj_out=schema, db_item=db_sla)
-    schema = SLAReadShort.from_orm(db_sla)
-    validate_read_short_sla_attrs(obj_out=schema, db_item=db_sla)
     schema = SLAReadPublic.from_orm(db_sla)
     validate_read_public_sla_attrs(obj_out=schema, db_item=db_sla)
     schema = SLAReadExtended.from_orm(db_sla)
@@ -68,9 +65,6 @@ def test_read_schema_with_one_project(db_sla: SLA):
 #     Target SLA has multiple projects."""
 #     schema = SLARead.from_orm(db_sla_with_multiple_projects)
 #     validate_read_sla_attrs(obj_out=schema, db_item=db_sla_with_multiple_projects)
-#     schema = SLAReadShort.from_orm(db_sla_with_multiple_projects)
-#     validate_read_short_sla_attrs(obj_out=schema,
-#         db_item=db_sla_with_multiple_projects)
 #     schema = SLAReadPublic.from_orm(db_sla_with_multiple_projects)
 #     validate_read_public_sla_attrs(
 #         obj_out=schema, db_item=db_sla_with_multiple_projects

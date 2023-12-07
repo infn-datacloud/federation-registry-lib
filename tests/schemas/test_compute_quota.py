@@ -8,7 +8,6 @@ from app.quota.models import ComputeQuota
 from app.quota.schemas import (
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
-    ComputeQuotaReadShort,
 )
 from app.quota.schemas_extended import (
     ComputeQuotaReadExtended,
@@ -20,7 +19,6 @@ from tests.utils.compute_quota import (
     validate_read_extended_compute_quota_attrs,
     validate_read_extended_public_compute_quota_attrs,
     validate_read_public_compute_quota_attrs,
-    validate_read_short_compute_quota_attrs,
 )
 from tests.utils.utils import random_lower_string
 
@@ -54,8 +52,6 @@ def test_read_schema(db_compute_quota: ComputeQuota):
     """Create a valid 'Read' Schema."""
     schema = ComputeQuotaRead.from_orm(db_compute_quota)
     validate_read_compute_quota_attrs(obj_out=schema, db_item=db_compute_quota)
-    schema = ComputeQuotaReadShort.from_orm(db_compute_quota)
-    validate_read_short_compute_quota_attrs(obj_out=schema, db_item=db_compute_quota)
     schema = ComputeQuotaReadPublic.from_orm(db_compute_quota)
     validate_read_public_compute_quota_attrs(obj_out=schema, db_item=db_compute_quota)
     schema = ComputeQuotaReadExtended.from_orm(db_compute_quota)

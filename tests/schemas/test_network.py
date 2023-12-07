@@ -7,7 +7,6 @@ from app.network.models import Network
 from app.network.schemas import (
     NetworkRead,
     NetworkReadPublic,
-    NetworkReadShort,
 )
 from app.network.schemas_extended import (
     NetworkReadExtended,
@@ -19,7 +18,6 @@ from tests.utils.network import (
     validate_read_extended_public_network_attrs,
     validate_read_network_attrs,
     validate_read_public_network_attrs,
-    validate_read_short_network_attrs,
 )
 
 
@@ -58,8 +56,6 @@ def test_read_schema_public_network(db_public_network: Network):
     """
     schema = NetworkRead.from_orm(db_public_network)
     validate_read_network_attrs(obj_out=schema, db_item=db_public_network)
-    schema = NetworkReadShort.from_orm(db_public_network)
-    validate_read_short_network_attrs(obj_out=schema, db_item=db_public_network)
     schema = NetworkReadPublic.from_orm(db_public_network)
     validate_read_public_network_attrs(obj_out=schema, db_item=db_public_network)
     schema = NetworkReadExtended.from_orm(db_public_network)
@@ -80,8 +76,6 @@ def test_read_schema_private_network(db_private_network: Network):
     """
     schema = NetworkRead.from_orm(db_private_network)
     validate_read_network_attrs(obj_out=schema, db_item=db_private_network)
-    schema = NetworkReadShort.from_orm(db_private_network)
-    validate_read_short_network_attrs(obj_out=schema, db_item=db_private_network)
     schema = NetworkReadPublic.from_orm(db_private_network)
     validate_read_public_network_attrs(obj_out=schema, db_item=db_private_network)
     schema = NetworkReadExtended.from_orm(db_private_network)

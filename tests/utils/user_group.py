@@ -6,7 +6,6 @@ from app.user_group.schemas import (
     UserGroupBase,
     UserGroupRead,
     UserGroupReadPublic,
-    UserGroupReadShort,
     UserGroupUpdate,
 )
 from app.user_group.schemas_extended import (
@@ -73,13 +72,6 @@ def validate_create_user_group_attrs(
 
 def validate_read_user_group_attrs(
     *, obj_out: UserGroupRead, db_item: UserGroup
-) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_user_group_attrs(
-    *, obj_out: UserGroupReadShort, db_item: UserGroup
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)

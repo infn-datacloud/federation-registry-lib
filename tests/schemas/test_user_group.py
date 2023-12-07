@@ -7,7 +7,6 @@ from app.user_group.models import UserGroup
 from app.user_group.schemas import (
     UserGroupRead,
     UserGroupReadPublic,
-    UserGroupReadShort,
 )
 from app.user_group.schemas_extended import (
     UserGroupReadExtended,
@@ -18,7 +17,6 @@ from tests.utils.user_group import (
     validate_read_extended_public_user_group_attrs,
     validate_read_extended_user_group_attrs,
     validate_read_public_user_group_attrs,
-    validate_read_short_user_group_attrs,
     validate_read_user_group_attrs,
 )
 
@@ -48,8 +46,6 @@ def test_read_schema_with_one_sla(db_user_group: UserGroup):
     """
     schema = UserGroupRead.from_orm(db_user_group)
     validate_read_user_group_attrs(obj_out=schema, db_item=db_user_group)
-    schema = UserGroupReadShort.from_orm(db_user_group)
-    validate_read_short_user_group_attrs(obj_out=schema, db_item=db_user_group)
     schema = UserGroupReadPublic.from_orm(db_user_group)
     validate_read_public_user_group_attrs(obj_out=schema, db_item=db_user_group)
     schema = UserGroupReadExtended.from_orm(db_user_group)
@@ -70,10 +66,6 @@ def test_read_schema_with_multiple_slas(db_user_group_with_multiple_slas: UserGr
     """
     schema = UserGroupRead.from_orm(db_user_group_with_multiple_slas)
     validate_read_user_group_attrs(
-        obj_out=schema, db_item=db_user_group_with_multiple_slas
-    )
-    schema = UserGroupReadShort.from_orm(db_user_group_with_multiple_slas)
-    validate_read_short_user_group_attrs(
         obj_out=schema, db_item=db_user_group_with_multiple_slas
     )
     schema = UserGroupReadPublic.from_orm(db_user_group_with_multiple_slas)

@@ -6,7 +6,6 @@ from app.flavor.schemas import (
     FlavorBase,
     FlavorRead,
     FlavorReadPublic,
-    FlavorReadShort,
     FlavorUpdate,
 )
 from app.flavor.schemas_extended import (
@@ -137,13 +136,6 @@ def validate_create_flavor_attrs(
 
 
 def validate_read_flavor_attrs(*, obj_out: FlavorRead, db_item: Flavor) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attr(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_flavor_attrs(
-    *, obj_out: FlavorReadShort, db_item: Flavor
-) -> None:
     assert db_item.uid == obj_out.uid
     validate_attr(obj_in=obj_out, db_item=db_item)
 
