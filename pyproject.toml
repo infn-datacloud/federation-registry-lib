@@ -37,14 +37,24 @@ build-backend = "poetry.core.masonry.api"
 # flake8-bugbear (B), flake8-logging-format (G), flake8-quotes (Q)
 extend-select = ["B", "C90", "E", "F", "G", "I", "N", "Q", "RUF", "UP", "W"]
 
-[tool.ruff.lint.per-file-ignores]
-"dependencies.py" = ["B008"]
-"endpoints.py" = ["B008"]
-"config.py" = ["N805"]
-"app/models.py" = ["N805"]
-"app/query.py" = ["N805"]
-"schemas.py" = ["N805"]
-"schemas_extended.py" = ["N805"]
+[tool.ruff.flake8-bugbear]
+# Ignore flake8-bugbear errors raised by Depends, Query and Security
+extend-immutable-calls = [
+    "fastapi.Depends", 
+    "fastapi.params.Depends", 
+    "fastapi.Query", 
+    "fastapi.params.Query", 
+    "fastapi.Security", 
+    "fastapi.params.Security",
+]
+
+[tool.ruff.pep8-naming]
+# Ignore pep8-naming errors raised by functions decorated with @validator and @root_validator
+classmethod-decorators = [
+    "classmethod",
+    "validator",
+    "root_validator",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
