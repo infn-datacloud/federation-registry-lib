@@ -4,6 +4,8 @@ from typing import List, Optional
 from pydantic import EmailStr, Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from app.project.constants import DOC_NAME
+from app.provider.constants import DOC_EMAIL, DOC_SHARED, DOC_STAT, DOC_TYPE
 from app.provider.enum import ProviderStatus, ProviderType
 from app.query import create_query_model
 
@@ -17,7 +19,7 @@ class ProviderBasePublic(BaseNode):
         name (str): Provider name.
     """
 
-    name: str = Field(description="Provider name.")
+    name: str = Field(description=DOC_NAME)
 
 
 class ProviderBase(ProviderBasePublic):
@@ -33,14 +35,10 @@ class ProviderBase(ProviderBasePublic):
         support_email (list of str): List of maintainers emails.
     """
 
-    type: ProviderType = Field(description="Provider type.")
-    status: ProviderStatus = Field(
-        default=ProviderStatus.ACTIVE, description="Provider status"
-    )
-    is_public: bool = Field(default=False, description="It is a public provider.")
-    support_emails: List[EmailStr] = Field(
-        default_factory=list, description="Contact emails."
-    )
+    type: ProviderType = Field(description=DOC_TYPE)
+    status: ProviderStatus = Field(default=ProviderStatus.ACTIVE, description=DOC_STAT)
+    is_public: bool = Field(default=False, description=DOC_SHARED)
+    support_emails: List[EmailStr] = Field(default_factory=list, description=DOC_EMAIL)
 
 
 class ProviderCreate(BaseNodeCreate, ProviderBase):
@@ -78,8 +76,8 @@ class ProviderUpdate(BaseNodeCreate, ProviderBase):
         support_email (list of str | None): List of maintainers emails.
     """
 
-    name: Optional[str] = Field(default=None, description="Provider name.")
-    type: Optional[ProviderType] = Field(default=None, description="Provider type.")
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    type: Optional[ProviderType] = Field(default=None, description=DOC_TYPE)
 
 
 class ProviderReadPublic(BaseNodeRead, ProviderBasePublic):

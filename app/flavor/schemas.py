@@ -3,6 +3,21 @@ from typing import Any, Dict, Optional
 
 from pydantic import Field, root_validator
 
+from app.flavor.constants import (
+    DOC_DISK,
+    DOC_EPHEM,
+    DOC_GPU_MOD,
+    DOC_GPU_VND,
+    DOC_GPUS,
+    DOC_INFI,
+    DOC_LOC_STO,
+    DOC_NAME,
+    DOC_RAM,
+    DOC_SHARED,
+    DOC_SWAP,
+    DOC_UUID,
+    DOC_VCPUS,
+)
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
@@ -14,11 +29,11 @@ class FlavorBasePublic(BaseNode):
     ----------
         description (str): Brief description.
         name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider
+        uuid (str): Flavor unique ID in the Provider.
     """
 
-    name: str = Field(description="Flavor name in the provider.")
-    uuid: str = Field(description="Flavor UUID in the provider.")
+    name: str = Field(description=DOC_NAME)
+    uuid: str = Field(description=DOC_UUID)
 
 
 class FlavorBase(FlavorBasePublic):
@@ -28,10 +43,10 @@ class FlavorBase(FlavorBasePublic):
     ----------
         description (str): Brief description.
         name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider
-        disk (int): Reserved disk size (GiB)
+        uuid (str): Flavor unique ID in the Provider.
+        disk (int): Reserved disk size (GiB).
         is_public (bool): Public or private Flavor.
-        ram (int): Reserved RAM (MiB)
+        ram (int): Reserved RAM (MiB).
         vcpus (int): Number of Virtual CPUs.
         swap (int): Swap size (GiB).
         ephemeral (int): Ephemeral disk size (GiB).
@@ -42,23 +57,17 @@ class FlavorBase(FlavorBasePublic):
         local_storage (str | None): Local storage presence.
     """
 
-    disk: int = Field(default=0, ge=0, description="Reserved disk size (GB)")
-    is_public: bool = Field(default=True, description="Public available")
-    ram: int = Field(default=0, ge=0, description="Reserved RAM size (MB)")
-    vcpus: int = Field(default=0, ge=0, description="Number of virtual CPUs")
-    swap: int = Field(default=0, ge=0, description="Reserved swap disk size (GB)")
-    ephemeral: int = Field(
-        default=0, ge=0, description="Size of the ephemeral disk (GB)"
-    )
-    infiniband: bool = Field(
-        default=False, description="MPI: parallel multi-process enabled"
-    )
-    gpus: int = Field(default=0, ge=0, description="Number of GPUs")
-    gpu_model: Optional[str] = Field(default=None, description="GPU model name")
-    gpu_vendor: Optional[str] = Field(default=None, description="GPU vendor name")
-    local_storage: Optional[str] = Field(
-        default=None, description="Local storage presence"
-    )
+    disk: int = Field(default=0, ge=0, description=DOC_DISK)
+    is_public: bool = Field(default=True, description=DOC_SHARED)
+    ram: int = Field(default=0, ge=0, description=DOC_RAM)
+    vcpus: int = Field(default=0, ge=0, description=DOC_VCPUS)
+    swap: int = Field(default=0, ge=0, description=DOC_SWAP)
+    ephemeral: int = Field(default=0, ge=0, description=DOC_EPHEM)
+    infiniband: bool = Field(default=False, description=DOC_INFI)
+    gpus: int = Field(default=0, ge=0, description=DOC_GPUS)
+    gpu_model: Optional[str] = Field(default=None, description=DOC_GPU_MOD)
+    gpu_vendor: Optional[str] = Field(default=None, description=DOC_GPU_VND)
+    local_storage: Optional[str] = Field(default=None, description=DOC_LOC_STO)
 
     @root_validator
     def check_gpu_values(cls, values: Dict[str, Any]) -> Dict[str, Any]:
@@ -124,12 +133,8 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
         local_storage (str | None): Local storage presence.
     """
 
-    name: Optional[str] = Field(
-        default=None, description="Flavor name in the provider."
-    )
-    uuid: Optional[str] = Field(
-        default=None, description="Flavor UUID in the provider."
-    )
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
 class FlavorReadPublic(BaseNodeRead, FlavorBasePublic):

@@ -5,6 +5,20 @@ from pydantic import Field, validator
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from app.quota.constants import (
+    DOC_CORES,
+    DOC_GB,
+    DOC_GROUP_RULES,
+    DOC_GROUPS,
+    DOC_INST,
+    DOC_NETS,
+    DOC_PER_USER,
+    DOC_PORT,
+    DOC_PUB_IPS,
+    DOC_RAM,
+    DOC_VOL_GB,
+    DOC_VOLS,
+)
 from app.quota.enum import QuotaType
 
 
@@ -19,7 +33,7 @@ class QuotaBase(BaseNode):
         per_user (str): This limitation should be applied to each user.
     """
 
-    per_user: bool = Field(default=False, description="Quota to apply for each user")
+    per_user: bool = Field(default=False, description=DOC_PER_USER)
 
 
 class BlockStorageQuotaBase(QuotaBase):
@@ -41,9 +55,11 @@ class BlockStorageQuotaBase(QuotaBase):
     type: QuotaType = Field(
         default=QuotaType.BLOCK_STORAGE, description="Block storage type"
     )
-    gigabytes: Optional[int] = Field(default=None, ge=-1, description="")
-    per_volume_gigabytes: Optional[int] = Field(default=None, ge=-1, description="")
-    volumes: Optional[int] = Field(default=None, ge=-1, description="")
+    gigabytes: Optional[int] = Field(default=None, ge=-1, description=DOC_GB)
+    per_volume_gigabytes: Optional[int] = Field(
+        default=None, ge=-1, description=DOC_VOL_GB
+    )
+    volumes: Optional[int] = Field(default=None, ge=-1, description=DOC_VOLS)
 
     @validator("type", check_fields=False)
     def check_type(cls, v) -> Literal[QuotaType.BLOCK_STORAGE]:
@@ -140,7 +156,6 @@ class ComputeQuotaBase(QuotaBase):
 
     Attributes:
     ----------
-        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
@@ -150,9 +165,9 @@ class ComputeQuotaBase(QuotaBase):
     """
 
     type: QuotaType = Field(default=QuotaType.COMPUTE, description="Compute type")
-    cores: Optional[int] = Field(default=None, ge=0, description="")
-    instances: Optional[int] = Field(default=None, ge=0, description="")
-    ram: Optional[int] = Field(default=None, ge=0, description="")
+    cores: Optional[int] = Field(default=None, ge=0, description=DOC_CORES)
+    instances: Optional[int] = Field(default=None, ge=0, description=DOC_INST)
+    ram: Optional[int] = Field(default=None, ge=0, description=DOC_RAM)
 
     @validator("type", check_fields=False)
     def check_type(cls, v) -> Literal[QuotaType.COMPUTE]:
@@ -170,7 +185,6 @@ class ComputeQuotaCreate(BaseNodeCreate, ComputeQuotaBase):
 
     Attributes:
     ----------
-        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
@@ -190,7 +204,6 @@ class ComputeQuotaUpdate(BaseNodeCreate, ComputeQuotaBase):
 
     Attributes:
     ----------
-        uid (int | None): Quota unique ID.
         description (str | None): Brief description.
         type (str | None): Quota type.
         per_user (str | None): This limitation should be applied to each user.
@@ -246,7 +259,6 @@ class NetworkQuotaBase(QuotaBase):
 
     Attributes:
     ----------
-        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
@@ -261,28 +273,12 @@ class NetworkQuotaBase(QuotaBase):
     """
 
     type: QuotaType = Field(default=QuotaType.NETWORK, description="Network type")
-    public_ips: Optional[int] = Field(
-        default=None,
-        ge=-1,
-        description="The number of floating IP addresses allowed for each project.",
-    )
-    networks: Optional[int] = Field(
-        default=None,
-        ge=-1,
-        description="The number of networks allowed for each project.",
-    )
-    ports: Optional[int] = Field(
-        default=None, ge=-1, description="The number of ports allowed for each project."
-    )
-    security_groups: Optional[int] = Field(
-        default=None,
-        ge=-1,
-        description="The number of security groups allowed for each project.",
-    )
+    public_ips: Optional[int] = Field(default=None, ge=-1, description=DOC_PUB_IPS)
+    networks: Optional[int] = Field(default=None, ge=-1, description=DOC_NETS)
+    ports: Optional[int] = Field(default=None, ge=-1, description=DOC_PORT)
+    security_groups: Optional[int] = Field(default=None, ge=-1, description=DOC_GROUPS)
     security_group_rules: Optional[int] = Field(
-        default=None,
-        ge=-1,
-        description="The number of security group rules allowed for each",
+        default=None, ge=-1, description=DOC_GROUP_RULES
     )
 
     @validator("type", check_fields=False)
@@ -301,7 +297,6 @@ class NetworkQuotaCreate(BaseNodeCreate, NetworkQuotaBase):
 
     Attributes:
     ----------
-        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
@@ -326,7 +321,6 @@ class NetworkQuotaUpdate(BaseNodeCreate, NetworkQuotaBase):
 
     Attributes:
     ----------
-        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.

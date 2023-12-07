@@ -4,10 +4,12 @@ from typing import List
 from pydantic import Field
 
 from app.auth_method.schemas import AuthMethodRead
+from app.identity_provider.constants import DOC_EXT_GROUP, DOC_EXT_PROV
 from app.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
+from app.provider.constants import DOC_EXT_AUTH_METH
 from app.provider.schemas import ProviderRead, ProviderReadPublic
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 
@@ -28,9 +30,7 @@ class ProviderReadExtended(ProviderRead):
             target identity provider.
     """
 
-    relationship: AuthMethodRead = Field(
-        description="Authentication method used by the Provider"
-    )
+    relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
@@ -45,9 +45,7 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
             target identity provider.
     """
 
-    relationship: AuthMethodRead = Field(
-        description="Authentication method used by the Provider"
-    )
+    relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
@@ -64,10 +62,8 @@ class IdentityProviderReadExtended(IdentityProviderRead):
         user_groups (list of UserGroupRead): Owned user groups.
     """
 
-    providers: List[ProviderReadExtended] = Field(
-        description="List of supported providers."
-    )
-    user_groups: List[UserGroupRead] = Field(description="List of owned user groups.")
+    providers: List[ProviderReadExtended] = Field(description=DOC_EXT_PROV)
+    user_groups: List[UserGroupRead] = Field(description=DOC_EXT_GROUP)
 
 
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
@@ -82,9 +78,5 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
         user_groups (list of UserGroupReadPublic): Owned user groups.
     """
 
-    providers: List[ProviderReadExtendedPublic] = Field(
-        description="List of supported providers."
-    )
-    user_groups: List[UserGroupReadPublic] = Field(
-        description="List of owned user groups."
-    )
+    providers: List[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
+    user_groups: List[UserGroupReadPublic] = Field(description=DOC_EXT_GROUP)

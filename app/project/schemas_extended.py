@@ -10,9 +10,18 @@ from app.identity_provider.schemas import (
 )
 from app.image.schemas import ImageRead, ImageReadPublic
 from app.network.schemas import NetworkRead, NetworkReadPublic
+from app.project.constants import (
+    DOC_EXT_FLAV,
+    DOC_EXT_IMAG,
+    DOC_EXT_NETW,
+    DOC_EXT_PROV,
+    DOC_EXT_QUOTA,
+    DOC_EXT_SLA,
+)
 from app.project.models import Project
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
+from app.quota.constants import DOC_EXT_SERV
 from app.quota.schemas import (
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
@@ -22,6 +31,7 @@ from app.quota.schemas import (
     NetworkQuotaReadPublic,
 )
 from app.region.schemas import RegionRead, RegionReadPublic
+from app.service.constants import DOC_EXT_REG
 from app.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
@@ -30,7 +40,9 @@ from app.service.schemas import (
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
+from app.sla.constants import DOC_EXT_GROUP
 from app.sla.schemas import SLARead, SLAReadPublic
+from app.user_group.constants import DOC_EXT_IDP
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 
 
@@ -47,7 +59,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description="Region hosting this service.")
+    region: RegionRead = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
@@ -61,7 +73,7 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
         region (RegionReadPublic): Region hosting this service.
     """
 
-    region: RegionReadPublic = Field(description="Region hosting this service.")
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
@@ -77,7 +89,7 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description="Region hosting this service.")
+    region: RegionRead = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
@@ -91,7 +103,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         region (RegionReadPublic): Region hosting this service.
     """
 
-    region: RegionReadPublic = Field(description="Region hosting this service.")
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtended(NetworkServiceRead):
@@ -107,7 +119,7 @@ class NetworkServiceReadExtended(NetworkServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description="Region hosting this service.")
+    region: RegionRead = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
@@ -121,7 +133,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         region (RegionReadPublic): Region hosting this service.
     """
 
-    region: RegionReadPublic = Field(description="Region hosting this service.")
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
@@ -137,12 +149,10 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
         per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
             (GiB).
         volumes (int | None): Number of max volumes a user group can create.
-        service (BlockStorageServiceReadExtended): Target block storage service.
+        service (BlockStorageServiceReadExtended): Target service. Same type of quota.
     """
 
-    service: BlockStorageServiceReadExtended = Field(
-        description="A generic Quota applies to only one generic Service."
-    )
+    service: BlockStorageServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
 class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
@@ -153,12 +163,11 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
-        service (BlockStorageServiceReadExtendedPublic): Target block storage service.
+        service (BlockStorageServiceReadExtendedPublic): Target service. Same type of
+            quota.
     """
 
-    service: BlockStorageServiceReadExtendedPublic = Field(
-        description="A generic Quota applies to only one generic Service."
-    )
+    service: BlockStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class ComputeQuotaReadExtended(ComputeQuotaRead):
@@ -173,12 +182,10 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
         cores (int | None): Number of max usable cores.
         instance (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
-        service (ComputeServiceReadExtended): Target compute service.
+        service (ComputeServiceReadExtended): Target service. Same type of quota.
     """
 
-    service: ComputeServiceReadExtended = Field(
-        description="A generic Quota applies to only one generic Service."
-    )
+    service: ComputeServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
 class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
@@ -189,12 +196,10 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
-        service (ComputeServiceReadExtendedPublic): Target compute service.
+        service (ComputeServiceReadExtendedPublic): Target service. Same type of quota.
     """
 
-    service: ComputeServiceReadExtendedPublic = Field(
-        description="A generic Quota applies to only one generic Service."
-    )
+    service: ComputeServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class NetworkQuotaReadExtended(NetworkQuotaRead):
@@ -214,12 +219,10 @@ class NetworkQuotaReadExtended(NetworkQuotaRead):
             project.
         security_group_rules (int | None): The number of security group rules allowed
             for each project.
-        service (NetworkServiceReadExtended): Target network service.
+        service (NetworkServiceReadExtended): Target service. Same type of quota.
     """
 
-    service: NetworkServiceReadExtended = Field(
-        description="A generic Quota applies to only one generic Service."
-    )
+    service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
 class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
@@ -230,12 +233,10 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
-        service (NetworkServiceReadExtendedPublic): Target network service.
+        service (NetworkServiceReadExtendedPublic): Target service. Same type of quota.
     """
 
-    service: NetworkServiceReadExtendedPublic = Field(
-        description="A generic Quota applies to only one generic Service."
-    )
+    service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class UserGroupReadExtended(UserGroupRead):
@@ -250,9 +251,7 @@ class UserGroupReadExtended(UserGroupRead):
             group.
     """
 
-    identity_provider: IdentityProviderRead = Field(
-        description="Identity Provider owning this User Group."
-    )
+    identity_provider: IdentityProviderRead = Field(description=DOC_EXT_IDP)
 
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
@@ -267,9 +266,7 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
             user group.
     """
 
-    identity_provider: IdentityProviderReadPublic = Field(
-        description="Identity Provider owning this User Group."
-    )
+    identity_provider: IdentityProviderReadPublic = Field(description=DOC_EXT_IDP)
 
 
 class SLAReadExtended(SLARead):
@@ -285,7 +282,7 @@ class SLAReadExtended(SLARead):
         user_group (UserGroupReadExtended): Target user group.
     """
 
-    user_group: UserGroupReadExtended = Field(description="Involved User Group.")
+    user_group: UserGroupReadExtended = Field(description=DOC_EXT_GROUP)
 
 
 class SLAReadExtendedPublic(SLAReadPublic):
@@ -299,7 +296,7 @@ class SLAReadExtendedPublic(SLAReadPublic):
         user_group (UserGroupReadExtendedPublic): Target user group.
     """
 
-    user_group: UserGroupReadExtendedPublic = Field(description="Involved User Group.")
+    user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
 class ProjectReadExtended(ProjectRead):
@@ -311,7 +308,7 @@ class ProjectReadExtended(ProjectRead):
         description (str): Brief description.
         name (str): Name of the project in the Provider.
         uuid (uuid): Project Unique ID in the Provider.
-        provider (ProviderRead): Hosting provider.
+        provider (ProviderRead): Provider owning this project.
         sla (SLAReadExtended | None): SLA pointing to this project.
         flavors (list of FlavorRead): Private and public accessible flavors.
         images (list of ImageRead): Private and public accessible images.
@@ -320,20 +317,18 @@ class ProjectReadExtended(ProjectRead):
             service (block-storage, compute and network type).
     """
 
-    flavors: List[FlavorRead] = Field(description="List of flavors")
-    images: List[ImageRead] = Field(description="List of images")
-    networks: List[NetworkRead] = Field(description="List of networks")
-    provider: ProviderRead = Field(description="Provider owning this Project.")
+    flavors: List[FlavorRead] = Field(description=DOC_EXT_FLAV)
+    images: List[ImageRead] = Field(description=DOC_EXT_IMAG)
+    networks: List[NetworkRead] = Field(description=DOC_EXT_NETW)
+    provider: ProviderRead = Field(description=DOC_EXT_PROV)
     quotas: List[
         Union[
             ComputeQuotaReadExtended,
             BlockStorageQuotaReadExtended,
             NetworkQuotaReadExtended,
         ]
-    ] = Field(description="List of owned quotas.")
-    sla: Optional[SLAReadExtended] = Field(
-        default=None, description="SLA involving this Project."
-    )
+    ] = Field(description=DOC_EXT_QUOTA)
+    sla: Optional[SLAReadExtended] = Field(default=None, description=DOC_EXT_SLA)
 
     @classmethod
     def from_orm(cls, obj: Project) -> "ProjectReadExtended":
@@ -356,7 +351,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
         description (str): Brief description.
         name (str): Name of the project in the Provider.
         uuid (uuid): Project Unique ID in the Provider.
-        provider (ProviderReadPublic): Hosting provider.
+        provider (ProviderReadPublic): Provider owning this project.
         sla (SLAReadExtendedPublic | None): SLA pointing to this project.
         flavors (list of FlavorReadPublic): Private and public accessible flavors.
         images (list of ImageReadPublic): Private and public accessible images.
@@ -365,20 +360,18 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
             service (block-storage, compute and network type).
     """
 
-    networks: List[NetworkReadPublic] = Field(description="List of networks")
-    flavors: List[FlavorReadPublic] = Field(description="List of flavors")
-    images: List[ImageReadPublic] = Field(description="List of images")
-    provider: ProviderReadPublic = Field(description="Provider owning this Project.")
+    flavors: List[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
+    images: List[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
+    networks: List[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
+    provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
     quotas: List[
         Union[
             ComputeQuotaReadExtendedPublic,
             BlockStorageQuotaReadExtendedPublic,
             NetworkQuotaReadExtendedPublic,
         ]
-    ] = Field(description="List of owned quotas.")
-    sla: Optional[SLAReadExtendedPublic] = Field(
-        default=None, description="SLA involving this Project."
-    )
+    ] = Field(description=DOC_EXT_QUOTA)
+    sla: Optional[SLAReadExtendedPublic] = Field(default=None, description=DOC_EXT_SLA)
 
     @classmethod
     def from_orm(cls, obj: Project) -> "ProjectReadExtended":

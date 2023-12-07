@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 from pycountry import countries
 from pydantic import Field, root_validator, validator
 
+from app.location.constants import DOC_CODE, DOC_COUNTRY, DOC_LATI, DOC_LONG, DOC_SITE
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
@@ -17,7 +18,7 @@ class LocationBasePublic(BaseNode):
         site (str): Location unique name.
     """
 
-    site: str = Field(description="Name of the Location hosting a provider.")
+    site: str = Field(description=DOC_SITE)
 
 
 class LocationBase(LocationBasePublic):
@@ -32,12 +33,12 @@ class LocationBase(LocationBasePublic):
         longitude (float | None): Longitude coordinate.
     """
 
-    country: str = Field(description="Location's country name.")
+    country: str = Field(description=DOC_COUNTRY)
     latitude: Optional[float] = Field(
-        default=None, ge=-180, le=180, description="Latitude coordinate."
+        default=None, ge=-180, le=180, description=DOC_LATI
     )
     longitude: Optional[float] = Field(
-        default=None, ge=-90, le=90, description="Longitude coordinate."
+        default=None, ge=-90, le=90, description=DOC_LONG
     )
 
     @validator("country")
@@ -80,10 +81,8 @@ class LocationUpdate(BaseNodeCreate, LocationBase):
         longitude (float | None): Longitude coordinate.
     """
 
-    site: Optional[str] = Field(
-        default=None, description="Name of the Location hosting a provider."
-    )
-    country: Optional[str] = Field(default=None, description="Location's country name.")
+    site: Optional[str] = Field(default=None, description=DOC_SITE)
+    country: Optional[str] = Field(default=None, description=DOC_COUNTRY)
 
 
 class LocationReadPublic(BaseNodeRead, LocationBasePublic):
@@ -122,9 +121,7 @@ class LocationRead(BaseNodeRead, LocationBase):
         longitude (float | None): Longitude coordinate.
     """
 
-    country_code: Optional[str] = Field(
-        default=None, description="Country code with 3 chars"
-    )
+    country_code: Optional[str] = Field(default=None, description=DOC_CODE)
 
     @root_validator(pre=True)
     def get_country_code(cls, values: Dict[str, Any]) -> Dict[str, Any]:

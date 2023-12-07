@@ -5,6 +5,7 @@ from pydantic import Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from app.region.constants import DOC_NAME
 
 
 class RegionBasePublic(BaseNode):
@@ -16,7 +17,7 @@ class RegionBasePublic(BaseNode):
         name (str): Region name in the Provider.
     """
 
-    name: str = Field(description="Region name in the provider.")
+    name: str = Field(description=DOC_NAME)
 
 
 class RegionBase(RegionBasePublic):
@@ -56,9 +57,7 @@ class RegionUpdate(BaseNodeCreate, RegionBase):
         name (str | None): Region name in the Provider.
     """
 
-    name: Optional[str] = Field(
-        default=None, description="Region name in the provider."
-    )
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
 
 
 class RegionReadPublic(BaseNodeRead, RegionBasePublic):

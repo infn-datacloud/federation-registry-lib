@@ -3,6 +3,7 @@ from typing import List
 
 from pydantic import Field
 
+from app.location.constants import DOC_EXT_REG
 from app.location.schemas import LocationRead, LocationReadPublic
 from app.region.schemas import RegionRead, RegionReadPublic
 
@@ -22,7 +23,7 @@ class LocationReadExtended(LocationRead):
         regions (list of RegionRead): Hosted regions.
     """
 
-    regions: List[RegionRead] = Field(description="List of hosted regions.")
+    regions: List[RegionRead] = Field(description=DOC_EXT_REG)
 
 
 class LocationReadExtendedPublic(LocationReadPublic):
@@ -36,4 +37,4 @@ class LocationReadExtendedPublic(LocationReadPublic):
         regions (list of RegionReadPublic): Hosted regions.
     """
 
-    regions: List[RegionReadPublic] = Field(description="List of hosted regions.")
+    regions: List[RegionReadPublic] = Field(description=DOC_EXT_REG)

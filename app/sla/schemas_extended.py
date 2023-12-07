@@ -7,9 +7,12 @@ from app.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
+from app.project.constants import DOC_EXT_PROV
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
+from app.sla.constants import DOC_EXT_GROUP, DOC_EXT_PROJ
 from app.sla.schemas import SLARead, SLAReadPublic
+from app.user_group.constants import DOC_EXT_IDP
 from app.user_group.schemas import UserGroupRead, UserGroupReadPublic
 
 
@@ -25,7 +28,7 @@ class ProjectReadExtended(ProjectRead):
         provider (ProviderRead): Hosting provider.
     """
 
-    provider: ProviderRead = Field(description="Provider owning this project")
+    provider: ProviderRead = Field(description=DOC_EXT_PROV)
 
 
 class ProjectReadExtendedPublic(ProjectReadPublic):
@@ -40,7 +43,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
         provider (ProviderReadPublic): Hosting provider.
     """
 
-    provider: ProviderReadPublic = Field(description="Provider owning this project")
+    provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
 
 
 class UserGroupReadExtended(UserGroupRead):
@@ -55,9 +58,7 @@ class UserGroupReadExtended(UserGroupRead):
             user group.
     """
 
-    identity_provider: IdentityProviderRead = Field(
-        description="Identity Provider owning this User Group."
-    )
+    identity_provider: IdentityProviderRead = Field(description=DOC_EXT_IDP)
 
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
@@ -72,9 +73,7 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
             user group.
     """
 
-    identity_provider: IdentityProviderReadPublic = Field(
-        description="Identity Provider owning this User Group."
-    )
+    identity_provider: IdentityProviderReadPublic = Field(description=DOC_EXT_IDP)
 
 
 class SLAReadExtended(SLARead):
@@ -91,8 +90,8 @@ class SLAReadExtended(SLARead):
         user_group (UserGroupReadExtended): Target user group.
     """
 
-    projects: List[ProjectReadExtended] = Field(description="Involved Projects.")
-    user_group: UserGroupReadExtended = Field(description="Involved User Group.")
+    projects: List[ProjectReadExtended] = Field(description=DOC_EXT_PROJ)
+    user_group: UserGroupReadExtended = Field(description=DOC_EXT_GROUP)
 
 
 class SLAReadExtendedPublic(SLAReadPublic):
@@ -107,5 +106,5 @@ class SLAReadExtendedPublic(SLAReadPublic):
         user_group (UserGroupReadExtendedPublic): Target user group.
     """
 
-    projects: List[ProjectReadExtendedPublic] = Field(description="Involved Projects.")
-    user_group: UserGroupReadExtendedPublic = Field(description="Involved User Group.")
+    projects: List[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
+    user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)

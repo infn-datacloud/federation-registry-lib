@@ -4,6 +4,17 @@ from typing import List, Optional
 from pydantic import Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from app.network.constants import (
+    DOC_DEFAULT,
+    DOC_EXT_ROUT,
+    DOC_MTU,
+    DOC_NAME,
+    DOC_PROXY_IP,
+    DOC_PROXY_USER,
+    DOC_SHARED,
+    DOC_TAGS,
+    DOC_UUID,
+)
 from app.query import create_query_model
 
 
@@ -17,8 +28,8 @@ class NetworkBasePublic(BaseNode):
         uuid (str): Network unique ID in the Provider
     """
 
-    name: str = Field(description="Network name in the provider.")
-    uuid: str = Field(description="Network UUID in the provider.")
+    name: str = Field(description=DOC_NAME)
+    uuid: str = Field(description=DOC_UUID)
 
 
 class NetworkBase(NetworkBasePublic):
@@ -30,7 +41,8 @@ class NetworkBase(NetworkBasePublic):
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
         is_shared (bool): Public or private Network.
-        is_router_external (bool): Network with access to the outside.
+        is_router_external (bool): Network with access to outside networks. External
+            network.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
         proxy_ip (str | None): Proxy IP address.
@@ -38,25 +50,13 @@ class NetworkBase(NetworkBasePublic):
         tags (list of str): List of tags associated to this Network.
     """
 
-    is_shared: bool = Field(
-        default=True,
-        description="Public (accessible to all projects) or private network type",
-    )
-    is_router_external: bool = Field(default=False, description="External network")
-    is_default: bool = Field(
-        default=False,
-        description="Main network to use when creating a VM or docker",
-    )
-    mtu: Optional[int] = Field(default=None, description="Metric transmission unit")
-    proxy_ip: Optional[str] = Field(
-        default=None,
-        description="Proxy IP address to use to access to private networks",
-    )
-    proxy_user: Optional[str] = Field(
-        default=None,
-        description="Proxy username to use to access to private networks",
-    )
-    tags: List[str] = Field(default_factory=list, description="List of network tags")
+    is_shared: bool = Field(default=True, description=DOC_SHARED)
+    is_router_external: bool = Field(default=False, description=DOC_EXT_ROUT)
+    is_default: bool = Field(default=False, description=DOC_DEFAULT)
+    mtu: Optional[int] = Field(default=None, description=DOC_MTU)
+    proxy_ip: Optional[str] = Field(default=None, description=DOC_PROXY_IP)
+    proxy_user: Optional[str] = Field(default=None, description=DOC_PROXY_USER)
+    tags: List[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
 class NetworkCreate(BaseNodeCreate, NetworkBase):
@@ -71,7 +71,8 @@ class NetworkCreate(BaseNodeCreate, NetworkBase):
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
         is_shared (bool): Public or private Network.
-        is_router_external (bool): Network with access to the outside.
+        is_router_external (bool): Network with access to outside networks. Externa
+            network.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
         proxy_ip (str | None): Proxy IP address.
@@ -94,7 +95,8 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
         name (str | None): Network name in the Provider.
         uuid (str | None): Network unique ID in the Provider
         is_shared (bool | None): Public or private Network.
-        is_router_external (bool | None): Network with access to the outside.
+        is_router_external (bool | None): Network with access to outside networks.
+            External network.
         is_default (bool | None): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
         proxy_ip (str | None): Proxy IP address.
@@ -102,12 +104,8 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
         tags (list of str | None): List of tags associated to this Network.
     """
 
-    name: Optional[str] = Field(
-        default=None, description="Network name in the provider."
-    )
-    uuid: Optional[str] = Field(
-        default=None, description="Network UUID in the provider."
-    )
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
 class NetworkReadPublic(BaseNodeRead, NetworkBasePublic):
@@ -142,7 +140,8 @@ class NetworkRead(BaseNodeRead, NetworkBase):
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
         is_shared (bool): Public or private Network.
-        is_router_external (bool): Network with access to the outside.
+        is_router_external (bool): Network with access to outside networks. External
+            network.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
         proxy_ip (str | None): Proxy IP address.

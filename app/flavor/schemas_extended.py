@@ -3,10 +3,13 @@ from typing import List
 
 from pydantic import Field
 
+from app.flavor.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from app.flavor.schemas import FlavorRead, FlavorReadPublic
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
+from app.region.constants import DOC_EXT_PROV
 from app.region.schemas import RegionRead, RegionReadPublic
+from app.service.constants import DOC_EXT_REG
 from app.service.schemas import ComputeServiceRead, ComputeServiceReadPublic
 
 
@@ -18,10 +21,10 @@ class RegionReadExtended(RegionRead):
         uid (uuid): AssociatedRegion unique ID.
         description (str): Brief description.
         name (str): Name of the Region in the Provider.
-        provider (ProviderRead): Provider hosting target region.
+        provider (ProviderRead): Provider hosting this region.
     """
 
-    provider: ProviderRead = Field(description="Provider hosting this region")
+    provider: ProviderRead = Field(description=DOC_EXT_PROV)
 
 
 class RegionReadExtendedPublic(RegionReadPublic):
@@ -32,10 +35,10 @@ class RegionReadExtendedPublic(RegionReadPublic):
         uid (uuid): AssociatedRegion unique ID.
         description (str): Brief description.
         name (str): Name of the Region in the Provider.
-        provider (ProviderReadPublic): Provider hosting target region.
+        provider (ProviderReadPublic): Provider hosting this region.
     """
 
-    provider: ProviderReadPublic = Field(description="Provider hosting this region")
+    provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
@@ -51,7 +54,7 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description="Provider hosting this service")
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
@@ -65,9 +68,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtendedPublic = Field(
-        description="Provider hosting this service"
-    )
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class FlavorReadExtended(FlavorRead):
@@ -96,13 +97,8 @@ class FlavorReadExtended(FlavorRead):
             flavor.
     """
 
-    projects: List[ProjectRead] = Field(
-        description="Projects having access to this flavor. "
-        "List is populated only if the flavor is a private one."
-    )
-    services: List[ComputeServiceReadExtended] = Field(
-        description="ComputeService owning this Flavor."
-    )
+    projects: List[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    services: List[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
 
 
 class FlavorReadExtendedPublic(FlavorReadPublic):
@@ -120,10 +116,5 @@ class FlavorReadExtendedPublic(FlavorReadPublic):
             this flavor.
     """
 
-    projects: List[ProjectReadPublic] = Field(
-        description="Projects having access to this flavor. "
-        "Empty list if the flavor is public"
-    )
-    services: List[ComputeServiceReadExtendedPublic] = Field(
-        description="ComputeService owning this Flavor."
-    )
+    projects: List[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
+    services: List[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)

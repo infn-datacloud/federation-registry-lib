@@ -3,6 +3,19 @@ from typing import List, Optional
 
 from pydantic import Field
 
+from app.image.constants import (
+    DOC_ARCH,
+    DOC_CUDA,
+    DOC_GPU_DRIV,
+    DOC_KERN,
+    DOC_NAME,
+    DOC_OS_DISTR,
+    DOC_OS_TYPE,
+    DOC_OS_VERS,
+    DOC_SHARED,
+    DOC_TAGS,
+    DOC_UUID,
+)
 from app.image.enum import ImageOS
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
@@ -18,8 +31,8 @@ class ImageBasePublic(BaseNode):
         uuid (str): Image unique ID in the Provider
     """
 
-    name: str = Field(description="Image name in the provider.")
-    uuid: str = Field(description="Image UUID in the provider.")
+    name: str = Field(description=DOC_NAME)
+    uuid: str = Field(description=DOC_UUID)
 
 
 class ImageBase(ImageBasePublic):
@@ -41,21 +54,15 @@ class ImageBase(ImageBasePublic):
         tags (list of str): List of tags associated to this Image.
     """
 
-    os_type: Optional[ImageOS] = Field(
-        default=None, description="Image Operating System."
-    )
-    os_distro: Optional[str] = Field(
-        default=None, description="Operating system distribution type."
-    )
-    os_version: Optional[str] = Field(default=None, description="Distribution version.")
-    architecture: Optional[str] = Field(
-        default=None, description="Operating system architecture."
-    )
-    kernel_id: Optional[str] = Field(default=None, description="Kernel version")
-    cuda_support: bool = Field(default=False, description="Enable CUDA support.")
-    gpu_driver: bool = Field(default=False, description="Enable GPU driver support.")
-    is_public: bool = Field(default=True, description="Public available")
-    tags: List[str] = Field(default_factory=list, description="List of tags")
+    os_type: Optional[ImageOS] = Field(default=None, description=DOC_OS_TYPE)
+    os_distro: Optional[str] = Field(default=None, description=DOC_OS_DISTR)
+    os_version: Optional[str] = Field(default=None, description=DOC_OS_VERS)
+    architecture: Optional[str] = Field(default=None, description=DOC_ARCH)
+    kernel_id: Optional[str] = Field(default=None, description=DOC_KERN)
+    cuda_support: bool = Field(default=False, description=DOC_CUDA)
+    gpu_driver: bool = Field(default=False, description=DOC_GPU_DRIV)
+    is_public: bool = Field(default=True, description=DOC_SHARED)
+    tags: List[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
 class ImageCreate(BaseNodeCreate, ImageBase):
@@ -105,8 +112,8 @@ class ImageUpdate(BaseNodeCreate, ImageBase):
         tags (list of str | None): List of tags associated to this Image.
     """
 
-    name: Optional[str] = Field(default=None, description="Image name in the provider.")
-    uuid: Optional[str] = Field(default=None, description="Image UUID in the provider.")
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
 class ImageReadPublic(BaseNodeRead, ImageBasePublic):

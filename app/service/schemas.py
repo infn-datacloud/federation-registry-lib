@@ -5,6 +5,7 @@ from pydantic import AnyHttpUrl, Field, validator
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from app.service.constants import DOC_ENDP, DOC_NAME
 from app.service.enum import (
     BlockStorageServiceName,
     ComputeServiceName,
@@ -25,7 +26,7 @@ class ServiceBase(BaseNode):
         endpoint (str): URL of the IaaS Service.
     """
 
-    endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
+    endpoint: AnyHttpUrl = Field(description=DOC_ENDP)
 
 
 class BlockStorageServiceBase(ServiceBase):
@@ -38,13 +39,13 @@ class BlockStorageServiceBase(ServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
     type: ServiceType = Field(
-        default=ServiceType.BLOCK_STORAGE, description="Service type."
+        default=ServiceType.BLOCK_STORAGE, description="Block Storage service type."
     )
-    name: BlockStorageServiceName = Field(description="Service name.")
+    name: BlockStorageServiceName = Field(description=DOC_NAME)
 
     @validator("type")
     def check_type(cls, v) -> Literal[ServiceType.BLOCK_STORAGE]:
@@ -65,7 +66,7 @@ class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -82,15 +83,11 @@ class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
         description (str | None): Brief description.
         endpoint (str | None): URL of the IaaS Service.
         type (str | None): Service type.
-        name (str | None): Service name.
+        name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    name: Optional[BlockStorageServiceName] = Field(
-        default=None, description="Service name."
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[BlockStorageServiceName] = Field(default=None, description=DOC_NAME)
 
 
 class BlockStorageServiceReadPublic(BaseNodeRead, ServiceBase):
@@ -123,7 +120,7 @@ class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -142,11 +139,13 @@ class ComputeServiceBase(ServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(default=ServiceType.COMPUTE, description="Service type.")
-    name: ComputeServiceName = Field(description="Service name.")
+    type: ServiceType = Field(
+        default=ServiceType.COMPUTE, description="Compute service type."
+    )
+    name: ComputeServiceName = Field(description=DOC_NAME)
 
     @validator("type")
     def check_type(cls, v) -> Literal[ServiceType.COMPUTE]:
@@ -167,7 +166,7 @@ class ComputeServiceCreate(BaseNodeCreate, ComputeServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -184,15 +183,11 @@ class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
         description (str | None): Brief description.
         endpoint (str | None): URL of the IaaS Service.
         type (str | None): Service type.
-        name (str | None): Service name.
+        name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    name: Optional[ComputeServiceName] = Field(
-        default=None, description="Service name."
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[ComputeServiceName] = Field(default=None, description=DOC_NAME)
 
 
 class ComputeServiceReadPublic(BaseNodeRead, ServiceBase):
@@ -225,7 +220,7 @@ class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -242,11 +237,13 @@ class IdentityServiceBase(ServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(default=ServiceType.IDENTITY, description="Service type.")
-    name: IdentityServiceName = Field(description="Service name.")
+    type: ServiceType = Field(
+        default=ServiceType.IDENTITY, description="Identity service type."
+    )
+    name: IdentityServiceName = Field(description=DOC_NAME)
 
     @validator("type")
     def check_type(cls, v) -> Literal[ServiceType.IDENTITY]:
@@ -267,7 +264,7 @@ class IdentityServiceCreate(BaseNodeCreate, IdentityServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -284,15 +281,11 @@ class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
         description (str | None): Brief description.
         endpoint (str | None): URL of the IaaS Service.
         type (str | None): Service type.
-        name (str | None): Service name.
+        name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    name: Optional[IdentityServiceName] = Field(
-        default=None, description="Service name."
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[IdentityServiceName] = Field(default=None, description=DOC_NAME)
 
 
 class IdentityServiceReadPublic(BaseNodeRead, ServiceBase):
@@ -324,7 +317,7 @@ class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -341,11 +334,13 @@ class NetworkServiceBase(ServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(default=ServiceType.NETWORK, description="Service type.")
-    name: NetworkServiceName = Field(description="Service name.")
+    type: ServiceType = Field(
+        default=ServiceType.NETWORK, description="Network service type."
+    )
+    name: NetworkServiceName = Field(description=DOC_NAME)
 
     @validator("type")
     def check_type(cls, v) -> Literal[ServiceType.NETWORK]:
@@ -366,7 +361,7 @@ class NetworkServiceCreate(BaseNodeCreate, NetworkServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -383,15 +378,11 @@ class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
         description (str | None): Brief description.
         endpoint (str | None): URL of the IaaS Service.
         type (str | None): Service type.
-        name (str | None): Service name.
+        name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    name: Optional[NetworkServiceName] = Field(
-        default=None, description="Service name."
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[NetworkServiceName] = Field(default=None, description=DOC_NAME)
 
 
 class NetworkServiceReadPublic(BaseNodeRead, ServiceBase):
@@ -424,7 +415,7 @@ class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
-        name (str): Service name.
+        name (str): Service name. Depends on type.
     """
 
 

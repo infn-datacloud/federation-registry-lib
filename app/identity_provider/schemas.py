@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import AnyHttpUrl, Field
 
+from app.identity_provider.constants import DOC_CLAIM, DOC_ENDP
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
@@ -16,7 +17,7 @@ class IdentityProviderBasePublic(BaseNode):
         endpoint (str): URL of the Identity Provider.
     """
 
-    endpoint: AnyHttpUrl = Field(description="URL of the identity provider")
+    endpoint: AnyHttpUrl = Field(description=DOC_ENDP)
 
 
 class IdentityProviderBase(IdentityProviderBasePublic):
@@ -30,9 +31,7 @@ class IdentityProviderBase(IdentityProviderBasePublic):
             an authentication token.
     """
 
-    group_claim: str = Field(
-        description="Name to use to retrieve the user's group attribute"
-    )
+    group_claim: str = Field(description=DOC_CLAIM)
 
 
 class IdentityProviderCreate(BaseNodeCreate, IdentityProviderBase):
@@ -66,13 +65,8 @@ class IdentityProviderUpdate(BaseNodeCreate, IdentityProviderBase):
             an authentication token.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the identity provider"
-    )
-    group_claim: Optional[str] = Field(
-        default=None,
-        description="Name to use to retrieve the user's group attribute",
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    group_claim: Optional[str] = Field(default=None, description=DOC_CLAIM)
 
 
 class IdentityProviderReadPublic(BaseNodeRead, IdentityProviderBasePublic):

@@ -6,6 +6,7 @@ from pydantic import Field, root_validator, validator
 
 from app.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from app.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
+from app.identity_provider.constants import DOC_EXT_GROUP
 from app.identity_provider.schemas import (
     IdentityProviderCreate,
     IdentityProviderRead,
@@ -19,6 +20,19 @@ from app.location.schemas import (
 )
 from app.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
 from app.project.schemas import ProjectCreate, ProjectRead
+from app.provider.constants import (
+    DOC_EXT_AUTH_METH,
+    DOC_EXT_IDP,
+    DOC_EXT_PROJ,
+    DOC_EXT_REG,
+    DOC_NEW_GROUP,
+    DOC_NEW_PROJ_UUID,
+    DOC_NEW_PROJ_UUIDS,
+    DOC_NEW_SERV_BLO_STO,
+    DOC_NEW_SERV_COMP,
+    DOC_NEW_SERV_ID,
+    DOC_NEW_SERV_NET,
+)
 from app.provider.schemas import (
     ProviderCreate,
     ProviderRead,
@@ -35,7 +49,14 @@ from app.quota.schemas import (
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
 )
+from app.region.constants import DOC_EXT_LOC, DOC_EXT_SERV
 from app.region.schemas import RegionCreate, RegionRead, RegionReadPublic
+from app.service.constants import (
+    DOC_EXT_FLAV,
+    DOC_EXT_IMAG,
+    DOC_EXT_NETW,
+    DOC_EXT_QUOTA,
+)
 from app.service.schemas import (
     BlockStorageServiceCreate,
     BlockStorageServiceRead,
@@ -51,6 +72,7 @@ from app.service.schemas import (
     NetworkServiceReadPublic,
 )
 from app.sla.schemas import SLACreate, SLARead, SLAReadPublic
+from app.user_group.constants import DOC_EXT_SLA
 from app.user_group.schemas import (
     UserGroupCreate,
     UserGroupRead,
@@ -69,7 +91,7 @@ class UserGroupReadExtended(UserGroupRead):
         slas (list of SLARead): Owned SLAs.
     """
 
-    slas: List[SLARead] = Field(default_factory=list, description="List of SLA")
+    slas: List[SLARead] = Field(default_factory=list, description=DOC_EXT_SLA)
 
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
@@ -83,7 +105,7 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
         slas (list of SLARead): Owned SLAs.
     """
 
-    slas: List[SLAReadPublic] = Field(default_factory=list, description="List of SLA")
+    slas: List[SLAReadPublic] = Field(default_factory=list, description=DOC_EXT_SLA)
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
@@ -101,11 +123,9 @@ class IdentityProviderReadExtended(IdentityProviderRead):
         user_groups (list of UserGroupReadExtended): Owned user groups.
     """
 
-    relationship: AuthMethodRead = Field(
-        description="Authentication method used by the Provider"
-    )
+    relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
     user_groups: List[UserGroupReadExtended] = Field(
-        default_factory=list, description="List of owned users"
+        default_factory=list, description=DOC_EXT_GROUP
     )
 
 
@@ -122,11 +142,9 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
         user_groups (list of UserGroupReadExtendedPublic): Owned user groups.
     """
 
-    relationship: AuthMethodRead = Field(
-        description="Authentication method used by the Provider"
-    )
+    relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
     user_groups: List[UserGroupReadExtendedPublic] = Field(
-        default_factory=list, description="List of owned users"
+        default_factory=list, description=DOC_EXT_GROUP
     )
 
 
@@ -144,7 +162,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
     """
 
     quotas: List[BlockStorageQuotaRead] = Field(
-        default_factory=list, description="List of quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
 
@@ -162,7 +180,7 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
     """
 
     quotas: List[BlockStorageQuotaReadPublic] = Field(
-        default_factory=list, description="List of quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
 
@@ -181,14 +199,10 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         quotas (list of ComputeQuotaReadExtended): Quotas pointing to this service.
     """
 
-    flavors: List[FlavorRead] = Field(
-        default_factory=list, description="List of owned flavors"
-    )
-    images: List[ImageRead] = Field(
-        default_factory=list, description="List of owned images"
-    )
+    flavors: List[FlavorRead] = Field(default_factory=list, description=DOC_EXT_FLAV)
+    images: List[ImageRead] = Field(default_factory=list, description=DOC_EXT_IMAG)
     quotas: List[ComputeQuotaRead] = Field(
-        default_factory=list, description="List of quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
 
@@ -207,13 +221,13 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     """
 
     flavors: List[FlavorReadPublic] = Field(
-        default_factory=list, description="List of owned flavors"
+        default_factory=list, description=DOC_EXT_FLAV
     )
     images: List[ImageReadPublic] = Field(
-        default_factory=list, description="List of owned images"
+        default_factory=list, description=DOC_EXT_IMAG
     )
     quotas: List[ComputeQuotaReadPublic] = Field(
-        default_factory=list, description="List of quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
 
@@ -232,11 +246,9 @@ class NetworkServiceReadExtended(NetworkServiceRead):
             service.
     """
 
-    networks: List[NetworkRead] = Field(
-        default_factory=list, description="List of owned networks"
-    )
+    networks: List[NetworkRead] = Field(default_factory=list, description=DOC_EXT_NETW)
     quotas: List[NetworkQuotaRead] = Field(
-        default_factory=list, description="List of quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
 
@@ -254,10 +266,10 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     """
 
     networks: List[NetworkReadPublic] = Field(
-        default_factory=list, description="List of owned networks"
+        default_factory=list, description=DOC_EXT_NETW
     )
     quotas: List[NetworkQuotaReadPublic] = Field(
-        default_factory=list, description="List of quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
 
@@ -269,14 +281,12 @@ class RegionReadExtended(RegionRead):
         uid (uuid): AssociatedRegion unique ID.
         description (str): Brief description.
         name (str): Name of the Region in the Provider.
-        location (LocationRead | None): Location hosting the target region.
+        location (LocationRead | None): Location hosting this region.
         services (list of Service): Supplied services (block-storage, compute, identity
             and network type).
     """
 
-    location: Optional[LocationRead] = Field(
-        default=None, description="Region geographical location"
-    )
+    location: Optional[LocationRead] = Field(default=None, description=DOC_EXT_LOC)
     services: List[
         Union[
             BlockStorageServiceReadExtended,
@@ -284,7 +294,7 @@ class RegionReadExtended(RegionRead):
             IdentityServiceRead,
             NetworkServiceReadExtended,
         ]
-    ] = Field(default_factory=list, description="List of hosted Services.")
+    ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
 class RegionReadExtendedPublic(RegionReadPublic):
@@ -295,13 +305,13 @@ class RegionReadExtendedPublic(RegionReadPublic):
         uid (uuid): AssociatedRegion unique ID.
         description (str): Brief description.
         name (str): Name of the Region in the Provider.
-        location (LocationReadPublic | None): Location hosting the target region.
+        location (LocationReadPublic | None): Location hosting this region.
         services (list of ServicePublic): Supplied services (block-storage, compute,
             identity and network type).
     """
 
     location: Optional[LocationReadPublic] = Field(
-        default=None, description="Region geographical location"
+        default=None, description=DOC_EXT_LOC
     )
     services: List[
         Union[
@@ -310,7 +320,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
             IdentityServiceReadPublic,
             NetworkServiceReadExtendedPublic,
         ]
-    ] = Field(default_factory=list, description="List of hosted Services.")
+    ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
 class ProviderReadExtended(ProviderRead):
@@ -328,14 +338,14 @@ class ProviderReadExtended(ProviderRead):
         identity_providers (list of IdentityProviderReadExtended): Supported identity
             providers.
         projects (list of ProjectRead): Supplied projects.
-        projects (list of RegionReadExtended): Supplied regions.
+        regions (list of RegionReadExtended): Supplied regions.
     """
 
     identity_providers: List[IdentityProviderReadExtended] = Field(
-        description="List of supported identity providers.",
+        description=DOC_EXT_IDP
     )
-    projects: List[ProjectRead] = Field(description="List of owned Projects.")
-    regions: List[RegionReadExtended] = Field(description="List of available regions")
+    projects: List[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    regions: List[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
@@ -353,12 +363,10 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     """
 
     identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
-        description="List of supported identity providers.",
+        description=DOC_EXT_IDP
     )
-    projects: List[ProjectRead] = Field(description="List of owned Projects.")
-    regions: List[RegionReadExtendedPublic] = Field(
-        description="List of available regions"
-    )
+    projects: List[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    regions: List[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
 # CREATE CLASSES
@@ -388,16 +396,24 @@ class SLACreateExtended(SLACreate):
 
     Attributes:
     ----------
-        project (str): Target project UUID.
+        description (str): Brief description.
+        doc_uuid (str): Unique ID of the document with the SLA details.
+        start_date (datetime): SLA validity start date.
+        end_date (datetime): SLA validity end date.
+        project (str): Target project's UUID in the Provider.
     """
 
-    project: str = Field(description="Project UUID")
+    project: str = Field(description=DOC_NEW_PROJ_UUID)
 
 
 class UserGroupCreateExtended(UserGroupCreate):
     """Model to extend the User Group data to add to the DB.
 
-    Add the list of owned SLAs.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): User Group name in the Identity Provider.
+        sla (SLACreateExtended): SLA owned by this project and related to this provider.
     """
 
     sla: SLACreateExtended = Field(description="SLA related to this provider")
@@ -406,16 +422,19 @@ class UserGroupCreateExtended(UserGroupCreate):
 class IdentityProviderCreateExtended(IdentityProviderCreate):
     """Model to extend the Identity Provider data to add to the DB.
 
-    Add the list of owned user groups and the authentication method used by the
-    provider containing this object.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): Value of the key from which retrieve the user group name from
+            an authentication token.
+        relationship (AuthMethodCreate): Authentication method used to connect to the
+            target identity provider.
+        user_groups (list of UserGroupCreateExtended): Owned user groups.
     """
 
-    relationship: AuthMethodCreate = Field(
-        description="Authentication method used by the Provider"
-    )
-    user_groups: List[UserGroupCreateExtended] = Field(
-        description="List of user groups belonging to this identity provider",
-    )
+    relationship: AuthMethodCreate = Field(description=DOC_EXT_AUTH_METH)
+    user_groups: List[UserGroupCreateExtended] = Field(description=DOC_NEW_GROUP)
 
     @validator("user_groups")
     def validate_user_groups(
@@ -432,10 +451,17 @@ class BlockStorageQuotaCreateExtended(BlockStorageQuotaCreate):
 
     Attributes:
     ----------
-        project (str): Target project UUID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+        project (str): Target project's UUID in the Provider.
     """
 
-    project: str = Field(description="Project UUID")
+    project: str = Field(description=DOC_NEW_PROJ_UUID)
 
 
 class ComputeQuotaCreateExtended(ComputeQuotaCreate):
@@ -443,10 +469,16 @@ class ComputeQuotaCreateExtended(ComputeQuotaCreate):
 
     Attributes:
     ----------
-        project (str): Target project UUID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        cores (int | None): Number of max usable cores.
+        instance (int | None): Number of max VM instances.
+        ram (int | None): Number of max usable RAM (MiB).
+        project (str): Target project's UUID in the Provider.
     """
 
-    project: str = Field(description="Project UUID")
+    project: str = Field(description=DOC_NEW_PROJ_UUID)
 
 
 class NetworkQuotaCreateExtended(NetworkQuotaCreate):
@@ -454,10 +486,21 @@ class NetworkQuotaCreateExtended(NetworkQuotaCreate):
 
     Attributes:
     ----------
-        project (str): Target project UUID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        public_ips (int | None): The number of floating IP addresses allowed for each
+            project.
+        networks (int | None): The number of networks allowed for each project.
+        port (int | None): The number of ports allowed for each project.
+        security_groups (int | None): The number of security groups allowed for each
+            project.
+        security_group_rules (int | None): The number of security group rules allowed
+            for each project.
+        project (str): Target project's UUID in the Provider.
     """
 
-    project: str = Field(description="Project UUID")
+    project: str = Field(description=DOC_NEW_PROJ_UUID)
 
 
 class FlavorCreateExtended(FlavorCreate):
@@ -465,13 +508,25 @@ class FlavorCreateExtended(FlavorCreate):
 
     Attributes:
     ----------
-        projects (list of str): List of project UUIDs having access to this flavor.
+        description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider
+        disk (int): Reserved disk size (GiB)
+        is_public (bool): Public or private Flavor.
+        ram (int): Reserved RAM (MiB)
+        vcpus (int): Number of Virtual CPUs.
+        swap (int): Swap size (GiB).
+        ephemeral (int): Ephemeral disk size (GiB).
+        infiniband (bool): MPI - parallel multi-process enabled.
+        gpus (int): Number of GPUs.
+        gpu_model (str | None): GPU model name.
+        gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
+        projects (list of str): List of project' UUIDs in the Provider having access to
+            the resource.
     """
 
-    projects: List[str] = Field(
-        default_factory=list,
-        description="List of projects having access to the private flavor",
-    )
+    projects: List[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
 
     @validator("projects", pre=True)
     def validate_projects(cls, v: Union[str, UUID]) -> str:
@@ -504,13 +559,23 @@ class ImageCreateExtended(ImageCreate):
 
     Attributes:
     ----------
-        projects (list of str): List of project UUIDs having access to this image.
+        description (str): Brief description.
+        name (str): Image name in the Provider.
+        uuid (str): Image unique ID in the Provider
+        os_type (str | None): OS type.
+        os_distro (str | None): OS distribution.
+        os_version (str | None): Distribution version.
+        architecture (str | None): OS architecture.
+        kernel_id (str | None): Kernel version.
+        cuda_support (str): Support for cuda enabled.
+        gpu_driver (str): Support for GPUs drivers.
+        is_public (bool): Public or private Image.
+        tags (list of str): List of tags associated to this Image.
+        projects (list of str): List of project' UUIDs in the Provider having access to
+            the resource.
     """
 
-    projects: List[str] = Field(
-        default_factory=list,
-        description="List of projects having access to the private image",
-    )
+    projects: List[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
 
     @validator("projects", pre=True)
     def validate_projects(cls, v: Union[str, UUID]) -> str:
@@ -541,12 +606,21 @@ class NetworkCreateExtended(NetworkCreate):
 
     Attributes:
     ----------
-        project (str | None): Target project UUID.
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        is_shared (bool): Public or private Network.
+        is_router_external (bool): Network with access to outside networks. Externa
+            network.
+        is_default (bool): Network to use as default.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_ip (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
+        tags (list of str): List of tags associated to this Network.
+        project (str | None): Target project's UUID in the Provider.
     """
 
-    project: Optional[str] = Field(
-        default=None, description="Project having access to a private net"
-    )
+    project: Optional[str] = Field(default=None, description=DOC_NEW_PROJ_UUID)
 
     @root_validator
     def project_require_if_private_net(cls, values: Dict[str, Any]) -> Dict[str, Any]:
@@ -564,11 +638,18 @@ class NetworkCreateExtended(NetworkCreate):
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
     """Model to extend the Block Storage Service data to add to the DB.
 
-    Add the list of quotas targeting this service.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+        quotas (list of BlockStorageQuotaCreateExtended): Quotas pointing to this
+            service.
     """
 
     quotas: List[BlockStorageQuotaCreateExtended] = Field(
-        default_factory=list, description="List or related quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
     @validator("quotas")
@@ -596,20 +677,25 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
 class ComputeServiceCreateExtended(ComputeServiceCreate):
     """Model to extend the Compute Service data to add to the DB.
 
-    Add the list of supplied flavors and images and the list of quotas targeting this
-    service.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+        quotas (list of ComputeQuotaCreateExtended): Quotas pointing to this service.
+        flavors (list of FlavorRead): Supplied flavors.
+        images (list of ImageRead): Supplied images.
     """
 
     flavors: List[FlavorCreateExtended] = Field(
-        default_factory=list,
-        description="List of flavors accessible through this service",
+        default_factory=list, description=DOC_EXT_FLAV
     )
     images: List[ImageCreateExtended] = Field(
-        default_factory=list,
-        description="List of images accessible through this service",
+        default_factory=list, description=DOC_EXT_IMAG
     )
     quotas: List[ComputeQuotaCreateExtended] = Field(
-        default_factory=list, description="List or related quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
     @validator("flavors")
@@ -653,15 +739,21 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
 class NetworkServiceCreateExtended(NetworkServiceCreate):
     """Model to extend the Network Service data to add to the DB.
 
-    Add the list of supplied networks and the list of quotas targeting this service.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+        quotas (list of NetworkQuotaCreateExtended): Quotas pointing to this service.
+        networks (list of NetworkRead): Supplied networks.
     """
 
     networks: List[NetworkCreateExtended] = Field(
-        default_factory=list,
-        description="List of networks accessible through this service",
+        default_factory=list, description=DOC_EXT_NETW
     )
     quotas: List[NetworkQuotaCreateExtended] = Field(
-        default_factory=list, description="List or related quotas"
+        default_factory=list, description=DOC_EXT_QUOTA
     )
 
     @validator("networks")
@@ -697,23 +789,35 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
 class RegionCreateExtended(RegionCreate):
     """Model to extend the Region data to add to the DB.
 
-    Add the location hosting it, and the list of supplied services (divided by type).
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        provider (ProviderRead): Provider hosting this region.
+        location (LocationRead | None): Location hosting this region.
+        block_storage_services (list of BlockStorageServiceCreateExtended): Supplied
+            block storage services.
+        compute_services (list of ComputeServiceCreateExtended): Supplied compute
+            services.
+        identity_services (list of IdentityServiceCreateExtended): Supplied identity
+            services.
+        network_services (list of NetworkServiceCreateExtended): Supplied network
+            services.
     """
 
-    location: Optional[LocationCreate] = Field(
-        default=None, description="Geographical site"
-    )
+    location: Optional[LocationCreate] = Field(default=None, description=DOC_EXT_LOC)
     block_storage_services: List[BlockStorageServiceCreateExtended] = Field(
-        default_factory=list, description="Block storage service"
+        default_factory=list, description=DOC_NEW_SERV_BLO_STO
     )
     compute_services: List[ComputeServiceCreateExtended] = Field(
-        default_factory=list, description="Compute service"
+        default_factory=list, description=DOC_NEW_SERV_COMP
     )
     identity_services: List[IdentityServiceCreate] = Field(
-        default_factory=list, description="Identity service"
+        default_factory=list, description=DOC_NEW_SERV_ID
     )
     network_services: List[NetworkServiceCreateExtended] = Field(
-        default_factory=list, description="Network service"
+        default_factory=list, description=DOC_NEW_SERV_NET
     )
 
     @validator("block_storage_services")
@@ -752,19 +856,28 @@ class RegionCreateExtended(RegionCreate):
 class ProviderCreateExtended(ProviderCreate):
     """Model to extend the Provider data to add to the DB.
 
-    Add the list of allowed identity providers and the list of supplied projects and
-    regions.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): List of maintainers emails.
+        identity_providers (list of IdentityProviderCreateExtended): Supported identity
+            providers.
+        projects (list of ProjectCreate): Supplied projects.
+        regions (list of RegionCreateExtended): Supplied regions.
     """
 
     identity_providers: List[IdentityProviderCreateExtended] = Field(
-        default_factory=list,
-        description="List of supported identity providers.",
+        default_factory=list, description=DOC_EXT_IDP
     )
     projects: List[ProjectCreate] = Field(
-        default_factory=list, description="List of owned Projects."
+        default_factory=list, description=DOC_EXT_PROJ
     )
     regions: List[RegionCreateExtended] = Field(
-        default_factory=list, description="Provider regions."
+        default_factory=list, description=DOC_EXT_REG
     )
 
     @validator("identity_providers")

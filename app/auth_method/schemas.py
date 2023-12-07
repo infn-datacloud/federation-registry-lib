@@ -7,9 +7,8 @@ class AuthMethodBase(BaseModel):
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name saved in the Provider.
-        protocol (str): Protocol to use when authenticating on this
-            identity provider.
+        idp_name (str): Identity Provider name used by the provider to authenticate.
+        protocol (str): Communication protocol used by the provider to authenticate.
     """
 
     idp_name: str = Field(
@@ -33,9 +32,8 @@ class AuthMethodCreate(AuthMethodBase):
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name saved in the Provider.
-        protocol (str): Protocol to use when authenticating on this
-            identity provider.
+        idp_name (str): Identity Provider name used by the provider to authenticate.
+        protocol (str): Communication protocol used by the provider to authenticate.
     """
 
 
@@ -50,9 +48,8 @@ class AuthMethodRead(AuthMethodBase):
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name saved in the Provider.
-        protocol (str): Protocol to use when authenticating on this
-            identity provider.
+        idp_name (str): Identity Provider name used by the provider to authenticate.
+        protocol (str): Communication protocol used by the provider to authenticate.
     """
 
     class Config:

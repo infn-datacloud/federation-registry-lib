@@ -3,6 +3,7 @@ from pydantic import Field
 
 from app.project.schemas import ProjectRead, ProjectReadPublic
 from app.provider.schemas import ProviderRead, ProviderReadPublic
+from app.quota.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from app.quota.schemas import (
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
@@ -11,7 +12,9 @@ from app.quota.schemas import (
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
 )
+from app.region.constants import DOC_EXT_PROV
 from app.region.schemas import RegionRead, RegionReadPublic
+from app.service.constants import DOC_EXT_REG
 from app.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
@@ -33,7 +36,7 @@ class RegionReadExtended(RegionRead):
         provider (ProviderRead): Provider hosting target region.
     """
 
-    provider: ProviderRead
+    provider: ProviderRead = Field(description=DOC_EXT_PROV)
 
 
 class RegionReadExtendedPublic(RegionReadPublic):
@@ -47,7 +50,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
         provider (ProviderReadPublic): Provider hosting target region.
     """
 
-    provider: ProviderReadPublic
+    provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
 
 
 class BlockStorageServiceReadExtended(BlockStorageServiceRead):
@@ -63,7 +66,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description="Region hosting this service")
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
@@ -77,7 +80,7 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtendedPublic = Field(description="Region hosting this service")
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
@@ -93,7 +96,7 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description="Region hosting this service")
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
@@ -107,7 +110,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtendedPublic = Field(description="Region hosting this service")
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtended(NetworkServiceRead):
@@ -123,7 +126,7 @@ class NetworkServiceReadExtended(NetworkServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description="Region hosting this service")
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
@@ -137,7 +140,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtendedPublic = Field(description="Region hosting this service")
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
@@ -157,8 +160,8 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
         service (BlockStorageServiceReadExtended): Target block storage service.
     """
 
-    project: ProjectRead
-    service: BlockStorageServiceReadExtended
+    project: ProjectRead = Field(description=DOC_EXT_PROJ)
+    service: BlockStorageServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
 class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
@@ -173,8 +176,8 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
         service (BlockStorageServiceReadExtendedPublic): Target block storage service.
     """
 
-    project: ProjectReadPublic
-    service: BlockStorageServiceReadExtendedPublic
+    project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
+    service: BlockStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class ComputeQuotaReadExtended(ComputeQuotaRead):
@@ -193,8 +196,8 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
         service (ComputeServiceReadExtended): Target compute service.
     """
 
-    project: ProjectRead
-    service: ComputeServiceReadExtended
+    project: ProjectRead = Field(description=DOC_EXT_PROJ)
+    service: ComputeServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
 class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
@@ -209,8 +212,8 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
         service (ComputeServiceReadExtendedPublic): Target compute service.
     """
 
-    project: ProjectReadPublic
-    service: ComputeServiceReadExtendedPublic
+    project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
+    service: ComputeServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class NetworkQuotaReadExtended(NetworkQuotaRead):
@@ -234,8 +237,8 @@ class NetworkQuotaReadExtended(NetworkQuotaRead):
         service (NetworkServiceReadExtended): Target network service.
     """
 
-    project: ProjectRead
-    service: NetworkServiceReadExtended
+    project: ProjectRead = Field(description=DOC_EXT_PROJ)
+    service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
 class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
@@ -250,5 +253,5 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
         service (NetworkServiceReadExtendedPublic): Target network service.
     """
 
-    project: ProjectReadPublic
-    service: NetworkServiceReadExtendedPublic
+    project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
+    service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)

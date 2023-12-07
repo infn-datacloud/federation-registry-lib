@@ -6,6 +6,7 @@ from pydantic import Field, root_validator
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from app.sla.constants import DOC_END, DOC_START, DOC_UUID
 
 
 class SLABasePublic(BaseNode):
@@ -17,7 +18,7 @@ class SLABasePublic(BaseNode):
         doc_uuid (str): Unique ID of the document with the SLA details.
     """
 
-    doc_uuid: str = Field(description="UUID of the corresponding document.")
+    doc_uuid: str = Field(description=DOC_UUID)
 
 
 class SLABase(SLABasePublic):
@@ -31,11 +32,8 @@ class SLABase(SLABasePublic):
         end_date (datetime): SLA validity end date.
     """
 
-    start_date: date = Field(description="Starting date of validity for this SLA.")
-    end_date: date = Field(
-        description="End of life date for this SLA. \
-            If not set it lasts forever.",
-    )
+    start_date: date = Field(description=DOC_START)
+    end_date: date = Field(description=DOC_END)
 
 
 class SLACreate(BaseNodeCreate, SLABase):
@@ -77,17 +75,9 @@ class SLAUpdate(BaseNodeCreate, SLABase):
         end_date (datetime | None): SLA validity end date.
     """
 
-    start_date: Optional[date] = Field(
-        default=None, description="Starting date of validity for this SLA."
-    )
-    end_date: Optional[date] = Field(
-        default=None,
-        description="End of life date for this SLA. \
-            If not set it lasts forever.",
-    )
-    doc_uuid: Optional[str] = Field(
-        default=None, description="UUID of the corresponding document."
-    )
+    doc_uuid: Optional[str] = Field(default=None, description=DOC_UUID)
+    start_date: Optional[date] = Field(default=None, description=DOC_START)
+    end_date: Optional[date] = Field(default=None, description=DOC_END)
 
 
 class SLAReadPublic(BaseNodeRead, SLABasePublic):

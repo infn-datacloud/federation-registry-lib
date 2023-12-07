@@ -5,6 +5,7 @@ from pydantic import Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from app.user_group.constants import DOC_NAME
 
 
 class UserGroupBasePublic(BaseNode):
@@ -13,10 +14,10 @@ class UserGroupBasePublic(BaseNode):
     Attributes:
     ----------
         description (str): Brief description.
-        name (str): User Group name.
+        name (str): User Group name in the Identity Provider.
     """
 
-    name: str = Field(description="User group name.")
+    name: str = Field(description=DOC_NAME)
 
 
 class UserGroupBase(UserGroupBasePublic):
@@ -25,7 +26,7 @@ class UserGroupBase(UserGroupBasePublic):
     Attributes:
     ----------
         description (str): Brief description.
-        name (str): User Group name.
+        name (str): User Group name in the Identity Provider.
     """
 
 
@@ -38,7 +39,7 @@ class UserGroupCreate(BaseNodeCreate, UserGroupBase):
     Attributes:
     ----------
         description (str): Brief description.
-        name (str): User Group name.
+        name (str): User Group name in the Identity Provider.
     """
 
 
@@ -53,10 +54,10 @@ class UserGroupUpdate(BaseNodeCreate, UserGroupBase):
     Attributes:
     ----------
         description (str | None): Brief description.
-        name (str | None): User Group name.
+        name (str | None): User Group name in the Identity Provider.
     """
 
-    name: Optional[str] = Field(default=None, description="User group name.")
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
 
 
 class UserGroupReadPublic(BaseNodeRead, UserGroupBasePublic):
@@ -88,7 +89,7 @@ class UserGroupRead(BaseNodeRead, UserGroupBase):
     ----------
         uid (int): User Group unique ID.
         description (str): Brief description.
-        name (str): User Group name.
+        name (str): User Group name in the Identity Provider.
     """
 
 

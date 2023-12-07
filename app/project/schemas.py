@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from app.project.constants import DOC_NAME, DOC_UUID
 from app.query import create_query_model
 
 
@@ -17,8 +18,8 @@ class ProjectBasePublic(BaseNode):
         uuid (str): Project unique ID in the Provider
     """
 
-    name: str = Field(description="Project name in the provider.")
-    uuid: str = Field(description="Project UUID in the provider.")
+    name: str = Field(description=DOC_NAME)
+    uuid: str = Field(description=DOC_UUID)
 
 
 class ProjectBase(ProjectBasePublic):
@@ -61,12 +62,8 @@ class ProjectUpdate(BaseNodeCreate, ProjectBase):
         uuid (str | None): Project unique ID in the Provider
     """
 
-    name: Optional[str] = Field(
-        default=None, description="Project name in the provider."
-    )
-    uuid: Optional[str] = Field(
-        default=None, description="Project UUID in the provider."
-    )
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
 class ProjectReadPublic(BaseNodeRead, ProjectBasePublic):
