@@ -7,7 +7,6 @@ from app.project.schemas import (
     ProjectCreate,
     ProjectRead,
     ProjectReadPublic,
-    ProjectReadShort,
     ProjectUpdate,
 )
 from app.project.schemas_extended import (
@@ -117,13 +116,6 @@ def validate_create_project_attrs(*, obj_in: ProjectCreate, db_item: Project) ->
 
 
 def validate_read_project_attrs(*, obj_out: ProjectRead, db_item: Project) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_project_attrs(
-    *, obj_out: ProjectReadShort, db_item: Project
-) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)
 

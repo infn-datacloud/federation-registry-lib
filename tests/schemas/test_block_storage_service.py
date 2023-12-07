@@ -14,7 +14,6 @@ from app.service.models import BlockStorageService
 from app.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
-    BlockStorageServiceReadShort,
 )
 from app.service.schemas_extended import (
     BlockStorageServiceReadExtended,
@@ -26,7 +25,6 @@ from tests.utils.block_storage_service import (
     validate_read_extended_block_storage_service_attrs,
     validate_read_extended_public_block_storage_service_attrs,
     validate_read_public_block_storage_service_attrs,
-    validate_read_short_block_storage_service_attrs,
 )
 from tests.utils.utils import random_lower_string
 
@@ -82,10 +80,6 @@ def test_read_schema(db_block_storage_serv: BlockStorageService):
     validate_read_block_storage_service_attrs(
         obj_out=schema, db_item=db_block_storage_serv
     )
-    schema = BlockStorageServiceReadShort.from_orm(db_block_storage_serv)
-    validate_read_short_block_storage_service_attrs(
-        obj_out=schema, db_item=db_block_storage_serv
-    )
     schema = BlockStorageServiceReadPublic.from_orm(db_block_storage_serv)
     validate_read_public_block_storage_service_attrs(
         obj_out=schema, db_item=db_block_storage_serv
@@ -112,12 +106,6 @@ def test_read_schema_with_single_quota(
     """
     schema = BlockStorageServiceRead.from_orm(db_block_storage_serv_with_single_quota)
     validate_read_block_storage_service_attrs(
-        obj_out=schema, db_item=db_block_storage_serv_with_single_quota
-    )
-    schema = BlockStorageServiceReadShort.from_orm(
-        db_block_storage_serv_with_single_quota
-    )
-    validate_read_short_block_storage_service_attrs(
         obj_out=schema, db_item=db_block_storage_serv_with_single_quota
     )
     schema = BlockStorageServiceReadPublic.from_orm(
@@ -154,12 +142,6 @@ def test_read_schema_with_multiple_quotas(
         db_block_storage_serv_with_multiple_quotas
     )
     validate_read_block_storage_service_attrs(
-        obj_out=schema, db_item=db_block_storage_serv_with_multiple_quotas
-    )
-    schema = BlockStorageServiceReadShort.from_orm(
-        db_block_storage_serv_with_multiple_quotas
-    )
-    validate_read_short_block_storage_service_attrs(
         obj_out=schema, db_item=db_block_storage_serv_with_multiple_quotas
     )
     schema = BlockStorageServiceReadPublic.from_orm(

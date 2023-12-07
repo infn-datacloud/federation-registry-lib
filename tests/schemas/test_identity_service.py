@@ -11,7 +11,6 @@ from app.service.models import IdentityService
 from app.service.schemas import (
     IdentityServiceRead,
     IdentityServiceReadPublic,
-    IdentityServiceReadShort,
 )
 from app.service.schemas_extended import (
     IdentityServiceReadExtended,
@@ -23,7 +22,6 @@ from tests.utils.identity_service import (
     validate_read_extended_public_identity_service_attrs,
     validate_read_identity_service_attrs,
     validate_read_public_identity_service_attrs,
-    validate_read_short_identity_service_attrs,
 )
 from tests.utils.utils import random_lower_string
 
@@ -67,8 +65,6 @@ def test_read_schema(db_identity_serv: IdentityService):
     """
     schema = IdentityServiceRead.from_orm(db_identity_serv)
     validate_read_identity_service_attrs(obj_out=schema, db_item=db_identity_serv)
-    schema = IdentityServiceReadShort.from_orm(db_identity_serv)
-    validate_read_short_identity_service_attrs(obj_out=schema, db_item=db_identity_serv)
     schema = IdentityServiceReadPublic.from_orm(db_identity_serv)
     validate_read_public_identity_service_attrs(
         obj_out=schema, db_item=db_identity_serv

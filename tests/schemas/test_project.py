@@ -5,7 +5,6 @@ from app.project.models import Project
 from app.project.schemas import (
     ProjectRead,
     ProjectReadPublic,
-    ProjectReadShort,
 )
 from app.project.schemas_extended import (
     ProjectReadExtended,
@@ -17,7 +16,6 @@ from tests.utils.project import (
     validate_read_extended_public_project_attrs,
     validate_read_project_attrs,
     validate_read_public_project_attrs,
-    validate_read_short_project_attrs,
 )
 
 
@@ -46,8 +44,6 @@ def test_read_schema(db_project: Project):
     """
     schema = ProjectRead.from_orm(db_project)
     validate_read_project_attrs(obj_out=schema, db_item=db_project)
-    schema = ProjectReadShort.from_orm(db_project)
-    validate_read_short_project_attrs(obj_out=schema, db_item=db_project)
     schema = ProjectReadPublic.from_orm(db_project)
     validate_read_public_project_attrs(obj_out=schema, db_item=db_project)
     schema = ProjectReadExtended.from_orm(db_project)
@@ -68,10 +64,6 @@ def test_read_schema_with_single_block_storage_quota(
     """
     schema = ProjectRead.from_orm(db_project_with_single_block_storage_quota)
     validate_read_project_attrs(
-        obj_out=schema, db_item=db_project_with_single_block_storage_quota
-    )
-    schema = ProjectReadShort.from_orm(db_project_with_single_block_storage_quota)
-    validate_read_short_project_attrs(
         obj_out=schema, db_item=db_project_with_single_block_storage_quota
     )
     schema = ProjectReadPublic.from_orm(db_project_with_single_block_storage_quota)
@@ -104,13 +96,6 @@ def test_read_schema_with_multiple_block_storage_quotas(
         db_project_with_multiple_block_storage_quotas_diff_service
     )
     validate_read_project_attrs(
-        obj_out=schema,
-        db_item=db_project_with_multiple_block_storage_quotas_diff_service,
-    )
-    schema = ProjectReadShort.from_orm(
-        db_project_with_multiple_block_storage_quotas_diff_service
-    )
-    validate_read_short_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_block_storage_quotas_diff_service,
     )
@@ -153,10 +138,6 @@ def test_read_schema_with_single_compute_quota(
     validate_read_project_attrs(
         obj_out=schema, db_item=db_project_with_single_compute_quota
     )
-    schema = ProjectReadShort.from_orm(db_project_with_single_compute_quota)
-    validate_read_short_project_attrs(
-        obj_out=schema, db_item=db_project_with_single_compute_quota
-    )
     schema = ProjectReadPublic.from_orm(db_project_with_single_compute_quota)
     validate_read_public_project_attrs(
         obj_out=schema, db_item=db_project_with_single_compute_quota
@@ -183,13 +164,6 @@ def test_read_schema_with_multiple_compute_quotas(
     """
     schema = ProjectRead.from_orm(db_project_with_multiple_compute_quotas_diff_service)
     validate_read_project_attrs(
-        obj_out=schema,
-        db_item=db_project_with_multiple_compute_quotas_diff_service,
-    )
-    schema = ProjectReadShort.from_orm(
-        db_project_with_multiple_compute_quotas_diff_service
-    )
-    validate_read_short_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_compute_quotas_diff_service,
     )
@@ -232,10 +206,6 @@ def test_read_schema_with_single_network_quota(
     validate_read_project_attrs(
         obj_out=schema, db_item=db_project_with_single_network_quota
     )
-    schema = ProjectReadShort.from_orm(db_project_with_single_network_quota)
-    validate_read_short_project_attrs(
-        obj_out=schema, db_item=db_project_with_single_network_quota
-    )
     schema = ProjectReadPublic.from_orm(db_project_with_single_network_quota)
     validate_read_public_project_attrs(
         obj_out=schema, db_item=db_project_with_single_network_quota
@@ -262,13 +232,6 @@ def test_read_schema_with_multiple_network_quotas(
     """
     schema = ProjectRead.from_orm(db_project_with_multiple_network_quotas_diff_service)
     validate_read_project_attrs(
-        obj_out=schema,
-        db_item=db_project_with_multiple_network_quotas_diff_service,
-    )
-    schema = ProjectReadShort.from_orm(
-        db_project_with_multiple_network_quotas_diff_service
-    )
-    validate_read_short_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_network_quotas_diff_service,
     )
@@ -311,10 +274,6 @@ def test_read_schema_with_single_flavor(
     validate_read_project_attrs(
         obj_out=schema, db_item=db_project_with_single_private_flavor
     )
-    schema = ProjectReadShort.from_orm(db_project_with_single_private_flavor)
-    validate_read_short_project_attrs(
-        obj_out=schema, db_item=db_project_with_single_private_flavor
-    )
     schema = ProjectReadPublic.from_orm(db_project_with_single_private_flavor)
     validate_read_public_project_attrs(
         obj_out=schema, db_item=db_project_with_single_private_flavor
@@ -341,13 +300,6 @@ def test_read_schema_with_multiple_flavors(
     """
     schema = ProjectRead.from_orm(db_project_with_multiple_private_flavors_diff_service)
     validate_read_project_attrs(
-        obj_out=schema,
-        db_item=db_project_with_multiple_private_flavors_diff_service,
-    )
-    schema = ProjectReadShort.from_orm(
-        db_project_with_multiple_private_flavors_diff_service
-    )
-    validate_read_short_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_flavors_diff_service,
     )
@@ -390,10 +342,6 @@ def test_read_schema_with_single_image(
     validate_read_project_attrs(
         obj_out=schema, db_item=db_project_with_single_private_image
     )
-    schema = ProjectReadShort.from_orm(db_project_with_single_private_image)
-    validate_read_short_project_attrs(
-        obj_out=schema, db_item=db_project_with_single_private_image
-    )
     schema = ProjectReadPublic.from_orm(db_project_with_single_private_image)
     validate_read_public_project_attrs(
         obj_out=schema, db_item=db_project_with_single_private_image
@@ -420,13 +368,6 @@ def test_read_schema_with_multiple_images(
     """
     schema = ProjectRead.from_orm(db_project_with_multiple_private_images_diff_service)
     validate_read_project_attrs(
-        obj_out=schema,
-        db_item=db_project_with_multiple_private_images_diff_service,
-    )
-    schema = ProjectReadShort.from_orm(
-        db_project_with_multiple_private_images_diff_service
-    )
-    validate_read_short_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_images_diff_service,
     )
@@ -469,10 +410,6 @@ def test_read_schema_with_single_private_network(
     validate_read_project_attrs(
         obj_out=schema, db_item=db_project_with_single_private_network
     )
-    schema = ProjectReadShort.from_orm(db_project_with_single_private_network)
-    validate_read_short_project_attrs(
-        obj_out=schema, db_item=db_project_with_single_private_network
-    )
     schema = ProjectReadPublic.from_orm(db_project_with_single_private_network)
     validate_read_public_project_attrs(
         obj_out=schema, db_item=db_project_with_single_private_network
@@ -501,13 +438,6 @@ def test_read_schema_with_multiple_private_networks(
         db_project_with_multiple_private_networks_diff_service
     )
     validate_read_project_attrs(
-        obj_out=schema,
-        db_item=db_project_with_multiple_private_networks_diff_service,
-    )
-    schema = ProjectReadShort.from_orm(
-        db_project_with_multiple_private_networks_diff_service
-    )
-    validate_read_short_project_attrs(
         obj_out=schema,
         db_item=db_project_with_multiple_private_networks_diff_service,
     )

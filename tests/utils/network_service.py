@@ -8,7 +8,6 @@ from app.service.schemas import (
     NetworkServiceBase,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    NetworkServiceReadShort,
     NetworkServiceUpdate,
 )
 from app.service.schemas_extended import (
@@ -114,13 +113,6 @@ def validate_create_network_service_attrs(
 
 def validate_read_network_service_attrs(
     *, obj_out: NetworkServiceRead, db_item: NetworkService
-) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_network_service_attrs(
-    *, obj_out: NetworkServiceReadShort, db_item: NetworkService
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)

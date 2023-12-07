@@ -5,7 +5,6 @@ from app.location.models import Location
 from app.location.schemas import (
     LocationRead,
     LocationReadPublic,
-    LocationReadShort,
 )
 from app.location.schemas_extended import (
     LocationReadExtended,
@@ -17,7 +16,6 @@ from tests.utils.location import (
     validate_read_extended_public_location_attrs,
     validate_read_location_attrs,
     validate_read_public_location_attrs,
-    validate_read_short_location_attrs,
 )
 from tests.utils.utils import random_lower_string
 
@@ -61,8 +59,6 @@ def test_read_schema_with_single_region(db_location: Location):
     """
     schema = LocationRead.from_orm(db_location)
     validate_read_location_attrs(obj_out=schema, db_item=db_location)
-    schema = LocationReadShort.from_orm(db_location)
-    validate_read_short_location_attrs(obj_out=schema, db_item=db_location)
     schema = LocationReadPublic.from_orm(db_location)
     validate_read_public_location_attrs(obj_out=schema, db_item=db_location)
     schema = LocationReadExtended.from_orm(db_location)
@@ -81,10 +77,6 @@ def test_read_schema_with_multiple_regions(db_location_with_multiple_regions: Lo
     """
     schema = LocationRead.from_orm(db_location_with_multiple_regions)
     validate_read_location_attrs(
-        obj_out=schema, db_item=db_location_with_multiple_regions
-    )
-    schema = LocationReadShort.from_orm(db_location_with_multiple_regions)
-    validate_read_short_location_attrs(
         obj_out=schema, db_item=db_location_with_multiple_regions
     )
     schema = LocationReadPublic.from_orm(db_location_with_multiple_regions)

@@ -8,7 +8,6 @@ from app.image.schemas import (
     ImageBase,
     ImageRead,
     ImageReadPublic,
-    ImageReadShort,
     ImageUpdate,
 )
 from app.image.schemas_extended import (
@@ -128,11 +127,6 @@ def validate_create_image_attrs(*, obj_in: ImageCreateExtended, db_item: Image) 
 
 
 def validate_read_image_attrs(*, obj_out: ImageRead, db_item: Image) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_image_attrs(*, obj_out: ImageReadShort, db_item: Image) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)
 

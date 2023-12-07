@@ -7,7 +7,6 @@ from app.sla.schemas import (
     SLABase,
     SLARead,
     SLAReadPublic,
-    SLAReadShort,
     SLAUpdate,
 )
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
@@ -88,11 +87,6 @@ def validate_create_sla_attrs(*, obj_in: SLACreateExtended, db_item: SLA) -> Non
 
 
 def validate_read_sla_attrs(*, obj_out: SLARead, db_item: SLA) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_sla_attrs(*, obj_out: SLAReadShort, db_item: SLA) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)
 

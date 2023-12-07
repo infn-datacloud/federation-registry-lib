@@ -6,7 +6,6 @@ from app.quota.schemas import (
     NetworkQuotaBase,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    NetworkQuotaReadShort,
     NetworkQuotaUpdate,
 )
 from app.quota.schemas_extended import (
@@ -99,13 +98,6 @@ def validate_create_network_quota_attrs(
 
 def validate_read_network_quota_attrs(
     *, obj_out: NetworkQuotaRead, db_item: NetworkQuota
-) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_network_quota_attrs(
-    *, obj_out: NetworkQuotaReadShort, db_item: NetworkQuota
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)

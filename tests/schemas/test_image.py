@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.image.models import Image
-from app.image.schemas import ImageRead, ImageReadPublic, ImageReadShort
+from app.image.schemas import ImageRead, ImageReadPublic
 from app.image.schemas_extended import (
     ImageReadExtended,
     ImageReadExtendedPublic,
@@ -15,7 +15,6 @@ from tests.utils.image import (
     validate_read_extended_public_image_attrs,
     validate_read_image_attrs,
     validate_read_public_image_attrs,
-    validate_read_short_image_attrs,
 )
 
 
@@ -57,8 +56,6 @@ def test_read_schema_public_image(db_public_image: Image):
     """
     schema = ImageRead.from_orm(db_public_image)
     validate_read_image_attrs(obj_out=schema, db_item=db_public_image)
-    schema = ImageReadShort.from_orm(db_public_image)
-    validate_read_short_image_attrs(obj_out=schema, db_item=db_public_image)
     schema = ImageReadPublic.from_orm(db_public_image)
     validate_read_public_image_attrs(obj_out=schema, db_item=db_public_image)
     schema = ImageReadExtended.from_orm(db_public_image)
@@ -77,8 +74,6 @@ def test_read_schema_private_image_single_project(db_private_image: Image):
     """
     schema = ImageRead.from_orm(db_private_image)
     validate_read_image_attrs(obj_out=schema, db_item=db_private_image)
-    schema = ImageReadShort.from_orm(db_private_image)
-    validate_read_short_image_attrs(obj_out=schema, db_item=db_private_image)
     schema = ImageReadPublic.from_orm(db_private_image)
     validate_read_public_image_attrs(obj_out=schema, db_item=db_private_image)
     schema = ImageReadExtended.from_orm(db_private_image)
@@ -100,10 +95,6 @@ def test_read_schema_private_image_multiple_projects(
     """
     schema = ImageRead.from_orm(db_private_image_multiple_projects)
     validate_read_image_attrs(
-        obj_out=schema, db_item=db_private_image_multiple_projects
-    )
-    schema = ImageReadShort.from_orm(db_private_image_multiple_projects)
-    validate_read_short_image_attrs(
         obj_out=schema, db_item=db_private_image_multiple_projects
     )
     schema = ImageReadPublic.from_orm(db_private_image_multiple_projects)
@@ -132,8 +123,6 @@ def test_read_schema_image_shared_between_multiple_services(db_shared_image: Ima
     """
     schema = ImageRead.from_orm(db_shared_image)
     validate_read_image_attrs(obj_out=schema, db_item=db_shared_image)
-    schema = ImageReadShort.from_orm(db_shared_image)
-    validate_read_short_image_attrs(obj_out=schema, db_item=db_shared_image)
     schema = ImageReadPublic.from_orm(db_shared_image)
     validate_read_public_image_attrs(obj_out=schema, db_item=db_shared_image)
     schema = ImageReadExtended.from_orm(db_shared_image)

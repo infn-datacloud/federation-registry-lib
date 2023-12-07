@@ -8,7 +8,6 @@ from app.quota.models import BlockStorageQuota
 from app.quota.schemas import (
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
-    BlockStorageQuotaReadShort,
 )
 from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtended,
@@ -20,7 +19,6 @@ from tests.utils.block_storage_quota import (
     validate_read_extended_block_storage_quota_attrs,
     validate_read_extended_public_block_storage_quota_attrs,
     validate_read_public_block_storage_quota_attrs,
-    validate_read_short_block_storage_quota_attrs,
 )
 from tests.utils.utils import random_lower_string
 
@@ -54,10 +52,6 @@ def test_read_schema(db_block_storage_quota: BlockStorageQuota):
     """Create a valid 'Read' Schema."""
     schema = BlockStorageQuotaRead.from_orm(db_block_storage_quota)
     validate_read_block_storage_quota_attrs(
-        obj_out=schema, db_item=db_block_storage_quota
-    )
-    schema = BlockStorageQuotaReadShort.from_orm(db_block_storage_quota)
-    validate_read_short_block_storage_quota_attrs(
         obj_out=schema, db_item=db_block_storage_quota
     )
     schema = BlockStorageQuotaReadPublic.from_orm(db_block_storage_quota)

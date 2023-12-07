@@ -6,7 +6,6 @@ from app.region.schemas import (
     RegionBase,
     RegionRead,
     RegionReadPublic,
-    RegionReadShort,
     RegionUpdate,
 )
 from app.region.schemas_extended import (
@@ -165,13 +164,6 @@ def validate_create_region_attrs(
 
 
 def validate_read_region_attrs(*, obj_out: RegionRead, db_item: Region) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_region_attrs(
-    *, obj_out: RegionReadShort, db_item: Region
-) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)
 

@@ -8,7 +8,6 @@ from app.service.schemas import (
     BlockStorageServiceBase,
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
-    BlockStorageServiceReadShort,
     BlockStorageServiceUpdate,
 )
 from app.service.schemas_extended import (
@@ -101,13 +100,6 @@ def validate_create_block_storage_service_attrs(
 
 def validate_read_block_storage_service_attrs(
     *, obj_out: BlockStorageServiceRead, db_item: BlockStorageService
-) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_block_storage_service_attrs(
-    *, obj_out: BlockStorageServiceReadShort, db_item: BlockStorageService
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)

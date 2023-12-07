@@ -6,7 +6,6 @@ from app.network.schemas import (
     NetworkBase,
     NetworkRead,
     NetworkReadPublic,
-    NetworkReadShort,
     NetworkUpdate,
 )
 from app.network.schemas_extended import (
@@ -114,13 +113,6 @@ def validate_create_network_attrs(
 
 
 def validate_read_network_attrs(*, obj_out: NetworkRead, db_item: Network) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_network_attrs(
-    *, obj_out: NetworkReadShort, db_item: Network
-) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)
 

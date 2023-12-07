@@ -6,7 +6,6 @@ from app.quota.schemas import (
     BlockStorageQuotaBase,
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
-    BlockStorageQuotaReadShort,
     BlockStorageQuotaUpdate,
 )
 from app.quota.schemas_extended import (
@@ -95,13 +94,6 @@ def validate_create_block_storage_quota_attrs(
 
 def validate_read_block_storage_quota_attrs(
     *, obj_out: BlockStorageQuotaRead, db_item: BlockStorageQuota
-) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_block_storage_quota_attrs(
-    *, obj_out: BlockStorageQuotaReadShort, db_item: BlockStorageQuota
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)

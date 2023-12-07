@@ -14,7 +14,6 @@ from app.service.models import ComputeService
 from app.service.schemas import (
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    ComputeServiceReadShort,
 )
 from app.service.schemas_extended import (
     ComputeServiceReadExtended,
@@ -26,7 +25,6 @@ from tests.utils.compute_service import (
     validate_read_extended_compute_service_attrs,
     validate_read_extended_public_compute_service_attrs,
     validate_read_public_compute_service_attrs,
-    validate_read_short_compute_service_attrs,
 )
 from tests.utils.utils import random_lower_string
 
@@ -101,8 +99,6 @@ def test_read_schema(db_compute_serv: ComputeService):
     """
     schema = ComputeServiceRead.from_orm(db_compute_serv)
     validate_read_compute_service_attrs(obj_out=schema, db_item=db_compute_serv)
-    schema = ComputeServiceReadShort.from_orm(db_compute_serv)
-    validate_read_short_compute_service_attrs(obj_out=schema, db_item=db_compute_serv)
     schema = ComputeServiceReadPublic.from_orm(db_compute_serv)
     validate_read_public_compute_service_attrs(obj_out=schema, db_item=db_compute_serv)
     schema = ComputeServiceReadExtended.from_orm(db_compute_serv)
@@ -127,10 +123,6 @@ def test_read_schema_with_single_quota(
     """
     schema = ComputeServiceRead.from_orm(db_compute_serv_with_single_quota)
     validate_read_compute_service_attrs(
-        obj_out=schema, db_item=db_compute_serv_with_single_quota
-    )
-    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_single_quota)
-    validate_read_short_compute_service_attrs(
         obj_out=schema, db_item=db_compute_serv_with_single_quota
     )
     schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_single_quota)
@@ -161,10 +153,6 @@ def test_read_schema_with_multiple_quotas(
     """
     schema = ComputeServiceRead.from_orm(db_compute_serv_with_multiple_quotas)
     validate_read_compute_service_attrs(
-        obj_out=schema, db_item=db_compute_serv_with_multiple_quotas
-    )
-    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_multiple_quotas)
-    validate_read_short_compute_service_attrs(
         obj_out=schema, db_item=db_compute_serv_with_multiple_quotas
     )
     schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_multiple_quotas)
@@ -199,10 +187,6 @@ def test_read_schema_with_single_flavor(
     validate_read_compute_service_attrs(
         obj_out=schema, db_item=db_compute_serv_with_single_flavor
     )
-    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_single_flavor)
-    validate_read_short_compute_service_attrs(
-        obj_out=schema, db_item=db_compute_serv_with_single_flavor
-    )
     schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_single_flavor)
     validate_read_public_compute_service_attrs(
         obj_out=schema, db_item=db_compute_serv_with_single_flavor
@@ -231,10 +215,6 @@ def test_read_schema_with_multiple_flavors(
     """
     schema = ComputeServiceRead.from_orm(db_compute_serv_with_multiple_flavors)
     validate_read_compute_service_attrs(
-        obj_out=schema, db_item=db_compute_serv_with_multiple_flavors
-    )
-    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_multiple_flavors)
-    validate_read_short_compute_service_attrs(
         obj_out=schema, db_item=db_compute_serv_with_multiple_flavors
     )
     schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_multiple_flavors)
@@ -269,10 +249,6 @@ def test_read_schema_with_single_image(
     validate_read_compute_service_attrs(
         obj_out=schema, db_item=db_compute_serv_with_single_image
     )
-    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_single_image)
-    validate_read_short_compute_service_attrs(
-        obj_out=schema, db_item=db_compute_serv_with_single_image
-    )
     schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_single_image)
     validate_read_public_compute_service_attrs(
         obj_out=schema, db_item=db_compute_serv_with_single_image
@@ -301,10 +277,6 @@ def test_read_schema_with_multiple_images(
     """
     schema = ComputeServiceRead.from_orm(db_compute_serv_with_multiple_images)
     validate_read_compute_service_attrs(
-        obj_out=schema, db_item=db_compute_serv_with_multiple_images
-    )
-    schema = ComputeServiceReadShort.from_orm(db_compute_serv_with_multiple_images)
-    validate_read_short_compute_service_attrs(
         obj_out=schema, db_item=db_compute_serv_with_multiple_images
     )
     schema = ComputeServiceReadPublic.from_orm(db_compute_serv_with_multiple_images)

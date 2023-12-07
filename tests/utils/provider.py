@@ -7,7 +7,6 @@ from app.provider.schemas import (
     ProviderBase,
     ProviderRead,
     ProviderReadPublic,
-    ProviderReadShort,
     ProviderUpdate,
 )
 from app.provider.schemas_extended import (
@@ -160,13 +159,6 @@ def validate_create_provider_attrs(
 
 
 def validate_read_provider_attrs(*, obj_out: ProviderRead, db_item: Provider) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_provider_attrs(
-    *, obj_out: ProviderReadShort, db_item: Provider
-) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)
 

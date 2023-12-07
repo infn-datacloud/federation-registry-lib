@@ -6,7 +6,6 @@ from app.quota.schemas import (
     ComputeQuotaBase,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
-    ComputeQuotaReadShort,
     ComputeQuotaUpdate,
 )
 from app.quota.schemas_extended import (
@@ -89,13 +88,6 @@ def validate_create_compute_quota_attrs(
 
 def validate_read_compute_quota_attrs(
     *, obj_out: ComputeQuotaRead, db_item: ComputeQuota
-) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_compute_quota_attrs(
-    *, obj_out: ComputeQuotaReadShort, db_item: ComputeQuota
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)

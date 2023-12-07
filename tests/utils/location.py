@@ -8,7 +8,6 @@ from app.location.schemas import (
     LocationCreate,
     LocationRead,
     LocationReadPublic,
-    LocationReadShort,
     LocationUpdate,
 )
 from app.location.schemas_extended import (
@@ -94,13 +93,6 @@ def validate_create_location_attrs(
 def validate_read_location_attrs(*, obj_out: LocationRead, db_item: Location) -> None:
     assert db_item.uid == obj_out.uid
     assert obj_out.country_code is not None
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_location_attrs(
-    *, obj_out: LocationReadShort, db_item: Location
-) -> None:
-    assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)
 
 

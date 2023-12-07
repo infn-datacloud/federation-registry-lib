@@ -6,7 +6,6 @@ from app.identity_provider.schemas import (
     IdentityProviderBase,
     IdentityProviderRead,
     IdentityProviderReadPublic,
-    IdentityProviderReadShort,
     IdentityProviderUpdate,
 )
 from app.identity_provider.schemas_extended import (
@@ -110,13 +109,6 @@ def validate_create_identity_provider_attrs(
 
 def validate_read_identity_provider_attrs(
     *, obj_out: IdentityProviderRead, db_item: IdentityProvider
-) -> None:
-    assert db_item.uid == obj_out.uid
-    validate_attrs(obj_in=obj_out, db_item=db_item)
-
-
-def validate_read_short_identity_provider_attrs(
-    *, obj_out: IdentityProviderReadShort, db_item: IdentityProvider
 ) -> None:
     assert db_item.uid == obj_out.uid
     validate_attrs(obj_in=obj_out, db_item=db_item)

@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.region.models import Region
-from app.region.schemas import RegionRead, RegionReadPublic, RegionReadShort
+from app.region.schemas import RegionRead, RegionReadPublic
 from app.region.schemas_extended import (
     RegionReadExtended,
     RegionReadExtendedPublic,
@@ -15,7 +15,6 @@ from tests.utils.region import (
     validate_read_extended_region_attrs,
     validate_read_public_region_attrs,
     validate_read_region_attrs,
-    validate_read_short_region_attrs,
 )
 
 
@@ -119,8 +118,6 @@ def test_read_schema(db_region: Region):
     """
     schema = RegionRead.from_orm(db_region)
     validate_read_region_attrs(obj_out=schema, db_item=db_region)
-    schema = RegionReadShort.from_orm(db_region)
-    validate_read_short_region_attrs(obj_out=schema, db_item=db_region)
     schema = RegionReadPublic.from_orm(db_region)
     validate_read_public_region_attrs(obj_out=schema, db_item=db_region)
     schema = RegionReadExtended.from_orm(db_region)
@@ -139,8 +136,6 @@ def test_read_schema_with_location(db_region_with_location: Region):
     """
     schema = RegionRead.from_orm(db_region_with_location)
     validate_read_region_attrs(obj_out=schema, db_item=db_region_with_location)
-    schema = RegionReadShort.from_orm(db_region_with_location)
-    validate_read_short_region_attrs(obj_out=schema, db_item=db_region_with_location)
     schema = RegionReadPublic.from_orm(db_region_with_location)
     validate_read_public_region_attrs(obj_out=schema, db_item=db_region_with_location)
     schema = RegionReadExtended.from_orm(db_region_with_location)
@@ -163,10 +158,6 @@ def test_read_schema_with_single_block_storage_service(
     """
     schema = RegionRead.from_orm(db_region_with_block_storage_service)
     validate_read_region_attrs(
-        obj_out=schema, db_item=db_region_with_block_storage_service
-    )
-    schema = RegionReadShort.from_orm(db_region_with_block_storage_service)
-    validate_read_short_region_attrs(
         obj_out=schema, db_item=db_region_with_block_storage_service
     )
     schema = RegionReadPublic.from_orm(db_region_with_block_storage_service)
@@ -195,10 +186,6 @@ def test_read_schema_with_single_compute_service(
     """
     schema = RegionRead.from_orm(db_region_with_compute_service)
     validate_read_region_attrs(obj_out=schema, db_item=db_region_with_compute_service)
-    schema = RegionReadShort.from_orm(db_region_with_compute_service)
-    validate_read_short_region_attrs(
-        obj_out=schema, db_item=db_region_with_compute_service
-    )
     schema = RegionReadPublic.from_orm(db_region_with_compute_service)
     validate_read_public_region_attrs(
         obj_out=schema, db_item=db_region_with_compute_service
@@ -225,10 +212,6 @@ def test_read_schema_with_single_identity_service(
     """
     schema = RegionRead.from_orm(db_region_with_identity_service)
     validate_read_region_attrs(obj_out=schema, db_item=db_region_with_identity_service)
-    schema = RegionReadShort.from_orm(db_region_with_identity_service)
-    validate_read_short_region_attrs(
-        obj_out=schema, db_item=db_region_with_identity_service
-    )
     schema = RegionReadPublic.from_orm(db_region_with_identity_service)
     validate_read_public_region_attrs(
         obj_out=schema, db_item=db_region_with_identity_service
@@ -255,10 +238,6 @@ def test_read_schema_with_single_network_service(
     """
     schema = RegionRead.from_orm(db_region_with_network_service)
     validate_read_region_attrs(obj_out=schema, db_item=db_region_with_network_service)
-    schema = RegionReadShort.from_orm(db_region_with_network_service)
-    validate_read_short_region_attrs(
-        obj_out=schema, db_item=db_region_with_network_service
-    )
     schema = RegionReadPublic.from_orm(db_region_with_network_service)
     validate_read_public_region_attrs(
         obj_out=schema, db_item=db_region_with_network_service

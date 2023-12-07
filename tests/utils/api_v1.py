@@ -23,7 +23,7 @@ from tests.utils.schemas import (
     UpdateSchemaType,
 )
 
-API_PARAMS_SINGLE_ITEM = [{}, {"short": True}, {"with_conn": True}]
+API_PARAMS_SINGLE_ITEM = [{}, {"with_conn": True}]
 API_PARAMS_MULTIPLE_ITEMS = [
     {},
     {"sort": "uid"},
@@ -40,7 +40,6 @@ API_PARAMS_MULTIPLE_ITEMS = [
     {"sort": "uid", "size": 1, "page": 1},
     {"sort": "uid", "page": 1},
     {"sort": "uid", "size": 1, "page": 2},
-    {"short": True},
     {"with_conn": True},
 ]
 
@@ -249,7 +248,7 @@ class TestBaseAPI:
         """Execute GET operations to read a specific item.
 
         Execute this operation using both authenticated and not-authenticated clients.
-        For each, repeat the operation passing 'short', 'with_conn' and no params.
+        For each, repeat the operation passing 'with_conn' and no params.
         """
         api: BaseAPI = request.getfixturevalue(self.api)
         api.read(
@@ -284,7 +283,7 @@ class TestBaseAPI:
 
         Execute this operation using both authenticated and not-authenticated clients.
         For each, repeat the operation passing 'sort', 'limit', 'skip', 'size', 'page',
-        'short', 'with_conn' and no params. When using params limiting the size of the
+        'with_conn' and no params. When using params limiting the size of the
         returned list use also sort to have a predictable response.
         """
         api: BaseAPI = request.getfixturevalue(self.api)
