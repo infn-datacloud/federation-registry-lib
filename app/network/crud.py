@@ -1,3 +1,4 @@
+"""Module with Create, Read, Update and Delete operations for a Network."""
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
@@ -6,13 +7,9 @@ from app.network.schemas import (
     NetworkCreate,
     NetworkRead,
     NetworkReadPublic,
-    NetworkReadShort,
     NetworkUpdate,
 )
-from app.network.schemas_extended import (
-    NetworkReadExtended,
-    NetworkReadExtendedPublic,
-)
+from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
 from app.project.models import Project
 from app.provider.schemas_extended import NetworkCreateExtended
 from app.service.models import NetworkService
@@ -25,7 +22,6 @@ class CRUDNetwork(
         NetworkUpdate,
         NetworkRead,
         NetworkReadPublic,
-        NetworkReadShort,
         NetworkReadExtended,
         NetworkReadExtendedPublic,
     ]
@@ -88,7 +84,6 @@ network = CRUDNetwork(
     create_schema=NetworkCreate,
     read_schema=NetworkRead,
     read_public_schema=NetworkReadPublic,
-    read_short_schema=NetworkReadShort,
     read_extended_schema=NetworkReadExtended,
     read_extended_public_schema=NetworkReadExtendedPublic,
 )

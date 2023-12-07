@@ -1,3 +1,4 @@
+"""Module with Create, Read, Update and Delete operations for a Region."""
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
@@ -6,17 +7,8 @@ from app.project.models import Project
 from app.provider.models import Provider
 from app.provider.schemas_extended import RegionCreateExtended
 from app.region.models import Region
-from app.region.schemas import (
-    RegionCreate,
-    RegionRead,
-    RegionReadPublic,
-    RegionReadShort,
-    RegionUpdate,
-)
-from app.region.schemas_extended import (
-    RegionReadExtended,
-    RegionReadExtendedPublic,
-)
+from app.region.schemas import RegionCreate, RegionRead, RegionReadPublic, RegionUpdate
+from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
 from app.service.crud import (
     block_storage_service,
     compute_service,
@@ -38,7 +30,6 @@ class CRUDRegion(
         RegionUpdate,
         RegionRead,
         RegionReadPublic,
-        RegionReadShort,
         RegionReadExtended,
         RegionReadExtendedPublic,
     ]
@@ -338,7 +329,6 @@ region = CRUDRegion(
     create_schema=RegionCreate,
     read_schema=RegionRead,
     read_public_schema=RegionReadPublic,
-    read_short_schema=RegionReadShort,
     read_extended_schema=RegionReadExtended,
     read_extended_public_schema=RegionReadExtendedPublic,
 )

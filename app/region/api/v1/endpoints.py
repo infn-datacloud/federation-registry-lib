@@ -1,10 +1,18 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.region.api.dependencies import (
     valid_region_id,
@@ -16,7 +24,6 @@ from app.region.schemas import (
     RegionQuery,
     RegionRead,
     RegionReadPublic,
-    RegionReadShort,
     RegionUpdate,
 )
 from app.region.schemas_extended import (
@@ -33,7 +40,6 @@ router = APIRouter(prefix="/regions", tags=["regions"])
     response_model=Union[
         List[RegionReadExtended],
         List[RegionRead],
-        List[RegionReadShort],
         List[RegionReadExtendedPublic],
         List[RegionReadPublic],
     ],
@@ -42,21 +48,20 @@ router = APIRouter(prefix="/regions", tags=["regions"])
         It is possible to filter on regions attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_regions(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: RegionQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = region.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = region.paginate(items=items, page=page.page, size=page.size)
     return region.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -66,7 +71,6 @@ def get_regions(
     response_model=Union[
         RegionReadExtended,
         RegionRead,
-        RegionReadShort,
         RegionReadExtendedPublic,
         RegionReadPublic,
     ],
@@ -75,15 +79,14 @@ def get_regions(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_region(
     size: SchemaSize = Depends(),
     item: Region = Depends(valid_region_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return region.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -112,7 +115,7 @@ def put_region(
     update_data: RegionUpdate,
     response: Response,
     item: Region = Depends(valid_region_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = region.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -136,7 +139,7 @@ def put_region(
 def delete_regions(
     request: Request,
     item: Region = Depends(valid_region_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not region.remove(db_obj=item):
         raise HTTPException(

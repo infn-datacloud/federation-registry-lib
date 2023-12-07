@@ -82,8 +82,7 @@ class TestIdentityServiceTest(TestBaseAPI):
     def test_patch_item_changing_type(
         self, request: pytest.FixtureRequest, client: TestClient, public: bool
     ) -> None:
-        """
-        Execute PATCH operations to try to change the type of a identity service.
+        """Execute PATCH operations to try to change the type of a identity service.
 
         At first this should not be allowed by schema construction. In any case, if a
         request arrives, it is discarded since the payload is not a identity

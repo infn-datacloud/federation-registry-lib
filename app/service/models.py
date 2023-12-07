@@ -1,3 +1,4 @@
+"""Neomodel models of the Service supplied by a Provider on a specific Region."""
 from neomodel import (
     One,
     RelationshipFrom,
@@ -32,7 +33,7 @@ class Service(StructuredNode):
     type = StringProperty(required=True)
     name = StringProperty(required=True)
 
-    region = RelationshipFrom("..region.models.Region", "SUPPLY", cardinality=One)
+    region = RelationshipFrom("app.region.models.Region", "SUPPLY", cardinality=One)
 
 
 class BlockStorageService(Service):
@@ -40,10 +41,18 @@ class BlockStorageService(Service):
 
     A Block Storage Service, for each project, support a set of quotas managing the
     block storage resources.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     quotas = RelationshipFrom(
-        "..quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "app.quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
 
 
@@ -52,38 +61,63 @@ class ComputeService(Service):
 
     A Compute Service, for each project, support a set of quotas managing the block
     storage resources. A Compute Service provides public and private Flavors and Images.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     flavors = RelationshipTo(
-        "..flavor.models.Flavor",
+        "app.flavor.models.Flavor",
         "AVAILABLE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )
     images = RelationshipTo(
-        "..image.models.Image",
+        "app.image.models.Image",
         "AVAILABLE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )
     quotas = RelationshipFrom(
-        "..quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "app.quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
 
 
 class IdentityService(Service):
-    """Service managing user access to the Provider."""
+    """Service managing user access to the Provider.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+    """
 
 
 class NetworkService(Service):
     """Service managing Network resources.
 
     A Network Service provides public and private Networks.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
     """
 
     networks = RelationshipTo(
-        "..network.models.Network",
+        "app.network.models.Network",
         "AVAILABLE_NETWORK",
         cardinality=ZeroOrMore,
     )
     quotas = RelationshipFrom(
-        "..quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "app.quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
     )

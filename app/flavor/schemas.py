@@ -1,36 +1,77 @@
+"""Pydantic models of the Virtual Machine Flavor owned by a Provider."""
 from typing import Any, Dict, Optional
 
 from pydantic import Field, root_validator
 
+from app.flavor.constants import (
+    DOC_DISK,
+    DOC_EPHEM,
+    DOC_GPU_MOD,
+    DOC_GPU_VND,
+    DOC_GPUS,
+    DOC_INFI,
+    DOC_LOC_STO,
+    DOC_NAME,
+    DOC_RAM,
+    DOC_SHARED,
+    DOC_SWAP,
+    DOC_UUID,
+    DOC_VCPUS,
+)
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
 
 
-class FlavorBase(BaseNode):
-    """Model with Flavor basic attributes."""
+class FlavorBasePublic(BaseNode):
+    """Model with Flavor public attributes.
 
-    name: str = Field(description="Flavor name in the provider.")
-    uuid: str = Field(description="Flavor UUID in the provider.")
-    disk: int = Field(default=0, ge=0, description="Reserved disk size (GB)")
-    is_public: bool = Field(default=True, description="Public available")
-    ram: int = Field(default=0, ge=0, description="Reserved RAM size (MB)")
-    vcpus: int = Field(default=0, ge=0, description="Number of virtual CPUs")
-    swap: int = Field(default=0, ge=0, description="Reserved swap disk size (GB)")
-    ephemeral: int = Field(
-        default=0, ge=0, description="Size of the ephemeral disk (GB)"
-    )
-    infiniband: bool = Field(
-        default=False, description="MPI: parallel multi-process enabled"
-    )
-    gpus: int = Field(default=0, ge=0, description="Number of GPUs")
-    gpu_model: Optional[str] = Field(default=None, description="GPU model name")
-    gpu_vendor: Optional[str] = Field(default=None, description="GPU vendor name")
-    local_storage: Optional[str] = Field(
-        default=None, description="Local storage presence"
-    )
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider.
+    """
+
+    name: str = Field(description=DOC_NAME)
+    uuid: str = Field(description=DOC_UUID)
+
+
+class FlavorBase(FlavorBasePublic):
+    """Model with Flavor public and restricted attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider.
+        disk (int): Reserved disk size (GiB).
+        is_public (bool): Public or private Flavor.
+        ram (int): Reserved RAM (MiB).
+        vcpus (int): Number of Virtual CPUs.
+        swap (int): Swap size (GiB).
+        ephemeral (int): Ephemeral disk size (GiB).
+        infiniband (bool): MPI - parallel multi-process enabled.
+        gpus (int): Number of GPUs.
+        gpu_model (str | None): GPU model name.
+        gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
+    """
+
+    disk: int = Field(default=0, ge=0, description=DOC_DISK)
+    is_public: bool = Field(default=True, description=DOC_SHARED)
+    ram: int = Field(default=0, ge=0, description=DOC_RAM)
+    vcpus: int = Field(default=0, ge=0, description=DOC_VCPUS)
+    swap: int = Field(default=0, ge=0, description=DOC_SWAP)
+    ephemeral: int = Field(default=0, ge=0, description=DOC_EPHEM)
+    infiniband: bool = Field(default=False, description=DOC_INFI)
+    gpus: int = Field(default=0, ge=0, description=DOC_GPUS)
+    gpu_model: Optional[str] = Field(default=None, description=DOC_GPU_MOD)
+    gpu_vendor: Optional[str] = Field(default=None, description=DOC_GPU_VND)
+    local_storage: Optional[str] = Field(default=None, description=DOC_LOC_STO)
 
     @root_validator
-    def check_gpu_values(cls, values: Dict[str, Any]):
+    def check_gpu_values(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """If *num GPUs* is 0, then *gpu model* and *gpu vendor* must be none."""
         if values.get("gpus") == 0:
             assert not values.get(
                 "gpu_model"
@@ -47,8 +88,22 @@ class FlavorCreate(BaseNodeCreate, FlavorBase):
     Class without id (which is populated by the database).
     Expected as input when performing a POST request.
 
-    Validation: If *num GPUs* is 0, then *gpu model*
-    and *gpu vendor* must be none.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider
+        disk (int): Reserved disk size (GiB)
+        is_public (bool): Public or private Flavor.
+        ram (int): Reserved RAM (MiB)
+        vcpus (int): Number of Virtual CPUs.
+        swap (int): Swap size (GiB).
+        ephemeral (int): Ephemeral disk size (GiB).
+        infiniband (bool): MPI - parallel multi-process enabled.
+        gpus (int): Number of GPUs.
+        gpu_model (str | None): GPU model name.
+        gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
     """
 
 
@@ -58,34 +113,73 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        name (str | None): Flavor name in the Provider.
+        uuid (str | None): Flavor unique ID in the Provider
+        disk (int | None): Reserved disk size (GiB)
+        is_public (bool | None): Public or private Flavor.
+        ram (int | None): Reserved RAM (MiB)
+        vcpus (int | None): Number of Virtual CPUs.
+        swap (int | None): Swap size (GiB).
+        ephemeral (int | None): Ephemeral disk size (GiB).
+        infiniband (bool | None): MPI - parallel multi-process enabled.
+        gpus (int | None): Number of GPUs.
+        gpu_model (str | None): GPU model name.
+        gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
     """
 
-    name: Optional[str] = Field(
-        default=None, description="Flavor name in the provider."
-    )
-    uuid: Optional[str] = Field(
-        default=None, description="Flavor UUID in the provider."
-    )
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
+
+
+class FlavorReadPublic(BaseNodeRead, FlavorBasePublic):
+    """Model, for non-authenticated users, to read Flavor data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Flavor unique ID.
+        description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider
+    """
 
 
 class FlavorRead(BaseNodeRead, FlavorBase):
-    """Model, for authenticated users, to read all Flavor data retrieved from DB.
+    """Model, for authenticated users, to read Flavor data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Flavor unique ID.
+        description (str): Brief description.
+        name (str): Flavor name in the Provider.
+        uuid (str): Flavor unique ID in the Provider
+        disk (int): Reserved disk size (GiB)
+        is_public (bool): Public or private Flavor.
+        ram (int): Reserved RAM (MiB)
+        vcpus (int): Number of Virtual CPUs.
+        swap (int): Swap size (GiB).
+        ephemeral (int): Ephemeral disk size (GiB).
+        infiniband (bool): MPI - parallel multi-process enabled.
+        gpus (int): Number of GPUs.
+        gpu_model (str | None): GPU model name.
+        gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
     """
-
-
-class FlavorReadPublic(BaseNodeRead, FlavorBase):
-    pass
-
-
-class FlavorReadShort(BaseNodeRead, FlavorBase):
-    pass
 
 
 FlavorQuery = create_query_model("FlavorQuery", FlavorBase)

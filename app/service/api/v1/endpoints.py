@@ -1,10 +1,18 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, security
 
 # from app.identity_provider.crud import identity_provider
 # from app.identity_provider.schemas import (
@@ -43,22 +51,18 @@ from app.service.schemas import (
     BlockStorageServiceQuery,
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
-    BlockStorageServiceReadShort,
     BlockStorageServiceUpdate,
     ComputeServiceQuery,
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    ComputeServiceReadShort,
     ComputeServiceUpdate,
     IdentityServiceQuery,
     IdentityServiceRead,
     IdentityServiceReadPublic,
-    IdentityServiceReadShort,
     IdentityServiceUpdate,
     NetworkServiceQuery,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    NetworkServiceReadShort,
     NetworkServiceUpdate,
 )
 from app.service.schemas_extended import (
@@ -81,7 +85,6 @@ bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_ser
     response_model=Union[
         List[BlockStorageServiceReadExtended],
         List[BlockStorageServiceRead],
-        List[BlockStorageServiceReadShort],
         List[BlockStorageServiceReadExtendedPublic],
         List[BlockStorageServiceReadPublic],
     ],
@@ -90,21 +93,20 @@ bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_ser
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_block_storage_services(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageServiceQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = block_storage_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = block_storage_service.paginate(items=items, page=page.page, size=page.size)
     return block_storage_service.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -114,7 +116,6 @@ def get_block_storage_services(
     response_model=Union[
         BlockStorageServiceReadExtended,
         BlockStorageServiceRead,
-        BlockStorageServiceReadShort,
         BlockStorageServiceReadExtendedPublic,
         BlockStorageServiceReadPublic,
     ],
@@ -123,15 +124,14 @@ def get_block_storage_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_block_storage_service(
     size: SchemaSize = Depends(),
     item: BlockStorageService = Depends(valid_block_storage_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return block_storage_service.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -159,7 +159,7 @@ def put_block_storage_service(
     update_data: BlockStorageServiceUpdate,
     response: Response,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = block_storage_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -184,7 +184,7 @@ def put_block_storage_service(
 def delete_block_storage_services(
     request: Request,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not block_storage_service.remove(db_obj=item):
         raise HTTPException(
@@ -202,7 +202,6 @@ c_router = APIRouter(prefix="/compute_services", tags=["compute_services"])
     response_model=Union[
         List[ComputeServiceReadExtended],
         List[ComputeServiceRead],
-        List[ComputeServiceReadShort],
         List[ComputeServiceReadExtendedPublic],
         List[ComputeServiceReadPublic],
     ],
@@ -211,21 +210,20 @@ c_router = APIRouter(prefix="/compute_services", tags=["compute_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_compute_services(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeServiceQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = compute_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = compute_service.paginate(items=items, page=page.page, size=page.size)
     return compute_service.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -235,7 +233,6 @@ def get_compute_services(
     response_model=Union[
         ComputeServiceReadExtended,
         ComputeServiceRead,
-        ComputeServiceReadShort,
         ComputeServiceReadExtendedPublic,
         ComputeServiceReadPublic,
     ],
@@ -244,15 +241,14 @@ def get_compute_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_compute_service(
     size: SchemaSize = Depends(),
     item: ComputeService = Depends(valid_compute_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return compute_service.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -280,7 +276,7 @@ def put_compute_service(
     update_data: ComputeServiceUpdate,
     response: Response,
     item: ComputeService = Depends(valid_compute_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = compute_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -305,7 +301,7 @@ def put_compute_service(
 def delete_compute_services(
     request: Request,
     item: ComputeService = Depends(valid_compute_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not compute_service.remove(db_obj=item):
         raise HTTPException(
@@ -323,7 +319,6 @@ i_router = APIRouter(prefix="/identity_services", tags=["identity_services"])
     response_model=Union[
         List[IdentityServiceReadExtended],
         List[IdentityServiceRead],
-        List[IdentityServiceReadShort],
         List[IdentityServiceReadExtendedPublic],
         List[IdentityServiceReadPublic],
     ],
@@ -332,21 +327,20 @@ i_router = APIRouter(prefix="/identity_services", tags=["identity_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_identity_services(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: IdentityServiceQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = identity_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = identity_service.paginate(items=items, page=page.page, size=page.size)
     return identity_service.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -356,7 +350,6 @@ def get_identity_services(
     response_model=Union[
         IdentityServiceReadExtended,
         IdentityServiceRead,
-        IdentityServiceReadShort,
         IdentityServiceReadExtendedPublic,
         IdentityServiceReadPublic,
     ],
@@ -365,15 +358,14 @@ def get_identity_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_identity_service(
     size: SchemaSize = Depends(),
     item: IdentityService = Depends(valid_identity_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return identity_service.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -401,7 +393,7 @@ def put_identity_service(
     update_data: IdentityServiceUpdate,
     response: Response,
     item: IdentityService = Depends(valid_identity_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = identity_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -426,7 +418,7 @@ def put_identity_service(
 def delete_identity_services(
     request: Request,
     item: IdentityService = Depends(valid_identity_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not identity_service.remove(db_obj=item):
         raise HTTPException(
@@ -444,7 +436,6 @@ n_router = APIRouter(prefix="/network_services", tags=["network_services"])
     response_model=Union[
         List[NetworkServiceReadExtended],
         List[NetworkServiceRead],
-        List[NetworkServiceReadShort],
         List[NetworkServiceReadExtendedPublic],
         List[NetworkServiceReadPublic],
     ],
@@ -453,21 +444,20 @@ n_router = APIRouter(prefix="/network_services", tags=["network_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_network_services(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkServiceQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = network_service.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = network_service.paginate(items=items, page=page.page, size=page.size)
     return network_service.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -477,7 +467,6 @@ def get_network_services(
     response_model=Union[
         NetworkServiceReadExtended,
         NetworkServiceRead,
-        NetworkServiceReadShort,
         NetworkServiceReadExtendedPublic,
         NetworkServiceReadPublic,
     ],
@@ -486,15 +475,14 @@ def get_network_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_network_service(
     size: SchemaSize = Depends(),
     item: NetworkService = Depends(valid_network_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return network_service.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -522,7 +510,7 @@ def put_network_service(
     update_data: NetworkServiceUpdate,
     response: Response,
     item: NetworkService = Depends(valid_network_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = network_service.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -547,7 +535,7 @@ def put_network_service(
 def delete_network_services(
     request: Request,
     item: NetworkService = Depends(valid_network_service_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not network_service.remove(db_obj=item):
         raise HTTPException(
@@ -579,5 +567,5 @@ def delete_network_services(
 # ):
 #     items = item.provider.single().identity_providers.all()
 #     return identity_provider.choose_out_schema(
-#         items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#         items=items, auth=user_infos,  with_conn=size.with_conn
 #     )

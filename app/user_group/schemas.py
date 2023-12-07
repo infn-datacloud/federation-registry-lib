@@ -1,15 +1,33 @@
+"""Pydantic models of the User Group owned by an Identity Provider."""
 from typing import Optional
 
 from pydantic import Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from app.user_group.constants import DOC_NAME
 
 
-class UserGroupBase(BaseNode):
-    """Model with User Group basic attributes."""
+class UserGroupBasePublic(BaseNode):
+    """Model with User Group public attributes.
 
-    name: str = Field(description="User group name.")
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): User Group name in the Identity Provider.
+    """
+
+    name: str = Field(description=DOC_NAME)
+
+
+class UserGroupBase(UserGroupBasePublic):
+    """Model with User Group public and restricted attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): User Group name in the Identity Provider.
+    """
 
 
 class UserGroupCreate(BaseNodeCreate, UserGroupBase):
@@ -18,8 +36,10 @@ class UserGroupCreate(BaseNodeCreate, UserGroupBase):
     Class without id (which is populated by the database).
     Expected as input when performing a POST request.
 
-    Validation: If *num GPUs* is 0, then *gpu model*
-    and *gpu vendor* must be none.
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): User Group name in the Identity Provider.
     """
 
 
@@ -29,29 +49,48 @@ class UserGroupUpdate(BaseNodeCreate, UserGroupBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        name (str | None): User Group name in the Identity Provider.
     """
 
-    name: Optional[str] = Field(default=None, description="User group name.")
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+
+
+class UserGroupReadPublic(BaseNodeRead, UserGroupBasePublic):
+    """Model, for non-authenticated users, to read UserGroup data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): UserGroup unique ID.
+        description (str): Brief description.
+        name (str): UserGroup name in the Provider.
+        uuid (str): UserGroup unique ID in the Provider
+    """
 
 
 class UserGroupRead(BaseNodeRead, UserGroupBase):
-    """Model to read User Group data retrieved from DB.
+    """Model, for authenticated users, to read UserGroup data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): User Group unique ID.
+        description (str): Brief description.
+        name (str): User Group name in the Identity Provider.
     """
-
-
-class UserGroupReadPublic(BaseNodeRead, UserGroupBase):
-    pass
-
-
-class UserGroupReadShort(BaseNodeRead, UserGroupBase):
-    pass
 
 
 UserGroupQuery = create_query_model("UserGroupQuery", UserGroupBase)

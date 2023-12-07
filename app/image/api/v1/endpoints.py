@@ -1,10 +1,18 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, security
 from app.image.api.dependencies import (
     valid_image_id,
     validate_new_image_values,
@@ -15,7 +23,6 @@ from app.image.schemas import (
     ImageQuery,
     ImageRead,
     ImageReadPublic,
-    ImageReadShort,
     ImageUpdate,
 )
 from app.image.schemas_extended import (
@@ -33,7 +40,6 @@ router = APIRouter(prefix="/images", tags=["images"])
     response_model=Union[
         List[ImageReadExtended],
         List[ImageRead],
-        List[ImageReadShort],
         List[ImageReadExtendedPublic],
         List[ImageReadPublic],
     ],
@@ -42,21 +48,20 @@ router = APIRouter(prefix="/images", tags=["images"])
         It is possible to filter on images attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_images(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ImageQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = image.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = image.paginate(items=items, page=page.page, size=page.size)
     return image.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -66,7 +71,6 @@ def get_images(
     response_model=Union[
         ImageReadExtended,
         ImageRead,
-        ImageReadShort,
         ImageReadExtendedPublic,
         ImageReadPublic,
     ],
@@ -75,15 +79,14 @@ def get_images(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_image(
     size: SchemaSize = Depends(),
     item: Image = Depends(valid_image_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return image.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -111,7 +114,7 @@ def put_image(
     update_data: ImageUpdate,
     response: Response,
     item: Image = Depends(valid_image_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = image.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -135,7 +138,7 @@ def put_image(
 def delete_images(
     request: Request,
     item: Image = Depends(valid_image_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not image.remove(db_obj=item):
         raise HTTPException(

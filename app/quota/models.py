@@ -1,3 +1,4 @@
+"""Neomodel models of the resource limitations for Projects on Services."""
 from neomodel import (
     BooleanProperty,
     IntegerProperty,
@@ -30,7 +31,7 @@ class Quota(StructuredNode):
     per_user = BooleanProperty(default=False)
 
     project = RelationshipFrom(
-        "..project.models.Project", "USE_SERVICE_WITH", cardinality=One
+        "app.project.models.Project", "USE_SERVICE_WITH", cardinality=One
     )
 
 
@@ -41,9 +42,14 @@ class BlockStorageQuota(Quota):
 
     Attributes:
     ----------
-        gigabytes (int): Number of max usable gigabytes (GiB).
-        per_volume_gigabytes (int): Number of max usable gigabytes per volume (GiB).
-        volumes (int): Number of max volumes a user group can create.
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
     """
 
     gigabytes = IntegerProperty()
@@ -51,7 +57,7 @@ class BlockStorageQuota(Quota):
     volumes = IntegerProperty()
 
     service = RelationshipTo(
-        "..service.models.BlockStorageService", "APPLY_TO", cardinality=One
+        "app.service.models.BlockStorageService", "APPLY_TO", cardinality=One
     )
 
 
@@ -62,9 +68,13 @@ class ComputeQuota(Quota):
 
     Attributes:
     ----------
-        cores (int): Number of max usable cores.
-        instance (int): Number of max VM instances.
-        ram (int): Number of max usable RAM (MiB).
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        cores (int | None): Number of max usable cores.
+        instance (int | None): Number of max VM instances.
+        ram (int | None): Number of max usable RAM (MiB).
     """
 
     cores = IntegerProperty()
@@ -72,7 +82,7 @@ class ComputeQuota(Quota):
     ram = IntegerProperty()
 
     service = RelationshipTo(
-        "..service.models.ComputeService", "APPLY_TO", cardinality=One
+        "app.service.models.ComputeService", "APPLY_TO", cardinality=One
     )
 
 
@@ -83,12 +93,18 @@ class NetworkQuota(Quota):
 
     Attributes:
     ----------
-        public_ips (int): The number of floating IP addresses allowed for each project.
-        networks (int): The number of networks allowed for each project.
-        port (int): The number of ports allowed for each project.
-        security_groups (int): The number of security groups allowed for each project.
-        security_group_rules (int): The number of security group rules allowed for each
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        public_ips (int | None): The number of floating IP addresses allowed for each
             project.
+        networks (int | None): The number of networks allowed for each project.
+        port (int | None): The number of ports allowed for each project.
+        security_groups (int | None): The number of security groups allowed for each
+            project.
+        security_group_rules (int | None): The number of security group rules allowed
+            for each project.
     """
 
     public_ips = IntegerProperty()
@@ -98,5 +114,5 @@ class NetworkQuota(Quota):
     security_group_rules = IntegerProperty()
 
     service = RelationshipTo(
-        "..service.models.NetworkService", "APPLY_TO", cardinality=One
+        "app.service.models.NetworkService", "APPLY_TO", cardinality=One
     )

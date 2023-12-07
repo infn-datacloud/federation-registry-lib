@@ -1,16 +1,36 @@
+"""Pydantic models of the Project owned by a Provider."""
 from typing import Optional
 
 from pydantic import Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from app.project.constants import DOC_NAME, DOC_UUID
 from app.query import create_query_model
 
 
-class ProjectBase(BaseNode):
-    """Model with Project basic attributes."""
+class ProjectBasePublic(BaseNode):
+    """Model with Project public attributes.
 
-    name: str = Field(description="Project name in the provider.")
-    uuid: str = Field(description="Project UUID in the provider.")
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Project name in the Provider.
+        uuid (str): Project unique ID in the Provider
+    """
+
+    name: str = Field(description=DOC_NAME)
+    uuid: str = Field(description=DOC_UUID)
+
+
+class ProjectBase(ProjectBasePublic):
+    """Model with Project public and restricted attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Project name in the Provider.
+        uuid (str): Project unique ID in the Provider
+    """
 
 
 class ProjectCreate(BaseNodeCreate, ProjectBase):
@@ -18,6 +38,12 @@ class ProjectCreate(BaseNodeCreate, ProjectBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Project name in the Provider.
+        uuid (str): Project unique ID in the Provider
     """
 
 
@@ -27,34 +53,51 @@ class ProjectUpdate(BaseNodeCreate, ProjectBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        name (str | None): Project name in the Provider.
+        uuid (str | None): Project unique ID in the Provider
     """
 
-    name: Optional[str] = Field(
-        default=None, description="Project name in the provider."
-    )
-    uuid: Optional[str] = Field(
-        default=None, description="Project UUID in the provider."
-    )
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
+
+
+class ProjectReadPublic(BaseNodeRead, ProjectBasePublic):
+    """Model, for non-authenticated users, to read Project data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Project unique ID.
+        description (str): Brief description.
+        name (str): Project name in the Provider.
+        uuid (str): Project unique ID in the Provider
+    """
 
 
 class ProjectRead(BaseNodeRead, ProjectBase):
-    """Model to read Project data retrieved from DB.
+    """Model, for authenticated users, to read Project data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (uuid): AssociatedProject unique ID.
+        description (str): Brief description.
+        name (str): Project name in the Provider.
+        uuid (str): Project unique ID in the Provider
     """
-
-
-class ProjectReadPublic(BaseNodeRead, ProjectBase):
-    pass
-
-
-class ProjectReadShort(BaseNodeRead, ProjectBase):
-    pass
 
 
 ProjectQuery = create_query_model("ProjectQuery", ProjectBase)

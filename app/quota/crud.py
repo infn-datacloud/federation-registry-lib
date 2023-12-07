@@ -1,3 +1,4 @@
+"""Module with Create, Read, Update and Delete operations for a Quotas."""
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
@@ -12,17 +13,14 @@ from app.quota.schemas import (
     BlockStorageQuotaCreate,
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
-    BlockStorageQuotaReadShort,
     BlockStorageQuotaUpdate,
     ComputeQuotaCreate,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
-    ComputeQuotaReadShort,
     ComputeQuotaUpdate,
     NetworkQuotaCreate,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    NetworkQuotaReadShort,
     NetworkQuotaUpdate,
 )
 from app.quota.schemas_extended import (
@@ -43,7 +41,6 @@ class CRUDBlockStorageQuota(
         BlockStorageQuotaUpdate,
         BlockStorageQuotaRead,
         BlockStorageQuotaReadPublic,
-        BlockStorageQuotaReadShort,
         BlockStorageQuotaReadExtended,
         BlockStorageQuotaReadExtendedPublic,
     ]
@@ -105,7 +102,6 @@ class CRUDComputeQuota(
         ComputeQuotaUpdate,
         ComputeQuotaRead,
         ComputeQuotaReadPublic,
-        ComputeQuotaReadShort,
         ComputeQuotaReadExtended,
         ComputeQuotaReadExtendedPublic,
     ]
@@ -167,7 +163,6 @@ class CRUDNetworkQuota(
         NetworkQuotaUpdate,
         NetworkQuotaRead,
         NetworkQuotaReadPublic,
-        NetworkQuotaReadShort,
         NetworkQuotaReadExtended,
         NetworkQuotaReadExtendedPublic,
     ]
@@ -227,7 +222,6 @@ block_storage_quota = CRUDBlockStorageQuota(
     create_schema=BlockStorageQuotaCreate,
     read_schema=BlockStorageQuotaRead,
     read_public_schema=BlockStorageQuotaReadPublic,
-    read_short_schema=BlockStorageQuotaReadShort,
     read_extended_schema=BlockStorageQuotaReadExtended,
     read_extended_public_schema=BlockStorageQuotaReadExtendedPublic,
 )
@@ -236,7 +230,6 @@ compute_quota = CRUDComputeQuota(
     create_schema=ComputeQuotaCreate,
     read_schema=ComputeQuotaRead,
     read_public_schema=ComputeQuotaReadPublic,
-    read_short_schema=ComputeQuotaReadShort,
     read_extended_schema=ComputeQuotaReadExtended,
     read_extended_public_schema=ComputeQuotaReadExtendedPublic,
 )
@@ -245,7 +238,6 @@ network_quota = CRUDNetworkQuota(
     create_schema=NetworkQuotaCreate,
     read_schema=NetworkQuotaRead,
     read_public_schema=NetworkQuotaReadPublic,
-    read_short_schema=NetworkQuotaReadShort,
     read_extended_schema=NetworkQuotaReadExtended,
     read_extended_public_schema=NetworkQuotaReadExtendedPublic,
 )

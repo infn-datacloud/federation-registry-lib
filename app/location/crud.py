@@ -1,10 +1,10 @@
+"""Module with Create, Read, Update and Delete operations for a Location."""
 from app.crud import CRUDBase
 from app.location.models import Location
 from app.location.schemas import (
     LocationCreate,
     LocationRead,
     LocationReadPublic,
-    LocationReadShort,
     LocationUpdate,
 )
 from app.location.schemas_extended import (
@@ -21,7 +21,6 @@ class CRUDLocation(
         LocationUpdate,
         LocationRead,
         LocationReadPublic,
-        LocationReadShort,
         LocationReadExtended,
         LocationReadExtendedPublic,
     ]
@@ -52,7 +51,6 @@ location = CRUDLocation(
     create_schema=LocationCreate,
     read_schema=LocationRead,
     read_public_schema=LocationReadPublic,
-    read_short_schema=LocationReadShort,
     read_extended_schema=LocationReadExtended,
     read_extended_public_schema=LocationReadExtendedPublic,
 )

@@ -1,9 +1,11 @@
-from typing import Optional
+"""Pydantic models of the Service supplied by a Provider on a specific Region."""
+from typing import Literal, Optional
 
 from pydantic import AnyHttpUrl, Field, validator
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from app.service.constants import DOC_ENDP, DOC_NAME
 from app.service.enum import (
     BlockStorageServiceName,
     ComputeServiceName,
@@ -14,73 +16,112 @@ from app.service.enum import (
 
 
 class ServiceBase(BaseNode):
-    """Model with Service basic attributes."""
+    """Model with Service common attributes.
 
-    endpoint: AnyHttpUrl = Field(description="URL of the IaaS service.")
-    type: ServiceType = Field(description="Service type.")
+    This model is used also as a public interface.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
+
+    endpoint: AnyHttpUrl = Field(description=DOC_ENDP)
 
 
 class BlockStorageServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for BlockStorage services.
+    """Model with the Block Storage Service public and restricted attributes.
 
-    Validation: type value is exactly ServiceType.openstack_nova.
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
 
     type: ServiceType = Field(
-        default=ServiceType.BLOCK_STORAGE, description="Service type."
+        default=ServiceType.BLOCK_STORAGE, description="Block Storage service type."
     )
-    name: BlockStorageServiceName = Field(description="Service name.")
+    name: BlockStorageServiceName = Field(description=DOC_NAME)
 
     @validator("type")
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[ServiceType.BLOCK_STORAGE]:
+        """Verify that the type value is exactly ServiceType.BLOCK_STORAGE."""
         if v != ServiceType.BLOCK_STORAGE:
             raise ValueError(f"Not valid type: {v}")
         return v
 
 
 class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageServiceBase):
-    """Model to create a BlockStorage Service.
+    """Model to create a Block Storage Service.
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
 
 
 class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
-    """Model to update a BlockStorage service.
+    """Model to update a Block Storage service.
 
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    name: Optional[BlockStorageServiceName] = Field(
-        default=None, description="Service name."
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[BlockStorageServiceName] = Field(default=None, description=DOC_NAME)
+
+
+class BlockStorageServiceReadPublic(BaseNodeRead, ServiceBase):
+    """Model, for non-authenticated users, to read Block Storage data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
 
 
 class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
-    """Model to read BlockStorage service data retrieved from DB.
+    """Model, for authenticated users, to read Block Storage data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
-
-
-class BlockStorageServiceReadPublic(BaseNodeRead, BlockStorageServiceBase):
-    pass
-
-
-class BlockStorageServiceReadShort(BaseNodeRead, BlockStorageServiceBase):
-    pass
 
 
 BlockStorageServiceQuery = create_query_model(
@@ -89,17 +130,26 @@ BlockStorageServiceQuery = create_query_model(
 
 
 class ComputeServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for Compute services.
+    """Model with the Compute Service public and restricted attributes.
 
-    Validation: type value is exactly ServiceType.openstack_nova.
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(default=ServiceType.COMPUTE, description="Service type.")
-    name: ComputeServiceName = Field(description="Service name.")
+    type: ServiceType = Field(
+        default=ServiceType.COMPUTE, description="Compute service type."
+    )
+    name: ComputeServiceName = Field(description=DOC_NAME)
 
     @validator("type")
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[ServiceType.COMPUTE]:
+        """Verify that the type value is exactly ServiceType.COMPUTE."""
         if v != ServiceType.COMPUTE:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -110,6 +160,13 @@ class ComputeServiceCreate(BaseNodeCreate, ComputeServiceBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -119,51 +176,78 @@ class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    name: Optional[ComputeServiceName] = Field(
-        default=None, description="Service name."
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[ComputeServiceName] = Field(default=None, description=DOC_NAME)
+
+
+class ComputeServiceReadPublic(BaseNodeRead, ServiceBase):
+    """Model, for non-authenticated users, to read Compute data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
 
 
 class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
-    """Model to read Compute service data retrieved from DB.
+    """Model, for authenticated users, to read Compute data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
-
-
-class ComputeServiceReadPublic(BaseNodeRead, ComputeServiceBase):
-    pass
-
-
-class ComputeServiceReadShort(BaseNodeRead, ComputeServiceBase):
-    pass
 
 
 ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeServiceBase)
 
 
 class IdentityServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for Identity services.
+    """Model with the Identity Service public and restricted attributes.
 
-    Validation: type value is exactly ServiceType.openstack_nova.
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(default=ServiceType.IDENTITY, description="Service type.")
-    name: IdentityServiceName = Field(description="Service name.")
+    type: ServiceType = Field(
+        default=ServiceType.IDENTITY, description="Identity service type."
+    )
+    name: IdentityServiceName = Field(description=DOC_NAME)
 
     @validator("type")
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[ServiceType.IDENTITY]:
+        """Verify that the type value is exactly ServiceType.IDENTITY."""
         if v != ServiceType.IDENTITY:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -174,6 +258,13 @@ class IdentityServiceCreate(BaseNodeCreate, IdentityServiceBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -183,51 +274,77 @@ class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    name: Optional[IdentityServiceName] = Field(
-        default=None, description="Service name."
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[IdentityServiceName] = Field(default=None, description=DOC_NAME)
+
+
+class IdentityServiceReadPublic(BaseNodeRead, ServiceBase):
+    """Model, for non-authenticated users, to read Identity data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
 
 
 class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
-    """Model to read Identity service data retrieved from DB.
+    """Model, for authenticated users, to read Identity data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
-
-
-class IdentityServiceReadPublic(BaseNodeRead, IdentityServiceBase):
-    pass
-
-
-class IdentityServiceReadShort(BaseNodeRead, IdentityServiceBase):
-    pass
 
 
 IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityServiceBase)
 
 
 class NetworkServiceBase(ServiceBase):
-    """Model derived from ServiceBase to inherit attributes common to all services. It
-    adds the basic attributes for Network services.
+    """Model with the Network Service public and restricted attributes.
 
-    Validation: type value is exactly ServiceType.openstack_nova.
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(default=ServiceType.NETWORK, description="Service type.")
-    name: NetworkServiceName = Field(description="Service name.")
+    type: ServiceType = Field(
+        default=ServiceType.NETWORK, description="Network service type."
+    )
+    name: NetworkServiceName = Field(description=DOC_NAME)
 
     @validator("type")
-    def check_type(cls, v):
+    def check_type(cls, v) -> Literal[ServiceType.NETWORK]:
+        """Verify that the type value is exactly ServiceType.NETWORK."""
         if v != ServiceType.NETWORK:
             raise ValueError(f"Not valid type: {v}")
         return v
@@ -238,6 +355,13 @@ class NetworkServiceCreate(BaseNodeCreate, NetworkServiceBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
 
 
@@ -247,34 +371,52 @@ class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(
-        default=None, description="URL of the IaaS service."
-    )
-    name: Optional[NetworkServiceName] = Field(
-        default=None, description="Service name."
-    )
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[NetworkServiceName] = Field(default=None, description=DOC_NAME)
+
+
+class NetworkServiceReadPublic(BaseNodeRead, ServiceBase):
+    """Model, for non-authenticated users, to read Network data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
 
 
 class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
-    """Model to read Network service data retrieved from DB.
+    """Model, for authenticated users, to read Network data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
     """
-
-
-class NetworkServiceReadPublic(BaseNodeRead, NetworkServiceBase):
-    pass
-
-
-class NetworkServiceReadShort(BaseNodeRead, NetworkServiceBase):
-    pass
 
 
 NetworkServiceQuery = create_query_model("NetworkServiceQuery", NetworkServiceBase)

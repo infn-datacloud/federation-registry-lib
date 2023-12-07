@@ -1,3 +1,4 @@
+"""Neomodel model of the Project owned by a Provider."""
 from typing import List
 
 from neomodel import (
@@ -42,32 +43,32 @@ class Project(StructuredNode):
     uuid = StringProperty(required=True)
 
     sla = RelationshipFrom(
-        "..sla.models.SLA",
+        "app.sla.models.SLA",
         "REFER_TO",
         cardinality=ZeroOrOne,
     )
     quotas = RelationshipTo(
-        "..quota.models.Quota",
+        "app.quota.models.Quota",
         "USE_SERVICE_WITH",
         cardinality=ZeroOrMore,
     )
     provider = RelationshipFrom(
-        "..provider.models.Provider",
+        "app.provider.models.Provider",
         "BOOK_PROJECT_FOR_SLA",
         cardinality=One,
     )
     private_flavors = RelationshipTo(
-        "..flavor.models.Flavor",
+        "app.flavor.models.Flavor",
         "CAN_USE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )
     private_images = RelationshipTo(
-        "..image.models.Image",
+        "app.image.models.Image",
         "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )
     private_networks = RelationshipTo(
-        "..network.models.Network",
+        "app.network.models.Network",
         "CAN_USE_NETWORK",
         cardinality=ZeroOrMore,
     )
@@ -79,6 +80,10 @@ class Project(StructuredNode):
         """
 
     def public_flavors(self) -> List[Flavor]:
+        """List public flavors this project can access.
+
+        Make a cypher query to retrieve all public flavors this project can access.
+        """
         results, _ = self.cypher(
             f"""
                 {self.query_prefix}
@@ -92,6 +97,10 @@ class Project(StructuredNode):
         return [Flavor.inflate(row[0]) for row in results]
 
     def public_images(self) -> List[Image]:
+        """List public images this project can access.
+
+        Make a cypher query to retrieve all public images this project can access.
+        """
         results, _ = self.cypher(
             f"""
                 {self.query_prefix}
@@ -105,6 +114,10 @@ class Project(StructuredNode):
         return [Image.inflate(row[0]) for row in results]
 
     def public_networks(self) -> List[Network]:
+        """List public networks this project can access.
+
+        Make a cypher query to retrieve all public networks this project can access.
+        """
         results, _ = self.cypher(
             f"""
                 {self.query_prefix}

@@ -90,7 +90,8 @@ class BaseAPI(
     ) -> Response:
         """Execute a GET operation to read an item from its UID.
 
-        Assert response is 200 and return jsonified data."""
+        Assert response is 200 and return jsonified data.
+        """
         target_uid = db_item.uid if db_item else uuid4()
         response = client.get(
             f"{self.api_v1}/{self.endpoint_group}/{target_uid}", params=params
@@ -123,7 +124,8 @@ class BaseAPI(
     ) -> Response:
         """Execute a GET operation to read an item from its UID.
 
-        Assert response is 200 and return jsonified data."""
+        Assert response is 200 and return jsonified data.
+        """
         if not db_items:
             db_items = []
 
@@ -211,7 +213,8 @@ class BaseAPI(
     ) -> Response:
         """Execute a DELETE operation to delete a specific item.
 
-        Delete the item using its UID."""
+        Delete the item using its UID.
+        """
         target_uid = db_item.uid if db_item else uuid4()
         response = client.delete(f"{self.api_v1}/{self.endpoint_group}/{target_uid}")
         if not db_item:

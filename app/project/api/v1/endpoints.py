@@ -1,10 +1,18 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, security
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
 # from app.flavor.crud import flavor
@@ -27,7 +35,6 @@ from app.project.schemas import (
     ProjectQuery,
     ProjectRead,
     ProjectReadPublic,
-    ProjectReadShort,
     ProjectUpdate,
 )
 from app.project.schemas_extended import (
@@ -46,7 +53,6 @@ router = APIRouter(prefix="/projects", tags=["projects"])
     response_model=Union[
         List[ProjectReadExtended],
         List[ProjectRead],
-        List[ProjectReadShort],
         List[ProjectReadExtendedPublic],
         List[ProjectReadPublic],
     ],
@@ -55,15 +61,14 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         It is possible to filter on projects attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_projects(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ProjectQuery = Depends(),
     region_name: Optional[str] = None,
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = project.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -72,7 +77,7 @@ def get_projects(
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=items, region_query=region_query)
     return project.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -82,7 +87,6 @@ def get_projects(
     response_model=Union[
         ProjectReadExtended,
         ProjectRead,
-        ProjectReadShort,
         ProjectReadExtendedPublic,
         ProjectReadPublic,
     ],
@@ -91,18 +95,17 @@ def get_projects(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_project(
     size: SchemaSize = Depends(),
     item: Project = Depends(valid_project_id),
     region_name: Optional[str] = None,
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=[item], region_query=region_query)
     items = project.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
     return items[0]
 
@@ -131,7 +134,7 @@ def put_project(
     update_data: ProjectUpdate,
     response: Response,
     item: Project = Depends(valid_project_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = project.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -156,7 +159,7 @@ def put_project(
 def delete_project(
     request: Request,
     item: Project = Depends(valid_project_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not project.remove(db_obj=item):
         raise HTTPException(
@@ -188,7 +191,7 @@ def delete_project(
 # ):
 #     items = item.private_flavors.all() + item.public_flavors()
 #     return flavor.choose_out_schema(
-#         items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#         items=items, auth=user_infos,  with_conn=size.with_conn
 #     )
 
 
@@ -261,7 +264,7 @@ def delete_project(
 # ):
 #     items = item.private_images.all() + item.public_images()
 #     return image.choose_out_schema(
-#         items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#         items=items, auth=user_infos,  with_conn=size.with_conn
 #     )
 
 

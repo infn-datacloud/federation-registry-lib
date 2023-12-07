@@ -1,3 +1,4 @@
+"""Neomodel model of the Resource Provider (openstack, kubernetesapp..)."""
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
@@ -12,7 +13,7 @@ from app.auth_method.models import AuthMethod
 
 
 class Provider(StructuredNode):
-    """Provider (openstack, kubernetes...).
+    """Provider (openstack, kubernetesapp..).
 
     A Provider has a name which could not be unique, providers with
     same name must have different type; for example a site
@@ -30,7 +31,7 @@ class Provider(StructuredNode):
         description (str): Brief description.
         name (str): Provider name.
         type (str): Provider type.
-        status (str): Provider status.
+        status (str | None): Provider status.
         is_public (bool): Public or private Provider.
         support_email (list of str): List of maintainers emails.
     """
@@ -44,15 +45,15 @@ class Provider(StructuredNode):
     support_emails = ArrayProperty(StringProperty())
 
     projects = RelationshipTo(
-        "..project.models.Project",
+        "app.project.models.Project",
         "BOOK_PROJECT_FOR_SLA",
         cardinality=ZeroOrMore,
     )
     regions = RelationshipTo(
-        "..region.models.Region", "DIVIDED_INTO", cardinality=ZeroOrMore
+        "app.region.models.Region", "DIVIDED_INTO", cardinality=ZeroOrMore
     )
     identity_providers = RelationshipTo(
-        "..identity_provider.models.IdentityProvider",
+        "app.identity_provider.models.IdentityProvider",
         "ALLOW_AUTH_THROUGH",
         cardinality=ZeroOrMore,
         model=AuthMethod,

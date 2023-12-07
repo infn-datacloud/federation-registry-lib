@@ -1,15 +1,18 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import (
-    check_read_access,
-    flaat,
-    lazy_security,
-    strict_security,
-)
+from app.auth import flaat, security
 from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderQuery
 
@@ -58,7 +61,6 @@ from app.user_group.schemas import (
     UserGroupQuery,
     UserGroupRead,
     UserGroupReadPublic,
-    UserGroupReadShort,
     UserGroupUpdate,
 )
 from app.user_group.schemas_extended import (
@@ -75,7 +77,6 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
     response_model=Union[
         List[UserGroupReadExtended],
         List[UserGroupRead],
-        List[UserGroupReadShort],
         List[UserGroupReadExtendedPublic],
         List[UserGroupReadPublic],
     ],
@@ -84,7 +85,7 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
         It is possible to filter on user groups attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_user_groups(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
@@ -94,8 +95,7 @@ def get_user_groups(
     provider_name: Optional[str] = None,
     provider_type: Optional[ProviderType] = None,
     region_name: Optional[str] = None,
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = user_group.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
@@ -115,7 +115,7 @@ def get_user_groups(
 
     items = user_group.paginate(items=items, page=page.page, size=page.size)
     return user_group.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -125,7 +125,6 @@ def get_user_groups(
     response_model=Union[
         UserGroupReadExtended,
         UserGroupRead,
-        UserGroupReadShort,
         UserGroupReadExtendedPublic,
         UserGroupReadPublic,
     ],
@@ -134,15 +133,14 @@ def get_user_groups(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_user_group(
     size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return user_group.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -169,7 +167,7 @@ def put_user_group(
     update_data: UserGroupUpdate,
     response: Response,
     item: UserGroup = Depends(valid_user_group_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = user_group.update(db_obj=item, obj_in=update_data)
     if not db_item:
@@ -192,7 +190,7 @@ def put_user_group(
 def delete_user_group(
     request: Request,
     item: UserGroup = Depends(valid_user_group_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not user_group.remove(db_obj=item):
         raise HTTPException(
@@ -223,7 +221,8 @@ def delete_user_group(
 #     item: UserGroup = Depends(valid_user_group_id),
 # ):
 #     return flavor.choose_out_schema(
-#         items=item.flavors(), auth=auth, short=size.short, with_conn=size.with_conn
+#         items=item.flavors(), auth=user_infos,
+# with_conn=size.with_conn
 #     )
 
 
@@ -249,7 +248,8 @@ def delete_user_group(
 #     item: UserGroup = Depends(valid_user_group_id),
 # ):
 #     return image.choose_out_schema(
-#         items=item.images(), auth=auth, short=size.short, with_conn=size.with_conn
+#         items=item.images(), auth=user_infos,
+# with_conn=size.with_conn
 #     )
 
 
@@ -275,7 +275,8 @@ def delete_user_group(
 #     item: UserGroup = Depends(valid_user_group_id),
 # ):
 #     return provider.choose_out_schema(
-#         items=item.providers(), auth=auth, short=size.short, with_conn=size.with_conn
+#         items=item.providers(), auth=user_infos,
+# with_conn=size.with_conn
 #     )
 
 
@@ -327,5 +328,5 @@ def delete_user_group(
 # ):
 #    items = item.services(**srv.dict(exclude_none=True))
 #    return service.choose_out_schema(
-#        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+#        items=items, auth=user_infos,  with_conn=size.with_conn
 #    )

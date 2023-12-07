@@ -1,16 +1,11 @@
+"""Module with Create, Read, Update and Delete operations for an SLA."""
 from typing import List, Optional, Union
 
 from app.crud import CRUDBase
 from app.project.models import Project
 from app.provider.schemas_extended import SLACreateExtended
 from app.sla.models import SLA
-from app.sla.schemas import (
-    SLACreate,
-    SLARead,
-    SLAReadPublic,
-    SLAReadShort,
-    SLAUpdate,
-)
+from app.sla.schemas import SLACreate, SLARead, SLAReadPublic, SLAUpdate
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from app.user_group.models import UserGroup
 
@@ -22,7 +17,6 @@ class CRUDSLA(
         SLAUpdate,
         SLARead,
         SLAReadPublic,
-        SLAReadShort,
         SLAReadExtended,
         SLAReadExtendedPublic,
     ]
@@ -94,7 +88,6 @@ sla = CRUDSLA(
     create_schema=SLACreate,
     read_schema=SLARead,
     read_public_schema=SLAReadPublic,
-    read_short_schema=SLAReadShort,
     read_extended_schema=SLAReadExtended,
     read_extended_public_schema=SLAReadExtendedPublic,
 )

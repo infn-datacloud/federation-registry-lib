@@ -1,15 +1,33 @@
+"""Pydantic models of the Region owned by a Provider."""
 from typing import Optional
 
 from pydantic import Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
+from app.region.constants import DOC_NAME
 
 
-class RegionBase(BaseNode):
-    """Model with Region basic attributes."""
+class RegionBasePublic(BaseNode):
+    """Model with Region public attributes.
 
-    name: str = Field(description="Region name in the provider.")
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Region name in the Provider.
+    """
+
+    name: str = Field(description=DOC_NAME)
+
+
+class RegionBase(RegionBasePublic):
+    """Model with Region public and restricted attributes.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Region name in the Provider.
+    """
 
 
 class RegionCreate(BaseNodeCreate, RegionBase):
@@ -17,6 +35,11 @@ class RegionCreate(BaseNodeCreate, RegionBase):
 
     Class without id (which is populated by the database). Expected as input when
     performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Region name in the Provider.
     """
 
 
@@ -26,31 +49,47 @@ class RegionUpdate(BaseNodeCreate, RegionBase):
     Class without id (which is populated by the database). Expected as input when
     performing a PUT request.
 
-    Default to None mandatory attributes.
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        name (str | None): Region name in the Provider.
     """
 
-    name: Optional[str] = Field(
-        default=None, description="Region name in the provider."
-    )
+    name: Optional[str] = Field(default=None, description=DOC_NAME)
+
+
+class RegionReadPublic(BaseNodeRead, RegionBasePublic):
+    """Model, for non-authenticated users, to read Region data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Region unique ID.
+        description (str): Brief description.
+        name (str): Region name in the Provider.
+    """
 
 
 class RegionRead(BaseNodeRead, RegionBase):
-    """Model to read Region data retrieved from DB.
+    """Model, for authenticated users, to read Region data from DB.
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non- sensible data written in the
-    database.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
     Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Region name in the Provider.
     """
-
-
-class RegionReadPublic(BaseNodeRead, RegionBase):
-    pass
-
-
-class RegionReadShort(BaseNodeRead, RegionBase):
-    pass
 
 
 RegionQuery = create_query_model("RegionQuery", RegionBase)

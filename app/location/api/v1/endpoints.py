@@ -1,10 +1,18 @@
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    Security,
+    status,
+)
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import check_read_access, flaat, lazy_security, strict_security
+from app.auth import flaat, security
 from app.location.api.dependencies import (
     valid_location_id,
     validate_new_location_values,
@@ -15,7 +23,6 @@ from app.location.schemas import (
     LocationQuery,
     LocationRead,
     LocationReadPublic,
-    LocationReadShort,
     LocationUpdate,
 )
 from app.location.schemas_extended import (
@@ -36,7 +43,6 @@ router = APIRouter(prefix="/locations", tags=["locations"])
     response_model=Union[
         List[LocationReadExtended],
         List[LocationRead],
-        List[LocationReadShort],
         List[LocationReadExtendedPublic],
         List[LocationReadPublic],
     ],
@@ -45,21 +51,20 @@ router = APIRouter(prefix="/locations", tags=["locations"])
         It is possible to filter on locations attributes and other \
         common query parameters.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_locations(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: LocationQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     items = location.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     items = location.paginate(items=items, page=page.page, size=page.size)
     return location.choose_out_schema(
-        items=items, auth=auth, short=size.short, with_conn=size.with_conn
+        items=items, auth=user_infos, with_conn=size.with_conn
     )
 
 
@@ -69,7 +74,6 @@ def get_locations(
     response_model=Union[
         LocationReadExtended,
         LocationRead,
-        LocationReadShort,
         LocationReadExtendedPublic,
         LocationReadPublic,
     ],
@@ -78,15 +82,14 @@ def get_locations(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@check_read_access
+@flaat.inject_user_infos(strict=False)
 def get_location(
     size: SchemaSize = Depends(),
     item: Location = Depends(valid_location_id),
-    client_credentials: HTTPBasicCredentials = Depends(lazy_security),
-    auth: bool = False,
+    user_infos: Optional[Any] = None,
 ):
     return location.choose_out_schema(
-        items=[item], auth=auth, short=size.short, with_conn=size.with_conn
+        items=[item], auth=user_infos, with_conn=size.with_conn
     )[0]
 
 
@@ -137,7 +140,7 @@ def put_location(
 def delete_location(
     request: Request,
     item: Location = Depends(valid_location_id),
-    client_credentials: HTTPBasicCredentials = Depends(strict_security),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     if not location.remove(db_obj=item):
         raise HTTPException(

@@ -1,4 +1,5 @@
-from typing import List, Optional, Union
+"""Module with Create, Read, Update and Delete operations for a Services."""
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from app.crud import CRUDBase
 from app.flavor.crud import flavor
@@ -22,22 +23,18 @@ from app.service.schemas import (
     BlockStorageServiceCreate,
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
-    BlockStorageServiceReadShort,
     BlockStorageServiceUpdate,
     ComputeServiceCreate,
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    ComputeServiceReadShort,
     ComputeServiceUpdate,
     IdentityServiceCreate,
     IdentityServiceRead,
     IdentityServiceReadPublic,
-    IdentityServiceReadShort,
     IdentityServiceUpdate,
     NetworkServiceCreate,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    NetworkServiceReadShort,
     NetworkServiceUpdate,
 )
 from app.service.schemas_extended import (
@@ -52,6 +49,19 @@ from app.service.schemas_extended import (
 )
 
 
+def split_quota(quotas: List[Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """Split quotas in total and per-users"""
+    db_items_per_user = {
+        db_item.project.single().uuid: db_item
+        for db_item in filter(lambda x: x.per_user, quotas)
+    }
+    db_items_total = {
+        db_item.project.single().uuid: db_item
+        for db_item in filter(lambda x: not x.per_user, quotas)
+    }
+    return (db_items_per_user, db_items_total)
+
+
 class CRUDBlockStorageService(
     CRUDBase[
         BlockStorageService,
@@ -59,7 +69,6 @@ class CRUDBlockStorageService(
         BlockStorageServiceUpdate,
         BlockStorageServiceRead,
         BlockStorageServiceReadPublic,
-        BlockStorageServiceReadShort,
         BlockStorageServiceReadExtended,
         BlockStorageServiceReadExtendedPublic,
     ]
@@ -144,14 +153,7 @@ class CRUDBlockStorageService(
         """
         edit = False
 
-        db_items_per_user = {
-            db_item.project.single().uuid: db_item
-            for db_item in filter(lambda x: x.per_user, db_obj.quotas)
-        }
-        db_items_total = {
-            db_item.project.single().uuid: db_item
-            for db_item in filter(lambda x: not x.per_user, db_obj.quotas)
-        }
+        db_items_per_user, db_items_total = split_quota(db_obj.quotas)
         db_projects = {db_item.uuid: db_item for db_item in provider_projects}
 
         for item in obj_in.quotas:
@@ -209,7 +211,6 @@ class CRUDComputeService(
         ComputeServiceUpdate,
         ComputeServiceRead,
         ComputeServiceReadPublic,
-        ComputeServiceReadShort,
         ComputeServiceReadExtended,
         ComputeServiceReadExtendedPublic,
     ]
@@ -388,14 +389,7 @@ class CRUDComputeService(
         """
         edit = False
 
-        db_items_per_user = {
-            db_item.project.single().uuid: db_item
-            for db_item in filter(lambda x: x.per_user, db_obj.quotas)
-        }
-        db_items_total = {
-            db_item.project.single().uuid: db_item
-            for db_item in filter(lambda x: not x.per_user, db_obj.quotas)
-        }
+        db_items_per_user, db_items_total = split_quota(db_obj.quotas)
         db_projects = {db_item.uuid: db_item for db_item in provider_projects}
 
         for item in obj_in.quotas:
@@ -453,7 +447,6 @@ class CRUDIdentityService(
         IdentityServiceUpdate,
         IdentityServiceRead,
         IdentityServiceReadPublic,
-        IdentityServiceReadShort,
         IdentityServiceReadExtended,
         IdentityServiceReadExtendedPublic,
     ]
@@ -479,7 +472,6 @@ class CRUDNetworkService(
         NetworkServiceUpdate,
         NetworkServiceRead,
         NetworkServiceReadPublic,
-        NetworkServiceReadShort,
         NetworkServiceReadExtended,
         NetworkServiceReadExtendedPublic,
     ]
@@ -612,14 +604,7 @@ class CRUDNetworkService(
         """
         edit = False
 
-        db_items_per_user = {
-            db_item.project.single().uuid: db_item
-            for db_item in filter(lambda x: x.per_user, db_obj.quotas)
-        }
-        db_items_total = {
-            db_item.project.single().uuid: db_item
-            for db_item in filter(lambda x: not x.per_user, db_obj.quotas)
-        }
+        db_items_per_user, db_items_total = split_quota(db_obj.quotas)
         db_projects = {db_item.uuid: db_item for db_item in provider_projects}
 
         for item in obj_in.quotas:
@@ -675,7 +660,6 @@ compute_service = CRUDComputeService(
     create_schema=ComputeServiceCreate,
     read_schema=ComputeServiceRead,
     read_public_schema=ComputeServiceReadPublic,
-    read_short_schema=ComputeServiceReadShort,
     read_extended_schema=ComputeServiceReadExtended,
     read_extended_public_schema=ComputeServiceReadExtendedPublic,
 )
@@ -684,7 +668,6 @@ block_storage_service = CRUDBlockStorageService(
     create_schema=BlockStorageServiceCreate,
     read_schema=BlockStorageServiceRead,
     read_public_schema=BlockStorageServiceReadPublic,
-    read_short_schema=BlockStorageServiceReadShort,
     read_extended_schema=BlockStorageServiceReadExtended,
     read_extended_public_schema=BlockStorageServiceReadExtendedPublic,
 )
@@ -693,7 +676,6 @@ identity_service = CRUDIdentityService(
     create_schema=IdentityServiceCreate,
     read_schema=IdentityServiceRead,
     read_public_schema=IdentityServiceReadPublic,
-    read_short_schema=IdentityServiceReadShort,
     read_extended_schema=IdentityServiceReadExtended,
     read_extended_public_schema=IdentityServiceReadExtendedPublic,
 )
@@ -702,7 +684,6 @@ network_service = CRUDNetworkService(
     create_schema=NetworkServiceCreate,
     read_schema=NetworkServiceRead,
     read_public_schema=NetworkServiceReadPublic,
-    read_short_schema=NetworkServiceReadShort,
     read_extended_schema=NetworkServiceReadExtended,
     read_extended_public_schema=NetworkServiceReadExtendedPublic,
 )
