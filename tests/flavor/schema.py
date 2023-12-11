@@ -16,7 +16,6 @@ from app.flavor.schemas import (
 )
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.provider.schemas_extended import FlavorCreateExtended
-from tests.flavor.core import Core
 from tests.utils.utils import random_lower_string
 
 is_public = {True, False}
@@ -32,62 +31,69 @@ invalid_key_values = {
     ("gpu_model", random_lower_string()),  # gpus is 0
     ("gpu_vendor", random_lower_string()),  # gpus is 0
 }
+relationships_num = {0, 1, 2}
 
 
-class ValidData(Core):
+class ValidCreateData:
     """Valid data for create schemas."""
 
     @parametrize("is_public", is_public)
-    def case_valid_data(self, is_public: bool) -> Dict[str, Any]:
-        """Valid set of Flavor attributes and relationships."""
-        kwargs = {**self.all_kwargs}
-        kwargs["is_public"] = is_public
-        if not is_public:
-            kwargs["projects"] = [uuid4()]
-        return kwargs
-
-    @parametrize("is_public", is_public)
-    def case_valid_data_default(self, is_public: bool) -> Dict[str, Any]:
+    def case_valid_data_default(
+        self, is_public: bool, data_mandatory: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Valid set of Flavor mandatory attributes and relationships."""
-        kwargs = {**self.mandatory_kwargs}
+        kwargs = {**data_mandatory}
         if not is_public:
             kwargs["is_public"] = is_public
             kwargs["projects"] = [uuid4()]
         return kwargs
 
+    def case_valid_data(self, data_all: Dict[str, Any]) -> Dict[str, Any]:
+        """Valid set of Flavor attributes and relationships."""
+        kwargs = {**data_all}
+        if not kwargs["is_public"]:
+            kwargs["projects"] = [uuid4()]
+        return kwargs
 
-class InvalidData(Core):
+
+class InvalidCreateData:
     """Invalid data for create schemas."""
 
     @parametrize("k, v", invalid_key_values)
-    def case_invalid_key_values(self, k: str, v: Any) -> Dict[str, Any]:
+    def case_invalid_key_values(
+        self, k: str, v: Any, data_mandatory: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Invalid set of Flavor attributes."""
-        kwargs = {**self.mandatory_kwargs}
+        kwargs = {**data_mandatory}
         kwargs[k] = v
         return kwargs
 
     @parametrize("is_public", is_public)
-    def case_invalid_projects_list_size(self, is_public: bool) -> Dict[str, Any]:
+    def case_invalid_projects_list_size(
+        self, is_public: bool, data_mandatory: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Invalid project list size.
 
         Invalid cases: If flavor is marked as public, the list has at least one element,
         if private, the list has no items.
         """
-        kwargs = {**self.mandatory_kwargs}
+        kwargs = {**data_mandatory}
         kwargs["is_public"] = is_public
         kwargs["projects"] = None if not is_public else [uuid4()]
         return kwargs
 
-    def case_duplicated_projects(self) -> Dict[str, Any]:
+    def case_duplicated_projects(
+        self, data_mandatory: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Invalid case: the project list has duplicate values."""
         project_uuid = uuid4()
-        kwargs = {**self.mandatory_kwargs}
+        kwargs = {**data_mandatory}
         kwargs["is_public"] = False
         kwargs["projects"] = [project_uuid, project_uuid]
         return kwargs
 
 
-class PublicSchema:
+class ReadSchemaVisibility:
     """Class for public/private cases."""
 
     @parametrize("public", is_public)
@@ -96,7 +102,7 @@ class PublicSchema:
         return public
 
 
-class ExtendedSchema:
+class ReadSchemaConnection:
     """Class for extended/short cases."""
 
     @parametrize("extended", is_extended)
