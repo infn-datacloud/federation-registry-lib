@@ -1,8 +1,9 @@
 """Module to test Flavor schema creation."""
 from datetime import date
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 from uuid import UUID, uuid4
 
+from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
 from pydantic.fields import SHAPE_LIST
 from pytest_cases import parametrize
 
@@ -19,6 +20,7 @@ from tests.flavor.core import Core
 from tests.utils.utils import random_lower_string
 
 is_public = {True, False}
+is_extended = {True, False}
 invalid_key_values = {
     ("uuid", None),
     ("name", None),
@@ -29,12 +31,6 @@ invalid_key_values = {
     ("ephemeral", -1),
     ("gpu_model", random_lower_string()),  # gpus is 0
     ("gpu_vendor", random_lower_string()),  # gpus is 0
-}
-read_schema_types = {
-    FlavorRead,
-    FlavorReadPublic,
-    FlavorReadExtended,
-    FlavorReadExtendedPublic,
 }
 
 
@@ -91,6 +87,24 @@ class InvalidData(Core):
         return kwargs
 
 
+class PublicSchema:
+    """Class for public/private cases."""
+
+    @parametrize("public", is_public)
+    def case_public_schema(self, public: bool) -> bool:
+        """Return True if the schema is the public one."""
+        return public
+
+
+class ExtendedSchema:
+    """Class for extended/short cases."""
+
+    @parametrize("extended", is_extended)
+    def case_extended_schema(self, extended: bool) -> bool:
+        """Return True if the schema is the extended one."""
+        return extended
+
+
 class BaseSchemaValidation:
     """Class with functions used to validate Flavor schemas."""
 
@@ -139,7 +153,7 @@ class CreateSchemaValidation(BaseSchemaValidation):
         for attr in attrs:
             field = FlavorCreateExtended.__fields__.get(attr)
             if field.shape == SHAPE_LIST:
-                schema_list: List[Flavor] = schema.__getattribute__(attr)
+                schema_list = schema.__getattribute__(attr)
                 data_list = data.pop(attr, [])
                 assert len(schema_list) == len(data_list)
 
@@ -158,7 +172,63 @@ class CreateSchemaValidation(BaseSchemaValidation):
         assert not data
 
 
-# class ReadSchema:
-#     @parametrize("schema_type", read_schema_types)
-#     def case_read_schema(self, schema_type: Type[BaseNodeRead]) -> Type[BaseNodeRead]:
-#         return schema_type
+class ReadSchemaValidation(BaseSchemaValidation):
+    """Class with functions used to validate Flavor Read schemas."""
+
+    def validate_read_attrs(
+        self,
+        *,
+        db_item: Flavor,
+        schema: Union[
+            FlavorRead, FlavorReadPublic, FlavorReadExtended, FlavorReadExtendedPublic
+        ],
+        public: bool,
+        extended: bool,
+    ) -> None:
+        """Validate data attributes and relationships with the expected ones.
+
+        Validate attributes and relationships.
+
+        Args:
+        ----
+            db_item (Flavor): DB item with the data to read.
+            schema (FlavorRead): Schema with the info generated from data and to be
+                validated.
+            public (bool): Public/shrunk schema.
+            extended (bool): Schema with relationships.
+        """
+        data = db_item.__dict__
+
+        if public:
+            attrs = FlavorBase.__fields__.keys() - FlavorBasePublic.__fields__.keys()
+            for attr in attrs:
+                data.pop(attr)
+
+        assert schema.uid == data.pop("uid")
+        self.validate_attrs(data=data, schema=schema, public=public)
+
+        if extended:
+            attrs = FlavorReadExtended.__fields__.keys() - FlavorRead.__fields__.keys()
+            for attr in attrs:
+                value = data.pop(attr)
+
+                if isinstance(value, (OneOrMore, ZeroOrMore)):
+                    schema_list = schema.__getattribute__(attr)
+                    assert len(schema_list) == len(value)
+
+                    schema_list = sorted([x.uid for x in schema_list])
+                    data_list = sorted([x.uid for x in value])
+                    for schema_uid, data_uid in zip(schema_list, data_list):
+                        assert schema_uid == data_uid
+                else:
+                    assert value.uid == value.uid
+        else:
+            to_remove = []
+            for k, v in data.items():
+                if isinstance(v, (One, OneOrMore, ZeroOrMore, ZeroOrOne)):
+                    to_remove.append(k)
+            for i in to_remove:
+                data.pop(i)
+
+        data.pop("id")
+        assert not data
