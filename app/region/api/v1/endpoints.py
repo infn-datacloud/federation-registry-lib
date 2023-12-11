@@ -62,7 +62,7 @@ def get_regions(
     )
     items = region_mng.paginate(items=items, page=page.page, size=page.size)
     return region_mng.choose_out_schema(
-        items=items, auth=user_infos, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -87,7 +87,7 @@ def get_region(
     user_infos: Optional[Any] = None,
 ):
     return region_mng.choose_out_schema(
-        items=[item], auth=user_infos, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 

@@ -61,7 +61,7 @@ def get_flavors(
     )
     items = flavor_mng.paginate(items=items, page=page.page, size=page.size)
     return flavor_mng.choose_out_schema(
-        items=items, auth=user_infos, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -86,7 +86,7 @@ def get_flavor(
     user_infos: Optional[Any] = None,
 ):
     return flavor_mng.choose_out_schema(
-        items=[item], auth=user_infos, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 

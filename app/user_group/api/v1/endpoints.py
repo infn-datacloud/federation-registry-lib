@@ -115,7 +115,7 @@ def get_user_groups(
 
     items = user_group_mng.paginate(items=items, page=page.page, size=page.size)
     return user_group_mng.choose_out_schema(
-        items=items, auth=user_infos, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -140,7 +140,7 @@ def get_user_group(
     user_infos: Optional[Any] = None,
 ):
     return user_group_mng.choose_out_schema(
-        items=[item], auth=user_infos, with_conn=size.with_conn
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
 
@@ -221,7 +221,7 @@ def delete_user_group(
 #     item: UserGroup = Depends(valid_user_group_id),
 # ):
 #     return flavor.choose_out_schema(
-#         items=item.flavors(), auth=user_infos,
+#         items=item.flavors(), auth=user_infos, short=size.short,
 # with_conn=size.with_conn
 #     )
 
@@ -248,7 +248,7 @@ def delete_user_group(
 #     item: UserGroup = Depends(valid_user_group_id),
 # ):
 #     return image.choose_out_schema(
-#         items=item.images(), auth=user_infos,
+#         items=item.images(), auth=user_infos, short=size.short,
 # with_conn=size.with_conn
 #     )
 
@@ -275,7 +275,7 @@ def delete_user_group(
 #     item: UserGroup = Depends(valid_user_group_id),
 # ):
 #     return provider.choose_out_schema(
-#         items=item.providers(), auth=user_infos,
+#         items=item.providers(), auth=user_infos, short=size.short,
 # with_conn=size.with_conn
 #     )
 
@@ -328,5 +328,5 @@ def delete_user_group(
 # ):
 #    items = item.services(**srv.dict(exclude_none=True))
 #    return service.choose_out_schema(
-#        items=items, auth=user_infos,  with_conn=size.with_conn
+#        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
 #    )

@@ -15,8 +15,10 @@ class SchemaSize(BaseModel):
     Attributes:
     ----------
         with_conn (bool): Show related items.
+        short (bool): Return shrunk version of data. Only for authenticated users.
     """
 
+    short: bool = Field(default=False, description="Show a shrunk version of the item.")
     with_conn: bool = Field(default=False, description="Show related items.")
 
 

@@ -77,7 +77,7 @@ def get_projects(
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=items, region_query=region_query)
     return project_mng.choose_out_schema(
-        items=items, auth=user_infos, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
 
@@ -105,7 +105,7 @@ def get_project(
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=[item], region_query=region_query)
     items = project_mng.choose_out_schema(
-        items=items, auth=user_infos, with_conn=size.with_conn
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
     return items[0]
 
@@ -191,7 +191,7 @@ def delete_project(
 # ):
 #     items = item.private_flavors.all() + item.public_flavors()
 #     return flavor.choose_out_schema(
-#         items=items, auth=user_infos,  with_conn=size.with_conn
+#         items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
 #     )
 
 
@@ -264,7 +264,7 @@ def delete_project(
 # ):
 #     items = item.private_images.all() + item.public_images()
 #     return image.choose_out_schema(
-#         items=items, auth=user_infos,  with_conn=size.with_conn
+#         items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
 #     )
 
 

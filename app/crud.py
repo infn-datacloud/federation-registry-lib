@@ -188,7 +188,7 @@ class CRUDBase(
         return items[start:end]
 
     def choose_out_schema(
-        self, *, items: List[ModelType], auth: bool, with_conn: bool
+        self, *, items: List[ModelType], auth: bool, with_conn: bool, short: bool
     ) -> Union[
         List[ReadPublicSchemaType],
         List[ReadSchemaType],
@@ -205,6 +205,7 @@ class CRUDBase(
             items (List[ModelType]): List of items to cast.
             auth (bool): Flag for authorization.
             with_conn (bool): Flag to retrieve linked items.
+            short (bool): Only for authenticated users: show shrunk version (public).
 
         Returns:
         -------
@@ -212,6 +213,10 @@ class CRUDBase(
             List[ReadExtendedPublicSchemaType] | List[ReadExtendedSchemaType].
         """
         if auth:
+            if short:
+                if with_conn:
+                    return [self.read_extended_public_schema.from_orm(i) for i in items]
+                return [self.read_public_schema.from_orm(i) for i in items]
             if with_conn:
                 return [self.read_extended_schema.from_orm(i) for i in items]
             return [self.read_schema.from_orm(i) for i in items]
