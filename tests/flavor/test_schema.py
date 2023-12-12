@@ -3,54 +3,44 @@ import pytest
 from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
-from tests.flavor.cases_schemas import (
-    InvalidCreateData,
-    InvalidPatchData,
-    ReadSchemaProperties,
-    ValidCreateData,
-    ValidPatchData,
-)
+from tests.flavor.cases_schemas import SchemaCases
 
 
-class TestSchemaCreation:
-    """Test create schemas."""
+class TestSchema:
+    """Test create, patch and read schemas."""
 
-    @parametrize_with_cases("cls, validator, data", cases=ValidCreateData)
-    def test_create_schema(self, cls, validator, data) -> None:
+    @parametrize_with_cases(
+        "cls, validator, data", cases=SchemaCases, has_tag="create_valid"
+    )
+    def test_create_valid_schema(self, cls, validator, data) -> None:
         """Create a schema from a dict."""
         schema = cls(**data)
         validator.validate_create_ext_attrs(data=data, schema=schema)
 
-    @parametrize_with_cases("cls, data", cases=InvalidCreateData)
+    @parametrize_with_cases("cls, data", cases=SchemaCases, has_tag="create_invalid")
     def test_create_invalid_schema(self, cls, data) -> None:
         """The schema creation fails and raises an error."""
         with pytest.raises(ValidationError):
             cls(**data)
 
-
-class TestSchemaPatch:
-    """Test patch schemas."""
-
-    @parametrize_with_cases("cls, validator, data", cases=ValidPatchData)
-    def test_create_schema(self, cls, validator, data) -> None:
+    @parametrize_with_cases(
+        "cls, validator, data", cases=SchemaCases, has_tag="patch_valid"
+    )
+    def test_patch_valid_schema(self, cls, validator, data) -> None:
         """Create a schema from a dict."""
         schema = cls(**data)
         validator.validate_attrs(data=data, schema=schema)
 
-    @parametrize_with_cases("cls, data", cases=InvalidPatchData)
-    def test_create_invalid_schema(self, cls, data) -> None:
+    @parametrize_with_cases("cls, data", cases=SchemaCases, has_tag="patch_invalid")
+    def test_patch_invalid_schema(self, cls, data) -> None:
         """The schema creation fails and raises an error."""
         with pytest.raises(ValidationError):
             cls(**data)
 
-
-class TestSchemaRead:
-    """Test read schemas."""
-
     @parametrize_with_cases(
-        "cls, validator, public, extended, db_item", cases=ReadSchemaProperties
+        "cls, validator, public, extended, db_item", cases=SchemaCases, has_tag="read"
     )
-    def test_db_item(self, cls, validator, public, extended, db_item) -> None:
+    def test_read_schema(self, cls, validator, public, extended, db_item) -> None:
         """Create a schema from a dict."""
         schema = cls.from_orm(db_item)
         validator.validate_read_attrs(

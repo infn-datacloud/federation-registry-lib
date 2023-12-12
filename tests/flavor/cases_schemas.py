@@ -1,57 +1,44 @@
 """Module to test Flavor schema creation."""
 from typing import Any, Dict, Type
 
+from pytest_cases import case
+
 from app.flavor.schemas import FlavorUpdate
 from app.provider.schemas_extended import FlavorCreateExtended
 
 
-class ValidCreateData:
-    """Valid data for create schemas."""
+class SchemaCases:
+    """Create, Read and Patch data cases."""
 
+    @case(tags="create_valid")
     def case_valid_create_schema(
-        self,
-        flavor_create_valid_data: Dict[str, Any],
-        flavor_create_validator,
+        self, flavor_create_valid_data: Dict[str, Any], flavor_create_validator: Any
     ):
-        """Valid set of Flavor mandatory attributes and relationships."""
+        """Valid data for create schemas."""
         return FlavorCreateExtended, flavor_create_validator, flavor_create_valid_data
 
-
-class InvalidCreateData:
-    """Invalid data for create schemas."""
-
+    @case(tags="create_invalid")
     def case_invalid_key_values(self, flavor_create_invalid_data: Dict[str, Any]):
-        """Invalid set of Flavor attributes."""
+        """Invalid data for create schemas."""
         return FlavorCreateExtended, flavor_create_invalid_data
 
-
-class ValidPatchData:
-    """Data to execute patch operations."""
-
+    @case(tags="patch_valid")
     def case_valid_patch_schema(
-        self,
-        flavor_patch_valid_data: Dict[str, Any],
-        flavor_patch_validator: Dict[str, Any],
+        self, flavor_patch_valid_data: Dict[str, Any], flavor_patch_validator: Any
     ):
-        """Dict with single key-value pair to update."""
+        """Data to execute patch operations."""
         return FlavorUpdate, flavor_patch_validator, flavor_patch_valid_data
 
-
-class InvalidPatchData:
-    """Invalid data to create Patch object."""
-
+    @case(tags="patch_invalid")
     def case_invalid_patch_schema(self, flavor_patch_invalid_data: Dict[str, Any]):
-        """Invalid set of Flavor attributes."""
+        """Invalid data to create Patch object."""
         return FlavorUpdate, flavor_patch_invalid_data
 
-
-class ReadSchemaProperties:
-    """Class for public/private cases."""
-
+    @case(tags="read")
     def case_read_schema(
         self, flavor_read_class: Type[Any], flavor_read_validator: Any, db_flavor: Any
     ):
-        """Return True if the schema is the public one."""
+        """Class for public/private cases."""
         cls_name = flavor_read_class.__name__
         is_public = False
         is_extended = False
