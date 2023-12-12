@@ -92,10 +92,10 @@ def db_flavor(
 
 @fixture
 def db_shared_flavor(
-    data_mandatory: Dict[str, Any], db_item: Flavor, db_compute_serv3: ComputeService
+    data_mandatory: Dict[str, Any], db_flavor: Flavor, db_compute_serv3: ComputeService
 ) -> Flavor:
     """Flavor shared within multiple services."""
-    projects = [i.uuid for i in db_item.projects]
+    projects = [i.uuid for i in db_flavor.projects]
     item = FlavorCreateExtended(
         **data_mandatory, is_public=len(projects) == 0, projects=projects
     )
