@@ -3,25 +3,33 @@ from typing import Any, Dict
 from uuid import uuid4
 
 import pytest
-from pytest_cases import fixture, parametrize
+from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.flavor.crud import flavor_mng
 from app.flavor.models import Flavor
-from app.flavor.schemas import FlavorBase, FlavorUpdate
+from app.flavor.schemas import (
+    FlavorBase,
+    FlavorBasePublic,
+    FlavorRead,
+    FlavorUpdate,
+)
+from app.flavor.schemas_extended import FlavorReadExtended
 from app.provider.models import Provider
 from app.provider.schemas_extended import FlavorCreateExtended
 from app.region.models import Region
 from app.service.models import ComputeService
 from tests.flavor.controller import FlavorController
+from tests.flavor.utils import (
+    BaseFlavorValidation,
+    CreateFlavorValidation,
+    ReadFlavorValidation,
+)
 from tests.utils.utils import (
     random_bool,
     random_lower_string,
     random_non_negative_int,
     random_positive_int,
 )
-
-is_public = {True, False}
-zero_or_more_rels = {0, 1, 2}
 
 
 @pytest.fixture(scope="package")
@@ -38,13 +46,38 @@ def flavor_controller() -> FlavorController:
 
 
 @fixture(scope="package")
+def create_flavor_validator() -> CreateFlavorValidation:
+    """Instance to validate flavor create schemas."""
+    return CreateFlavorValidation(
+        base=FlavorBase, base_public=FlavorBasePublic, create=FlavorCreateExtended
+    )
+
+
+@fixture(scope="package")
+def read_flavor_validator() -> ReadFlavorValidation:
+    """Instance to validate flavor read schemas."""
+    return ReadFlavorValidation(
+        base=FlavorBase,
+        base_public=FlavorBasePublic,
+        read=FlavorRead,
+        read_extended=FlavorReadExtended,
+    )
+
+
+@fixture(scope="package")
+def patch_flavor_validator() -> BaseFlavorValidation:
+    """Instance to validate flavor patch schemas."""
+    return BaseFlavorValidation(base=FlavorBase, base_public=FlavorBasePublic)
+
+
+@fixture(scope="package")
 def data_mandatory() -> Dict[str, Any]:
     """Dict with Flavor mandatory attributes."""
     return {"name": random_lower_string(), "uuid": uuid4()}
 
 
 @fixture(scope="package")
-@parametrize("is_public", is_public)
+@parametrize("is_public", {True, False})
 def data_all(is_public: bool, data_mandatory: Dict[str, Any]) -> Dict[str, Any]:
     """Dict with all Flavor attributes.
 
@@ -68,8 +101,8 @@ def data_all(is_public: bool, data_mandatory: Dict[str, Any]) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", zero_or_more_rels)
-def db_flavor(
+@parametrize("owned_projects", {0, 1, 2})
+def db_flavor_simple(
     owned_projects: int,
     data_mandatory: Dict[str, Any],
     db_compute_serv2: ComputeService,
@@ -100,3 +133,10 @@ def db_shared_flavor(
         **data_mandatory, is_public=len(projects) == 0, projects=projects
     )
     return flavor_mng.create(obj_in=item, service=db_compute_serv3)
+
+
+@fixture
+@parametrize("db_item", {fixture_ref("db_flavor"), fixture_ref("db_shared_flavor")})
+def db_flavor(db_item: Flavor) -> Flavor:
+    """Generic DB Flavor instance."""
+    return db_item

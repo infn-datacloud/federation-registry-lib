@@ -4,6 +4,10 @@ from uuid import uuid4
 
 from pytest_cases import parametrize
 
+from app.flavor.schemas import FlavorRead, FlavorReadPublic, FlavorUpdate
+from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
+from app.provider.schemas_extended import FlavorCreateExtended
+from tests.flavor.utils import CreateFlavorValidation
 from tests.utils.utils import (
     random_bool,
     random_lower_string,
@@ -61,21 +65,26 @@ class ValidCreateData:
 
     @parametrize("is_public", is_public)
     def case_valid_data_default(
-        self, is_public: bool, data_mandatory: Dict[str, Any]
+        self,
+        is_public: bool,
+        data_mandatory: Dict[str, Any],
+        create_flavor_validator: CreateFlavorValidation,
     ) -> Dict[str, Any]:
         """Valid set of Flavor mandatory attributes and relationships."""
         kwargs = {**data_mandatory}
         if not is_public:
             kwargs["is_public"] = is_public
             kwargs["projects"] = [uuid4()]
-        return kwargs
+        return FlavorCreateExtended, create_flavor_validator, kwargs
 
-    def case_valid_data(self, data_all: Dict[str, Any]) -> Dict[str, Any]:
+    def case_valid_data(
+        self, data_all: Dict[str, Any], create_flavor_validator
+    ) -> Dict[str, Any]:
         """Valid set of Flavor attributes and relationships."""
         kwargs = {**data_all}
         if not kwargs["is_public"]:
             kwargs["projects"] = [uuid4()]
-        return kwargs
+        return FlavorCreateExtended, create_flavor_validator, kwargs
 
 
 class InvalidCreateData:
@@ -88,7 +97,7 @@ class InvalidCreateData:
         """Invalid set of Flavor attributes."""
         kwargs = {**data_mandatory}
         kwargs[k] = v
-        return kwargs
+        return FlavorCreateExtended, kwargs
 
     @parametrize("is_public", is_public)
     def case_invalid_projects_list_size(
@@ -102,7 +111,7 @@ class InvalidCreateData:
         kwargs = {**data_mandatory}
         kwargs["is_public"] = is_public
         kwargs["projects"] = None if not is_public else [uuid4()]
-        return kwargs
+        return FlavorCreateExtended, kwargs
 
     def case_duplicated_projects(
         self, data_mandatory: Dict[str, Any]
@@ -112,39 +121,29 @@ class InvalidCreateData:
         kwargs = {**data_mandatory}
         kwargs["is_public"] = False
         kwargs["projects"] = [project_uuid, project_uuid]
-        return kwargs
-
-
-class ReadSchemaVisibility:
-    """Class for public/private cases."""
-
-    @parametrize("public", is_public)
-    def case_public_schema(self, public: bool) -> bool:
-        """Return True if the schema is the public one."""
-        return public
-
-
-class ReadSchemaConnection:
-    """Class for extended/short cases."""
-
-    @parametrize("extended", is_extended)
-    def case_extended_schema(self, extended: bool) -> bool:
-        """Return True if the schema is the extended one."""
-        return extended
+        return FlavorCreateExtended, kwargs
 
 
 class ValidPatchData:
     """Data to execute patch operations."""
 
     @parametrize("k, v", patch_key_values)
-    def case_patch_single_attribute(self, k: str, v: Any) -> Dict[str, Any]:
+    def case_patch_single_attribute(
+        self, k: str, v: Any, patch_flavor_validator
+    ) -> Dict[str, Any]:
         """Dict with single key-value pair to update."""
-        return {k: v}
+        return FlavorUpdate, patch_flavor_validator, {k: v}
 
     @parametrize("k, v", gpu_details)
-    def case_gpu_details(self, k: str, v: Any) -> Dict[str, Any]:
+    def case_gpu_details(
+        self, k: str, v: Any, patch_flavor_validator
+    ) -> Dict[str, Any]:
         """Invalid set of Flavor attributes."""
-        return {"gpus": random_positive_int(), k: v}
+        return (
+            FlavorUpdate,
+            patch_flavor_validator,
+            {"gpus": random_positive_int(), k: v},
+        )
 
 
 class InvalidPatchData:
@@ -153,4 +152,23 @@ class InvalidPatchData:
     @parametrize("k, v", invalid_patch_key_values)
     def case_invalid_key_values(self, k: str, v: Any) -> Dict[str, Any]:
         """Invalid set of Flavor attributes."""
-        return {k: v}
+        return FlavorUpdate, {k: v}
+
+
+class ReadSchemaProperties:
+    """Class for public/private cases."""
+
+    @parametrize(
+        "cls",
+        {FlavorRead, FlavorReadExtended, FlavorReadPublic, FlavorReadExtendedPublic},
+    )
+    def case_visibility_extended(self, cls, read_flavor_validator, db_flavor) -> bool:
+        """Return True if the schema is the public one."""
+        cls_name = FlavorRead.__name__
+        is_public = (False,)
+        is_extended = False
+        if "Public" in cls_name:
+            is_public = True
+        if "Extended" in cls_name:
+            is_extended = True
+        return cls, read_flavor_validator, is_public, is_extended, db_flavor
