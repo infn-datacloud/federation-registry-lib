@@ -11,9 +11,10 @@ from app.flavor.schemas import (
     FlavorBase,
     FlavorBasePublic,
     FlavorRead,
+    FlavorReadPublic,
     FlavorUpdate,
 )
-from app.flavor.schemas_extended import FlavorReadExtended
+from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.provider.models import Provider
 from app.provider.schemas_extended import FlavorCreateExtended
 from app.region.models import Region
@@ -45,8 +46,54 @@ def flavor_controller() -> FlavorController:
     )
 
 
+is_public = {True, False}
+gpu_details = {
+    ("gpu_model", random_lower_string()),  # gpus is 0
+    ("gpu_vendor", random_lower_string()),  # gpus is 0
+}
+invalid_create_key_values = {
+    ("uuid", None),
+    ("name", None),
+    ("disk", -1),
+    ("ram", -1),
+    ("vcpus", -1),
+    ("swap", -1),
+    ("ephemeral", -1),
+} | gpu_details
+patch_key_values = {
+    ("uuid", uuid4()),
+    ("name", random_lower_string()),
+    ("description", random_lower_string()),
+    ("disk", random_non_negative_int()),
+    ("ram", random_non_negative_int()),
+    ("vcpus", random_non_negative_int()),
+    ("swap", random_non_negative_int()),
+    ("ephemeral", random_non_negative_int()),
+    ("infiniband", random_bool()),
+    ("gpus", random_positive_int()),
+    ("local_storage", random_lower_string()),
+    ("uuid", None),
+    ("name", None),
+    ("local_storage", None),
+}
+invalid_patch_key_values = {  # None is not accepted because there is a default
+    ("description", None),
+    ("disk", None),
+    ("ram", None),
+    ("vcpus", None),
+    ("swap", None),
+    ("ephemeral", None),
+    ("infiniband", None),
+    ("gpus", None),
+} | gpu_details
+relationships_num = {0, 1, 2}
+
+
+# CLASSES FIXTURES
+
+
 @fixture(scope="package")
-def create_flavor_validator() -> CreateFlavorValidation:
+def flavor_create_validator() -> CreateFlavorValidation:
     """Instance to validate flavor create schemas."""
     return CreateFlavorValidation(
         base=FlavorBase, base_public=FlavorBasePublic, create=FlavorCreateExtended
@@ -54,7 +101,7 @@ def create_flavor_validator() -> CreateFlavorValidation:
 
 
 @fixture(scope="package")
-def read_flavor_validator() -> ReadFlavorValidation:
+def flavor_read_validator() -> ReadFlavorValidation:
     """Instance to validate flavor read schemas."""
     return ReadFlavorValidation(
         base=FlavorBase,
@@ -65,26 +112,41 @@ def read_flavor_validator() -> ReadFlavorValidation:
 
 
 @fixture(scope="package")
-def patch_flavor_validator() -> BaseFlavorValidation:
+def flavor_patch_validator() -> BaseFlavorValidation:
     """Instance to validate flavor patch schemas."""
     return BaseFlavorValidation(base=FlavorBase, base_public=FlavorBasePublic)
 
 
 @fixture(scope="package")
-def data_mandatory() -> Dict[str, Any]:
+@parametrize(
+    "cls",
+    {FlavorRead, FlavorReadExtended, FlavorReadPublic, FlavorReadExtendedPublic},
+)
+def flavor_read_class(cls) -> Any:
+    """Flavor Read schema."""
+    return cls
+
+
+# DICT FIXTURES
+
+
+@fixture
+def flavor_mandatory_data() -> Dict[str, Any]:
     """Dict with Flavor mandatory attributes."""
     return {"name": random_lower_string(), "uuid": uuid4()}
 
 
-@fixture(scope="package")
-@parametrize("is_public", {True, False})
-def data_all(is_public: bool, data_mandatory: Dict[str, Any]) -> Dict[str, Any]:
+@fixture
+@parametrize("is_public", is_public)
+def flavor_all_data(
+    is_public: bool, flavor_mandatory_data: Dict[str, Any]
+) -> Dict[str, Any]:
     """Dict with all Flavor attributes.
 
     Attribute is_public has been parametrized.
     """
     return {
-        **data_mandatory,
+        **flavor_mandatory_data,
         "is_public": is_public,
         "description": random_lower_string(),
         "disk": random_non_negative_int(),
@@ -101,10 +163,120 @@ def data_all(is_public: bool, data_mandatory: Dict[str, Any]) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", {0, 1, 2})
+def flavor_data_with_relationships(flavor_all_data: Dict[str, Any]) -> Dict[str, Any]:
+    """Dict with relationships attributes."""
+    data = {**flavor_all_data}
+    if not data["is_public"]:
+        data["projects"] = [uuid4()]
+    return data
+
+
+@fixture
+@parametrize(
+    "data",
+    {
+        fixture_ref("flavor_mandatory_data"),
+        fixture_ref("flavor_data_with_relationships"),
+    },
+)
+def flavor_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Valid set of attributes for a Flavor patch schema."""
+    return data
+
+
+@fixture
+@parametrize("k, v", invalid_create_key_values)
+def flavor_create_invalid_pair(
+    flavor_mandatory_data: Dict[str, Any], k: str, v: Any
+) -> Dict[str, Any]:
+    """Dict with one invalid key-value pair."""
+    data = {**flavor_mandatory_data}
+    data[k] = v
+    return data
+
+
+@fixture
+@parametrize("is_public", is_public)
+def flavor_create_invalid_projects_list_size(
+    flavor_mandatory_data: Dict[str, Any], is_public: bool
+) -> Dict[str, Any]:
+    """Invalid project list size.
+
+    Invalid cases: If flavor is marked as public, the list has at least one element,
+    if private, the list has no items.
+    """
+    data = {**flavor_mandatory_data}
+    data["is_public"] = is_public
+    data["projects"] = None if not is_public else [uuid4()]
+    return data
+
+
+@fixture
+def flavor_create_duplicate_projects(flavor_mandatory_data: Dict[str, Any]):
+    """Invalid case: the project list has duplicate values."""
+    project_uuid = uuid4()
+    data = {**flavor_mandatory_data}
+    data["is_public"] = is_public
+    data["projects"] = [project_uuid, project_uuid]
+    return data
+
+
+@fixture
+@parametrize(
+    "data",
+    {
+        fixture_ref("flavor_create_invalid_pair"),
+        fixture_ref("flavor_create_invalid_projects_list_size"),
+        fixture_ref("flavor_create_duplicate_projects"),
+    },
+)
+def flavor_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Invalid set of attributes for a Flavor create schema."""
+    return data
+
+
+@fixture
+@parametrize("k, v", patch_key_values)
+def flavor_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]:
+    """Valid set of single key-value pair for a Flavor patch schema."""
+    return {k: v}
+
+
+@fixture
+@parametrize("k, v", gpu_details)
+def flavor_patch_valid_data_for_gpus(k: str, v: Any) -> Dict[str, Any]:
+    """Valid set of attributes for a Flavor patch schema. GPU details."""
+    return {"gpus": random_positive_int(), k: v}
+
+
+@fixture
+@parametrize(
+    "data",
+    {
+        fixture_ref("flavor_patch_valid_data_single_attr"),
+        fixture_ref("flavor_patch_valid_data_for_gpus"),
+    },
+)
+def flavor_patch_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Valid set of attributes for a Flavor patch schema."""
+    return data
+
+
+@fixture
+@parametrize("k, v", invalid_patch_key_values)
+def flavor_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
+    """Invalid set of attributes for a Flavor patch schema."""
+    return {k: v}
+
+
+# DB INSTANCES FIXTURES
+
+
+@fixture
+@parametrize("owned_projects", relationships_num)
 def db_flavor_simple(
     owned_projects: int,
-    data_mandatory: Dict[str, Any],
+    flavor_mandatory_data: Dict[str, Any],
     db_compute_serv2: ComputeService,
 ) -> Flavor:
     """Fixture with standard DB Flavor.
@@ -116,7 +288,7 @@ def db_flavor_simple(
     db_provider: Provider = db_region.provider.single()
     projects = [i.uuid for i in db_provider.projects]
     item = FlavorCreateExtended(
-        **data_mandatory,
+        **flavor_mandatory_data,
         is_public=owned_projects == 0,
         projects=projects[:owned_projects],
     )
@@ -125,12 +297,14 @@ def db_flavor_simple(
 
 @fixture
 def db_shared_flavor(
-    data_mandatory: Dict[str, Any], db_flavor: Flavor, db_compute_serv3: ComputeService
+    flavor_mandatory_data: Dict[str, Any],
+    db_flavor: Flavor,
+    db_compute_serv3: ComputeService,
 ) -> Flavor:
     """Flavor shared within multiple services."""
     projects = [i.uuid for i in db_flavor.projects]
     item = FlavorCreateExtended(
-        **data_mandatory, is_public=len(projects) == 0, projects=projects
+        **flavor_mandatory_data, is_public=len(projects) == 0, projects=projects
     )
     return flavor_mng.create(obj_in=item, service=db_compute_serv3)
 
