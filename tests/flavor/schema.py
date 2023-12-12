@@ -16,11 +16,20 @@ from app.flavor.schemas import (
 )
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.provider.schemas_extended import FlavorCreateExtended
-from tests.utils.utils import random_lower_string
+from tests.utils.utils import (
+    random_bool,
+    random_lower_string,
+    random_non_negative_int,
+    random_positive_int,
+)
 
 is_public = {True, False}
 is_extended = {True, False}
-invalid_key_values = {
+gpu_details = {
+    ("gpu_model", random_lower_string()),  # gpus is 0
+    ("gpu_vendor", random_lower_string()),  # gpus is 0
+}
+invalid_create_key_values = {
     ("uuid", None),
     ("name", None),
     ("disk", -1),
@@ -28,9 +37,34 @@ invalid_key_values = {
     ("vcpus", -1),
     ("swap", -1),
     ("ephemeral", -1),
-    ("gpu_model", random_lower_string()),  # gpus is 0
-    ("gpu_vendor", random_lower_string()),  # gpus is 0
+} | gpu_details
+patch_key_values = {
+    ("uuid", uuid4()),
+    ("name", random_lower_string()),
+    ("description", random_lower_string()),
+    ("disk", random_non_negative_int()),
+    ("ram", random_non_negative_int()),
+    ("vcpus", random_non_negative_int()),
+    ("swap", random_non_negative_int()),
+    ("ephemeral", random_non_negative_int()),
+    ("infiniband", random_bool()),
+    ("gpus", random_positive_int()),
+    ("local_storage", random_lower_string()),
+    ("uuid", None),
+    ("name", None),
+    ("local_storage", None),
 }
+invalid_patch_key_values = {
+    ("description", None),
+    ("disk", None),
+    ("ram", None),
+    ("vcpus", None),
+    ("swap", None),
+    ("ephemeral", None),
+    ("infiniband", None),
+    ("gpus", None),
+} | gpu_details
+invalid_patch_gpu_details = {}
 relationships_num = {0, 1, 2}
 
 
@@ -59,7 +93,7 @@ class ValidCreateData:
 class InvalidCreateData:
     """Invalid data for create schemas."""
 
-    @parametrize("k, v", invalid_key_values)
+    @parametrize("k, v", invalid_create_key_values)
     def case_invalid_key_values(
         self, k: str, v: Any, data_mandatory: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -109,6 +143,29 @@ class ReadSchemaConnection:
     def case_extended_schema(self, extended: bool) -> bool:
         """Return True if the schema is the extended one."""
         return extended
+
+
+class ValidPatchData:
+    """Data to execute patch operations."""
+
+    @parametrize("k, v", patch_key_values)
+    def case_patch_single_attribute(self, k: str, v: Any) -> Dict[str, Any]:
+        """Dict with single key-value pair to update."""
+        return {k: v}
+
+    @parametrize("k, v", gpu_details)
+    def case_gpu_details(self, k: str, v: Any) -> Dict[str, Any]:
+        """Invalid set of Flavor attributes."""
+        return {"gpus": random_positive_int(), k: v}
+
+
+class InvalidPatchData:
+    """Invalid data to create Patch object."""
+
+    @parametrize("k, v", invalid_patch_key_values)
+    def case_invalid_key_values(self, k: str, v: Any) -> Dict[str, Any]:
+        """Invalid set of Flavor attributes."""
+        return {k: v}
 
 
 class BaseSchemaValidation:
