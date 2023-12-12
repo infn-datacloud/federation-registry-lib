@@ -68,7 +68,7 @@ def data_all(is_public: bool, data_mandatory: Dict[str, Any]) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", zero_or_more_rels={0, 1, 2})
+@parametrize("owned_projects", zero_or_more_rels)
 def db_flavor(
     owned_projects: int,
     data_mandatory: Dict[str, Any],
