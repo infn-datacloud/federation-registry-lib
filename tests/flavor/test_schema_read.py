@@ -4,11 +4,8 @@ from pytest_cases import fixture_ref, parametrize, parametrize_with_cases
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorRead, FlavorReadPublic
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
-from tests.flavor.schema import (
-    ReadSchemaConnection,
-    ReadSchemaValidation,
-    ReadSchemaVisibility,
-)
+from tests.flavor.cases_schemas import ReadSchemaConnection, ReadSchemaVisibility
+from tests.flavor.schema import ReadSchemaValidation
 
 
 class TestFlavorSchemaRead(ReadSchemaValidation):

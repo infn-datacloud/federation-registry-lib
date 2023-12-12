@@ -4,10 +4,9 @@ from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
 from app.provider.schemas_extended import FlavorCreateExtended
+from tests.flavor.cases_schemas import InvalidCreateData, ValidCreateData
 from tests.flavor.schema import (
     CreateSchemaValidation,
-    InvalidCreateData,
-    ValidCreateData,
 )
 
 

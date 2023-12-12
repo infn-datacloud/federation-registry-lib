@@ -6,7 +6,8 @@ from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
 from app.flavor.schemas import FlavorUpdate
-from tests.flavor.schema import BaseSchemaValidation, InvalidPatchData, ValidPatchData
+from tests.flavor.cases_schemas import InvalidPatchData, ValidPatchData
+from tests.flavor.schema import BaseSchemaValidation
 
 
 class TestFlavorSchemaPatch(BaseSchemaValidation):
