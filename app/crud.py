@@ -117,7 +117,7 @@ class CRUDBase(
         obj_in = self.create_schema.parse_obj(obj_in)
         obj_in_data = obj_in.dict(exclude_none=True)
         db_obj = self.model.create(obj_in_data)[0]
-        return db_obj
+        return db_obj.save()
 
     def update(
         self,
