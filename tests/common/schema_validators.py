@@ -51,7 +51,11 @@ class BaseSchemaValidation(Generic[BaseType, BasePublicType]):
             schema_attr = schema.__getattribute__(attr)
             if isinstance(schema_attr, date):
                 schema_attr = schema_attr.isoformat()
-            data_attr = data.pop(attr, value.default)
+            if value.shape == SHAPE_LIST:
+                default = value.default_factory()
+            else:
+                default = value.default
+            data_attr = data.pop(attr, default)
             if isinstance(data_attr, UUID):
                 data_attr = data_attr.hex
             assert schema_attr == data_attr
