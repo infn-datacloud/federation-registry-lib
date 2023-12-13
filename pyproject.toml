@@ -7,7 +7,7 @@ packages = [{ include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-flaat = "^1.1.8"
+flaat = "^1.1.15"
 fastapi = "^0.95.2"
 uvicorn = "^0.22.0"
 neomodel = "5.0.1"
