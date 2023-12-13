@@ -27,6 +27,7 @@ from tests.utils.location import random_country, random_latitude, random_longitu
 from tests.utils.utils import random_lower_string
 
 invalid_create_key_values = {
+    ("description", None),
     ("site", None),
     ("country", None),
     ("country", random_lower_string()),
@@ -36,8 +37,8 @@ invalid_create_key_values = {
     ("longitude", 91),
 }
 patch_key_values = {
-    ("site", random_lower_string()),
     ("description", random_lower_string()),
+    ("site", random_lower_string()),
     ("country", random_country()),
     ("latitude", random_latitude()),
     ("longitude", random_longitude()),

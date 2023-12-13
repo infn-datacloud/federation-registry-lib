@@ -28,6 +28,7 @@ from tests.utils.utils import random_bool, random_lower_string
 
 is_public = {True, False}
 invalid_create_key_values = {
+    ("description", None),
     ("uuid", None),
     ("name", None),
     ("is_public", None),
@@ -36,9 +37,9 @@ invalid_create_key_values = {
     ("tags", None),
 }
 patch_key_values = {
+    ("description", random_lower_string()),
     ("uuid", uuid4()),
     ("name", random_lower_string()),
-    ("description", random_lower_string()),
     ("os_type", random_os_type()),
     ("os_distro", random_lower_string()),
     ("os_version", random_lower_string()),

@@ -52,6 +52,7 @@ gpu_details = {
     ("gpu_vendor", random_lower_string()),  # gpus is 0
 }
 invalid_create_key_values = {
+    ("description", None),
     ("uuid", None),
     ("name", None),
     ("is_public", None),
@@ -62,9 +63,9 @@ invalid_create_key_values = {
     ("ephemeral", -1),
 } | gpu_details
 patch_key_values = {
+    ("description", random_lower_string()),
     ("uuid", uuid4()),
     ("name", random_lower_string()),
-    ("description", random_lower_string()),
     ("disk", random_non_negative_int()),
     ("ram", random_non_negative_int()),
     ("vcpus", random_non_negative_int()),
