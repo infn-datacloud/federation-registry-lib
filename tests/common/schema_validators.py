@@ -1,5 +1,6 @@
 """Module to test Flavor schema creation."""
 from datetime import date
+from enum import Enum
 from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from uuid import UUID
 
@@ -58,6 +59,8 @@ class BaseSchemaValidation(Generic[BaseType, BasePublicType]):
             data_attr = data.pop(attr, default)
             if isinstance(data_attr, UUID):
                 data_attr = data_attr.hex
+            elif isinstance(data_attr, Enum):
+                data_attr = data_attr.value
             assert schema_attr == data_attr
 
 
