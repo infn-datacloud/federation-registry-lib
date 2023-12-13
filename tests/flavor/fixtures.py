@@ -19,12 +19,12 @@ from app.provider.models import Provider
 from app.provider.schemas_extended import FlavorCreateExtended
 from app.region.models import Region
 from app.service.models import ComputeService
-from tests.flavor.controller import FlavorController
-from tests.flavor.utils import (
-    BaseFlavorValidation,
-    CreateFlavorValidation,
-    ReadFlavorValidation,
+from tests.common.schema_validators import (
+    BaseSchemaValidation,
+    CreateSchemaValidation,
+    ReadSchemaValidation,
 )
+from tests.flavor.controller import FlavorController
 from tests.utils.utils import (
     random_bool,
     random_lower_string,
@@ -93,17 +93,37 @@ relationships_num = {0, 1, 2}
 
 
 @fixture(scope="package")
-def flavor_create_validator() -> CreateFlavorValidation:
+def flavor_create_validator() -> (
+    CreateSchemaValidation[FlavorBase, FlavorBasePublic, FlavorCreateExtended]
+):
     """Instance to validate flavor create schemas."""
-    return CreateFlavorValidation(
+    return CreateSchemaValidation[FlavorBase, FlavorBasePublic, FlavorCreateExtended](
         base=FlavorBase, base_public=FlavorBasePublic, create=FlavorCreateExtended
     )
 
 
 @fixture(scope="package")
-def flavor_read_validator() -> ReadFlavorValidation:
+def flavor_read_validator() -> (
+    ReadSchemaValidation[
+        FlavorBase,
+        FlavorBasePublic,
+        FlavorRead,
+        FlavorReadPublic,
+        FlavorReadExtended,
+        FlavorReadExtendedPublic,
+        Flavor,
+    ]
+):
     """Instance to validate flavor read schemas."""
-    return ReadFlavorValidation(
+    return ReadSchemaValidation[
+        FlavorBase,
+        FlavorBasePublic,
+        FlavorRead,
+        FlavorReadPublic,
+        FlavorReadExtended,
+        FlavorReadExtendedPublic,
+        Flavor,
+    ](
         base=FlavorBase,
         base_public=FlavorBasePublic,
         read=FlavorRead,
@@ -112,9 +132,11 @@ def flavor_read_validator() -> ReadFlavorValidation:
 
 
 @fixture(scope="package")
-def flavor_patch_validator() -> BaseFlavorValidation:
+def flavor_patch_validator() -> BaseSchemaValidation[FlavorBase, FlavorBasePublic]:
     """Instance to validate flavor patch schemas."""
-    return BaseFlavorValidation(base=FlavorBase, base_public=FlavorBasePublic)
+    return BaseSchemaValidation[FlavorBase, FlavorBasePublic](
+        base=FlavorBase, base_public=FlavorBasePublic
+    )
 
 
 @fixture(scope="package")
