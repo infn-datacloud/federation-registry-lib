@@ -1,6 +1,6 @@
 """Module to test Flavor schema creation."""
 from datetime import date
-from typing import Any, Dict, Generic, List, Type, TypeVar, Union
+from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
 from uuid import UUID
 
 from neomodel import One, OneOrMore, StructuredNode, ZeroOrMore, ZeroOrOne
@@ -160,6 +160,91 @@ class ReadSchemaValidation(
         self.read = read
         self.read_extended = read_extended
 
+    def _exclude_not_used_attrs(
+        self, *, data: Dict[str, Any], exclude_attrs: Optional[List[str]]
+    ) -> Dict[str, Any]:
+        """Do not consider not used attributes.
+
+        Args:
+        ----
+            data (dict): Dict to filter.
+            exclude_attrs (list of str): List of attributes marked as useless.
+
+        Returns:
+        -------
+            The original data object without the attributes in exclude_attrs.
+        """
+        if exclude_attrs is None:
+            exclude_attrs = []
+        exclude_attrs.append("id")
+        for i in exclude_attrs:
+            data.pop(i, None)
+        return data
+
+    def _remove_relationships(self, *, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Do not consider relationships.
+
+        Args:
+        ----
+            data (dict): Dict to filter.
+
+        Returns:
+        -------
+            The original data object without the attributes corresponding to
+            relationships.
+        """
+        to_remove = []
+        for k, v in data.items():
+            if isinstance(v, (One, OneOrMore, ZeroOrMore, ZeroOrOne)):
+                to_remove.append(k)
+        for i in to_remove:
+            data.pop(i)
+        return data
+
+    def _validate_read_extended_attrs(
+        self,
+        *,
+        data: Dict[str, Any],
+        schema: Union[ReadExtendedType, ReadExtendedPublicType],
+    ) -> Dict[str, Any]:
+        """Check relationship consistency.
+
+        With Zero to Many or One to Many relationships evaluate the list of UIDs. List
+        can be empty.
+
+        With One or Zero to One relationships evaluate the item's UID. Item can be None.
+
+        Args:
+        ----
+            data (dict): Db object dictionary.
+            schema (ReadExtendedType | ReadExtendedPublicType): Schema with the data to
+                evaluate.
+
+        Returns:
+        -------
+            The original data object without the attributes corresponding to
+            relationships.
+        """
+        attrs = self.read_extended.__fields__.keys() - self.read.__fields__.keys()
+
+        for attr in attrs:
+            data_value = data.pop(attr)
+            schema_value = schema.__getattribute__(attr)
+
+            if isinstance(data_value, (list, OneOrMore, ZeroOrMore)):
+                assert len(schema_value) == len(data_value)
+                schema_list = sorted([x.uid for x in schema_value])
+                data_list = sorted([x.uid for x in data_value])
+                for schema_uid, data_uid in zip(schema_list, data_list):
+                    assert schema_uid == data_uid
+            else:
+                data_value = data_value.single()
+                data_uid = data_value.uid if data_value else data_value
+                schema_uid = schema_value.uid if schema_value else schema_value
+                assert schema_uid == data_uid
+
+        return data
+
     def validate_read_attrs(
         self,
         *,
@@ -169,6 +254,7 @@ class ReadSchemaValidation(
         ],
         public: bool,
         extended: bool,
+        exclude_attrs: Optional[List[str]] = None,
     ) -> None:
         """Validate data attributes and relationships with the expected ones.
 
@@ -181,6 +267,8 @@ class ReadSchemaValidation(
                 validated.
             public (bool): Public/shrunk schema.
             extended (bool): Schema with relationships.
+            exclude_attrs (list of str): List of attributes of the database model to
+                ignore.
         """
         data = db_item.__dict__
 
@@ -193,30 +281,9 @@ class ReadSchemaValidation(
         self.validate_attrs(data=data, schema=schema, public=public)
 
         if extended:
-            attrs = self.read_extended.__fields__.keys() - self.read.__fields__.keys()
-            for attr in attrs:
-                data_value = data.pop(attr)
-                schema_value = schema.__getattribute__(attr)
-
-                if isinstance(data_value, (OneOrMore, ZeroOrMore)):
-                    assert len(schema_value) == len(data_value)
-
-                    schema_list = sorted([x.uid for x in schema_value])
-                    data_list = sorted([x.uid for x in data_value])
-                    for schema_uid, data_uid in zip(schema_list, data_list):
-                        assert schema_uid == data_uid
-                else:
-                    data_value = data_value.single()
-                    data_uid = data_value.uid if data_value else data_value
-                    schema_uid = schema_value.uid if schema_value else schema_value
-                    assert schema_uid == data_uid
+            data = self._validate_read_extended_attrs(data=data, schema=schema)
         else:
-            to_remove = []
-            for k, v in data.items():
-                if isinstance(v, (One, OneOrMore, ZeroOrMore, ZeroOrOne)):
-                    to_remove.append(k)
-            for i in to_remove:
-                data.pop(i)
+            data = self._remove_relationships(data=data)
 
-        data.pop("id")
+        data = self._exclude_not_used_attrs(data=data, exclude_attrs=exclude_attrs)
         assert not data
