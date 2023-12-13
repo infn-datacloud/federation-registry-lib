@@ -19,6 +19,7 @@ class LocationBasePublic(BaseNode):
     """
 
     site: str = Field(description=DOC_SITE)
+    country: str = Field(description=DOC_COUNTRY)
 
 
 class LocationBase(LocationBasePublic):
@@ -33,7 +34,6 @@ class LocationBase(LocationBasePublic):
         longitude (float | None): Longitude coordinate.
     """
 
-    country: str = Field(description=DOC_COUNTRY)
     latitude: Optional[float] = Field(
         default=None, ge=-180, le=180, description=DOC_LATI
     )
