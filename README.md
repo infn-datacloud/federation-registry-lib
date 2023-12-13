@@ -19,7 +19,78 @@ cd federation-registry
 
 ## Start up the services
 
-**TODO: Define how to start the service in production mode.**
+Requirements:
+
+- Docker
+
+In production mode you should run the application using the dedicated image [indigopaas/federation-registry](https://hub.docker.com/r/indigopaas/federation-registry) available on DockerHub.
+
+The command to start the application inside a container is:
+
+```bash
+docker run -p 80:80 -d indigopaas/federation-registry
+```
+
+The previous command makes the application available on port 80 of the host in detached mode.
+
+The application does not requires persistent volumes.
+
+It uses environment variables to configure the database connection, the list of trusted identity providers, the admin users and the endpoint prefix for all requests. You can pass these variables as arguments when starting the container. In the following table we list all the environment variables that can be passed to the command.
+
+| Name                    | Mandatory | Description                                                                                                                                                                                                                           | Default value                        |
+| ----------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `PROJECT_NAME`          | x         | The project that will be displayed on the online documentation.                                                                                                                                                                       | Federation-Registry                  |
+| `API_V1_STR`            | x         | Prefix to use to execute requests on the first version of the API. If you are using a reverse-proxy you can customize this prefix based on your needs. (**Start with "/" and do not end with "/"**)                                   | /api/v1                              |
+| `NEOMODEL_DATABASE_URL` | x         | The complete URL to reach the neo4j database. Although it is mandatory, if this value has not been set, the application can be build it from the `NEO4J_URI_SCHEME`, `NEO4J_USER`, `NEO4J_PASSWORD` and `NEO4J_SERVER` env variables. | bolt://neo4j:password@localhost:7687 |
+| `NEO4J_SERVER`          |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                    | localhost:7687                       |
+| `NEO4J_USER`            |           | This value defines the user to use to access to the database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                        | neo4j                                |
+| `NEO4J_PASSWORD`        |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                    | password                             |
+| `NEO4J_URI_SCHEME`      |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                    | bolt                                 |
+| `ADMIN_EMAIL_LIST`      | x         | List of emails belonging to the users authorized to perform write operations.                                                                                                                                                         | []                                   |
+| `TRUSTED_IDP_LIST`      | x         | List of trusted identity providers to use to verify users' identity.                                                                                                                                                                  | []                                   |
+
+Some of these variables are not mandatory. If not specified they will use the default value.
+
+The default values for `ADMIN_EMAIL_LIST` and `TRUSTED_IDP_LIST` are empty lists. With these values it is not possible to perform any request.
+
+You can also create a `.env` file with all the variables you want to override. Here an example overriding all variables
+
+```bash
+# .env
+
+PROJECT_NAME=My-Federation-Registry
+API_V1_STR=/my-fed-reg/api/v1
+
+NEOMODEL_DATABASE_URL=bolt://neo4j:mypwdlongandlong@test.db-host.it
+
+TRUSTED_IDP_LIST=["https://test.idp.it"]
+ADMIN_EMAIL_LIST=["test@admin-user.it"]
+```
+
+Alternative example using the `NEO4J_` env variables:
+
+```bash
+# .env
+
+PROJECT_NAME=My-Federation-Registry
+API_V1_STR=/my-fed-reg/api/v1
+
+NEO4J_SERVER=test.db-host.it
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=mypwdlongandlong
+NEO4J_URI_SCHEME=bolt
+
+TRUSTED_IDP_LIST=["https://test.idp.it"]
+ADMIN_EMAIL_LIST=["test@admin-user.it"]
+```
+
+### Auxiliary services
+
+To correctly work, the application requires a running neo4j database instance with the **apoc** extension.
+
+If you don't have an already running instance, we suggest to deploy your instance using the [neo4j](https://hub.docker.com/_/neo4j) docker image available on DockerHub and make persistent the `/data` and `/logs` volumes.
+
+> To enable apoc extensions, when creating the instance pass the following environment variable: `NEO4J_PLUGINS=["apoc"]`
 
 # Developers
 
