@@ -206,15 +206,22 @@ def db_location_simple(
 
 @fixture
 def db_shared_location(
-    location_mandatory_data: Dict[str, Any], db_location: Location, db_region2: Region
+    location_mandatory_data: Dict[str, Any],
+    db_location: Location,
+    db_region2: Region,
+    db_region3: Region,
 ) -> Location:
-    # TODO review -> The usage of location mandatory data create a new
-    # instance with different attributes? Here we want the same attributes as
-    # location_db.
-    # TODO add tests for db_region3?
-    """Location shared within multiple services."""
-    item = LocationCreate(**location_mandatory_data)
-    return location_mng.create(obj_in=item, region=db_region2)
+    """Location shared within multiple regions.
+
+    This location is shared between regions belonging to the same providers and regions
+    belonging to another provider.
+    """
+    d = {}
+    for k in location_mandatory_data.keys():
+        d[k] = db_location.__getattribute__(k)
+    item = LocationCreate(**d)
+    location_mng.create(obj_in=item, region=db_region2)
+    return location_mng.create(obj_in=item, region=db_region3)
 
 
 @fixture

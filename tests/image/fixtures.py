@@ -289,10 +289,11 @@ def db_shared_image(
     db_compute_serv3: ComputeService,
 ) -> Image:
     """Image shared within multiple services."""
+    d = {}
+    for k in image_mandatory_data.keys():
+        d[k] = db_image.__getattribute__(k)
     projects = [i.uuid for i in db_image.projects]
-    item = ImageCreateExtended(
-        **image_mandatory_data, is_public=len(projects) == 0, projects=projects
-    )
+    item = ImageCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
     return image_mng.create(obj_in=item, service=db_compute_serv3)
 
 

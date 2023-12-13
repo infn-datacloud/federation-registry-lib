@@ -326,10 +326,11 @@ def db_shared_flavor(
     db_compute_serv3: ComputeService,
 ) -> Flavor:
     """Flavor shared within multiple services."""
+    d = {}
+    for k in flavor_mandatory_data.keys():
+        d[k] = db_flavor.__getattribute__(k)
     projects = [i.uuid for i in db_flavor.projects]
-    item = FlavorCreateExtended(
-        **flavor_mandatory_data, is_public=len(projects) == 0, projects=projects
-    )
+    item = FlavorCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
     return flavor_mng.create(obj_in=item, service=db_compute_serv3)
 
 
