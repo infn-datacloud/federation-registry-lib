@@ -8,7 +8,7 @@ from app.flavor.schemas import (
 )
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.provider.schemas_extended import FlavorCreateExtended
-from tests.flavor.schema_validators import (
+from tests.common.schema_validators import (
     BaseSchemaValidation,
     CreateSchemaValidation,
     ReadSchemaValidation,
