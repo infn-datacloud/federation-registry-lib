@@ -115,8 +115,10 @@ class CreateSchemaValidation(
                 else:
                     pass
             else:
-                if isinstance(field.type_, str):
-                    assert schema.__getattribute__(attr) == data.pop(attr).hex
+                if issubclass(field.type_, str):
+                    v: UUID = data.pop(attr, None)
+                    v = v.hex if v else v
+                    assert schema.__getattribute__(attr) == v
                 else:
                     pass
         assert not data
@@ -193,18 +195,21 @@ class ReadSchemaValidation(
         if extended:
             attrs = self.read_extended.__fields__.keys() - self.read.__fields__.keys()
             for attr in attrs:
-                value = data.pop(attr)
+                data_value = data.pop(attr)
+                schema_value = schema.__getattribute__(attr)
 
-                if isinstance(value, (OneOrMore, ZeroOrMore)):
-                    schema_list = schema.__getattribute__(attr)
-                    assert len(schema_list) == len(value)
+                if isinstance(data_value, (OneOrMore, ZeroOrMore)):
+                    assert len(schema_value) == len(data_value)
 
-                    schema_list = sorted([x.uid for x in schema_list])
-                    data_list = sorted([x.uid for x in value])
+                    schema_list = sorted([x.uid for x in schema_value])
+                    data_list = sorted([x.uid for x in data_value])
                     for schema_uid, data_uid in zip(schema_list, data_list):
                         assert schema_uid == data_uid
                 else:
-                    assert value.uid == value.uid
+                    data_value = data_value.single()
+                    data_uid = data_value.uid if data_value else data_value
+                    schema_uid = schema_value.uid if schema_value else schema_value
+                    assert schema_uid == data_uid
         else:
             to_remove = []
             for k, v in data.items():
