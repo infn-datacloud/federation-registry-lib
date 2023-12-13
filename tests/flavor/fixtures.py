@@ -54,6 +54,7 @@ gpu_details = {
 invalid_create_key_values = {
     ("uuid", None),
     ("name", None),
+    ("is_public", None),
     ("disk", -1),
     ("ram", -1),
     ("vcpus", -1),
@@ -78,6 +79,7 @@ patch_key_values = {
 }
 invalid_patch_key_values = {  # None is not accepted because there is a default
     ("description", None),
+    ("is_public", None),
     ("disk", None),
     ("ram", None),
     ("vcpus", None),
@@ -336,3 +338,36 @@ def db_shared_flavor(
 def db_flavor(db_item: Flavor) -> Flavor:
     """Generic DB Flavor instance."""
     return db_item
+
+
+# TUPLE FOR CASES FIXTURES
+
+
+@fixture
+def flavor_valid_create_schema_tuple(flavor_create_validator, flavor_create_valid_data):
+    """Fixture with the create class, validator and data to validate."""
+    return FlavorCreateExtended, flavor_create_validator, flavor_create_valid_data
+
+
+@fixture
+def flavor_invalid_create_schema_tuple(flavor_create_invalid_data):
+    """Fixture with the create class and the invalid data to validate."""
+    return FlavorCreateExtended, flavor_create_invalid_data
+
+
+@fixture
+def flavor_valid_patch_schema_tuple(flavor_patch_validator, flavor_patch_valid_data):
+    """Fixture with the update class, validator and data to validate."""
+    return FlavorUpdate, flavor_patch_validator, flavor_patch_valid_data
+
+
+@fixture
+def flavor_invalid_patch_schema_tuple(flavor_patch_invalid_data):
+    """Fixture with the update class and the invalid data to validate."""
+    return FlavorUpdate, flavor_patch_invalid_data
+
+
+@fixture
+def flavor_valid_read_schema_tuple(flavor_read_class, flavor_read_validator, db_flavor):
+    """Fixture with the read class, validator and the db item to read."""
+    return flavor_read_class, flavor_read_validator, db_flavor

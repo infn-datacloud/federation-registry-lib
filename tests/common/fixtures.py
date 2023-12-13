@@ -1,19 +1,12 @@
 """Cases with tuples for SchemaCases."""
 from pytest_cases import fixture, fixture_ref, parametrize
 
-from app.flavor.schemas import FlavorUpdate
-from app.provider.schemas_extended import FlavorCreateExtended
-
 
 @fixture
 @parametrize(
     "cls, validator, data",
     {
-        (
-            FlavorCreateExtended,
-            fixture_ref("flavor_create_validator"),
-            fixture_ref("flavor_create_valid_data"),
-        ),
+        fixture_ref("flavor_valid_create_schema_tuple"),
     },
 )
 def valid_create_schema_tuples(cls, validator, data):
@@ -25,7 +18,7 @@ def valid_create_schema_tuples(cls, validator, data):
 @parametrize(
     "cls, data",
     {
-        (FlavorCreateExtended, fixture_ref("flavor_create_invalid_data")),
+        fixture_ref("flavor_invalid_create_schema_tuple"),
     },
 )
 def invalid_create_schema_tuples(cls, data):
@@ -37,11 +30,7 @@ def invalid_create_schema_tuples(cls, data):
 @parametrize(
     "cls, validator, data",
     {
-        (
-            FlavorUpdate,
-            fixture_ref("flavor_patch_validator"),
-            fixture_ref("flavor_patch_valid_data"),
-        ),
+        fixture_ref("flavor_valid_patch_schema_tuple"),
     },
 )
 def valid_patch_schema_tuples(cls, validator, data):
@@ -53,7 +42,7 @@ def valid_patch_schema_tuples(cls, validator, data):
 @parametrize(
     "cls, data",
     {
-        (FlavorUpdate, fixture_ref("flavor_patch_invalid_data")),
+        fixture_ref("flavor_invalid_patch_schema_tuple"),
     },
 )
 def invalid_patch_schema_tuples(cls, data):
@@ -65,11 +54,7 @@ def invalid_patch_schema_tuples(cls, data):
 @parametrize(
     "cls, validator, db_item",
     {
-        (
-            fixture_ref("flavor_read_class"),
-            fixture_ref("flavor_read_validator"),
-            fixture_ref("db_flavor"),
-        ),
+        fixture_ref("flavor_valid_read_schema_tuple"),
     },
 )
 def valid_read_schema_tuples(cls, validator, db_item):
