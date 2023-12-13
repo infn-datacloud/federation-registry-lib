@@ -286,20 +286,22 @@ def db_image_simple(
 @fixture
 def db_shared_image(
     image_mandatory_data: Dict[str, Any],
-    db_image: Image,
+    db_image_simple: Image,
     db_compute_serv3: ComputeService,
 ) -> Image:
     """Image shared within multiple services."""
     d = {}
     for k in image_mandatory_data.keys():
-        d[k] = db_image.__getattribute__(k)
-    projects = [i.uuid for i in db_image.projects]
+        d[k] = db_image_simple.__getattribute__(k)
+    projects = [i.uuid for i in db_image_simple.projects]
     item = ImageCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
     return image_mng.create(obj_in=item, service=db_compute_serv3)
 
 
 @fixture
-@parametrize("db_item", {fixture_ref("db_image"), fixture_ref("db_shared_image")})
+@parametrize(
+    "db_item", {fixture_ref("db_image_simple"), fixture_ref("db_shared_image")}
+)
 def db_image(db_item: Image) -> Image:
     """Generic DB Image instance."""
     return db_item

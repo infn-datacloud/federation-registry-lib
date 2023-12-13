@@ -274,7 +274,7 @@ def db_network_simple(
 
 
 @fixture
-@parametrize("db_item", {fixture_ref("db_network")})
+@parametrize("db_item", {fixture_ref("db_network_simple")})
 def db_network(db_item: Network) -> Network:
     """Generic DB Network instance."""
     return db_item

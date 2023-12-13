@@ -323,20 +323,22 @@ def db_flavor_simple(
 @fixture
 def db_shared_flavor(
     flavor_mandatory_data: Dict[str, Any],
-    db_flavor: Flavor,
+    db_flavor_simple: Flavor,
     db_compute_serv3: ComputeService,
 ) -> Flavor:
     """Flavor shared within multiple services."""
     d = {}
     for k in flavor_mandatory_data.keys():
-        d[k] = db_flavor.__getattribute__(k)
-    projects = [i.uuid for i in db_flavor.projects]
+        d[k] = db_flavor_simple.__getattribute__(k)
+    projects = [i.uuid for i in db_flavor_simple.projects]
     item = FlavorCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
     return flavor_mng.create(obj_in=item, service=db_compute_serv3)
 
 
 @fixture
-@parametrize("db_item", {fixture_ref("db_flavor"), fixture_ref("db_shared_flavor")})
+@parametrize(
+    "db_item", {fixture_ref("db_flavor_simple"), fixture_ref("db_shared_flavor")}
+)
 def db_flavor(db_item: Flavor) -> Flavor:
     """Generic DB Flavor instance."""
     return db_item

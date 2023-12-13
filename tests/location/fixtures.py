@@ -208,7 +208,7 @@ def db_location_simple(
 @fixture
 def db_shared_location(
     location_mandatory_data: Dict[str, Any],
-    db_location: Location,
+    db_location_simple: Location,
     db_region2: Region,
     db_region3: Region,
 ) -> Location:
@@ -219,14 +219,16 @@ def db_shared_location(
     """
     d = {}
     for k in location_mandatory_data.keys():
-        d[k] = db_location.__getattribute__(k)
+        d[k] = db_location_simple.__getattribute__(k)
     item = LocationCreate(**d)
     location_mng.create(obj_in=item, region=db_region2)
     return location_mng.create(obj_in=item, region=db_region3)
 
 
 @fixture
-@parametrize("db_item", {fixture_ref("db_location"), fixture_ref("db_shared_location")})
+@parametrize(
+    "db_item", {fixture_ref("db_location_simple"), fixture_ref("db_shared_location")}
+)
 def db_location(db_item: Location) -> Location:
     """Generic DB Location instance."""
     return db_item
