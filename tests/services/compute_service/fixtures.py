@@ -1,6 +1,8 @@
 """ComputeService specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
+from uuid import uuid4
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.provider.models import Provider
@@ -312,43 +314,100 @@ def compute_service_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", relationships_num)
 def db_compute_service_simple(
-    owned_projects: int,
-    compute_service_create_mandatory_data: Dict[str, Any],
-    db_compute_serv2: ComputeService,
+    compute_service_create_mandatory_data: Dict[str, Any], db_region_simple: Region
 ) -> ComputeService:
-    """Fixture with standard DB ComputeService.
-
-    The compute_service can be public or private based on the number of allowed projects.
-    0 - Public. 1 or 2 - Private.
-    """
-    db_region: Region = db_compute_serv2.region.single()
-    db_provider: Provider = db_region.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
-    item = ComputeServiceCreateExtended(
-        **compute_service_create_mandatory_data,
-        is_public=owned_projects == 0,
-        projects=projects[:owned_projects],
-    )
-    return compute_service_mng.create(obj_in=item, service=db_compute_serv2)
+    """Fixture with standard DB ComputeService."""
+    item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
+    return compute_service_mng.create(obj_in=item, region=db_region_simple)
 
 
 @fixture
-def db_shared_compute_service(
+@parametrize(owned_quotas=relationships_num)
+def db_compute_service_with_quotas(
+    owned_quotas: int,
     compute_service_create_mandatory_data: Dict[str, Any],
-    db_compute_service_simple: ComputeService,
-    db_compute_serv3: ComputeService,
+    db_region_simple: Region,
 ) -> ComputeService:
-    """ComputeService shared within multiple services."""
-    d = {}
-    for k in compute_service_create_mandatory_data.keys():
-        d[k] = db_compute_service_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_compute_service_simple.projects]
+    """Fixture with standard DB ComputeService."""
+    if owned_quotas == 0:
+        pytest.skip("Case with no quotas already considered.")
+    db_provider: Provider = db_region_simple.provider.single()
+    projects = [i.uuid for i in db_provider.projects]
+    quotas = []
+    for i in projects:
+        for n in range(owned_quotas):
+            quotas.append(ComputeQuotaCreateExtended(per_user=n % 2, project=i))
     item = ComputeServiceCreateExtended(
-        **d, is_public=len(projects) == 0, projects=projects
+        **compute_service_create_mandatory_data, quotas=quotas
     )
-    return compute_service_mng.create(obj_in=item, service=db_compute_serv3)
+    return compute_service_mng.create(
+        obj_in=item, region=db_region_simple, projects=db_provider.projects
+    )
+
+
+@fixture
+@parametrize(owned_flavors=relationships_num)
+def db_compute_service_with_flavors(
+    owned_flavors: int,
+    compute_service_create_mandatory_data: Dict[str, Any],
+    db_region_simple: Region,
+) -> ComputeService:
+    """Fixture with standard DB ComputeService."""
+    db_provider: Provider = db_region_simple.provider.single()
+    projects = [i.uuid for i in db_provider.projects]
+    flavors = []
+    for i in projects:
+        if not owned_flavors:
+            flavors.append(
+                FlavorCreateExtended(name=random_lower_string(), uuid=uuid4())
+            )
+        for _ in range(owned_flavors):
+            flavors.append(
+                FlavorCreateExtended(
+                    name=random_lower_string(),
+                    uuid=uuid4(),
+                    is_public=False,
+                    projects=[i],
+                )
+            )
+    item = ComputeServiceCreateExtended(
+        **compute_service_create_mandatory_data, flavors=flavors
+    )
+    return compute_service_mng.create(
+        obj_in=item, region=db_region_simple, projects=db_provider.projects
+    )
+
+
+@fixture
+@parametrize(owned_images=relationships_num)
+def db_compute_service_with_images(
+    owned_images: int,
+    compute_service_create_mandatory_data: Dict[str, Any],
+    db_region_simple: Region,
+) -> ComputeService:
+    """Fixture with standard DB ComputeService."""
+    db_provider: Provider = db_region_simple.provider.single()
+    projects = [i.uuid for i in db_provider.projects]
+    images = []
+    for i in projects:
+        if not owned_images:
+            images.append(ImageCreateExtended(name=random_lower_string(), uuid=uuid4()))
+        for _ in range(owned_images):
+            images.append(
+                ImageCreateExtended(
+                    name=random_lower_string(),
+                    uuid=uuid4(),
+                    is_public=False,
+                    projects=[i],
+                )
+            )
+    item = ComputeServiceCreateExtended(
+        **compute_service_create_mandatory_data, images=images
+    )
+    return compute_service_mng.create(
+        obj_in=item, region=db_region_simple, projects=db_provider.projects
+    )
 
 
 @fixture
@@ -356,7 +415,9 @@ def db_shared_compute_service(
     "db_item",
     {
         fixture_ref("db_compute_service_simple"),
-        fixture_ref("db_shared_compute_service"),
+        fixture_ref("db_compute_service_with_flavors"),
+        fixture_ref("db_compute_service_with_images"),
+        fixture_ref("db_compute_service_with_quotas"),
     },
 )
 def db_compute_service(db_item: ComputeService) -> ComputeService:

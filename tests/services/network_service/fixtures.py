@@ -1,6 +1,8 @@
 """NetworkService specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
+from uuid import uuid4
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.provider.models import Provider
@@ -292,43 +294,66 @@ def network_service_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", relationships_num)
 def db_network_service_simple(
-    owned_projects: int,
-    network_service_create_mandatory_data: Dict[str, Any],
-    # db_compute_serv2: ComputeService,
+    network_service_create_mandatory_data: Dict[str, Any], db_region_simple: Region
 ) -> NetworkService:
-    """Fixture with standard DB NetworkService.
-
-    The network_service can be public or private based on the number of allowed projects.
-    0 - Public. 1 or 2 - Private.
-    """
-    db_region: Region = db_compute_serv2.region.single()
-    db_provider: Provider = db_region.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
-    item = NetworkServiceCreateExtended(
-        **network_service_create_mandatory_data,
-        is_public=owned_projects == 0,
-        projects=projects[:owned_projects],
-    )
-    return network_service_mng.create(obj_in=item, service=db_compute_serv2)
+    """Fixture with standard DB NetworkService."""
+    item = NetworkServiceCreateExtended(**network_service_create_mandatory_data)
+    return network_service_mng.create(obj_in=item, region=db_region_simple)
 
 
 @fixture
-def db_shared_network_service(
+@parametrize(owned_quotas=relationships_num)
+def db_network_service_with_quotas(
+    owned_quotas: int,
     network_service_create_mandatory_data: Dict[str, Any],
-    db_network_service_simple: NetworkService,
-    # db_compute_serv3: ComputeService,
+    db_region_simple: Region,
 ) -> NetworkService:
-    """NetworkService shared within multiple services."""
-    d = {}
-    for k in network_service_create_mandatory_data.keys():
-        d[k] = db_network_service_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_network_service_simple.projects]
+    """Fixture with standard DB NetworkService."""
+    if owned_quotas == 0:
+        pytest.skip("Case with no quotas already considered.")
+    db_provider: Provider = db_region_simple.provider.single()
+    projects = [i.uuid for i in db_provider.projects]
+    quotas = []
+    for i in projects:
+        for n in range(owned_quotas):
+            quotas.append(NetworkQuotaCreateExtended(per_user=n % 2, project=i))
     item = NetworkServiceCreateExtended(
-        **d, is_public=len(projects) == 0, projects=projects
+        **network_service_create_mandatory_data, quotas=quotas
     )
-    return network_service_mng.create(obj_in=item, service=db_compute_serv3)
+    return network_service_mng.create(
+        obj_in=item, region=db_region_simple, projects=db_provider.projects
+    )
+
+
+@fixture
+@parametrize(owned_networks=relationships_num)
+def db_network_service_with_networks(
+    owned_networks: int,
+    network_service_create_mandatory_data: Dict[str, Any],
+    db_region_simple: Region,
+) -> NetworkService:
+    """Fixture with standard DB NetworkService."""
+    db_provider: Provider = db_region_simple.provider.single()
+    projects = [i.uuid for i in db_provider.projects]
+    networks = []
+    for i in projects:
+        if not owned_networks:
+            networks.append(
+                NetworkCreateExtended(name=random_lower_string(), uuid=uuid4())
+            )
+        for _ in range(owned_networks):
+            networks.append(
+                NetworkCreateExtended(
+                    name=random_lower_string(), uuid=uuid4(), is_shared=False, project=i
+                )
+            )
+    item = NetworkServiceCreateExtended(
+        **network_service_create_mandatory_data, networks=networks
+    )
+    return network_service_mng.create(
+        obj_in=item, region=db_region_simple, projects=db_provider.projects
+    )
 
 
 @fixture
@@ -336,7 +361,8 @@ def db_shared_network_service(
     "db_item",
     {
         fixture_ref("db_network_service_simple"),
-        fixture_ref("db_shared_network_service"),
+        fixture_ref("db_network_service_with_networks"),
+        fixture_ref("db_network_service_with_quotas"),
     },
 )
 def db_network_service(db_item: NetworkService) -> NetworkService:

@@ -22,7 +22,6 @@ from app.region.schemas import (
     RegionUpdate,
 )
 from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
-from app.service.models import ComputeService
 from tests.common.schema_validators import (
     BaseSchemaValidation,
     CreateSchemaValidation,
@@ -329,46 +328,76 @@ def region_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", relationships_num)
 def db_region_simple(
-    owned_projects: int,
     region_create_mandatory_data: Dict[str, Any],
-    db_compute_serv2: ComputeService,
+    db_provider_with_projects: Provider,
 ) -> Region:
-    """Fixture with standard DB Region.
-
-    The region can be public or private based on the number of allowed projects.
-    0 - Public. 1 or 2 - Private.
-    """
-    db_region: Region = db_compute_serv2.region.single()
-    db_provider: Provider = db_region.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
-    item = RegionCreateExtended(
-        **region_create_mandatory_data,
-        is_public=owned_projects == 0,
-        projects=projects[:owned_projects],
-    )
-    return region_mng.create(obj_in=item, service=db_compute_serv2)
+    """Fixture with standard DB Region."""
+    item = RegionCreateExtended(**region_create_mandatory_data)
+    return region_mng.create(obj_in=item, provider=db_provider_with_projects)
 
 
 @fixture
-def db_shared_region(
-    region_create_mandatory_data: Dict[str, Any],
-    db_region_simple: Region,
-    db_compute_serv3: ComputeService,
+def db_region_with_location(
+    region_create_data_with_location: Dict[str, Any],
+    db_provider_with_projects: Provider,
 ) -> Region:
-    """Region shared within multiple services."""
-    d = {}
-    for k in region_create_mandatory_data.keys():
-        d[k] = db_region_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_region_simple.projects]
-    item = RegionCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
-    return region_mng.create(obj_in=item, service=db_compute_serv3)
+    """Fixture with standard DB Region."""
+    item = RegionCreateExtended(**region_create_data_with_location)
+    return region_mng.create(obj_in=item, provider=db_provider_with_projects)
+
+
+@fixture
+def db_region_with_block_storage_services(
+    region_create_data_with_block_storage_services: Dict[str, Any],
+    db_provider_with_projects: Provider,
+) -> Region:
+    """Fixture with standard DB Region."""
+    item = RegionCreateExtended(**region_create_data_with_block_storage_services)
+    return region_mng.create(obj_in=item, provider=db_provider_with_projects)
+
+
+@fixture
+def db_region_with_compute_services(
+    region_create_data_with_compute_services: Dict[str, Any],
+    db_provider_with_projects: Provider,
+) -> Region:
+    """Fixture with standard DB Region."""
+    item = RegionCreateExtended(**region_create_data_with_compute_services)
+    return region_mng.create(obj_in=item, provider=db_provider_with_projects)
+
+
+@fixture
+def db_region_with_identity_services(
+    region_create_data_with_identity_services: Dict[str, Any],
+    db_provider_with_projects: Provider,
+) -> Region:
+    """Fixture with standard DB Region."""
+    item = RegionCreateExtended(**region_create_data_with_identity_services)
+    return region_mng.create(obj_in=item, provider=db_provider_with_projects)
+
+
+@fixture
+def db_region_with_network_services(
+    region_create_data_with_network_services: Dict[str, Any],
+    db_provider_with_projects: Provider,
+) -> Region:
+    """Fixture with standard DB Region."""
+    item = RegionCreateExtended(**region_create_data_with_network_services)
+    return region_mng.create(obj_in=item, provider=db_provider_with_projects)
 
 
 @fixture
 @parametrize(
-    "db_item", {fixture_ref("db_region_simple"), fixture_ref("db_shared_region")}
+    "db_item",
+    {
+        fixture_ref("db_region_simple"),
+        fixture_ref("db_region_with_location"),
+        fixture_ref("db_region_with_block_storage_services"),
+        fixture_ref("db_region_with_compute_services"),
+        fixture_ref("db_region_with_identity_services"),
+        fixture_ref("db_region_with_network_services"),
+    },
 )
 def db_region(db_item: Region) -> Region:
     """Generic DB Region instance."""

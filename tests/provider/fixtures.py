@@ -539,7 +539,46 @@ def db_provider_simple(provider_create_mandatory_data: Dict[str, Any]) -> Provid
 
 
 @fixture
-@parametrize("db_item", {fixture_ref("db_provider_simple")})
+def db_provider_with_regions(
+    provider_create_data_with_regions: Dict[str, Any],
+) -> Provider:
+    """Fixture with standard DB Provider."""
+    if len(provider_create_data_with_regions.get("regions", [])) == 0:
+        pytest.skip("Case with no regions already considered.")
+    item = ProviderCreateExtended(**provider_create_data_with_regions)
+    return provider_mng.create(obj_in=item)
+
+
+@fixture
+def db_provider_with_projects(
+    provider_create_data_with_projects: Dict[str, Any],
+) -> Provider:
+    """Fixture with standard DB Provider."""
+    if len(provider_create_data_with_projects.get("projects", [])) == 0:
+        pytest.skip("Case with no projects already considered.")
+    item = ProviderCreateExtended(**provider_create_data_with_projects)
+    return provider_mng.create(obj_in=item)
+
+
+@fixture
+def db_provider_with_idps(provider_create_data_with_idps: Dict[str, Any]) -> Provider:
+    """Fixture with standard DB Provider."""
+    if len(provider_create_data_with_idps.get("identity_providers", [])) == 0:
+        pytest.skip("Case with no identity providers already considered.")
+    item = ProviderCreateExtended(**provider_create_data_with_idps)
+    return provider_mng.create(obj_in=item)
+
+
+@fixture
+@parametrize(
+    "db_item",
+    {
+        fixture_ref("db_provider_simple"),
+        fixture_ref("db_provider_with_regions"),
+        fixture_ref("db_provider_with_projects"),
+        fixture_ref("db_provider_with_idps"),
+    },
+)
 def db_provider(db_item: Provider) -> Provider:
     """Generic DB Provider instance."""
     return db_item

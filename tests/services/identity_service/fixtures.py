@@ -3,7 +3,6 @@ from typing import Any, Dict, Tuple, Type, Union
 
 from pytest_cases import fixture, fixture_ref, parametrize
 
-from app.provider.models import Provider
 from app.provider.schemas_extended import IdentityServiceCreate
 from app.region.models import Region
 from app.service.crud import identity_service_mng
@@ -212,51 +211,16 @@ def identity_service_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", relationships_num)
 def db_identity_service_simple(
-    owned_projects: int,
-    identity_service_create_mandatory_data: Dict[str, Any],
-    # db_compute_serv2: ComputeService,
+    identity_service_create_mandatory_data: Dict[str, Any], db_region_simple: Region
 ) -> IdentityService:
-    """Fixture with standard DB IdentityService.
-
-    The identity_service can be public or private based on the number of allowed projects.
-    0 - Public. 1 or 2 - Private.
-    """
-    db_region: Region = db_compute_serv2.region.single()
-    db_provider: Provider = db_region.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
-    item = IdentityServiceCreate(
-        **identity_service_create_mandatory_data,
-        is_public=owned_projects == 0,
-        projects=projects[:owned_projects],
-    )
-    return identity_service_mng.create(obj_in=item, service=db_compute_serv2)
+    """Fixture with standard DB IdentityService."""
+    item = IdentityServiceCreate(**identity_service_create_mandatory_data)
+    return identity_service_mng.create(obj_in=item, region=db_region_simple)
 
 
 @fixture
-def db_shared_identity_service(
-    identity_service_create_mandatory_data: Dict[str, Any],
-    db_identity_service_simple: IdentityService,
-    # db_compute_serv3: ComputeService,
-) -> IdentityService:
-    """IdentityService shared within multiple services."""
-    d = {}
-    for k in identity_service_create_mandatory_data.keys():
-        d[k] = db_identity_service_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_identity_service_simple.projects]
-    item = IdentityServiceCreate(**d, is_public=len(projects) == 0, projects=projects)
-    return identity_service_mng.create(obj_in=item, service=db_compute_serv3)
-
-
-@fixture
-@parametrize(
-    "db_item",
-    {
-        fixture_ref("db_identity_service_simple"),
-        fixture_ref("db_shared_identity_service"),
-    },
-)
+@parametrize("db_item", {fixture_ref("db_identity_service_simple")})
 def db_identity_service(db_item: IdentityService) -> IdentityService:
     """Generic DB IdentityService instance."""
     return db_item
