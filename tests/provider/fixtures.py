@@ -2,6 +2,7 @@
 from typing import Any, Dict, List, Tuple, Type, Union
 from uuid import uuid4
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.provider.crud import provider_mng
@@ -15,7 +16,13 @@ from app.provider.schemas import (
 )
 from app.provider.schemas_extended import (
     AuthMethodCreate,
+    BlockStorageServiceCreateExtended,
+    ComputeServiceCreateExtended,
+    FlavorCreateExtended,
     IdentityProviderCreateExtended,
+    ImageCreateExtended,
+    NetworkCreateExtended,
+    NetworkServiceCreateExtended,
     ProjectCreate,
     ProviderCreateExtended,
     ProviderReadExtended,
@@ -315,12 +322,133 @@ def provider_create_duplicate_idps(
     }
 
 
-# TODO Add fixtures for invalid create cases:
-# (see at the validator function of ProviderCreateExtended)
-# - check_idp_projs_exits
-# - check_block_storage_serv_projs_exist
-# - check_compute_serv_projs_exist
-# - check_network_serv_projs_exist
+@fixture
+def provider_create_duplicate_sla_same_user_group(
+    provider_create_all_data: Dict[str, Any],
+    identity_provider_create_mandatory_data: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with all Provider attributes and regions."""
+    projects = [
+        ProjectCreate(name=random_lower_string(), uuid=uuid4()),
+        ProjectCreate(name=random_lower_string(), uuid=uuid4()),
+    ]
+    identity_providers = []
+    sla_uuid = uuid4()
+    for i in range(len(projects)):
+        d1 = random_date()
+        d2 = random_date()
+        if d1 < d2:
+            start_date = d1
+            end_date = d2
+        else:
+            start_date = d2
+            end_date = d1
+        identity_providers.append(
+            IdentityProviderCreateExtended(
+                **identity_provider_create_mandatory_data,
+                relationship=AuthMethodCreate(
+                    idp_name=random_lower_string(), protocol=random_lower_string()
+                ),
+                user_groups=[
+                    UserGroupCreateExtended(
+                        name=random_lower_string(),
+                        sla=SLACreateExtended(
+                            doc_uuid=sla_uuid,
+                            start_date=start_date,
+                            end_date=end_date,
+                            project=projects[i].uuid,
+                        ),
+                    )
+                ],
+            )
+        )
+    return {
+        **provider_create_all_data,
+        "projects": projects,
+        "identity_providers": identity_providers,
+    }
+
+
+@fixture
+def provider_create_invalid_sla_project_uuid(
+    provider_create_all_data: Dict[str, Any],
+    identity_provider_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with all Provider attributes and regions."""
+    identity_provider = IdentityProviderCreateExtended(
+        **identity_provider_create_data_with_rel
+    )
+    return {**provider_create_all_data, "identity_providers": [identity_provider]}
+
+
+@fixture
+def provider_create_invalid_block_storage_serv_project_uuid(
+    provider_create_all_data: Dict[str, Any],
+    region_create_mandatory_data: Dict[str, Any],
+    block_storage_service_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with all Provider attributes and regions."""
+    region = RegionCreateExtended(
+        **region_create_mandatory_data,
+        block_storage_services=[
+            BlockStorageServiceCreateExtended(
+                **block_storage_service_create_data_with_rel
+            )
+        ],
+    )
+    return {**provider_create_all_data, "regions": [region]}
+
+
+@fixture
+@parametrize(
+    "service_with_rel",
+    {
+        fixture_ref("compute_service_create_data_with_flavors"),
+        fixture_ref("compute_service_create_data_with_images"),
+        fixture_ref("compute_service_create_data_with_quotas"),
+    },
+)
+def provider_create_invalid_compute_serv_project_uuid(
+    provider_create_all_data: Dict[str, Any],
+    region_create_mandatory_data: Dict[str, Any],
+    service_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with all Provider attributes and regions."""
+    flavors: List[FlavorCreateExtended] = service_with_rel.get("flavors", [])
+    if len(flavors) > 0 and flavors[0].is_public:
+        pytest.skip("Public flavor does not have project UUIDs.")
+    images: List[ImageCreateExtended] = service_with_rel.get("images", [])
+    if len(images) > 0 and images[0].is_public:
+        pytest.skip("Public image does not have project UUIDs.")
+    region = RegionCreateExtended(
+        **region_create_mandatory_data,
+        compute_services=[ComputeServiceCreateExtended(**service_with_rel)],
+    )
+    return {**provider_create_all_data, "regions": [region]}
+
+
+@fixture
+@parametrize(
+    "service_with_rel",
+    {
+        fixture_ref("network_service_create_data_with_networks"),
+        fixture_ref("network_service_create_data_with_quotas"),
+    },
+)
+def provider_create_invalid_network_serv_project_uuid(
+    provider_create_all_data: Dict[str, Any],
+    region_create_mandatory_data: Dict[str, Any],
+    service_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with all Provider attributes and regions."""
+    networks: List[NetworkCreateExtended] = service_with_rel.get("networks", [])
+    if len(networks) > 0 and networks[0].is_shared:
+        pytest.skip("Public network does not have project UUIDs.")
+    region = RegionCreateExtended(
+        **region_create_mandatory_data,
+        network_services=[NetworkServiceCreateExtended(**service_with_rel)],
+    )
+    return {**provider_create_all_data, "regions": [region]}
 
 
 @fixture
@@ -331,6 +459,11 @@ def provider_create_duplicate_idps(
         fixture_ref("provider_create_duplicate_regions"),
         fixture_ref("provider_create_duplicate_projects"),
         fixture_ref("provider_create_duplicate_idps"),
+        fixture_ref("provider_create_duplicate_sla_same_user_group"),
+        fixture_ref("provider_create_invalid_sla_project_uuid"),
+        fixture_ref("provider_create_invalid_block_storage_serv_project_uuid"),
+        fixture_ref("provider_create_invalid_compute_serv_project_uuid"),
+        fixture_ref("provider_create_invalid_network_serv_project_uuid"),
     },
 )
 def provider_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

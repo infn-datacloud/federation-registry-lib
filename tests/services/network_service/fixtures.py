@@ -1,11 +1,11 @@
 """NetworkService specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
-from uuid import uuid4
 
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.provider.models import Provider
 from app.provider.schemas_extended import (
+    NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
 )
@@ -30,7 +30,7 @@ from tests.common.schema_validators import (
     ReadSchemaValidation,
 )
 from tests.utils.network_service import random_network_service_name
-from tests.utils.utils import random_bool, random_lower_string, random_url
+from tests.utils.utils import random_lower_string, random_url
 
 invalid_create_key_values = {
     ("description", None),
@@ -152,7 +152,17 @@ def network_service_create_all_data(
 
 
 @fixture
-def network_service_create_data_with_rel(
+def network_service_create_data_with_networks(
+    network_service_create_all_data: Dict[str, Any],
+    network_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with relationships attributes."""
+    network = NetworkCreateExtended(**network_create_data_with_rel)
+    return {**network_service_create_all_data, "networks": [network]}
+
+
+@fixture
+def network_service_create_data_with_quotas(
     network_service_create_all_data: Dict[str, Any],
     network_quota_create_data_with_rel: Dict[str, Any],
 ) -> Dict[str, Any]:
@@ -161,7 +171,21 @@ def network_service_create_data_with_rel(
     return {**network_service_create_all_data, "quotas": [quota]}
 
 
-# TODO create fixtures with relationships
+@fixture
+def network_service_create_data_with_2_quotas_same_proj(
+    network_service_create_all_data: Dict[str, Any],
+    network_quota_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with 2 quotas on same project.
+
+    A quota has the flag 'per_user' equals to True and the other equal to False.
+    """
+    quota1 = NetworkQuotaCreateExtended(**network_quota_create_data_with_rel)
+    network_quota_create_data_with_rel[
+        "per_user"
+    ] = not network_quota_create_data_with_rel["per_user"]
+    quota2 = NetworkQuotaCreateExtended(**network_quota_create_data_with_rel)
+    return {**network_service_create_all_data, "quotas": [quota1, quota2]}
 
 
 @fixture
@@ -169,7 +193,9 @@ def network_service_create_data_with_rel(
     "data",
     {
         fixture_ref("network_service_create_mandatory_data"),
-        fixture_ref("network_service_create_data_with_rel"),
+        fixture_ref("network_service_create_data_with_networks"),
+        fixture_ref("network_service_create_data_with_quotas"),
+        fixture_ref("network_service_create_data_with_2_quotas_same_proj"),
     },
 )
 def network_service_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -189,30 +215,27 @@ def network_service_create_invalid_pair(
 
 
 @fixture
-def network_service_create_invalid_projects_list_size(
-    network_service_create_mandatory_data: Dict[str, Any], is_public: bool
+def network_service_invalid_num_quotas_same_project(
+    network_service_create_mandatory_data: Dict[str, Any],
+    network_quota_create_data_with_rel: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """Invalid project list size.
+    """Invalid number of quotas on same project.
 
-    Invalid cases: If network_service is marked as public, the list has at least one element,
-    if private, the list has no items.
+    A project can have at most one `project` quota and one `per-user` quota on a
+    specific service.
     """
-    data = {**network_service_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
+    quota = NetworkQuotaCreateExtended(**network_quota_create_data_with_rel)
+    return {**network_service_create_mandatory_data, "quotas": [quota, quota]}
 
 
 @fixture
-def network_service_create_duplicate_projects(
+def network_service_create_duplicate_networks(
     network_service_create_mandatory_data: Dict[str, Any],
-):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**network_service_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
-    return data
+    network_create_mandatory_data: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Invalid case: the network list has duplicate values."""
+    network = NetworkCreateExtended(**network_create_mandatory_data)
+    return {**network_service_create_mandatory_data, "networks": [network, network]}
 
 
 @fixture
@@ -220,8 +243,8 @@ def network_service_create_duplicate_projects(
     "data",
     {
         fixture_ref("network_service_create_invalid_pair"),
-        fixture_ref("network_service_create_invalid_projects_list_size"),
-        fixture_ref("network_service_create_duplicate_projects"),
+        fixture_ref("network_service_invalid_num_quotas_same_project"),
+        fixture_ref("network_service_create_duplicate_networks"),
     },
 )
 def network_service_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

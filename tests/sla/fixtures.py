@@ -151,37 +151,11 @@ def sla_create_invalid_pair(
 
 
 @fixture
-def sla_create_invalid_projects_list_size(
-    sla_create_mandatory_data: Dict[str, Any], is_public: bool
-) -> Dict[str, Any]:
-    """Invalid project list size.
-
-    Invalid cases: If sla is marked as public, the list has at least one element,
-    if private, the list has no items.
-    """
-    data = {**sla_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
-
-
-@fixture
-def sla_create_duplicate_projects(sla_create_mandatory_data: Dict[str, Any]):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**sla_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
-    return data
-
-
-@fixture
 @parametrize(
     "data",
     {
+        fixture_ref("sla_create_mandatory_data"),
         fixture_ref("sla_create_invalid_pair"),
-        fixture_ref("sla_create_invalid_projects_list_size"),
-        fixture_ref("sla_create_duplicate_projects"),
     },
 )
 def sla_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

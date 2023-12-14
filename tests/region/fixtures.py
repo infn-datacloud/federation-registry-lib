@@ -231,10 +231,12 @@ def region_create_invalid_pair(
 @fixture
 def region_create_duplicate_block_storage_services(
     region_create_mandatory_data: Dict[str, Any],
-    block_storage_create_mandatory_data: Dict[str, Any],
+    block_storage_service_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Invalid case: the project list has duplicate values."""
-    service = BlockStorageServiceCreateExtended(**block_storage_create_mandatory_data)
+    service = BlockStorageServiceCreateExtended(
+        **block_storage_service_create_mandatory_data
+    )
     return {
         **region_create_mandatory_data,
         "block_storage_services": [service, service],
@@ -244,30 +246,30 @@ def region_create_duplicate_block_storage_services(
 @fixture
 def region_create_duplicate_compute_services(
     region_create_mandatory_data: Dict[str, Any],
-    compute_create_mandatory_data: Dict[str, Any],
+    compute_service_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Invalid case: the project list has duplicate values."""
-    service = ComputeServiceCreateExtended(**compute_create_mandatory_data)
+    service = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
     return {**region_create_mandatory_data, "compute_services": [service, service]}
 
 
 @fixture
 def region_create_duplicate_identity_services(
     region_create_mandatory_data: Dict[str, Any],
-    identity_create_mandatory_data: Dict[str, Any],
+    identity_service_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Invalid case: the project list has duplicate values."""
-    service = IdentityServiceCreate(**identity_create_mandatory_data)
+    service = IdentityServiceCreate(**identity_service_create_mandatory_data)
     return {**region_create_mandatory_data, "identity_services": [service, service]}
 
 
 @fixture
 def region_create_duplicate_network_services(
     region_create_mandatory_data: Dict[str, Any],
-    network_create_mandatory_data: Dict[str, Any],
+    network_service_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Invalid case: the project list has duplicate values."""
-    service = NetworkServiceCreateExtended(**network_create_mandatory_data)
+    service = NetworkServiceCreateExtended(**network_service_create_mandatory_data)
     return {**region_create_mandatory_data, "network_services": [service, service]}
 
 

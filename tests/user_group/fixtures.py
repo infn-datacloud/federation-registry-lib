@@ -1,6 +1,5 @@
 """UserGroup specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
-from uuid import uuid4
 
 from pytest_cases import fixture, fixture_ref, parametrize
 
@@ -26,7 +25,7 @@ from tests.common.schema_validators import (
     CreateSchemaValidation,
     ReadSchemaValidation,
 )
-from tests.utils.utils import random_bool, random_lower_string
+from tests.utils.utils import random_lower_string
 
 invalid_create_key_values = {
     ("description", None),
@@ -157,39 +156,11 @@ def user_group_create_invalid_pair(
 
 
 @fixture
-def user_group_create_invalid_projects_list_size(
-    user_group_create_mandatory_data: Dict[str, Any], is_public: bool
-) -> Dict[str, Any]:
-    """Invalid project list size.
-
-    Invalid cases: If user_group is marked as public, the list has at least one element,
-    if private, the list has no items.
-    """
-    data = {**user_group_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
-
-
-@fixture
-def user_group_create_duplicate_projects(
-    user_group_create_mandatory_data: Dict[str, Any],
-):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**user_group_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
-    return data
-
-
-@fixture
 @parametrize(
     "data",
     {
+        fixture_ref("user_group_create_mandatory_data"),
         fixture_ref("user_group_create_invalid_pair"),
-        fixture_ref("user_group_create_invalid_projects_list_size"),
-        fixture_ref("user_group_create_duplicate_projects"),
     },
 )
 def user_group_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

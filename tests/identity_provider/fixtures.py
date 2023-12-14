@@ -195,39 +195,50 @@ def identity_provider_create_invalid_pair(
 
 
 @fixture
-def identity_provider_create_invalid_projects_list_size(
-    identity_provider_create_mandatory_data: Dict[str, Any], is_public: bool
+def identity_provider_create_invalid_user_group_list_size(
+    identity_provider_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """Invalid project list size.
-
-    Invalid cases: If identity_provider is marked as public, the list has at least one element,
-    if private, the list has no items.
-    """
-    data = {**identity_provider_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
+    """User group list can't be empty."""
+    return {**identity_provider_create_mandatory_data, "user_groups": []}
 
 
 @fixture
-def identity_provider_create_duplicate_projects(
+def identity_provider_create_duplicate_user_groups(
     identity_provider_create_mandatory_data: Dict[str, Any],
+    user_group_create_mandatory_data: Dict[str, Any],
 ):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**identity_provider_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
-    return data
+    """Invalid case: the user group list has duplicate values."""
+    d1 = random_date()
+    d2 = random_date()
+    if d1 < d2:
+        start_date = d1
+        end_date = d2
+    else:
+        start_date = d2
+        end_date = d1
+    user_group = UserGroupCreateExtended(
+        **user_group_create_mandatory_data,
+        sla=SLACreateExtended(
+            doc_uuid=uuid4(),
+            start_date=start_date,
+            end_date=end_date,
+            project=uuid4(),
+        ),
+    )
+    return {
+        **identity_provider_create_mandatory_data,
+        "user_groups": [user_group, user_group],
+    }
 
 
 @fixture
 @parametrize(
     "data",
     {
+        fixture_ref("identity_provider_create_mandatory_data"),  # Missing user_groups
         fixture_ref("identity_provider_create_invalid_pair"),
-        fixture_ref("identity_provider_create_invalid_projects_list_size"),
-        fixture_ref("identity_provider_create_duplicate_projects"),
+        fixture_ref("identity_provider_create_invalid_user_group_list_size"),
+        fixture_ref("identity_provider_create_duplicate_user_groups"),
     },
 )
 def identity_provider_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

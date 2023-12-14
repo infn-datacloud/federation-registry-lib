@@ -1,6 +1,5 @@
 """BlockStorageService specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
-from uuid import uuid4
 
 from pytest_cases import fixture, fixture_ref, parametrize
 
@@ -141,10 +140,7 @@ def block_storage_service_create_mandatory_data() -> Dict[str, Any]:
 def block_storage_service_create_all_data(
     block_storage_service_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """Dict with all BlockStorageService attributes.
-
-    Attribute is_public has been parametrized.
-    """
+    """Dict with all BlockStorageService attributes."""
     return {
         **block_storage_service_create_mandatory_data,
         "description": random_lower_string(),
@@ -162,11 +158,29 @@ def block_storage_service_create_data_with_rel(
 
 
 @fixture
+def block_storage_service_create_data_with_2_quotas_same_proj(
+    block_storage_service_create_all_data: Dict[str, Any],
+    block_storage_quota_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with 2 quotas on same project.
+
+    A quota has the flag 'per_user' equals to True and the other equal to False.
+    """
+    quota1 = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
+    block_storage_quota_create_data_with_rel[
+        "per_user"
+    ] = not block_storage_quota_create_data_with_rel["per_user"]
+    quota2 = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
+    return {**block_storage_service_create_all_data, "quotas": [quota1, quota2]}
+
+
+@fixture
 @parametrize(
     "data",
     {
         fixture_ref("block_storage_service_create_mandatory_data"),
         fixture_ref("block_storage_service_create_data_with_rel"),
+        fixture_ref("block_storage_service_create_data_with_2_quotas_same_proj"),
     },
 )
 def block_storage_service_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -186,30 +200,17 @@ def block_storage_service_create_invalid_pair(
 
 
 @fixture
-def block_storage_service_create_invalid_projects_list_size(
-    block_storage_service_create_mandatory_data: Dict[str, Any], is_public: bool
-) -> Dict[str, Any]:
-    """Invalid project list size.
-
-    Invalid cases: If block_storage_service is marked as public, the list has at least one element,
-    if private, the list has no items.
-    """
-    data = {**block_storage_service_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
-
-
-@fixture
-def block_storage_service_create_duplicate_projects(
+def block_storage_service_invalid_num_quotas_same_project(
     block_storage_service_create_mandatory_data: Dict[str, Any],
-):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**block_storage_service_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
-    return data
+    block_storage_quota_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Invalid number of quotas on same project.
+
+    A project can have at most one `project` quota and one `per-user` quota on a
+    specific service.
+    """
+    quota = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
+    return {**block_storage_service_create_mandatory_data, "quotas": [quota, quota]}
 
 
 @fixture
@@ -217,8 +218,7 @@ def block_storage_service_create_duplicate_projects(
     "data",
     {
         fixture_ref("block_storage_service_create_invalid_pair"),
-        fixture_ref("block_storage_service_create_invalid_projects_list_size"),
-        fixture_ref("block_storage_service_create_duplicate_projects"),
+        fixture_ref("block_storage_service_invalid_num_quotas_same_project"),
     },
 )
 def block_storage_service_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

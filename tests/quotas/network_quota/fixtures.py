@@ -178,38 +178,11 @@ def network_quota_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def network_quota_create_invalid_pair(
-    network_quota_create_mandatory_data: Dict[str, Any], k: str, v: Any
+    network_quota_create_data_with_rel: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**network_quota_create_mandatory_data}
+    data = {**network_quota_create_data_with_rel}
     data[k] = v
-    return data
-
-
-@fixture
-def network_quota_create_invalid_projects_list_size(
-    network_quota_create_mandatory_data: Dict[str, Any], is_public: bool
-) -> Dict[str, Any]:
-    """Invalid project list size.
-
-    Invalid cases: If network_quota is marked as public, the list has at least one element,
-    if private, the list has no items.
-    """
-    data = {**network_quota_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
-
-
-@fixture
-def network_quota_create_duplicate_projects(
-    network_quota_create_mandatory_data: Dict[str, Any],
-):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**network_quota_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
     return data
 
 
@@ -217,9 +190,8 @@ def network_quota_create_duplicate_projects(
 @parametrize(
     "data",
     {
+        fixture_ref("network_quota_create_mandatory_data"),
         fixture_ref("network_quota_create_invalid_pair"),
-        fixture_ref("network_quota_create_invalid_projects_list_size"),
-        fixture_ref("network_quota_create_duplicate_projects"),
     },
 )
 def network_quota_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

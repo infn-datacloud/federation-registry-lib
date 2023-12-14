@@ -1,6 +1,5 @@
 """ComputeService specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
-from uuid import uuid4
 
 from pytest_cases import fixture, fixture_ref, parametrize
 
@@ -8,6 +7,8 @@ from app.provider.models import Provider
 from app.provider.schemas_extended import (
     ComputeQuotaCreateExtended,
     ComputeServiceCreateExtended,
+    FlavorCreateExtended,
+    ImageCreateExtended,
 )
 from app.region.models import Region
 from app.service.crud import compute_service_mng
@@ -30,7 +31,7 @@ from tests.common.schema_validators import (
     ReadSchemaValidation,
 )
 from tests.utils.compute_service import random_compute_service_name
-from tests.utils.utils import random_bool, random_lower_string, random_url
+from tests.utils.utils import random_lower_string, random_url
 
 invalid_create_key_values = {
     ("description", None),
@@ -141,10 +142,7 @@ def compute_service_create_mandatory_data() -> Dict[str, Any]:
 def compute_service_create_all_data(
     compute_service_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """Dict with all ComputeService attributes.
-
-    Attribute is_public has been parametrized.
-    """
+    """Dict with all ComputeService attributes."""
     return {
         **compute_service_create_mandatory_data,
         "description": random_lower_string(),
@@ -152,7 +150,27 @@ def compute_service_create_all_data(
 
 
 @fixture
-def compute_service_create_data_with_rel(
+def compute_service_create_data_with_flavors(
+    compute_service_create_all_data: Dict[str, Any],
+    flavor_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with relationships attributes."""
+    flavor = FlavorCreateExtended(**flavor_create_data_with_rel)
+    return {**compute_service_create_all_data, "flavors": [flavor]}
+
+
+@fixture
+def compute_service_create_data_with_images(
+    compute_service_create_all_data: Dict[str, Any],
+    image_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with relationships attributes."""
+    image = ImageCreateExtended(**image_create_data_with_rel)
+    return {**compute_service_create_all_data, "images": [image]}
+
+
+@fixture
+def compute_service_create_data_with_quotas(
     compute_service_create_all_data: Dict[str, Any],
     compute_quota_create_data_with_rel: Dict[str, Any],
 ) -> Dict[str, Any]:
@@ -162,11 +180,31 @@ def compute_service_create_data_with_rel(
 
 
 @fixture
+def compute_service_create_data_with_2_quotas_same_proj(
+    compute_service_create_all_data: Dict[str, Any],
+    compute_quota_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with 2 quotas on same project.
+
+    A quota has the flag 'per_user' equals to True and the other equal to False.
+    """
+    quota1 = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
+    compute_quota_create_data_with_rel[
+        "per_user"
+    ] = not compute_quota_create_data_with_rel["per_user"]
+    quota2 = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
+    return {**compute_service_create_all_data, "quotas": [quota1, quota2]}
+
+
+@fixture
 @parametrize(
     "data",
     {
         fixture_ref("compute_service_create_mandatory_data"),
-        fixture_ref("compute_service_create_data_with_rel"),
+        fixture_ref("compute_service_create_data_with_flavors"),
+        fixture_ref("compute_service_create_data_with_images"),
+        fixture_ref("compute_service_create_data_with_quotas"),
+        fixture_ref("compute_service_create_data_with_2_quotas_same_proj"),
     },
 )
 def compute_service_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -186,31 +224,37 @@ def compute_service_create_invalid_pair(
 
 
 @fixture
-# @parametrize("is_public", is_public)
-def compute_service_create_invalid_projects_list_size(
-    compute_service_create_mandatory_data: Dict[str, Any], is_public: bool
+def compute_service_invalid_num_quotas_same_project(
+    compute_service_create_mandatory_data: Dict[str, Any],
+    compute_quota_create_data_with_rel: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """Invalid project list size.
+    """Invalid number of quotas on same project.
 
-    Invalid cases: If compute_service is marked as public, the list has at least one element,
-    if private, the list has no items.
+    A project can have at most one `project` quota and one `per-user` quota on a
+    specific service.
     """
-    data = {**compute_service_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
+    quota = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
+    return {**compute_service_create_mandatory_data, "quotas": [quota, quota]}
 
 
 @fixture
-def compute_service_create_duplicate_projects(
+def compute_service_create_duplicate_flavors(
     compute_service_create_mandatory_data: Dict[str, Any],
-):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**compute_service_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
-    return data
+    flavor_create_mandatory_data: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Invalid case: the flavor list has duplicate values."""
+    flavor = FlavorCreateExtended(**flavor_create_mandatory_data)
+    return {**compute_service_create_mandatory_data, "flavors": [flavor, flavor]}
+
+
+@fixture
+def compute_service_create_duplicate_images(
+    compute_service_create_mandatory_data: Dict[str, Any],
+    image_create_mandatory_data: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Invalid case: the image list has duplicate values."""
+    image = ImageCreateExtended(**image_create_mandatory_data)
+    return {**compute_service_create_mandatory_data, "images": [image, image]}
 
 
 @fixture
@@ -218,8 +262,9 @@ def compute_service_create_duplicate_projects(
     "data",
     {
         fixture_ref("compute_service_create_invalid_pair"),
-        fixture_ref("compute_service_create_invalid_projects_list_size"),
-        fixture_ref("compute_service_create_duplicate_projects"),
+        fixture_ref("compute_service_invalid_num_quotas_same_project"),
+        fixture_ref("compute_service_create_duplicate_flavors"),
+        fixture_ref("compute_service_create_duplicate_images"),
     },
 )
 def compute_service_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

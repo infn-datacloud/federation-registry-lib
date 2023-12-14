@@ -170,38 +170,11 @@ def block_storage_quota_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def block_storage_quota_create_invalid_pair(
-    block_storage_quota_create_mandatory_data: Dict[str, Any], k: str, v: Any
+    block_storage_quota_create_data_with_rel: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**block_storage_quota_create_mandatory_data}
+    data = {**block_storage_quota_create_data_with_rel}
     data[k] = v
-    return data
-
-
-@fixture
-def block_storage_quota_create_invalid_projects_list_size(
-    block_storage_quota_create_mandatory_data: Dict[str, Any], is_public: bool
-) -> Dict[str, Any]:
-    """Invalid project list size.
-
-    Invalid cases: If block_storage_quota is marked as public, the list has at least one element,
-    if private, the list has no items.
-    """
-    data = {**block_storage_quota_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
-
-
-@fixture
-def block_storage_quota_create_duplicate_projects(
-    block_storage_quota_create_mandatory_data: Dict[str, Any],
-):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**block_storage_quota_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
     return data
 
 
@@ -210,8 +183,7 @@ def block_storage_quota_create_duplicate_projects(
     "data",
     {
         fixture_ref("block_storage_quota_create_invalid_pair"),
-        fixture_ref("block_storage_quota_create_invalid_projects_list_size"),
-        fixture_ref("block_storage_quota_create_duplicate_projects"),
+        fixture_ref("block_storage_quota_create_mandatory_data"),
     },
 )
 def block_storage_quota_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:

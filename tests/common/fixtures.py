@@ -35,11 +35,22 @@ def valid_create_schema_tuples(cls, validator, data):
     "cls, data",
     {
         fixture_ref("flavor_invalid_create_schema_tuple"),
+        fixture_ref("identity_provider_invalid_create_schema_tuple"),
         fixture_ref("image_invalid_create_schema_tuple"),
         fixture_ref("location_invalid_create_schema_tuple"),
         fixture_ref("network_invalid_create_schema_tuple"),
         fixture_ref("project_invalid_create_schema_tuple"),
         fixture_ref("provider_invalid_create_schema_tuple"),
+        fixture_ref("block_storage_quota_invalid_create_schema_tuple"),
+        fixture_ref("compute_quota_invalid_create_schema_tuple"),
+        fixture_ref("network_quota_invalid_create_schema_tuple"),
+        fixture_ref("region_invalid_create_schema_tuple"),
+        fixture_ref("block_storage_service_invalid_create_schema_tuple"),
+        fixture_ref("compute_service_invalid_create_schema_tuple"),
+        fixture_ref("identity_service_invalid_create_schema_tuple"),
+        fixture_ref("network_service_invalid_create_schema_tuple"),
+        fixture_ref("sla_invalid_create_schema_tuple"),
+        fixture_ref("user_group_invalid_create_schema_tuple"),
     },
 )
 def invalid_create_schema_tuples(cls, data):

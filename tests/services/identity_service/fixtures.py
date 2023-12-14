@@ -1,6 +1,5 @@
 """IdentityService specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
-from uuid import uuid4
 
 from pytest_cases import fixture, fixture_ref, parametrize
 
@@ -167,41 +166,7 @@ def identity_service_create_invalid_pair(
 
 
 @fixture
-def identity_service_create_invalid_projects_list_size(
-    identity_service_create_mandatory_data: Dict[str, Any], is_public: bool
-) -> Dict[str, Any]:
-    """Invalid project list size.
-
-    Invalid cases: If identity_service is marked as public, the list has at least one element,
-    if private, the list has no items.
-    """
-    data = {**identity_service_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = None if not is_public else [uuid4()]
-    return data
-
-
-@fixture
-def identity_service_create_duplicate_projects(
-    identity_service_create_mandatory_data: Dict[str, Any],
-):
-    """Invalid case: the project list has duplicate values."""
-    project_uuid = uuid4()
-    data = {**identity_service_create_mandatory_data}
-    data["is_public"] = is_public
-    data["projects"] = [project_uuid, project_uuid]
-    return data
-
-
-@fixture
-@parametrize(
-    "data",
-    {
-        fixture_ref("identity_service_create_invalid_pair"),
-        fixture_ref("identity_service_create_invalid_projects_list_size"),
-        fixture_ref("identity_service_create_duplicate_projects"),
-    },
-)
+@parametrize("data", {fixture_ref("identity_service_create_invalid_pair")})
 def identity_service_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Invalid set of attributes for a IdentityService create schema."""
     return data
