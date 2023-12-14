@@ -256,26 +256,33 @@ def network_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("is_shared", is_shared)
 def db_network_simple(
-    is_shared: bool,
     network_create_mandatory_data: Dict[str, Any],
-    db_network_serv: NetworkService,
+    db_network_service_simple: NetworkService,
 ) -> Network:
     """Fixture with standard DB Network.
 
     The network can be public or private based on the number of allowed projects.
     0 - Public. 1 or 2 - Private.
     """
-    db_region: Region = db_network_serv.region.single()
+    db_region: Region = db_network_service_simple.region.single()
     db_provider: Provider = db_region.provider.single()
     projects = [i.uuid for i in db_provider.projects]
+    is_shared = len(projects) > 1
+    if is_shared:
+        project = None
+        db_project = None
+    else:
+        project = projects[0]
+        db_project = db_provider.projects.single()
     item = NetworkCreateExtended(
-        **network_create_mandatory_data,
-        is_shared=is_shared,
-        project=None if is_shared else projects[0],
+        **network_create_mandatory_data, is_shared=is_shared, project=project
     )
-    return network_mng.create(obj_in=item, service=db_network_serv)
+    return network_mng.create(
+        obj_in=item,
+        service=db_network_service_simple,
+        project=db_project,
+    )
 
 
 @fixture
