@@ -61,6 +61,8 @@ class BaseSchemaValidation(Generic[BaseType, BasePublicType]):
                 data_attr = data_attr.hex
             elif isinstance(data_attr, Enum):
                 data_attr = data_attr.value
+            elif isinstance(data_attr, date):
+                data_attr = data_attr.isoformat()
             assert schema_attr == data_attr
 
 
@@ -123,7 +125,9 @@ class CreateSchemaValidation(
                     v = v.hex if v else v
                     assert schema.__getattribute__(attr) == v
                 else:
-                    pass
+                    # We do not check this part since nested items checks are duplicates
+                    # of other specific tests. We only pop the item if present.
+                    data.pop(attr, None)
         assert not data
 
 
