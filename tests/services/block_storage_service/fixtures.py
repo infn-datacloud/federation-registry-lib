@@ -29,10 +29,17 @@ from tests.common.schema_validators import (
     ReadSchemaValidation,
 )
 from tests.utils.block_storage_service import random_block_storage_service_name
+from tests.utils.compute_service import random_compute_service_name
+from tests.utils.identity_service import random_identity_service_name
+from tests.utils.network_service import random_network_service_name
 from tests.utils.utils import random_lower_string, random_url
 
 invalid_create_key_values = {
     ("description", None),
+    ("type", None),
+    ("type", ServiceType.COMPUTE),
+    ("type", ServiceType.IDENTITY),
+    ("type", ServiceType.NETWORK),
     ("endpoint", None),
     ("name", None),
 }
@@ -43,9 +50,14 @@ patch_key_values = {
 }
 invalid_patch_key_values = {  # None is not accepted because there is a default
     ("description", None),
+    ("type", None),
     ("type", ServiceType.COMPUTE),
     ("type", ServiceType.IDENTITY),
     ("type", ServiceType.NETWORK),
+    ("name", random_lower_string()),
+    ("name", random_compute_service_name()),
+    ("name", random_identity_service_name()),
+    ("name", random_network_service_name()),
 }
 relationships_num = {0, 1, 2}
 
@@ -127,7 +139,7 @@ def block_storage_service_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -226,6 +238,9 @@ def block_storage_service_create_invalid_data(data: Dict[str, Any]) -> Dict[str,
     return data
 
 
+# DICT FIXTURES PATCH
+
+
 @fixture
 @parametrize("k, v", patch_key_values)
 def block_storage_service_patch_valid_data_single_attr(
@@ -236,18 +251,8 @@ def block_storage_service_patch_valid_data_single_attr(
 
 
 @fixture
-def block_storage_service_patch_valid_data_for_tags() -> Dict[str, Any]:
-    """Valid set of attributes for a BlockStorageService patch schema. Tags details."""
-    return {"tags": [random_lower_string()]}
-
-
-@fixture
 @parametrize(
-    "data",
-    {
-        fixture_ref("block_storage_service_patch_valid_data_single_attr"),
-        fixture_ref("block_storage_service_patch_valid_data_for_tags"),
-    },
+    "data", {fixture_ref("block_storage_service_patch_valid_data_single_attr")}
 )
 def block_storage_service_patch_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Valid set of attributes for a BlockStorageService patch schema."""

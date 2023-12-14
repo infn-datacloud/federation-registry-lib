@@ -7,6 +7,7 @@ from pytest_cases import fixture, fixture_ref, parametrize
 from app.provider.models import Provider
 from app.provider.schemas_extended import ComputeQuotaCreateExtended
 from app.quota.crud import compute_quota_mng
+from app.quota.enum import QuotaType
 from app.quota.models import ComputeQuota
 from app.quota.schemas import (
     ComputeQuotaBase,
@@ -45,6 +46,8 @@ patch_key_values = {
 invalid_patch_key_values = {  # None is not accepted because there is a default
     ("description", None),
     ("per_user", None),
+    ("type", QuotaType.BLOCK_STORAGE),
+    ("type", QuotaType.NETWORK),
     ("cores", -1),
     ("instances", -1),
     ("ram", -1),
@@ -123,7 +126,7 @@ def compute_quota_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -186,6 +189,9 @@ def compute_quota_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     return data
 
 
+# DICT FIXTURES PATCH
+
+
 @fixture
 @parametrize("k, v", patch_key_values)
 def compute_quota_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]:
@@ -194,19 +200,7 @@ def compute_quota_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]
 
 
 @fixture
-def compute_quota_patch_valid_data_for_tags() -> Dict[str, Any]:
-    """Valid set of attributes for a ComputeQuota patch schema. Tags details."""
-    return {"tags": [random_lower_string()]}
-
-
-@fixture
-@parametrize(
-    "data",
-    {
-        fixture_ref("compute_quota_patch_valid_data_single_attr"),
-        fixture_ref("compute_quota_patch_valid_data_for_tags"),
-    },
-)
+@parametrize("data", {fixture_ref("compute_quota_patch_valid_data_single_attr")})
 def compute_quota_patch_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Valid set of attributes for a ComputeQuota patch schema."""
     return data

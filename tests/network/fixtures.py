@@ -121,7 +121,7 @@ def network_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -214,6 +214,9 @@ def network_create_invalid_project_conn(
 def network_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Invalid set of attributes for a Network create schema."""
     return data
+
+
+# DICT FIXTURES PATCH
 
 
 @fixture

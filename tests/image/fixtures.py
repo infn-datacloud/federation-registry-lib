@@ -118,7 +118,7 @@ def image_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -222,6 +222,9 @@ def image_create_duplicate_projects(image_create_mandatory_data: Dict[str, Any])
 def image_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Invalid set of attributes for a Image create schema."""
     return data
+
+
+# DICT FIXTURES PATCH
 
 
 @fixture

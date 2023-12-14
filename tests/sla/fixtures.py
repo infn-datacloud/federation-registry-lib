@@ -103,7 +103,7 @@ def sla_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -163,6 +163,9 @@ def sla_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     return data
 
 
+# DICT FIXTURES PATCH
+
+
 @fixture
 @parametrize("k, v", patch_key_values)
 def sla_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]:
@@ -171,19 +174,7 @@ def sla_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-def sla_patch_valid_data_for_tags() -> Dict[str, Any]:
-    """Valid set of attributes for a SLA patch schema. Tags details."""
-    return {"tags": [random_lower_string()]}
-
-
-@fixture
-@parametrize(
-    "data",
-    {
-        fixture_ref("sla_patch_valid_data_single_attr"),
-        fixture_ref("sla_patch_valid_data_for_tags"),
-    },
-)
+@parametrize("data", {fixture_ref("sla_patch_valid_data_single_attr")})
 def sla_patch_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Valid set of attributes for a SLA patch schema."""
     return data
@@ -191,9 +182,36 @@ def sla_patch_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
 
 @fixture
 @parametrize("k, v", invalid_patch_key_values)
-def sla_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
+def sla_patch_invalid_single_attr(k: str, v: Any) -> Dict[str, Any]:
     """Invalid set of attributes for a SLA patch schema."""
     return {k: v}
+
+
+@fixture
+def sla_patch_invalid_dates_couple() -> Dict[str, Any]:
+    """Valid set of single key-value pair for a SLA patch schema."""
+    d1 = random_date()
+    d2 = random_date()
+    if d1 < d2:
+        start_date = d1
+        end_date = d2
+    else:
+        start_date = d2
+        end_date = d1
+    return {"start_date": end_date, "end_date": start_date}
+
+
+@fixture
+@parametrize(
+    "data",
+    {
+        fixture_ref("sla_patch_invalid_single_attr"),
+        fixture_ref("sla_patch_invalid_dates_couple"),
+    },
+)
+def sla_patch_invalid_data(data) -> Dict[str, Any]:
+    """Invalid set of attributes for a SLA patch schema."""
+    return data
 
 
 # DB INSTANCES FIXTURES

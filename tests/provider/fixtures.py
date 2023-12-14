@@ -138,7 +138,7 @@ def provider_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -469,6 +469,9 @@ def provider_create_invalid_network_serv_project_uuid(
 def provider_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Invalid set of attributes for a Provider create schema."""
     return data
+
+
+# DICT FIXTURES PATCH
 
 
 @fixture

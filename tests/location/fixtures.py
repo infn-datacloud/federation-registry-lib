@@ -121,7 +121,7 @@ def location_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -174,6 +174,9 @@ def location_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     return data
 
 
+# DICT FIXTURES CREATE
+
+
 @fixture
 @parametrize("k, v", patch_key_values)
 def location_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]:
@@ -190,16 +193,9 @@ def location_patch_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
 
 @fixture
 @parametrize("k, v", invalid_patch_key_values)
-def image_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
+def location_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
     """Invalid set of attributes for a Location patch schema."""
     return {k: v}
-
-
-@fixture
-@parametrize("data", {fixture_ref("image_create_invalid_pair")})
-def location_patch_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Valid set of attributes for a Location patch schema."""
-    return data
 
 
 # DB INSTANCES FIXTURES

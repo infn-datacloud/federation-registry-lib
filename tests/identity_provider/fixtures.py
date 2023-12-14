@@ -122,7 +122,7 @@ def identity_provider_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -246,6 +246,9 @@ def identity_provider_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any
     return data
 
 
+# DICT FIXTURES PATCH
+
+
 @fixture
 @parametrize("k, v", patch_key_values)
 def identity_provider_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]:
@@ -254,19 +257,7 @@ def identity_provider_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, 
 
 
 @fixture
-def identity_provider_patch_valid_data_for_tags() -> Dict[str, Any]:
-    """Valid set of attributes for a IdentityProvider patch schema. Tags details."""
-    return {"tags": [random_lower_string()]}
-
-
-@fixture
-@parametrize(
-    "data",
-    {
-        fixture_ref("identity_provider_patch_valid_data_single_attr"),
-        fixture_ref("identity_provider_patch_valid_data_for_tags"),
-    },
-)
+@parametrize("data", {fixture_ref("identity_provider_patch_valid_data_single_attr")})
 def identity_provider_patch_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Valid set of attributes for a IdentityProvider patch schema."""
     return data

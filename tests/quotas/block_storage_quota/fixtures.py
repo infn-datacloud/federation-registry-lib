@@ -7,6 +7,7 @@ from pytest_cases import fixture, fixture_ref, parametrize
 from app.provider.models import Provider
 from app.provider.schemas_extended import BlockStorageQuotaCreateExtended
 from app.quota.crud import block_storage_quota_mng
+from app.quota.enum import QuotaType
 from app.quota.models import BlockStorageQuota
 from app.quota.schemas import (
     BlockStorageQuotaBase,
@@ -48,6 +49,8 @@ patch_key_values = {
 invalid_patch_key_values = {  # None is not accepted because there is a default
     ("description", None),
     ("per_user", None),
+    ("type", QuotaType.COMPUTE),
+    ("type", QuotaType.NETWORK),
     ("gigabytes", -2),  # -1 is valid
     ("per_volume_gigabytes", -2),  # -1 is valid
     ("volumes", -2),  # -1 is valid
@@ -128,7 +131,7 @@ def block_storage_quota_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
@@ -191,6 +194,9 @@ def block_storage_quota_create_invalid_data(data: Dict[str, Any]) -> Dict[str, A
     return data
 
 
+# DICT FIXTURES PATCH
+
+
 @fixture
 @parametrize("k, v", patch_key_values)
 def block_storage_quota_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]:
@@ -199,19 +205,7 @@ def block_storage_quota_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str
 
 
 @fixture
-def block_storage_quota_patch_valid_data_for_tags() -> Dict[str, Any]:
-    """Valid set of attributes for a BlockStorageQuota patch schema. Tags details."""
-    return {"tags": [random_lower_string()]}
-
-
-@fixture
-@parametrize(
-    "data",
-    {
-        fixture_ref("block_storage_quota_patch_valid_data_single_attr"),
-        fixture_ref("block_storage_quota_patch_valid_data_for_tags"),
-    },
-)
+@parametrize("data", {fixture_ref("block_storage_quota_patch_valid_data_single_attr")})
 def block_storage_quota_patch_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Valid set of attributes for a BlockStorageQuota patch schema."""
     return data
