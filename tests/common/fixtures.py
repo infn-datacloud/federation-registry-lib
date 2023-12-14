@@ -7,11 +7,22 @@ from pytest_cases import fixture, fixture_ref, parametrize
     "cls, validator, data",
     {
         fixture_ref("flavor_valid_create_schema_tuple"),
+        fixture_ref("identity_provider_valid_create_schema_tuple"),
         fixture_ref("image_valid_create_schema_tuple"),
         fixture_ref("location_valid_create_schema_tuple"),
         fixture_ref("network_valid_create_schema_tuple"),
         fixture_ref("project_valid_create_schema_tuple"),
         fixture_ref("provider_valid_create_schema_tuple"),
+        fixture_ref("block_storage_quota_valid_create_schema_tuple"),
+        fixture_ref("compute_quota_valid_create_schema_tuple"),
+        fixture_ref("network_quota_valid_create_schema_tuple"),
+        fixture_ref("region_valid_create_schema_tuple"),
+        fixture_ref("block_storage_service_valid_create_schema_tuple"),
+        fixture_ref("compute_service_valid_create_schema_tuple"),
+        fixture_ref("identity_service_valid_create_schema_tuple"),
+        fixture_ref("network_service_valid_create_schema_tuple"),
+        fixture_ref("sla_valid_create_schema_tuple"),
+        fixture_ref("user_group_valid_create_schema_tuple"),
     },
 )
 def valid_create_schema_tuples(cls, validator, data):

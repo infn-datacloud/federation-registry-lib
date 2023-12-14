@@ -144,12 +144,10 @@ def provider_create_mandatory_data() -> Dict[str, Any]:
 def provider_create_all_data(
     provider_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """Dict with all Provider attributes.
-
-    Attribute is_public has been parametrized.
-    """
+    """Dict with all Provider attributes."""
     return {
         **provider_create_mandatory_data,
+        "description": random_lower_string(),
         "status": random_status(),
         "is_public": random_bool(),
         "support_emails": [random_email()],

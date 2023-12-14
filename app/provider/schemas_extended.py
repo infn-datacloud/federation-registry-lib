@@ -473,7 +473,7 @@ class ComputeQuotaCreateExtended(ComputeQuotaCreate):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         cores (int | None): Number of max usable cores.
-        instance (int | None): Number of max VM instances.
+        instances (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
         project (str): Target project's UUID in the Provider.
     """

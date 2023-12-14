@@ -134,7 +134,21 @@ def project_create_mandatory_data() -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("data", {fixture_ref("project_create_mandatory_data")})
+def project_create_all_data(
+    project_create_mandatory_data: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with all Project attributes."""
+    return {**project_create_mandatory_data, "description": random_lower_string()}
+
+
+@fixture
+@parametrize(
+    "data",
+    {
+        fixture_ref("project_create_mandatory_data"),
+        fixture_ref("project_create_all_data"),
+    },
+)
 def project_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Valid set of attributes for a Project patch schema."""
     return data
