@@ -156,22 +156,22 @@ def flavor_read_class(cls) -> Any:
 
 
 @fixture
-def flavor_mandatory_data() -> Dict[str, Any]:
+def flavor_create_mandatory_data() -> Dict[str, Any]:
     """Dict with Flavor mandatory attributes."""
     return {"name": random_lower_string(), "uuid": uuid4()}
 
 
 @fixture
 @parametrize("is_public", is_public)
-def flavor_all_data(
-    is_public: bool, flavor_mandatory_data: Dict[str, Any]
+def flavor_create_all_data(
+    is_public: bool, flavor_create_mandatory_data: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Dict with all Flavor attributes.
 
     Attribute is_public has been parametrized.
     """
     return {
-        **flavor_mandatory_data,
+        **flavor_create_mandatory_data,
         "is_public": is_public,
         "description": random_lower_string(),
         "disk": random_non_negative_int(),
@@ -188,9 +188,11 @@ def flavor_all_data(
 
 
 @fixture
-def flavor_data_with_relationships(flavor_all_data: Dict[str, Any]) -> Dict[str, Any]:
+def flavor_create_data_with_rel(
+    flavor_create_all_data: Dict[str, Any],
+) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    data = {**flavor_all_data}
+    data = {**flavor_create_all_data}
     if not data["is_public"]:
         data["projects"] = [uuid4()]
     return data
@@ -200,8 +202,8 @@ def flavor_data_with_relationships(flavor_all_data: Dict[str, Any]) -> Dict[str,
 @parametrize(
     "data",
     {
-        fixture_ref("flavor_mandatory_data"),
-        fixture_ref("flavor_data_with_relationships"),
+        fixture_ref("flavor_create_mandatory_data"),
+        fixture_ref("flavor_create_data_with_rel"),
     },
 )
 def flavor_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -212,10 +214,10 @@ def flavor_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def flavor_create_invalid_pair(
-    flavor_mandatory_data: Dict[str, Any], k: str, v: Any
+    flavor_create_mandatory_data: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**flavor_mandatory_data}
+    data = {**flavor_create_mandatory_data}
     data[k] = v
     return data
 
@@ -223,24 +225,24 @@ def flavor_create_invalid_pair(
 @fixture
 @parametrize("is_public", is_public)
 def flavor_create_invalid_projects_list_size(
-    flavor_mandatory_data: Dict[str, Any], is_public: bool
+    flavor_create_mandatory_data: Dict[str, Any], is_public: bool
 ) -> Dict[str, Any]:
     """Invalid project list size.
 
     Invalid cases: If flavor is marked as public, the list has at least one element,
     if private, the list has no items.
     """
-    data = {**flavor_mandatory_data}
+    data = {**flavor_create_mandatory_data}
     data["is_public"] = is_public
     data["projects"] = None if not is_public else [uuid4()]
     return data
 
 
 @fixture
-def flavor_create_duplicate_projects(flavor_mandatory_data: Dict[str, Any]):
+def flavor_create_duplicate_projects(flavor_create_mandatory_data: Dict[str, Any]):
     """Invalid case: the project list has duplicate values."""
     project_uuid = uuid4()
-    data = {**flavor_mandatory_data}
+    data = {**flavor_create_mandatory_data}
     data["is_public"] = is_public
     data["projects"] = [project_uuid, project_uuid]
     return data
@@ -301,7 +303,7 @@ def flavor_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 @parametrize("owned_projects", relationships_num)
 def db_flavor_simple(
     owned_projects: int,
-    flavor_mandatory_data: Dict[str, Any],
+    flavor_create_mandatory_data: Dict[str, Any],
     db_compute_serv2: ComputeService,
 ) -> Flavor:
     """Fixture with standard DB Flavor.
@@ -313,7 +315,7 @@ def db_flavor_simple(
     db_provider: Provider = db_region.provider.single()
     projects = [i.uuid for i in db_provider.projects]
     item = FlavorCreateExtended(
-        **flavor_mandatory_data,
+        **flavor_create_mandatory_data,
         is_public=owned_projects == 0,
         projects=projects[:owned_projects],
     )
@@ -322,13 +324,13 @@ def db_flavor_simple(
 
 @fixture
 def db_shared_flavor(
-    flavor_mandatory_data: Dict[str, Any],
+    flavor_create_mandatory_data: Dict[str, Any],
     db_flavor_simple: Flavor,
     db_compute_serv3: ComputeService,
 ) -> Flavor:
     """Flavor shared within multiple services."""
     d = {}
-    for k in flavor_mandatory_data.keys():
+    for k in flavor_create_mandatory_data.keys():
         d[k] = db_flavor_simple.__getattribute__(k)
     projects = [i.uuid for i in db_flavor_simple.projects]
     item = FlavorCreateExtended(**d, is_public=len(projects) == 0, projects=projects)

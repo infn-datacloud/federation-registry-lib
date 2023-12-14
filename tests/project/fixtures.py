@@ -128,22 +128,13 @@ def project_read_class(cls) -> Any:
 
 
 @fixture
-def project_mandatory_data() -> Dict[str, Any]:
+def project_create_mandatory_data() -> Dict[str, Any]:
     """Dict with Project mandatory attributes."""
     return {"name": random_lower_string(), "uuid": uuid4()}
 
 
 @fixture
-def project_all_data(project_mandatory_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Dict with all Project attributes.
-
-    Attribute is_public has been parametrized.
-    """
-    return {**project_mandatory_data}
-
-
-@fixture
-@parametrize("data", {fixture_ref("project_mandatory_data")})
+@parametrize("data", {fixture_ref("project_create_mandatory_data")})
 def project_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Valid set of attributes for a Project patch schema."""
     return data
@@ -152,10 +143,10 @@ def project_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def project_create_invalid_pair(
-    project_mandatory_data: Dict[str, Any], k: str, v: Any
+    project_create_mandatory_data: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**project_mandatory_data}
+    data = {**project_create_mandatory_data}
     data[k] = v
     return data
 
@@ -193,10 +184,10 @@ def project_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 @fixture
 def db_project_simple(
-    project_mandatory_data: Dict[str, Any], db_provider: Provider
+    project_create_mandatory_data: Dict[str, Any], db_provider: Provider
 ) -> Project:
     """Fixture with standard DB Project."""
-    item = ProjectCreate(**project_mandatory_data)
+    item = ProjectCreate(**project_create_mandatory_data)
     return project_mng.create(obj_in=item, provider=db_provider)
 
 

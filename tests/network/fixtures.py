@@ -125,22 +125,22 @@ def network_read_class(cls) -> Any:
 
 
 @fixture
-def network_mandatory_data() -> Dict[str, Any]:
+def network_create_mandatory_data() -> Dict[str, Any]:
     """Dict with Network mandatory attributes."""
     return {"name": random_lower_string(), "uuid": uuid4()}
 
 
 @fixture
 @parametrize("is_shared", is_shared)
-def network_all_data(
-    is_shared: bool, network_mandatory_data: Dict[str, Any]
+def network_create_all_data(
+    is_shared: bool, network_create_mandatory_data: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Dict with all Network attributes.
 
     Attribute is_shared has been parametrized.
     """
     return {
-        **network_mandatory_data,
+        **network_create_mandatory_data,
         "is_shared": is_shared,
         "description": random_lower_string(),
         "is_router_external": random_bool(),
@@ -153,9 +153,11 @@ def network_all_data(
 
 
 @fixture
-def network_data_with_relationships(network_all_data: Dict[str, Any]) -> Dict[str, Any]:
+def network_create_data_with_rel(
+    network_create_all_data: Dict[str, Any],
+) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    data = {**network_all_data}
+    data = {**network_create_all_data}
     if not data["is_shared"]:
         data["project"] = uuid4()
     return data
@@ -165,8 +167,8 @@ def network_data_with_relationships(network_all_data: Dict[str, Any]) -> Dict[st
 @parametrize(
     "data",
     {
-        fixture_ref("network_mandatory_data"),
-        fixture_ref("network_data_with_relationships"),
+        fixture_ref("network_create_mandatory_data"),
+        fixture_ref("network_create_data_with_rel"),
     },
 )
 def network_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -177,10 +179,10 @@ def network_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def network_create_invalid_pair(
-    network_mandatory_data: Dict[str, Any], k: str, v: Any
+    network_create_mandatory_data: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**network_mandatory_data}
+    data = {**network_create_mandatory_data}
     data[k] = v
     return data
 
@@ -188,14 +190,14 @@ def network_create_invalid_pair(
 @fixture
 @parametrize("is_shared", is_shared)
 def network_create_invalid_project_conn(
-    network_mandatory_data: Dict[str, Any], is_shared: bool
+    network_create_mandatory_data: Dict[str, Any], is_shared: bool
 ) -> Dict[str, Any]:
     """Invalid project list size.
 
     Invalid cases: If network is marked as public, the list has at least one element,
     if private, the list has no items.
     """
-    data = {**network_mandatory_data}
+    data = {**network_create_mandatory_data}
     data["is_shared"] = is_shared
     data["project"] = None if not is_shared else uuid4()
     return data
@@ -254,7 +256,7 @@ def network_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 @parametrize("is_shared", is_shared)
 def db_network_simple(
     is_shared: bool,
-    network_mandatory_data: Dict[str, Any],
+    network_create_mandatory_data: Dict[str, Any],
     db_network_serv: NetworkService,
 ) -> Network:
     """Fixture with standard DB Network.
@@ -266,7 +268,7 @@ def db_network_simple(
     db_provider: Provider = db_region.provider.single()
     projects = [i.uuid for i in db_provider.projects]
     item = NetworkCreateExtended(
-        **network_mandatory_data,
+        **network_create_mandatory_data,
         is_shared=is_shared,
         project=None if is_shared else projects[0],
     )

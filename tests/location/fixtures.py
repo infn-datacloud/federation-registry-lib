@@ -125,16 +125,18 @@ def location_read_class(cls) -> Any:
 
 
 @fixture
-def location_mandatory_data() -> Dict[str, Any]:
+def location_create_mandatory_data() -> Dict[str, Any]:
     """Dict with Location mandatory attributes."""
     return {"site": random_lower_string(), "country": random_country()}
 
 
 @fixture
-def location_all_data(location_mandatory_data: Dict[str, Any]) -> Dict[str, Any]:
+def location_create_all_data(
+    location_create_mandatory_data: Dict[str, Any],
+) -> Dict[str, Any]:
     """Dict with all Location attributes."""
     return {
-        **location_mandatory_data,
+        **location_create_mandatory_data,
         "description": random_lower_string(),
         "latitude": random_latitude(),
         "longitude": random_longitude(),
@@ -145,8 +147,8 @@ def location_all_data(location_mandatory_data: Dict[str, Any]) -> Dict[str, Any]
 @parametrize(
     "data",
     {
-        fixture_ref("location_mandatory_data"),
-        fixture_ref("location_all_data"),
+        fixture_ref("location_create_mandatory_data"),
+        fixture_ref("location_create_all_data"),
     },
 )
 def location_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -157,10 +159,10 @@ def location_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def location_create_invalid_pair(
-    location_mandatory_data: Dict[str, Any], k: str, v: Any
+    location_create_mandatory_data: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**location_mandatory_data}
+    data = {**location_create_mandatory_data}
     data[k] = v
     return data
 
@@ -198,16 +200,16 @@ def location_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 @fixture
 def db_location_simple(
-    location_mandatory_data: Dict[str, Any], db_region: Region
+    location_create_mandatory_data: Dict[str, Any], db_region: Region
 ) -> Location:
     """Fixture with standard DB Location."""
-    item = LocationCreate(**location_mandatory_data)
+    item = LocationCreate(**location_create_mandatory_data)
     return location_mng.create(obj_in=item, region=db_region)
 
 
 @fixture
 def db_shared_location(
-    location_mandatory_data: Dict[str, Any],
+    location_create_mandatory_data: Dict[str, Any],
     db_location_simple: Location,
     db_region2: Region,
     db_region3: Region,
@@ -218,7 +220,7 @@ def db_shared_location(
     belonging to another provider.
     """
     d = {}
-    for k in location_mandatory_data.keys():
+    for k in location_create_mandatory_data.keys():
         d[k] = db_location_simple.__getattribute__(k)
     item = LocationCreate(**d)
     location_mng.create(obj_in=item, region=db_region2)
