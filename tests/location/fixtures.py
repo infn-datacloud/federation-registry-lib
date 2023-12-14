@@ -16,6 +16,7 @@ from app.location.schemas_extended import (
     LocationReadExtended,
     LocationReadExtendedPublic,
 )
+from app.provider.models import Provider
 from app.provider.schemas_extended import LocationCreate
 from app.region.models import Region
 from tests.common.schema_validators import (
@@ -203,31 +204,26 @@ def location_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 @fixture
 def db_location_simple(
-    location_create_mandatory_data: Dict[str, Any], db_region: Region
+    location_create_mandatory_data: Dict[str, Any], db_region_simple: Region
 ) -> Location:
     """Fixture with standard DB Location."""
     item = LocationCreate(**location_create_mandatory_data)
-    return location_mng.create(obj_in=item, region=db_region)
+    return location_mng.create(obj_in=item, region=db_region_simple)
 
 
 @fixture
 def db_shared_location(
-    location_create_mandatory_data: Dict[str, Any],
-    db_location_simple: Location,
-    db_region2: Region,
-    db_region3: Region,
+    db_location_simple: Location, db_provider_with_regions: Provider
 ) -> Location:
     """Location shared within multiple regions.
 
     This location is shared between regions belonging to the same providers and regions
     belonging to another provider.
     """
-    d = {}
-    for k in location_create_mandatory_data.keys():
-        d[k] = db_location_simple.__getattribute__(k)
-    item = LocationCreate(**d)
-    location_mng.create(obj_in=item, region=db_region2)
-    return location_mng.create(obj_in=item, region=db_region3)
+    item = LocationCreate(**db_location_simple.__dict__)
+    for db_region in db_provider_with_regions.regions:
+        db_item = location_mng.create(obj_in=item, region=db_region)
+    return db_item
 
 
 @fixture

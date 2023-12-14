@@ -1,6 +1,7 @@
 """Region specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.provider.models import Provider
@@ -353,6 +354,10 @@ def db_region_with_block_storage_services(
     db_provider_with_projects: Provider,
 ) -> Region:
     """Fixture with standard DB Region."""
+    if not len(
+        region_create_data_with_block_storage_services.get("block_storage_services", [])
+    ):
+        pytest.skip("Case with no block storage services already considered.")
     item = RegionCreateExtended(**region_create_data_with_block_storage_services)
     return region_mng.create(obj_in=item, provider=db_provider_with_projects)
 
@@ -363,6 +368,8 @@ def db_region_with_compute_services(
     db_provider_with_projects: Provider,
 ) -> Region:
     """Fixture with standard DB Region."""
+    if not len(region_create_data_with_compute_services.get("compute_services", [])):
+        pytest.skip("Case with no compute services already considered.")
     item = RegionCreateExtended(**region_create_data_with_compute_services)
     return region_mng.create(obj_in=item, provider=db_provider_with_projects)
 
@@ -373,6 +380,8 @@ def db_region_with_identity_services(
     db_provider_with_projects: Provider,
 ) -> Region:
     """Fixture with standard DB Region."""
+    if not len(region_create_data_with_identity_services.get("identity_services", [])):
+        pytest.skip("Case with no identity services already considered.")
     item = RegionCreateExtended(**region_create_data_with_identity_services)
     return region_mng.create(obj_in=item, provider=db_provider_with_projects)
 
@@ -383,6 +392,8 @@ def db_region_with_network_services(
     db_provider_with_projects: Provider,
 ) -> Region:
     """Fixture with standard DB Region."""
+    if not len(region_create_data_with_network_services.get("network_services", [])):
+        pytest.skip("Case with no network services already considered.")
     item = RegionCreateExtended(**region_create_data_with_network_services)
     return region_mng.create(obj_in=item, provider=db_provider_with_projects)
 

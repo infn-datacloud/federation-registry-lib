@@ -2,6 +2,7 @@
 from typing import Any, Dict, Tuple, Type, Union
 from uuid import uuid4
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.image.crud import image_mng
@@ -268,37 +269,47 @@ def image_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 def db_image_simple(
     owned_projects: int,
     image_create_mandatory_data: Dict[str, Any],
-    db_compute_serv2: ComputeService,
+    db_compute_service_simple: ComputeService,
 ) -> Image:
     """Fixture with standard DB Image.
 
     The image can be public or private based on the number of allowed projects.
     0 - Public. 1 or 2 - Private.
     """
-    db_region: Region = db_compute_serv2.region.single()
+    db_region: Region = db_compute_service_simple.region.single()
     db_provider: Provider = db_region.provider.single()
     projects = [i.uuid for i in db_provider.projects]
+    if len(projects) == 1:
+        pytest.skip("Case with only one project in the provider already considered.")
+
     item = ImageCreateExtended(
         **image_create_mandatory_data,
         is_public=owned_projects == 0,
         projects=projects[:owned_projects],
     )
-    return image_mng.create(obj_in=item, service=db_compute_serv2)
+    return image_mng.create(
+        obj_in=item, service=db_compute_service_simple, projects=db_provider.projects
+    )
 
 
 @fixture
 def db_shared_image(
     image_create_mandatory_data: Dict[str, Any],
-    db_image_simple: Image,
-    db_compute_serv3: ComputeService,
+    db_region_with_compute_services: Region,
 ) -> Image:
-    """Image shared within multiple services."""
-    d = {}
-    for k in image_create_mandatory_data.keys():
-        d[k] = db_image_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_image_simple.projects]
-    item = ImageCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
-    return image_mng.create(obj_in=item, service=db_compute_serv3)
+    """Image shared by multiple services."""
+    db_provider: Provider = db_region_with_compute_services.provider.single()
+    projects = [i.uuid for i in db_provider.projects]
+    item = ImageCreateExtended(
+        **image_create_mandatory_data,
+        is_public=len(projects) - 1 == 0,
+        projects=projects[:-1],
+    )
+    for db_service in db_region_with_compute_services.services:
+        db_item = image_mng.create(
+            obj_in=item, service=db_service, projects=db_provider.projects
+        )
+    return db_item
 
 
 @fixture

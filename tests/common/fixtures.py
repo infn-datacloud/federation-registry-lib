@@ -118,10 +118,10 @@ def invalid_patch_schema_tuples(cls, data):
 @parametrize(
     "cls, validator, db_item",
     {
-        # fixture_ref("flavor_valid_read_schema_tuple"),
+        fixture_ref("flavor_valid_read_schema_tuple"),
         # fixture_ref("identity_provider_valid_read_schema_tuple"),
-        # fixture_ref("image_valid_read_schema_tuple"),
-        # fixture_ref("location_valid_read_schema_tuple"),
+        fixture_ref("image_valid_read_schema_tuple"),
+        fixture_ref("location_valid_read_schema_tuple"),
         # fixture_ref("network_valid_read_schema_tuple"),
         # fixture_ref("project_valid_read_schema_tuple"),
         fixture_ref("provider_valid_read_schema_tuple"),

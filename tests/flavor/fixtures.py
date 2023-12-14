@@ -307,37 +307,47 @@ def flavor_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 def db_flavor_simple(
     owned_projects: int,
     flavor_create_mandatory_data: Dict[str, Any],
-    db_compute_serv2: ComputeService,
+    db_compute_service_simple: ComputeService,
 ) -> Flavor:
     """Fixture with standard DB Flavor.
 
     The flavor can be public or private based on the number of allowed projects.
     0 - Public. 1 or 2 - Private.
     """
-    db_region: Region = db_compute_serv2.region.single()
+    db_region: Region = db_compute_service_simple.region.single()
     db_provider: Provider = db_region.provider.single()
     projects = [i.uuid for i in db_provider.projects]
+    if len(projects) == 1:
+        pytest.skip("Case with only one project in the provider already considered.")
+
     item = FlavorCreateExtended(
         **flavor_create_mandatory_data,
         is_public=owned_projects == 0,
         projects=projects[:owned_projects],
     )
-    return flavor_mng.create(obj_in=item, service=db_compute_serv2)
+    return flavor_mng.create(
+        obj_in=item, service=db_compute_service_simple, projects=db_provider.projects
+    )
 
 
 @fixture
 def db_shared_flavor(
     flavor_create_mandatory_data: Dict[str, Any],
-    db_flavor_simple: Flavor,
-    db_compute_serv3: ComputeService,
+    db_region_with_compute_services: Region,
 ) -> Flavor:
-    """Flavor shared within multiple services."""
-    d = {}
-    for k in flavor_create_mandatory_data.keys():
-        d[k] = db_flavor_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_flavor_simple.projects]
-    item = FlavorCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
-    return flavor_mng.create(obj_in=item, service=db_compute_serv3)
+    """Flavor shared by multiple services."""
+    db_provider: Provider = db_region_with_compute_services.provider.single()
+    projects = [i.uuid for i in db_provider.projects]
+    item = FlavorCreateExtended(
+        **flavor_create_mandatory_data,
+        is_public=len(projects) - 1 == 0,
+        projects=projects[:-1],
+    )
+    for db_service in db_region_with_compute_services.services:
+        db_item = flavor_mng.create(
+            obj_in=item, service=db_service, projects=db_provider.projects
+        )
+    return db_item
 
 
 @fixture
