@@ -134,7 +134,7 @@ def invalid_patch_schema_tuples(cls, data):
         fixture_ref("identity_service_valid_read_schema_tuple"),
         fixture_ref("network_service_valid_read_schema_tuple"),
         # fixture_ref("sla_valid_read_schema_tuple"),
-        # fixture_ref("user_group_valid_read_schema_tuple"),
+        fixture_ref("user_group_valid_read_schema_tuple"),
     },
 )
 def valid_read_schema_tuples(cls, validator, db_item):

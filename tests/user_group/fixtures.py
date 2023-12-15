@@ -1,12 +1,15 @@
 """UserGroup specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
+from uuid import uuid4
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
+from app.identity_provider.models import IdentityProvider
+from app.project.models import Project
 from app.provider.models import Provider
-from app.provider.schemas_extended import UserGroupCreateExtended
-from app.region.models import Region
-from app.service.models import ComputeService
+from app.provider.schemas_extended import SLACreateExtended, UserGroupCreateExtended
+from app.sla.models import SLA
 from app.user_group.crud import user_group_mng
 from app.user_group.models import UserGroup
 from app.user_group.schemas import (
@@ -25,7 +28,7 @@ from tests.common.schema_validators import (
     CreateSchemaValidation,
     ReadSchemaValidation,
 )
-from tests.utils.utils import random_lower_string
+from tests.utils.utils import random_lower_string, random_start_end_dates
 
 invalid_create_key_values = {
     ("description", None),
@@ -38,7 +41,7 @@ patch_key_values = {
 invalid_patch_key_values = {  # None is not accepted because there is a default
     ("description", None),
 }
-relationships_num = {0, 1, 2}
+relationships_num = {1, 2}
 
 
 # CLASSES FIXTURES
@@ -196,47 +199,58 @@ def user_group_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", relationships_num)
-def db_user_group_simple(
-    owned_projects: int,
-    user_group_create_mandatory_data: Dict[str, Any],
-    db_compute_serv2: ComputeService,
-) -> UserGroup:
-    """Fixture with standard DB UserGroup.
-
-    The user_group can be public or private based on the number of allowed projects.
-    0 - Public. 1 or 2 - Private.
-    """
-    db_region: Region = db_compute_serv2.region.single()
-    db_provider: Provider = db_region.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
-    item = UserGroupCreateExtended(
-        **user_group_create_mandatory_data,
-        is_public=owned_projects == 0,
-        projects=projects[:owned_projects],
-    )
-    return user_group_mng.create(obj_in=item, service=db_compute_serv2)
+def db_user_group_simple(db_shared_identity_provider: IdentityProvider) -> UserGroup:
+    """Fixture with standard DB UserGroup."""
+    return db_shared_identity_provider.user_groups.single()
 
 
 @fixture
-def db_shared_user_group(
-    user_group_create_mandatory_data: Dict[str, Any],
-    db_user_group_simple: UserGroup,
-    db_compute_serv3: ComputeService,
-) -> UserGroup:
-    """UserGroup shared within multiple services."""
-    d = {}
-    for k in user_group_create_mandatory_data.keys():
-        d[k] = db_user_group_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_user_group_simple.projects]
-    item = UserGroupCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
-    return user_group_mng.create(obj_in=item, service=db_compute_serv3)
+def db_user_group_with_multiple_slas(db_user_group_simple: UserGroup) -> UserGroup:
+    """Fixture with a UserGroup with multiple SLAs.
+
+    Each SLA belongs to a different Provider.
+    """
+    db_idp: IdentityProvider = db_user_group_simple.identity_provider.single()
+    if len(db_idp.user_groups) > 2:
+        pytest.skip(
+            "Case with multiple user groups pointing to the same provider not \
+                considered."
+        )
+    [db_user_group1, db_user_group2] = db_idp.user_groups.all()
+    db_sla1: SLA = db_user_group1.slas.single()
+    db_project1: Project = db_sla1.projects.single()
+    db_provider1: Provider = db_project1.provider.single()
+    db_project2: Project = db_provider1.projects.get(uuid__ne=db_project1.uuid)
+
+    user_group_dict = db_user_group2.__dict__
+    start_date, end_date = random_start_end_dates()
+    item = UserGroupCreateExtended(
+        **user_group_dict,
+        sla=SLACreateExtended(
+            doc_uuid=uuid4(),
+            start_date=start_date,
+            end_date=end_date,
+            project=db_project2.uuid,
+        ),
+    )
+
+    db_item = user_group_mng.update(
+        db_obj=db_user_group2,
+        obj_in=item,
+        projects=db_provider1.projects,
+        force=True,
+    )
+    assert len(db_item.slas) > 1
+    return db_item
 
 
 @fixture
 @parametrize(
     "db_item",
-    {fixture_ref("db_user_group_simple"), fixture_ref("db_shared_user_group")},
+    {
+        fixture_ref("db_user_group_simple"),
+        fixture_ref("db_user_group_with_multiple_slas"),
+    },
 )
 def db_user_group(db_item: UserGroup) -> UserGroup:
     """Generic DB UserGroup instance."""

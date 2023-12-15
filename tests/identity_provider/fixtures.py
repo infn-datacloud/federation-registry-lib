@@ -261,7 +261,7 @@ def identity_provider_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_user_groups", relationships_num)
+@parametrize(owned_user_groups=relationships_num)
 def db_identity_provider_simple(
     owned_user_groups: int,
     identity_provider_create_mandatory_data: Dict[str, Any],
@@ -304,27 +304,40 @@ def db_shared_identity_provider(
     """IdentityProvider shared within multiple providers."""
     projects = [i.uuid for i in db_provider_with_idps.projects]
     start_date, end_date = random_start_end_dates()
-    d = db_identity_provider_simple.__dict__
-    d.pop("user_groups")
+    idp_dict = db_identity_provider_simple.__dict__
+    user_groups = []
+    for db_user_group in idp_dict.pop("user_groups"):
+        user_group_dict = db_user_group.__dict__
+        db_sla = user_group_dict.pop("slas")[0]
+        sla_dict = db_sla.__dict__
+        project = sla_dict.pop("projects")[0].uuid
+        user_groups.append(
+            UserGroupCreateExtended(
+                **user_group_dict,
+                sla=SLACreateExtended(**sla_dict, project=project),
+            )
+        )
+    user_groups.append(
+        UserGroupCreateExtended(
+            name=random_lower_string(),
+            sla=SLACreateExtended(
+                doc_uuid=uuid4(),
+                start_date=start_date,
+                end_date=end_date,
+                project=projects[0],
+            ),
+        )
+    )
     item = IdentityProviderCreateExtended(
-        **d,
+        **idp_dict,
         relationship=AuthMethodCreate(
             idp_name=random_lower_string(), protocol=random_lower_string()
         ),
-        user_groups=[
-            UserGroupCreateExtended(
-                name=random_lower_string(),
-                sla=SLACreateExtended(
-                    doc_uuid=uuid4(),
-                    start_date=start_date,
-                    end_date=end_date,
-                    project=projects[0],
-                ),
-            )
-        ],
+        user_groups=user_groups,
     )
     db_item = identity_provider_mng.create(obj_in=item, provider=db_provider_with_idps)
     assert len(db_item.providers) > 1
+    assert len(db_item.user_groups) > 1
     return db_item
 
 
