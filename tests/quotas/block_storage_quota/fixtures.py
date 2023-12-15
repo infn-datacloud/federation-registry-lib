@@ -2,6 +2,7 @@
 from typing import Any, Dict, Tuple, Type, Union
 from uuid import uuid4
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.provider.models import Provider
@@ -21,7 +22,7 @@ from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtendedPublic,
 )
 from app.region.models import Region
-from app.service.models import ComputeService
+from app.service.models import BlockStorageService
 from tests.common.schema_validators import (
     BaseSchemaValidation,
     CreateSchemaValidation,
@@ -55,7 +56,7 @@ invalid_patch_key_values = {  # None is not accepted because there is a default
     ("per_volume_gigabytes", -2),  # -1 is valid
     ("volumes", -2),  # -1 is valid
 }
-relationships_num = {0, 1, 2}
+per_user = {True, False}
 
 
 # CLASSES FIXTURES
@@ -222,53 +223,33 @@ def block_storage_quota_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", relationships_num)
+@parametrize(per_user=per_user)
 def db_block_storage_quota_simple(
-    owned_projects: int,
+    per_user: bool,
     block_storage_quota_create_mandatory_data: Dict[str, Any],
-    db_compute_serv2: ComputeService,
+    db_block_storage_service_simple: BlockStorageService,
 ) -> BlockStorageQuota:
-    """Fixture with standard DB BlockStorageQuota.
-
-    The block_storage_quota can be public or private based on the number of allowed projects.
-    0 - Public. 1 or 2 - Private.
-    """
-    db_region: Region = db_compute_serv2.region.single()
+    """Fixture with standard DB BlockStorageQuota."""
+    db_region: Region = db_block_storage_service_simple.region.single()
     db_provider: Provider = db_region.provider.single()
     projects = [i.uuid for i in db_provider.projects]
+    if len(projects) == 1:
+        pytest.skip("Case with only one project in the provider already considered.")
+
     item = BlockStorageQuotaCreateExtended(
         **block_storage_quota_create_mandatory_data,
-        is_public=owned_projects == 0,
-        projects=projects[:owned_projects],
+        per_user=per_user,
+        project=projects[0],
     )
-    return block_storage_quota_mng.create(obj_in=item, service=db_compute_serv2)
+    return block_storage_quota_mng.create(
+        obj_in=item,
+        service=db_block_storage_service_simple,
+        project=db_provider.projects.single(),
+    )
 
 
 @fixture
-def db_shared_block_storage_quota(
-    block_storage_quota_create_mandatory_data: Dict[str, Any],
-    db_block_storage_quota_simple: BlockStorageQuota,
-    db_compute_serv3: ComputeService,
-) -> BlockStorageQuota:
-    """BlockStorageQuota shared within multiple services."""
-    d = {}
-    for k in block_storage_quota_create_mandatory_data.keys():
-        d[k] = db_block_storage_quota_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_block_storage_quota_simple.projects]
-    item = BlockStorageQuotaCreateExtended(
-        **d, is_public=len(projects) == 0, projects=projects
-    )
-    return block_storage_quota_mng.create(obj_in=item, service=db_compute_serv3)
-
-
-@fixture
-@parametrize(
-    "db_item",
-    {
-        fixture_ref("db_block_storage_quota_simple"),
-        fixture_ref("db_shared_block_storage_quota"),
-    },
-)
+@parametrize("db_item", {fixture_ref("db_block_storage_quota_simple")})
 def db_block_storage_quota(db_item: BlockStorageQuota) -> BlockStorageQuota:
     """Generic DB BlockStorageQuota instance."""
     return db_item
