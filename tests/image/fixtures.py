@@ -62,7 +62,7 @@ relationships_num = {0, 1, 2}
 # CLASSES FIXTURES
 
 
-@fixture(scope="package")
+@fixture
 def image_create_validator() -> (
     CreateSchemaValidation[ImageBase, ImageBasePublic, ImageCreateExtended]
 ):
@@ -72,7 +72,7 @@ def image_create_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def image_read_validator() -> (
     ReadSchemaValidation[
         ImageBase,
@@ -101,7 +101,7 @@ def image_read_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def image_patch_validator() -> BaseSchemaValidation[ImageBase, ImageBasePublic]:
     """Instance to validate image patch schemas."""
     return BaseSchemaValidation[ImageBase, ImageBasePublic](
@@ -109,7 +109,7 @@ def image_patch_validator() -> BaseSchemaValidation[ImageBase, ImageBasePublic]:
     )
 
 
-@fixture(scope="package")
+@fixture
 @parametrize(
     "cls",
     {ImageRead, ImageReadExtended, ImageReadPublic, ImageReadExtendedPublic},

@@ -11,11 +11,14 @@ def refactor(string: str) -> str:
     return string.replace("/", ".").replace("\\", ".").replace(".py", "")
 
 
-pytest_plugins = [refactor(fixture) for fixture in glob("tests/fixtures/[!__]*.py")] + [
-    refactor(fixture) for fixture in glob("tests/**/fixtures.py")
-]
+pytest_plugins = (
+    [refactor(fixture) for fixture in glob("tests/fixtures/[!__]*.py")]
+    + [refactor(fixture) for fixture in glob("tests/*/fixtures*.py")]
+    + [refactor(fixture) for fixture in glob("tests/*/*/fixtures*.py")]
+)
 
 pytest.register_assert_rewrite("tests.utils")
+pytest.register_assert_rewrite("tests.common")
 
 
 # DB specific fixtures

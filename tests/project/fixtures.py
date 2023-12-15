@@ -38,7 +38,7 @@ relationships_num = {0, 1, 2}
 # CLASSES FIXTURES
 
 
-@fixture(scope="package")
+@fixture
 def project_create_validator() -> (
     CreateSchemaValidation[ProjectBase, ProjectBasePublic, ProjectCreate]
 ):
@@ -48,7 +48,7 @@ def project_create_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def project_read_validator() -> (
     ReadSchemaValidation[
         ProjectBase,
@@ -106,7 +106,7 @@ def project_read_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def project_patch_validator() -> BaseSchemaValidation[ProjectBase, ProjectBasePublic]:
     """Instance to validate project patch schemas."""
     return BaseSchemaValidation[ProjectBase, ProjectBasePublic](
@@ -114,7 +114,7 @@ def project_patch_validator() -> BaseSchemaValidation[ProjectBase, ProjectBasePu
     )
 
 
-@fixture(scope="package")
+@fixture
 @parametrize(
     "cls",
     {ProjectRead, ProjectReadExtended, ProjectReadPublic, ProjectReadExtendedPublic},

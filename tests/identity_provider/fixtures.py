@@ -55,7 +55,7 @@ relationships_num = {1, 2}
 # CLASSES FIXTURES
 
 
-@fixture(scope="package")
+@fixture
 def identity_provider_create_validator() -> (
     CreateSchemaValidation[
         IdentityProviderBase, IdentityProviderBasePublic, IdentityProviderCreateExtended
@@ -71,7 +71,7 @@ def identity_provider_create_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def identity_provider_read_validator() -> (
     ReadSchemaValidation[
         IdentityProviderBase,
@@ -100,7 +100,7 @@ def identity_provider_read_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def identity_provider_patch_validator() -> (
     BaseSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic]
 ):
@@ -110,7 +110,7 @@ def identity_provider_patch_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 @parametrize(
     "cls",
     {

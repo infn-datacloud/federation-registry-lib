@@ -47,7 +47,7 @@ relationships_num = {1, 2}
 # CLASSES FIXTURES
 
 
-@fixture(scope="package")
+@fixture
 def user_group_create_validator() -> (
     CreateSchemaValidation[UserGroupBase, UserGroupBasePublic, UserGroupCreateExtended]
 ):
@@ -61,7 +61,7 @@ def user_group_create_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def user_group_read_validator() -> (
     ReadSchemaValidation[
         UserGroupBase,
@@ -90,7 +90,7 @@ def user_group_read_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def user_group_patch_validator() -> (
     BaseSchemaValidation[UserGroupBase, UserGroupBasePublic]
 ):
@@ -100,7 +100,7 @@ def user_group_patch_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 @parametrize(
     "cls",
     {

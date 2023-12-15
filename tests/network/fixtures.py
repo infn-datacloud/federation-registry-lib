@@ -64,7 +64,7 @@ invalid_patch_key_values = {  # None is not accepted because there is a default
 # CLASSES FIXTURES
 
 
-@fixture(scope="package")
+@fixture
 def network_create_validator() -> (
     CreateSchemaValidation[NetworkBase, NetworkBasePublic, NetworkCreateExtended]
 ):
@@ -74,7 +74,7 @@ def network_create_validator() -> (
     ](base=NetworkBase, base_public=NetworkBasePublic, create=NetworkCreateExtended)
 
 
-@fixture(scope="package")
+@fixture
 def network_read_validator() -> (
     ReadSchemaValidation[
         NetworkBase,
@@ -103,7 +103,7 @@ def network_read_validator() -> (
     )
 
 
-@fixture(scope="package")
+@fixture
 def network_patch_validator() -> BaseSchemaValidation[NetworkBase, NetworkBasePublic]:
     """Instance to validate network patch schemas."""
     return BaseSchemaValidation[NetworkBase, NetworkBasePublic](
@@ -111,7 +111,7 @@ def network_patch_validator() -> BaseSchemaValidation[NetworkBase, NetworkBasePu
     )
 
 
-@fixture(scope="package")
+@fixture
 @parametrize(
     "cls",
     {NetworkRead, NetworkReadExtended, NetworkReadPublic, NetworkReadExtendedPublic},
