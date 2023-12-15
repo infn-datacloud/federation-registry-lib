@@ -17,11 +17,19 @@ git clone https://github.com/indigo-paas/federation-registry.git
 cd federation-registry
 ```
 
-## Start up the services
+## Production deployment
 
-Requirements:
+### Requirements
 
-- Docker
+You need to have `docker` installed on your system.
+
+In idle mode, the application uses at least 1.2 GiB of memory space and the `gunicorn` service starts 25 processes (PIDS).
+
+A database with about 20000 entities occupies 500MB of disk space.
+
+> These details can be retrieved running `docker stats` on the host machine and running `du -hs <path-to>/data` on the machine hosting the database.
+
+### Start up the services
 
 In production mode you should run the application using the dedicated image [indigopaas/federation-registry](https://hub.docker.com/r/indigopaas/federation-registry) available on DockerHub.
 
