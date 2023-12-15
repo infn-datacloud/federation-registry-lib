@@ -2,6 +2,7 @@
 from typing import Any, Dict, Tuple, Type, Union
 from uuid import uuid4
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.image.crud import image_mng
@@ -118,26 +119,26 @@ def image_read_class(cls) -> Any:
     return cls
 
 
-# DICT FIXTURES
+# DICT FIXTURES CREATE
 
 
 @fixture
-def image_mandatory_data() -> Dict[str, Any]:
+def image_create_mandatory_data() -> Dict[str, Any]:
     """Dict with Image mandatory attributes."""
     return {"name": random_lower_string(), "uuid": uuid4()}
 
 
 @fixture
 @parametrize("is_public", is_public)
-def image_all_data(
-    is_public: bool, image_mandatory_data: Dict[str, Any]
+def image_create_all_data(
+    is_public: bool, image_create_mandatory_data: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Dict with all Image attributes.
 
     Attribute is_public has been parametrized.
     """
     return {
-        **image_mandatory_data,
+        **image_create_mandatory_data,
         "is_public": is_public,
         "description": random_lower_string(),
         "os_type": random_os_type(),
@@ -152,9 +153,9 @@ def image_all_data(
 
 
 @fixture
-def image_data_with_relationships(image_all_data: Dict[str, Any]) -> Dict[str, Any]:
+def image_create_data_with_rel(image_create_all_data: Dict[str, Any]) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    data = {**image_all_data}
+    data = {**image_create_all_data}
     if not data["is_public"]:
         data["projects"] = [uuid4()]
     return data
@@ -164,8 +165,8 @@ def image_data_with_relationships(image_all_data: Dict[str, Any]) -> Dict[str, A
 @parametrize(
     "data",
     {
-        fixture_ref("image_mandatory_data"),
-        fixture_ref("image_data_with_relationships"),
+        fixture_ref("image_create_mandatory_data"),
+        fixture_ref("image_create_data_with_rel"),
     },
 )
 def image_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -176,10 +177,10 @@ def image_create_valid_data(data: Dict[str, Any]) -> Dict[str, Any]:
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def image_create_invalid_pair(
-    image_mandatory_data: Dict[str, Any], k: str, v: Any
+    image_create_mandatory_data: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**image_mandatory_data}
+    data = {**image_create_mandatory_data}
     data[k] = v
     return data
 
@@ -187,24 +188,24 @@ def image_create_invalid_pair(
 @fixture
 @parametrize("is_public", is_public)
 def image_create_invalid_projects_list_size(
-    image_mandatory_data: Dict[str, Any], is_public: bool
+    image_create_mandatory_data: Dict[str, Any], is_public: bool
 ) -> Dict[str, Any]:
     """Invalid project list size.
 
     Invalid cases: If image is marked as public, the list has at least one element,
     if private, the list has no items.
     """
-    data = {**image_mandatory_data}
+    data = {**image_create_mandatory_data}
     data["is_public"] = is_public
     data["projects"] = None if not is_public else [uuid4()]
     return data
 
 
 @fixture
-def image_create_duplicate_projects(image_mandatory_data: Dict[str, Any]):
+def image_create_duplicate_projects(image_create_mandatory_data: Dict[str, Any]):
     """Invalid case: the project list has duplicate values."""
     project_uuid = uuid4()
-    data = {**image_mandatory_data}
+    data = {**image_create_mandatory_data}
     data["is_public"] = is_public
     data["projects"] = [project_uuid, project_uuid]
     return data
@@ -222,6 +223,9 @@ def image_create_duplicate_projects(image_mandatory_data: Dict[str, Any]):
 def image_create_invalid_data(data: Dict[str, Any]) -> Dict[str, Any]:
     """Invalid set of attributes for a Image create schema."""
     return data
+
+
+# DICT FIXTURES PATCH
 
 
 @fixture
@@ -264,42 +268,54 @@ def image_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 @parametrize("owned_projects", relationships_num)
 def db_image_simple(
     owned_projects: int,
-    image_mandatory_data: Dict[str, Any],
-    db_compute_serv2: ComputeService,
+    image_create_mandatory_data: Dict[str, Any],
+    db_compute_service_simple: ComputeService,
 ) -> Image:
     """Fixture with standard DB Image.
 
     The image can be public or private based on the number of allowed projects.
     0 - Public. 1 or 2 - Private.
     """
-    db_region: Region = db_compute_serv2.region.single()
+    db_region: Region = db_compute_service_simple.region.single()
     db_provider: Provider = db_region.provider.single()
     projects = [i.uuid for i in db_provider.projects]
+    if len(projects) == 1:
+        pytest.skip("Case with only one project in the provider already considered.")
+
     item = ImageCreateExtended(
-        **image_mandatory_data,
+        **image_create_mandatory_data,
         is_public=owned_projects == 0,
         projects=projects[:owned_projects],
     )
-    return image_mng.create(obj_in=item, service=db_compute_serv2)
+    return image_mng.create(
+        obj_in=item, service=db_compute_service_simple, projects=db_provider.projects
+    )
 
 
 @fixture
 def db_shared_image(
-    image_mandatory_data: Dict[str, Any],
-    db_image: Image,
-    db_compute_serv3: ComputeService,
+    image_create_mandatory_data: Dict[str, Any],
+    db_region_with_compute_services: Region,
 ) -> Image:
-    """Image shared within multiple services."""
-    d = {}
-    for k in image_mandatory_data.keys():
-        d[k] = db_image.__getattribute__(k)
-    projects = [i.uuid for i in db_image.projects]
-    item = ImageCreateExtended(**d, is_public=len(projects) == 0, projects=projects)
-    return image_mng.create(obj_in=item, service=db_compute_serv3)
+    """Image shared by multiple services."""
+    db_provider: Provider = db_region_with_compute_services.provider.single()
+    projects = [i.uuid for i in db_provider.projects]
+    item = ImageCreateExtended(
+        **image_create_mandatory_data,
+        is_public=len(projects) - 1 == 0,
+        projects=projects[:-1],
+    )
+    for db_service in db_region_with_compute_services.services:
+        db_item = image_mng.create(
+            obj_in=item, service=db_service, projects=db_provider.projects
+        )
+    return db_item
 
 
 @fixture
-@parametrize("db_item", {fixture_ref("db_image"), fixture_ref("db_shared_image")})
+@parametrize(
+    "db_item", {fixture_ref("db_image_simple"), fixture_ref("db_shared_image")}
+)
 def db_image(db_item: Image) -> Image:
     """Generic DB Image instance."""
     return db_item

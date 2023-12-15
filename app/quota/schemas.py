@@ -160,7 +160,7 @@ class ComputeQuotaBase(QuotaBase):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         cores (int | None): Number of max usable cores.
-        instance (int | None): Number of max VM instances.
+        instances (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
     """
 
@@ -189,7 +189,7 @@ class ComputeQuotaCreate(BaseNodeCreate, ComputeQuotaBase):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         cores (int | None): Number of max usable cores.
-        instance (int | None): Number of max VM instances.
+        instances (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
     """
 
@@ -208,7 +208,7 @@ class ComputeQuotaUpdate(BaseNodeCreate, ComputeQuotaBase):
         type (str | None): Quota type.
         per_user (str | None): This limitation should be applied to each user.
         cores (int | None): Number of max usable cores.
-        instance (int | None): Number of max VM instances.
+        instances (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
     """
 
@@ -244,7 +244,7 @@ class ComputeQuotaRead(BaseNodeRead, ComputeQuotaBase):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         cores (int | None): Number of max usable cores.
-        instance (int | None): Number of max VM instances.
+        instances (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
     """
 
