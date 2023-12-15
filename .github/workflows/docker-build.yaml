@@ -2,7 +2,7 @@ name: Build and push docker image to Docker Hub
 
 on:
   push:
-    branches: [main]
+    branches: [main, build-docker]
     tags:
       - "v*"
   pull_request:
