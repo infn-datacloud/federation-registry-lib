@@ -2,6 +2,7 @@
 from typing import Any, Dict, Tuple, Type, Union
 from uuid import uuid4
 
+import pytest
 from pytest_cases import fixture, fixture_ref, parametrize
 
 from app.identity_provider.crud import identity_provider_mng
@@ -24,14 +25,16 @@ from app.provider.schemas_extended import (
     SLACreateExtended,
     UserGroupCreateExtended,
 )
-from app.region.models import Region
-from app.service.models import ComputeService
 from tests.common.schema_validators import (
     BaseSchemaValidation,
     CreateSchemaValidation,
     ReadSchemaValidation,
 )
-from tests.utils.utils import random_date, random_lower_string, random_url
+from tests.utils.utils import (
+    random_lower_string,
+    random_start_end_dates,
+    random_url,
+)
 
 invalid_create_key_values = {
     ("description", None),
@@ -46,7 +49,7 @@ patch_key_values = {
 invalid_patch_key_values = {  # None is not accepted because there is a default
     ("description", None)
 }
-relationships_num = {0, 1, 2}
+relationships_num = {1, 2}
 
 
 # CLASSES FIXTURES
@@ -135,10 +138,7 @@ def identity_provider_create_mandatory_data() -> Dict[str, Any]:
 def identity_provider_create_all_data(
     identity_provider_create_mandatory_data: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """Dict with all IdentityProvider attributes.
-
-    Attribute is_public has been parametrized.
-    """
+    """Dict with all IdentityProvider attributes."""
     return {
         **identity_provider_create_mandatory_data,
         "description": random_lower_string(),
@@ -146,19 +146,13 @@ def identity_provider_create_all_data(
 
 
 @fixture
-def identity_provider_create_data_with_rel() -> Dict[str, Any]:
+def identity_provider_create_data_with_rel(
+    identity_provider_create_mandatory_data: Dict[str, Any],
+) -> Dict[str, Any]:
     """Dict with IdentityProvider mandatory attributes."""
-    d1 = random_date()
-    d2 = random_date()
-    if d1 < d2:
-        start_date = d1
-        end_date = d2
-    else:
-        start_date = d2
-        end_date = d1
+    start_date, end_date = random_start_end_dates()
     return {
-        "endpoint": random_url(),
-        "group_claim": random_lower_string(),
+        **identity_provider_create_mandatory_data,
         "relationship": AuthMethodCreate(
             idp_name=random_lower_string(), protocol=random_lower_string()
         ),
@@ -208,14 +202,7 @@ def identity_provider_create_duplicate_user_groups(
     user_group_create_mandatory_data: Dict[str, Any],
 ):
     """Invalid case: the user group list has duplicate values."""
-    d1 = random_date()
-    d2 = random_date()
-    if d1 < d2:
-        start_date = d1
-        end_date = d2
-    else:
-        start_date = d2
-        end_date = d1
+    start_date, end_date = random_start_end_dates()
     user_group = UserGroupCreateExtended(
         **user_group_create_mandatory_data,
         sla=SLACreateExtended(
@@ -274,43 +261,71 @@ def identity_provider_patch_invalid_data(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("owned_projects", relationships_num)
+@parametrize("owned_user_groups", relationships_num)
 def db_identity_provider_simple(
-    owned_projects: int,
+    owned_user_groups: int,
     identity_provider_create_mandatory_data: Dict[str, Any],
-    db_compute_serv2: ComputeService,
+    db_provider_with_projects: Provider,
 ) -> IdentityProvider:
-    """Fixture with standard DB IdentityProvider.
+    """Fixture with standard DB IdentityProvider."""
+    projects = [i.uuid for i in db_provider_with_projects.projects]
+    if len(projects) == 1:
+        pytest.skip("Case with only one project in the provider already considered.")
 
-    The identity_provider can be public or private based on the number of allowed projects.
-    0 - Public. 1 or 2 - Private.
-    """
-    db_region: Region = db_compute_serv2.region.single()
-    db_provider: Provider = db_region.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
+    user_groups = []
+    for project in projects[:owned_user_groups]:
+        start_date, end_date = random_start_end_dates()
+        user_groups.append(
+            UserGroupCreateExtended(
+                name=random_lower_string(),
+                sla=SLACreateExtended(
+                    doc_uuid=uuid4(),
+                    start_date=start_date,
+                    end_date=end_date,
+                    project=project,
+                ),
+            )
+        )
+
     item = IdentityProviderCreateExtended(
         **identity_provider_create_mandatory_data,
-        is_public=owned_projects == 0,
-        projects=projects[:owned_projects],
+        relationship=AuthMethodCreate(
+            idp_name=random_lower_string(), protocol=random_lower_string()
+        ),
+        user_groups=user_groups,
     )
-    return identity_provider_mng.create(obj_in=item, service=db_compute_serv2)
+    return identity_provider_mng.create(obj_in=item, provider=db_provider_with_projects)
 
 
 @fixture
 def db_shared_identity_provider(
-    identity_provider_create_mandatory_data: Dict[str, Any],
-    db_identity_provider_simple: IdentityProvider,
-    db_compute_serv3: ComputeService,
+    db_identity_provider_simple: IdentityProvider, db_provider_with_idps: Provider
 ) -> IdentityProvider:
-    """IdentityProvider shared within multiple services."""
-    d = {}
-    for k in identity_provider_create_mandatory_data.keys():
-        d[k] = db_identity_provider_simple.__getattribute__(k)
-    projects = [i.uuid for i in db_identity_provider_simple.projects]
+    """IdentityProvider shared within multiple providers."""
+    projects = [i.uuid for i in db_provider_with_idps.projects]
+    start_date, end_date = random_start_end_dates()
+    d = db_identity_provider_simple.__dict__
+    d.pop("user_groups")
     item = IdentityProviderCreateExtended(
-        **d, is_public=len(projects) == 0, projects=projects
+        **d,
+        relationship=AuthMethodCreate(
+            idp_name=random_lower_string(), protocol=random_lower_string()
+        ),
+        user_groups=[
+            UserGroupCreateExtended(
+                name=random_lower_string(),
+                sla=SLACreateExtended(
+                    doc_uuid=uuid4(),
+                    start_date=start_date,
+                    end_date=end_date,
+                    project=projects[0],
+                ),
+            )
+        ],
     )
-    return identity_provider_mng.create(obj_in=item, service=db_compute_serv3)
+    db_item = identity_provider_mng.create(obj_in=item, provider=db_provider_with_idps)
+    assert len(db_item.providers) > 1
+    return db_item
 
 
 @fixture

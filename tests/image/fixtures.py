@@ -298,6 +298,9 @@ def db_shared_image(
     db_region_with_compute_services: Region,
 ) -> Image:
     """Image shared by multiple services."""
+    if len(db_region_with_compute_services.services) == 1:
+        pytest.skip("Case with only one service already considered.")
+
     db_provider: Provider = db_region_with_compute_services.provider.single()
     projects = [i.uuid for i in db_provider.projects]
     item = ImageCreateExtended(
@@ -309,6 +312,7 @@ def db_shared_image(
         db_item = image_mng.create(
             obj_in=item, service=db_service, projects=db_provider.projects
         )
+    assert len(db_item.services) > 1
     return db_item
 
 

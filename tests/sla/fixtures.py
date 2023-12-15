@@ -23,7 +23,7 @@ from tests.common.schema_validators import (
     CreateSchemaValidation,
     ReadSchemaValidation,
 )
-from tests.utils.utils import random_date, random_lower_string
+from tests.utils.utils import random_date, random_lower_string, random_start_end_dates
 
 invalid_create_key_values = {
     ("description", None),
@@ -109,14 +109,7 @@ def sla_read_class(cls) -> Any:
 @fixture
 def sla_create_mandatory_data() -> Dict[str, Any]:
     """Dict with SLA mandatory attributes."""
-    d1 = random_date()
-    d2 = random_date()
-    if d1 < d2:
-        start_date = d1
-        end_date = d2
-    else:
-        start_date = d2
-        end_date = d1
+    start_date, end_date = random_start_end_dates()
     return {"doc_uuid": uuid4(), "start_date": start_date, "end_date": end_date}
 
 
@@ -190,14 +183,7 @@ def sla_patch_invalid_single_attr(k: str, v: Any) -> Dict[str, Any]:
 @fixture
 def sla_patch_invalid_dates_couple() -> Dict[str, Any]:
     """Valid set of single key-value pair for a SLA patch schema."""
-    d1 = random_date()
-    d2 = random_date()
-    if d1 < d2:
-        start_date = d1
-        end_date = d2
-    else:
-        start_date = d2
-        end_date = d1
+    start_date, end_date = random_start_end_dates()
     return {"start_date": end_date, "end_date": start_date}
 
 

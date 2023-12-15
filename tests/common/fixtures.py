@@ -119,7 +119,7 @@ def invalid_patch_schema_tuples(cls, data):
     "cls, validator, db_item",
     {
         fixture_ref("flavor_valid_read_schema_tuple"),
-        # fixture_ref("identity_provider_valid_read_schema_tuple"),
+        fixture_ref("identity_provider_valid_read_schema_tuple"),
         fixture_ref("image_valid_read_schema_tuple"),
         fixture_ref("location_valid_read_schema_tuple"),
         fixture_ref("network_valid_read_schema_tuple"),

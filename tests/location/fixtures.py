@@ -223,6 +223,7 @@ def db_shared_location(
     item = LocationCreate(**db_location_simple.__dict__)
     for db_region in db_provider_with_regions.regions:
         db_item = location_mng.create(obj_in=item, region=db_region)
+    assert len(db_item.regions) > 1
     return db_item
 
 
