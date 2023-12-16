@@ -28,13 +28,13 @@ def db_network_service_simple(
 
 
 @fixture
-def db_network_service_with_projects(
+def db_network_service_with_single_project(
     network_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
+    db_region_with_single_project: Region,
 ) -> NetworkService:
     """Fixture with standard DB NetworkService."""
     item = NetworkServiceCreateExtended(**network_service_create_mandatory_data)
-    return network_service_mng.create(obj_in=item, region=db_region_with_projects)
+    return network_service_mng.create(obj_in=item, region=db_region_with_single_project)
 
 
 @fixture

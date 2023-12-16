@@ -87,16 +87,28 @@ def provider_create_data_with_regions(
 
 
 @fixture
-@parametrize(owned_projects=relationships_num)
-def provider_create_data_with_projects(
-    owned_projects: int,
+def provider_create_data_with_single_project(
     provider_create_all_data: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Dict with all Provider attributes and regions."""
-    projects = []
-    for _ in range(owned_projects):
-        projects.append(ProjectCreate(name=random_lower_string(), uuid=uuid4()))
-    return {**provider_create_all_data, "projects": projects}
+    return {
+        **provider_create_all_data,
+        "projects": [ProjectCreate(name=random_lower_string(), uuid=uuid4())],
+    }
+
+
+@fixture
+def provider_create_data_with_projects(
+    provider_create_all_data: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Dict with all Provider attributes and regions."""
+    return {
+        **provider_create_all_data,
+        "projects": [
+            ProjectCreate(name=random_lower_string(), uuid=uuid4()),
+            ProjectCreate(name=random_lower_string(), uuid=uuid4()),
+        ],
+    }
 
 
 @fixture

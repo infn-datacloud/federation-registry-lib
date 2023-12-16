@@ -30,6 +30,16 @@ def db_provider_with_regions(
 
 
 @fixture
+def db_provider_with_single_project(
+    setup_and_teardown_db: Generator,
+    provider_create_data_with_single_project: Dict[str, Any],
+) -> Provider:
+    """Fixture with standard DB Provider."""
+    item = ProviderCreateExtended(**provider_create_data_with_single_project)
+    return provider_mng.create(obj_in=item)
+
+
+@fixture
 def db_provider_with_projects(
     setup_and_teardown_db: Generator,
     provider_create_data_with_projects: Dict[str, Any],

@@ -29,13 +29,13 @@ def db_compute_service_simple(
 
 
 @fixture
-def db_compute_service_with_projects(
+def db_compute_service_with_single_project(
     compute_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
+    db_region_with_single_project: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
     item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
-    return compute_service_mng.create(obj_in=item, region=db_region_with_projects)
+    return compute_service_mng.create(obj_in=item, region=db_region_with_single_project)
 
 
 @fixture

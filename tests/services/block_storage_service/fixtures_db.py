@@ -28,15 +28,17 @@ def db_block_storage_service_simple(
 
 
 @fixture
-def db_block_storage_service_with_projects(
+def db_block_storage_service_with_single_project(
     block_storage_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
+    db_region_with_single_project: Region,
 ) -> BlockStorageService:
     """Fixture with standard DB BlockStorageService."""
     item = BlockStorageServiceCreateExtended(
         **block_storage_service_create_mandatory_data
     )
-    return block_storage_service_mng.create(obj_in=item, region=db_region_with_projects)
+    return block_storage_service_mng.create(
+        obj_in=item, region=db_region_with_single_project
+    )
 
 
 @fixture
