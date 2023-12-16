@@ -9,9 +9,9 @@ from httpx import Response
 from app.sla.models import SLA
 from app.sla.schemas import SLABase, SLAUpdate
 from app.user_group.models import UserGroup
+from tests.common.utils import random_date
 from tests.fixtures.client import CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.utils import random_date
 
 
 class SLAAPI(BaseAPI[SLA, SLABase, SLABase, SLAUpdate]):

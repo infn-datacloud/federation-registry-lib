@@ -5,9 +5,9 @@ from fastapi.testclient import TestClient
 
 from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import IdentityProviderBase, IdentityProviderUpdate
+from tests.common.utils import random_lower_string, random_url
 from tests.fixtures.client import CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.utils import random_lower_string, random_url
 
 
 class IdentityProviderAPI(

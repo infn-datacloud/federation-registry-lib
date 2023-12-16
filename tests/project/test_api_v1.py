@@ -10,9 +10,9 @@ from app.project.models import Project
 from app.project.schemas import ProjectBase, ProjectUpdate
 from app.provider.models import Provider
 from app.sla.models import SLA
+from tests.common.utils import random_lower_string
 from tests.fixtures.client import CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.utils import random_lower_string
 
 
 class ProjectAPI(BaseAPI[Project, ProjectBase, ProjectBase, ProjectUpdate]):

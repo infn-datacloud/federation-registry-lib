@@ -11,9 +11,9 @@ from app.provider.models import Provider
 from app.sla.models import SLA
 from app.user_group.models import UserGroup
 from app.user_group.schemas import UserGroupBase, UserGroupUpdate
+from tests.common.utils import random_lower_string
 from tests.fixtures.client import CLIENTS, CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.utils import random_lower_string
 
 
 class UserGroupAPI(BaseAPI[UserGroup, UserGroupBase, UserGroupBase, UserGroupUpdate]):
