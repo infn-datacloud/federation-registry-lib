@@ -8,8 +8,8 @@ from app.provider.schemas_extended import (
     NetworkQuotaCreateExtended,
 )
 from app.service.enum import ServiceType
-from tests.utils.network_service import random_network_service_name
-from tests.utils.utils import random_lower_string, random_url
+from tests.common.utils import random_lower_string, random_url
+from tests.services.utils import random_network_service_name
 
 invalid_create_key_values = [
     ("description", None),

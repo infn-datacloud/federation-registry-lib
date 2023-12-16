@@ -10,9 +10,9 @@ from app.network.models import Network
 from app.network.schemas import NetworkBase, NetworkUpdate
 from app.project.models import Project
 from app.service.models import NetworkService
+from tests.common.utils import random_bool, random_lower_string, random_non_negative_int
 from tests.fixtures.client import CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.utils import random_bool, random_lower_string, random_non_negative_int
 
 
 class NetworkAPI(BaseAPI[Network, NetworkBase, NetworkBase, NetworkUpdate]):

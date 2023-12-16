@@ -13,7 +13,7 @@ from app.provider.schemas_extended import (
 from app.region.models import Region
 from app.service.crud import network_service_mng
 from app.service.models import NetworkService
-from tests.utils.utils import random_lower_string
+from tests.common.utils import random_lower_string
 
 relationships_num = [1, 2]
 

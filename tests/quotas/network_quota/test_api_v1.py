@@ -9,9 +9,9 @@ from app.project.models import Project
 from app.quota.models import NetworkQuota
 from app.quota.schemas import NetworkQuotaBase, NetworkQuotaUpdate
 from app.service.models import NetworkService
+from tests.common.utils import random_non_negative_int
 from tests.fixtures.client import CLIENTS, CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.utils import random_non_negative_int
 
 
 class NetworkQuotaAPI(

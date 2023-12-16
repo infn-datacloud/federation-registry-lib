@@ -4,8 +4,8 @@ from uuid import uuid4
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from tests.utils.image import random_os_type
-from tests.utils.utils import random_bool, random_lower_string
+from tests.common.utils import random_bool, random_lower_string
+from tests.image.utils import random_os_type
 
 is_public = {True, False}
 invalid_create_key_values = {

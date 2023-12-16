@@ -19,14 +19,14 @@ from app.provider.schemas_extended import (
     SLACreateExtended,
     UserGroupCreateExtended,
 )
-from tests.utils.provider import random_status, random_type
-from tests.utils.utils import (
+from tests.common.utils import (
     random_bool,
     random_email,
     random_lower_string,
     random_start_end_dates,
     random_url,
 )
+from tests.provider.utils import random_status, random_type
 
 invalid_create_key_values = [
     ("description", None),

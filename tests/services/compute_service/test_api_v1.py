@@ -8,10 +8,10 @@ from app.region.models import Region
 from app.service.enum import ServiceType
 from app.service.models import ComputeService
 from app.service.schemas import ComputeServiceBase, ComputeServiceUpdate
+from tests.common.utils import random_url
 from tests.fixtures.client import CLIENTS_READ_WRITE
+from tests.services.utils import random_compute_service_name
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.compute_service import random_compute_service_name
-from tests.utils.utils import random_url
 
 
 class ComputeServiceAPI(

@@ -8,10 +8,10 @@ from httpx import Response
 
 from app.image.models import Image
 from app.image.schemas import ImageBase, ImageUpdate
+from tests.common.utils import random_bool, random_lower_string
 from tests.fixtures.client import CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
 from tests.utils.image import random_os_type
-from tests.utils.utils import random_bool, random_lower_string
 
 
 class ImageAPI(BaseAPI[Image, ImageBase, ImageBase, ImageUpdate]):

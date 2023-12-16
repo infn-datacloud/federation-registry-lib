@@ -4,11 +4,13 @@ from typing import Any, Dict
 from pytest_cases import fixture, parametrize
 
 from app.service.enum import ServiceType
-from tests.utils.block_storage_service import random_block_storage_service_name
-from tests.utils.compute_service import random_compute_service_name
-from tests.utils.identity_service import random_identity_service_name
-from tests.utils.network_service import random_network_service_name
-from tests.utils.utils import random_lower_string, random_url
+from tests.common.utils import random_lower_string, random_url
+from tests.services.utils import (
+    random_block_storage_service_name,
+    random_compute_service_name,
+    random_identity_service_name,
+    random_network_service_name,
+)
 
 patch_key_values = [
     ("description", random_lower_string()),

@@ -8,10 +8,10 @@ from app.region.models import Region
 from app.service.enum import ServiceType
 from app.service.models import IdentityService
 from app.service.schemas import IdentityServiceBase, IdentityServiceUpdate
+from tests.common.utils import random_url
 from tests.fixtures.client import CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
 from tests.utils.identity_service import random_identity_service_name
-from tests.utils.utils import random_url
 
 
 class IdentityServiceAPI(

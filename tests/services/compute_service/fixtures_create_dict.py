@@ -9,8 +9,8 @@ from app.provider.schemas_extended import (
     ImageCreateExtended,
 )
 from app.service.enum import ServiceType
-from tests.utils.compute_service import random_compute_service_name
-from tests.utils.utils import random_lower_string, random_url
+from tests.common.utils import random_lower_string, random_url
+from tests.services.utils import random_compute_service_name
 
 invalid_create_key_values = [
     ("description", None),

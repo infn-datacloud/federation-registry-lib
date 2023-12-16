@@ -3,8 +3,8 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, parametrize
 
-from tests.utils.location import random_country, random_latitude, random_longitude
-from tests.utils.utils import random_lower_string
+from tests.common.utils import random_lower_string
+from tests.location.utils import random_country, random_latitude, random_longitude
 
 patch_key_values = [
     ("description", random_lower_string()),

@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from tests.utils.utils import (
+from tests.common.utils import (
     random_bool,
     random_lower_string,
     random_non_negative_int,

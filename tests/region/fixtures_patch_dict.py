@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from tests.utils.utils import random_lower_string
+from tests.common.utils import random_lower_string
 
 patch_key_values = [
     ("description", random_lower_string()),

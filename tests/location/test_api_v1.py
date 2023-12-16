@@ -8,10 +8,10 @@ from pycountry import countries
 
 from app.location.models import Location
 from app.location.schemas import LocationBase, LocationUpdate
+from tests.common.utils import random_lower_string
 from tests.fixtures.client import CLIENTS_READ_WRITE
+from tests.location.utils import random_country, random_latitude, random_longitude
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
-from tests.utils.location import random_country, random_latitude, random_longitude
-from tests.utils.utils import random_lower_string
 
 
 class LocationAPI(BaseAPI[Location, LocationBase, LocationBase, LocationUpdate]):

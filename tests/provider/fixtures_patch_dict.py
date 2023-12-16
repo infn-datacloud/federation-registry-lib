@@ -3,12 +3,12 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from tests.utils.provider import random_status, random_type
-from tests.utils.utils import (
+from tests.common.utils import (
     random_bool,
     random_email,
     random_lower_string,
 )
+from tests.provider.utils import random_status, random_type
 
 patch_key_values = [
     ("description", random_lower_string()),

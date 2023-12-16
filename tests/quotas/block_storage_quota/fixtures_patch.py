@@ -4,7 +4,7 @@ from typing import Any, Dict
 from pytest_cases import fixture, parametrize
 
 from app.quota.enum import QuotaType
-from tests.utils.utils import random_bool, random_lower_string, random_non_negative_int
+from tests.common.utils import random_bool, random_lower_string, random_non_negative_int
 
 patch_key_values = {
     ("description", random_lower_string()),

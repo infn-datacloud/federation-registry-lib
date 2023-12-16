@@ -3,8 +3,8 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from tests.utils.location import random_country, random_latitude, random_longitude
-from tests.utils.utils import random_lower_string
+from tests.common.utils import random_lower_string
+from tests.location.utils import random_country, random_latitude, random_longitude
 
 invalid_create_key_values = [
     ("description", None),

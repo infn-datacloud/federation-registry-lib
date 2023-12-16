@@ -6,7 +6,7 @@ from neomodel import StructuredNode
 from pydantic import BaseModel
 
 from app.models import BaseNode, BaseNodeCreate
-from tests.utils.utils import random_lower_string
+from tests.common.utils import random_lower_string
 
 ModelType = TypeVar("ModelType", bound=StructuredNode)
 BasicSchemaType = TypeVar("BasicSchemaType", bound=BaseNode)

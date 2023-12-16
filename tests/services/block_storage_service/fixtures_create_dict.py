@@ -7,8 +7,8 @@ from app.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
 )
 from app.service.enum import ServiceType
-from tests.utils.block_storage_service import random_block_storage_service_name
-from tests.utils.utils import random_lower_string, random_url
+from tests.common.utils import random_lower_string, random_url
+from tests.services.utils import random_block_storage_service_name
 
 invalid_create_key_values = [
     ("description", None),

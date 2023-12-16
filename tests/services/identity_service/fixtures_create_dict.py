@@ -4,8 +4,8 @@ from typing import Any, Dict
 from pytest_cases import fixture, parametrize
 
 from app.service.enum import ServiceType
-from tests.utils.identity_service import random_identity_service_name
-from tests.utils.utils import random_lower_string, random_url
+from tests.common.utils import random_lower_string, random_url
+from tests.services.utils import random_identity_service_name
 
 invalid_create_key_values = [
     ("description", None),
