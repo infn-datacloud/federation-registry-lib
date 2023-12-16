@@ -39,6 +39,16 @@ def db_compute_service_with_single_project(
 
 
 @fixture
+def db_compute_service_with_projects(
+    compute_service_create_mandatory_data: Dict[str, Any],
+    db_region_with_projects: Region,
+) -> ComputeService:
+    """Fixture with standard DB ComputeService."""
+    item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
+    return compute_service_mng.create(obj_in=item, region=db_region_with_projects)
+
+
+@fixture
 @parametrize(owned_quotas=relationships_num)
 def db_compute_service_with_quotas(
     owned_quotas: int,
