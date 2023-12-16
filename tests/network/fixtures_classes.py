@@ -68,8 +68,7 @@ def network_patch_validator() -> BaseSchemaValidation[NetworkBase, NetworkBasePu
 
 @fixture
 @parametrize(
-    "cls",
-    {NetworkRead, NetworkReadExtended, NetworkReadPublic, NetworkReadExtendedPublic},
+    cls=[NetworkRead, NetworkReadExtended, NetworkReadPublic, NetworkReadExtendedPublic]
 )
 def network_read_class(cls) -> Any:
     """Network Read schema."""

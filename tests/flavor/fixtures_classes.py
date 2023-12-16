@@ -68,8 +68,7 @@ def flavor_patch_validator() -> BaseSchemaValidation[FlavorBase, FlavorBasePubli
 
 @fixture
 @parametrize(
-    "cls",
-    {FlavorRead, FlavorReadExtended, FlavorReadPublic, FlavorReadExtendedPublic},
+    cls=[FlavorRead, FlavorReadExtended, FlavorReadPublic, FlavorReadExtendedPublic]
 )
 def flavor_read_class(cls) -> Any:
     """Flavor Read schema."""

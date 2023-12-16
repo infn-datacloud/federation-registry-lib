@@ -97,8 +97,7 @@ def project_patch_validator() -> BaseSchemaValidation[ProjectBase, ProjectBasePu
 
 @fixture
 @parametrize(
-    "cls",
-    {ProjectRead, ProjectReadExtended, ProjectReadPublic, ProjectReadExtendedPublic},
+    cls=[ProjectRead, ProjectReadExtended, ProjectReadPublic, ProjectReadExtendedPublic]
 )
 def project_read_class(cls) -> Any:
     """Project Read schema."""

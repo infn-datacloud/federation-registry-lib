@@ -85,13 +85,12 @@ def compute_service_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         ComputeServiceRead,
         ComputeServiceReadExtended,
         ComputeServiceReadPublic,
         ComputeServiceReadExtendedPublic,
-    },
+    ],
 )
 def compute_service_read_class(cls) -> Any:
     """ComputeService Read schema."""

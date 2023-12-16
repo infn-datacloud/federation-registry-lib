@@ -44,7 +44,7 @@ def network_create_all_data(
 
 
 @fixture
-@parametrize("is_shared", is_shared)
+@parametrize(is_shared=is_shared)
 def network_create_data_with_rel(
     network_create_all_data: Dict[str, Any], is_shared: bool
 ) -> Dict[str, Any]:
@@ -69,7 +69,7 @@ def network_create_invalid_pair(
 
 
 @fixture
-@parametrize("is_shared", is_shared)
+@parametrize(is_shared=is_shared)
 def network_create_invalid_project_conn(
     network_create_mandatory_data: Dict[str, Any], is_shared: bool
 ) -> Dict[str, Any]:

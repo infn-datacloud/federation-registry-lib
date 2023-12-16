@@ -70,8 +70,7 @@ def region_patch_validator() -> BaseSchemaValidation[RegionBase, RegionBasePubli
 
 @fixture
 @parametrize(
-    "cls",
-    {RegionRead, RegionReadExtended, RegionReadPublic, RegionReadExtendedPublic},
+    cls=[RegionRead, RegionReadExtended, RegionReadPublic, RegionReadExtendedPublic]
 )
 def region_read_class(cls) -> Any:
     """Region Read schema."""

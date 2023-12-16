@@ -73,13 +73,12 @@ def location_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         LocationRead,
         LocationReadExtended,
         LocationReadPublic,
         LocationReadExtendedPublic,
-    },
+    ]
 )
 def location_read_class(cls) -> Any:
     """Location Read schema."""

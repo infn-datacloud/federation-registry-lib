@@ -68,8 +68,7 @@ def image_patch_validator() -> BaseSchemaValidation[ImageBase, ImageBasePublic]:
 
 @fixture
 @parametrize(
-    "cls",
-    {ImageRead, ImageReadExtended, ImageReadPublic, ImageReadExtendedPublic},
+    cls=[ImageRead, ImageReadExtended, ImageReadPublic, ImageReadExtendedPublic]
 )
 def image_read_class(cls) -> Any:
     """Image Read schema."""

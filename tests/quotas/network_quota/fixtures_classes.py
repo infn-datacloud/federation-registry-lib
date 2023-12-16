@@ -85,13 +85,12 @@ def network_quota_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         NetworkQuotaRead,
         NetworkQuotaReadExtended,
         NetworkQuotaReadPublic,
         NetworkQuotaReadExtendedPublic,
-    },
+    ],
 )
 def network_quota_read_class(cls) -> Any:
     """NetworkQuota Read schema."""

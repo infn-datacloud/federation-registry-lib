@@ -85,13 +85,12 @@ def network_service_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         NetworkServiceRead,
         NetworkServiceReadExtended,
         NetworkServiceReadPublic,
         NetworkServiceReadExtendedPublic,
-    },
+    ],
 )
 def network_service_read_class(cls) -> Any:
     """NetworkService Read schema."""

@@ -67,10 +67,7 @@ def sla_patch_validator() -> BaseSchemaValidation[SLABase, SLABasePublic]:
 
 
 @fixture
-@parametrize(
-    "cls",
-    {SLARead, SLAReadExtended, SLAReadPublic, SLAReadExtendedPublic},
-)
+@parametrize(cls=[SLARead, SLAReadExtended, SLAReadPublic, SLAReadExtendedPublic])
 def sla_read_class(cls) -> Any:
     """SLA Read schema."""
     return cls

@@ -85,13 +85,12 @@ def block_storage_service_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         BlockStorageServiceRead,
         BlockStorageServiceReadExtended,
         BlockStorageServiceReadPublic,
         BlockStorageServiceReadExtendedPublic,
-    },
+    ],
 )
 def block_storage_service_read_class(cls) -> Any:
     """BlockStorageService Read schema."""

@@ -73,12 +73,12 @@ def provider_patch_validator() -> (
 
 @fixture
 @parametrize(
-    cls={
+    cls=[
         ProviderRead,
         ProviderReadExtended,
         ProviderReadPublic,
         ProviderReadExtendedPublic,
-    },
+    ]
 )
 def provider_read_class(cls) -> Any:
     """Provider Read schema."""

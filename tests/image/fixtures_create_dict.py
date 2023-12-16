@@ -46,7 +46,7 @@ def image_create_all_data(
 
 
 @fixture
-@parametrize("is_public", is_public)
+@parametrize(is_public=is_public)
 def image_create_data_with_rel(
     image_create_all_data: Dict[str, Any], is_public: bool
 ) -> Dict[str, Any]:
@@ -71,7 +71,7 @@ def image_create_invalid_pair(
 
 
 @fixture
-@parametrize("is_public", is_public)
+@parametrize(is_public=is_public)
 def image_create_invalid_projects_list_size(
     image_create_mandatory_data: Dict[str, Any], is_public: bool
 ) -> Dict[str, Any]:

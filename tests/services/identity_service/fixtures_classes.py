@@ -85,13 +85,12 @@ def identity_service_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         IdentityServiceRead,
         IdentityServiceReadExtended,
         IdentityServiceReadPublic,
         IdentityServiceReadExtendedPublic,
-    },
+    ],
 )
 def identity_service_read_class(cls) -> Any:
     """IdentityService Read schema."""

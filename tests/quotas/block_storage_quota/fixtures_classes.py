@@ -85,13 +85,12 @@ def block_storage_quota_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         BlockStorageQuotaRead,
         BlockStorageQuotaReadExtended,
         BlockStorageQuotaReadPublic,
         BlockStorageQuotaReadExtendedPublic,
-    },
+    ],
 )
 def block_storage_quota_read_class(cls) -> Any:
     """BlockStorageQuota Read schema."""

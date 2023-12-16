@@ -77,13 +77,12 @@ def user_group_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         UserGroupRead,
         UserGroupReadExtended,
         UserGroupReadPublic,
         UserGroupReadExtendedPublic,
-    },
+    ]
 )
 def user_group_read_class(cls) -> Any:
     """UserGroup Read schema."""

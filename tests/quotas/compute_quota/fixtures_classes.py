@@ -85,13 +85,12 @@ def compute_quota_patch_validator() -> (
 
 @fixture
 @parametrize(
-    "cls",
-    {
+    cls=[
         ComputeQuotaRead,
         ComputeQuotaReadExtended,
         ComputeQuotaReadPublic,
         ComputeQuotaReadExtendedPublic,
-    },
+    ],
 )
 def compute_quota_read_class(cls) -> Any:
     """ComputeQuota Read schema."""
