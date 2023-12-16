@@ -1,6 +1,7 @@
 """Flavor specific fixtures."""
 from typing import Any, Dict
 
+import pytest
 from pytest_cases import fixture, fixture_union, parametrize
 
 from app.flavor.crud import flavor_mng
@@ -47,6 +48,8 @@ def db_shared_flavor(
 ) -> Flavor:
     """Flavor shared by multiple services."""
     item = FlavorCreateExtended(**flavor_create_mandatory_data)
+    if len(db_region_with_compute_services.services) == 1:
+        pytest.skip("Case with only one service already considered.")
     for db_service in db_region_with_compute_services.services:
         db_item = flavor_mng.create(obj_in=item, service=db_service)
     assert len(db_item.services) > 1

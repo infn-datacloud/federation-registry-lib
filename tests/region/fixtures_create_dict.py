@@ -80,36 +80,20 @@ def region_create_data_with_block_storage_services(
 
 
 @fixture
-def region_create_data_with_single_compute_service(
+@parametrize(owned_services=relationships_num)
+def region_create_data_with_compute_services(
+    owned_services: int,
     region_create_all_data: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    return {
-        **region_create_all_data,
-        "compute_services": [
+    services = []
+    for _ in range(owned_services):
+        services.append(
             ComputeServiceCreateExtended(
                 endpoint=random_url(), name=random_compute_service_name()
             )
-        ],
-    }
-
-
-@fixture
-def region_create_data_with_compute_services(
-    region_create_all_data: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Dict with relationships attributes."""
-    return {
-        **region_create_all_data,
-        "compute_services": [
-            ComputeServiceCreateExtended(
-                endpoint=random_url(), name=random_compute_service_name()
-            ),
-            ComputeServiceCreateExtended(
-                endpoint=random_url(), name=random_compute_service_name()
-            ),
-        ],
-    }
+        )
+    return {**region_create_all_data, "compute_services": services}
 
 
 @fixture
@@ -209,7 +193,6 @@ region_create_valid_data = fixture_union(
         region_create_data_passing_empty_list,
         region_create_data_with_location,
         region_create_data_with_block_storage_services,
-        region_create_data_with_single_compute_service,
         region_create_data_with_compute_services,
         region_create_data_with_identity_services,
         region_create_data_with_network_services,
