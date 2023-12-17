@@ -11,7 +11,7 @@ regex = "*"
 
 [[package]]
 name = "anyio"
-version = "4.0.0"
+version = "4.2.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 category = "main"
 optional = false
@@ -21,15 +21,16 @@ python-versions = ">=3.8"
 exceptiongroup = {version = ">=1.0.2", markers = "python_version < \"3.11\""}
 idna = ">=2.8"
 sniffio = ">=1.1"
+typing-extensions = {version = ">=4.1", markers = "python_version < \"3.11\""}
 
 [package.extras]
-doc = ["packaging", "Sphinx (>=7)", "sphinx-autodoc-typehints (>=1.2.0)"]
-test = ["anyio", "coverage[toml] (>=7)", "hypothesis (>=4.0)", "psutil (>=5.9)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (>=0.17)"]
-trio = ["trio (>=0.22)"]
+doc = ["packaging", "Sphinx (>=7)", "sphinx-rtd-theme", "sphinx-autodoc-typehints (>=1.2.0)"]
+test = ["anyio", "coverage[toml] (>=7)", "exceptiongroup (>=1.2.0)", "hypothesis (>=4.0)", "psutil (>=5.9)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (>=0.17)"]
+trio = ["trio (>=0.23)"]
 
 [[package]]
 name = "argcomplete"
-version = "3.1.6"
+version = "3.2.1"
 description = "Bash tab completion for argparse"
 category = "dev"
 optional = false
@@ -40,7 +41,7 @@ test = ["coverage", "pexpect", "wheel", "ruff", "mypy"]
 
 [[package]]
 name = "babel"
-version = "2.13.1"
+version = "2.14.0"
 description = "Internationalization utilities"
 category = "dev"
 optional = false
@@ -97,7 +98,7 @@ test = ["pytest", "flake8", "isort"]
 
 [[package]]
 name = "certifi"
-version = "2023.7.22"
+version = "2023.11.17"
 description = "Python package for providing Mozilla's CA Bundle."
 category = "main"
 optional = false
@@ -151,7 +152,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,>=2.7
 
 [[package]]
 name = "colorlog"
-version = "6.7.0"
+version = "6.8.0"
 description = "Add colours to the output of Python's logging module."
 category = "dev"
 optional = false
@@ -177,7 +178,7 @@ yaml = ["pyyaml"]
 
 [[package]]
 name = "coverage"
-version = "7.3.2"
+version = "7.3.3"
 description = "Code coverage measurement for Python"
 category = "dev"
 optional = false
@@ -191,7 +192,7 @@ toml = ["tomli"]
 
 [[package]]
 name = "cryptography"
-version = "41.0.5"
+version = "41.0.7"
 description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 category = "main"
 optional = false
@@ -227,6 +228,17 @@ doc = ["sphinx", "sphinx-rtd-theme"]
 test = ["pytest", "isort", "flake8"]
 
 [[package]]
+name = "decopatch"
+version = "1.4.10"
+description = "Create decorators easily in python."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+makefun = ">=1.5.0"
+
+[[package]]
 name = "defusedxml"
 version = "0.7.1"
 description = "XML bomb protection for Python stdlib modules"
@@ -236,7 +248,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "distlib"
-version = "0.3.7"
+version = "0.3.8"
 description = "Distribution utilities"
 category = "dev"
 optional = false
@@ -272,7 +284,7 @@ idna = ">=2.0.0"
 
 [[package]]
 name = "exceptiongroup"
-version = "1.1.3"
+version = "1.2.0"
 description = "Backport of PEP 654 (exception groups)"
 category = "main"
 optional = false
@@ -314,7 +326,7 @@ typing = ["typing-extensions (>=4.8)"]
 
 [[package]]
 name = "flaat"
-version = "1.1.14"
+version = "1.1.15"
 description = "User authorization for OIDC authenticated python web APIs."
 category = "main"
 optional = false
@@ -334,7 +346,7 @@ requests = ">=2.31"
 aiohttp = ["aiohttp"]
 fastapi = ["fastapi (>=0.61.2)"]
 flask = ["flask"]
-test = ["aiohttp", "fastapi[all] (>=0.61.2)", "flask", "pylint-pytest", "pytest", "pytest-aiohttp", "pytest-cases", "pytest-cov", "python-dotenv", "types-flask"]
+test = ["python-dotenv", "pytest", "pytest-aiohttp", "pytest-cov", "pytest-cases", "pylint-pytest", "aiohttp", "fastapi[all] (>=0.61.2)", "flask", "types-flask"]
 
 [[package]]
 name = "ghp-import"
@@ -352,7 +364,7 @@ dev = ["twine", "markdown", "flake8", "wheel"]
 
 [[package]]
 name = "griffe"
-version = "0.38.0"
+version = "0.38.1"
 description = "Signatures for entire Python programs. Extract the structure, the frame, the skeleton of your project, to generate API documentation or find breaking changes in your API."
 category = "dev"
 optional = false
@@ -420,7 +432,7 @@ pyreadline3 = {version = "*", markers = "sys_platform == \"win32\" and python_ve
 
 [[package]]
 name = "identify"
-version = "2.5.31"
+version = "2.5.33"
 description = "File identification library for Python"
 category = "dev"
 optional = false
@@ -431,7 +443,7 @@ license = ["ukkonen"]
 
 [[package]]
 name = "idna"
-version = "3.4"
+version = "3.6"
 description = "Internationalized Domain Names in Applications (IDNA)"
 category = "main"
 optional = false
@@ -439,7 +451,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "importlib-metadata"
-version = "6.8.0"
+version = "7.0.0"
 description = "Read metadata from Python packages"
 category = "dev"
 optional = false
@@ -449,7 +461,7 @@ python-versions = ">=3.8"
 zipp = ">=0.5"
 
 [package.extras]
-docs = ["sphinx (>=3.5)", "jaraco.packaging (>=9)", "rst.linker (>=1.9)", "furo", "sphinx-lint", "jaraco.tidelift (>=1.4)"]
+docs = ["sphinx (>=3.5)", "sphinx (<7.2.5)", "jaraco.packaging (>=9.3)", "rst.linker (>=1.9)", "furo", "sphinx-lint", "jaraco.tidelift (>=1.4)"]
 perf = ["ipython"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ruff", "packaging", "pyfakefs", "flufl.flake8", "pytest-perf (>=0.9.2)", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)", "importlib-resources (>=1.3)"]
 
@@ -485,6 +497,14 @@ python-versions = "*"
 
 [package.dependencies]
 PyNaCl = ">=1.2.0"
+
+[[package]]
+name = "makefun"
+version = "1.15.2"
+description = "Small library to dynamically create python functions."
+category = "dev"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "markdown"
@@ -570,7 +590,7 @@ mkdocs = ">=1.0"
 
 [[package]]
 name = "mkdocs-material"
-version = "9.4.8"
+version = "9.5.2"
 description = "Documentation that simply works"
 category = "dev"
 optional = false
@@ -596,7 +616,7 @@ recommended = ["mkdocs-minify-plugin (>=0.7,<1.0)", "mkdocs-redirects (>=1.2,<2.
 
 [[package]]
 name = "mkdocs-material-extensions"
-version = "1.3"
+version = "1.3.1"
 description = "Extension pack for Python Markdown and MkDocs Material."
 category = "dev"
 optional = false
@@ -629,7 +649,7 @@ python = ["mkdocstrings-python (>=0.5.2)"]
 
 [[package]]
 name = "mkdocstrings-python"
-version = "1.7.4"
+version = "1.7.5"
 description = "A Python handler for mkdocstrings."
 category = "dev"
 optional = false
@@ -718,11 +738,11 @@ python-versions = "*"
 
 [[package]]
 name = "pathspec"
-version = "0.11.2"
+version = "0.12.1"
 description = "Utility library for gitignore style pattern matching of file paths."
 category = "dev"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [[package]]
 name = "pillow"
@@ -738,11 +758,11 @@ tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "pa
 
 [[package]]
 name = "platformdirs"
-version = "3.11.0"
+version = "4.1.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 category = "dev"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 
 [package.extras]
 docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx-autodoc-typehints (>=1.24)", "sphinx (>=7.1.1)"]
@@ -809,7 +829,7 @@ email = ["email-validator (>=1.0.3)"]
 
 [[package]]
 name = "pygments"
-version = "2.16.1"
+version = "2.17.2"
 description = "Pygments is a syntax highlighting package written in Python."
 category = "dev"
 optional = false
@@ -817,6 +837,7 @@ python-versions = ">=3.7"
 
 [package.extras]
 plugins = ["importlib-metadata"]
+windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pyjwt"
@@ -837,14 +858,14 @@ tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
 
 [[package]]
 name = "pymdown-extensions"
-version = "10.4"
+version = "10.5"
 description = "Extension pack for Python Markdown."
 category = "dev"
 optional = false
 python-versions = ">=3.8"
 
 [package.dependencies]
-markdown = ">=3.2"
+markdown = ">=3.5"
 pyyaml = "*"
 
 [package.extras]
@@ -891,6 +912,19 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 
 [package.extras]
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
+
+[[package]]
+name = "pytest-cases"
+version = "3.8.1"
+description = "Separate test code from test cases in pytest."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+decopatch = "*"
+makefun = ">=1.15.1"
+packaging = "*"
 
 [[package]]
 name = "pytest-cov"
@@ -973,7 +1007,7 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "ruff"
-version = "0.1.5"
+version = "0.1.8"
 description = "An extremely fast Python linter and code formatter, written in Rust."
 category = "dev"
 optional = false
@@ -1035,7 +1069,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "typing-extensions"
-version = "4.8.0"
+version = "4.9.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
 category = "main"
 optional = false
@@ -1071,7 +1105,7 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 
 [[package]]
 name = "virtualenv"
-version = "20.24.6"
+version = "20.25.0"
 description = "Virtual Python Environment builder"
 category = "dev"
 optional = false
@@ -1080,7 +1114,7 @@ python-versions = ">=3.7"
 [package.dependencies]
 distlib = ">=0.3.7,<1"
 filelock = ">=3.12.2,<4"
-platformdirs = ">=3.9.1,<4"
+platformdirs = ">=3.9.1,<5"
 
 [package.extras]
 docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx-argparse (>=0.4)", "sphinx (>=7.1.2)", "sphinxcontrib-towncrier (>=0.2.1a0)", "towncrier (>=23.6)"]
@@ -1120,7 +1154,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-ena
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.1"
-content-hash = "ed1e3367e154467c93740cd8ed8b0b7f5086d4517815185312c6285cdc31b485"
+content-hash = "db498d662779db080cd5e7d84dc133705bdc3868f5cf8a510a4d1222be17702b"
 
 [metadata.files]
 aarc-entitlement = []
@@ -1141,6 +1175,7 @@ configargparse = []
 coverage = []
 cryptography = []
 cssselect2 = []
+decopatch = []
 defusedxml = []
 distlib = []
 dnspython = []
@@ -1164,6 +1199,7 @@ jinja2 = [
     {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
 ]
 liboidcagent = []
+makefun = []
 markdown = []
 markupsafe = []
 mergedeep = []
@@ -1198,6 +1234,7 @@ pymdown-extensions = []
 pynacl = []
 pyreadline3 = []
 pytest = []
+pytest-cases = []
 pytest-cov = []
 python-dateutil = []
 pytz = []
