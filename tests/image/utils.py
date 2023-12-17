@@ -31,6 +31,11 @@ def random_image_all_attr() -> Dict[str, Any]:
     }
 
 
+def random_image_required_rel(is_public: bool) -> Dict[str, Any]:
+    """Return a dict with the Image required attributes initialized."""
+    return {"projects": [] if is_public else [uuid4()]}
+
+
 def random_os_type() -> str:
     """Return one of the possible image OS values."""
     return choice([i.value for i in ImageOS])

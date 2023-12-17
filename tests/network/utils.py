@@ -25,3 +25,8 @@ def random_network_all_attr() -> Dict[str, Any]:
         "proxy_user": random_lower_string(),
         "tags": [random_lower_string()],
     }
+
+
+def random_network_required_rel(is_shared: bool) -> Dict[str, Any]:
+    """Return a dict with the Network required attributes initialized."""
+    return {"project": None if is_shared else uuid4()}

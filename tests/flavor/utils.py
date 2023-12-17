@@ -38,3 +38,8 @@ def random_flavor_all_attr() -> Dict[str, Any]:
         "gpu_vendor": random_lower_string(),
         "local_storage": random_lower_string(),
     }
+
+
+def random_flavor_required_rel(is_public: bool) -> Dict[str, Any]:
+    """Return a dict with the Flavor required attributes initialized."""
+    return {"projects": [] if is_public else [uuid4()]}

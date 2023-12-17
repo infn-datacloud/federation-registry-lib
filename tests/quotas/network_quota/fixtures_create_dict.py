@@ -7,6 +7,7 @@ from pytest_cases import fixture, fixture_union, parametrize
 from tests.quotas.network_quota.utils import (
     random_network_quota_all_attr,
     random_network_quota_required_attr,
+    random_network_quota_required_rel,
 )
 
 invalid_create_key_values = [
@@ -34,11 +35,13 @@ def network_quota_create_data_with_rel() -> Dict[str, Any]:
 
 @fixture
 @parametrize("k, v", invalid_create_key_values)
-def network_quota_create_invalid_pair(
-    network_quota_create_data_with_rel: Dict[str, Any], k: str, v: Any
-) -> Dict[str, Any]:
+def network_quota_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    return {**network_quota_create_data_with_rel, k: v}
+    return {
+        **random_network_quota_all_attr(),
+        **random_network_quota_required_rel(),
+        k: v,
+    }
 
 
 network_quota_create_valid_data = fixture_union(

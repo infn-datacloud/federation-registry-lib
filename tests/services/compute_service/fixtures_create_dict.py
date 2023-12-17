@@ -9,8 +9,16 @@ from app.provider.schemas_extended import (
     ImageCreateExtended,
 )
 from app.service.enum import ServiceType
-from tests.flavor.utils import random_flavor_required_attr
-from tests.image.utils import random_image_required_attr
+from tests.flavor.utils import (
+    IS_PUBLIC,
+    random_flavor_required_attr,
+    random_flavor_required_rel,
+)
+from tests.image.utils import random_image_required_attr, random_image_required_rel
+from tests.quotas.compute_quota.utils import (
+    random_compute_quota_required_attr,
+    random_compute_quota_required_rel,
+)
 from tests.services.compute_service.utils import (
     random_compute_service_all_attr,
     random_compute_service_required_attr,
@@ -44,45 +52,60 @@ def compute_service_create_data_passing_empty_list(attr: str) -> Dict[str, Any]:
 
 
 @fixture
-def compute_service_create_data_with_flavors(
-    flavor_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+@parametrize(is_public=IS_PUBLIC)
+def compute_service_create_data_with_flavors(is_public: bool) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    flavor = FlavorCreateExtended(**flavor_create_data_with_rel)
-    return {**random_compute_service_all_attr(), "flavors": [flavor]}
+    return {
+        **random_compute_service_all_attr(),
+        "flavors": [
+            FlavorCreateExtended(
+                **random_flavor_required_attr(),
+                **random_flavor_required_rel(is_public),
+                is_public=is_public,
+            )
+        ],
+    }
 
 
 @fixture
-def compute_service_create_data_with_images(
-    image_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+@parametrize(is_public=IS_PUBLIC)
+def compute_service_create_data_with_images(is_public: bool) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    image = ImageCreateExtended(**image_create_data_with_rel)
-    return {**random_compute_service_all_attr(), "images": [image]}
+    return {
+        **random_compute_service_all_attr(),
+        "images": [
+            ImageCreateExtended(
+                **random_image_required_attr(),
+                **random_image_required_rel(is_public),
+                is_public=is_public,
+            )
+        ],
+    }
 
 
 @fixture
-def compute_service_create_data_with_quotas(
-    compute_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_service_create_data_with_quotas() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    quota = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
+    quota = ComputeQuotaCreateExtended(
+        **random_compute_quota_required_attr(), **random_compute_quota_required_rel()
+    )
     return {**random_compute_service_all_attr(), "quotas": [quota]}
 
 
 @fixture
-def compute_service_create_data_with_2_quotas_same_proj(
-    compute_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_service_create_data_with_2_quotas_same_proj() -> Dict[str, Any]:
     """Dict with 2 quotas on same project.
 
     A quota has the flag 'per_user' equals to True and the other equal to False.
     """
-    quota1 = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
-    compute_quota_create_data_with_rel[
-        "per_user"
-    ] = not compute_quota_create_data_with_rel["per_user"]
-    quota2 = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
+    quota1 = ComputeQuotaCreateExtended(
+        **random_compute_quota_required_attr(), **random_compute_quota_required_rel()
+    )
+    quota2 = ComputeQuotaCreateExtended(
+        **random_compute_quota_required_attr(),
+        **random_compute_quota_required_rel(),
+        per_user=not quota1.per_user,
+    )
     return {**random_compute_service_all_attr(), "quotas": [quota1, quota2]}
 
 
@@ -94,15 +117,15 @@ def compute_service_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-def compute_service_invalid_num_quotas_same_project(
-    compute_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_service_invalid_num_quotas_same_project() -> Dict[str, Any]:
     """Invalid number of quotas on same project.
 
     A project can have at most one `project` quota and one `per-user` quota on a
     specific service.
     """
-    quota = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
+    quota = ComputeQuotaCreateExtended(
+        **random_compute_quota_required_attr(), **random_compute_quota_required_rel()
+    )
     return {**random_compute_service_required_attr(), "quotas": [quota, quota]}
 
 

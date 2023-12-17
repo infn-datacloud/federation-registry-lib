@@ -1,6 +1,6 @@
 """ComputeQuota utilities."""
-
 from typing import Any, Dict
+from uuid import uuid4
 
 from tests.common.utils import random_bool, random_lower_string, random_non_negative_int
 
@@ -20,3 +20,8 @@ def random_compute_quota_all_attr() -> Dict[str, Any]:
         "instances": random_non_negative_int(),
         "ram": random_non_negative_int(),
     }
+
+
+def random_compute_quota_required_rel() -> Dict[str, Any]:
+    """Dict with all ComputeQuota relationships."""
+    return {"project": uuid4()}

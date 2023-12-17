@@ -7,6 +7,10 @@ from app.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
 )
 from app.service.enum import ServiceType
+from tests.quotas.block_storage_quota.utils import (
+    random_block_storage_quota_required_attr,
+    random_block_storage_quota_required_rel,
+)
 from tests.services.block_storage_service.utils import (
     random_block_storage_service_all_attr,
     random_block_storage_service_required_attr,
@@ -39,27 +43,30 @@ def block_storage_service_create_data_passing_empty_list() -> Dict[str, Any]:
 
 
 @fixture
-def block_storage_service_create_data_with_quotas(
-    block_storage_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def block_storage_service_create_data_with_quotas() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    quota = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
+    quota = BlockStorageQuotaCreateExtended(
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+    )
     return {**random_block_storage_service_all_attr(), "quotas": [quota]}
 
 
 @fixture
-def block_storage_service_create_data_with_2_quotas_same_proj(
-    block_storage_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def block_storage_service_create_data_with_2_quotas_same_proj() -> Dict[str, Any]:
     """Dict with 2 quotas on same project.
 
     A quota has the flag 'per_user' equals to True and the other equal to False.
     """
-    quota1 = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
-    block_storage_quota_create_data_with_rel[
-        "per_user"
-    ] = not block_storage_quota_create_data_with_rel["per_user"]
-    quota2 = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
+    quota1 = BlockStorageQuotaCreateExtended(
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+    )
+    quota2 = BlockStorageQuotaCreateExtended(
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+        per_user=not quota1.per_user,
+    )
     return {**random_block_storage_service_all_attr(), "quotas": [quota1, quota2]}
 
 
@@ -71,15 +78,16 @@ def block_storage_service_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-def block_storage_service_invalid_num_quotas_same_project(
-    block_storage_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def block_storage_service_invalid_num_quotas_same_project() -> Dict[str, Any]:
     """Invalid number of quotas on same project.
 
     A project can have at most one `project` quota and one `per-user` quota on a
     specific service.
     """
-    quota = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
+    quota = BlockStorageQuotaCreateExtended(
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+    )
     return {**random_block_storage_service_all_attr(), "quotas": [quota, quota]}
 
 

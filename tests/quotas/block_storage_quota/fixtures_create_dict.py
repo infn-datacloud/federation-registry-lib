@@ -1,12 +1,12 @@
 """BlockStorageQuota specific fixtures."""
 from typing import Any, Dict
-from uuid import uuid4
 
 from pytest_cases import fixture, fixture_union, parametrize
 
 from tests.quotas.block_storage_quota.utils import (
     random_block_storage_quota_all_attr,
     random_block_storage_quota_required_attr,
+    random_block_storage_quota_required_rel,
 )
 
 invalid_create_key_values = [
@@ -27,16 +27,21 @@ def block_storage_quota_create_minimum_data() -> Dict[str, Any]:
 @fixture
 def block_storage_quota_create_data_with_rel() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    return {**random_block_storage_quota_all_attr(), "project": uuid4()}
+    return {
+        **random_block_storage_quota_all_attr(),
+        **random_block_storage_quota_required_rel(),
+    }
 
 
 @fixture
 @parametrize("k, v", invalid_create_key_values)
-def block_storage_quota_create_invalid_pair(
-    block_storage_quota_create_data_with_rel: Dict[str, Any], k: str, v: Any
-) -> Dict[str, Any]:
+def block_storage_quota_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    return {**block_storage_quota_create_data_with_rel, k: v}
+    return {
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+        k: v,
+    }
 
 
 block_storage_quota_create_valid_data = fixture_union(

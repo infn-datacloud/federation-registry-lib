@@ -4,6 +4,10 @@ from typing import Any, Dict
 
 from app.provider.enum import ProviderStatus, ProviderType
 from tests.common.utils import random_bool, random_email, random_lower_string
+from tests.identity_provider.utils import (
+    random_identity_provider_required_attr,
+    random_identity_provider_required_rel,
+)
 
 
 def random_provider_required_attr() -> Dict[str, Any]:
@@ -19,6 +23,18 @@ def random_provider_all_attr() -> Dict[str, Any]:
         "status": random_status(),
         "is_public": random_bool(),
         "support_emails": [random_email()],
+    }
+
+
+def random_provider_required_rel() -> Dict[str, Any]:
+    """Return a dict with the Provider required relationships initialized."""
+    return {
+        "identity_providers": [
+            {
+                **random_identity_provider_required_attr(),
+                **random_identity_provider_required_rel(),
+            }
+        ]
     }
 
 

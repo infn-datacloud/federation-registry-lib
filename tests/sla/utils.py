@@ -17,6 +17,11 @@ def random_sla_all_attr() -> Dict[str, Any]:
     return {**random_sla_required_attr(), "description": random_lower_string()}
 
 
+def random_sla_required_rel() -> Dict[str, Any]:
+    """Dict with SLA required relationships initialized."""
+    return {"project": uuid4()}
+
+
 def random_start_end_dates() -> Tuple[date, date]:
     """Return a random couples of valid start and end dates (in order)."""
     d1 = random_date()

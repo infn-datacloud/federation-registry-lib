@@ -8,7 +8,15 @@ from app.provider.schemas_extended import (
     NetworkQuotaCreateExtended,
 )
 from app.service.enum import ServiceType
-from tests.network.utils import random_network_required_attr
+from tests.network.utils import (
+    IS_SHARED,
+    random_network_required_attr,
+    random_network_required_rel,
+)
+from tests.quotas.network_quota.utils import (
+    random_network_quota_required_attr,
+    random_network_quota_required_rel,
+)
 from tests.services.network_service.utils import (
     random_network_service_all_attr,
     random_network_service_required_attr,
@@ -42,36 +50,44 @@ def network_service_create_data_passing_empty_list(attr: str) -> Dict[str, Any]:
 
 
 @fixture
-def network_service_create_data_with_networks(
-    network_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+@parametrize(is_shared=IS_SHARED)
+def network_service_create_data_with_networks(is_shared: bool) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    network = NetworkCreateExtended(**network_create_data_with_rel)
-    return {**random_network_service_all_attr(), "networks": [network]}
+    return {
+        **random_network_service_all_attr(),
+        "networks": [
+            NetworkCreateExtended(
+                **random_network_required_attr(),
+                **random_network_required_rel(is_shared),
+                is_shared=is_shared,
+            )
+        ],
+    }
 
 
 @fixture
-def network_service_create_data_with_quotas(
-    network_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def network_service_create_data_with_quotas() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    quota = NetworkQuotaCreateExtended(**network_quota_create_data_with_rel)
+    quota = NetworkQuotaCreateExtended(
+        **random_network_quota_required_attr(), **random_network_quota_required_rel()
+    )
     return {**random_network_service_all_attr(), "quotas": [quota]}
 
 
 @fixture
-def network_service_create_data_with_2_quotas_same_proj(
-    network_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def network_service_create_data_with_2_quotas_same_proj() -> Dict[str, Any]:
     """Dict with 2 quotas on same project.
 
     A quota has the flag 'per_user' equals to True and the other equal to False.
     """
-    quota1 = NetworkQuotaCreateExtended(**network_quota_create_data_with_rel)
-    network_quota_create_data_with_rel[
-        "per_user"
-    ] = not network_quota_create_data_with_rel["per_user"]
-    quota2 = NetworkQuotaCreateExtended(**network_quota_create_data_with_rel)
+    quota1 = NetworkQuotaCreateExtended(
+        **random_network_quota_required_attr(), **random_network_quota_required_rel()
+    )
+    quota2 = NetworkQuotaCreateExtended(
+        **random_network_quota_required_attr(),
+        **random_network_quota_required_rel(),
+        per_user=not quota1.per_user,
+    )
     return {**random_network_service_all_attr(), "quotas": [quota1, quota2]}
 
 
@@ -83,15 +99,15 @@ def network_service_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-def network_service_invalid_num_quotas_same_project(
-    network_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def network_service_invalid_num_quotas_same_project() -> Dict[str, Any]:
     """Invalid number of quotas on same project.
 
     A project can have at most one `project` quota and one `per-user` quota on a
     specific service.
     """
-    quota = NetworkQuotaCreateExtended(**network_quota_create_data_with_rel)
+    quota = NetworkQuotaCreateExtended(
+        **random_network_quota_required_attr(), **random_network_quota_required_rel()
+    )
     return {**random_network_service_required_attr(), "quotas": [quota, quota]}
 
 

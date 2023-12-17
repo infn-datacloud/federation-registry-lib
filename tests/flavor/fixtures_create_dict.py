@@ -9,6 +9,7 @@ from tests.flavor.utils import (
     IS_PUBLIC,
     random_flavor_all_attr,
     random_flavor_required_attr,
+    random_flavor_required_rel,
 )
 
 invalid_create_key_values = [
@@ -40,8 +41,8 @@ def flavor_create_data_with_rel(is_public: bool) -> Dict[str, Any]:
     """
     return {
         **random_flavor_all_attr(),
+        **random_flavor_required_rel(is_public),
         "is_public": is_public,
-        "projects": [] if is_public else [uuid4()],
     }
 
 

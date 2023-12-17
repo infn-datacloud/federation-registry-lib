@@ -2,28 +2,44 @@
 from typing import Any, Dict, List
 from uuid import uuid4
 
-import pytest
-from pytest_cases import fixture, fixture_ref, fixture_union, parametrize
+from pytest_cases import fixture, fixture_union, parametrize
 
 from app.provider.schemas_extended import (
     AuthMethodCreate,
     BlockStorageServiceCreateExtended,
-    ComputeServiceCreateExtended,
-    FlavorCreateExtended,
     IdentityProviderCreateExtended,
-    ImageCreateExtended,
-    NetworkCreateExtended,
-    NetworkServiceCreateExtended,
     ProjectCreate,
     RegionCreateExtended,
     SLACreateExtended,
     UserGroupCreateExtended,
 )
 from tests.common.utils import random_lower_string
-from tests.identity_provider.utils import random_identity_provider_required_attr
+from tests.flavor.utils import random_flavor_required_attr, random_flavor_required_rel
+from tests.identity_provider.utils import (
+    random_identity_provider_required_attr,
+)
+from tests.image.utils import random_image_required_attr, random_image_required_rel
+from tests.network.utils import (
+    random_network_required_attr,
+    random_network_required_rel,
+)
 from tests.project.utils import random_project_required_attr
-from tests.provider.utils import random_provider_all_attr, random_provider_required_attr
+from tests.provider.utils import (
+    random_provider_all_attr,
+    random_provider_required_attr,
+    random_provider_required_rel,
+)
+from tests.quotas.compute_quota.utils import (
+    random_compute_quota_required_attr,
+    random_compute_quota_required_rel,
+)
+from tests.quotas.network_quota.utils import (
+    random_network_quota_required_attr,
+    random_network_quota_required_rel,
+)
 from tests.region.utils import random_region_required_attr
+from tests.services.compute_service.utils import random_compute_service_required_attr
+from tests.services.network_service.utils import random_network_service_required_attr
 from tests.sla.utils import random_start_end_dates
 
 invalid_create_key_values = [
@@ -213,16 +229,9 @@ def provider_create_duplicate_sla_same_user_group() -> Dict[str, Any]:
 
 
 @fixture
-def provider_create_invalid_sla_project_uuid(
-    identity_provider_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def provider_create_invalid_sla_project_uuid() -> Dict[str, Any]:
     """Dict with all Provider attributes and regions."""
-    return {
-        **random_provider_required_attr(),
-        "identity_providers": [
-            IdentityProviderCreateExtended(**identity_provider_create_data_with_rel)
-        ],
-    }
+    return {**random_provider_required_attr(), **random_provider_required_rel()}
 
 
 @fixture
@@ -246,57 +255,59 @@ def provider_create_invalid_block_storage_serv_project_uuid(
 
 
 @fixture
-@parametrize(
-    service_with_rel=(
-        fixture_ref("compute_service_create_data_with_flavors"),
-        fixture_ref("compute_service_create_data_with_images"),
-        fixture_ref("compute_service_create_data_with_quotas"),
-    ),
-    idstyle="explicit",
-)
+@parametrize(service_rel_type=["flavors, images, quotas"])
 def provider_create_invalid_compute_serv_project_uuid(
-    service_with_rel: Dict[str, Any],
+    service_rel_type: str,
 ) -> Dict[str, Any]:
     """Dict with all Provider attributes and regions."""
-    flavors: List[FlavorCreateExtended] = service_with_rel.get("flavors", [])
-    if len(flavors) > 0 and flavors[0].is_public:
-        pytest.skip("Public flavor does not have project UUIDs.")
-    images: List[ImageCreateExtended] = service_with_rel.get("images", [])
-    if len(images) > 0 and images[0].is_public:
-        pytest.skip("Public image does not have project UUIDs.")
+    compute_service = random_compute_service_required_attr()
+    if service_rel_type == "flavors":
+        compute_service[service_rel_type] = {
+            **random_flavor_required_attr(),
+            **random_flavor_required_rel(False),
+            "is_public": False,
+        }
+    if service_rel_type == "images":
+        compute_service[service_rel_type] = {
+            **random_image_required_attr(),
+            **random_image_required_rel(False),
+            "is_public": False,
+        }
+    if service_rel_type == "quotas":
+        compute_service[service_rel_type] = {
+            **random_compute_quota_required_attr(),
+            **random_compute_quota_required_rel(),
+        }
     return {
         **random_project_required_attr(),
         "regions": [
-            RegionCreateExtended(
-                **random_region_required_attr(),
-                compute_services=[ComputeServiceCreateExtended(**service_with_rel)],
-            )
+            {**random_region_required_attr(), "compute_services": [compute_service]}
         ],
     }
 
 
 @fixture
-@parametrize(
-    service_with_rel=(
-        fixture_ref("network_service_create_data_with_networks"),
-        fixture_ref("network_service_create_data_with_quotas"),
-    ),
-    idstyle="explicit",
-)
+@parametrize(service_rel_type=["networks, quotas"])
 def provider_create_invalid_network_serv_project_uuid(
-    service_with_rel: Dict[str, Any],
+    service_rel_type: str,
 ) -> Dict[str, Any]:
     """Dict with all Provider attributes and regions."""
-    networks: List[NetworkCreateExtended] = service_with_rel.get("networks", [])
-    if len(networks) > 0 and networks[0].is_shared:
-        pytest.skip("Public network does not have project UUIDs.")
+    network_service = random_network_service_required_attr()
+    if service_rel_type == "networks":
+        network_service[service_rel_type] = {
+            **random_network_required_attr(),
+            **random_network_required_rel(False),
+            "is_shared": False,
+        }
+    if service_rel_type == "quotas":
+        network_service[service_rel_type] = {
+            **random_network_quota_required_attr(),
+            **random_network_quota_required_rel(),
+        }
     return {
         **random_project_required_attr(),
         "regions": [
-            RegionCreateExtended(
-                **random_region_required_attr(),
-                network_services=[NetworkServiceCreateExtended(**service_with_rel)],
-            )
+            {**random_region_required_attr(), "network_services": [network_service]}
         ],
     }
 

@@ -8,6 +8,7 @@ from tests.network.utils import (
     IS_SHARED,
     random_network_all_attr,
     random_network_required_attr,
+    random_network_required_rel,
 )
 
 invalid_create_key_values = {
@@ -37,8 +38,8 @@ def network_create_data_with_rel(is_shared: bool) -> Dict[str, Any]:
     """
     return {
         **random_network_all_attr(),
+        **random_network_required_rel(is_shared),
         "is_shared": is_shared,
-        "project": None if is_shared else uuid4(),
     }
 
 

@@ -7,6 +7,7 @@ from pytest_cases import fixture, fixture_union, parametrize
 from tests.quotas.compute_quota.utils import (
     random_compute_quota_all_attr,
     random_compute_quota_required_attr,
+    random_compute_quota_required_rel,
 )
 
 invalid_create_key_values = [
@@ -32,11 +33,13 @@ def compute_quota_create_data_with_rel() -> Dict[str, Any]:
 
 @fixture
 @parametrize("k, v", invalid_create_key_values)
-def compute_quota_create_invalid_pair(
-    compute_quota_create_data_with_rel: Dict[str, Any], k: str, v: Any
-) -> Dict[str, Any]:
+def compute_quota_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    return {**compute_quota_create_data_with_rel, k: v}
+    return {
+        **random_compute_quota_all_attr(),
+        **random_compute_quota_required_rel(),
+        k: v,
+    }
 
 
 compute_quota_create_valid_data = fixture_union(

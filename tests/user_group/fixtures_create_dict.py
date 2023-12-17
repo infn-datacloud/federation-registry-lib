@@ -6,6 +6,7 @@ from pytest_cases import fixture, fixture_union, parametrize
 from tests.user_group.utils import (
     random_user_group_all_attr,
     random_user_group_required_attr,
+    random_user_group_required_rel,
 )
 
 invalid_create_key_values = [("description", None), ("name", None)]
@@ -18,20 +19,23 @@ def user_group_create_minimum_data() -> Dict[str, Any]:
 
 
 @fixture
-def user_group_create_data_with_rel(
-    sla_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def user_group_create_data_with_rel() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    return {**random_user_group_all_attr(), "sla": sla_create_data_with_rel}
+    return {
+        **random_user_group_all_attr(),
+        **random_user_group_required_rel(),
+    }
 
 
 @fixture
 @parametrize("k, v", invalid_create_key_values)
-def user_group_create_invalid_pair(
-    user_group_create_data_with_rel: Dict[str, Any], k: str, v: Any
-) -> Dict[str, Any]:
+def user_group_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    return {**user_group_create_data_with_rel, k: v}
+    return {
+        **random_user_group_required_attr(),
+        **random_user_group_required_rel(),
+        k: v,
+    }
 
 
 user_group_create_valid_data = fixture_union(
