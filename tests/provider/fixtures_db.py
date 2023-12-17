@@ -15,8 +15,6 @@ from tests.identity_provider.utils import (
 from tests.project.utils import random_project_required_attr
 from tests.provider.utils import random_provider_required_attr
 from tests.region.utils import random_region_required_attr
-from tests.sla.utils import random_sla_required_attr
-from tests.user_group.utils import random_user_group_required_attr
 
 
 @fixture
@@ -59,25 +57,18 @@ def db_provider_with_projects(setup_and_teardown_db: Generator) -> Provider:
 
 
 @fixture
-def db_provider_with_idps(setup_and_teardown_db: Generator) -> Provider:
+@parametrize(owned_identity_providers=[1, 2])
+def db_provider_with_idps(
+    owned_identity_providers: int, setup_and_teardown_db: Generator
+) -> Provider:
     """Fixture with standard DB Provider."""
-    projects = [random_project_required_attr(), random_project_required_attr()]
+    projects = [random_project_required_attr() for _ in range(owned_identity_providers)]
     identity_providers = []
     for project in projects:
+        relationships = random_identity_provider_required_rel()
+        relationships["user_groups"][0]["sla"]["project"] = project["uuid"]
         identity_providers.append(
-            {
-                **random_identity_provider_required_attr(),
-                **random_identity_provider_required_rel(),
-                "user_groups": [
-                    {
-                        **random_user_group_required_attr(),
-                        "sla": {
-                            **random_sla_required_attr(),
-                            "project": project["uuid"],
-                        },
-                    }
-                ],
-            }
+            {**random_identity_provider_required_attr(), **relationships}
         )
     item = ProviderCreateExtended(
         **random_provider_required_attr(),

@@ -16,7 +16,7 @@ from app.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 @parametrize(
     db_provider=[
         fixture_ref("db_provider_with_single_project"),
-        fixture_ref("db_provider_with_idps"),
+        fixture_ref("db_provider_with_projects"),
     ]
 )
 def db_project_from_provider(db_provider: Provider) -> Project:

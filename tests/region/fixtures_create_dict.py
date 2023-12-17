@@ -13,7 +13,6 @@ from tests.services.identity_service.utils import random_identity_service_requir
 from tests.services.network_service.utils import random_network_service_required_attr
 
 invalid_create_key_values = [("description", None), ("name", None)]
-relationships_num = [1, 2]
 
 
 @fixture
