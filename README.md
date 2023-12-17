@@ -36,26 +36,27 @@ In production mode you should run the application using the dedicated image [ind
 The command to start the application inside a container is:
 
 ```bash
-docker run -p 80:80 -d indigopaas/federation-registry
+docker run -p 8000:80 -d indigopaas/federation-registry
 ```
 
-The previous command makes the application available on port 80 of the host in detached mode.
+The previous command makes the application available on port 8000 of the host in detached mode.
 
 The application does not requires persistent volumes.
 
 It uses environment variables to configure the database connection, the list of trusted identity providers, the admin users and the endpoint prefix for all requests. You can pass these variables as arguments when starting the container. In the following table we list all the environment variables that can be passed to the command.
 
-| Name                    | Mandatory | Description                                                                                                                                                                                                                           | Default value                        |
-| ----------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `PROJECT_NAME`          | x         | The project that will be displayed on the online documentation.                                                                                                                                                                       | Federation-Registry                  |
-| `API_V1_STR`            | x         | Prefix to use to execute requests on the first version of the API. If you are using a reverse-proxy you can customize this prefix based on your needs. (**Start with "/" and do not end with "/"**)                                   | /api/v1                              |
-| `NEOMODEL_DATABASE_URL` | x         | The complete URL to reach the neo4j database. Although it is mandatory, if this value has not been set, the application can be build it from the `NEO4J_URI_SCHEME`, `NEO4J_USER`, `NEO4J_PASSWORD` and `NEO4J_SERVER` env variables. | bolt://neo4j:password@localhost:7687 |
-| `NEO4J_SERVER`          |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                    | localhost:7687                       |
-| `NEO4J_USER`            |           | This value defines the user to use to access to the database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                        | neo4j                                |
-| `NEO4J_PASSWORD`        |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                    | password                             |
-| `NEO4J_URI_SCHEME`      |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                    | bolt                                 |
-| `ADMIN_EMAIL_LIST`      | x         | List of emails belonging to the users authorized to perform write operations.                                                                                                                                                         | []                                   |
-| `TRUSTED_IDP_LIST`      | x         | List of trusted identity providers to use to verify users' identity.                                                                                                                                                                  | []                                   |
+| Name                    | Mandatory | Description                                                                                                                                                                                                                                                                                           | Default value                        |
+| ----------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `PROJECT_NAME`          |           | The project that will be displayed on the online documentation.                                                                                                                                                                                                                                       | Federation-Registry                  |
+| `DOMAIN`                |           | Host domain name. By deafult, it is `localhost:8000` to simplify development environment start up. **Although there is a default value in production mode you should set this value equal to the domain at which your app will be available. If you are using traefik you should re-use this value.** | localhost:8000                       |
+| `API_V1_STR`            |           | Prefix to use to execute requests on the first version of the API. If you are using a reverse-proxy you can customize this prefix based on your needs. (**Start with "/" and do not end with "/"**)                                                                                                   | /api/v1                              |
+| `NEOMODEL_DATABASE_URL` | x         | The complete URL to reach the neo4j database. Although it is mandatory, if this value has not been set, the application can be build it from the `NEO4J_URI_SCHEME`, `NEO4J_USER`, `NEO4J_PASSWORD` and `NEO4J_SERVER` env variables.                                                                 | bolt://neo4j:password@localhost:7687 |
+| `NEO4J_SERVER`          |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                                                                    | localhost:7687                       |
+| `NEO4J_USER`            |           | This value defines the user to use to access to the database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                                                                                        | neo4j                                |
+| `NEO4J_PASSWORD`        |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                                                                    | password                             |
+| `NEO4J_URI_SCHEME`      |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                                                                    | bolt                                 |
+| `ADMIN_EMAIL_LIST`      | x         | List of emails belonging to the users authorized to perform write operations.                                                                                                                                                                                                                         | []                                   |
+| `TRUSTED_IDP_LIST`      | x         | List of trusted identity providers to use to verify users' identity.                                                                                                                                                                                                                                  | []                                   |
 
 Some of these variables are not mandatory. If not specified they will use the default value.
 
@@ -67,6 +68,7 @@ You can also create a `.env` file with all the variables you want to override. H
 # .env
 
 PROJECT_NAME=My-Federation-Registry
+DOMAIN=my.federation.registry.com
 API_V1_STR=/my-fed-reg/api/v1
 
 NEOMODEL_DATABASE_URL=bolt://neo4j:mypwdlongandlong@test.db-host.it
@@ -81,6 +83,7 @@ Alternative example using the `NEO4J_` env variables:
 # .env
 
 PROJECT_NAME=My-Federation-Registry
+DOMAIN=my.federation.registry.com
 API_V1_STR=/my-fed-reg/api/v1
 
 NEO4J_SERVER=test.db-host.it

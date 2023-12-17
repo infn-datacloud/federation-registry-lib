@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     """Model with the app settings."""
 
     PROJECT_NAME: str = "Federation-Registry"
+    DOMAIN: str = "localhost:8000"
     API_V1_STR: str = "/api/v1"
 
     NEO4J_SERVER: str = "localhost:7687"
