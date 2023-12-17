@@ -1,0 +1,17 @@
+"""IdentityProvider utilities."""
+from typing import Any, Dict
+
+from tests.common.utils import random_lower_string, random_url
+
+
+def random_identity_provider_required_attr() -> Dict[str, Any]:
+    """Return a dict with the IdentityProvider required attributes initialized."""
+    return {"endpoint": random_url(), "group_claim": random_lower_string()}
+
+
+def random_identity_provider_all_attr() -> Dict[str, Any]:
+    """Dict with all IdentityProvider attributes."""
+    return {
+        **random_identity_provider_required_attr(),
+        "description": random_lower_string(),
+    }

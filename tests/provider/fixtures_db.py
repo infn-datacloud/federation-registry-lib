@@ -8,14 +8,13 @@ from app.provider.models import Provider
 from app.provider.schemas_extended import (
     ProviderCreateExtended,
 )
+from tests.provider.utils import random_provider_required_attr
 
 
 @fixture
-def db_provider_simple(
-    setup_and_teardown_db: Generator, provider_create_mandatory_data: Dict[str, Any]
-) -> Provider:
+def db_provider_simple(setup_and_teardown_db: Generator) -> Provider:
     """Fixture with standard DB Provider."""
-    item = ProviderCreateExtended(**provider_create_mandatory_data)
+    item = ProviderCreateExtended(**random_provider_required_attr())
     return provider_mng.create(obj_in=item)
 
 

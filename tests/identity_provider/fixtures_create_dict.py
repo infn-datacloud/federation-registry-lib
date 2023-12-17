@@ -9,60 +9,41 @@ from app.provider.schemas_extended import (
     SLACreateExtended,
     UserGroupCreateExtended,
 )
-from tests.common.utils import (
-    random_lower_string,
-    random_start_end_dates,
-    random_url,
+from tests.common.utils import random_lower_string
+from tests.identity_provider.utils import (
+    random_identity_provider_all_attr,
+    random_identity_provider_required_attr,
 )
+from tests.sla.utils import random_sla_required_attr
+from tests.user_group.utils import random_user_group_required_attr
 
 invalid_create_key_values = [
     ("description", None),
     ("endpoint", None),
     ("group_claim", None),
 ]
-relationships_num = [1, 2]
 
 
 @fixture
-def identity_provider_create_mandatory_data() -> Dict[str, Any]:
+def identity_provider_create_minimum_data() -> Dict[str, Any]:
     """Dict with IdentityProvider mandatory attributes."""
-    return {"endpoint": random_url(), "group_claim": random_lower_string()}
+    return random_identity_provider_required_attr()
 
 
 @fixture
-def identity_provider_create_all_data(
-    identity_provider_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Dict with all IdentityProvider attributes."""
-    return {
-        **identity_provider_create_mandatory_data,
-        "description": random_lower_string(),
-    }
-
-
-@fixture
-@parametrize(owned_user_groups=relationships_num)
-def identity_provider_create_data_with_rel(
-    owned_user_groups: int,
-    identity_provider_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
+@parametrize(owned_user_groups=[1, 2])  # TODO evaluate if to use onnly one user group
+def identity_provider_create_data_with_rel(owned_user_groups: int) -> Dict[str, Any]:
     """Dict with IdentityProvider mandatory attributes."""
-    start_date, end_date = random_start_end_dates()
     user_groups = []
     for _ in range(owned_user_groups):
         user_groups.append(
             UserGroupCreateExtended(
-                name=random_lower_string(),
-                sla=SLACreateExtended(
-                    doc_uuid=uuid4(),
-                    start_date=start_date,
-                    end_date=end_date,
-                    project=uuid4(),
-                ),
+                **random_user_group_required_attr(),
+                sla=SLACreateExtended(**random_sla_required_attr(), project=uuid4()),
             )
         )
     return {
-        **identity_provider_create_mandatory_data,
+        **random_identity_provider_all_attr(),
         "relationship": AuthMethodCreate(
             idp_name=random_lower_string(), protocol=random_lower_string()
         ),
@@ -73,40 +54,37 @@ def identity_provider_create_data_with_rel(
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def identity_provider_create_invalid_pair(
-    identity_provider_create_mandatory_data: Dict[str, Any], k: str, v: Any
+    identity_provider_create_data_with_rel: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    return {**identity_provider_create_mandatory_data, k: v}
+    return {**identity_provider_create_data_with_rel, k: v}
 
 
 @fixture
 def identity_provider_create_invalid_user_group_list_size(
-    identity_provider_create_mandatory_data: Dict[str, Any],
+    identity_provider_create_data_with_rel: Dict[str, Any],
 ) -> Dict[str, Any]:
     """User group list can't be empty."""
-    return {**identity_provider_create_mandatory_data, "user_groups": []}
+    return {**identity_provider_create_data_with_rel, "user_groups": []}
 
 
 @fixture
 def identity_provider_create_duplicate_user_groups(
-    identity_provider_create_mandatory_data: Dict[str, Any],
-    user_group_create_mandatory_data: Dict[str, Any],
-):
+    identity_provider_create_data_with_rel: Dict[str, Any],
+) -> Dict[str, Any]:
     """Invalid case: the user group list has duplicate values."""
-    start_date, end_date = random_start_end_dates()
-    user_group = UserGroupCreateExtended(
-        **user_group_create_mandatory_data,
-        sla=SLACreateExtended(
-            doc_uuid=uuid4(),
-            start_date=start_date,
-            end_date=end_date,
-            project=uuid4(),
+    user_group_data = random_user_group_required_attr()
+    user_groups = [
+        UserGroupCreateExtended(
+            **user_group_data,
+            sla=SLACreateExtended(**random_sla_required_attr(), project=uuid4()),
         ),
-    )
-    return {
-        **identity_provider_create_mandatory_data,
-        "user_groups": [user_group, user_group],
-    }
+        UserGroupCreateExtended(
+            **user_group_data,
+            sla=SLACreateExtended(**random_sla_required_attr(), project=uuid4()),
+        ),
+    ]
+    return {**identity_provider_create_data_with_rel, "user_groups": user_groups}
 
 
 identity_provider_create_valid_data = fixture_union(
@@ -119,7 +97,7 @@ identity_provider_create_valid_data = fixture_union(
 identity_provider_create_invalid_data = fixture_union(
     "identity_provider_create_invalid_data",
     (
-        identity_provider_create_mandatory_data,
+        identity_provider_create_minimum_data,
         identity_provider_create_invalid_pair,
         identity_provider_create_invalid_user_group_list_size,
         identity_provider_create_duplicate_user_groups,

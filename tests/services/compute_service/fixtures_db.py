@@ -1,5 +1,4 @@
 """ComputeService specific fixtures."""
-from typing import Any, Dict
 from uuid import uuid4
 
 from pytest_cases import fixture, fixture_union, parametrize
@@ -15,36 +14,33 @@ from app.region.models import Region
 from app.service.crud import compute_service_mng
 from app.service.models import ComputeService
 from tests.common.utils import random_lower_string
+from tests.services.compute_service.utils import random_compute_service_required_attr
 
 relationships_num = [1, 2]
 
 
 @fixture
-def db_compute_service_simple(
-    compute_service_create_mandatory_data: Dict[str, Any], db_region_simple: Region
-) -> ComputeService:
+def db_compute_service_simple(db_region_simple: Region) -> ComputeService:
     """Fixture with standard DB ComputeService."""
-    item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
+    item = ComputeServiceCreateExtended(**random_compute_service_required_attr())
     return compute_service_mng.create(obj_in=item, region=db_region_simple)
 
 
 @fixture
 def db_compute_service_with_single_project(
-    compute_service_create_mandatory_data: Dict[str, Any],
     db_region_with_single_project: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
-    item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
+    item = ComputeServiceCreateExtended(**random_compute_service_required_attr())
     return compute_service_mng.create(obj_in=item, region=db_region_with_single_project)
 
 
 @fixture
 def db_compute_service_with_projects(
-    compute_service_create_mandatory_data: Dict[str, Any],
     db_region_with_projects: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
-    item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
+    item = ComputeServiceCreateExtended(**random_compute_service_required_attr())
     return compute_service_mng.create(obj_in=item, region=db_region_with_projects)
 
 
@@ -52,7 +48,6 @@ def db_compute_service_with_projects(
 @parametrize(owned_quotas=relationships_num)
 def db_compute_service_with_quotas(
     owned_quotas: int,
-    compute_service_create_mandatory_data: Dict[str, Any],
     db_region_with_projects: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
@@ -63,7 +58,7 @@ def db_compute_service_with_quotas(
         for n in range(owned_quotas):
             quotas.append(ComputeQuotaCreateExtended(per_user=n % 2, project=i))
     item = ComputeServiceCreateExtended(
-        **compute_service_create_mandatory_data, quotas=quotas
+        **random_compute_service_required_attr(), quotas=quotas
     )
     return compute_service_mng.create(
         obj_in=item, region=db_region_with_projects, projects=db_provider.projects
@@ -74,7 +69,6 @@ def db_compute_service_with_quotas(
 @parametrize(owned_flavors=relationships_num)
 def db_compute_service_with_flavors(
     owned_flavors: int,
-    compute_service_create_mandatory_data: Dict[str, Any],
     db_region_with_projects: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
@@ -92,7 +86,7 @@ def db_compute_service_with_flavors(
                 )
             )
     item = ComputeServiceCreateExtended(
-        **compute_service_create_mandatory_data, flavors=flavors
+        **random_compute_service_required_attr(), flavors=flavors
     )
     return compute_service_mng.create(
         obj_in=item, region=db_region_with_projects, projects=db_provider.projects
@@ -103,7 +97,6 @@ def db_compute_service_with_flavors(
 @parametrize(owned_images=relationships_num)
 def db_compute_service_with_images(
     owned_images: int,
-    compute_service_create_mandatory_data: Dict[str, Any],
     db_region_with_projects: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
@@ -121,7 +114,7 @@ def db_compute_service_with_images(
                 )
             )
     item = ComputeServiceCreateExtended(
-        **compute_service_create_mandatory_data, images=images
+        **random_compute_service_required_attr(), images=images
     )
     return compute_service_mng.create(
         obj_in=item, region=db_region_with_projects, projects=db_provider.projects

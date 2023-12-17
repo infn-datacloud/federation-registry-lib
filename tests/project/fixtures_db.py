@@ -59,7 +59,7 @@ def db_project_from_network_resource(db_network: Network) -> Project:
 
 
 db_project = fixture_union(
-    "db_quota",
+    "db_project",
     (
         db_project_from_provider,
         db_project_from_quota,

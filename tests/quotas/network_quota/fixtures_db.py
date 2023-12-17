@@ -1,6 +1,4 @@
 """NetworkQuota specific fixtures."""
-from typing import Any, Dict
-
 from pytest_cases import fixture
 
 from app.project.models import Project
@@ -10,11 +8,11 @@ from app.quota.crud import network_quota_mng
 from app.quota.models import NetworkQuota
 from app.region.models import Region
 from app.service.models import NetworkService
+from tests.quotas.network_quota.utils import random_network_quota_required_attr
 
 
 @fixture
 def db_network_quota(
-    network_quota_create_mandatory_data: Dict[str, Any],
     db_network_service_with_single_project: NetworkService,
 ) -> NetworkQuota:
     """Fixture with standard DB NetworkQuota."""
@@ -22,7 +20,7 @@ def db_network_quota(
     db_provider: Provider = db_region.provider.single()
     db_project: Project = db_provider.projects.single()
     item = NetworkQuotaCreateExtended(
-        **network_quota_create_mandatory_data, project=db_project.uuid
+        **random_network_quota_required_attr(), project=db_project.uuid
     )
     return network_quota_mng.create(
         obj_in=item, service=db_network_service_with_single_project, project=db_project

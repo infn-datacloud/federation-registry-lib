@@ -5,12 +5,10 @@ from pytest_cases import fixture, parametrize
 
 from app.service.enum import ServiceType
 from tests.common.utils import random_lower_string, random_url
-from tests.services.utils import (
-    random_block_storage_service_name,
-    random_compute_service_name,
-    random_identity_service_name,
-    random_network_service_name,
-)
+from tests.services.block_storage_service.utils import random_block_storage_service_name
+from tests.services.compute_service.utils import random_compute_service_name
+from tests.services.identity_service.utils import random_identity_service_name
+from tests.services.network_service.utils import random_network_service_name
 
 patch_key_values = [
     ("description", random_lower_string()),

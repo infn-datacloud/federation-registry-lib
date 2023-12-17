@@ -1,5 +1,4 @@
 """IdentityProvider specific fixtures."""
-from typing import Any, Dict
 from uuid import uuid4
 
 from pytest_cases import fixture, fixture_union
@@ -13,23 +12,19 @@ from app.provider.schemas_extended import (
     SLACreateExtended,
     UserGroupCreateExtended,
 )
-from tests.common.utils import (
-    random_lower_string,
-    random_start_end_dates,
-)
-
-relationships_num = [1, 2]
+from tests.common.utils import random_lower_string
+from tests.identity_provider.utils import random_identity_provider_required_attr
+from tests.sla.utils import random_start_end_dates
 
 
 @fixture
 def db_identity_provider_simple(
-    identity_provider_create_mandatory_data: Dict[str, Any],
     db_provider_with_single_project: Provider,
 ) -> IdentityProvider:
     """Fixture with standard DB IdentityProvider."""
     start_date, end_date = random_start_end_dates()
     item = IdentityProviderCreateExtended(
-        **identity_provider_create_mandatory_data,
+        **random_identity_provider_required_attr(),
         relationship=AuthMethodCreate(
             idp_name=random_lower_string(), protocol=random_lower_string()
         ),
@@ -52,11 +47,11 @@ def db_identity_provider_simple(
 
 @fixture
 def db_shared_identity_provider(
-    identity_provider_create_mandatory_data: Dict[str, Any],
     db_provider_with_single_project: Provider,
     db_provider_with_projects: Provider,
 ) -> IdentityProvider:
     """IdentityProvider shared within multiple providers."""
+    idp_data = random_identity_provider_required_attr()
     name = random_lower_string()
     start_date, end_date = random_start_end_dates()
     sla = SLACreateExtended(
@@ -66,7 +61,7 @@ def db_shared_identity_provider(
         project=db_provider_with_single_project.projects.single().uuid,
     )
     item = IdentityProviderCreateExtended(
-        **identity_provider_create_mandatory_data,
+        **idp_data,
         relationship=AuthMethodCreate(
             idp_name=random_lower_string(), protocol=random_lower_string()
         ),
@@ -83,7 +78,7 @@ def db_shared_identity_provider(
         project=db_provider_with_projects.projects.single().uuid,
     )
     item = IdentityProviderCreateExtended(
-        **identity_provider_create_mandatory_data,
+        **idp_data,
         relationship=AuthMethodCreate(
             idp_name=random_lower_string(), protocol=random_lower_string()
         ),

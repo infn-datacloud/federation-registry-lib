@@ -3,7 +3,6 @@ import string
 import time
 from datetime import date, datetime, timezone
 from random import choices, getrandbits, randint, randrange
-from typing import Tuple
 
 from pydantic import AnyHttpUrl
 
@@ -80,16 +79,3 @@ def random_non_negative_float() -> float:
     0 included.
     """
     return float(random_non_negative_int())
-
-
-def random_start_end_dates() -> Tuple[date, date]:
-    """Return a random couples of valid start and end dates (in order)."""
-    d1 = random_date()
-    d2 = random_date()
-    if d1 < d2:
-        start_date = d1
-        end_date = d2
-    else:
-        start_date = d2
-        end_date = d1
-    return start_date, end_date

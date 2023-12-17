@@ -4,7 +4,10 @@ from uuid import uuid4
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from tests.common.utils import random_bool, random_lower_string, random_non_negative_int
+from tests.quotas.compute_quota.utils import (
+    random_compute_quota_all_attr,
+    random_compute_quota_required_attr,
+)
 
 invalid_create_key_values = [
     ("description", None),
@@ -16,32 +19,15 @@ invalid_create_key_values = [
 
 
 @fixture
-def compute_quota_create_mandatory_data() -> Dict[str, Any]:
+def compute_quota_create_minimum_data() -> Dict[str, Any]:
     """Dict with ComputeQuota mandatory attributes."""
-    return {}
+    return random_compute_quota_required_attr()
 
 
 @fixture
-def compute_quota_create_all_data(
-    compute_quota_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Dict with all ComputeQuota attributes."""
-    return {
-        **compute_quota_create_mandatory_data,
-        "description": random_lower_string(),
-        "per_user": random_bool(),
-        "cores": random_non_negative_int(),
-        "instances": random_non_negative_int(),
-        "ram": random_non_negative_int(),
-    }
-
-
-@fixture
-def compute_quota_create_data_with_rel(
-    compute_quota_create_all_data: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_quota_create_data_with_rel() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    return {**compute_quota_create_all_data, "project": uuid4()}
+    return {**random_compute_quota_all_attr(), "project": uuid4()}
 
 
 @fixture
@@ -63,7 +49,7 @@ compute_quota_create_valid_data = fixture_union(
 compute_quota_create_invalid_data = fixture_union(
     "compute_quota_create_invalid_data",
     (
-        compute_quota_create_all_data,
+        compute_quota_create_minimum_data,
         compute_quota_create_invalid_pair,
     ),
     idstyle="explicit",

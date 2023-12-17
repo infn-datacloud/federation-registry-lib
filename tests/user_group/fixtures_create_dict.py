@@ -3,40 +3,35 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from tests.common.utils import random_lower_string
+from tests.user_group.utils import (
+    random_user_group_all_attr,
+    random_user_group_required_attr,
+)
 
 invalid_create_key_values = [("description", None), ("name", None)]
 
 
 @fixture
-def user_group_create_mandatory_data() -> Dict[str, Any]:
+def user_group_create_minimum_data() -> Dict[str, Any]:
     """Dict with UserGroup mandatory attributes."""
-    return {"name": random_lower_string()}
-
-
-@fixture
-def user_group_create_all_data(
-    user_group_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Dict with all UserGroup attributes."""
-    return {**user_group_create_mandatory_data, "description": random_lower_string()}
+    return random_user_group_required_attr()
 
 
 @fixture
 def user_group_create_data_with_rel(
-    user_group_create_all_data: Dict[str, Any], sla_create_data_with_rel: Dict[str, Any]
+    sla_create_data_with_rel: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    return {**user_group_create_all_data, "sla": sla_create_data_with_rel}
+    return {**random_user_group_all_attr(), "sla": sla_create_data_with_rel}
 
 
 @fixture
 @parametrize("k, v", invalid_create_key_values)
 def user_group_create_invalid_pair(
-    user_group_create_mandatory_data: Dict[str, Any], k: str, v: Any
+    user_group_create_data_with_rel: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    return {**user_group_create_mandatory_data, k: v}
+    return {**user_group_create_data_with_rel, k: v}
 
 
 user_group_create_valid_data = fixture_union(
@@ -48,6 +43,6 @@ user_group_create_valid_data = fixture_union(
 
 user_group_create_invalid_data = fixture_union(
     "user_group_create_invalid_data",
-    (user_group_create_mandatory_data, user_group_create_invalid_pair),
+    (user_group_create_minimum_data, user_group_create_invalid_pair),
     idstyle="explicit",
 )

@@ -4,7 +4,10 @@ from uuid import uuid4
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from tests.common.utils import random_bool, random_lower_string, random_non_negative_int
+from tests.quotas.block_storage_quota.utils import (
+    random_block_storage_quota_all_attr,
+    random_block_storage_quota_required_attr,
+)
 
 invalid_create_key_values = [
     ("description", None),
@@ -16,32 +19,15 @@ invalid_create_key_values = [
 
 
 @fixture
-def block_storage_quota_create_mandatory_data() -> Dict[str, Any]:
+def block_storage_quota_create_minimum_data() -> Dict[str, Any]:
     """Dict with BlockStorageQuota mandatory attributes."""
-    return {}
+    return random_block_storage_quota_required_attr()
 
 
 @fixture
-def block_storage_quota_create_all_data(
-    block_storage_quota_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Dict with all BlockStorageQuota attributes."""
-    return {
-        **block_storage_quota_create_mandatory_data,
-        "description": random_lower_string(),
-        "per_user": random_bool(),
-        "gigabytes": random_non_negative_int(),
-        "per_volume_gigabytes": random_non_negative_int(),
-        "volumes": random_non_negative_int(),
-    }
-
-
-@fixture
-def block_storage_quota_create_data_with_rel(
-    block_storage_quota_create_all_data: Dict[str, Any],
-) -> Dict[str, Any]:
+def block_storage_quota_create_data_with_rel() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    return {**block_storage_quota_create_all_data, "project": uuid4()}
+    return {**random_block_storage_quota_all_attr(), "project": uuid4()}
 
 
 @fixture
@@ -50,9 +36,7 @@ def block_storage_quota_create_invalid_pair(
     block_storage_quota_create_data_with_rel: Dict[str, Any], k: str, v: Any
 ) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**block_storage_quota_create_data_with_rel}
-    data[k] = v
-    return data
+    return {**block_storage_quota_create_data_with_rel, k: v}
 
 
 block_storage_quota_create_valid_data = fixture_union(
@@ -65,7 +49,7 @@ block_storage_quota_create_valid_data = fixture_union(
 block_storage_quota_create_invalid_data = fixture_union(
     "block_storage_quota_create_invalid_data",
     (
-        block_storage_quota_create_all_data,
+        block_storage_quota_create_minimum_data,
         block_storage_quota_create_invalid_pair,
     ),
     idstyle="explicit",

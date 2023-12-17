@@ -9,35 +9,27 @@ from app.provider.schemas_extended import (
 )
 from app.region.crud import region_mng
 from app.region.models import Region
+from tests.region.utils import random_region_required_attr
 
 
 @fixture
-def db_region_simple(
-    region_create_mandatory_data: Dict[str, Any],
-    db_provider_simple: Provider,
-) -> Region:
+def db_region_simple(db_provider_simple: Provider) -> Region:
     """Fixture with standard DB Region."""
-    item = RegionCreateExtended(**region_create_mandatory_data)
+    item = RegionCreateExtended(**random_region_required_attr())
     return region_mng.create(obj_in=item, provider=db_provider_simple)
 
 
 @fixture
-def db_region_with_single_project(
-    region_create_mandatory_data: Dict[str, Any],
-    db_provider_with_single_project: Provider,
-) -> Region:
+def db_region_with_single_project(db_provider_with_single_project: Provider) -> Region:
     """Fixture with standard DB Region."""
-    item = RegionCreateExtended(**region_create_mandatory_data)
+    item = RegionCreateExtended(**random_region_required_attr())
     return region_mng.create(obj_in=item, provider=db_provider_with_single_project)
 
 
 @fixture
-def db_region_with_projects(
-    region_create_mandatory_data: Dict[str, Any],
-    db_provider_with_projects: Provider,
-) -> Region:
+def db_region_with_projects(db_provider_with_projects: Provider) -> Region:
     """Fixture with standard DB Region."""
-    item = RegionCreateExtended(**region_create_mandatory_data)
+    item = RegionCreateExtended(**random_region_required_attr())
     return region_mng.create(obj_in=item, provider=db_provider_with_projects)
 
 

@@ -1,7 +1,4 @@
 """SLA specific fixtures."""
-
-from typing import Any, Dict
-
 from pytest_cases import fixture, fixture_union
 
 from app.identity_provider.crud import identity_provider_mng
@@ -16,6 +13,10 @@ from app.provider.schemas_extended import (
 from app.sla.models import SLA
 from app.user_group.models import UserGroup
 from tests.common.utils import random_lower_string
+from tests.identity_provider.utils import (
+    random_identity_provider_required_attr,
+)
+from tests.sla.utils import random_sla_required_attr
 
 
 @fixture
@@ -26,36 +27,26 @@ def db_sla_simple(db_user_group_simple: UserGroup) -> SLA:
 
 @fixture
 def db_sla_with_multiple_projects(
-    identity_provider_create_mandatory_data: Dict[str, Any],
-    sla_create_mandatory_data: Dict[str, Any],
     db_provider_with_single_project: Provider,
     db_provider_with_projects: Provider,
 ) -> IdentityProvider:
     """IdentityProvider shared within multiple providers."""
-    name = random_lower_string()
     sla = SLACreateExtended(
-        **sla_create_mandatory_data,
+        **random_sla_required_attr(),
         project=db_provider_with_single_project.projects.single().uuid,
     )
     item = IdentityProviderCreateExtended(
-        **identity_provider_create_mandatory_data,
+        **random_identity_provider_required_attr(),
         relationship=AuthMethodCreate(
             idp_name=random_lower_string(), protocol=random_lower_string()
         ),
-        user_groups=[UserGroupCreateExtended(name=name, sla=sla)],
+        user_groups=[UserGroupCreateExtended(name=random_lower_string(), sla=sla)],
     )
     db_idp = identity_provider_mng.create(
         obj_in=item, provider=db_provider_with_single_project
     )
 
-    sla.project = db_provider_with_projects.projects.single().uuid
-    item = IdentityProviderCreateExtended(
-        **identity_provider_create_mandatory_data,
-        relationship=AuthMethodCreate(
-            idp_name=random_lower_string(), protocol=random_lower_string()
-        ),
-        user_groups=[UserGroupCreateExtended(name=name, sla=sla)],
-    )
+    item.user_groups[0].sla.project = db_provider_with_projects.projects.single().uuid
     db_idp = identity_provider_mng.create(
         obj_in=item, provider=db_provider_with_projects
     )

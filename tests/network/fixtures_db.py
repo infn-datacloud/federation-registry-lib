@@ -1,6 +1,4 @@
 """Network specific fixtures."""
-from typing import Any, Dict
-
 from pytest_cases import fixture, parametrize
 
 from app.network.crud import network_mng
@@ -10,15 +8,13 @@ from app.provider.models import Provider
 from app.provider.schemas_extended import NetworkCreateExtended
 from app.region.models import Region
 from app.service.models import NetworkService
-
-is_shared = [True, False]
+from tests.network.utils import IS_SHARED, random_network_required_attr
 
 
 @fixture
-@parametrize(is_shared=is_shared)
+@parametrize(is_shared=IS_SHARED)
 def db_network(
     is_shared: bool,
-    network_create_mandatory_data: Dict[str, Any],
     db_network_service_with_single_project: NetworkService,
 ) -> Network:
     """Fixture with standard DB Network.
@@ -35,7 +31,7 @@ def db_network(
         db_project: Project = db_provider.projects.single()
         project = db_project.uuid
     item = NetworkCreateExtended(
-        **network_create_mandatory_data, is_shared=is_shared, project=project
+        **random_network_required_attr(), is_shared=is_shared, project=project
     )
     return network_mng.create(
         obj_in=item,
