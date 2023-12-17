@@ -3,10 +3,6 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from app.provider.schemas_extended import (
-    NetworkCreateExtended,
-    NetworkQuotaCreateExtended,
-)
 from app.service.enum import ServiceType
 from tests.network.utils import (
     IS_SHARED,
@@ -56,11 +52,11 @@ def network_service_create_data_with_networks(is_shared: bool) -> Dict[str, Any]
     return {
         **random_network_service_all_attr(),
         "networks": [
-            NetworkCreateExtended(
+            {
                 **random_network_required_attr(),
                 **random_network_required_rel(is_shared),
-                is_shared=is_shared,
-            )
+                "is_shared": is_shared,
+            }
         ],
     }
 
@@ -68,10 +64,15 @@ def network_service_create_data_with_networks(is_shared: bool) -> Dict[str, Any]
 @fixture
 def network_service_create_data_with_quotas() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    quota = NetworkQuotaCreateExtended(
-        **random_network_quota_required_attr(), **random_network_quota_required_rel()
-    )
-    return {**random_network_service_all_attr(), "quotas": [quota]}
+    return {
+        **random_network_service_all_attr(),
+        "quotas": [
+            {
+                **random_network_quota_required_attr(),
+                **random_network_quota_required_rel(),
+            }
+        ],
+    }
 
 
 @fixture
@@ -80,14 +81,16 @@ def network_service_create_data_with_2_quotas_same_proj() -> Dict[str, Any]:
 
     A quota has the flag 'per_user' equals to True and the other equal to False.
     """
-    quota1 = NetworkQuotaCreateExtended(
-        **random_network_quota_required_attr(), **random_network_quota_required_rel()
-    )
-    quota2 = NetworkQuotaCreateExtended(
+    quota1 = {
         **random_network_quota_required_attr(),
         **random_network_quota_required_rel(),
-        per_user=not quota1.per_user,
-    )
+        "per_user": False,
+    }
+    quota2 = {
+        **random_network_quota_required_attr(),
+        **random_network_quota_required_rel(),
+        "per_user": True,
+    }
     return {**random_network_service_all_attr(), "quotas": [quota1, quota2]}
 
 
@@ -105,16 +108,17 @@ def network_service_invalid_num_quotas_same_project() -> Dict[str, Any]:
     A project can have at most one `project` quota and one `per-user` quota on a
     specific service.
     """
-    quota = NetworkQuotaCreateExtended(
-        **random_network_quota_required_attr(), **random_network_quota_required_rel()
-    )
+    quota = {
+        **random_network_quota_required_attr(),
+        **random_network_quota_required_rel(),
+    }
     return {**random_network_service_required_attr(), "quotas": [quota, quota]}
 
 
 @fixture
 def network_service_create_duplicate_networks() -> Dict[str, Any]:
     """Invalid case: the network list has duplicate values."""
-    network = NetworkCreateExtended(**random_network_required_attr())
+    network = random_network_required_attr()
     return {**random_network_service_required_attr(), "networks": [network, network]}
 
 

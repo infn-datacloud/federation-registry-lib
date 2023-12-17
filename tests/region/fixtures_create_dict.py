@@ -3,32 +3,14 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from app.provider.schemas_extended import (
-    BlockStorageServiceCreateExtended,
-    ComputeServiceCreateExtended,
-    IdentityServiceCreate,
-    LocationCreate,
-    NetworkServiceCreateExtended,
-)
-from tests.common.utils import random_url
 from tests.location.utils import random_location_required_attr
 from tests.region.utils import random_region_all_attr, random_region_required_attr
 from tests.services.block_storage_service.utils import (
-    random_block_storage_service_name,
     random_block_storage_service_required_attr,
 )
-from tests.services.compute_service.utils import (
-    random_compute_service_name,
-    random_compute_service_required_attr,
-)
-from tests.services.identity_service.utils import (
-    random_identity_service_name,
-    random_identity_service_required_attr,
-)
-from tests.services.network_service.utils import (
-    random_network_service_name,
-    random_network_service_required_attr,
-)
+from tests.services.compute_service.utils import random_compute_service_required_attr
+from tests.services.identity_service.utils import random_identity_service_required_attr
+from tests.services.network_service.utils import random_network_service_required_attr
 
 invalid_create_key_values = [("description", None), ("name", None)]
 relationships_num = [1, 2]
@@ -62,66 +44,44 @@ def region_create_data_with_location() -> Dict[str, Any]:
     """Dict with relationships attributes."""
     return {
         **random_region_all_attr(),
-        "location": LocationCreate(**random_location_required_attr()),
+        "location": random_location_required_attr(),
     }
 
 
 @fixture
-@parametrize(owned_services=relationships_num)
-def region_create_data_with_block_storage_services(
-    owned_services: int,
-) -> Dict[str, Any]:
+def region_create_data_with_block_storage_services() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    services = []
-    for _ in range(owned_services):
-        services.append(
-            BlockStorageServiceCreateExtended(
-                endpoint=random_url(), name=random_block_storage_service_name()
-            )
-        )
-    return {**random_region_all_attr(), "block_storage_services": services}
+    return {
+        **random_region_all_attr(),
+        "block_storage_services": [random_block_storage_service_required_attr()],
+    }
 
 
 @fixture
-@parametrize(owned_services=relationships_num)
-def region_create_data_with_compute_services(owned_services: int) -> Dict[str, Any]:
+def region_create_data_with_compute_services() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    services = []
-    for _ in range(owned_services):
-        services.append(
-            ComputeServiceCreateExtended(
-                endpoint=random_url(), name=random_compute_service_name()
-            )
-        )
-    return {**random_region_all_attr(), "compute_services": services}
+    return {
+        **random_region_all_attr(),
+        "compute_services": [random_compute_service_required_attr()],
+    }
 
 
 @fixture
-@parametrize(owned_services=relationships_num)
-def region_create_data_with_identity_services(owned_services: int) -> Dict[str, Any]:
+def region_create_data_with_identity_services() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    services = []
-    for _ in range(owned_services):
-        services.append(
-            IdentityServiceCreate(
-                endpoint=random_url(), name=random_identity_service_name()
-            )
-        )
-    return {**random_region_all_attr(), "identity_services": services}
+    return {
+        **random_region_all_attr(),
+        "identity_services": [random_identity_service_required_attr()],
+    }
 
 
 @fixture
-@parametrize(owned_services=relationships_num)
-def region_create_data_with_network_services(owned_services: int) -> Dict[str, Any]:
+def region_create_data_with_network_services() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    services = []
-    for _ in range(owned_services):
-        services.append(
-            NetworkServiceCreateExtended(
-                endpoint=random_url(), name=random_network_service_name()
-            )
-        )
-    return {**random_region_all_attr(), "network_services": services}
+    return {
+        **random_region_all_attr(),
+        "network_services": [random_network_service_required_attr()],
+    }
 
 
 @fixture
@@ -134,9 +94,7 @@ def region_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
 @fixture
 def region_create_duplicate_block_storage_services() -> Dict[str, Any]:
     """Invalid case: the project list has duplicate values."""
-    service = BlockStorageServiceCreateExtended(
-        **random_block_storage_service_required_attr()
-    )
+    service = random_block_storage_service_required_attr()
     return {
         **random_region_required_attr(),
         "block_storage_services": [service, service],
@@ -146,21 +104,21 @@ def region_create_duplicate_block_storage_services() -> Dict[str, Any]:
 @fixture
 def region_create_duplicate_compute_services() -> Dict[str, Any]:
     """Invalid case: the project list has duplicate values."""
-    service = ComputeServiceCreateExtended(**random_compute_service_required_attr())
+    service = random_compute_service_required_attr()
     return {**random_region_required_attr(), "compute_services": [service, service]}
 
 
 @fixture
 def region_create_duplicate_identity_services() -> Dict[str, Any]:
     """Invalid case: the project list has duplicate values."""
-    service = IdentityServiceCreate(**random_identity_service_required_attr())
+    service = random_identity_service_required_attr()
     return {**random_region_required_attr(), "identity_services": [service, service]}
 
 
 @fixture
 def region_create_duplicate_network_services() -> Dict[str, Any]:
     """Invalid case: the project list has duplicate values."""
-    service = NetworkServiceCreateExtended(**random_network_service_required_attr())
+    service = random_network_service_required_attr()
     return {**random_region_required_attr(), "network_services": [service, service]}
 
 

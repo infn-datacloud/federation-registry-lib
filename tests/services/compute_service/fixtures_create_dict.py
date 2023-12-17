@@ -3,11 +3,6 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from app.provider.schemas_extended import (
-    ComputeQuotaCreateExtended,
-    FlavorCreateExtended,
-    ImageCreateExtended,
-)
 from app.service.enum import ServiceType
 from tests.flavor.utils import (
     IS_PUBLIC,
@@ -58,11 +53,11 @@ def compute_service_create_data_with_flavors(is_public: bool) -> Dict[str, Any]:
     return {
         **random_compute_service_all_attr(),
         "flavors": [
-            FlavorCreateExtended(
+            {
                 **random_flavor_required_attr(),
                 **random_flavor_required_rel(is_public),
-                is_public=is_public,
-            )
+                "is_public": is_public,
+            }
         ],
     }
 
@@ -74,11 +69,11 @@ def compute_service_create_data_with_images(is_public: bool) -> Dict[str, Any]:
     return {
         **random_compute_service_all_attr(),
         "images": [
-            ImageCreateExtended(
+            {
                 **random_image_required_attr(),
                 **random_image_required_rel(is_public),
-                is_public=is_public,
-            )
+                "is_public": is_public,
+            }
         ],
     }
 
@@ -86,9 +81,10 @@ def compute_service_create_data_with_images(is_public: bool) -> Dict[str, Any]:
 @fixture
 def compute_service_create_data_with_quotas() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    quota = ComputeQuotaCreateExtended(
-        **random_compute_quota_required_attr(), **random_compute_quota_required_rel()
-    )
+    quota = {
+        **random_compute_quota_required_attr(),
+        **random_compute_quota_required_rel(),
+    }
     return {**random_compute_service_all_attr(), "quotas": [quota]}
 
 
@@ -98,14 +94,16 @@ def compute_service_create_data_with_2_quotas_same_proj() -> Dict[str, Any]:
 
     A quota has the flag 'per_user' equals to True and the other equal to False.
     """
-    quota1 = ComputeQuotaCreateExtended(
-        **random_compute_quota_required_attr(), **random_compute_quota_required_rel()
-    )
-    quota2 = ComputeQuotaCreateExtended(
+    quota1 = {
         **random_compute_quota_required_attr(),
         **random_compute_quota_required_rel(),
-        per_user=not quota1.per_user,
-    )
+        "per_user": False,
+    }
+    quota2 = {
+        **random_compute_quota_required_attr(),
+        **random_compute_quota_required_rel(),
+        "per_user": True,
+    }
     return {**random_compute_service_all_attr(), "quotas": [quota1, quota2]}
 
 
@@ -123,23 +121,24 @@ def compute_service_invalid_num_quotas_same_project() -> Dict[str, Any]:
     A project can have at most one `project` quota and one `per-user` quota on a
     specific service.
     """
-    quota = ComputeQuotaCreateExtended(
-        **random_compute_quota_required_attr(), **random_compute_quota_required_rel()
-    )
+    quota = {
+        **random_compute_quota_required_attr(),
+        **random_compute_quota_required_rel(),
+    }
     return {**random_compute_service_required_attr(), "quotas": [quota, quota]}
 
 
 @fixture
 def compute_service_create_duplicate_flavors() -> Dict[str, Any]:
     """Invalid case: the flavor list has duplicate values."""
-    flavor = FlavorCreateExtended(**random_flavor_required_attr())
+    flavor = random_flavor_required_attr()
     return {**random_compute_service_required_attr(), "flavors": [flavor, flavor]}
 
 
 @fixture
 def compute_service_create_duplicate_images() -> Dict[str, Any]:
     """Invalid case: the image list has duplicate values."""
-    image = ImageCreateExtended(**random_image_required_attr())
+    image = random_image_required_attr()
     return {**random_compute_service_required_attr(), "images": [image, image]}
 
 

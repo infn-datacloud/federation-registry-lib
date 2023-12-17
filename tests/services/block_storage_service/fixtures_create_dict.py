@@ -3,9 +3,6 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from app.provider.schemas_extended import (
-    BlockStorageQuotaCreateExtended,
-)
 from app.service.enum import ServiceType
 from tests.quotas.block_storage_quota.utils import (
     random_block_storage_quota_required_attr,
@@ -45,10 +42,10 @@ def block_storage_service_create_data_passing_empty_list() -> Dict[str, Any]:
 @fixture
 def block_storage_service_create_data_with_quotas() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    quota = BlockStorageQuotaCreateExtended(
+    quota = {
         **random_block_storage_quota_required_attr(),
         **random_block_storage_quota_required_rel(),
-    )
+    }
     return {**random_block_storage_service_all_attr(), "quotas": [quota]}
 
 
@@ -58,15 +55,16 @@ def block_storage_service_create_data_with_2_quotas_same_proj() -> Dict[str, Any
 
     A quota has the flag 'per_user' equals to True and the other equal to False.
     """
-    quota1 = BlockStorageQuotaCreateExtended(
+    quota1 = {
         **random_block_storage_quota_required_attr(),
         **random_block_storage_quota_required_rel(),
-    )
-    quota2 = BlockStorageQuotaCreateExtended(
+        "per_user": False,
+    }
+    quota2 = {
         **random_block_storage_quota_required_attr(),
         **random_block_storage_quota_required_rel(),
-        per_user=not quota1.per_user,
-    )
+        "per_user": True,
+    }
     return {**random_block_storage_service_all_attr(), "quotas": [quota1, quota2]}
 
 
@@ -84,10 +82,10 @@ def block_storage_service_invalid_num_quotas_same_project() -> Dict[str, Any]:
     A project can have at most one `project` quota and one `per-user` quota on a
     specific service.
     """
-    quota = BlockStorageQuotaCreateExtended(
+    quota = {
         **random_block_storage_quota_required_attr(),
         **random_block_storage_quota_required_rel(),
-    )
+    }
     return {**random_block_storage_service_all_attr(), "quotas": [quota, quota]}
 
 
