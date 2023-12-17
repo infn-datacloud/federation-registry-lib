@@ -1,5 +1,4 @@
 """UserGroup specific fixtures."""
-
 from pytest_cases import fixture, fixture_union
 
 from app.identity_provider.models import IdentityProvider

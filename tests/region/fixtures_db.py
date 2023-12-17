@@ -1,6 +1,4 @@
 """Region specific fixtures."""
-from typing import Any, Dict
-
 from pytest_cases import fixture, fixture_union, parametrize
 
 from app.provider.models import Provider
@@ -9,6 +7,7 @@ from app.provider.schemas_extended import (
 )
 from app.region.crud import region_mng
 from app.region.models import Region
+from tests.location.utils import random_location_required_attr
 from tests.region.utils import random_region_required_attr
 from tests.services.block_storage_service.utils import (
     random_block_storage_service_required_attr,
@@ -41,11 +40,12 @@ def db_region_with_projects(db_provider_with_projects: Provider) -> Region:
 
 @fixture
 def db_region_with_location(
-    region_create_data_with_location: Dict[str, Any],
     db_provider_simple: Provider,
 ) -> Region:
     """Fixture with standard DB Region."""
-    item = RegionCreateExtended(**region_create_data_with_location)
+    item = RegionCreateExtended(
+        {**random_region_required_attr(), "location": random_location_required_attr()}
+    )
     return region_mng.create(obj_in=item, provider=db_provider_simple)
 
 
