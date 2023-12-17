@@ -9,8 +9,8 @@ from app.location.models import Location
 from app.provider.models import Provider
 from app.region.models import Region
 from app.region.schemas import RegionBase, RegionUpdate
+from tests.common.client import CLIENTS_READ_WRITE
 from tests.common.utils import random_lower_string
-from tests.fixtures.client import CLIENTS_READ_WRITE
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
 
 

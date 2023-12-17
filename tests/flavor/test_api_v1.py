@@ -5,7 +5,7 @@ from httpx import Response
 
 from app.flavor.models import Flavor
 from app.flavor.schemas import FlavorUpdate
-from tests.fixtures.client import CLIENTS_READ_WRITE
+from tests.common.client import CLIENTS_READ_WRITE
 from tests.flavor.controller import FlavorController
 from tests.utils.api_v1 import TestBaseAPI
 

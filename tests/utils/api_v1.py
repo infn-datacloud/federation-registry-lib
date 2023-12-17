@@ -9,7 +9,7 @@ from httpx import Response
 
 from app.config import get_settings
 from app.crud import CRUDBase
-from tests.fixtures.client import (
+from tests.common.client import (
     CLIENTS,
     CLIENTS_FAILING_AUTHN,
     CLIENTS_NO_TOKEN,

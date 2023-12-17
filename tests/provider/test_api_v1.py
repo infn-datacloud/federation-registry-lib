@@ -6,8 +6,8 @@ from httpx import Response
 
 from app.provider.models import Provider
 from app.provider.schemas import ProviderBase, ProviderUpdate
+from tests.common.client import CLIENTS_READ_WRITE
 from tests.common.utils import random_bool, random_email, random_lower_string
-from tests.fixtures.client import CLIENTS_READ_WRITE
 from tests.provider.utils import random_status, random_type
 from tests.utils.api_v1 import BaseAPI, TestBaseAPI
 
