@@ -1,7 +1,7 @@
 """Provider specific fixtures."""
 from typing import Generator
 
-from pytest_cases import fixture, fixture_union
+from pytest_cases import fixture, fixture_union, parametrize
 
 from app.provider.crud import provider_mng
 from app.provider.models import Provider
@@ -27,10 +27,14 @@ def db_provider_simple(setup_and_teardown_db: Generator) -> Provider:
 
 
 @fixture
-def db_provider_with_regions(setup_and_teardown_db: Generator) -> Provider:
+@parametrize(owned_regions=[1, 2])
+def db_provider_with_regions(
+    owned_regions: int, setup_and_teardown_db: Generator
+) -> Provider:
     """Fixture with standard DB Provider."""
     item = ProviderCreateExtended(
-        **random_provider_required_attr(), regions=[random_region_required_attr()]
+        **random_provider_required_attr(),
+        regions=[random_region_required_attr() for _ in range(owned_regions)],
     )
     return provider_mng.create(obj_in=item)
 

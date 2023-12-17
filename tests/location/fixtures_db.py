@@ -20,8 +20,7 @@ def db_location_simple(db_region_simple: Region) -> Location:
 
 @fixture
 def db_shared_location(
-    db_provider_simple: Provider,
-    db_provider_with_regions: Provider,
+    db_provider_simple: Provider, db_provider_with_regions: Provider
 ) -> Location:
     """Location shared within multiple regions.
 
