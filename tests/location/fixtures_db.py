@@ -14,8 +14,8 @@ from tests.region.utils import random_region_required_attr
 @fixture
 def db_location_simple(db_region_simple: Region) -> Location:
     """Fixture with standard DB Location."""
-    item = LocationCreate(**random_location_required_attr())
-    return location_mng.create(obj_in=item, region=db_region_simple)
+    item = random_location_required_attr()
+    return location_mng.create(obj_in=LocationCreate(**item), region=db_region_simple)
 
 
 @fixture
@@ -27,7 +27,7 @@ def db_shared_location(
     This location is shared between regions belonging to the same providers and regions
     belonging to another provider.
     """
-    item = LocationCreate(**random_location_required_attr())
+    item = random_location_required_attr()
     db_regions = db_provider_with_regions.regions
     if len(db_provider_with_regions.regions) == 1:
         db_regions = [
@@ -38,7 +38,7 @@ def db_shared_location(
             ),
         ]
     for db_region in db_regions:
-        db_item = location_mng.create(obj_in=item, region=db_region)
+        db_item = location_mng.create(obj_in=LocationCreate(**item), region=db_region)
     assert len(db_item.regions) > 1
     return db_item
 

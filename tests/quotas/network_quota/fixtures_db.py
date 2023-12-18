@@ -19,9 +19,9 @@ def db_network_quota(
     db_region: Region = db_network_service_with_single_project.region.single()
     db_provider: Provider = db_region.provider.single()
     db_project: Project = db_provider.projects.single()
-    item = NetworkQuotaCreateExtended(
-        **random_network_quota_required_attr(), project=db_project.uuid
-    )
+    item = {**random_network_quota_required_attr(), "project": db_project.uuid}
     return network_quota_mng.create(
-        obj_in=item, service=db_network_service_with_single_project, project=db_project
+        obj_in=NetworkQuotaCreateExtended(**item),
+        service=db_network_service_with_single_project,
+        project=db_project,
     )
