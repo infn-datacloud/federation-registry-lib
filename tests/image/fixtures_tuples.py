@@ -14,8 +14,8 @@ from app.image.schemas import (
 from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.provider.schemas_extended import ImageCreateExtended
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -45,7 +45,7 @@ def image_valid_patch_schema_tuple(
     image_patch_validator, image_patch_valid_data
 ) -> Tuple[
     Type[ImageUpdate],
-    BaseSchemaValidation[ImageBase, ImageBasePublic],
+    PatchSchemaValidation[ImageBase, ImageBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

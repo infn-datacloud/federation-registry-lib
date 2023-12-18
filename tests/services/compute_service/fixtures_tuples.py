@@ -19,8 +19,8 @@ from app.service.schemas_extended import (
     ComputeServiceReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -58,7 +58,7 @@ def compute_service_valid_patch_schema_tuple(
     compute_service_patch_validator, compute_service_patch_valid_data
 ) -> Tuple[
     Type[ComputeServiceUpdate],
-    BaseSchemaValidation[ComputeServiceBase, ServiceBase],
+    PatchSchemaValidation[ComputeServiceBase, ServiceBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

@@ -18,8 +18,8 @@ from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -75,10 +75,10 @@ def block_storage_quota_read_validator() -> (
 
 @fixture
 def block_storage_quota_patch_validator() -> (
-    BaseSchemaValidation[BlockStorageQuotaBase, QuotaBase]
+    PatchSchemaValidation[BlockStorageQuotaBase, QuotaBase]
 ):
     """Instance to validate block_storage_quota patch schemas."""
-    return BaseSchemaValidation[BlockStorageQuotaBase, QuotaBase](
+    return PatchSchemaValidation[BlockStorageQuotaBase, QuotaBase](
         base=BlockStorageQuotaBase, base_public=QuotaBase
     )
 

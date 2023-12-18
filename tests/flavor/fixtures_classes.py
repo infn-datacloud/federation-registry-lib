@@ -13,8 +13,8 @@ from app.flavor.schemas import (
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.provider.schemas_extended import FlavorCreateExtended
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -59,9 +59,9 @@ def flavor_read_validator() -> (
 
 
 @fixture
-def flavor_patch_validator() -> BaseSchemaValidation[FlavorBase, FlavorBasePublic]:
+def flavor_patch_validator() -> PatchSchemaValidation[FlavorBase, FlavorBasePublic]:
     """Instance to validate flavor patch schemas."""
-    return BaseSchemaValidation[FlavorBase, FlavorBasePublic](
+    return PatchSchemaValidation[FlavorBase, FlavorBasePublic](
         base=FlavorBase, base_public=FlavorBasePublic
     )
 

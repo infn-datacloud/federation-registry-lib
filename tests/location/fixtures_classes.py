@@ -16,8 +16,8 @@ from app.location.schemas_extended import (
 )
 from app.provider.schemas_extended import LocationCreate
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -63,10 +63,10 @@ def location_read_validator() -> (
 
 @fixture
 def location_patch_validator() -> (
-    BaseSchemaValidation[LocationBase, LocationBasePublic]
+    PatchSchemaValidation[LocationBase, LocationBasePublic]
 ):
     """Instance to validate location patch schemas."""
-    return BaseSchemaValidation[LocationBase, LocationBasePublic](
+    return PatchSchemaValidation[LocationBase, LocationBasePublic](
         base=LocationBase, base_public=LocationBasePublic
     )
 

@@ -16,8 +16,8 @@ from app.region.schemas import (
 )
 from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -47,7 +47,7 @@ def region_valid_patch_schema_tuple(
     region_patch_validator, region_patch_valid_data
 ) -> Tuple[
     Type[RegionUpdate],
-    BaseSchemaValidation[RegionBase, RegionBasePublic],
+    PatchSchemaValidation[RegionBase, RegionBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

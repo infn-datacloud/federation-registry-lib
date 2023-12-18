@@ -18,8 +18,8 @@ from app.service.schemas_extended import (
     ComputeServiceReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -75,10 +75,10 @@ def compute_service_read_validator() -> (
 
 @fixture
 def compute_service_patch_validator() -> (
-    BaseSchemaValidation[ComputeServiceBase, ServiceBase]
+    PatchSchemaValidation[ComputeServiceBase, ServiceBase]
 ):
     """Instance to validate compute_service patch schemas."""
-    return BaseSchemaValidation[ComputeServiceBase, ServiceBase](
+    return PatchSchemaValidation[ComputeServiceBase, ServiceBase](
         base=ComputeServiceBase, base_public=ServiceBase
     )
 

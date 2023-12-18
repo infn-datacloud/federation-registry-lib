@@ -18,8 +18,8 @@ from app.service.schemas_extended import (
     NetworkServiceReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -75,10 +75,10 @@ def network_service_read_validator() -> (
 
 @fixture
 def network_service_patch_validator() -> (
-    BaseSchemaValidation[NetworkServiceBase, ServiceBase]
+    PatchSchemaValidation[NetworkServiceBase, ServiceBase]
 ):
     """Instance to validate network_service patch schemas."""
-    return BaseSchemaValidation[NetworkServiceBase, ServiceBase](
+    return PatchSchemaValidation[NetworkServiceBase, ServiceBase](
         base=NetworkServiceBase, base_public=ServiceBase
     )
 

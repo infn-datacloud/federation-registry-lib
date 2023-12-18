@@ -13,8 +13,8 @@ from app.network.schemas import (
 from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
 from app.provider.schemas_extended import NetworkCreateExtended
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -59,9 +59,9 @@ def network_read_validator() -> (
 
 
 @fixture
-def network_patch_validator() -> BaseSchemaValidation[NetworkBase, NetworkBasePublic]:
+def network_patch_validator() -> PatchSchemaValidation[NetworkBase, NetworkBasePublic]:
     """Instance to validate network patch schemas."""
-    return BaseSchemaValidation[NetworkBase, NetworkBasePublic](
+    return PatchSchemaValidation[NetworkBase, NetworkBasePublic](
         base=NetworkBase, base_public=NetworkBasePublic
     )
 

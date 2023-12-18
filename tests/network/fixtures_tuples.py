@@ -14,8 +14,8 @@ from app.network.schemas import (
 from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
 from app.provider.schemas_extended import NetworkCreateExtended
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -45,7 +45,7 @@ def network_valid_patch_schema_tuple(
     network_patch_validator, network_patch_valid_data
 ) -> Tuple[
     Type[NetworkUpdate],
-    BaseSchemaValidation[NetworkBase, NetworkBasePublic],
+    PatchSchemaValidation[NetworkBase, NetworkBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

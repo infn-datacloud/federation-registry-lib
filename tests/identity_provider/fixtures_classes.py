@@ -18,8 +18,8 @@ from app.provider.schemas_extended import (
     IdentityProviderCreateExtended,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -71,10 +71,10 @@ def identity_provider_read_validator() -> (
 
 @fixture
 def identity_provider_patch_validator() -> (
-    BaseSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic]
+    PatchSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic]
 ):
     """Instance to validate identity_provider patch schemas."""
-    return BaseSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic](
+    return PatchSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic](
         base=IdentityProviderBase, base_public=IdentityProviderBasePublic
     )
 

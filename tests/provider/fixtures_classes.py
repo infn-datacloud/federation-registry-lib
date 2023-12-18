@@ -16,8 +16,8 @@ from app.provider.schemas_extended import (
     ProviderReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -63,10 +63,10 @@ def provider_read_validator() -> (
 
 @fixture
 def provider_patch_validator() -> (
-    BaseSchemaValidation[ProviderBase, ProviderBasePublic]
+    PatchSchemaValidation[ProviderBase, ProviderBasePublic]
 ):
     """Instance to validate provider patch schemas."""
-    return BaseSchemaValidation[ProviderBase, ProviderBasePublic](
+    return PatchSchemaValidation[ProviderBase, ProviderBasePublic](
         base=ProviderBase, base_public=ProviderBasePublic
     )
 

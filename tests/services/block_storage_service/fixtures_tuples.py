@@ -19,8 +19,8 @@ from app.service.schemas_extended import (
     BlockStorageServiceReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -58,7 +58,7 @@ def block_storage_service_valid_patch_schema_tuple(
     block_storage_service_patch_validator, block_storage_service_patch_valid_data
 ) -> Tuple[
     Type[BlockStorageServiceUpdate],
-    BaseSchemaValidation[BlockStorageServiceBase, ServiceBase],
+    PatchSchemaValidation[BlockStorageServiceBase, ServiceBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

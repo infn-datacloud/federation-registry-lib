@@ -19,8 +19,8 @@ from app.quota.schemas_extended import (
     BlockStorageQuotaReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -56,7 +56,7 @@ def block_storage_quota_valid_patch_schema_tuple(
     block_storage_quota_patch_validator, block_storage_quota_patch_valid_data
 ) -> Tuple[
     Type[BlockStorageQuotaUpdate],
-    BaseSchemaValidation[BlockStorageQuotaBase, QuotaBase],
+    PatchSchemaValidation[BlockStorageQuotaBase, QuotaBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

@@ -14,8 +14,8 @@ from app.sla.schemas import (
 )
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -45,7 +45,7 @@ def sla_valid_patch_schema_tuple(
     sla_patch_validator, sla_patch_valid_data
 ) -> Tuple[
     Type[SLAUpdate],
-    BaseSchemaValidation[SLABase, SLABasePublic],
+    PatchSchemaValidation[SLABase, SLABasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

@@ -19,8 +19,8 @@ from app.service.schemas_extended import (
     IdentityServiceReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -58,7 +58,7 @@ def identity_service_valid_patch_schema_tuple(
     identity_service_patch_validator, identity_service_patch_valid_data
 ) -> Tuple[
     Type[IdentityServiceUpdate],
-    BaseSchemaValidation[IdentityServiceBase, ServiceBase],
+    PatchSchemaValidation[IdentityServiceBase, ServiceBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

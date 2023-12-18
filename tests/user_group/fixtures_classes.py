@@ -16,8 +16,8 @@ from app.user_group.schemas_extended import (
     UserGroupReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -67,10 +67,10 @@ def user_group_read_validator() -> (
 
 @fixture
 def user_group_patch_validator() -> (
-    BaseSchemaValidation[UserGroupBase, UserGroupBasePublic]
+    PatchSchemaValidation[UserGroupBase, UserGroupBasePublic]
 ):
     """Instance to validate user_group patch schemas."""
-    return BaseSchemaValidation[UserGroupBase, UserGroupBasePublic](
+    return PatchSchemaValidation[UserGroupBase, UserGroupBasePublic](
         base=UserGroupBase, base_public=UserGroupBasePublic
     )
 

@@ -19,8 +19,8 @@ from app.provider.schemas_extended import (
     IdentityProviderCreateExtended,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -56,7 +56,7 @@ def identity_provider_valid_patch_schema_tuple(
     identity_provider_patch_validator, identity_provider_patch_valid_data
 ) -> Tuple[
     Type[IdentityProviderUpdate],
-    BaseSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic],
+    PatchSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

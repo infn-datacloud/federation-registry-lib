@@ -18,8 +18,8 @@ from app.quota.schemas_extended import (
     ComputeQuotaReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -75,10 +75,10 @@ def compute_quota_read_validator() -> (
 
 @fixture
 def compute_quota_patch_validator() -> (
-    BaseSchemaValidation[ComputeQuotaBase, QuotaBase]
+    PatchSchemaValidation[ComputeQuotaBase, QuotaBase]
 ):
     """Instance to validate compute_quota patch schemas."""
-    return BaseSchemaValidation[ComputeQuotaBase, QuotaBase](
+    return PatchSchemaValidation[ComputeQuotaBase, QuotaBase](
         base=ComputeQuotaBase, base_public=QuotaBase
     )
 

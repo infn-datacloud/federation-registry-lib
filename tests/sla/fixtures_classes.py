@@ -13,8 +13,8 @@ from app.sla.schemas import (
 )
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -59,9 +59,9 @@ def sla_read_validator() -> (
 
 
 @fixture
-def sla_patch_validator() -> BaseSchemaValidation[SLABase, SLABasePublic]:
+def sla_patch_validator() -> PatchSchemaValidation[SLABase, SLABasePublic]:
     """Instance to validate sla patch schemas."""
-    return BaseSchemaValidation[SLABase, SLABasePublic](
+    return PatchSchemaValidation[SLABase, SLABasePublic](
         base=SLABase, base_public=SLABasePublic
     )
 

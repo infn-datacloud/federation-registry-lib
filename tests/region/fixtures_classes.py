@@ -15,8 +15,8 @@ from app.region.schemas import (
 )
 from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -61,9 +61,9 @@ def region_read_validator() -> (
 
 
 @fixture
-def region_patch_validator() -> BaseSchemaValidation[RegionBase, RegionBasePublic]:
+def region_patch_validator() -> PatchSchemaValidation[RegionBase, RegionBasePublic]:
     """Instance to validate region patch schemas."""
-    return BaseSchemaValidation[RegionBase, RegionBasePublic](
+    return PatchSchemaValidation[RegionBase, RegionBasePublic](
         base=RegionBase, base_public=RegionBasePublic
     )
 

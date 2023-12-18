@@ -17,8 +17,8 @@ from app.location.schemas_extended import (
 )
 from app.provider.schemas_extended import LocationCreate
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -48,7 +48,7 @@ def location_valid_patch_schema_tuple(
     location_patch_validator, location_patch_valid_data
 ) -> Tuple[
     Type[LocationUpdate],
-    BaseSchemaValidation[LocationBase, LocationBasePublic],
+    PatchSchemaValidation[LocationBase, LocationBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

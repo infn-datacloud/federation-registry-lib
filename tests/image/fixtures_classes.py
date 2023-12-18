@@ -13,8 +13,8 @@ from app.image.schemas import (
 from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.provider.schemas_extended import ImageCreateExtended
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -59,9 +59,9 @@ def image_read_validator() -> (
 
 
 @fixture
-def image_patch_validator() -> BaseSchemaValidation[ImageBase, ImageBasePublic]:
+def image_patch_validator() -> PatchSchemaValidation[ImageBase, ImageBasePublic]:
     """Instance to validate image patch schemas."""
-    return BaseSchemaValidation[ImageBase, ImageBasePublic](
+    return PatchSchemaValidation[ImageBase, ImageBasePublic](
         base=ImageBase, base_public=ImageBasePublic
     )
 

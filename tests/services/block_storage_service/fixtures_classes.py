@@ -18,8 +18,8 @@ from app.service.schemas_extended import (
     BlockStorageServiceReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -75,10 +75,10 @@ def block_storage_service_read_validator() -> (
 
 @fixture
 def block_storage_service_patch_validator() -> (
-    BaseSchemaValidation[BlockStorageServiceBase, ServiceBase]
+    PatchSchemaValidation[BlockStorageServiceBase, ServiceBase]
 ):
     """Instance to validate block_storage_service patch schemas."""
-    return BaseSchemaValidation[BlockStorageServiceBase, ServiceBase](
+    return PatchSchemaValidation[BlockStorageServiceBase, ServiceBase](
         base=BlockStorageServiceBase, base_public=ServiceBase
     )
 

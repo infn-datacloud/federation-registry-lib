@@ -17,8 +17,8 @@ from app.user_group.schemas_extended import (
     UserGroupReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -52,7 +52,7 @@ def user_group_valid_patch_schema_tuple(
     user_group_patch_validator, user_group_patch_valid_data
 ) -> Tuple[
     Type[UserGroupUpdate],
-    BaseSchemaValidation[UserGroupBase, UserGroupBasePublic],
+    PatchSchemaValidation[UserGroupBase, UserGroupBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

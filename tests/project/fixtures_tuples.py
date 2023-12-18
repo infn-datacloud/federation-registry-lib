@@ -14,8 +14,8 @@ from app.project.schemas import (
 from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.provider.schemas_extended import ProjectCreate
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -45,7 +45,7 @@ def project_valid_patch_schema_tuple(
     project_patch_validator, project_patch_valid_data
 ) -> Tuple[
     Type[ProjectUpdate],
-    BaseSchemaValidation[ProjectBase, ProjectBasePublic],
+    PatchSchemaValidation[ProjectBase, ProjectBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

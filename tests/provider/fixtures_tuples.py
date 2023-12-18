@@ -17,8 +17,8 @@ from app.provider.schemas_extended import (
     ProviderReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -48,7 +48,7 @@ def provider_valid_patch_schema_tuple(
     provider_patch_validator, provider_patch_valid_data
 ) -> Tuple[
     Type[ProviderUpdate],
-    BaseSchemaValidation[ProviderBase, ProviderBasePublic],
+    PatchSchemaValidation[ProviderBase, ProviderBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

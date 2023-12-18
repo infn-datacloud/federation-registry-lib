@@ -13,8 +13,8 @@ from app.project.schemas import (
 from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.provider.schemas_extended import ProjectCreate
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -88,9 +88,9 @@ def project_read_validator() -> (
 
 
 @fixture
-def project_patch_validator() -> BaseSchemaValidation[ProjectBase, ProjectBasePublic]:
+def project_patch_validator() -> PatchSchemaValidation[ProjectBase, ProjectBasePublic]:
     """Instance to validate project patch schemas."""
-    return BaseSchemaValidation[ProjectBase, ProjectBasePublic](
+    return PatchSchemaValidation[ProjectBase, ProjectBasePublic](
         base=ProjectBase, base_public=ProjectBasePublic
     )
 

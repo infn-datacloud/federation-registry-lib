@@ -14,8 +14,8 @@ from app.flavor.schemas import (
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.provider.schemas_extended import FlavorCreateExtended
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -45,7 +45,7 @@ def flavor_valid_patch_schema_tuple(
     flavor_patch_validator, flavor_patch_valid_data
 ) -> Tuple[
     Type[FlavorUpdate],
-    BaseSchemaValidation[FlavorBase, FlavorBasePublic],
+    PatchSchemaValidation[FlavorBase, FlavorBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""

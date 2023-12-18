@@ -19,8 +19,8 @@ from app.quota.schemas_extended import (
     NetworkQuotaReadExtendedPublic,
 )
 from tests.common.schema_validators import (
-    BaseSchemaValidation,
     CreateSchemaValidation,
+    PatchSchemaValidation,
     ReadSchemaValidation,
 )
 
@@ -54,7 +54,7 @@ def network_quota_valid_patch_schema_tuple(
     network_quota_patch_validator, network_quota_patch_valid_data
 ) -> Tuple[
     Type[NetworkQuotaUpdate],
-    BaseSchemaValidation[NetworkQuotaBase, QuotaBase],
+    PatchSchemaValidation[NetworkQuotaBase, QuotaBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
