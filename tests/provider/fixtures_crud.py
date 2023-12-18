@@ -3,10 +3,13 @@ from typing import Any, Dict, Optional, Tuple
 
 from pytest_cases import fixture, parametrize
 
+from app.identity_provider.crud import identity_provider_mng
+from app.project.crud import project_mng
 from app.provider.crud import CRUDProvider, provider_mng
 from app.provider.models import Provider
 from app.provider.schemas import ProviderBase, ProviderBasePublic
 from app.provider.schemas_extended import ProviderCreateExtended
+from app.region.crud import region_mng
 from tests.common.crud.validators import (
     CreateOperationValidation,
     DeleteOperationValidation,
@@ -15,8 +18,14 @@ from tests.common.crud.validators import (
 
 
 @fixture
+def provider_manager() -> CRUDProvider:
+    """Return provider manager."""
+    return provider_mng
+
+
+@fixture
 def provider_create_item_tuple(
-    provider_create_valid_data, provider_create_operation_validator
+    provider_create_valid_data,
 ) -> Tuple[
     CRUDProvider,
     CreateOperationValidation[
@@ -26,9 +35,12 @@ def provider_create_item_tuple(
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
+    validator = CreateOperationValidation[
+        ProviderBase, ProviderBasePublic, ProviderCreateExtended, Provider
+    ](base=ProviderBase, base_public=ProviderBasePublic, create=ProviderCreateExtended)
     return (
         provider_mng,
-        provider_create_operation_validator,
+        validator,
         ProviderCreateExtended(**provider_create_valid_data),
         {},
     )
@@ -64,48 +76,57 @@ def provider_create_item_tuple(
 
 @fixture
 def provider_valid_read_item_tuple(
-    provider_read_operation_validator, db_provider_simple
+    db_provider_simple,
 ) -> Tuple[
     CRUDProvider,
     ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider],
     Provider,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return provider_mng, provider_read_operation_validator, db_provider_simple
+    validator = ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider](
+        base=ProviderBase, base_public=ProviderBasePublic
+    )
+    return provider_mng, validator, db_provider_simple
 
 
 @fixture
 def provider_valid_read_items_tuple(
-    provider_read_operation_validator,
-    db_provider_simple,
-    db_provider_with_single_project,
+    db_provider_simple, db_provider_with_single_project
 ) -> Tuple[
     CRUDProvider,
     ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider],
     Provider,
 ]:
     """Fixture with the read class, validator and the db items to read."""
+    validator = ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider](
+        base=ProviderBase, base_public=ProviderBasePublic
+    )
     return (
         provider_mng,
-        provider_read_operation_validator,
+        validator,
         [db_provider_simple, db_provider_with_single_project],
     )
 
 
 @fixture
 def provider_delete_item_tuple(
-    provider_delete_operation_validator, db_provider
+    db_provider,
 ) -> Tuple[
     CRUDProvider,
     DeleteOperationValidation[ProviderBase, ProviderBasePublic, Provider],
     Provider,
 ]:
     """Fixture with the delete class, validator and the db items to read."""
-    return (
-        provider_mng,
-        provider_delete_operation_validator,
-        db_provider,
+    validator = DeleteOperationValidation[ProviderBase, ProviderBasePublic, Provider](
+        base=ProviderBase,
+        base_public=ProviderBasePublic,
+        managers={
+            "identity_providers": identity_provider_mng,
+            "projects": project_mng,
+            "regions": region_mng,
+        },
     )
+    return provider_mng, validator, db_provider
 
 
 @fixture
