@@ -26,7 +26,7 @@ class CRUDImage(
     def create(
         self,
         *,
-        obj_in: ImageCreate,
+        obj_in: ImageCreateExtended,
         service: ComputeService,
         projects: Optional[List[Project]] = None,
     ) -> Image:
@@ -55,7 +55,7 @@ class CRUDImage(
 
         db_obj.services.connect(service)
 
-        for project in projects:
+        for project in filter(lambda x: x.uuid in obj_in.projects, projects):
             db_obj.projects.connect(project)
         return db_obj
 
