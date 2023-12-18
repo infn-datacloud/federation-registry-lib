@@ -1,7 +1,7 @@
 """BlockStorageService specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
@@ -26,8 +26,22 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[
+        BlockStorageServiceRead,
+        BlockStorageServiceReadExtended,
+        BlockStorageServiceReadPublic,
+        BlockStorageServiceReadExtendedPublic,
+    ],
+)
+def block_storage_service_read_class(cls) -> Any:
+    """BlockStorageService Read schema."""
+    return cls
+
+
+@fixture
 def block_storage_service_valid_create_schema_tuple(
-    block_storage_service_create_validator, block_storage_service_create_valid_data
+    block_storage_service_create_valid_data,
 ) -> Tuple[
     Type[BlockStorageServiceCreateExtended],
     CreateSchemaValidation[
@@ -38,9 +52,18 @@ def block_storage_service_valid_create_schema_tuple(
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
+    validator = CreateSchemaValidation[
+        BlockStorageServiceBase,
+        ServiceBase,
+        BlockStorageServiceCreateExtended,
+    ](
+        base=BlockStorageServiceBase,
+        base_public=ServiceBase,
+        create=BlockStorageServiceCreateExtended,
+    )
     return (
         BlockStorageServiceCreateExtended,
-        block_storage_service_create_validator,
+        validator,
         block_storage_service_create_valid_data,
     )
 
@@ -55,16 +78,19 @@ def block_storage_service_invalid_create_schema_tuple(
 
 @fixture
 def block_storage_service_valid_patch_schema_tuple(
-    block_storage_service_patch_validator, block_storage_service_patch_valid_data
+    block_storage_service_patch_valid_data,
 ) -> Tuple[
     Type[BlockStorageServiceUpdate],
     PatchSchemaValidation[BlockStorageServiceBase, ServiceBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
+    validator = PatchSchemaValidation[BlockStorageServiceBase, ServiceBase](
+        base=BlockStorageServiceBase, base_public=ServiceBase
+    )
     return (
         BlockStorageServiceUpdate,
-        block_storage_service_patch_validator,
+        validator,
         block_storage_service_patch_valid_data,
     )
 
@@ -79,9 +105,7 @@ def block_storage_service_invalid_patch_schema_tuple(
 
 @fixture
 def block_storage_service_valid_read_schema_tuple(
-    block_storage_service_read_class,
-    block_storage_service_read_validator,
-    db_block_storage_service,
+    block_storage_service_read_class, db_block_storage_service
 ) -> Tuple[
     Union[
         BlockStorageServiceRead,
@@ -101,8 +125,18 @@ def block_storage_service_valid_read_schema_tuple(
     BlockStorageService,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return (
-        block_storage_service_read_class,
-        block_storage_service_read_validator,
-        db_block_storage_service,
+    validator = ReadSchemaValidation[
+        BlockStorageServiceBase,
+        ServiceBase,
+        BlockStorageServiceRead,
+        BlockStorageServiceReadPublic,
+        BlockStorageServiceReadExtended,
+        BlockStorageServiceReadExtendedPublic,
+        BlockStorageService,
+    ](
+        base=BlockStorageServiceBase,
+        base_public=ServiceBase,
+        read=BlockStorageServiceRead,
+        read_extended=BlockStorageServiceReadExtended,
     )
+    return block_storage_service_read_class, validator, db_block_storage_service

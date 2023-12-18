@@ -1,7 +1,7 @@
 """ComputeQuota specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.provider.schemas_extended import (
     ComputeQuotaCreateExtended,
@@ -26,19 +26,38 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[
+        ComputeQuotaRead,
+        ComputeQuotaReadExtended,
+        ComputeQuotaReadPublic,
+        ComputeQuotaReadExtendedPublic,
+    ],
+)
+def compute_quota_read_class(cls) -> Any:
+    """ComputeQuota Read schema."""
+    return cls
+
+
+@fixture
 def compute_quota_valid_create_schema_tuple(
-    compute_quota_create_validator, compute_quota_create_valid_data
+    compute_quota_create_valid_data,
 ) -> Tuple[
     Type[ComputeQuotaCreateExtended],
     CreateSchemaValidation[ComputeQuotaBase, QuotaBase, ComputeQuotaCreateExtended],
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return (
+    validator = CreateSchemaValidation[
+        ComputeQuotaBase,
+        QuotaBase,
         ComputeQuotaCreateExtended,
-        compute_quota_create_validator,
-        compute_quota_create_valid_data,
+    ](
+        base=ComputeQuotaBase,
+        base_public=QuotaBase,
+        create=ComputeQuotaCreateExtended,
     )
+    return ComputeQuotaCreateExtended, validator, compute_quota_create_valid_data
 
 
 @fixture
@@ -51,18 +70,17 @@ def compute_quota_invalid_create_schema_tuple(
 
 @fixture
 def compute_quota_valid_patch_schema_tuple(
-    compute_quota_patch_validator, compute_quota_patch_valid_data
+    compute_quota_patch_valid_data,
 ) -> Tuple[
     Type[ComputeQuotaUpdate],
     PatchSchemaValidation[ComputeQuotaBase, QuotaBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return (
-        ComputeQuotaUpdate,
-        compute_quota_patch_validator,
-        compute_quota_patch_valid_data,
+    validator = PatchSchemaValidation[ComputeQuotaBase, QuotaBase](
+        base=ComputeQuotaBase, base_public=QuotaBase
     )
+    return ComputeQuotaUpdate, validator, compute_quota_patch_valid_data
 
 
 @fixture
@@ -76,7 +94,6 @@ def compute_quota_invalid_patch_schema_tuple(
 @fixture
 def compute_quota_valid_read_schema_tuple(
     compute_quota_read_class,
-    compute_quota_read_validator,
     db_compute_quota,
 ) -> Tuple[
     Union[
@@ -97,8 +114,18 @@ def compute_quota_valid_read_schema_tuple(
     ComputeQuota,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return (
-        compute_quota_read_class,
-        compute_quota_read_validator,
-        db_compute_quota,
+    validator = ReadSchemaValidation[
+        ComputeQuotaBase,
+        QuotaBase,
+        ComputeQuotaRead,
+        ComputeQuotaReadPublic,
+        ComputeQuotaReadExtended,
+        ComputeQuotaReadExtendedPublic,
+        ComputeQuota,
+    ](
+        base=ComputeQuotaBase,
+        base_public=QuotaBase,
+        read=ComputeQuotaRead,
+        read_extended=ComputeQuotaReadExtended,
     )
+    return compute_quota_read_class, validator, db_compute_quota

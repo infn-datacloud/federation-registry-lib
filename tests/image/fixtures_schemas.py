@@ -1,7 +1,7 @@
 """Image specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.image.models import Image
 from app.image.schemas import (
@@ -21,15 +21,27 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[ImageRead, ImageReadExtended, ImageReadPublic, ImageReadExtendedPublic]
+)
+def image_read_class(cls) -> Any:
+    """Image Read schema."""
+    return cls
+
+
+@fixture
 def image_valid_create_schema_tuple(
-    image_create_validator, image_create_valid_data
+    image_create_valid_data,
 ) -> Tuple[
     Type[ImageCreateExtended],
     CreateSchemaValidation[ImageBase, ImageBasePublic, ImageCreateExtended],
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return ImageCreateExtended, image_create_validator, image_create_valid_data
+    validator = CreateSchemaValidation[ImageBase, ImageBasePublic, ImageCreateExtended](
+        base=ImageBase, base_public=ImageBasePublic, create=ImageCreateExtended
+    )
+    return ImageCreateExtended, validator, image_create_valid_data
 
 
 @fixture
@@ -42,14 +54,17 @@ def image_invalid_create_schema_tuple(
 
 @fixture
 def image_valid_patch_schema_tuple(
-    image_patch_validator, image_patch_valid_data
+    image_patch_valid_data,
 ) -> Tuple[
     Type[ImageUpdate],
     PatchSchemaValidation[ImageBase, ImageBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return ImageUpdate, image_patch_validator, image_patch_valid_data
+    validator = PatchSchemaValidation[ImageBase, ImageBasePublic](
+        base=ImageBase, base_public=ImageBasePublic
+    )
+    return ImageUpdate, validator, image_patch_valid_data
 
 
 @fixture
@@ -62,7 +77,7 @@ def image_invalid_patch_schema_tuple(
 
 @fixture
 def image_valid_read_schema_tuple(
-    image_read_class, image_read_validator, db_image
+    image_read_class, db_image
 ) -> Tuple[
     Union[ImageRead, ImageReadPublic, ImageReadExtended, ImageReadExtendedPublic],
     ReadSchemaValidation[
@@ -77,4 +92,18 @@ def image_valid_read_schema_tuple(
     Image,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return image_read_class, image_read_validator, db_image
+    validator = ReadSchemaValidation[
+        ImageBase,
+        ImageBasePublic,
+        ImageRead,
+        ImageReadPublic,
+        ImageReadExtended,
+        ImageReadExtendedPublic,
+        Image,
+    ](
+        base=ImageBase,
+        base_public=ImageBasePublic,
+        read=ImageRead,
+        read_extended=ImageReadExtended,
+    )
+    return image_read_class, validator, db_image

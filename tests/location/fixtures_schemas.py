@@ -1,7 +1,7 @@
 """Location specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.location.models import Location
 from app.location.schemas import (
@@ -24,15 +24,32 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[
+        LocationRead,
+        LocationReadExtended,
+        LocationReadPublic,
+        LocationReadExtendedPublic,
+    ]
+)
+def location_read_class(cls) -> Any:
+    """Location Read schema."""
+    return cls
+
+
+@fixture
 def location_valid_create_schema_tuple(
-    location_create_validator, location_create_valid_data
+    location_create_valid_data,
 ) -> Tuple[
     Type[LocationCreate],
     CreateSchemaValidation[LocationBase, LocationBasePublic, LocationCreate],
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return LocationCreate, location_create_validator, location_create_valid_data
+    validator = CreateSchemaValidation[
+        LocationBase, LocationBasePublic, LocationCreate
+    ](base=LocationBase, base_public=LocationBasePublic, create=LocationCreate)
+    return LocationCreate, validator, location_create_valid_data
 
 
 @fixture
@@ -45,14 +62,17 @@ def location_invalid_create_schema_tuple(
 
 @fixture
 def location_valid_patch_schema_tuple(
-    location_patch_validator, location_patch_valid_data
+    location_patch_valid_data,
 ) -> Tuple[
     Type[LocationUpdate],
     PatchSchemaValidation[LocationBase, LocationBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return LocationUpdate, location_patch_validator, location_patch_valid_data
+    validator = PatchSchemaValidation[LocationBase, LocationBasePublic](
+        base=LocationBase, base_public=LocationBasePublic
+    )
+    return LocationUpdate, validator, location_patch_valid_data
 
 
 @fixture
@@ -65,7 +85,7 @@ def location_invalid_patch_schema_tuple(
 
 @fixture
 def location_valid_read_schema_tuple(
-    location_read_class, location_read_validator, db_location
+    location_read_class, db_location
 ) -> Tuple[
     Union[
         LocationRead,
@@ -85,4 +105,18 @@ def location_valid_read_schema_tuple(
     Location,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return location_read_class, location_read_validator, db_location
+    validator = ReadSchemaValidation[
+        LocationBase,
+        LocationBasePublic,
+        LocationRead,
+        LocationReadPublic,
+        LocationReadExtended,
+        LocationReadExtendedPublic,
+        Location,
+    ](
+        base=LocationBase,
+        base_public=LocationBasePublic,
+        read=LocationRead,
+        read_extended=LocationReadExtended,
+    )
+    return location_read_class, validator, db_location

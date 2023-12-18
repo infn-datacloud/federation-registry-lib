@@ -1,7 +1,7 @@
 """SLA specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.provider.schemas_extended import SLACreateExtended
 from app.sla.models import SLA
@@ -21,15 +21,25 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(cls=[SLARead, SLAReadExtended, SLAReadPublic, SLAReadExtendedPublic])
+def sla_read_class(cls) -> Any:
+    """SLA Read schema."""
+    return cls
+
+
+@fixture
 def sla_valid_create_schema_tuple(
-    sla_create_validator, sla_create_valid_data
+    sla_create_valid_data,
 ) -> Tuple[
     Type[SLACreateExtended],
     CreateSchemaValidation[SLABase, SLABasePublic, SLACreateExtended],
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return SLACreateExtended, sla_create_validator, sla_create_valid_data
+    validator = CreateSchemaValidation[SLABase, SLABasePublic, SLACreateExtended](
+        base=SLABase, base_public=SLABasePublic, create=SLACreateExtended
+    )
+    return SLACreateExtended, validator, sla_create_valid_data
 
 
 @fixture
@@ -42,14 +52,17 @@ def sla_invalid_create_schema_tuple(
 
 @fixture
 def sla_valid_patch_schema_tuple(
-    sla_patch_validator, sla_patch_valid_data
+    sla_patch_valid_data,
 ) -> Tuple[
     Type[SLAUpdate],
     PatchSchemaValidation[SLABase, SLABasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return SLAUpdate, sla_patch_validator, sla_patch_valid_data
+    validator = PatchSchemaValidation[SLABase, SLABasePublic](
+        base=SLABase, base_public=SLABasePublic
+    )
+    return SLAUpdate, validator, sla_patch_valid_data
 
 
 @fixture
@@ -62,7 +75,7 @@ def sla_invalid_patch_schema_tuple(
 
 @fixture
 def sla_valid_read_schema_tuple(
-    sla_read_class, sla_read_validator, db_sla
+    sla_read_class, db_sla
 ) -> Tuple[
     Union[SLARead, SLAReadPublic, SLAReadExtended, SLAReadExtendedPublic],
     ReadSchemaValidation[
@@ -77,4 +90,18 @@ def sla_valid_read_schema_tuple(
     SLA,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return sla_read_class, sla_read_validator, db_sla
+    validator = ReadSchemaValidation[
+        SLABase,
+        SLABasePublic,
+        SLARead,
+        SLAReadPublic,
+        SLAReadExtended,
+        SLAReadExtendedPublic,
+        SLA,
+    ](
+        base=SLABase,
+        base_public=SLABasePublic,
+        read=SLARead,
+        read_extended=SLAReadExtended,
+    )
+    return sla_read_class, validator, db_sla

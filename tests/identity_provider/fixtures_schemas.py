@@ -1,7 +1,7 @@
 """IdentityProvider specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.identity_provider.models import IdentityProvider
 from app.identity_provider.schemas import (
@@ -26,8 +26,22 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[
+        IdentityProviderRead,
+        IdentityProviderReadExtended,
+        IdentityProviderReadPublic,
+        IdentityProviderReadExtendedPublic,
+    ],
+)
+def identity_provider_read_class(cls) -> Any:
+    """IdentityProvider Read schema."""
+    return cls
+
+
+@fixture
 def identity_provider_valid_create_schema_tuple(
-    identity_provider_create_validator, identity_provider_create_valid_data
+    identity_provider_create_valid_data,
 ) -> Tuple[
     Type[IdentityProviderCreateExtended],
     CreateSchemaValidation[
@@ -36,9 +50,16 @@ def identity_provider_valid_create_schema_tuple(
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
+    validator = CreateSchemaValidation[
+        IdentityProviderBase, IdentityProviderBasePublic, IdentityProviderCreateExtended
+    ](
+        base=IdentityProviderBase,
+        base_public=IdentityProviderBasePublic,
+        create=IdentityProviderCreateExtended,
+    )
     return (
         IdentityProviderCreateExtended,
-        identity_provider_create_validator,
+        validator,
         identity_provider_create_valid_data,
     )
 
@@ -53,16 +74,19 @@ def identity_provider_invalid_create_schema_tuple(
 
 @fixture
 def identity_provider_valid_patch_schema_tuple(
-    identity_provider_patch_validator, identity_provider_patch_valid_data
+    identity_provider_patch_valid_data,
 ) -> Tuple[
     Type[IdentityProviderUpdate],
     PatchSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
+    validator = PatchSchemaValidation[IdentityProviderBase, IdentityProviderBasePublic](
+        base=IdentityProviderBase, base_public=IdentityProviderBasePublic
+    )
     return (
         IdentityProviderUpdate,
-        identity_provider_patch_validator,
+        validator,
         identity_provider_patch_valid_data,
     )
 
@@ -77,7 +101,7 @@ def identity_provider_invalid_patch_schema_tuple(
 
 @fixture
 def identity_provider_valid_read_schema_tuple(
-    identity_provider_read_class, identity_provider_read_validator, db_identity_provider
+    identity_provider_read_class, db_identity_provider
 ) -> Tuple[
     Union[
         IdentityProviderRead,
@@ -97,8 +121,22 @@ def identity_provider_valid_read_schema_tuple(
     IdentityProvider,
 ]:
     """Fixture with the read class, validator and the db item to read."""
+    validator = ReadSchemaValidation[
+        IdentityProviderBase,
+        IdentityProviderBasePublic,
+        IdentityProviderRead,
+        IdentityProviderReadPublic,
+        IdentityProviderReadExtended,
+        IdentityProviderReadExtendedPublic,
+        IdentityProvider,
+    ](
+        base=IdentityProviderBase,
+        base_public=IdentityProviderBasePublic,
+        read=IdentityProviderRead,
+        read_extended=IdentityProviderReadExtended,
+    )
     return (
         identity_provider_read_class,
-        identity_provider_read_validator,
+        validator,
         db_identity_provider,
     )

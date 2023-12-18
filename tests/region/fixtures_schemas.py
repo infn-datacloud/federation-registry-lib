@@ -1,7 +1,7 @@
 """Region specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.provider.schemas_extended import (
     RegionCreateExtended,
@@ -23,15 +23,27 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[RegionRead, RegionReadExtended, RegionReadPublic, RegionReadExtendedPublic]
+)
+def region_read_class(cls) -> Any:
+    """Region Read schema."""
+    return cls
+
+
+@fixture
 def region_valid_create_schema_tuple(
-    region_create_validator, region_create_valid_data
+    region_create_valid_data,
 ) -> Tuple[
     Type[RegionCreateExtended],
     CreateSchemaValidation[RegionBase, RegionBasePublic, RegionCreateExtended],
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return RegionCreateExtended, region_create_validator, region_create_valid_data
+    validator = CreateSchemaValidation[
+        RegionBase, RegionBasePublic, RegionCreateExtended
+    ](base=RegionBase, base_public=RegionBasePublic, create=RegionCreateExtended)
+    return RegionCreateExtended, validator, region_create_valid_data
 
 
 @fixture
@@ -44,14 +56,17 @@ def region_invalid_create_schema_tuple(
 
 @fixture
 def region_valid_patch_schema_tuple(
-    region_patch_validator, region_patch_valid_data
+    region_patch_valid_data,
 ) -> Tuple[
     Type[RegionUpdate],
     PatchSchemaValidation[RegionBase, RegionBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return RegionUpdate, region_patch_validator, region_patch_valid_data
+    validator = PatchSchemaValidation[RegionBase, RegionBasePublic](
+        base=RegionBase, base_public=RegionBasePublic
+    )
+    return RegionUpdate, validator, region_patch_valid_data
 
 
 @fixture
@@ -64,7 +79,7 @@ def region_invalid_patch_schema_tuple(
 
 @fixture
 def region_valid_read_schema_tuple(
-    region_read_class, region_read_validator, db_region
+    region_read_class, db_region
 ) -> Tuple[
     Union[RegionRead, RegionReadPublic, RegionReadExtended, RegionReadExtendedPublic],
     ReadSchemaValidation[
@@ -79,4 +94,18 @@ def region_valid_read_schema_tuple(
     Region,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return region_read_class, region_read_validator, db_region
+    validator = ReadSchemaValidation[
+        RegionBase,
+        RegionBasePublic,
+        RegionRead,
+        RegionReadPublic,
+        RegionReadExtended,
+        RegionReadExtendedPublic,
+        Region,
+    ](
+        base=RegionBase,
+        base_public=RegionBasePublic,
+        read=RegionRead,
+        read_extended=RegionReadExtended,
+    )
+    return region_read_class, validator, db_region

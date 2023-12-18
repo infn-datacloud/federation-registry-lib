@@ -1,7 +1,7 @@
 """ComputeService specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.provider.schemas_extended import (
     ComputeServiceCreateExtended,
@@ -26,8 +26,22 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[
+        ComputeServiceRead,
+        ComputeServiceReadExtended,
+        ComputeServiceReadPublic,
+        ComputeServiceReadExtendedPublic,
+    ],
+)
+def compute_service_read_class(cls) -> Any:
+    """ComputeService Read schema."""
+    return cls
+
+
+@fixture
 def compute_service_valid_create_schema_tuple(
-    compute_service_create_validator, compute_service_create_valid_data
+    compute_service_create_valid_data,
 ) -> Tuple[
     Type[ComputeServiceCreateExtended],
     CreateSchemaValidation[
@@ -38,11 +52,16 @@ def compute_service_valid_create_schema_tuple(
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return (
+    validator = CreateSchemaValidation[
+        ComputeServiceBase,
+        ServiceBase,
         ComputeServiceCreateExtended,
-        compute_service_create_validator,
-        compute_service_create_valid_data,
+    ](
+        base=ComputeServiceBase,
+        base_public=ServiceBase,
+        create=ComputeServiceCreateExtended,
     )
+    return (ComputeServiceCreateExtended, validator, compute_service_create_valid_data)
 
 
 @fixture
@@ -55,18 +74,17 @@ def compute_service_invalid_create_schema_tuple(
 
 @fixture
 def compute_service_valid_patch_schema_tuple(
-    compute_service_patch_validator, compute_service_patch_valid_data
+    compute_service_patch_valid_data,
 ) -> Tuple[
     Type[ComputeServiceUpdate],
     PatchSchemaValidation[ComputeServiceBase, ServiceBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return (
-        ComputeServiceUpdate,
-        compute_service_patch_validator,
-        compute_service_patch_valid_data,
+    validator = PatchSchemaValidation[ComputeServiceBase, ServiceBase](
+        base=ComputeServiceBase, base_public=ServiceBase
     )
+    return ComputeServiceUpdate, validator, compute_service_patch_valid_data
 
 
 @fixture
@@ -79,9 +97,7 @@ def compute_service_invalid_patch_schema_tuple(
 
 @fixture
 def compute_service_valid_read_schema_tuple(
-    compute_service_read_class,
-    compute_service_read_validator,
-    db_compute_service,
+    compute_service_read_class, db_compute_service
 ) -> Tuple[
     Union[
         ComputeServiceRead,
@@ -101,8 +117,18 @@ def compute_service_valid_read_schema_tuple(
     ComputeService,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return (
-        compute_service_read_class,
-        compute_service_read_validator,
-        db_compute_service,
+    validator = ReadSchemaValidation[
+        ComputeServiceBase,
+        ServiceBase,
+        ComputeServiceRead,
+        ComputeServiceReadPublic,
+        ComputeServiceReadExtended,
+        ComputeServiceReadExtendedPublic,
+        ComputeService,
+    ](
+        base=ComputeServiceBase,
+        base_public=ServiceBase,
+        read=ComputeServiceRead,
+        read_extended=ComputeServiceReadExtended,
     )
+    return compute_service_read_class, validator, db_compute_service

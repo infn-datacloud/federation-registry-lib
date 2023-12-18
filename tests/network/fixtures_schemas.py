@@ -1,7 +1,7 @@
 """Network specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.network.models import Network
 from app.network.schemas import (
@@ -21,15 +21,28 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[NetworkRead, NetworkReadExtended, NetworkReadPublic, NetworkReadExtendedPublic]
+)
+def network_read_class(cls) -> Any:
+    """Network Read schema."""
+    return cls
+
+
+@fixture
 def network_valid_create_schema_tuple(
-    network_create_validator, network_create_valid_data
+    network_create_valid_data,
 ) -> Tuple[
     Type[NetworkCreateExtended],
     CreateSchemaValidation[NetworkBase, NetworkBasePublic, NetworkCreateExtended],
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return NetworkCreateExtended, network_create_validator, network_create_valid_data
+    validator = CreateSchemaValidation[
+        NetworkBase, NetworkBasePublic, NetworkCreateExtended
+    ](base=NetworkBase, base_public=NetworkBasePublic, create=NetworkCreateExtended)
+
+    return NetworkCreateExtended, validator, network_create_valid_data
 
 
 @fixture
@@ -42,14 +55,17 @@ def network_invalid_create_schema_tuple(
 
 @fixture
 def network_valid_patch_schema_tuple(
-    network_patch_validator, network_patch_valid_data
+    network_patch_valid_data,
 ) -> Tuple[
     Type[NetworkUpdate],
     PatchSchemaValidation[NetworkBase, NetworkBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return NetworkUpdate, network_patch_validator, network_patch_valid_data
+    validator = PatchSchemaValidation[NetworkBase, NetworkBasePublic](
+        base=NetworkBase, base_public=NetworkBasePublic
+    )
+    return NetworkUpdate, validator, network_patch_valid_data
 
 
 @fixture
@@ -62,7 +78,7 @@ def network_invalid_patch_schema_tuple(
 
 @fixture
 def network_valid_read_schema_tuple(
-    network_read_class, network_read_validator, db_network
+    network_read_class, db_network
 ) -> Tuple[
     Union[
         NetworkRead, NetworkReadPublic, NetworkReadExtended, NetworkReadExtendedPublic
@@ -79,4 +95,18 @@ def network_valid_read_schema_tuple(
     Network,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return network_read_class, network_read_validator, db_network
+    validator = ReadSchemaValidation[
+        NetworkBase,
+        NetworkBasePublic,
+        NetworkRead,
+        NetworkReadPublic,
+        NetworkReadExtended,
+        NetworkReadExtendedPublic,
+        Network,
+    ](
+        base=NetworkBase,
+        base_public=NetworkBasePublic,
+        read=NetworkRead,
+        read_extended=NetworkReadExtended,
+    )
+    return network_read_class, validator, db_network

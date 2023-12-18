@@ -1,7 +1,7 @@
 """NetworkQuota specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.provider.schemas_extended import (
     NetworkQuotaCreateExtended,
@@ -26,19 +26,38 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[
+        NetworkQuotaRead,
+        NetworkQuotaReadExtended,
+        NetworkQuotaReadPublic,
+        NetworkQuotaReadExtendedPublic,
+    ],
+)
+def network_quota_read_class(cls) -> Any:
+    """NetworkQuota Read schema."""
+    return cls
+
+
+@fixture
 def network_quota_valid_create_schema_tuple(
-    network_quota_create_validator, network_quota_create_valid_data
+    network_quota_create_valid_data,
 ) -> Tuple[
     Type[NetworkQuotaCreateExtended],
     CreateSchemaValidation[NetworkQuotaBase, QuotaBase, NetworkQuotaCreateExtended],
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return (
+    validator = CreateSchemaValidation[
+        NetworkQuotaBase,
+        QuotaBase,
         NetworkQuotaCreateExtended,
-        network_quota_create_validator,
-        network_quota_create_valid_data,
+    ](
+        base=NetworkQuotaBase,
+        base_public=QuotaBase,
+        create=NetworkQuotaCreateExtended,
     )
+    return (NetworkQuotaCreateExtended, validator, network_quota_create_valid_data)
 
 
 @fixture
@@ -51,18 +70,17 @@ def network_quota_invalid_create_schema_tuple(
 
 @fixture
 def network_quota_valid_patch_schema_tuple(
-    network_quota_patch_validator, network_quota_patch_valid_data
+    network_quota_patch_valid_data,
 ) -> Tuple[
     Type[NetworkQuotaUpdate],
     PatchSchemaValidation[NetworkQuotaBase, QuotaBase],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return (
-        NetworkQuotaUpdate,
-        network_quota_patch_validator,
-        network_quota_patch_valid_data,
+    validator = PatchSchemaValidation[NetworkQuotaBase, QuotaBase](
+        base=NetworkQuotaBase, base_public=QuotaBase
     )
+    return (NetworkQuotaUpdate, validator, network_quota_patch_valid_data)
 
 
 @fixture
@@ -75,9 +93,7 @@ def network_quota_invalid_patch_schema_tuple(
 
 @fixture
 def network_quota_valid_read_schema_tuple(
-    network_quota_read_class,
-    network_quota_read_validator,
-    db_network_quota,
+    network_quota_read_class, db_network_quota
 ) -> Tuple[
     Union[
         NetworkQuotaRead,
@@ -97,8 +113,18 @@ def network_quota_valid_read_schema_tuple(
     NetworkQuota,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return (
-        network_quota_read_class,
-        network_quota_read_validator,
-        db_network_quota,
+    validator = ReadSchemaValidation[
+        NetworkQuotaBase,
+        QuotaBase,
+        NetworkQuotaRead,
+        NetworkQuotaReadPublic,
+        NetworkQuotaReadExtended,
+        NetworkQuotaReadExtendedPublic,
+        NetworkQuota,
+    ](
+        base=NetworkQuotaBase,
+        base_public=QuotaBase,
+        read=NetworkQuotaRead,
+        read_extended=NetworkQuotaReadExtended,
     )
+    return network_quota_read_class, validator, db_network_quota

@@ -1,7 +1,7 @@
 """Flavor specific fixtures."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from app.flavor.models import Flavor
 from app.flavor.schemas import (
@@ -21,15 +21,27 @@ from tests.common.schemas.validators import (
 
 
 @fixture
+@parametrize(
+    cls=[FlavorRead, FlavorReadExtended, FlavorReadPublic, FlavorReadExtendedPublic]
+)
+def flavor_read_class(cls) -> Any:
+    """Flavor Read schema."""
+    return cls
+
+
+@fixture
 def flavor_valid_create_schema_tuple(
-    flavor_create_validator, flavor_create_valid_data
+    flavor_create_valid_data,
 ) -> Tuple[
     Type[FlavorCreateExtended],
     CreateSchemaValidation[FlavorBase, FlavorBasePublic, FlavorCreateExtended],
     Dict[str, Any],
 ]:
     """Fixture with the create class, validator and data to validate."""
-    return FlavorCreateExtended, flavor_create_validator, flavor_create_valid_data
+    validator = CreateSchemaValidation[
+        FlavorBase, FlavorBasePublic, FlavorCreateExtended
+    ](base=FlavorBase, base_public=FlavorBasePublic, create=FlavorCreateExtended)
+    return FlavorCreateExtended, validator, flavor_create_valid_data
 
 
 @fixture
@@ -42,14 +54,17 @@ def flavor_invalid_create_schema_tuple(
 
 @fixture
 def flavor_valid_patch_schema_tuple(
-    flavor_patch_validator, flavor_patch_valid_data
+    flavor_patch_valid_data,
 ) -> Tuple[
     Type[FlavorUpdate],
     PatchSchemaValidation[FlavorBase, FlavorBasePublic],
     Dict[str, Any],
 ]:
     """Fixture with the update class, validator and data to validate."""
-    return FlavorUpdate, flavor_patch_validator, flavor_patch_valid_data
+    validator = PatchSchemaValidation[FlavorBase, FlavorBasePublic](
+        base=FlavorBase, base_public=FlavorBasePublic
+    )
+    return FlavorUpdate, validator, flavor_patch_valid_data
 
 
 @fixture
@@ -62,7 +77,7 @@ def flavor_invalid_patch_schema_tuple(
 
 @fixture
 def flavor_valid_read_schema_tuple(
-    flavor_read_class, flavor_read_validator, db_flavor
+    flavor_read_class, db_flavor
 ) -> Tuple[
     Union[FlavorRead, FlavorReadPublic, FlavorReadExtended, FlavorReadExtendedPublic],
     ReadSchemaValidation[
@@ -77,4 +92,18 @@ def flavor_valid_read_schema_tuple(
     Flavor,
 ]:
     """Fixture with the read class, validator and the db item to read."""
-    return flavor_read_class, flavor_read_validator, db_flavor
+    validator = ReadSchemaValidation[
+        FlavorBase,
+        FlavorBasePublic,
+        FlavorRead,
+        FlavorReadPublic,
+        FlavorReadExtended,
+        FlavorReadExtendedPublic,
+        Flavor,
+    ](
+        base=FlavorBase,
+        base_public=FlavorBasePublic,
+        read=FlavorRead,
+        read_extended=FlavorReadExtended,
+    )
+    return flavor_read_class, validator, db_flavor
