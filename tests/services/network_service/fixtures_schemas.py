@@ -40,7 +40,7 @@ def network_service_read_class(cls) -> Any:
 
 
 @fixture
-def network_service_valid_create_schema_tuple(
+def network_service_create_valid_schema_actors(
     network_service_create_valid_data,
 ) -> Tuple[
     Type[NetworkServiceCreateExtended],
@@ -65,7 +65,7 @@ def network_service_valid_create_schema_tuple(
 
 
 @fixture
-def network_service_invalid_create_schema_tuple(
+def network_service_create_invalid_schema_actors(
     network_service_create_invalid_data,
 ) -> Tuple[Type[NetworkServiceCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -73,7 +73,7 @@ def network_service_invalid_create_schema_tuple(
 
 
 @fixture
-def network_service_valid_patch_schema_tuple(
+def network_service_patch_valid_schema_actors(
     network_service_patch_valid_data,
 ) -> Tuple[
     Type[NetworkServiceUpdate],
@@ -88,7 +88,7 @@ def network_service_valid_patch_schema_tuple(
 
 
 @fixture
-def network_service_invalid_patch_schema_tuple(
+def network_service_patch_invalid_schema_actors(
     network_service_patch_invalid_data,
 ) -> Tuple[Type[NetworkServiceUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

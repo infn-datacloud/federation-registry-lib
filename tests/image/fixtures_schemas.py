@@ -30,7 +30,7 @@ def image_read_class(cls) -> Any:
 
 
 @fixture
-def image_valid_create_schema_tuple(
+def image_create_valid_schema_actors(
     image_create_valid_data,
 ) -> Tuple[
     Type[ImageCreateExtended],
@@ -45,7 +45,7 @@ def image_valid_create_schema_tuple(
 
 
 @fixture
-def image_invalid_create_schema_tuple(
+def image_create_invalid_schema_actors(
     image_create_invalid_data,
 ) -> Tuple[Type[ImageCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -53,7 +53,7 @@ def image_invalid_create_schema_tuple(
 
 
 @fixture
-def image_valid_patch_schema_tuple(
+def image_patch_valid_schema_actors(
     image_patch_valid_data,
 ) -> Tuple[
     Type[ImageUpdate],
@@ -68,7 +68,7 @@ def image_valid_patch_schema_tuple(
 
 
 @fixture
-def image_invalid_patch_schema_tuple(
+def image_patch_invalid_schema_actors(
     image_patch_invalid_data,
 ) -> Tuple[Type[ImageUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

@@ -40,7 +40,7 @@ def compute_service_read_class(cls) -> Any:
 
 
 @fixture
-def compute_service_valid_create_schema_tuple(
+def compute_service_create_valid_schema_actors(
     compute_service_create_valid_data,
 ) -> Tuple[
     Type[ComputeServiceCreateExtended],
@@ -65,7 +65,7 @@ def compute_service_valid_create_schema_tuple(
 
 
 @fixture
-def compute_service_invalid_create_schema_tuple(
+def compute_service_create_invalid_schema_actors(
     compute_service_create_invalid_data,
 ) -> Tuple[Type[ComputeServiceCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -73,7 +73,7 @@ def compute_service_invalid_create_schema_tuple(
 
 
 @fixture
-def compute_service_valid_patch_schema_tuple(
+def compute_service_patch_valid_schema_actors(
     compute_service_patch_valid_data,
 ) -> Tuple[
     Type[ComputeServiceUpdate],
@@ -88,7 +88,7 @@ def compute_service_valid_patch_schema_tuple(
 
 
 @fixture
-def compute_service_invalid_patch_schema_tuple(
+def compute_service_patch_invalid_schema_actors(
     compute_service_patch_invalid_data,
 ) -> Tuple[Type[ComputeServiceUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

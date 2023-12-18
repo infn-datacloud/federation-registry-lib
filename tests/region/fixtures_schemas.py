@@ -32,7 +32,7 @@ def region_read_class(cls) -> Any:
 
 
 @fixture
-def region_valid_create_schema_tuple(
+def region_create_valid_schema_actors(
     region_create_valid_data,
 ) -> Tuple[
     Type[RegionCreateExtended],
@@ -47,7 +47,7 @@ def region_valid_create_schema_tuple(
 
 
 @fixture
-def region_invalid_create_schema_tuple(
+def region_create_invalid_schema_actors(
     region_create_invalid_data,
 ) -> Tuple[Type[RegionCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -55,7 +55,7 @@ def region_invalid_create_schema_tuple(
 
 
 @fixture
-def region_valid_patch_schema_tuple(
+def region_patch_valid_schema_actors(
     region_patch_valid_data,
 ) -> Tuple[
     Type[RegionUpdate],
@@ -70,7 +70,7 @@ def region_valid_patch_schema_tuple(
 
 
 @fixture
-def region_invalid_patch_schema_tuple(
+def region_patch_invalid_schema_actors(
     region_patch_invalid_data,
 ) -> Tuple[Type[RegionUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

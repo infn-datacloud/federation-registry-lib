@@ -30,7 +30,7 @@ def flavor_read_class(cls) -> Any:
 
 
 @fixture
-def flavor_valid_create_schema_tuple(
+def flavor_create_valid_schema_actors(
     flavor_create_valid_data,
 ) -> Tuple[
     Type[FlavorCreateExtended],
@@ -45,7 +45,7 @@ def flavor_valid_create_schema_tuple(
 
 
 @fixture
-def flavor_invalid_create_schema_tuple(
+def flavor_create_invalid_schema_actors(
     flavor_create_invalid_data,
 ) -> Tuple[Type[FlavorCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -53,7 +53,7 @@ def flavor_invalid_create_schema_tuple(
 
 
 @fixture
-def flavor_valid_patch_schema_tuple(
+def flavor_patch_valid_schema_actors(
     flavor_patch_valid_data,
 ) -> Tuple[
     Type[FlavorUpdate],
@@ -68,7 +68,7 @@ def flavor_valid_patch_schema_tuple(
 
 
 @fixture
-def flavor_invalid_patch_schema_tuple(
+def flavor_patch_invalid_schema_actors(
     flavor_patch_invalid_data,
 ) -> Tuple[Type[FlavorUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

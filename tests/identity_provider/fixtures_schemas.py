@@ -40,7 +40,7 @@ def identity_provider_read_class(cls) -> Any:
 
 
 @fixture
-def identity_provider_valid_create_schema_tuple(
+def identity_provider_create_valid_schema_actors(
     identity_provider_create_valid_data,
 ) -> Tuple[
     Type[IdentityProviderCreateExtended],
@@ -65,7 +65,7 @@ def identity_provider_valid_create_schema_tuple(
 
 
 @fixture
-def identity_provider_invalid_create_schema_tuple(
+def identity_provider_create_invalid_schema_actors(
     identity_provider_create_invalid_data,
 ) -> Tuple[Type[IdentityProviderCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -73,7 +73,7 @@ def identity_provider_invalid_create_schema_tuple(
 
 
 @fixture
-def identity_provider_valid_patch_schema_tuple(
+def identity_provider_patch_valid_schema_actors(
     identity_provider_patch_valid_data,
 ) -> Tuple[
     Type[IdentityProviderUpdate],
@@ -92,7 +92,7 @@ def identity_provider_valid_patch_schema_tuple(
 
 
 @fixture
-def identity_provider_invalid_patch_schema_tuple(
+def identity_provider_patch_invalid_schema_actors(
     identity_provider_patch_invalid_data,
 ) -> Tuple[Type[IdentityProviderUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

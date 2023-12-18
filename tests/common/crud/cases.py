@@ -8,9 +8,9 @@ class CRUDCases:
     """Create, Read and Patch data cases."""
 
     @case(tags="create_item")
-    def case_create_item(self, create_item_tuple):
+    def case_create_item(self, create_item_actors):
         """Valid data for create schemas."""
-        return create_item_tuple
+        return create_item_actors
 
     # @case(tags="create_invalid")
     # def case_invalid_key_values(self, invalid_create_schema_tuples):

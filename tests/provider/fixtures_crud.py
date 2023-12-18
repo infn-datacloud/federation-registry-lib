@@ -18,13 +18,20 @@ from tests.common.crud.validators import (
 
 
 @fixture
-def provider_manager() -> CRUDProvider:
+@parametrize(attr=[*ProviderBase.__fields__.keys()])
+def provider_attr(attr) -> Optional[str]:
+    """Parametrized provider attribute."""
+    return attr
+
+
+@fixture
+def provider_not_existing_actors() -> CRUDProvider:
     """Return provider manager."""
     return provider_mng
 
 
 @fixture
-def provider_create_item_tuple(
+def provider_create_item_actors(
     provider_create_valid_data,
 ) -> Tuple[
     CRUDProvider,
@@ -47,7 +54,7 @@ def provider_create_item_tuple(
 
 
 # @fixture
-# def provider_invalid_create_schema_tuple(
+# def provider_create_invalid_schema_actors(
 #     provider_create_invalid_data,
 # ) -> Tuple[Type[ProviderCreateExtended], Dict[str, Any]]:
 #     """Fixture with the create class and the invalid data to validate."""
@@ -55,7 +62,7 @@ def provider_create_item_tuple(
 
 
 # @fixture
-# def provider_valid_patch_schema_tuple(
+# def provider_patch_valid_schema_actors(
 #     provider_patch_validator, provider_patch_valid_data
 # ) -> Tuple[
 #     Type[ProviderUpdate],
@@ -67,7 +74,7 @@ def provider_create_item_tuple(
 
 
 # @fixture
-# def provider_invalid_patch_schema_tuple(
+# def provider_patch_invalid_schema_actors(
 #     provider_patch_invalid_data,
 # ) -> Tuple[Type[ProviderUpdate], Dict[str, Any]]:
 #     """Fixture with the update class and the invalid data to validate."""
@@ -75,7 +82,7 @@ def provider_create_item_tuple(
 
 
 @fixture
-def provider_valid_read_item_tuple(
+def provider_read_item_actors(
     db_provider_simple,
 ) -> Tuple[
     CRUDProvider,
@@ -90,7 +97,7 @@ def provider_valid_read_item_tuple(
 
 
 @fixture
-def provider_valid_read_items_tuple(
+def provider_read_items_actors(
     db_provider_simple, db_provider_with_single_project
 ) -> Tuple[
     CRUDProvider,
@@ -109,7 +116,7 @@ def provider_valid_read_items_tuple(
 
 
 @fixture
-def provider_delete_item_tuple(
+def provider_delete_item_actors(
     db_provider,
 ) -> Tuple[
     CRUDProvider,
@@ -127,10 +134,3 @@ def provider_delete_item_tuple(
         },
     )
     return provider_mng, validator, db_provider
-
-
-@fixture
-@parametrize(attr=[*ProviderBase.__fields__.keys()])
-def provider_attr(attr) -> Optional[str]:
-    """Parametrized provider attribute."""
-    return attr

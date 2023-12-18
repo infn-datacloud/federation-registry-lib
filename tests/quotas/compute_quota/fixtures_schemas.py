@@ -40,7 +40,7 @@ def compute_quota_read_class(cls) -> Any:
 
 
 @fixture
-def compute_quota_valid_create_schema_tuple(
+def compute_quota_create_valid_schema_actors(
     compute_quota_create_valid_data,
 ) -> Tuple[
     Type[ComputeQuotaCreateExtended],
@@ -61,7 +61,7 @@ def compute_quota_valid_create_schema_tuple(
 
 
 @fixture
-def compute_quota_invalid_create_schema_tuple(
+def compute_quota_create_invalid_schema_actors(
     compute_quota_create_invalid_data,
 ) -> Tuple[Type[ComputeQuotaCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -69,7 +69,7 @@ def compute_quota_invalid_create_schema_tuple(
 
 
 @fixture
-def compute_quota_valid_patch_schema_tuple(
+def compute_quota_patch_valid_schema_actors(
     compute_quota_patch_valid_data,
 ) -> Tuple[
     Type[ComputeQuotaUpdate],
@@ -84,7 +84,7 @@ def compute_quota_valid_patch_schema_tuple(
 
 
 @fixture
-def compute_quota_invalid_patch_schema_tuple(
+def compute_quota_patch_invalid_schema_actors(
     compute_quota_patch_invalid_data,
 ) -> Tuple[Type[ComputeQuotaUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

@@ -38,7 +38,7 @@ def user_group_read_class(cls) -> Any:
 
 
 @fixture
-def user_group_valid_create_schema_tuple(
+def user_group_create_valid_schema_actors(
     user_group_create_valid_data,
 ) -> Tuple[
     Type[UserGroupCreateExtended],
@@ -57,7 +57,7 @@ def user_group_valid_create_schema_tuple(
 
 
 @fixture
-def user_group_invalid_create_schema_tuple(
+def user_group_create_invalid_schema_actors(
     user_group_create_invalid_data,
 ) -> Tuple[Type[UserGroupCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -65,7 +65,7 @@ def user_group_invalid_create_schema_tuple(
 
 
 @fixture
-def user_group_valid_patch_schema_tuple(
+def user_group_patch_valid_schema_actors(
     user_group_patch_valid_data,
 ) -> Tuple[
     Type[UserGroupUpdate],
@@ -80,7 +80,7 @@ def user_group_valid_patch_schema_tuple(
 
 
 @fixture
-def user_group_invalid_patch_schema_tuple(
+def user_group_patch_invalid_schema_actors(
     user_group_patch_invalid_data,
 ) -> Tuple[Type[UserGroupUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

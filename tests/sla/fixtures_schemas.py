@@ -28,7 +28,7 @@ def sla_read_class(cls) -> Any:
 
 
 @fixture
-def sla_valid_create_schema_tuple(
+def sla_create_valid_schema_actors(
     sla_create_valid_data,
 ) -> Tuple[
     Type[SLACreateExtended],
@@ -43,7 +43,7 @@ def sla_valid_create_schema_tuple(
 
 
 @fixture
-def sla_invalid_create_schema_tuple(
+def sla_create_invalid_schema_actors(
     sla_create_invalid_data,
 ) -> Tuple[Type[SLACreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -51,7 +51,7 @@ def sla_invalid_create_schema_tuple(
 
 
 @fixture
-def sla_valid_patch_schema_tuple(
+def sla_patch_valid_schema_actors(
     sla_patch_valid_data,
 ) -> Tuple[
     Type[SLAUpdate],
@@ -66,7 +66,7 @@ def sla_valid_patch_schema_tuple(
 
 
 @fixture
-def sla_invalid_patch_schema_tuple(
+def sla_patch_invalid_schema_actors(
     sla_patch_invalid_data,
 ) -> Tuple[Type[SLAUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""

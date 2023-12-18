@@ -38,7 +38,7 @@ def location_read_class(cls) -> Any:
 
 
 @fixture
-def location_valid_create_schema_tuple(
+def location_create_valid_schema_actors(
     location_create_valid_data,
 ) -> Tuple[
     Type[LocationCreate],
@@ -53,7 +53,7 @@ def location_valid_create_schema_tuple(
 
 
 @fixture
-def location_invalid_create_schema_tuple(
+def location_create_invalid_schema_actors(
     location_create_invalid_data,
 ) -> Tuple[Type[LocationCreate], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
@@ -61,7 +61,7 @@ def location_invalid_create_schema_tuple(
 
 
 @fixture
-def location_valid_patch_schema_tuple(
+def location_patch_valid_schema_actors(
     location_patch_valid_data,
 ) -> Tuple[
     Type[LocationUpdate],
@@ -76,7 +76,7 @@ def location_valid_patch_schema_tuple(
 
 
 @fixture
-def location_invalid_patch_schema_tuple(
+def location_patch_invalid_schema_actors(
     location_patch_invalid_data,
 ) -> Tuple[Type[LocationUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
