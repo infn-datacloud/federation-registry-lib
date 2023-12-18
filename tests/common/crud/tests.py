@@ -1,4 +1,5 @@
 """Module to test Schemas creation, patch and read."""
+import copy
 from uuid import uuid4
 
 from pytest_cases import parametrize_with_cases
@@ -134,9 +135,23 @@ class TestCRUD:
     )
     def test_delete(self, manager, validator, db_item) -> None:
         """The schema creation fails and raises an error."""
+        # TODO try to use deepcopy?
         validator.store_rel_uids(db_item=db_item)
         assert manager.remove(db_obj=db_item)
         validator.validate_deleted_children(db_item=db_item)
+
+    @parametrize_with_cases(
+        "manager, validator, db_item, new_data", cases=CRUDCases, has_tag="patch"
+    )
+    def test_patch(self, manager, validator, db_item, new_data) -> None:
+        """The schema creation fails and raises an error."""
+        old_item = copy.deepcopy(db_item)
+        updated_item = manager.update(db_obj=db_item, obj_in=new_data)
+        validator.validate_updated_item(
+            old_item=old_item,
+            updated_item=updated_item,
+            new_data=new_data.dict(exclude_unset=True),
+        )
 
     # @parametrize_with_cases(
     #     "cls, validator, data", cases=CRUDCases, has_tag="patch_valid"

@@ -47,6 +47,13 @@ class CRUDCases:
         """Class for public/private cases."""
         return delete_item_tuples
 
+    @case(tags="patch")
+    def case_patch_item(self, patch_item_tuples):
+        """Class for public/private cases."""
+        return patch_item_tuples
+
+    # TODO patch with default values.
+
 
 class GetParams:
     """Cases with the possible parameters that can be passed to a CRUD GET request."""

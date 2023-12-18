@@ -198,3 +198,31 @@ def item_attr(attr) -> Optional[str]:
 def item_manager(manager):
     """Return the manager class."""
     return manager
+
+
+@fixture
+@parametrize(
+    "manager, validator, db_item, new_data",
+    [
+        # fixture_ref("flavor_patch_item_actors"),
+        # fixture_ref("identity_provider_patch_item_actors"),
+        # fixture_ref("image_patch_item_actors"),
+        # fixture_ref("location_patch_item_actors"),
+        # fixture_ref("network_patch_item_actors"),
+        # fixture_ref("project_patch_item_actors"),
+        fixture_ref("provider_patch_item_actors"),
+        # fixture_ref("block_storage_quota_patch_item_actors"),
+        # fixture_ref("compute_quota_patch_item_actors"),
+        # fixture_ref("network_quota_patch_item_actors"),
+        # fixture_ref("region_patch_item_actors"),
+        # fixture_ref("block_storage_service_patch_item_actors"),
+        # fixture_ref("compute_service_patch_item_actors"),
+        # fixture_ref("identity_service_patch_item_actors"),
+        # fixture_ref("network_service_patch_item_actors"),
+        # fixture_ref("sla_patch_item_actors"),
+        # fixture_ref("user_group_patch_item_actors"),
+    ],
+)
+def patch_item_tuples(manager, validator, db_item, new_data):
+    """Parametrized tuple with the items to use in 'case_valid_patch_item'."""
+    return manager, validator, db_item, new_data

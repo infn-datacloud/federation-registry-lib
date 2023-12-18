@@ -1,5 +1,5 @@
 """Module to test Flavor schema creation."""
-from typing import Dict, Generic, List, Type
+from typing import Any, Dict, Generic, List, Type
 from uuid import UUID
 
 from pydantic.fields import SHAPE_LIST
@@ -105,7 +105,7 @@ class ReadOperationValidation(
 class DeleteOperationValidation(
     BaseValidation, Generic[BaseType, BasePublicType, DbType]
 ):
-    """Class with functions used to validate Read operations."""
+    """Class with functions used to validate Delete operations."""
 
     def __init__(
         self,
@@ -145,3 +145,23 @@ class DeleteOperationValidation(
         for k in self.managers:
             for uid in self.uids[k]:
                 assert not self.managers[k].get(uid=uid)
+
+
+class PatchOperationValidation(
+    BaseValidation, Generic[BaseType, BasePublicType, DbType]
+):
+    """Class with functions used to validate Patch operations."""
+
+    def validate_updated_item(
+        self, *, old_item: DbType, updated_item: DbType, new_data: Dict[str, Any]
+    ) -> None:
+        """Check that updated data match old data and new data."""
+        old_data = old_item.__dict__
+        updated_data = updated_item.__dict__
+        for k in self.base.__fields__.keys():
+            old_val = old_data.pop(k, None)
+            new_val = updated_data.pop(k, None)
+            if k in new_data.keys():
+                assert new_data[k] == new_val
+            else:
+                assert old_val == new_val
