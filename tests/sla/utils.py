@@ -26,6 +26,8 @@ def random_start_end_dates() -> Tuple[date, date]:
     """Return a random couples of valid start and end dates (in order)."""
     d1 = random_date()
     d2 = random_date()
+    if d1 == d2:
+        d2 = random_date()
     if d1 < d2:
         start_date = d1
         end_date = d2

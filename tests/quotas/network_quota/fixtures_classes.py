@@ -17,7 +17,7 @@ from app.quota.schemas_extended import (
     NetworkQuotaReadExtended,
     NetworkQuotaReadExtendedPublic,
 )
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

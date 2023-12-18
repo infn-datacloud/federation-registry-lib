@@ -18,7 +18,7 @@ from app.service.schemas_extended import (
     BlockStorageServiceReadExtended,
     BlockStorageServiceReadExtendedPublic,
 )
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

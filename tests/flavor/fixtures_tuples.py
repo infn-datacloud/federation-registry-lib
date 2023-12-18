@@ -13,7 +13,7 @@ from app.flavor.schemas import (
 )
 from app.flavor.schemas_extended import FlavorReadExtended, FlavorReadExtendedPublic
 from app.provider.schemas_extended import FlavorCreateExtended
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

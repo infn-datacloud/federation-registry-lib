@@ -18,7 +18,7 @@ from app.service.schemas_extended import (
     IdentityServiceReadExtended,
     IdentityServiceReadExtendedPublic,
 )
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

@@ -3,7 +3,7 @@ import pytest
 from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
-from tests.common.cases_schemas import SchemaCases
+from tests.common.schemas.cases import SchemaCases
 
 
 class TestSchema:

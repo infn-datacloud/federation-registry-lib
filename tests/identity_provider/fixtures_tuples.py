@@ -18,7 +18,7 @@ from app.identity_provider.schemas_extended import (
 from app.provider.schemas_extended import (
     IdentityProviderCreateExtended,
 )
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

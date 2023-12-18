@@ -13,7 +13,7 @@ from app.network.schemas import (
 )
 from app.network.schemas_extended import NetworkReadExtended, NetworkReadExtendedPublic
 from app.provider.schemas_extended import NetworkCreateExtended
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

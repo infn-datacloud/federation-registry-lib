@@ -12,7 +12,7 @@ from app.sla.schemas import (
     SLAReadPublic,
 )
 from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

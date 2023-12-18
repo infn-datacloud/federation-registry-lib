@@ -14,7 +14,7 @@ from app.region.schemas import (
     RegionReadPublic,
 )
 from app.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

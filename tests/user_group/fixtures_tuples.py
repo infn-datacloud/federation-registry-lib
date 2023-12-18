@@ -16,7 +16,7 @@ from app.user_group.schemas_extended import (
     UserGroupReadExtended,
     UserGroupReadExtendedPublic,
 )
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

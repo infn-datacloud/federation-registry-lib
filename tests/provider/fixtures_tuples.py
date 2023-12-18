@@ -16,7 +16,7 @@ from app.provider.schemas_extended import (
     ProviderReadExtended,
     ProviderReadExtendedPublic,
 )
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

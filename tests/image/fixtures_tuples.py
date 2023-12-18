@@ -13,7 +13,7 @@ from app.image.schemas import (
 )
 from app.image.schemas_extended import ImageReadExtended, ImageReadExtendedPublic
 from app.provider.schemas_extended import ImageCreateExtended
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,

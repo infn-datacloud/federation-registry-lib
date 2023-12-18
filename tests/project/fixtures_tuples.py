@@ -13,7 +13,7 @@ from app.project.schemas import (
 )
 from app.project.schemas_extended import ProjectReadExtended, ProjectReadExtendedPublic
 from app.provider.schemas_extended import ProjectCreate
-from tests.common.schema_validators import (
+from tests.common.schemas.validators import (
     CreateSchemaValidation,
     PatchSchemaValidation,
     ReadSchemaValidation,
