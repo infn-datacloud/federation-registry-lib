@@ -29,6 +29,20 @@ def provider_attr(attr: str) -> Optional[str]:
 
 
 @fixture
+@parametrize(attr=[k for k, v in ProviderBase.__fields__.items() if not v.required])
+def provider_valid_patch_default_attr(attr: str) -> Optional[str]:
+    """Parametrized provider attribute."""
+    return attr
+
+
+@fixture
+@parametrize(attr=[k for k, v in ProviderBase.__fields__.items() if v.required])
+def provider_invalid_patch_default_attr(attr: str) -> Optional[str]:
+    """Parametrized provider attribute."""
+    return attr
+
+
+@fixture
 def provider_not_existing_actors() -> CRUDProvider:
     """Return provider manager."""
     return provider_mng
@@ -141,6 +155,42 @@ def provider_patch_item_actors(
         provider_mng,
         validator,
         db_provider_simple,
+        ProviderUpdate(**provider_patch_valid_data),
+    )
+
+
+@fixture
+def provider_patch_item_with_default_actors(
+    db_provider_no_defaults: Provider, provider_valid_patch_default_attr: str
+) -> Tuple[CRUDProvider, Provider, ProviderUpdate]:
+    """Fixture with the delete class, validator and the db items to read."""
+    validator = PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider](
+        base=ProviderBase, base_public=ProviderBasePublic
+    )
+    field_data = ProviderUpdate.__fields__.get(provider_valid_patch_default_attr)
+    provider_patch_valid_data = {
+        provider_valid_patch_default_attr: field_data.get_default()
+    }
+    return (
+        provider_mng,
+        validator,
+        db_provider_no_defaults,
+        ProviderUpdate(**provider_patch_valid_data),
+    )
+
+
+@fixture
+def provider_patch_item_required_with_none_actors(
+    db_provider_no_defaults: Provider, provider_invalid_patch_default_attr: str
+) -> Tuple[CRUDProvider, Provider, ProviderUpdate]:
+    """Fixture with the delete class, validator and the db items to read."""
+    field_data = ProviderUpdate.__fields__.get(provider_invalid_patch_default_attr)
+    provider_patch_valid_data = {
+        provider_invalid_patch_default_attr: field_data.get_default()
+    }
+    return (
+        provider_mng,
+        db_provider_no_defaults,
         ProviderUpdate(**provider_patch_valid_data),
     )
 

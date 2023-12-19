@@ -52,6 +52,16 @@ class CRUDCases:
         """Class for public/private cases."""
         return patch_item_actors
 
+    @case(tags="patch")
+    def case_patch_item_with_default(self, patch_item_with_default_actors):
+        """Class for public/private cases."""
+        return patch_item_with_default_actors
+
+    @case(tags="patch_required_with_none")
+    def case_patch_required_with_none(self, patch_item_required_with_none_actors):
+        """Class for public/private cases."""
+        return patch_item_required_with_none_actors
+
     @case(tags="patch_no_changes")
     def case_patch_no_changes_item(self, patch_item_no_changes_actors):
         """Class for public/private cases."""

@@ -25,6 +25,7 @@ create_item_actors = fixture_union(
     idstyle="explicit",
 )
 
+
 valid_read_item_actors = fixture_union(
     "valid_read_item_actors",
     [
@@ -99,6 +100,7 @@ delete_item_actors = fixture_union(
     idstyle="explicit",
 )
 
+
 patch_item_actors = fixture_union(
     "patch_item_actors",
     [
@@ -123,6 +125,55 @@ patch_item_actors = fixture_union(
     idstyle="explicit",
 )
 
+
+patch_item_with_default_actors = fixture_union(
+    "patch_item_with_default_actors",
+    [
+        # "flavor_patch_item_with_default_actors",
+        # "identity_provider_patch_item_with_default_actors",
+        # "image_patch_item_with_default_actors",
+        # "location_patch_item_with_default_actors",
+        # "network_patch_item_with_default_actors",
+        # "project_patch_item_with_default_actors",
+        "provider_patch_item_with_default_actors",
+        # "block_storage_quota_patch_item_with_default_actors",
+        # "compute_quota_patch_item_with_default_actors",
+        # "network_quota_patch_item_with_default_actors",
+        # "region_patch_item_with_default_actors",
+        # "block_storage_service_patch_item_with_default_actors",
+        # "compute_service_patch_item_with_default_actors",
+        # "identity_service_patch_item_with_default_actors",
+        # "network_service_patch_item_with_default_actors",
+        # "sla_patch_item_with_default_actors",
+        # "user_group_patch_item_with_default_actors",
+    ],
+    idstyle="explicit",
+)
+
+
+patch_item_required_with_none_actors = fixture_union(
+    "patch_item_required_with_none_actors",
+    [
+        # "flavor_patch_item_required_with_none_actors",
+        # "identity_provider_patch_item_required_with_none_actors",
+        # "image_patch_item_required_with_none_actors",
+        # "location_patch_item_required_with_none_actors",
+        # "network_patch_item_required_with_none_actors",
+        # "project_patch_item_required_with_none_actors",
+        "provider_patch_item_required_with_none_actors",
+        # "block_storage_quota_patch_item_required_with_none_actors",
+        # "compute_quota_patch_item_required_with_none_actors",
+        # "network_quota_patch_item_required_with_none_actors",
+        # "region_patch_item_required_with_none_actors",
+        # "block_storage_service_patch_item_required_with_none_actors",
+        # "compute_service_patch_item_required_with_none_actors",
+        # "identity_service_patch_item_required_with_none_actors",
+        # "network_service_patch_item_required_with_none_actors",
+        # "sla_patch_item_required_with_none_actors",
+        # "user_group_patch_item_required_with_none_actors",
+    ],
+    idstyle="explicit",
+)
 
 patch_item_no_changes_actors = fixture_union(
     "patch_item_no_changes_actors",

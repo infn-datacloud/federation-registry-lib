@@ -2,6 +2,8 @@
 import copy
 from uuid import uuid4
 
+import pytest
+from neomodel import RequiredProperty
 from pytest_cases import parametrize_with_cases
 
 from tests.common.crud.cases import CRUDCases, GetParams
@@ -152,6 +154,16 @@ class TestCRUD:
             updated_item=updated_item,
             new_data=new_data.dict(exclude_unset=True),
         )
+
+    @parametrize_with_cases(
+        "manager, db_item, new_data",
+        cases=CRUDCases,
+        has_tag="patch_required_with_none",
+    )
+    def test_patch_required_with_none(self, manager, db_item, new_data) -> None:
+        """The schema creation fails and raises an error."""
+        with pytest.raises(RequiredProperty):
+            manager.update(db_obj=db_item, obj_in=new_data)
 
     @parametrize_with_cases(
         "manager, db_item, new_data", cases=CRUDCases, has_tag="patch_no_changes"

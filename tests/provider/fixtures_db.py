@@ -13,7 +13,10 @@ from tests.identity_provider.utils import (
     random_identity_provider_required_rel,
 )
 from tests.project.utils import random_project_required_attr
-from tests.provider.utils import random_provider_required_attr
+from tests.provider.utils import (
+    random_provider_all_no_default_attr,
+    random_provider_required_attr,
+)
 from tests.region.utils import random_region_required_attr
 
 
@@ -21,6 +24,13 @@ from tests.region.utils import random_region_required_attr
 def db_provider_simple(setup_and_teardown_db: Generator) -> Provider:
     """Fixture with standard DB Provider."""
     item = ProviderCreateExtended(**random_provider_required_attr())
+    return provider_mng.create(obj_in=item)
+
+
+@fixture
+def db_provider_no_defaults(setup_and_teardown_db: Generator) -> Provider:
+    """Fixture with standard DB Provider."""
+    item = ProviderCreateExtended(**random_provider_all_no_default_attr())
     return provider_mng.create(obj_in=item)
 
 
