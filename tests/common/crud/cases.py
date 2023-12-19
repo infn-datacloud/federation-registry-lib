@@ -52,6 +52,11 @@ class CRUDCases:
         """Class for public/private cases."""
         return patch_item_actors
 
+    @case(tags="patch_no_changes")
+    def case_patch_no_changes_item(self, patch_item_no_changes_actors):
+        """Class for public/private cases."""
+        return patch_item_no_changes_actors
+
     # TODO patch with default values.
 
 

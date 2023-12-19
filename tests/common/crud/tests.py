@@ -153,6 +153,13 @@ class TestCRUD:
             new_data=new_data.dict(exclude_unset=True),
         )
 
+    @parametrize_with_cases(
+        "manager, db_item, new_data", cases=CRUDCases, has_tag="patch_no_changes"
+    )
+    def test_patch_no_changes(self, manager, db_item, new_data) -> None:
+        """The schema creation fails and raises an error."""
+        assert not manager.update(db_obj=db_item, obj_in=new_data)
+
     # @parametrize_with_cases(
     #     "cls, validator, data", cases=CRUDCases, has_tag="patch_valid"
     # )

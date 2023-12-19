@@ -123,6 +123,32 @@ patch_item_actors = fixture_union(
     idstyle="explicit",
 )
 
+
+patch_item_no_changes_actors = fixture_union(
+    "patch_item_no_changes_actors",
+    [
+        # "flavor_patch_item_no_changes_actors",
+        # "identity_provider_patch_item_no_changes_actors",
+        # "image_patch_item_no_changes_actors",
+        # "location_patch_item_no_changes_actors",
+        # "network_patch_item_no_changes_actors",
+        # "project_patch_item_no_changes_actors",
+        "provider_patch_item_no_changes_actors",
+        # "block_storage_quota_patch_item_no_changes_actors",
+        # "compute_quota_patch_item_no_changes_actors",
+        # "network_quota_patch_item_no_changes_actors",
+        # "region_patch_item_no_changes_actors",
+        # "block_storage_service_patch_item_no_changes_actors",
+        # "compute_service_patch_item_no_changes_actors",
+        # "identity_service_patch_item_no_changes_actors",
+        # "network_service_patch_item_no_changes_actors",
+        # "sla_patch_item_no_changes_actors",
+        # "user_group_patch_item_no_changes_actors",
+    ],
+    idstyle="explicit",
+)
+
+
 not_existing_actors = fixture_union(
     "not_existing_actors",
     [
