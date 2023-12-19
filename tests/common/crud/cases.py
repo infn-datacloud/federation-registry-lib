@@ -28,29 +28,29 @@ class CRUDCases:
     #     return invalid_patch_schema_tuples
 
     @case(tags="read_single")
-    def case_read_single_item(self, valid_read_item_tuples):
+    def case_read_single_item(self, valid_read_item_actors):
         """Class for public/private cases."""
-        return valid_read_item_tuples
+        return valid_read_item_actors
 
     @case(tags="read_multi")
-    def case_read_multi_items(self, valid_read_items_tuples):
+    def case_read_multi_items(self, valid_read_items_actors):
         """Class for public/private cases."""
-        return valid_read_items_tuples
+        return valid_read_items_actors
 
     @case(tags="not_existing")
-    def case_manager(self, item_manager):
+    def case_manager(self, not_existing_actors):
         """Class for public/private cases."""
-        return item_manager
+        return not_existing_actors
 
     @case(tags="delete")
-    def case_delete_item(self, delete_item_tuples):
+    def case_delete_item(self, delete_item_actors):
         """Class for public/private cases."""
-        return delete_item_tuples
+        return delete_item_actors
 
     @case(tags="patch")
-    def case_patch_item(self, patch_item_tuples):
+    def case_patch_item(self, patch_item_actors):
         """Class for public/private cases."""
-        return patch_item_tuples
+        return patch_item_actors
 
     # TODO patch with default values.
 

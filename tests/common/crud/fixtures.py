@@ -1,228 +1,173 @@
 """Cases with tuples for SchemaCases."""
-from typing import Optional
+from pytest_cases import fixture_union
 
-from pytest_cases import fixture, fixture_ref, parametrize
-
-
-@fixture
-@parametrize(
-    "manager, validator, schema, kwargs",
+create_item_actors = fixture_union(
+    "create_item_actors",
     [
-        # fixture_ref("flavor_valid_create_item_actors"),
-        # fixture_ref("identity_provider_valid_create_item_actors"),
-        # fixture_ref("image_valid_create_item_actors"),
-        # fixture_ref("location_valid_create_item_actors"),
-        # fixture_ref("network_valid_create_item_actors"),
-        # fixture_ref("project_valid_create_item_actors"),
-        fixture_ref("provider_create_item_actors"),
-        # fixture_ref("block_storage_quota_valid_create_item_actors"),
-        # fixture_ref("compute_quota_valid_create_item_actors"),
-        # fixture_ref("network_quota_valid_create_item_actors"),
-        # fixture_ref("region_valid_create_item_actors"),
-        # fixture_ref("block_storage_service_valid_create_item_actors"),
-        # fixture_ref("compute_service_valid_create_item_actors"),
-        # fixture_ref("identity_service_valid_create_item_actors"),
-        # fixture_ref("network_service_valid_create_item_actors"),
-        # fixture_ref("sla_valid_create_item_actors"),
-        # fixture_ref("user_group_valid_create_item_actors"),
+        # "flavor_valid_create_item_actors",
+        # "identity_provider_valid_create_item_actors",
+        # "image_valid_create_item_actors",
+        # "location_valid_create_item_actors",
+        # "network_valid_create_item_actors",
+        # "project_valid_create_item_actors",
+        "provider_create_item_actors",
+        # "block_storage_quota_valid_create_item_actors",
+        # "compute_quota_valid_create_item_actors",
+        # "network_quota_valid_create_item_actors",
+        # "region_valid_create_item_actors",
+        # "block_storage_service_valid_create_item_actors",
+        # "compute_service_valid_create_item_actors",
+        # "identity_service_valid_create_item_actors",
+        # "network_service_valid_create_item_actors",
+        # "sla_valid_create_item_actors",
+        # "user_group_valid_create_item_actors",
     ],
+    idstyle="explicit",
 )
-def create_item_actors(manager, validator, schema, kwargs):
-    """Parametrized tuple with the items to use in 'case_valid_create_item'."""
-    return manager, validator, schema, kwargs
 
-
-# @fixture
-# @parametrize(
-#     "cls, validator, data",
-#     [
-#         fixture_ref("flavor_valid_patch_item_tuple"),
-#         fixture_ref("identity_provider_valid_patch_item_tuple"),
-#         fixture_ref("image_valid_patch_item_tuple"),
-#         fixture_ref("location_valid_patch_item_tuple"),
-#         fixture_ref("network_valid_patch_item_tuple"),
-#         fixture_ref("project_valid_patch_item_tuple"),
-#         fixture_ref("provider_valid_patch_item_tuple"),
-#         fixture_ref("block_storage_quota_valid_patch_item_tuple"),
-#         fixture_ref("compute_quota_valid_patch_item_tuple"),
-#         fixture_ref("network_quota_valid_patch_item_tuple"),
-#         fixture_ref("region_valid_patch_item_tuple"),
-#         fixture_ref("block_storage_service_valid_patch_item_tuple"),
-#         fixture_ref("compute_service_valid_patch_item_tuple"),
-#         fixture_ref("identity_service_valid_patch_item_tuple"),
-#         fixture_ref("network_service_valid_patch_item_tuple"),
-#         fixture_ref("sla_valid_patch_item_tuple"),
-#         fixture_ref("user_group_valid_patch_item_tuple"),
-#     ],
-# )
-# def valid_patch_item_tuples(cls, validator, data):
-#     """Parametrized tuple with the items to use in 'case_valid_patch_item'."""
-#     return cls, validator, data
-
-
-@fixture
-@parametrize(
-    "manager, validator, db_item",
+valid_read_item_actors = fixture_union(
+    "valid_read_item_actors",
     [
-        # fixture_ref("flavor_read_item_actors"),
-        # fixture_ref("identity_provider_read_item_actors"),
-        # fixture_ref("image_read_item_actors"),
-        # fixture_ref("location_read_item_actors"),
-        # fixture_ref("network_read_item_actors"),
-        # fixture_ref("project_read_item_actors"),
-        fixture_ref("provider_read_item_actors"),
-        # fixture_ref("block_storage_quota_read_item_actors"),
-        # fixture_ref("compute_quota_read_item_actors"),
-        # fixture_ref("network_quota_read_item_actors"),
-        # fixture_ref("region_read_item_actors"),
-        # fixture_ref("block_storage_service_read_item_actors"),
-        # fixture_ref("compute_service_read_item_actors"),
-        # fixture_ref("identity_service_read_item_actors"),
-        # fixture_ref("network_service_read_item_actors"),
-        # fixture_ref("sla_read_item_actors"),
-        # fixture_ref("user_group_read_item_actors"),
+        # "flavor_read_item_actors",
+        # "identity_provider_read_item_actors",
+        # "image_read_item_actors",
+        # "location_read_item_actors",
+        # "network_read_item_actors",
+        # "project_read_item_actors",
+        "provider_read_item_actors",
+        # "block_storage_quota_read_item_actors",
+        # "compute_quota_read_item_actors",
+        # "network_quota_read_item_actors",
+        # "region_read_item_actors",
+        # "block_storage_service_read_item_actors",
+        # "compute_service_read_item_actors",
+        # "identity_service_read_item_actors",
+        # "network_service_read_item_actors",
+        # "sla_read_item_actors",
+        # "user_group_read_item_actors",
     ],
+    idstyle="explicit",
 )
-def valid_read_item_tuples(manager, validator, db_item):
-    """Parametrized tuple with the items to use in 'case_valid_read_item'."""
-    return manager, validator, db_item
 
 
-@fixture
-@parametrize(
-    "manager, validator, db_items",
+valid_read_items_actors = fixture_union(
+    "valid_read_items_actors",
     [
-        # fixture_ref("flavor_read_items_actors"),
-        # fixture_ref("identity_provider_read_items_actors"),
-        # fixture_ref("image_read_items_actors"),
-        # fixture_ref("location_read_items_actors"),
-        # fixture_ref("network_read_items_actors"),
-        # fixture_ref("project_read_items_actors"),
-        fixture_ref("provider_read_items_actors"),
-        # fixture_ref("block_storage_quota_read_items_actors"),
-        # fixture_ref("compute_quota_read_items_actors"),
-        # fixture_ref("network_quota_read_items_actors"),
-        # fixture_ref("region_read_items_actors"),
-        # fixture_ref("block_storage_service_read_items_actors"),
-        # fixture_ref("compute_service_read_items_actors"),
-        # fixture_ref("identity_service_read_items_actors"),
-        # fixture_ref("network_service_read_items_actors"),
-        # fixture_ref("sla_read_items_actors"),
-        # fixture_ref("user_group_read_items_actors"),
+        # "flavor_read_items_actors",
+        # "identity_provider_read_items_actors",
+        # "image_read_items_actors",
+        # "location_read_items_actors",
+        # "network_read_items_actors",
+        # "project_read_items_actors",
+        "provider_read_items_actors",
+        # "block_storage_quota_read_items_actors",
+        # "compute_quota_read_items_actors",
+        # "network_quota_read_items_actors",
+        # "region_read_items_actors",
+        # "block_storage_service_read_items_actors",
+        # "compute_service_read_items_actors",
+        # "identity_service_read_items_actors",
+        # "network_service_read_items_actors",
+        # "sla_read_items_actors",
+        # "user_group_read_items_actors",
     ],
+    idstyle="explicit",
 )
-def valid_read_items_tuples(manager, validator, db_items):
-    """Parametrized tuple with the items to use in 'case_valid_read_item'."""
-    return manager, validator, db_items
 
 
-@fixture
-@parametrize(
-    "manager, validator, db_item",
+delete_item_actors = fixture_union(
+    "delete_item_actors",
     [
-        # fixture_ref("flavor_delete_item_actors"),
-        # fixture_ref("identity_provider_delete_item_actors"),
-        # fixture_ref("image_delete_item_actors"),
-        # fixture_ref("location_delete_item_actors"),
-        # fixture_ref("network_delete_item_actors"),
-        # fixture_ref("project_delete_item_actors"),
-        fixture_ref("provider_delete_item_actors"),
-        # fixture_ref("block_storage_quota_delete_item_actors"),
-        # fixture_ref("compute_quota_delete_item_actors"),
-        # fixture_ref("network_quota_delete_item_actors"),
-        # fixture_ref("region_delete_item_actors"),
-        # fixture_ref("block_storage_service_delete_item_actors"),
-        # fixture_ref("compute_service_delete_item_actors"),
-        # fixture_ref("identity_service_delete_item_actors"),
-        # fixture_ref("network_service_delete_item_actors"),
-        # fixture_ref("sla_delete_item_actors"),
-        # fixture_ref("user_group_delete_item_actors"),
+        # "flavor_delete_item_actors",
+        # "identity_provider_delete_item_actors",
+        # "image_delete_item_actors",
+        # "location_delete_item_actors",
+        # "network_delete_item_actors",
+        # "project_delete_item_actors",
+        "provider_delete_item_actors",
+        # "block_storage_quota_delete_item_actors",
+        # "compute_quota_delete_item_actors",
+        # "network_quota_delete_item_actors",
+        # "region_delete_item_actors",
+        # "block_storage_service_delete_item_actors",
+        # "compute_service_delete_item_actors",
+        # "identity_service_delete_item_actors",
+        # "network_service_delete_item_actors",
+        # "sla_delete_item_actors",
+        # "user_group_delete_item_actors",
     ],
+    idstyle="explicit",
 )
-def delete_item_tuples(manager, validator, db_item):
-    """Parametrized tuple with the items to use in 'case_delete_item'."""
-    return manager, validator, db_item
 
-
-@fixture
-@parametrize(
-    "attr",
+patch_item_actors = fixture_union(
+    "patch_item_actors",
     [
-        # fixture_ref("flavor_attr"),
-        # fixture_ref("identity_provider_attr"),
-        # fixture_ref("image_attr"),
-        # fixture_ref("location_attr"),
-        # fixture_ref("network_attr"),
-        # fixture_ref("project_attr"),
-        fixture_ref("provider_attr"),
-        # fixture_ref("block_storage_quota_attr"),
-        # fixture_ref("compute_quota_attr"),
-        # fixture_ref("network_quota_attr"),
-        # fixture_ref("region_attr"),
-        # fixture_ref("block_storage_service_attr"),
-        # fixture_ref("compute_service_attr"),
-        # fixture_ref("identity_service_attr"),
-        # fixture_ref("network_service_attr"),
-        # fixture_ref("sla_attr"),
-        # fixture_ref("user_group_attr"),
+        # "flavor_patch_item_actors",
+        # "identity_provider_patch_item_actors",
+        # "image_patch_item_actors",
+        # "location_patch_item_actors",
+        # "network_patch_item_actors",
+        # "project_patch_item_actors",
+        "provider_patch_item_actors",
+        # "block_storage_quota_patch_item_actors",
+        # "compute_quota_patch_item_actors",
+        # "network_quota_patch_item_actors",
+        # "region_patch_item_actors",
+        # "block_storage_service_patch_item_actors",
+        # "compute_service_patch_item_actors",
+        # "identity_service_patch_item_actors",
+        # "network_service_patch_item_actors",
+        # "sla_patch_item_actors",
+        # "user_group_patch_item_actors",
     ],
+    idstyle="explicit",
 )
-def item_attr(attr) -> Optional[str]:
-    """Parametrized item attributes."""
-    return attr
 
-
-@fixture
-@parametrize(
-    "manager",
+not_existing_actors = fixture_union(
+    "not_existing_actors",
     [
-        # fixture_ref("flavor_not_existing_actors"),
-        # fixture_ref("identity_provider_not_existing_actors"),
-        # fixture_ref("image_not_existing_actors"),
-        # fixture_ref("location_not_existing_actors"),
-        # fixture_ref("network_not_existing_actors"),
-        # fixture_ref("project_not_existing_actors"),
-        fixture_ref("provider_not_existing_actors"),
-        # fixture_ref("block_storage_quota_not_existing_actors"),
-        # fixture_ref("compute_quota_not_existing_actors"),
-        # fixture_ref("network_quota_not_existing_actors"),
-        # fixture_ref("region_not_existing_actors"),
-        # fixture_ref("block_storage_service_not_existing_actors"),
-        # fixture_ref("compute_service_not_existing_actors"),
-        # fixture_ref("identity_service_not_existing_actors"),
-        # fixture_ref("network_service_not_existing_actors"),
-        # fixture_ref("sla_not_existing_actors"),
-        # fixture_ref("user_group_not_existing_actors"),
+        # "flavor_not_existing_actors",
+        # "identity_provider_not_existing_actors",
+        # "image_not_existing_actors",
+        # "location_not_existing_actors",
+        # "network_not_existing_actors",
+        # "project_not_existing_actors",
+        "provider_not_existing_actors",
+        # "block_storage_quota_not_existing_actors",
+        # "compute_quota_not_existing_actors",
+        # "network_quota_not_existing_actors",
+        # "region_not_existing_actors",
+        # "block_storage_service_not_existing_actors",
+        # "compute_service_not_existing_actors",
+        # "identity_service_not_existing_actors",
+        # "network_service_not_existing_actors",
+        # "sla_not_existing_actors",
+        # "user_group_not_existing_actors",
     ],
+    idstyle="explicit",
 )
-def item_manager(manager):
-    """Return the manager class."""
-    return manager
 
 
-@fixture
-@parametrize(
-    "manager, validator, db_item, new_data",
+item_attr = fixture_union(
+    "item_attr",
     [
-        # fixture_ref("flavor_patch_item_actors"),
-        # fixture_ref("identity_provider_patch_item_actors"),
-        # fixture_ref("image_patch_item_actors"),
-        # fixture_ref("location_patch_item_actors"),
-        # fixture_ref("network_patch_item_actors"),
-        # fixture_ref("project_patch_item_actors"),
-        fixture_ref("provider_patch_item_actors"),
-        # fixture_ref("block_storage_quota_patch_item_actors"),
-        # fixture_ref("compute_quota_patch_item_actors"),
-        # fixture_ref("network_quota_patch_item_actors"),
-        # fixture_ref("region_patch_item_actors"),
-        # fixture_ref("block_storage_service_patch_item_actors"),
-        # fixture_ref("compute_service_patch_item_actors"),
-        # fixture_ref("identity_service_patch_item_actors"),
-        # fixture_ref("network_service_patch_item_actors"),
-        # fixture_ref("sla_patch_item_actors"),
-        # fixture_ref("user_group_patch_item_actors"),
+        # "flavor_attr",
+        # "identity_provider_attr",
+        # "image_attr",
+        # "location_attr",
+        # "network_attr",
+        # "project_attr",
+        "provider_attr",
+        # "block_storage_quota_attr",
+        # "compute_quota_attr",
+        # "network_quota_attr",
+        # "region_attr",
+        # "block_storage_service_attr",
+        # "compute_service_attr",
+        # "identity_service_attr",
+        # "network_service_attr",
+        # "sla_attr",
+        # "user_group_attr",
     ],
+    idstyle="explicit",
 )
-def patch_item_tuples(manager, validator, db_item, new_data):
-    """Parametrized tuple with the items to use in 'case_valid_patch_item'."""
-    return manager, validator, db_item, new_data
