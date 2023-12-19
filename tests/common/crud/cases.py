@@ -12,20 +12,7 @@ class CRUDCases:
         """Valid data for create schemas."""
         return create_item_actors
 
-    # @case(tags="create_invalid")
-    # def case_invalid_key_values(self, invalid_create_schema_tuples):
-    #     """Invalid data for create schemas."""
-    #     return invalid_create_schema_tuples
-
-    # @case(tags="patch_valid")
-    # def case_valid_patch_schema(self, valid_patch_schema_tuples):
-    #     """Data to execute patch operations."""
-    #     return valid_patch_schema_tuples
-
-    # @case(tags="patch_invalid")
-    # def case_invalid_patch_schema(self, invalid_patch_schema_tuples):
-    #     """Invalid data to create Patch object."""
-    #     return invalid_patch_schema_tuples
+    # TODO create invalid?
 
     @case(tags="read_single")
     def case_read_single_item(self, valid_read_item_actors):
@@ -67,11 +54,29 @@ class CRUDCases:
         """Class for public/private cases."""
         return patch_item_no_changes_actors
 
-    # TODO patch with default values.
+    @case(tags="force_update")
+    def case_force_update_unchanged_rel_item(self, force_update_unchanged_rel_actors):
+        """Class for public/private cases."""
+        return force_update_unchanged_rel_actors
+
+    @case(tags="force_update")
+    def case_force_update_add_rel_item(self, force_update_add_rel_actors):
+        """Class for public/private cases."""
+        return force_update_add_rel_actors
+
+    @case(tags="force_update")
+    def case_force_update_remove_rel_item(self, force_update_remove_rel_actors):
+        """Class for public/private cases."""
+        return force_update_remove_rel_actors
+
+    @case(tags="force_update")
+    def case_force_update_replace_rel_item(self, force_update_replace_rel_actors):
+        """Class for public/private cases."""
+        return force_update_replace_rel_actors
 
 
 class GetParams:
-    """Cases with the possible parameters that can be passed to a CRUD GET request."""
+    """Cases with the possible parameters that can be passed to a CRUD read request."""
 
     @case(tags="single_attr")
     def case_attr(self, item_attr) -> str:

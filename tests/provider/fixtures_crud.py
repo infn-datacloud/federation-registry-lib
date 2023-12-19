@@ -1,4 +1,5 @@
 """Provider specific fixtures."""
+import copy
 from typing import Any, Dict, Optional, Tuple
 
 from pytest_cases import fixture, parametrize
@@ -18,7 +19,17 @@ from tests.common.crud.validators import (
     ReadOperationValidation,
 )
 from tests.common.utils import random_bool
-from tests.provider.utils import random_status, random_type
+from tests.identity_provider.utils import (
+    random_identity_provider_required_attr,
+    random_identity_provider_required_rel,
+)
+from tests.project.utils import random_project_required_attr
+from tests.provider.utils import (
+    random_provider_required_attr,
+    random_status,
+    random_type,
+)
+from tests.region.utils import random_region_required_attr
 
 
 @fixture
@@ -210,29 +221,164 @@ def provider_patch_item_no_changes_actors(
     )
 
 
-# @fixture
-# def provider_create_invalid_schema_actors(
-#     provider_create_invalid_data,
-# ) -> Tuple[Type[ProviderCreateExtended], Dict[str, Any]]:
-#     """Fixture with the create class and the invalid data to validate."""
-#     return ProviderCreateExtended, provider_create_invalid_data
+@fixture
+def provider_force_update_unchanged_rel_actors(
+    provider_create_with_rel: Dict[str, Any],
+) -> Tuple[
+    CRUDProvider,
+    PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider],
+    Provider,
+    ProviderUpdate,
+]:
+    """Fixture with the delete class, validator and the db items to read."""
+    validator = PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider](
+        base=ProviderBase, base_public=ProviderBasePublic
+    )
+    db_item = provider_mng.create(
+        obj_in=ProviderCreateExtended(**provider_create_with_rel)
+    )
+    for k, v in random_provider_required_attr().items():
+        provider_create_with_rel[k] = v
+    return (
+        provider_mng,
+        validator,
+        db_item,
+        ProviderCreateExtended(**provider_create_with_rel),
+    )
 
 
-# @fixture
-# def provider_patch_valid_schema_actors(
-#     provider_patch_validator, provider_patch_valid_data
-# ) -> Tuple[
-#     Type[ProviderUpdate],
-#     PatchSchemaValidation[ProviderBase, ProviderBasePublic],
-#     Dict[str, Any],
-# ]:
-#     """Fixture with the update class, validator and data to validate."""
-#     return ProviderUpdate, provider_patch_validator, provider_patch_valid_data
+@fixture
+@parametrize(start_empty=[True, False])
+def provider_force_update_add_rel_actors(
+    start_empty: bool, provider_create_with_rel: Dict[str, Any]
+) -> Tuple[
+    CRUDProvider,
+    PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider],
+    Provider,
+    ProviderUpdate,
+]:
+    """Fixture with the delete class, validator and the db items to read."""
+    validator = PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider](
+        base=ProviderBase, base_public=ProviderBasePublic
+    )
+    if start_empty:
+        starting_data = {
+            **copy.deepcopy(provider_create_with_rel),
+            "identity_providers": [],
+            "projects": [],
+            "regions": [],
+        }
+        new_data = copy.deepcopy(provider_create_with_rel)
+    else:
+        starting_data = copy.deepcopy(provider_create_with_rel)
+        new_data = copy.deepcopy(provider_create_with_rel)
+        if len(new_data.get("regions", [])) > 0:
+            new_data["regions"].append(random_region_required_attr())
+        if len(new_data.get("projects", [])) > 0:
+            new_data["projects"].append(random_project_required_attr())
+        if len(new_data.get("identity_providers", [])) > 0:
+            new_data["identity_providers"].append(
+                {
+                    **random_identity_provider_required_attr(),
+                    **random_identity_provider_required_rel(),
+                }
+            )
+            new_data["identity_providers"][-1]["user_groups"][0]["sla"][
+                "project"
+            ] = new_data["projects"][-1]["uuid"]
+    db_item = provider_mng.create(obj_in=ProviderCreateExtended(**starting_data))
+    return provider_mng, validator, db_item, ProviderCreateExtended(**new_data)
 
 
-# @fixture
-# def provider_patch_invalid_schema_actors(
-#     provider_patch_invalid_data,
-# ) -> Tuple[Type[ProviderUpdate], Dict[str, Any]]:
-#     """Fixture with the update class and the invalid data to validate."""
-#     return ProviderUpdate, provider_patch_invalid_data
+@fixture
+@parametrize(end_empty=[True, False])
+def provider_force_update_remove_rel_actors(
+    end_empty: bool, provider_create_with_rel: Dict[str, Any]
+) -> Tuple[
+    CRUDProvider,
+    PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider],
+    Provider,
+    ProviderUpdate,
+]:
+    """Fixture with the delete class, validator and the db items to read."""
+    validator = PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider](
+        base=ProviderBase, base_public=ProviderBasePublic
+    )
+    if end_empty:
+        starting_data = copy.deepcopy(provider_create_with_rel)
+        new_data = {
+            **copy.deepcopy(provider_create_with_rel),
+            "identity_providers": [],
+            "projects": [],
+            "regions": [],
+        }
+    else:
+        starting_data = copy.deepcopy(provider_create_with_rel)
+        if len(starting_data.get("regions", [])) > 0:
+            starting_data["regions"].append(random_region_required_attr())
+        if len(starting_data.get("projects", [])) > 0:
+            starting_data["projects"].append(random_project_required_attr())
+        if len(starting_data.get("identity_providers", [])) > 0:
+            starting_data["identity_providers"].append(
+                {
+                    **random_identity_provider_required_attr(),
+                    **random_identity_provider_required_rel(),
+                }
+            )
+            starting_data["identity_providers"][-1]["user_groups"][0]["sla"][
+                "project"
+            ] = starting_data["projects"][-1]["uuid"]
+        new_data = copy.deepcopy(provider_create_with_rel)
+    db_item = provider_mng.create(obj_in=ProviderCreateExtended(**starting_data))
+    return provider_mng, validator, db_item, ProviderCreateExtended(**new_data)
+
+
+@fixture
+@parametrize(replace_all=[True, False])
+def provider_force_update_replace_rel_actors(
+    replace_all: bool, provider_create_with_rel: Dict[str, Any]
+) -> Tuple[
+    CRUDProvider,
+    PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider],
+    Provider,
+    ProviderUpdate,
+]:
+    """Fixture with the delete class, validator and the db items to read."""
+    validator = PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider](
+        base=ProviderBase, base_public=ProviderBasePublic
+    )
+    if replace_all:
+        starting_data = copy.deepcopy(provider_create_with_rel)
+    else:
+        starting_data = copy.deepcopy(provider_create_with_rel)
+        if len(starting_data.get("regions", [])) > 0:
+            starting_data["regions"].append(random_region_required_attr())
+        if len(starting_data.get("projects", [])) > 0:
+            starting_data["projects"].append(random_project_required_attr())
+        if len(starting_data.get("identity_providers", [])) > 0:
+            starting_data["identity_providers"].append(
+                {
+                    **random_identity_provider_required_attr(),
+                    **random_identity_provider_required_rel(),
+                }
+            )
+            starting_data["identity_providers"][-1]["user_groups"][0]["sla"][
+                "project"
+            ] = starting_data["projects"][-1]["uuid"]
+    new_data = copy.deepcopy(provider_create_with_rel)
+    if len(new_data.get("regions", [])) > 0:
+        new_data["regions"] = [random_region_required_attr()]
+    if len(new_data.get("projects", [])) > 0:
+        new_data["projects"] = [random_project_required_attr()]
+    if len(new_data.get("identity_providers", [])) > 0:
+        new_data["identity_providers"] = [
+            {
+                **new_data["identity_providers"][0],
+                **random_identity_provider_required_attr(),
+            }
+        ]
+        new_data["identity_providers"][-1]["user_groups"][0]["sla"][
+            "project"
+        ] = new_data["projects"][-1]["uuid"]
+    db_item = provider_mng.create(obj_in=ProviderCreateExtended(**starting_data))
+    return provider_mng, validator, db_item, ProviderCreateExtended(**new_data)

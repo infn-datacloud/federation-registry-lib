@@ -172,10 +172,16 @@ class TestCRUD:
         """The schema creation fails and raises an error."""
         assert not manager.update(db_obj=db_item, obj_in=new_data)
 
-    # @parametrize_with_cases(
-    #     "cls, validator, data", cases=CRUDCases, has_tag="patch_valid"
-    # )
-    # def test_patch_valid_schema(self, cls, validator, data) -> None:
-    #     """Create a schema from a dict."""
-    #     schema = cls(**data)
-    #     validator.validate_attrs(data=data, schema=schema)
+    @parametrize_with_cases(
+        "manager, validator, db_item, new_data", cases=CRUDCases, has_tag="force_update"
+    )
+    def test_force_update(self, manager, validator, db_item, new_data) -> None:
+        """The schema creation fails and raises an error."""
+        old_item = copy.deepcopy(db_item)
+        updated_item = manager.update(db_obj=db_item, obj_in=new_data, force=True)
+        validator.validate_updated_item(
+            old_item=old_item,
+            updated_item=updated_item,
+            new_data=new_data.dict(exclude_unset=True),
+        )
+        # TODO validate relationships.

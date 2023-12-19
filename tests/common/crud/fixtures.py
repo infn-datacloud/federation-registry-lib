@@ -224,6 +224,103 @@ not_existing_actors = fixture_union(
     idstyle="explicit",
 )
 
+force_update_unchanged_rel_actors = fixture_union(
+    "force_update_unchanged_rel_actors",
+    [
+        # "flavor_force_update_unchanged_rel_actors",
+        # "identity_provider_force_update_unchanged_rel_actors",
+        # "image_force_update_unchanged_rel_actors",
+        # "location_force_update_unchanged_rel_actors",
+        # "network_force_update_unchanged_rel_actors",
+        # "project_force_update_unchanged_rel_actors",
+        "provider_force_update_unchanged_rel_actors",
+        # "block_storage_quota_force_update_unchanged_rel_actors",
+        # "compute_quota_force_update_unchanged_rel_actors",
+        # "network_quota_force_update_unchanged_rel_actors",
+        # "region_force_update_unchanged_rel_actors",
+        # "block_storage_service_force_update_unchanged_rel_actors",
+        # "compute_service_force_update_unchanged_rel_actors",
+        # "identity_service_force_update_unchanged_rel_actors",
+        # "network_service_force_update_unchanged_rel_actors",
+        # "sla_force_update_unchanged_rel_actors",
+        # "user_group_force_update_unchanged_rel_actors",
+    ],
+    idstyle="explicit",
+)
+
+force_update_add_rel_actors = fixture_union(
+    "force_update_add_rel_actors",
+    [
+        # "flavor_force_update_add_rel_actors",
+        # "identity_provider_force_update_add_rel_actors",
+        # "image_force_update_add_rel_actors",
+        # "location_force_update_add_rel_actors",
+        # "network_force_update_add_rel_actors",
+        # "project_force_update_add_rel_actors",
+        "provider_force_update_add_rel_actors",
+        # "block_storage_quota_force_update_add_rel_actors",
+        # "compute_quota_force_update_add_rel_actors",
+        # "network_quota_force_update_add_rel_actors",
+        # "region_force_update_add_rel_actors",
+        # "block_storage_service_force_update_add_rel_actors",
+        # "compute_service_force_update_add_rel_actors",
+        # "identity_service_force_update_add_rel_actors",
+        # "network_service_force_update_add_rel_actors",
+        # "sla_force_update_add_rel_actors",
+        # "user_group_force_update_add_rel_actors",
+    ],
+    idstyle="explicit",
+)
+
+force_update_remove_rel_actors = fixture_union(
+    "force_update_remove_rel_actors",
+    [
+        # "flavor_force_update_remove_rel_actors",
+        # "identity_provider_force_update_remove_rel_actors",
+        # "image_force_update_remove_rel_actors",
+        # "location_force_update_remove_rel_actors",
+        # "network_force_update_remove_rel_actors",
+        # "project_force_update_remove_rel_actors",
+        "provider_force_update_remove_rel_actors",
+        # "block_storage_quota_force_update_remove_rel_actors",
+        # "compute_quota_force_update_remove_rel_actors",
+        # "network_quota_force_update_remove_rel_actors",
+        # "region_force_update_remove_rel_actors",
+        # "block_storage_service_force_update_remove_rel_actors",
+        # "compute_service_force_update_remove_rel_actors",
+        # "identity_service_force_update_remove_rel_actors",
+        # "network_service_force_update_remove_rel_actors",
+        # "sla_force_update_remove_rel_actors",
+        # "user_group_force_update_remove_rel_actors",
+    ],
+    idstyle="explicit",
+)
+
+
+force_update_replace_rel_actors = fixture_union(
+    "force_update_replace_rel_actors",
+    [
+        # "flavor_force_update_replace_rel_actors",
+        # "identity_provider_force_update_replace_rel_actors",
+        # "image_force_update_replace_rel_actors",
+        # "location_force_update_replace_rel_actors",
+        # "network_force_update_replace_rel_actors",
+        # "project_force_update_replace_rel_actors",
+        "provider_force_update_replace_rel_actors",
+        # "block_storage_quota_force_update_replace_rel_actors",
+        # "compute_quota_force_update_replace_rel_actors",
+        # "network_quota_force_update_replace_rel_actors",
+        # "region_force_update_replace_rel_actors",
+        # "block_storage_service_force_update_replace_rel_actors",
+        # "compute_service_force_update_replace_rel_actors",
+        # "identity_service_force_update_replace_rel_actors",
+        # "network_service_force_update_replace_rel_actors",
+        # "sla_force_update_replace_rel_actors",
+        # "user_group_force_update_replace_rel_actors",
+    ],
+    idstyle="explicit",
+)
+
 
 item_attr = fixture_union(
     "item_attr",

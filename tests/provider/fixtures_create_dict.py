@@ -76,6 +76,12 @@ def provider_create_data_with_regions() -> Dict[str, Any]:
 
 
 @fixture
+def provider_create_data_with_projects() -> Dict[str, Any]:
+    """Dict with all Provider attributes and regions."""
+    return {**random_provider_all_attr(), "projects": [random_project_required_attr()]}
+
+
+@fixture
 def provider_create_data_with_idps() -> Dict[str, Any]:
     """Dict with all Provider attributes and regions."""
     project = random_project_required_attr()
@@ -293,5 +299,15 @@ provider_create_invalid_data = fixture_union(
         provider_create_invalid_compute_serv_project_uuid,
         provider_create_invalid_network_serv_project_uuid,
     ),
+    idstyle="explicit",
+)
+
+provider_create_with_rel = fixture_union(
+    "provider_create_with_rel",
+    [
+        provider_create_data_with_idps,
+        provider_create_data_with_projects,
+        provider_create_data_with_regions,
+    ],
     idstyle="explicit",
 )
