@@ -152,15 +152,18 @@ def provider_patch_item_actors(
     validator = PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider](
         base=ProviderBase, base_public=ProviderBasePublic
     )
-    # TODO new data may match old_data
-    for k, v in provider_patch_valid_data.items():
-        while db_provider_simple.__getattribute__(k) == v:
-            if isinstance(v, bool):
-                v = random_bool()
-            elif isinstance(v, ProviderStatus):
-                v = random_status()
-            elif isinstance(v, ProviderType):
-                v = random_type()
+    for k in provider_patch_valid_data.keys():
+        while db_provider_simple.__getattribute__(k) == provider_patch_valid_data[k]:
+            schema_type = ProviderUpdate.__fields__.get(k).type_
+            if schema_type == bool:
+                provider_patch_valid_data[k] = random_bool()
+            elif schema_type == ProviderStatus:
+                provider_patch_valid_data[k] = random_status()
+            elif schema_type == ProviderType:
+                provider_patch_valid_data[k] = random_type()
+            else:
+                print(schema_type)
+                assert 0
     return (
         provider_mng,
         validator,
