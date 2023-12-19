@@ -17,6 +17,19 @@ RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then ${INSTALL_CMD} --dev ; else ${
 # Stage used for development in containers
 FROM python:3.8 as development
 
+WORKDIR /
+
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=${USER_UID}
+
+RUN git clone https://baltig.infn.it/cnafsd/storm-tape.git
+RUN chmod +x /storm-tape/.devcontainer/library-scripts/*.sh && \
+    /storm-tape/.devcontainer/library-scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} 
+RUN rm -rf /storm-tape
+
+USER ${USERNAME}
+
 WORKDIR /code/
 
 COPY --from=requirements /tmp/requirements.txt /code/requirements.txt
