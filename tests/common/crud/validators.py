@@ -127,24 +127,16 @@ class DeleteOperationValidation(
         super().__init__(base=base, base_public=base_public)
         self.managers = managers
 
-    def store_rel_uids(self, *, db_item: DbType) -> None:
-        """Store in this instance the uids of the relationships that will be deleted."""
-        self.uids = {}
-        for k in self.managers.keys():
-            self.uids[k] = [i.uid for i in db_item.__getattribute__(k).all()]
-
     def validate_deleted_children(self, *, db_item: DbType) -> None:
         """Validate that target item and children entities have been deleted.
 
         Args:
         ----
             db_item (DbType): Deleted database instance.
-            managers (DbType): Dict (key, manager).
         """
-        assert db_item.deleted
         for k in self.managers:
-            for uid in self.uids[k]:
-                assert not self.managers[k].get(uid=uid)
+            for i in db_item.__getattribute__(k).all():
+                assert not self.managers[k].get(uid=i.uid)
 
 
 class PatchOperationValidation(

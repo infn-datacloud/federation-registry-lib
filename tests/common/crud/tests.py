@@ -135,10 +135,10 @@ class TestCRUD:
     )
     def test_delete(self, manager, validator, db_item) -> None:
         """The schema creation fails and raises an error."""
-        # TODO try to use deepcopy?
-        validator.store_rel_uids(db_item=db_item)
+        old_item = copy.deepcopy(db_item)
         assert manager.remove(db_obj=db_item)
-        validator.validate_deleted_children(db_item=db_item)
+        assert not manager.get(uid=db_item.uid)
+        validator.validate_deleted_children(db_item=old_item)
 
     @parametrize_with_cases(
         "manager, validator, db_item, new_data", cases=CRUDCases, has_tag="patch"
