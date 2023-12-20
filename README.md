@@ -21,7 +21,7 @@ cd federation-registry
 
 ### Requirements
 
-You need to have `docker` installed on your system.
+You need to have `docker` installed on your system and a running `neo4j` database instance.
 
 In idle mode, the application uses at least 1.2 GiB of memory space and the `gunicorn` service starts 25 processes (PIDS).
 
@@ -95,7 +95,7 @@ TRUSTED_IDP_LIST=["https://test.idp.it"]
 ADMIN_EMAIL_LIST=["test@admin-user.it"]
 ```
 
-### Auxiliary services
+### Ancillary services
 
 To correctly work, the application requires a running neo4j database instance with the **apoc** extension.
 
