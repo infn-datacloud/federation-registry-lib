@@ -17,7 +17,7 @@ CASES = [
     # "tests.quotas.block_storage_quota.cases_crud",
     # "tests.quotas.compute_quota.cases_crud",
     # "tests.quotas.network_quota.cases_crud",
-    # "tests.region.cases_crud",
+    "tests.region.cases_crud",
     # "tests.services.block_storage_service.cases_crud",
     # "tests.services.compute_service.cases_crud",
     # "tests.services.identity_service.cases_crud",

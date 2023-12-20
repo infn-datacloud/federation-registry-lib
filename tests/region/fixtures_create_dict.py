@@ -147,3 +147,15 @@ region_create_invalid_data = fixture_union(
     ),
     idstyle="explicit",
 )
+
+region_create_with_rel = fixture_union(
+    "region_create_with_rel",
+    [
+        region_create_data_with_location,
+        region_create_data_with_block_storage_services,
+        region_create_data_with_compute_services,
+        region_create_data_with_identity_services,
+        region_create_data_with_network_services,
+    ],
+    idstyle="explicit",
+)

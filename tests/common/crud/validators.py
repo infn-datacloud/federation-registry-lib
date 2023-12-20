@@ -1,5 +1,5 @@
 """Module to test Flavor schema creation."""
-from typing import Any, Dict, Generic, List, Type
+from typing import Any, Dict, Generic, List, Optional, Type
 from uuid import UUID
 
 from pydantic.fields import SHAPE_LIST
@@ -37,7 +37,34 @@ class CreateOperationValidation(
         super().__init__(base=base, base_public=base_public)
         self.create = create
 
-    def validate_db_item_attrs(self, *, db_item: DbType, schema: CreateType) -> None:
+    def _exclude_not_used_attrs(
+        self, *, data: Dict[str, Any], exclude_attrs: Optional[List[str]]
+    ) -> Dict[str, Any]:
+        """Do not consider not used attributes.
+
+        Args:
+        ----
+            data (dict): Dict to filter.
+            exclude_attrs (list of str): List of attributes marked as useless.
+
+        Returns:
+        -------
+            The original data object without the attributes in exclude_attrs.
+        """
+        if exclude_attrs is None:
+            exclude_attrs = []
+        exclude_attrs.append("id")
+        for i in exclude_attrs:
+            data.pop(i, None)
+        return data
+
+    def validate_db_item_attrs(
+        self,
+        *,
+        db_item: DbType,
+        schema: CreateType,
+        exclude_attrs: Optional[List[str]] = None,
+    ) -> None:
         """Validate data attributes and relationships with the expected ones.
 
         Validate attributes and relationships.
@@ -46,7 +73,10 @@ class CreateOperationValidation(
         ----
             db_item (DbType): Database instance with the created data. To be validated.
             schema (CreateType): Schema with the info to add to the database.
+            exclude_attrs (list of str): List of attributes of the database model to
+                ignore.
         """
+        count = 0
         data = db_item.__dict__
 
         assert data.pop("uid")
@@ -57,7 +87,17 @@ class CreateOperationValidation(
             field = self.create.__fields__.get(attr)
             if field.shape == SHAPE_LIST:
                 schema_list = schema.__getattribute__(attr)
-                data_list = data.pop(attr, [])
+
+                # Specific for Region instance
+                if attr.endswith("services"):
+                    count += 1
+                    service_type = attr[: -len("service") - 2].replace("_", "-")
+                    data_list = data.get("services", []).filter(type=service_type)
+                    if count == 4:
+                        data.pop("services", [])
+                else:
+                    data_list = data.pop(attr, [])
+
                 assert len(schema_list) == len(data_list)
 
                 if isinstance(field.type_, str):
@@ -77,7 +117,7 @@ class CreateOperationValidation(
                     # of other specific tests. We only pop the item if present.
                     data.pop(attr, None)
 
-        assert data.pop("id")
+        data = self._exclude_not_used_attrs(data=data, exclude_attrs=exclude_attrs)
         assert not data
 
 
@@ -135,7 +175,12 @@ class DeleteOperationValidation(
             db_item (DbType): Deleted database instance.
         """
         for k in self.managers:
-            for i in db_item.__getattribute__(k).all():
+            if k.endswith("services"):
+                service_type = k[: -len("service") - 2].replace("_", "-")
+                items = db_item.__getattribute__("services").filter(type=service_type)
+            else:
+                items = db_item.__getattribute__(k).all()
+            for i in items:
                 assert not self.managers[k].get(uid=i.uid)
 
 
