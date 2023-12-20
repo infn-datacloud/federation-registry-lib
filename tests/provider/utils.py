@@ -31,7 +31,10 @@ def random_provider_all_no_default_attr() -> Dict[str, Any]:
     """Dict with the provider base attribute different from the default one."""
     data = random_provider_all_attr()
     for k, v in ProviderBase.__fields__.items():
-        while data[k] == v.get_default():
+        default = v.get_default()
+        if isinstance(default, ProviderStatus) or isinstance(default, ProviderType):
+            default = default.value
+        while data[k] == default:
             if v.type_ == bool:
                 data[k] = random_bool()
             elif v.type_ == ProviderStatus:
