@@ -31,6 +31,16 @@ from tests.provider.utils import (
 )
 from tests.region.utils import random_region_required_attr
 
+provider_get_attr = [*ProviderBase.__fields__.keys(), "uid", None]
+provider_sort_attr = [*ProviderBase.__fields__.keys(), "uid"]
+provider_patch_attr = [*ProviderBase.__fields__.keys()]
+provider_patch_default_attr = [
+    k for k, v in ProviderBase.__fields__.items() if not v.required
+]
+provider_patch_required_attr = [
+    k for k, v in ProviderBase.__fields__.items() if v.required
+]
+
 
 @case(tags=["provider", "not_existing"])
 def case_provider_not_existing_actors() -> CRUDProvider:
@@ -62,8 +72,9 @@ def case_provider_create_item_actors(
 
 
 @case(tags=["provider", "read_single"])
+@parametrize(attr=provider_get_attr)
 def case_provider_read_item_actors(
-    db_provider_simple: Provider, provider_valid_get_attr: str
+    db_provider_simple: Provider, attr: str
 ) -> Tuple[
     CRUDProvider,
     ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider],
@@ -74,14 +85,13 @@ def case_provider_read_item_actors(
     validator = ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider](
         base=ProviderBase, base_public=ProviderBasePublic
     )
-    return provider_mng, validator, db_provider_simple, provider_valid_get_attr
+    return provider_mng, validator, db_provider_simple, attr
 
 
 @case(tags=["provider", "read_multi"])
+@parametrize(attr=provider_get_attr)
 def case_provider_read_items_actors(
-    db_provider_simple: Provider,
-    db_provider_with_single_project: Provider,
-    provider_valid_get_attr: str,
+    db_provider_simple: Provider, db_provider_with_single_project: Provider, attr: str
 ) -> Tuple[
     CRUDProvider,
     ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider],
@@ -96,15 +106,18 @@ def case_provider_read_items_actors(
         provider_mng,
         validator,
         [db_provider_simple, db_provider_with_single_project],
-        provider_valid_get_attr,
+        attr,
     )
 
 
 @case(tags=["provider", "sort"])
+@parametrize(reverse=[True, False])
+@parametrize(attr=provider_sort_attr)
 def case_provider_read_items_sort(
     db_provider_simple: Provider,
     db_provider_with_single_project: Provider,
-    provider_valid_sort_attr: str,
+    reverse: bool,
+    attr: str,
 ) -> Tuple[
     CRUDProvider,
     ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider],
@@ -115,11 +128,13 @@ def case_provider_read_items_sort(
     validator = ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider](
         base=ProviderBase, base_public=ProviderBasePublic
     )
+    if reverse:
+        attr = "-" + attr
     return (
         provider_mng,
         validator,
         [db_provider_simple, db_provider_with_single_project],
-        provider_valid_sort_attr,
+        attr,
     )
 
 
@@ -224,17 +239,16 @@ def case_provider_patch_item_actors(
 
 
 @case(tags=["provider", "patch"])
+@parametrize(attr=provider_patch_default_attr)
 def case_provider_patch_item_with_default_actors(
-    db_provider_no_defaults: Provider, provider_valid_patch_default_attr: str
+    db_provider_no_defaults: Provider, attr: str
 ) -> Tuple[CRUDProvider, Provider, ProviderUpdate]:
     """Fixture with the delete class, validator and the db items to read."""
     validator = PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider](
         base=ProviderBase, base_public=ProviderBasePublic
     )
-    field_data = ProviderUpdate.__fields__.get(provider_valid_patch_default_attr)
-    provider_patch_valid_data = {
-        provider_valid_patch_default_attr: field_data.get_default()
-    }
+    field_data = ProviderUpdate.__fields__.get(attr)
+    provider_patch_valid_data = {attr: field_data.get_default()}
     return (
         provider_mng,
         validator,
@@ -244,14 +258,13 @@ def case_provider_patch_item_with_default_actors(
 
 
 @case(tags=["provider", "patch_required_with_none"])
+@parametrize(attr=provider_patch_required_attr)
 def case_provider_patch_item_required_with_none_actors(
-    db_provider_no_defaults: Provider, provider_invalid_patch_default_attr: str
+    db_provider_no_defaults: Provider, attr: str
 ) -> Tuple[CRUDProvider, Provider, ProviderUpdate]:
     """Fixture with the delete class, validator and the db items to read."""
-    field_data = ProviderUpdate.__fields__.get(provider_invalid_patch_default_attr)
-    provider_patch_valid_data = {
-        provider_invalid_patch_default_attr: field_data.get_default()
-    }
+    field_data = ProviderUpdate.__fields__.get(attr)
+    provider_patch_valid_data = {attr: field_data.get_default()}
     return (
         provider_mng,
         db_provider_no_defaults,
@@ -260,13 +273,12 @@ def case_provider_patch_item_required_with_none_actors(
 
 
 @case(tags=["provider", "patch_no_changes"])
+@parametrize(attr=provider_patch_attr)
 def case_provider_patch_item_no_changes_actors(
-    db_provider_simple: Provider, provider_patch_attr: str
+    db_provider_simple: Provider, attr: str
 ) -> Tuple[CRUDProvider, Provider, ProviderUpdate]:
     """Fixture with the delete class, validator and the db items to read."""
-    provider_patch_valid_data = {
-        provider_patch_attr: db_provider_simple.__getattribute__(provider_patch_attr)
-    }
+    provider_patch_valid_data = {attr: db_provider_simple.__getattribute__(attr)}
     return (
         provider_mng,
         db_provider_simple,
