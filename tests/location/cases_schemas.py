@@ -1,7 +1,7 @@
-"""Location specific fixtures."""
+"""Location specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.location.models import Location
 from app.location.schemas import (
@@ -23,23 +23,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        LocationRead,
-        LocationReadExtended,
-        LocationReadPublic,
-        LocationReadExtendedPublic,
-    ]
-)
-def location_read_class(cls) -> Any:
-    """Location Read schema."""
-    return cls
-
-
-@fixture
-def location_create_valid_schema_actors(
-    location_create_valid_data,
+@case(tags="create_valid")
+def case_location_create_valid_schema_actors(
+    location_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[LocationCreate],
     CreateSchemaValidation[LocationBase, LocationBasePublic, LocationCreate],
@@ -52,17 +38,17 @@ def location_create_valid_schema_actors(
     return LocationCreate, validator, location_create_valid_data
 
 
-@fixture
-def location_create_invalid_schema_actors(
-    location_create_invalid_data,
+@case(tags="create_invalid")
+def case_location_create_invalid_schema_actors(
+    location_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[LocationCreate], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return LocationCreate, location_create_invalid_data
 
 
-@fixture
-def location_patch_valid_schema_actors(
-    location_patch_valid_data,
+@case(tags="patch_valid")
+def case_location_patch_valid_schema_actors(
+    location_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[LocationUpdate],
     PatchSchemaValidation[LocationBase, LocationBasePublic],
@@ -75,17 +61,31 @@ def location_patch_valid_schema_actors(
     return LocationUpdate, validator, location_patch_valid_data
 
 
-@fixture
-def location_patch_invalid_schema_actors(
-    location_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_location_patch_invalid_schema_actors(
+    location_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[LocationUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return LocationUpdate, location_patch_invalid_data
 
 
-@fixture
-def location_valid_read_schema_tuple(
-    location_read_class, db_location
+@case(tags="read")
+@parametrize(
+    cls=[
+        LocationRead,
+        LocationReadExtended,
+        LocationReadPublic,
+        LocationReadExtendedPublic,
+    ]
+)
+def case_location_valid_read_schema_tuple(
+    cls: Union[
+        LocationRead,
+        LocationReadPublic,
+        LocationReadExtended,
+        LocationReadExtendedPublic,
+    ],
+    db_location: Location,
 ) -> Tuple[
     Union[
         LocationRead,
@@ -103,6 +103,8 @@ def location_valid_read_schema_tuple(
         Location,
     ],
     Location,
+    bool,
+    bool,
 ]:
     """Fixture with the read class, validator and the db item to read."""
     validator = ReadSchemaValidation[
@@ -119,4 +121,11 @@ def location_valid_read_schema_tuple(
         read=LocationRead,
         read_extended=LocationReadExtended,
     )
-    return location_read_class, validator, db_location
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_location, is_public, is_extended

@@ -1,7 +1,7 @@
-"""IdentityService specific fixtures."""
+"""IdentityService specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import (
     IdentityServiceCreate,
@@ -25,23 +25,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        IdentityServiceRead,
-        IdentityServiceReadExtended,
-        IdentityServiceReadPublic,
-        IdentityServiceReadExtendedPublic,
-    ],
-)
-def identity_service_read_class(cls) -> Any:
-    """IdentityService Read schema."""
-    return cls
-
-
-@fixture
-def identity_service_create_valid_schema_actors(
-    identity_service_create_valid_data,
+@case(tags="create_valid")
+def case_identity_service_create_valid_schema_actors(
+    identity_service_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[IdentityServiceCreate],
     CreateSchemaValidation[
@@ -64,17 +50,17 @@ def identity_service_create_valid_schema_actors(
     return IdentityServiceCreate, validator, identity_service_create_valid_data
 
 
-@fixture
-def identity_service_create_invalid_schema_actors(
-    identity_service_create_invalid_data,
+@case(tags="create_invalid")
+def case_identity_service_create_invalid_schema_actors(
+    identity_service_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[IdentityServiceCreate], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return IdentityServiceCreate, identity_service_create_invalid_data
 
 
-@fixture
-def identity_service_patch_valid_schema_actors(
-    identity_service_patch_valid_data,
+@case(tags="patch_valid")
+def case_identity_service_patch_valid_schema_actors(
+    identity_service_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[IdentityServiceUpdate],
     PatchSchemaValidation[IdentityServiceBase, ServiceBase],
@@ -87,17 +73,31 @@ def identity_service_patch_valid_schema_actors(
     return IdentityServiceUpdate, validator, identity_service_patch_valid_data
 
 
-@fixture
-def identity_service_patch_invalid_schema_actors(
-    identity_service_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_identity_service_patch_invalid_schema_actors(
+    identity_service_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[IdentityServiceUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return IdentityServiceUpdate, identity_service_patch_invalid_data
 
 
-@fixture
-def identity_service_valid_read_schema_tuple(
-    identity_service_read_class, db_identity_service
+@case(tags="read")
+@parametrize(
+    cls=[
+        IdentityServiceRead,
+        IdentityServiceReadExtended,
+        IdentityServiceReadPublic,
+        IdentityServiceReadExtendedPublic,
+    ],
+)
+def case_identity_service_valid_read_schema_tuple(
+    cls: Union[
+        IdentityServiceRead,
+        IdentityServiceReadPublic,
+        IdentityServiceReadExtended,
+        IdentityServiceReadExtendedPublic,
+    ],
+    db_identity_service: IdentityService,
 ) -> Tuple[
     Union[
         IdentityServiceRead,
@@ -131,4 +131,11 @@ def identity_service_valid_read_schema_tuple(
         read=IdentityServiceRead,
         read_extended=IdentityServiceReadExtended,
     )
-    return identity_service_read_class, validator, db_identity_service
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_identity_service, is_public, is_extended

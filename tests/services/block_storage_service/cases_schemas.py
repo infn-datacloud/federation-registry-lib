@@ -1,7 +1,7 @@
-"""BlockStorageService specific fixtures."""
+"""BlockStorageService specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
@@ -25,23 +25,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        BlockStorageServiceRead,
-        BlockStorageServiceReadExtended,
-        BlockStorageServiceReadPublic,
-        BlockStorageServiceReadExtendedPublic,
-    ],
-)
-def block_storage_service_read_class(cls) -> Any:
-    """BlockStorageService Read schema."""
-    return cls
-
-
-@fixture
-def block_storage_service_create_valid_schema_actors(
-    block_storage_service_create_valid_data,
+@case(tags="create_valid")
+def case_block_storage_service_create_valid_schema_actors(
+    block_storage_service_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[BlockStorageServiceCreateExtended],
     CreateSchemaValidation[
@@ -68,17 +54,17 @@ def block_storage_service_create_valid_schema_actors(
     )
 
 
-@fixture
-def block_storage_service_create_invalid_schema_actors(
-    block_storage_service_create_invalid_data,
+@case(tags="create_invalid")
+def case_block_storage_service_create_invalid_schema_actors(
+    block_storage_service_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[BlockStorageServiceCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return BlockStorageServiceCreateExtended, block_storage_service_create_invalid_data
 
 
-@fixture
-def block_storage_service_patch_valid_schema_actors(
-    block_storage_service_patch_valid_data,
+@case(tags="patch_valid")
+def case_block_storage_service_patch_valid_schema_actors(
+    block_storage_service_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[BlockStorageServiceUpdate],
     PatchSchemaValidation[BlockStorageServiceBase, ServiceBase],
@@ -95,17 +81,31 @@ def block_storage_service_patch_valid_schema_actors(
     )
 
 
-@fixture
-def block_storage_service_patch_invalid_schema_actors(
-    block_storage_service_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_block_storage_service_patch_invalid_schema_actors(
+    block_storage_service_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[BlockStorageServiceUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return BlockStorageServiceUpdate, block_storage_service_patch_invalid_data
 
 
-@fixture
-def block_storage_service_valid_read_schema_tuple(
-    block_storage_service_read_class, db_block_storage_service
+@case(tags="read")
+@parametrize(
+    cls=[
+        BlockStorageServiceRead,
+        BlockStorageServiceReadExtended,
+        BlockStorageServiceReadPublic,
+        BlockStorageServiceReadExtendedPublic,
+    ],
+)
+def case_block_storage_service_valid_read_schema_tuple(
+    cls: Union[
+        BlockStorageServiceRead,
+        BlockStorageServiceReadPublic,
+        BlockStorageServiceReadExtended,
+        BlockStorageServiceReadExtendedPublic,
+    ],
+    db_block_storage_service: BlockStorageService,
 ) -> Tuple[
     Union[
         BlockStorageServiceRead,
@@ -139,4 +139,11 @@ def block_storage_service_valid_read_schema_tuple(
         read=BlockStorageServiceRead,
         read_extended=BlockStorageServiceReadExtended,
     )
-    return block_storage_service_read_class, validator, db_block_storage_service
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_block_storage_service, is_public, is_extended

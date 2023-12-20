@@ -1,7 +1,7 @@
-"""Image specific fixtures."""
+"""Image specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.image.models import Image
 from app.image.schemas import (
@@ -20,18 +20,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[ImageRead, ImageReadExtended, ImageReadPublic, ImageReadExtendedPublic]
-)
-def image_read_class(cls) -> Any:
-    """Image Read schema."""
-    return cls
-
-
-@fixture
-def image_create_valid_schema_actors(
-    image_create_valid_data,
+@case(tags="create_valid")
+def case_image_create_valid_schema_actors(
+    image_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[ImageCreateExtended],
     CreateSchemaValidation[ImageBase, ImageBasePublic, ImageCreateExtended],
@@ -44,17 +35,17 @@ def image_create_valid_schema_actors(
     return ImageCreateExtended, validator, image_create_valid_data
 
 
-@fixture
-def image_create_invalid_schema_actors(
-    image_create_invalid_data,
+@case(tags="create_invalid")
+def case_image_create_invalid_schema_actors(
+    image_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[ImageCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return ImageCreateExtended, image_create_invalid_data
 
 
-@fixture
-def image_patch_valid_schema_actors(
-    image_patch_valid_data,
+@case(tags="patch_valid")
+def case_image_patch_valid_schema_actors(
+    image_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[ImageUpdate],
     PatchSchemaValidation[ImageBase, ImageBasePublic],
@@ -67,17 +58,21 @@ def image_patch_valid_schema_actors(
     return ImageUpdate, validator, image_patch_valid_data
 
 
-@fixture
-def image_patch_invalid_schema_actors(
-    image_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_image_patch_invalid_schema_actors(
+    image_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[ImageUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return ImageUpdate, image_patch_invalid_data
 
 
-@fixture
-def image_valid_read_schema_tuple(
-    image_read_class, db_image
+@case(tags="read")
+@parametrize(
+    cls=[ImageRead, ImageReadExtended, ImageReadPublic, ImageReadExtendedPublic]
+)
+def case_image_valid_read_schema_tuple(
+    cls: [ImageRead, ImageReadExtended, ImageReadPublic, ImageReadExtendedPublic],
+    db_image: Image,
 ) -> Tuple[
     Union[ImageRead, ImageReadPublic, ImageReadExtended, ImageReadExtendedPublic],
     ReadSchemaValidation[
@@ -90,6 +85,8 @@ def image_valid_read_schema_tuple(
         Image,
     ],
     Image,
+    bool,
+    bool,
 ]:
     """Fixture with the read class, validator and the db item to read."""
     validator = ReadSchemaValidation[
@@ -106,4 +103,11 @@ def image_valid_read_schema_tuple(
         read=ImageRead,
         read_extended=ImageReadExtended,
     )
-    return image_read_class, validator, db_image
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_image, is_public, is_extended

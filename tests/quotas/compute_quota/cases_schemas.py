@@ -1,7 +1,7 @@
-"""ComputeQuota specific fixtures."""
+"""ComputeQuota specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import (
     ComputeQuotaCreateExtended,
@@ -25,23 +25,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        ComputeQuotaRead,
-        ComputeQuotaReadExtended,
-        ComputeQuotaReadPublic,
-        ComputeQuotaReadExtendedPublic,
-    ],
-)
-def compute_quota_read_class(cls) -> Any:
-    """ComputeQuota Read schema."""
-    return cls
-
-
-@fixture
-def compute_quota_create_valid_schema_actors(
-    compute_quota_create_valid_data,
+@case(tags="create_valid")
+def case_compute_quota_create_valid_schema_actors(
+    compute_quota_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[ComputeQuotaCreateExtended],
     CreateSchemaValidation[ComputeQuotaBase, QuotaBase, ComputeQuotaCreateExtended],
@@ -60,17 +46,17 @@ def compute_quota_create_valid_schema_actors(
     return ComputeQuotaCreateExtended, validator, compute_quota_create_valid_data
 
 
-@fixture
-def compute_quota_create_invalid_schema_actors(
-    compute_quota_create_invalid_data,
+@case(tags="create_invalid")
+def case_compute_quota_create_invalid_schema_actors(
+    compute_quota_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[ComputeQuotaCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return ComputeQuotaCreateExtended, compute_quota_create_invalid_data
 
 
-@fixture
-def compute_quota_patch_valid_schema_actors(
-    compute_quota_patch_valid_data,
+@case(tags="patch_valid")
+def case_compute_quota_patch_valid_schema_actors(
+    compute_quota_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[ComputeQuotaUpdate],
     PatchSchemaValidation[ComputeQuotaBase, QuotaBase],
@@ -83,18 +69,31 @@ def compute_quota_patch_valid_schema_actors(
     return ComputeQuotaUpdate, validator, compute_quota_patch_valid_data
 
 
-@fixture
-def compute_quota_patch_invalid_schema_actors(
-    compute_quota_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_compute_quota_patch_invalid_schema_actors(
+    compute_quota_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[ComputeQuotaUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return ComputeQuotaUpdate, compute_quota_patch_invalid_data
 
 
-@fixture
-def compute_quota_valid_read_schema_tuple(
-    compute_quota_read_class,
-    db_compute_quota,
+@case(tags="read")
+@parametrize(
+    cls=[
+        ComputeQuotaRead,
+        ComputeQuotaReadExtended,
+        ComputeQuotaReadPublic,
+        ComputeQuotaReadExtendedPublic,
+    ],
+)
+def case_compute_quota_valid_read_schema_tuple(
+    cls: Union[
+        ComputeQuotaRead,
+        ComputeQuotaReadPublic,
+        ComputeQuotaReadExtended,
+        ComputeQuotaReadExtendedPublic,
+    ],
+    db_compute_quota: ComputeQuota,
 ) -> Tuple[
     Union[
         ComputeQuotaRead,
@@ -128,4 +127,11 @@ def compute_quota_valid_read_schema_tuple(
         read=ComputeQuotaRead,
         read_extended=ComputeQuotaReadExtended,
     )
-    return compute_quota_read_class, validator, db_compute_quota
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_compute_quota, is_public, is_extended

@@ -1,7 +1,7 @@
-"""NetworkService specific fixtures."""
+"""NetworkService specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import (
     NetworkServiceCreateExtended,
@@ -25,23 +25,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        NetworkServiceRead,
-        NetworkServiceReadExtended,
-        NetworkServiceReadPublic,
-        NetworkServiceReadExtendedPublic,
-    ],
-)
-def network_service_read_class(cls) -> Any:
-    """NetworkService Read schema."""
-    return cls
-
-
-@fixture
-def network_service_create_valid_schema_actors(
-    network_service_create_valid_data,
+@case(tags="create_valid")
+def case_network_service_create_valid_schema_actors(
+    network_service_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[NetworkServiceCreateExtended],
     CreateSchemaValidation[
@@ -64,17 +50,17 @@ def network_service_create_valid_schema_actors(
     return NetworkServiceCreateExtended, validator, network_service_create_valid_data
 
 
-@fixture
-def network_service_create_invalid_schema_actors(
-    network_service_create_invalid_data,
+@case(tags="create_invalid")
+def case_network_service_create_invalid_schema_actors(
+    network_service_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[NetworkServiceCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return NetworkServiceCreateExtended, network_service_create_invalid_data
 
 
-@fixture
-def network_service_patch_valid_schema_actors(
-    network_service_patch_valid_data,
+@case(tags="patch_valid")
+def case_network_service_patch_valid_schema_actors(
+    network_service_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[NetworkServiceUpdate],
     PatchSchemaValidation[NetworkServiceBase, ServiceBase],
@@ -87,17 +73,31 @@ def network_service_patch_valid_schema_actors(
     return NetworkServiceUpdate, validator, network_service_patch_valid_data
 
 
-@fixture
-def network_service_patch_invalid_schema_actors(
-    network_service_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_network_service_patch_invalid_schema_actors(
+    network_service_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[NetworkServiceUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return NetworkServiceUpdate, network_service_patch_invalid_data
 
 
-@fixture
-def network_service_valid_read_schema_tuple(
-    network_service_read_class, db_network_service
+@case(tags="read")
+@parametrize(
+    cls=[
+        NetworkServiceRead,
+        NetworkServiceReadExtended,
+        NetworkServiceReadPublic,
+        NetworkServiceReadExtendedPublic,
+    ],
+)
+def case_network_service_valid_read_schema_tuple(
+    cls: Union[
+        NetworkServiceRead,
+        NetworkServiceReadPublic,
+        NetworkServiceReadExtended,
+        NetworkServiceReadExtendedPublic,
+    ],
+    db_network_service: NetworkService,
 ) -> Tuple[
     Union[
         NetworkServiceRead,
@@ -131,4 +131,11 @@ def network_service_valid_read_schema_tuple(
         read=NetworkServiceRead,
         read_extended=NetworkServiceReadExtended,
     )
-    return network_service_read_class, validator, db_network_service
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_network_service, is_public, is_extended

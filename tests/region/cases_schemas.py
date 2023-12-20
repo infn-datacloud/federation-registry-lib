@@ -1,7 +1,7 @@
-"""Region specific fixtures."""
+"""Region specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import (
     RegionCreateExtended,
@@ -22,18 +22,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[RegionRead, RegionReadExtended, RegionReadPublic, RegionReadExtendedPublic]
-)
-def region_read_class(cls) -> Any:
-    """Region Read schema."""
-    return cls
-
-
-@fixture
-def region_create_valid_schema_actors(
-    region_create_valid_data,
+@case(tags="create_valid")
+def case_region_create_valid_schema_actors(
+    region_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[RegionCreateExtended],
     CreateSchemaValidation[RegionBase, RegionBasePublic, RegionCreateExtended],
@@ -46,17 +37,17 @@ def region_create_valid_schema_actors(
     return RegionCreateExtended, validator, region_create_valid_data
 
 
-@fixture
-def region_create_invalid_schema_actors(
-    region_create_invalid_data,
+@case(tags="create_invalid")
+def case_region_create_invalid_schema_actors(
+    region_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[RegionCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return RegionCreateExtended, region_create_invalid_data
 
 
-@fixture
-def region_patch_valid_schema_actors(
-    region_patch_valid_data,
+@case(tags="patch_valid")
+def case_region_patch_valid_schema_actors(
+    region_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[RegionUpdate],
     PatchSchemaValidation[RegionBase, RegionBasePublic],
@@ -69,17 +60,23 @@ def region_patch_valid_schema_actors(
     return RegionUpdate, validator, region_patch_valid_data
 
 
-@fixture
-def region_patch_invalid_schema_actors(
-    region_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_region_patch_invalid_schema_actors(
+    region_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[RegionUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return RegionUpdate, region_patch_invalid_data
 
 
-@fixture
-def region_valid_read_schema_tuple(
-    region_read_class, db_region
+@case(tags="read")
+@parametrize(
+    cls=[RegionRead, RegionReadPublic, RegionReadExtended, RegionReadExtendedPublic]
+)
+def case_region_valid_read_schema_tuple(
+    cls: Union[
+        RegionRead, RegionReadPublic, RegionReadExtended, RegionReadExtendedPublic
+    ],
+    db_region: Region,
 ) -> Tuple[
     Union[RegionRead, RegionReadPublic, RegionReadExtended, RegionReadExtendedPublic],
     ReadSchemaValidation[
@@ -108,4 +105,11 @@ def region_valid_read_schema_tuple(
         read=RegionRead,
         read_extended=RegionReadExtended,
     )
-    return region_read_class, validator, db_region
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_region, is_public, is_extended

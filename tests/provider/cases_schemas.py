@@ -1,7 +1,7 @@
-"""Provider specific fixtures."""
+"""Provider specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.models import Provider
 from app.provider.schemas import (
@@ -23,30 +23,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        ProviderRead,
-        ProviderReadExtended,
-        ProviderReadPublic,
-        ProviderReadExtendedPublic,
-    ]
-)
-def provider_read_class(
-    cls,
-) -> Union[
-    ProviderRead,
-    ProviderReadPublic,
-    ProviderReadExtended,
-    ProviderReadExtendedPublic,
-]:
-    """Provider Read schema."""
-    return cls
-
-
-@fixture
-def provider_create_valid_schema_actors(
-    provider_create_valid_data,
+@case(tags="create_valid")
+def case_provider_create_valid_schema_actors(
+    provider_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[ProviderCreateExtended],
     CreateSchemaValidation[ProviderBase, ProviderBasePublic, ProviderCreateExtended],
@@ -59,17 +38,17 @@ def provider_create_valid_schema_actors(
     return ProviderCreateExtended, validator, provider_create_valid_data
 
 
-@fixture
-def provider_create_invalid_schema_actors(
-    provider_create_invalid_data,
+@case(tags="create_invalid")
+def case_provider_create_invalid_schema_actors(
+    provider_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[ProviderCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return ProviderCreateExtended, provider_create_invalid_data
 
 
-@fixture
-def provider_patch_valid_schema_actors(
-    provider_patch_valid_data,
+@case(tags="patch_valid")
+def case_provider_patch_valid_schema_actors(
+    provider_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[ProviderUpdate],
     PatchSchemaValidation[ProviderBase, ProviderBasePublic],
@@ -82,17 +61,31 @@ def provider_patch_valid_schema_actors(
     return ProviderUpdate, validator, provider_patch_valid_data
 
 
-@fixture
-def provider_patch_invalid_schema_actors(
-    provider_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_provider_patch_invalid_schema_actors(
+    provider_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[ProviderUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return ProviderUpdate, provider_patch_invalid_data
 
 
-@fixture
-def provider_valid_read_schema_tuple(
-    provider_read_class, db_provider
+@case(tags="read")
+@parametrize(
+    cls=[
+        ProviderRead,
+        ProviderReadExtended,
+        ProviderReadPublic,
+        ProviderReadExtendedPublic,
+    ]
+)
+def case_provider_valid_read_schema_tuple(
+    cls: Union[
+        ProviderRead,
+        ProviderReadPublic,
+        ProviderReadExtended,
+        ProviderReadExtendedPublic,
+    ],
+    db_provider: Provider,
 ) -> Tuple[
     Union[
         ProviderRead,
@@ -110,6 +103,8 @@ def provider_valid_read_schema_tuple(
         Provider,
     ],
     Provider,
+    bool,
+    bool,
 ]:
     """Fixture with the read class, validator and the db item to read."""
     validator = ReadSchemaValidation[
@@ -126,4 +121,11 @@ def provider_valid_read_schema_tuple(
         read=ProviderRead,
         read_extended=ProviderReadExtended,
     )
-    return provider_read_class, validator, db_provider
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_provider, is_public, is_extended

@@ -1,7 +1,7 @@
-"""Flavor specific fixtures."""
+"""Flavor specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.flavor.models import Flavor
 from app.flavor.schemas import (
@@ -20,18 +20,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[FlavorRead, FlavorReadExtended, FlavorReadPublic, FlavorReadExtendedPublic]
-)
-def flavor_read_class(cls) -> Any:
-    """Flavor Read schema."""
-    return cls
-
-
-@fixture
-def flavor_create_valid_schema_actors(
-    flavor_create_valid_data,
+@case(tags="create_valid")
+def case_flavor_create_valid_schema_actors(
+    flavor_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[FlavorCreateExtended],
     CreateSchemaValidation[FlavorBase, FlavorBasePublic, FlavorCreateExtended],
@@ -44,17 +35,17 @@ def flavor_create_valid_schema_actors(
     return FlavorCreateExtended, validator, flavor_create_valid_data
 
 
-@fixture
-def flavor_create_invalid_schema_actors(
-    flavor_create_invalid_data,
+@case(tags="create_invalid")
+def case_flavor_create_invalid_schema_actors(
+    flavor_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[FlavorCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return FlavorCreateExtended, flavor_create_invalid_data
 
 
-@fixture
-def flavor_patch_valid_schema_actors(
-    flavor_patch_valid_data,
+@case(tags="patch_valid")
+def case_flavor_patch_valid_schema_actors(
+    flavor_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[FlavorUpdate],
     PatchSchemaValidation[FlavorBase, FlavorBasePublic],
@@ -67,17 +58,21 @@ def flavor_patch_valid_schema_actors(
     return FlavorUpdate, validator, flavor_patch_valid_data
 
 
-@fixture
-def flavor_patch_invalid_schema_actors(
-    flavor_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_flavor_patch_invalid_schema_actors(
+    flavor_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[FlavorUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return FlavorUpdate, flavor_patch_invalid_data
 
 
-@fixture
-def flavor_valid_read_schema_tuple(
-    flavor_read_class, db_flavor
+@case(tags="read")
+@parametrize(
+    cls=[FlavorRead, FlavorReadExtended, FlavorReadPublic, FlavorReadExtendedPublic],
+)
+def case_flavor_valid_read_schema_tuple(
+    cls: [FlavorRead, FlavorReadExtended, FlavorReadPublic, FlavorReadExtendedPublic],
+    db_flavor: Flavor,
 ) -> Tuple[
     Union[FlavorRead, FlavorReadPublic, FlavorReadExtended, FlavorReadExtendedPublic],
     ReadSchemaValidation[
@@ -90,6 +85,8 @@ def flavor_valid_read_schema_tuple(
         Flavor,
     ],
     Flavor,
+    bool,
+    bool,
 ]:
     """Fixture with the read class, validator and the db item to read."""
     validator = ReadSchemaValidation[
@@ -106,4 +103,11 @@ def flavor_valid_read_schema_tuple(
         read=FlavorRead,
         read_extended=FlavorReadExtended,
     )
-    return flavor_read_class, validator, db_flavor
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_flavor, is_public, is_extended

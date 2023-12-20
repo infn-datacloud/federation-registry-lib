@@ -1,7 +1,7 @@
-"""SLA specific fixtures."""
+"""SLA specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import SLACreateExtended
 from app.sla.models import SLA
@@ -20,16 +20,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(cls=[SLARead, SLAReadExtended, SLAReadPublic, SLAReadExtendedPublic])
-def sla_read_class(cls) -> Any:
-    """SLA Read schema."""
-    return cls
-
-
-@fixture
-def sla_create_valid_schema_actors(
-    sla_create_valid_data,
+@case(tags="create_valid")
+def case_sla_create_valid_schema_actors(
+    sla_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[SLACreateExtended],
     CreateSchemaValidation[SLABase, SLABasePublic, SLACreateExtended],
@@ -42,17 +35,17 @@ def sla_create_valid_schema_actors(
     return SLACreateExtended, validator, sla_create_valid_data
 
 
-@fixture
-def sla_create_invalid_schema_actors(
-    sla_create_invalid_data,
+@case(tags="create_invalid")
+def case_sla_create_invalid_schema_actors(
+    sla_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[SLACreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return SLACreateExtended, sla_create_invalid_data
 
 
-@fixture
-def sla_patch_valid_schema_actors(
-    sla_patch_valid_data,
+@case(tags="patch_valid")
+def case_sla_patch_valid_schema_actors(
+    sla_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[SLAUpdate],
     PatchSchemaValidation[SLABase, SLABasePublic],
@@ -65,17 +58,19 @@ def sla_patch_valid_schema_actors(
     return SLAUpdate, validator, sla_patch_valid_data
 
 
-@fixture
-def sla_patch_invalid_schema_actors(
-    sla_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_sla_patch_invalid_schema_actors(
+    sla_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[SLAUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return SLAUpdate, sla_patch_invalid_data
 
 
-@fixture
-def sla_valid_read_schema_tuple(
-    sla_read_class, db_sla
+@case(tags="read")
+@parametrize(cls=[SLARead, SLAReadExtended, SLAReadPublic, SLAReadExtendedPublic])
+def case_sla_valid_read_schema_tuple(
+    cls: Union[SLARead, SLAReadPublic, SLAReadExtended, SLAReadExtendedPublic],
+    db_sla: SLA,
 ) -> Tuple[
     Union[SLARead, SLAReadPublic, SLAReadExtended, SLAReadExtendedPublic],
     ReadSchemaValidation[
@@ -104,4 +99,11 @@ def sla_valid_read_schema_tuple(
         read=SLARead,
         read_extended=SLAReadExtended,
     )
-    return sla_read_class, validator, db_sla
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_sla, is_public, is_extended

@@ -1,7 +1,7 @@
-"""ComputeService specific fixtures."""
+"""ComputeService specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import (
     ComputeServiceCreateExtended,
@@ -25,23 +25,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        ComputeServiceRead,
-        ComputeServiceReadExtended,
-        ComputeServiceReadPublic,
-        ComputeServiceReadExtendedPublic,
-    ],
-)
-def compute_service_read_class(cls) -> Any:
-    """ComputeService Read schema."""
-    return cls
-
-
-@fixture
-def compute_service_create_valid_schema_actors(
-    compute_service_create_valid_data,
+@case(tags="create_valid")
+def case_compute_service_create_valid_schema_actors(
+    compute_service_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[ComputeServiceCreateExtended],
     CreateSchemaValidation[
@@ -64,17 +50,17 @@ def compute_service_create_valid_schema_actors(
     return (ComputeServiceCreateExtended, validator, compute_service_create_valid_data)
 
 
-@fixture
-def compute_service_create_invalid_schema_actors(
-    compute_service_create_invalid_data,
+@case(tags="create_invalid")
+def case_compute_service_create_invalid_schema_actors(
+    compute_service_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[ComputeServiceCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return ComputeServiceCreateExtended, compute_service_create_invalid_data
 
 
-@fixture
-def compute_service_patch_valid_schema_actors(
-    compute_service_patch_valid_data,
+@case(tags="patch_valid")
+def case_compute_service_patch_valid_schema_actors(
+    compute_service_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[ComputeServiceUpdate],
     PatchSchemaValidation[ComputeServiceBase, ServiceBase],
@@ -87,17 +73,31 @@ def compute_service_patch_valid_schema_actors(
     return ComputeServiceUpdate, validator, compute_service_patch_valid_data
 
 
-@fixture
-def compute_service_patch_invalid_schema_actors(
-    compute_service_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_compute_service_patch_invalid_schema_actors(
+    compute_service_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[ComputeServiceUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return ComputeServiceUpdate, compute_service_patch_invalid_data
 
 
-@fixture
-def compute_service_valid_read_schema_tuple(
-    compute_service_read_class, db_compute_service
+@case(tags="read")
+@parametrize(
+    cls=[
+        ComputeServiceRead,
+        ComputeServiceReadExtended,
+        ComputeServiceReadPublic,
+        ComputeServiceReadExtendedPublic,
+    ],
+)
+def case_compute_service_valid_read_schema_tuple(
+    cls: Union[
+        ComputeServiceRead,
+        ComputeServiceReadPublic,
+        ComputeServiceReadExtended,
+        ComputeServiceReadExtendedPublic,
+    ],
+    db_compute_service: ComputeService,
 ) -> Tuple[
     Union[
         ComputeServiceRead,
@@ -131,4 +131,11 @@ def compute_service_valid_read_schema_tuple(
         read=ComputeServiceRead,
         read_extended=ComputeServiceReadExtended,
     )
-    return compute_service_read_class, validator, db_compute_service
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_compute_service, is_public, is_extended

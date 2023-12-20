@@ -1,7 +1,7 @@
-"""BlockStorageQuota specific fixtures."""
+"""BlockStorageQuota specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
@@ -25,23 +25,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        BlockStorageQuotaRead,
-        BlockStorageQuotaReadExtended,
-        BlockStorageQuotaReadPublic,
-        BlockStorageQuotaReadExtendedPublic,
-    ],
-)
-def block_storage_quota_read_class(cls) -> Any:
-    """BlockStorageQuota Read schema."""
-    return cls
-
-
-@fixture
-def block_storage_quota_create_valid_schema_actors(
-    block_storage_quota_create_valid_data,
+@case(tags="create_valid")
+def case_block_storage_quota_create_valid_schema_actors(
+    block_storage_quota_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[BlockStorageQuotaCreateExtended],
     CreateSchemaValidation[
@@ -66,17 +52,17 @@ def block_storage_quota_create_valid_schema_actors(
     )
 
 
-@fixture
-def block_storage_quota_create_invalid_schema_actors(
-    block_storage_quota_create_invalid_data,
+@case(tags="create_invalid")
+def case_block_storage_quota_create_invalid_schema_actors(
+    block_storage_quota_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[BlockStorageQuotaCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return BlockStorageQuotaCreateExtended, block_storage_quota_create_invalid_data
 
 
-@fixture
-def block_storage_quota_patch_valid_schema_actors(
-    block_storage_quota_patch_valid_data,
+@case(tags="patch_valid")
+def case_block_storage_quota_patch_valid_schema_actors(
+    block_storage_quota_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[BlockStorageQuotaUpdate],
     PatchSchemaValidation[BlockStorageQuotaBase, QuotaBase],
@@ -89,18 +75,31 @@ def block_storage_quota_patch_valid_schema_actors(
     return BlockStorageQuotaUpdate, validator, block_storage_quota_patch_valid_data
 
 
-@fixture
-def block_storage_quota_patch_invalid_schema_actors(
-    block_storage_quota_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_block_storage_quota_patch_invalid_schema_actors(
+    block_storage_quota_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[BlockStorageQuotaUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return BlockStorageQuotaUpdate, block_storage_quota_patch_invalid_data
 
 
-@fixture
-def block_storage_quota_valid_read_schema_tuple(
-    block_storage_quota_read_class,
-    db_block_storage_quota,
+@case(tags="read")
+@parametrize(
+    cls=[
+        BlockStorageQuotaRead,
+        BlockStorageQuotaReadExtended,
+        BlockStorageQuotaReadPublic,
+        BlockStorageQuotaReadExtendedPublic,
+    ],
+)
+def case_block_storage_quota_valid_read_schema_tuple(
+    cls: Union[
+        BlockStorageQuotaRead,
+        BlockStorageQuotaReadPublic,
+        BlockStorageQuotaReadExtended,
+        BlockStorageQuotaReadExtendedPublic,
+    ],
+    db_block_storage_quota: BlockStorageQuota,
 ) -> Tuple[
     Union[
         BlockStorageQuotaRead,
@@ -118,6 +117,8 @@ def block_storage_quota_valid_read_schema_tuple(
         BlockStorageQuota,
     ],
     BlockStorageQuota,
+    bool,
+    bool,
 ]:
     """Fixture with the read class, validator and the db item to read."""
     validator = ReadSchemaValidation[
@@ -134,4 +135,11 @@ def block_storage_quota_valid_read_schema_tuple(
         read=BlockStorageQuotaRead,
         read_extended=BlockStorageQuotaReadExtended,
     )
-    return block_storage_quota_read_class, validator, db_block_storage_quota
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_block_storage_quota, is_public, is_extended

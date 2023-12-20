@@ -1,7 +1,7 @@
-"""UserGroup specific fixtures."""
+"""UserGroup specific cases."""
 from typing import Any, Dict, Tuple, Type, Union
 
-from pytest_cases import fixture, parametrize
+from pytest_cases import case, parametrize
 
 from app.provider.schemas_extended import UserGroupCreateExtended
 from app.user_group.models import UserGroup
@@ -23,23 +23,9 @@ from tests.common.schemas.validators import (
 )
 
 
-@fixture
-@parametrize(
-    cls=[
-        UserGroupRead,
-        UserGroupReadExtended,
-        UserGroupReadPublic,
-        UserGroupReadExtendedPublic,
-    ]
-)
-def user_group_read_class(cls) -> Any:
-    """UserGroup Read schema."""
-    return cls
-
-
-@fixture
-def user_group_create_valid_schema_actors(
-    user_group_create_valid_data,
+@case(tags="create_valid")
+def case_user_group_create_valid_schema_actors(
+    user_group_create_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[UserGroupCreateExtended],
     CreateSchemaValidation[UserGroupBase, UserGroupBasePublic, UserGroupCreateExtended],
@@ -56,17 +42,17 @@ def user_group_create_valid_schema_actors(
     return UserGroupCreateExtended, validator, user_group_create_valid_data
 
 
-@fixture
-def user_group_create_invalid_schema_actors(
-    user_group_create_invalid_data,
+@case(tags="create_invalid")
+def case_user_group_create_invalid_schema_actors(
+    user_group_create_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[UserGroupCreateExtended], Dict[str, Any]]:
     """Fixture with the create class and the invalid data to validate."""
     return UserGroupCreateExtended, user_group_create_invalid_data
 
 
-@fixture
-def user_group_patch_valid_schema_actors(
-    user_group_patch_valid_data,
+@case(tags="patch_valid")
+def case_user_group_patch_valid_schema_actors(
+    user_group_patch_valid_data: Dict[str, Any],
 ) -> Tuple[
     Type[UserGroupUpdate],
     PatchSchemaValidation[UserGroupBase, UserGroupBasePublic],
@@ -79,17 +65,31 @@ def user_group_patch_valid_schema_actors(
     return UserGroupUpdate, validator, user_group_patch_valid_data
 
 
-@fixture
-def user_group_patch_invalid_schema_actors(
-    user_group_patch_invalid_data,
+@case(tags="patch_invalid")
+def case_user_group_patch_invalid_schema_actors(
+    user_group_patch_invalid_data: Dict[str, Any],
 ) -> Tuple[Type[UserGroupUpdate], Dict[str, Any]]:
     """Fixture with the update class and the invalid data to validate."""
     return UserGroupUpdate, user_group_patch_invalid_data
 
 
-@fixture
-def user_group_valid_read_schema_tuple(
-    user_group_read_class, db_user_group
+@case(tags="read")
+@parametrize(
+    cls=[
+        UserGroupRead,
+        UserGroupReadPublic,
+        UserGroupReadExtended,
+        UserGroupReadExtendedPublic,
+    ]
+)
+def case_user_group_valid_read_schema_tuple(
+    cls: Union[
+        UserGroupRead,
+        UserGroupReadPublic,
+        UserGroupReadExtended,
+        UserGroupReadExtendedPublic,
+    ],
+    db_user_group: UserGroup,
 ) -> Tuple[
     Union[
         UserGroupRead,
@@ -123,4 +123,11 @@ def user_group_valid_read_schema_tuple(
         read=UserGroupRead,
         read_extended=UserGroupReadExtended,
     )
-    return user_group_read_class, validator, db_user_group
+    cls_name = cls.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return cls, validator, db_user_group, is_public, is_extended
