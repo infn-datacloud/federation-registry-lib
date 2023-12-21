@@ -10,7 +10,7 @@ CASES = [
     # "tests.flavor.cases_crud",
     # "tests.identity_provider.cases_crud",
     # "tests.image.cases_crud",
-    # "tests.location.cases_crud",
+    "tests.location.cases_crud",
     # "tests.network.cases_crud",
     # "tests.project.cases_crud",
     "tests.provider.cases_crud",
@@ -36,9 +36,11 @@ class TestCRUD:
     """
 
     @parametrize_with_cases(
-        "manager, validator, schema, kwargs", cases=CASES, has_tag="create_item"
+        "manager, validator, schema, kwargs, exclude",
+        cases=CASES,
+        has_tag="create_item",
     )
-    def test_create(self, manager, validator, schema, kwargs) -> None:
+    def test_create(self, manager, validator, schema, kwargs, exclude) -> None:
         """Test create operation.
 
         From a CreateSchema execute the create operation and validate the attributes of
@@ -46,7 +48,7 @@ class TestCRUD:
         """
         db_item = manager.create(obj_in=schema, **kwargs)
         validator.validate_db_item_attrs(
-            db_item=db_item, schema=schema, exclude_attrs=list(kwargs.keys())
+            db_item=db_item, schema=schema, exclude_attrs=exclude
         )
 
     @parametrize_with_cases("manager", cases=CASES, has_tag="not_existing")
@@ -101,11 +103,21 @@ class TestCRUD:
 
         sorted_retrieved_items = retrieved_items
         if attr.startswith("-"):
-            sorted_db_items = sorted(
-                db_items, key=lambda x: x.__getattribute__(attr[1:]), reverse=True
-            )
+            key = attr[1:]
+            reverse = True
         else:
-            sorted_db_items = sorted(db_items, key=lambda x: x.__getattribute__(attr))
+            key = attr
+            reverse = False
+
+        sorted_db_items = sorted(
+            db_items,
+            key=lambda x: (
+                x.__getattribute__(key) is None,
+                x.__getattribute__(key),
+                x.uid,
+            ),
+            reverse=reverse,
+        )
         assert len(sorted_db_items) == len(sorted_retrieved_items)
 
         for db_item, retrieved_item in zip(sorted_db_items, sorted_retrieved_items):

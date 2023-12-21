@@ -7,7 +7,10 @@ from app.provider.models import Provider
 from app.provider.schemas_extended import LocationCreate, RegionCreateExtended
 from app.region.crud import region_mng
 from app.region.models import Region
-from tests.location.utils import random_location_required_attr
+from tests.location.utils import (
+    random_location_all_no_default_attr,
+    random_location_required_attr,
+)
 from tests.region.utils import random_region_required_attr
 
 
@@ -16,6 +19,13 @@ def db_location_simple(db_region_simple: Region) -> Location:
     """Fixture with standard DB Location."""
     item = random_location_required_attr()
     return location_mng.create(obj_in=LocationCreate(**item), region=db_region_simple)
+
+
+@fixture
+def db_location_no_defaults(db_region_simple: Region) -> Location:
+    """Fixture with standard DB Provider."""
+    item = LocationCreate(**random_location_all_no_default_attr())
+    return location_mng.create(obj_in=item, region=db_region_simple)
 
 
 @fixture

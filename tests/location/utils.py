@@ -22,6 +22,11 @@ def random_location_all_attr() -> Dict[str, Any]:
     }
 
 
+def random_location_all_no_default_attr() -> Dict[str, Any]:
+    """Dict with Region no default values."""
+    return random_location_all_attr()
+
+
 def random_country() -> str:
     """Return random country."""
     return choice([i.name for i in countries])
