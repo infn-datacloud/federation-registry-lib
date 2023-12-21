@@ -96,10 +96,16 @@ class CRUDBase(
         -------
             List[ModelType].
         """
+        sorting = []
+        if sort:
+            sorting = [sort, "uid"]
+            if sort.startswith("-"):
+                sorting = [sort, "-uid"]
+
         if kwargs:
-            items = self.model.nodes.filter(**kwargs).order_by(sort).all()
+            items = self.model.nodes.filter(**kwargs).order_by(*sorting).all()
         else:
-            items = self.model.nodes.order_by(sort).all()
+            items = self.model.nodes.order_by(*sorting).all()
 
         return self.__apply_limit_and_skip(items=items, skip=skip, limit=limit)
 
