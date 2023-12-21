@@ -30,7 +30,7 @@ def db_region_simple(db_provider_simple: Provider) -> Region:
 
 
 @fixture
-def db_region_no_defaults(db_provider_simple: Provider) -> Provider:
+def db_region_no_defaults(db_provider_simple: Provider) -> Region:
     """Fixture with standard DB Provider."""
     item = RegionCreateExtended(**random_region_all_no_default_attr())
     return region_mng.create(obj_in=item, provider=db_provider_simple)

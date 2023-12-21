@@ -1,6 +1,6 @@
 """Region specific fixtures."""
 import copy
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from pytest_cases import case, parametrize
 
@@ -60,6 +60,7 @@ def case_region_create_item_actors(
     ],
     RegionCreateExtended,
     Dict[str, Any],
+    List[str],
 ]:
     """Fixture with the create class, validator and data to validate."""
     validator = CreateOperationValidation[
@@ -70,6 +71,7 @@ def case_region_create_item_actors(
         validator,
         RegionCreateExtended(**region_create_valid_data),
         {"provider": db_provider_simple},
+        ["provider"],
     )
 
 
@@ -93,7 +95,7 @@ def case_region_read_item_actors(
 @case(tags=["region", "read_multi"])
 @parametrize(attr=region_get_attr)
 def case_region_read_items_actors(
-    db_region_simple: Region, db_region_with_single_project: Region, attr: str
+    db_region_simple: Region, db_region_no_defaults: Region, attr: str
 ) -> Tuple[
     CRUDRegion,
     ReadOperationValidation[RegionBase, RegionBasePublic, Region],
@@ -107,7 +109,7 @@ def case_region_read_items_actors(
     return (
         region_mng,
         validator,
-        [db_region_simple, db_region_with_single_project],
+        [db_region_no_defaults, db_region_simple],
         attr,
     )
 
@@ -117,7 +119,7 @@ def case_region_read_items_actors(
 @parametrize(attr=region_sort_attr)
 def case_region_read_items_sort(
     db_region_simple: Region,
-    db_region_with_single_project: Region,
+    db_region_no_defaults: Region,
     reverse: bool,
     attr: str,
 ) -> Tuple[
@@ -135,7 +137,7 @@ def case_region_read_items_sort(
     return (
         region_mng,
         validator,
-        [db_region_simple, db_region_with_single_project],
+        [db_region_no_defaults, db_region_simple],
         attr,
     )
 
@@ -143,7 +145,7 @@ def case_region_read_items_sort(
 @case(tags=["region", "skip"])
 @parametrize(skip=[0, 1, 2])
 def case_region_read_items_skip(
-    db_region_simple: Region, db_region_with_single_project: Region, skip: int
+    db_region_simple: Region, db_region_no_defaults: Region, skip: int
 ) -> Tuple[
     CRUDRegion,
     ReadOperationValidation[RegionBase, RegionBasePublic, Region],
@@ -157,7 +159,7 @@ def case_region_read_items_skip(
     return (
         region_mng,
         validator,
-        [db_region_simple, db_region_with_single_project],
+        [db_region_no_defaults, db_region_simple],
         skip,
     )
 
@@ -166,7 +168,7 @@ def case_region_read_items_skip(
 @parametrize(limit=[None, 0, 1, 2, 3])
 def case_region_read_items_limit(
     db_region_simple: Region,
-    db_region_with_single_project: Region,
+    db_region_no_defaults: Region,
     limit: Optional[int],
 ) -> Tuple[
     CRUDRegion,
@@ -181,7 +183,7 @@ def case_region_read_items_limit(
     return (
         region_mng,
         validator,
-        [db_region_simple, db_region_with_single_project],
+        [db_region_no_defaults, db_region_simple],
         limit,
     )
 

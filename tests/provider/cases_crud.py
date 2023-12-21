@@ -1,6 +1,6 @@
 """Provider specific fixtures."""
 import copy
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from pytest_cases import case, parametrize
 
@@ -53,6 +53,7 @@ def case_provider_create_item_actors(
     ],
     ProviderCreateExtended,
     Dict[str, Any],
+    List[str],
 ]:
     """Fixture with the create class, validator and data to validate."""
     validator = CreateOperationValidation[
@@ -63,13 +64,14 @@ def case_provider_create_item_actors(
         validator,
         ProviderCreateExtended(**provider_create_valid_data),
         {},
+        [],
     )
 
 
 @case(tags=["provider", "read_single"])
 @parametrize(attr=provider_get_attr)
 def case_provider_read_item_actors(
-    db_provider_simple: Provider, attr: str
+    db_provider_no_defaults: Provider, attr: str
 ) -> Tuple[
     CRUDProvider,
     ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider],
@@ -80,13 +82,13 @@ def case_provider_read_item_actors(
     validator = ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider](
         base=ProviderBase, base_public=ProviderBasePublic
     )
-    return provider_mng, validator, db_provider_simple, attr
+    return provider_mng, validator, db_provider_no_defaults, attr
 
 
 @case(tags=["provider", "read_multi"])
 @parametrize(attr=provider_get_attr)
 def case_provider_read_items_actors(
-    db_provider_simple: Provider, db_provider_with_single_project: Provider, attr: str
+    db_provider_simple: Provider, db_provider_no_defaults: Provider, attr: str
 ) -> Tuple[
     CRUDProvider,
     ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider],
@@ -100,7 +102,7 @@ def case_provider_read_items_actors(
     return (
         provider_mng,
         validator,
-        [db_provider_simple, db_provider_with_single_project],
+        [db_provider_no_defaults, db_provider_simple],
         attr,
     )
 
@@ -110,7 +112,7 @@ def case_provider_read_items_actors(
 @parametrize(attr=provider_sort_attr)
 def case_provider_read_items_sort(
     db_provider_simple: Provider,
-    db_provider_with_single_project: Provider,
+    db_provider_no_defaults: Provider,
     reverse: bool,
     attr: str,
 ) -> Tuple[
@@ -128,7 +130,7 @@ def case_provider_read_items_sort(
     return (
         provider_mng,
         validator,
-        [db_provider_simple, db_provider_with_single_project],
+        [db_provider_no_defaults, db_provider_simple],
         attr,
     )
 
@@ -136,7 +138,7 @@ def case_provider_read_items_sort(
 @case(tags=["provider", "skip"])
 @parametrize(skip=[0, 1, 2])
 def case_provider_read_items_skip(
-    db_provider_simple: Provider, db_provider_with_single_project: Provider, skip: int
+    db_provider_simple: Provider, db_provider_no_defaults: Provider, skip: int
 ) -> Tuple[
     CRUDProvider,
     ReadOperationValidation[ProviderBase, ProviderBasePublic, Provider],
@@ -150,7 +152,7 @@ def case_provider_read_items_skip(
     return (
         provider_mng,
         validator,
-        [db_provider_simple, db_provider_with_single_project],
+        [db_provider_no_defaults, db_provider_simple],
         skip,
     )
 
@@ -159,7 +161,7 @@ def case_provider_read_items_skip(
 @parametrize(limit=[None, 0, 1, 2, 3])
 def case_provider_read_items_limit(
     db_provider_simple: Provider,
-    db_provider_with_single_project: Provider,
+    db_provider_no_defaults: Provider,
     limit: Optional[int],
 ) -> Tuple[
     CRUDProvider,
@@ -174,7 +176,7 @@ def case_provider_read_items_limit(
     return (
         provider_mng,
         validator,
-        [db_provider_simple, db_provider_with_single_project],
+        [db_provider_no_defaults, db_provider_simple],
         limit,
     )
 
