@@ -5,8 +5,8 @@ from typing import Any, Dict, Optional, Tuple
 from pytest_cases import case, parametrize
 
 from app.location.crud import location_mng
-from app.provider.crud import provider_mng
-from app.provider.schemas_extended import ProviderCreateExtended, RegionCreateExtended
+from app.provider.models import Provider
+from app.provider.schemas_extended import RegionCreateExtended
 from app.region.crud import CRUDRegion, region_mng
 from app.region.models import Region
 from app.region.schemas import RegionBase, RegionBasePublic, RegionUpdate
@@ -28,7 +28,6 @@ from tests.identity_provider.utils import (
     random_identity_provider_required_rel,
 )
 from tests.project.utils import random_project_required_attr
-from tests.provider.utils import random_provider_required_attr
 from tests.region.utils import random_region_required_attr
 
 region_get_attr = [*RegionBase.__fields__.keys(), "uid", None]
@@ -48,7 +47,7 @@ def case_region_not_existing_actors() -> CRUDRegion:
 
 @case(tags=["region", "create_item"])
 def case_region_create_item_actors(
-    region_create_valid_data: Dict[str, Any],
+    region_create_valid_data: Dict[str, Any], db_provider_simple: Provider
 ) -> Tuple[
     CRUDRegion,
     CreateOperationValidation[
@@ -61,14 +60,11 @@ def case_region_create_item_actors(
     validator = CreateOperationValidation[
         RegionBase, RegionBasePublic, RegionCreateExtended, Region
     ](base=RegionBase, base_public=RegionBasePublic, create=RegionCreateExtended)
-    db_provider = provider_mng.create(
-        obj_in=ProviderCreateExtended(**random_provider_required_attr())
-    )
     return (
         region_mng,
         validator,
         RegionCreateExtended(**region_create_valid_data),
-        {"provider": db_provider},
+        {"provider": db_provider_simple},
     )
 
 
@@ -287,7 +283,7 @@ def case_region_patch_item_no_changes_actors(
 
 @case(tags=["region", "force_update"])
 def case_region_force_update_unchanged_rel_actors(
-    region_create_with_rel: Dict[str, Any],
+    region_create_with_rel: Dict[str, Any], db_provider_simple: Provider
 ) -> Tuple[
     CRUDRegion,
     PatchOperationValidation[RegionBase, RegionBasePublic, Region],
@@ -298,12 +294,9 @@ def case_region_force_update_unchanged_rel_actors(
     validator = PatchOperationValidation[RegionBase, RegionBasePublic, Region](
         base=RegionBase, base_public=RegionBasePublic
     )
-    db_provider = provider_mng.create(
-        obj_in=ProviderCreateExtended(**random_provider_required_attr())
-    )
     db_item = region_mng.create(
         obj_in=RegionCreateExtended(**region_create_with_rel),
-        provider=db_provider,
+        provider=db_provider_simple,
     )
     for k, v in random_region_required_attr().items():
         region_create_with_rel[k] = v
@@ -320,6 +313,7 @@ def case_region_force_update_unchanged_rel_actors(
 def case_region_force_update_add_rel_actors(
     start_empty: bool,
     region_create_with_rel: Dict[str, Any],
+    db_provider_simple: Provider,
 ) -> Tuple[
     CRUDRegion,
     PatchOperationValidation[RegionBase, RegionBasePublic, Region],
@@ -355,11 +349,8 @@ def case_region_force_update_add_rel_actors(
             new_data["identity_providers"][-1]["user_groups"][0]["sla"][
                 "project"
             ] = new_data["projects"][-1]["uuid"]
-    db_provider = provider_mng.create(
-        obj_in=ProviderCreateExtended(**random_provider_required_attr())
-    )
     db_item = region_mng.create(
-        obj_in=RegionCreateExtended(**starting_data), provider=db_provider
+        obj_in=RegionCreateExtended(**starting_data), provider=db_provider_simple
     )
     return region_mng, validator, db_item, RegionCreateExtended(**new_data)
 
@@ -369,6 +360,7 @@ def case_region_force_update_add_rel_actors(
 def case_region_force_update_remove_rel_actors(
     end_empty: bool,
     region_create_with_rel: Dict[str, Any],
+    db_provider_simple: Provider,
 ) -> Tuple[
     CRUDRegion,
     PatchOperationValidation[RegionBase, RegionBasePublic, Region],
@@ -404,11 +396,8 @@ def case_region_force_update_remove_rel_actors(
                 "project"
             ] = starting_data["projects"][-1]["uuid"]
         new_data = copy.deepcopy(region_create_with_rel)
-    db_provider = provider_mng.create(
-        obj_in=ProviderCreateExtended(**random_provider_required_attr())
-    )
     db_item = region_mng.create(
-        obj_in=RegionCreateExtended(**starting_data), provider=db_provider
+        obj_in=RegionCreateExtended(**starting_data), provider=db_provider_simple
     )
     return region_mng, validator, db_item, RegionCreateExtended(**new_data)
 
@@ -418,6 +407,7 @@ def case_region_force_update_remove_rel_actors(
 def case_region_force_update_replace_rel_actors(
     replace_all: bool,
     region_create_with_rel: Dict[str, Any],
+    db_provider_simple: Provider,
 ) -> Tuple[
     CRUDRegion,
     PatchOperationValidation[RegionBase, RegionBasePublic, Region],
@@ -461,10 +451,7 @@ def case_region_force_update_replace_rel_actors(
         new_data["identity_providers"][-1]["user_groups"][0]["sla"][
             "project"
         ] = new_data["projects"][-1]["uuid"]
-    db_provider = provider_mng.create(
-        obj_in=ProviderCreateExtended(**random_provider_required_attr())
-    )
     db_item = region_mng.create(
-        obj_in=RegionCreateExtended(**starting_data), provider=db_provider
+        obj_in=RegionCreateExtended(**starting_data), provider=db_provider_simple
     )
     return region_mng, validator, db_item, RegionCreateExtended(**new_data)
