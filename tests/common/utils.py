@@ -3,8 +3,11 @@ import string
 import time
 from datetime import date, datetime, timezone
 from random import choices, getrandbits, randint, randrange
+from typing import Tuple, Type
 
 from pydantic import AnyHttpUrl
+
+from app.models import BaseNodeRead
 
 
 def random_lower_string() -> str:
@@ -79,3 +82,15 @@ def random_non_negative_float() -> float:
     0 included.
     """
     return float(random_non_negative_int())
+
+
+def detect_public_extended_details(read_class: Type[BaseNodeRead]) -> Tuple[bool, bool]:
+    """From class name detect if it public or not, extended or not."""
+    cls_name = read_class.__name__
+    is_public = False
+    is_extended = False
+    if "Public" in cls_name:
+        is_public = True
+    if "Extended" in cls_name:
+        is_extended = True
+    return is_public, is_extended

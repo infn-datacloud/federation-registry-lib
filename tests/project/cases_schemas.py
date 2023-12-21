@@ -18,6 +18,7 @@ from tests.common.schemas.validators import (
     PatchSchemaValidation,
     ReadSchemaValidation,
 )
+from tests.common.utils import detect_public_extended_details
 from tests.project.utils import ReadProjectValidation
 
 
@@ -100,11 +101,5 @@ def case_project_valid_read_schema_tuple(
         read=ProjectRead,
         read_extended=ProjectReadExtended,
     )
-    cls_name = cls.__name__
-    is_public = False
-    is_extended = False
-    if "Public" in cls_name:
-        is_public = True
-    if "Extended" in cls_name:
-        is_extended = True
+    is_public, is_extended = detect_public_extended_details(cls)
     return cls, validator, db_project, is_public, is_extended

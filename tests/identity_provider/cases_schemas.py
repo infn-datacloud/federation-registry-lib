@@ -23,6 +23,7 @@ from tests.common.schemas.validators import (
     PatchSchemaValidation,
     ReadSchemaValidation,
 )
+from tests.common.utils import detect_public_extended_details
 
 
 @case(tags="create_valid")
@@ -137,11 +138,5 @@ def case_identity_provider_valid_read_schema_tuple(
         read=IdentityProviderRead,
         read_extended=IdentityProviderReadExtended,
     )
-    cls_name = cls.__name__
-    is_public = False
-    is_extended = False
-    if "Public" in cls_name:
-        is_public = True
-    if "Extended" in cls_name:
-        is_extended = True
+    is_public, is_extended = detect_public_extended_details(cls)
     return cls, validator, db_identity_provider, is_public, is_extended
