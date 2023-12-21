@@ -1,6 +1,4 @@
 """Provider specific fixtures."""
-from typing import Generator
-
 from pytest_cases import fixture, fixture_union, parametrize
 
 from app.provider.crud import provider_mng
@@ -21,14 +19,14 @@ from tests.region.utils import random_region_required_attr
 
 
 @fixture
-def db_provider_simple(setup_and_teardown_db: Generator) -> Provider:
+def db_provider_simple() -> Provider:
     """Fixture with standard DB Provider."""
     item = ProviderCreateExtended(**random_provider_required_attr())
     return provider_mng.create(obj_in=item)
 
 
 @fixture
-def db_provider_no_defaults(setup_and_teardown_db: Generator) -> Provider:
+def db_provider_no_defaults() -> Provider:
     """Fixture with standard DB Provider."""
     item = ProviderCreateExtended(**random_provider_all_no_default_attr())
     return provider_mng.create(obj_in=item)
@@ -36,9 +34,7 @@ def db_provider_no_defaults(setup_and_teardown_db: Generator) -> Provider:
 
 @fixture
 @parametrize(owned_regions=[1, 2])
-def db_provider_with_regions(
-    owned_regions: int, setup_and_teardown_db: Generator
-) -> Provider:
+def db_provider_with_regions(owned_regions: int) -> Provider:
     """Fixture with standard DB Provider."""
     item = ProviderCreateExtended(
         **random_provider_required_attr(),
@@ -48,7 +44,7 @@ def db_provider_with_regions(
 
 
 @fixture
-def db_provider_with_single_project(setup_and_teardown_db: Generator) -> Provider:
+def db_provider_with_single_project() -> Provider:
     """Fixture with standard DB Provider."""
     item = ProviderCreateExtended(
         **random_provider_required_attr(), projects=[random_project_required_attr()]
@@ -57,7 +53,7 @@ def db_provider_with_single_project(setup_and_teardown_db: Generator) -> Provide
 
 
 @fixture
-def db_provider_with_projects(setup_and_teardown_db: Generator) -> Provider:
+def db_provider_with_projects() -> Provider:
     """Fixture with standard DB Provider."""
     item = ProviderCreateExtended(
         **random_provider_required_attr(),
@@ -68,9 +64,7 @@ def db_provider_with_projects(setup_and_teardown_db: Generator) -> Provider:
 
 @fixture
 @parametrize(owned_identity_providers=[1, 2])
-def db_provider_with_idps(
-    owned_identity_providers: int, setup_and_teardown_db: Generator
-) -> Provider:
+def db_provider_with_idps(owned_identity_providers: int) -> Provider:
     """Fixture with standard DB Provider."""
     projects = [random_project_required_attr() for _ in range(owned_identity_providers)]
     identity_providers = []

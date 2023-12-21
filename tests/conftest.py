@@ -24,7 +24,7 @@ pytest.register_assert_rewrite("tests.common")
 # DB specific fixtures
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def setup_and_teardown_db() -> Generator:
     """Clear the db at the beginning and at the end of each operation."""
     clear_neo4j_database(db)
