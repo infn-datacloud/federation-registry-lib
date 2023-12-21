@@ -7,7 +7,6 @@ from pytest_cases import case, parametrize
 from app.identity_provider.crud import identity_provider_mng
 from app.project.crud import project_mng
 from app.provider.crud import CRUDProvider, provider_mng
-from app.provider.enum import ProviderStatus, ProviderType
 from app.provider.models import Provider
 from app.provider.schemas import ProviderBase, ProviderBasePublic, ProviderUpdate
 from app.provider.schemas_extended import ProviderCreateExtended
@@ -18,17 +17,13 @@ from tests.common.crud.validators import (
     PatchOperationValidation,
     ReadOperationValidation,
 )
-from tests.common.utils import random_bool
-from tests.identity_provider.utils import (
-    random_identity_provider_required_attr,
-    random_identity_provider_required_rel,
-)
+from tests.identity_provider.utils import random_identity_provider_required_attr
 from tests.project.utils import random_project_required_attr
-from tests.provider.utils import (
-    random_provider_required_attr,
-    random_status,
-    random_type,
+from tests.provider.fixtures_patch_dict import (
+    provider_force_update_enriched_relationships_data,
+    provider_patch_not_equal_data,
 )
+from tests.provider.utils import random_provider_required_attr
 from tests.region.utils import random_region_required_attr
 
 provider_get_attr = [*ProviderBase.__fields__.keys(), "uid", None]
@@ -218,24 +213,10 @@ def case_provider_patch_item_actors(
     validator = PatchOperationValidation[ProviderBase, ProviderBasePublic, Provider](
         base=ProviderBase, base_public=ProviderBasePublic
     )
-    for k in provider_patch_valid_data.keys():
-        while db_provider_simple.__getattribute__(k) == provider_patch_valid_data[k]:
-            schema_type = ProviderUpdate.__fields__.get(k).type_
-            if schema_type == bool:
-                provider_patch_valid_data[k] = random_bool()
-            elif schema_type == ProviderStatus:
-                provider_patch_valid_data[k] = random_status()
-            elif schema_type == ProviderType:
-                provider_patch_valid_data[k] = random_type()
-            else:
-                print(schema_type)
-                assert 0
-    return (
-        provider_mng,
-        validator,
-        db_provider_simple,
-        ProviderUpdate(**provider_patch_valid_data),
+    new_data = provider_patch_not_equal_data(
+        db_item=db_provider_simple, new_data=provider_patch_valid_data
     )
+    return provider_mng, validator, db_provider_simple, ProviderUpdate(**new_data)
 
 
 @case(tags=["provider", "patch"])
@@ -333,24 +314,12 @@ def case_provider_force_update_add_rel_actors(
             "projects": [],
             "regions": [],
         }
-        new_data = copy.deepcopy(provider_create_with_rel)
+        new_data = provider_create_with_rel
     else:
-        starting_data = copy.deepcopy(provider_create_with_rel)
-        new_data = copy.deepcopy(provider_create_with_rel)
-        if len(new_data.get("regions", [])) > 0:
-            new_data["regions"].append(random_region_required_attr())
-        if len(new_data.get("projects", [])) > 0:
-            new_data["projects"].append(random_project_required_attr())
-        if len(new_data.get("identity_providers", [])) > 0:
-            new_data["identity_providers"].append(
-                {
-                    **random_identity_provider_required_attr(),
-                    **random_identity_provider_required_rel(),
-                }
-            )
-            new_data["identity_providers"][-1]["user_groups"][0]["sla"][
-                "project"
-            ] = new_data["projects"][-1]["uuid"]
+        new_data = provider_force_update_enriched_relationships_data(
+            provider_create_with_rel
+        )
+        starting_data = provider_create_with_rel
     db_item = provider_mng.create(obj_in=ProviderCreateExtended(**starting_data))
     return provider_mng, validator, db_item, ProviderCreateExtended(**new_data)
 
@@ -370,30 +339,18 @@ def case_provider_force_update_remove_rel_actors(
         base=ProviderBase, base_public=ProviderBasePublic
     )
     if end_empty:
-        starting_data = copy.deepcopy(provider_create_with_rel)
         new_data = {
             **copy.deepcopy(provider_create_with_rel),
             "identity_providers": [],
             "projects": [],
             "regions": [],
         }
+        starting_data = provider_create_with_rel
     else:
-        starting_data = copy.deepcopy(provider_create_with_rel)
-        if len(starting_data.get("regions", [])) > 0:
-            starting_data["regions"].append(random_region_required_attr())
-        if len(starting_data.get("projects", [])) > 0:
-            starting_data["projects"].append(random_project_required_attr())
-        if len(starting_data.get("identity_providers", [])) > 0:
-            starting_data["identity_providers"].append(
-                {
-                    **random_identity_provider_required_attr(),
-                    **random_identity_provider_required_rel(),
-                }
-            )
-            starting_data["identity_providers"][-1]["user_groups"][0]["sla"][
-                "project"
-            ] = starting_data["projects"][-1]["uuid"]
-        new_data = copy.deepcopy(provider_create_with_rel)
+        starting_data = provider_force_update_enriched_relationships_data(
+            provider_create_with_rel
+        )
+        new_data = provider_create_with_rel
     db_item = provider_mng.create(obj_in=ProviderCreateExtended(**starting_data))
     return provider_mng, validator, db_item, ProviderCreateExtended(**new_data)
 
@@ -415,21 +372,9 @@ def case_provider_force_update_replace_rel_actors(
     if replace_all:
         starting_data = copy.deepcopy(provider_create_with_rel)
     else:
-        starting_data = copy.deepcopy(provider_create_with_rel)
-        if len(starting_data.get("regions", [])) > 0:
-            starting_data["regions"].append(random_region_required_attr())
-        if len(starting_data.get("projects", [])) > 0:
-            starting_data["projects"].append(random_project_required_attr())
-        if len(starting_data.get("identity_providers", [])) > 0:
-            starting_data["identity_providers"].append(
-                {
-                    **random_identity_provider_required_attr(),
-                    **random_identity_provider_required_rel(),
-                }
-            )
-            starting_data["identity_providers"][-1]["user_groups"][0]["sla"][
-                "project"
-            ] = starting_data["projects"][-1]["uuid"]
+        starting_data = provider_force_update_enriched_relationships_data(
+            provider_create_with_rel
+        )
     new_data = copy.deepcopy(provider_create_with_rel)
     if len(new_data.get("regions", [])) > 0:
         new_data["regions"] = [random_region_required_attr()]

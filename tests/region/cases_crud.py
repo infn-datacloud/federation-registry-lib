@@ -22,13 +22,18 @@ from tests.common.crud.validators import (
     PatchOperationValidation,
     ReadOperationValidation,
 )
-from tests.common.utils import random_bool
-from tests.identity_provider.utils import (
-    random_identity_provider_required_attr,
-    random_identity_provider_required_rel,
+from tests.location.utils import random_location_required_attr
+from tests.region.fixtures_patch_dict import (
+    region_force_update_enriched_relationships_data,
+    region_patch_not_equal_data,
 )
-from tests.project.utils import random_project_required_attr
 from tests.region.utils import random_region_required_attr
+from tests.services.block_storage_service.utils import (
+    random_block_storage_service_required_attr,
+)
+from tests.services.compute_service.utils import random_compute_service_required_attr
+from tests.services.identity_service.utils import random_identity_service_required_attr
+from tests.services.network_service.utils import random_network_service_required_attr
 
 region_get_attr = [*RegionBase.__fields__.keys(), "uid", None]
 region_sort_attr = [*RegionBase.__fields__.keys(), "uid"]
@@ -217,20 +222,10 @@ def case_region_patch_item_actors(
     validator = PatchOperationValidation[RegionBase, RegionBasePublic, Region](
         base=RegionBase, base_public=RegionBasePublic
     )
-    for k in region_patch_valid_data.keys():
-        while db_region_simple.__getattribute__(k) == region_patch_valid_data[k]:
-            schema_type = RegionUpdate.__fields__.get(k).type_
-            if schema_type == bool:
-                region_patch_valid_data[k] = random_bool()
-            else:
-                print(schema_type)
-                assert 0
-    return (
-        region_mng,
-        validator,
-        db_region_simple,
-        RegionUpdate(**region_patch_valid_data),
+    new_data = region_patch_not_equal_data(
+        db_item=db_region_simple, new_data=region_patch_valid_data
     )
+    return region_mng, validator, db_region_simple, RegionUpdate(**new_data)
 
 
 @case(tags=["region", "patch"])
@@ -327,28 +322,18 @@ def case_region_force_update_add_rel_actors(
     if start_empty:
         starting_data = {
             **copy.deepcopy(region_create_with_rel),
-            "identity_providers": [],
-            "projects": [],
-            "regions": [],
+            "location": None,
+            "block_storage_services": [],
+            "compute_services": [],
+            "identity_services": [],
+            "network_services": [],
         }
-        new_data = copy.deepcopy(region_create_with_rel)
+        new_data = region_create_with_rel
     else:
-        starting_data = copy.deepcopy(region_create_with_rel)
-        new_data = copy.deepcopy(region_create_with_rel)
-        if len(new_data.get("regions", [])) > 0:
-            new_data["regions"].append(random_region_required_attr())
-        if len(new_data.get("projects", [])) > 0:
-            new_data["projects"].append(random_project_required_attr())
-        if len(new_data.get("identity_providers", [])) > 0:
-            new_data["identity_providers"].append(
-                {
-                    **random_identity_provider_required_attr(),
-                    **random_identity_provider_required_rel(),
-                }
-            )
-            new_data["identity_providers"][-1]["user_groups"][0]["sla"][
-                "project"
-            ] = new_data["projects"][-1]["uuid"]
+        new_data = region_force_update_enriched_relationships_data(
+            region_create_with_rel
+        )
+        starting_data = region_create_with_rel
     db_item = region_mng.create(
         obj_in=RegionCreateExtended(**starting_data), provider=db_provider_simple
     )
@@ -372,30 +357,20 @@ def case_region_force_update_remove_rel_actors(
         base=RegionBase, base_public=RegionBasePublic
     )
     if end_empty:
-        starting_data = copy.deepcopy(region_create_with_rel)
         new_data = {
             **copy.deepcopy(region_create_with_rel),
-            "identity_providers": [],
-            "projects": [],
-            "regions": [],
+            "location": None,
+            "block_storage_services": [],
+            "compute_services": [],
+            "identity_services": [],
+            "network_services": [],
         }
+        starting_data = region_create_with_rel
     else:
-        starting_data = copy.deepcopy(region_create_with_rel)
-        if len(starting_data.get("regions", [])) > 0:
-            starting_data["regions"].append(random_region_required_attr())
-        if len(starting_data.get("projects", [])) > 0:
-            starting_data["projects"].append(random_project_required_attr())
-        if len(starting_data.get("identity_providers", [])) > 0:
-            starting_data["identity_providers"].append(
-                {
-                    **random_identity_provider_required_attr(),
-                    **random_identity_provider_required_rel(),
-                }
-            )
-            starting_data["identity_providers"][-1]["user_groups"][0]["sla"][
-                "project"
-            ] = starting_data["projects"][-1]["uuid"]
-        new_data = copy.deepcopy(region_create_with_rel)
+        starting_data = region_force_update_enriched_relationships_data(
+            region_create_with_rel
+        )
+        new_data = region_create_with_rel
     db_item = region_mng.create(
         obj_in=RegionCreateExtended(**starting_data), provider=db_provider_simple
     )
@@ -421,36 +396,22 @@ def case_region_force_update_replace_rel_actors(
     if replace_all:
         starting_data = copy.deepcopy(region_create_with_rel)
     else:
-        starting_data = copy.deepcopy(region_create_with_rel)
-        if len(starting_data.get("regions", [])) > 0:
-            starting_data["regions"].append(random_region_required_attr())
-        if len(starting_data.get("projects", [])) > 0:
-            starting_data["projects"].append(random_project_required_attr())
-        if len(starting_data.get("identity_providers", [])) > 0:
-            starting_data["identity_providers"].append(
-                {
-                    **random_identity_provider_required_attr(),
-                    **random_identity_provider_required_rel(),
-                }
-            )
-            starting_data["identity_providers"][-1]["user_groups"][0]["sla"][
-                "project"
-            ] = starting_data["projects"][-1]["uuid"]
+        starting_data = region_force_update_enriched_relationships_data(
+            region_create_with_rel
+        )
     new_data = copy.deepcopy(region_create_with_rel)
-    if len(new_data.get("regions", [])) > 0:
-        new_data["regions"] = [random_region_required_attr()]
-    if len(new_data.get("projects", [])) > 0:
-        new_data["projects"] = [random_project_required_attr()]
-    if len(new_data.get("identity_providers", [])) > 0:
-        new_data["identity_providers"] = [
-            {
-                **new_data["identity_providers"][0],
-                **random_identity_provider_required_attr(),
-            }
+    if new_data.get("location"):
+        new_data["location"] = random_location_required_attr()
+    if len(new_data.get("block_storage_services", [])) > 0:
+        new_data["block_storage_services"] = [
+            random_block_storage_service_required_attr()
         ]
-        new_data["identity_providers"][-1]["user_groups"][0]["sla"][
-            "project"
-        ] = new_data["projects"][-1]["uuid"]
+    if len(new_data.get("compute_services", [])) > 0:
+        new_data["compute_services"] = [random_compute_service_required_attr()]
+    if len(new_data.get("identity_services", [])) > 0:
+        new_data["identity_services"] = [random_identity_service_required_attr()]
+    if len(new_data.get("network_services", [])) > 0:
+        new_data["network_services"] = [random_network_service_required_attr()]
     db_item = region_mng.create(
         obj_in=RegionCreateExtended(**starting_data), provider=db_provider_simple
     )
