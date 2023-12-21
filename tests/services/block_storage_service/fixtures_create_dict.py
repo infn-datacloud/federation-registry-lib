@@ -3,12 +3,15 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from app.provider.schemas_extended import (
-    BlockStorageQuotaCreateExtended,
-)
 from app.service.enum import ServiceType
-from tests.common.utils import random_lower_string, random_url
-from tests.services.utils import random_block_storage_service_name
+from tests.quotas.block_storage_quota.utils import (
+    random_block_storage_quota_required_attr,
+    random_block_storage_quota_required_rel,
+)
+from tests.services.block_storage_service.utils import (
+    random_block_storage_service_all_attr,
+    random_block_storage_service_required_attr,
+)
 
 invalid_create_key_values = [
     ("description", None),
@@ -19,94 +22,78 @@ invalid_create_key_values = [
     ("endpoint", None),
     ("name", None),
 ]
-relationships_attr = ["quotas"]
 
 
 @fixture
-def block_storage_service_create_mandatory_data() -> Dict[str, Any]:
+def block_storage_service_create_minimum_data() -> Dict[str, Any]:
     """Dict with BlockStorageService mandatory attributes."""
-    return {"endpoint": random_url(), "name": random_block_storage_service_name()}
+    return random_block_storage_service_required_attr()
 
 
 @fixture
-def block_storage_service_create_all_data(
-    block_storage_service_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Dict with all BlockStorageService attributes."""
-    return {
-        **block_storage_service_create_mandatory_data,
-        "description": random_lower_string(),
-    }
-
-
-@fixture
-@parametrize(attr=relationships_attr)
-def block_storage_service_create_data_passing_empty_list(
-    attr: str, block_storage_service_create_all_data: Dict[str, Any]
-) -> Dict[str, Any]:
+def block_storage_service_create_data_passing_empty_list() -> Dict[str, Any]:
     """Dict with all Region attributes.
 
     Passing an empty list is not a problem.
     """
-    return {**block_storage_service_create_all_data, attr: []}
+    return {**random_block_storage_service_all_attr(), "quotas": []}
 
 
 @fixture
-def block_storage_service_create_data_with_quotas(
-    block_storage_service_create_all_data: Dict[str, Any],
-    block_storage_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def block_storage_service_create_data_with_quotas() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    quota = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
-    return {**block_storage_service_create_all_data, "quotas": [quota]}
+    quota = {
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+    }
+    return {**random_block_storage_service_all_attr(), "quotas": [quota]}
 
 
 @fixture
-def block_storage_service_create_data_with_2_quotas_same_proj(
-    block_storage_service_create_all_data: Dict[str, Any],
-    block_storage_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def block_storage_service_create_data_with_2_quotas_same_proj() -> Dict[str, Any]:
     """Dict with 2 quotas on same project.
 
     A quota has the flag 'per_user' equals to True and the other equal to False.
     """
-    quota1 = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
-    block_storage_quota_create_data_with_rel[
-        "per_user"
-    ] = not block_storage_quota_create_data_with_rel["per_user"]
-    quota2 = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
-    return {**block_storage_service_create_all_data, "quotas": [quota1, quota2]}
+    quota1 = {
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+        "per_user": False,
+    }
+    quota2 = {
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+        "per_user": True,
+    }
+    return {**random_block_storage_service_all_attr(), "quotas": [quota1, quota2]}
 
 
 @fixture
 @parametrize("k, v", invalid_create_key_values)
-def block_storage_service_create_invalid_pair(
-    block_storage_service_create_mandatory_data: Dict[str, Any], k: str, v: Any
-) -> Dict[str, Any]:
+def block_storage_service_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**block_storage_service_create_mandatory_data}
-    data[k] = v
-    return data
+    return {**random_block_storage_service_required_attr(), k: v}
 
 
 @fixture
-def block_storage_service_invalid_num_quotas_same_project(
-    block_storage_service_create_mandatory_data: Dict[str, Any],
-    block_storage_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def block_storage_service_invalid_num_quotas_same_project() -> Dict[str, Any]:
     """Invalid number of quotas on same project.
 
     A project can have at most one `project` quota and one `per-user` quota on a
     specific service.
     """
-    quota = BlockStorageQuotaCreateExtended(**block_storage_quota_create_data_with_rel)
-    return {**block_storage_service_create_mandatory_data, "quotas": [quota, quota]}
+    quota = {
+        **random_block_storage_quota_required_attr(),
+        **random_block_storage_quota_required_rel(),
+    }
+    return {**random_block_storage_service_all_attr(), "quotas": [quota, quota]}
 
 
 block_storage_service_create_valid_data = fixture_union(
     "block_storage_service_create_valid_data",
     (
-        block_storage_service_create_mandatory_data,
+        block_storage_service_create_minimum_data,
+        block_storage_service_create_data_passing_empty_list,
         block_storage_service_create_data_with_quotas,
         block_storage_service_create_data_with_2_quotas_same_proj,
     ),

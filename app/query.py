@@ -31,8 +31,8 @@ class Pagination(BaseModel):
         size (int | None): Chunk size.
     """
 
-    page: int = Field(default=0, description="Divide the list in chunks")
-    size: Optional[int] = Field(default=None, description="Chunk size.")
+    page: int = Field(default=0, ge=0, description="Divide the list in chunks")
+    size: Optional[int] = Field(default=None, ge=0, description="Chunk size.")
 
     @root_validator(pre=True)
     def set_page_to_0(cls, values: Dict[str, Any]) -> Dict[str, Any]:
@@ -53,10 +53,12 @@ class DbQueryCommonParams(BaseModel):
     """
 
     skip: int = Field(
-        default=0, description="Number of items to skip from the first one in the list."
+        default=0,
+        ge=0,
+        description="Number of items to skip from the first one in the list.",
     )
     limit: Optional[int] = Field(
-        default=None, description="Maximum number or returned items."
+        default=None, ge=0, description="Maximum number or returned items."
     )
     sort: Optional[str] = Field(default=None, description="Sorting rule.")
 

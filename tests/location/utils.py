@@ -1,7 +1,30 @@
 """Location utilities."""
 from random import choice, randrange
+from typing import Any, Dict
 
 from pycountry import countries
+
+from tests.common.utils import random_lower_string
+
+
+def random_location_required_attr() -> Dict[str, Any]:
+    """Return a dict with the Location required attributes initialized."""
+    return {"site": random_lower_string(), "country": random_country()}
+
+
+def random_location_all_attr() -> Dict[str, Any]:
+    """Dict with all Location attributes."""
+    return {
+        **random_location_required_attr(),
+        "description": random_lower_string(),
+        "latitude": random_latitude(),
+        "longitude": random_longitude(),
+    }
+
+
+def random_location_all_no_default_attr() -> Dict[str, Any]:
+    """Dict with Region no default values."""
+    return random_location_all_attr()
 
 
 def random_country() -> str:

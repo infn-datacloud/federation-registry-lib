@@ -1,18 +1,17 @@
 """IdentityService specific fixtures."""
-from typing import Any, Dict
-
 from pytest_cases import fixture
 
 from app.provider.schemas_extended import IdentityServiceCreate
 from app.region.models import Region
 from app.service.crud import identity_service_mng
 from app.service.models import IdentityService
+from tests.services.identity_service.utils import random_identity_service_required_attr
 
 
 @fixture
-def db_identity_service(
-    identity_service_create_mandatory_data: Dict[str, Any], db_region_simple: Region
-) -> IdentityService:
+def db_identity_service(db_region_simple: Region) -> IdentityService:
     """Fixture with standard DB IdentityService."""
-    item = IdentityServiceCreate(**identity_service_create_mandatory_data)
-    return identity_service_mng.create(obj_in=item, region=db_region_simple)
+    item = random_identity_service_required_attr()
+    return identity_service_mng.create(
+        obj_in=IdentityServiceCreate(**item), region=db_region_simple
+    )

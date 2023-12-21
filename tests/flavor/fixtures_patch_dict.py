@@ -10,11 +10,8 @@ from tests.common.utils import (
     random_non_negative_int,
     random_positive_int,
 )
+from tests.flavor.utils import GPU_DETAILS
 
-gpu_details = [
-    ("gpu_model", random_lower_string()),  # gpus is 0
-    ("gpu_vendor", random_lower_string()),  # gpus is 0
-]
 patch_key_values = [
     ("description", random_lower_string()),
     ("uuid", uuid4()),
@@ -42,7 +39,7 @@ invalid_patch_key_values = [  # None is not accepted because there is a default
     ("ephemeral", None),
     ("infiniband", None),
     ("gpus", None),
-    *gpu_details,
+    *GPU_DETAILS,
 ]
 
 
@@ -54,7 +51,7 @@ def flavor_patch_valid_data_single_attr(k: str, v: Any) -> Dict[str, Any]:
 
 
 @fixture
-@parametrize("k, v", gpu_details)
+@parametrize("k, v", GPU_DETAILS)
 def flavor_patch_valid_data_for_gpus(k: str, v: Any) -> Dict[str, Any]:
     """Valid set of attributes for a Flavor patch schema. GPU details."""
     return {"gpus": random_positive_int(), k: v}

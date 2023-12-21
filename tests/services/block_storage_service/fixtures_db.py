@@ -1,65 +1,63 @@
 """BlockStorageService specific fixtures."""
-from typing import Any, Dict
-
 from pytest_cases import fixture, fixture_union, parametrize
 
 from app.provider.models import Provider
-from app.provider.schemas_extended import (
-    BlockStorageQuotaCreateExtended,
-    BlockStorageServiceCreateExtended,
-)
+from app.provider.schemas_extended import BlockStorageServiceCreateExtended
 from app.region.models import Region
 from app.service.crud import block_storage_service_mng
 from app.service.models import BlockStorageService
-
-relationships_num = [1, 2]
+from tests.quotas.block_storage_quota.utils import (
+    random_block_storage_quota_required_attr,
+)
+from tests.services.block_storage_service.utils import (
+    random_block_storage_service_required_attr,
+)
 
 
 @fixture
-def db_block_storage_service_simple(
-    block_storage_service_create_mandatory_data: Dict[str, Any],
-    db_region_simple: Region,
-) -> BlockStorageService:
+def db_block_storage_service_simple(db_region_simple: Region) -> BlockStorageService:
     """Fixture with standard DB BlockStorageService."""
-    item = BlockStorageServiceCreateExtended(
-        **block_storage_service_create_mandatory_data
+    item = random_block_storage_service_required_attr()
+    return block_storage_service_mng.create(
+        obj_in=BlockStorageServiceCreateExtended(**item), region=db_region_simple
     )
-    return block_storage_service_mng.create(obj_in=item, region=db_region_simple)
 
 
 @fixture
 def db_block_storage_service_with_single_project(
-    block_storage_service_create_mandatory_data: Dict[str, Any],
     db_region_with_single_project: Region,
 ) -> BlockStorageService:
     """Fixture with standard DB BlockStorageService."""
-    item = BlockStorageServiceCreateExtended(
-        **block_storage_service_create_mandatory_data
-    )
+    item = random_block_storage_service_required_attr()
     return block_storage_service_mng.create(
-        obj_in=item, region=db_region_with_single_project
+        obj_in=BlockStorageServiceCreateExtended(**item),
+        region=db_region_with_single_project,
     )
 
 
 @fixture
-@parametrize(owned_quotas=relationships_num)
+@parametrize(owned_quotas=[1, 2])
 def db_block_storage_service_with_quotas(
-    owned_quotas: int,
-    block_storage_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
+    owned_quotas: int, db_region_with_projects: Region
 ) -> BlockStorageService:
     """Fixture with standard DB BlockStorageService."""
     db_provider: Provider = db_region_with_projects.provider.single()
     projects = [i.uuid for i in db_provider.projects]
     quotas = []
-    for i in projects:
-        for n in range(owned_quotas):
-            quotas.append(BlockStorageQuotaCreateExtended(per_user=n % 2, project=i))
-    item = BlockStorageServiceCreateExtended(
-        **block_storage_service_create_mandatory_data, quotas=quotas
-    )
+    for project_uuid in projects:
+        for i in range(owned_quotas):
+            quotas.append(
+                {
+                    **random_block_storage_quota_required_attr(),
+                    "per_user": i % 2,
+                    "project": project_uuid,
+                }
+            )
+    item = {**random_block_storage_service_required_attr(), "quotas": quotas}
     return block_storage_service_mng.create(
-        obj_in=item, region=db_region_with_projects, projects=db_provider.projects
+        obj_in=BlockStorageServiceCreateExtended(**item),
+        region=db_region_with_projects,
+        projects=db_provider.projects,
     )
 
 

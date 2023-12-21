@@ -1,130 +1,120 @@
 """ComputeService specific fixtures."""
-from typing import Any, Dict
-from uuid import uuid4
-
 from pytest_cases import fixture, fixture_union, parametrize
 
+from app.project.models import Project
 from app.provider.models import Provider
-from app.provider.schemas_extended import (
-    ComputeQuotaCreateExtended,
-    ComputeServiceCreateExtended,
-    FlavorCreateExtended,
-    ImageCreateExtended,
-)
+from app.provider.schemas_extended import ComputeServiceCreateExtended
 from app.region.models import Region
 from app.service.crud import compute_service_mng
 from app.service.models import ComputeService
-from tests.common.utils import random_lower_string
-
-relationships_num = [1, 2]
+from tests.flavor.utils import random_flavor_required_attr
+from tests.image.utils import random_image_required_attr
+from tests.quotas.compute_quota.utils import random_compute_quota_required_attr
+from tests.services.compute_service.utils import random_compute_service_required_attr
 
 
 @fixture
-def db_compute_service_simple(
-    compute_service_create_mandatory_data: Dict[str, Any], db_region_simple: Region
-) -> ComputeService:
+def db_compute_service_simple(db_region_simple: Region) -> ComputeService:
     """Fixture with standard DB ComputeService."""
-    item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
-    return compute_service_mng.create(obj_in=item, region=db_region_simple)
+    item = random_compute_service_required_attr()
+    return compute_service_mng.create(
+        obj_in=ComputeServiceCreateExtended(**item), region=db_region_simple
+    )
 
 
 @fixture
 def db_compute_service_with_single_project(
-    compute_service_create_mandatory_data: Dict[str, Any],
     db_region_with_single_project: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
-    item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
-    return compute_service_mng.create(obj_in=item, region=db_region_with_single_project)
+    item = random_compute_service_required_attr()
+    return compute_service_mng.create(
+        obj_in=ComputeServiceCreateExtended(**item),
+        region=db_region_with_single_project,
+    )
 
 
 @fixture
-def db_compute_service_with_projects(
-    compute_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
-) -> ComputeService:
+def db_compute_service_with_projects(db_region_with_projects: Region) -> ComputeService:
     """Fixture with standard DB ComputeService."""
-    item = ComputeServiceCreateExtended(**compute_service_create_mandatory_data)
+    item = ComputeServiceCreateExtended(**random_compute_service_required_attr())
     return compute_service_mng.create(obj_in=item, region=db_region_with_projects)
 
 
 @fixture
-@parametrize(owned_quotas=relationships_num)
+@parametrize(owned_quotas=[1, 2])
 def db_compute_service_with_quotas(
     owned_quotas: int,
-    compute_service_create_mandatory_data: Dict[str, Any],
     db_region_with_projects: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
     db_provider: Provider = db_region_with_projects.provider.single()
     projects = [i.uuid for i in db_provider.projects]
     quotas = []
-    for i in projects:
-        for n in range(owned_quotas):
-            quotas.append(ComputeQuotaCreateExtended(per_user=n % 2, project=i))
-    item = ComputeServiceCreateExtended(
-        **compute_service_create_mandatory_data, quotas=quotas
-    )
+    for project_uuid in projects:
+        for i in range(owned_quotas):
+            quotas.append(
+                {
+                    **random_compute_quota_required_attr(),
+                    "per_user": i % 2,
+                    "project": project_uuid,
+                }
+            )
+    item = {**random_compute_service_required_attr(), "quotas": quotas}
     return compute_service_mng.create(
-        obj_in=item, region=db_region_with_projects, projects=db_provider.projects
+        obj_in=ComputeServiceCreateExtended(**item),
+        region=db_region_with_projects,
+        projects=db_provider.projects,
     )
 
 
 @fixture
-@parametrize(owned_flavors=relationships_num)
 def db_compute_service_with_flavors(
-    owned_flavors: int,
-    compute_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
+    db_region_with_single_project: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
-    db_provider: Provider = db_region_with_projects.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
-    flavors = [FlavorCreateExtended(name=random_lower_string(), uuid=uuid4())]
-    for i in projects:
-        for _ in range(owned_flavors):
-            flavors.append(
-                FlavorCreateExtended(
-                    name=random_lower_string(),
-                    uuid=uuid4(),
-                    is_public=False,
-                    projects=[i],
-                )
-            )
-    item = ComputeServiceCreateExtended(
-        **compute_service_create_mandatory_data, flavors=flavors
-    )
+    db_provider: Provider = db_region_with_single_project.provider.single()
+    db_project: Project = db_provider.projects.single()
+    item = {
+        **random_compute_service_required_attr(),
+        "flavors": [
+            random_flavor_required_attr(),
+            {
+                **random_flavor_required_attr(),
+                "is_public": False,
+                "projects": [db_project.uuid],
+            },
+        ],
+    }
     return compute_service_mng.create(
-        obj_in=item, region=db_region_with_projects, projects=db_provider.projects
+        obj_in=ComputeServiceCreateExtended(**item),
+        region=db_region_with_single_project,
+        projects=db_provider.projects,
     )
 
 
 @fixture
-@parametrize(owned_images=relationships_num)
 def db_compute_service_with_images(
-    owned_images: int,
-    compute_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
+    db_region_with_single_project: Region,
 ) -> ComputeService:
     """Fixture with standard DB ComputeService."""
-    db_provider: Provider = db_region_with_projects.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
-    images = [ImageCreateExtended(name=random_lower_string(), uuid=uuid4())]
-    for i in projects:
-        for _ in range(owned_images):
-            images.append(
-                ImageCreateExtended(
-                    name=random_lower_string(),
-                    uuid=uuid4(),
-                    is_public=False,
-                    projects=[i],
-                )
-            )
-    item = ComputeServiceCreateExtended(
-        **compute_service_create_mandatory_data, images=images
-    )
+    db_provider: Provider = db_region_with_single_project.provider.single()
+    db_project: Project = db_provider.projects.single()
+    item = {
+        **random_compute_service_required_attr(),
+        "images": [
+            random_image_required_attr(),
+            {
+                **random_image_required_attr(),
+                "is_public": False,
+                "projects": [db_project.uuid],
+            },
+        ],
+    }
     return compute_service_mng.create(
-        obj_in=item, region=db_region_with_projects, projects=db_provider.projects
+        obj_in=ComputeServiceCreateExtended(**item),
+        region=db_region_with_single_project,
+        projects=db_provider.projects,
     )
 
 

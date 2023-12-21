@@ -3,14 +3,21 @@ from typing import Any, Dict
 
 from pytest_cases import fixture, fixture_union, parametrize
 
-from app.provider.schemas_extended import (
-    ComputeQuotaCreateExtended,
-    FlavorCreateExtended,
-    ImageCreateExtended,
-)
 from app.service.enum import ServiceType
-from tests.common.utils import random_lower_string, random_url
-from tests.services.utils import random_compute_service_name
+from tests.flavor.utils import (
+    IS_PUBLIC,
+    random_flavor_required_attr,
+    random_flavor_required_rel,
+)
+from tests.image.utils import random_image_required_attr, random_image_required_rel
+from tests.quotas.compute_quota.utils import (
+    random_compute_quota_required_attr,
+    random_compute_quota_required_rel,
+)
+from tests.services.compute_service.utils import (
+    random_compute_service_all_attr,
+    random_compute_service_required_attr,
+)
 
 invalid_create_key_values = [
     ("description", None),
@@ -21,134 +28,124 @@ invalid_create_key_values = [
     ("endpoint", None),
     ("name", None),
 ]
-relationships_attr = ["flavors", "images", "quotas"]
 
 
 @fixture
-def compute_service_create_mandatory_data() -> Dict[str, Any]:
+def compute_service_create_minimum_data() -> Dict[str, Any]:
     """Dict with ComputeService mandatory attributes."""
-    return {"endpoint": random_url(), "name": random_compute_service_name()}
+    return random_compute_service_required_attr()
 
 
 @fixture
-def compute_service_create_all_data(
-    compute_service_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
-    """Dict with all ComputeService attributes."""
-    return {
-        **compute_service_create_mandatory_data,
-        "description": random_lower_string(),
-    }
-
-
-@fixture
-@parametrize(attr=relationships_attr)
-def compute_service_create_data_passing_empty_list(
-    attr: str, compute_service_create_all_data: Dict[str, Any]
-) -> Dict[str, Any]:
+@parametrize(attr=["flavors", "images", "quotas"])
+def compute_service_create_data_passing_empty_list(attr: str) -> Dict[str, Any]:
     """Dict with all Region attributes.
 
     Passing an empty list is not a problem.
     """
-    return {**compute_service_create_all_data, attr: []}
+    return {**random_compute_service_all_attr(), attr: []}
 
 
 @fixture
-def compute_service_create_data_with_flavors(
-    compute_service_create_all_data: Dict[str, Any],
-    flavor_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+@parametrize(is_public=IS_PUBLIC)
+def compute_service_create_data_with_flavors(is_public: bool) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    flavor = FlavorCreateExtended(**flavor_create_data_with_rel)
-    return {**compute_service_create_all_data, "flavors": [flavor]}
+    return {
+        **random_compute_service_all_attr(),
+        "flavors": [
+            {
+                **random_flavor_required_attr(),
+                **random_flavor_required_rel(is_public),
+                "is_public": is_public,
+            }
+        ],
+    }
 
 
 @fixture
-def compute_service_create_data_with_images(
-    compute_service_create_all_data: Dict[str, Any],
-    image_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+@parametrize(is_public=IS_PUBLIC)
+def compute_service_create_data_with_images(is_public: bool) -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    image = ImageCreateExtended(**image_create_data_with_rel)
-    return {**compute_service_create_all_data, "images": [image]}
+    return {
+        **random_compute_service_all_attr(),
+        "images": [
+            {
+                **random_image_required_attr(),
+                **random_image_required_rel(is_public),
+                "is_public": is_public,
+            }
+        ],
+    }
 
 
 @fixture
-def compute_service_create_data_with_quotas(
-    compute_service_create_all_data: Dict[str, Any],
-    compute_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_service_create_data_with_quotas() -> Dict[str, Any]:
     """Dict with relationships attributes."""
-    quota = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
-    return {**compute_service_create_all_data, "quotas": [quota]}
+    quota = {
+        **random_compute_quota_required_attr(),
+        **random_compute_quota_required_rel(),
+    }
+    return {**random_compute_service_all_attr(), "quotas": [quota]}
 
 
 @fixture
-def compute_service_create_data_with_2_quotas_same_proj(
-    compute_service_create_all_data: Dict[str, Any],
-    compute_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_service_create_data_with_2_quotas_same_proj() -> Dict[str, Any]:
     """Dict with 2 quotas on same project.
 
     A quota has the flag 'per_user' equals to True and the other equal to False.
     """
-    quota1 = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
-    compute_quota_create_data_with_rel[
-        "per_user"
-    ] = not compute_quota_create_data_with_rel["per_user"]
-    quota2 = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
-    return {**compute_service_create_all_data, "quotas": [quota1, quota2]}
+    quota1 = {
+        **random_compute_quota_required_attr(),
+        **random_compute_quota_required_rel(),
+        "per_user": False,
+    }
+    quota2 = {
+        **random_compute_quota_required_attr(),
+        **random_compute_quota_required_rel(),
+        "per_user": True,
+    }
+    return {**random_compute_service_all_attr(), "quotas": [quota1, quota2]}
 
 
 @fixture
 @parametrize("k, v", invalid_create_key_values)
-def compute_service_create_invalid_pair(
-    compute_service_create_mandatory_data: Dict[str, Any], k: str, v: Any
-) -> Dict[str, Any]:
+def compute_service_create_invalid_pair(k: str, v: Any) -> Dict[str, Any]:
     """Dict with one invalid key-value pair."""
-    data = {**compute_service_create_mandatory_data}
-    data[k] = v
-    return data
+    return {**random_compute_service_required_attr(), k: v}
 
 
 @fixture
-def compute_service_invalid_num_quotas_same_project(
-    compute_service_create_mandatory_data: Dict[str, Any],
-    compute_quota_create_data_with_rel: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_service_invalid_num_quotas_same_project() -> Dict[str, Any]:
     """Invalid number of quotas on same project.
 
     A project can have at most one `project` quota and one `per-user` quota on a
     specific service.
     """
-    quota = ComputeQuotaCreateExtended(**compute_quota_create_data_with_rel)
-    return {**compute_service_create_mandatory_data, "quotas": [quota, quota]}
+    quota = {
+        **random_compute_quota_required_attr(),
+        **random_compute_quota_required_rel(),
+    }
+    return {**random_compute_service_required_attr(), "quotas": [quota, quota]}
 
 
 @fixture
-def compute_service_create_duplicate_flavors(
-    compute_service_create_mandatory_data: Dict[str, Any],
-    flavor_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_service_create_duplicate_flavors() -> Dict[str, Any]:
     """Invalid case: the flavor list has duplicate values."""
-    flavor = FlavorCreateExtended(**flavor_create_mandatory_data)
-    return {**compute_service_create_mandatory_data, "flavors": [flavor, flavor]}
+    flavor = random_flavor_required_attr()
+    return {**random_compute_service_required_attr(), "flavors": [flavor, flavor]}
 
 
 @fixture
-def compute_service_create_duplicate_images(
-    compute_service_create_mandatory_data: Dict[str, Any],
-    image_create_mandatory_data: Dict[str, Any],
-) -> Dict[str, Any]:
+def compute_service_create_duplicate_images() -> Dict[str, Any]:
     """Invalid case: the image list has duplicate values."""
-    image = ImageCreateExtended(**image_create_mandatory_data)
-    return {**compute_service_create_mandatory_data, "images": [image, image]}
+    image = random_image_required_attr()
+    return {**random_compute_service_required_attr(), "images": [image, image]}
 
 
 compute_service_create_valid_data = fixture_union(
     "compute_service_create_valid_data",
     (
-        compute_service_create_mandatory_data,
+        compute_service_create_minimum_data,
         compute_service_create_data_with_flavors,
         compute_service_create_data_with_images,
         compute_service_create_data_with_quotas,

@@ -26,7 +26,7 @@ class CRUDFlavor(
     def create(
         self,
         *,
-        obj_in: FlavorCreate,
+        obj_in: FlavorCreateExtended,
         service: ComputeService,
         projects: Optional[List[Project]] = None,
     ) -> Flavor:
@@ -55,7 +55,7 @@ class CRUDFlavor(
 
         db_obj.services.connect(service)
 
-        for project in projects:
+        for project in filter(lambda x: x.uuid in obj_in.projects, projects):
             db_obj.projects.connect(project)
         return db_obj
 

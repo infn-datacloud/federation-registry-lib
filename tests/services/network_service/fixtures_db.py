@@ -1,87 +1,81 @@
 """NetworkService specific fixtures."""
-from typing import Any, Dict
-from uuid import uuid4
-
 from pytest_cases import fixture, fixture_union, parametrize
 
+from app.project.models import Project
 from app.provider.models import Provider
-from app.provider.schemas_extended import (
-    NetworkCreateExtended,
-    NetworkQuotaCreateExtended,
-    NetworkServiceCreateExtended,
-)
+from app.provider.schemas_extended import NetworkServiceCreateExtended
 from app.region.models import Region
 from app.service.crud import network_service_mng
 from app.service.models import NetworkService
-from tests.common.utils import random_lower_string
-
-relationships_num = [1, 2]
+from tests.network.utils import random_network_required_attr
+from tests.quotas.network_quota.utils import random_network_quota_required_attr
+from tests.services.network_service.utils import random_network_service_required_attr
 
 
 @fixture
-def db_network_service_simple(
-    network_service_create_mandatory_data: Dict[str, Any], db_region_simple: Region
-) -> NetworkService:
+def db_network_service_simple(db_region_simple: Region) -> NetworkService:
     """Fixture with standard DB NetworkService."""
-    item = NetworkServiceCreateExtended(**network_service_create_mandatory_data)
+    item = NetworkServiceCreateExtended(**random_network_service_required_attr())
     return network_service_mng.create(obj_in=item, region=db_region_simple)
 
 
 @fixture
 def db_network_service_with_single_project(
-    network_service_create_mandatory_data: Dict[str, Any],
     db_region_with_single_project: Region,
 ) -> NetworkService:
     """Fixture with standard DB NetworkService."""
-    item = NetworkServiceCreateExtended(**network_service_create_mandatory_data)
+    item = NetworkServiceCreateExtended(**random_network_service_required_attr())
     return network_service_mng.create(obj_in=item, region=db_region_with_single_project)
 
 
 @fixture
-@parametrize(owned_quotas=relationships_num)
+@parametrize(owned_quotas=[1, 2])
 def db_network_service_with_quotas(
-    owned_quotas: int,
-    network_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
+    owned_quotas: int, db_region_with_projects: Region
 ) -> NetworkService:
     """Fixture with standard DB NetworkService."""
     db_provider: Provider = db_region_with_projects.provider.single()
     projects = [i.uuid for i in db_provider.projects]
     quotas = []
-    for i in projects:
-        for n in range(owned_quotas):
-            quotas.append(NetworkQuotaCreateExtended(per_user=n % 2, project=i))
-    item = NetworkServiceCreateExtended(
-        **network_service_create_mandatory_data, quotas=quotas
-    )
+    for project_uuid in projects:
+        for i in range(owned_quotas):
+            quotas.append(
+                {
+                    **random_network_quota_required_attr(),
+                    "per_user": i % 2,
+                    "project": project_uuid,
+                }
+            )
+    item = {**random_network_service_required_attr(), "quotas": quotas}
     return network_service_mng.create(
-        obj_in=item, region=db_region_with_projects, projects=db_provider.projects
+        obj_in=NetworkServiceCreateExtended(**item),
+        region=db_region_with_projects,
+        projects=db_provider.projects,
     )
 
 
 @fixture
-@parametrize(owned_networks=relationships_num)
 def db_network_service_with_networks(
-    owned_networks: int,
-    network_service_create_mandatory_data: Dict[str, Any],
-    db_region_with_projects: Region,
+    db_region_with_single_project: Region,
 ) -> NetworkService:
     """Fixture with standard DB NetworkService."""
-    db_provider: Provider = db_region_with_projects.provider.single()
-    projects = [i.uuid for i in db_provider.projects]
-    networks = [NetworkCreateExtended(name=random_lower_string(), uuid=uuid4())]
-    for i in projects:
-        for _ in range(owned_networks):
-            networks.append(
-                NetworkCreateExtended(
-                    name=random_lower_string(), uuid=uuid4(), is_shared=False, project=i
-                )
-            )
-    item = NetworkServiceCreateExtended(
-        **network_service_create_mandatory_data, networks=networks
-    )
+    db_provider: Provider = db_region_with_single_project.provider.single()
+    db_project: Project = db_provider.projects.single()
+    item = {
+        **random_network_service_required_attr(),
+        "networks": [
+            random_network_required_attr(),
+            {
+                **random_network_required_attr(),
+                "is_shared": False,
+                "project": db_project.uuid,
+            },
+        ],
+    }
     return network_service_mng.create(
-        obj_in=item, region=db_region_with_projects, projects=db_provider.projects
+        obj_in=NetworkServiceCreateExtended(**item),
+        region=db_region_with_single_project,
+        projects=db_provider.projects,
     )
 
 
