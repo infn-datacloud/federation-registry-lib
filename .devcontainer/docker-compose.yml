@@ -28,7 +28,6 @@ services:
     volumes:
       - ..:/workspace:cached
     environment:
-      - TRUSTED_IDP_LIST=["https://iam.cloud.infn.it"]
       - NEO4J_SERVER=db
     # Infinite loop to keep container live doing nothing
     command: bash -c "while true; do sleep 1; done"
