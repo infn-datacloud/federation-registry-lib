@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Federation-Registry"
     DOMAIN: str = "localhost:8000"
     API_V1_STR: str = "/api/v1"
+    DOMAIN: str = "localhost:8000"
 
     NEO4J_SERVER: str = "localhost:7687"
     NEO4J_USER: str = "neo4j"
@@ -35,10 +36,10 @@ class Settings(BaseSettings):
         return v.value
 
     @validator("NEOMODEL_DATABASE_URL", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> AnyUrl:
+    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         """Before checking the DB URL, assemble the target DB uri from single parts."""
         if isinstance(v, AnyUrl):
-            return v
+            return str(v)
         s = f"{values.get('NEO4J_URI_SCHEME')}://"
         s += f"{values.get('NEO4J_USER')}:"
         s += f"{values.get('NEO4J_PASSWORD')}@"
@@ -46,7 +47,7 @@ class Settings(BaseSettings):
         return s
 
     @validator("NEOMODEL_DATABASE_URL")
-    def save_db_url(cls, v: Optional[str]) -> AnyUrl:
+    def save_db_url(cls, v: Optional[str]) -> str:
         """Set the DB uri for this application."""
         config.DATABASE_URL = v
         return v
@@ -54,13 +55,15 @@ class Settings(BaseSettings):
     ADMIN_EMAIL_LIST: List[EmailStr] = []
     TRUSTED_IDP_LIST: List[AnyHttpUrl] = []
 
-    # @validator("TRUSTED_IDP_LIST")
-    # def validate_list(cls, v: List[AnyHttpUrl], values: Dict[str, Any]) -> AnyHttpUrl:
-    #     if values.get("ENABLE_AUTH"):
-    #         assert (
-    #             len(v) > 0
-    #         ), "Empty TRUSTED_IDP_LIST when authentication has been enabled"
-    #     return v
+    DOC_V1_URL: Optional[AnyHttpUrl] = None
+
+    @validator("DOC_V1_URL")
+    def create_doc_url(cls, v: Optional[AnyHttpUrl], values: Dict[str, Any]) -> str:
+        """Build URL for internal documentation."""
+        if isinstance(v, AnyUrl):
+            return str(v)
+        protocol = "http"
+        return f"{protocol}://{values.get('DOMAIN')}{values.get('API_V1_STR')}/docs"
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200",
