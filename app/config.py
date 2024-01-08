@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     NEO4J_SERVER: str = "localhost:7687"
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "password"
-    NEO4J_URI_SCHEME: Neo4jUriScheme = Neo4jUriScheme.BOLT
+    NEO4J_URI_SCHEME: Neo4jUriScheme = Neo4jUriScheme.BOLT.value
     NEOMODEL_DATABASE_URL: Optional[AnyUrl] = None
 
     @validator("NEO4J_URI_SCHEME")
