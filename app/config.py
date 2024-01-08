@@ -36,7 +36,7 @@ class Settings(BaseSettings):
         s += f"{values.get('NEO4J_USER')}:"
         s += f"{values.get('NEO4J_PASSWORD')}@"
         s += f"{values.get('NEO4J_SERVER')}"
-        return s
+        return AnyUrl(s, scheme=values.get("NEO4J_URI_SCHEME"))
 
     @validator("NEOMODEL_DATABASE_URL")
     def save_db_url(cls, v: Optional[str]) -> AnyUrl:
@@ -53,6 +53,20 @@ class Settings(BaseSettings):
                 len(v) > 0
             ), "Empty TRUSTED_IDP_LIST when authentication has been enabled"
         return v
+
+    DOC_V1_URL: Optional[AnyHttpUrl] = None
+
+    @validator("DOC_V1_URL")
+    def create_doc_url(
+        cls, v: Optional[AnyHttpUrl], values: Dict[str, Any]
+    ) -> AnyHttpUrl:
+        if isinstance(v, AnyUrl):
+            return v
+        s = "http://"
+        s += f"{values.get('DOMAIN')}"
+        s += f"{values.get('API_V1_STR')}"
+        s += "/docs"
+        return AnyHttpUrl(s, scheme="http")
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200",

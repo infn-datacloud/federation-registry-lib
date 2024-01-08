@@ -33,7 +33,7 @@ tags_metadata = [
         "description": "API version 1, see link on the right",
         "externalDocs": {
             "description": "API version 1 documentation",
-            "url": f"http://{settings.DOMAIN}/api/v1/docs",
+            "url": f"{settings.DOC_V1_URL}",
         },
     },
 ]
