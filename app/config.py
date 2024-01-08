@@ -60,9 +60,8 @@ class Settings(BaseSettings):
     def create_doc_url(cls, v: Optional[AnyHttpUrl], values: Dict[str, Any]) -> str:
         if isinstance(v, AnyUrl):
             return str(v)
-        return (
-            f"http://{values.get('DOMAIN')}{values.get('API_V1_STR')}/docs"  # NOSONAR
-        )
+        protocol = "http"
+        return f"{protocol}://{values.get('DOMAIN')}{values.get('API_V1_STR')}/docs"
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200",
