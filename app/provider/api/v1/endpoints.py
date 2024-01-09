@@ -113,7 +113,12 @@ def get_providers(
         no other items with the given *name*. \
         Moreover check the received lists do not contain duplicates.",
 )
-def post_provider(item: ProviderCreateExtended):
+@flaat.access_level("write")
+def post_provider(
+    request: Request,
+    item: ProviderCreateExtended,
+    client_credentials: HTTPBasicCredentials = Security(security),
+):
     return provider_mng.create(obj_in=item)
 
 
