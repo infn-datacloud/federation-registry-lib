@@ -1,24 +1,23 @@
 """File to set tests configuration parameters and common fixtures."""
-from glob import glob
+# from glob import glob
 from typing import Generator
 
 import pytest
 from neomodel import clear_neo4j_database, db
 
+# def refactor(string: str) -> str:
+#     """Convert filesystem paths into python packages paths."""
+#     return string.replace("/", ".").replace("\\", ".").replace(".py", "")
 
-def refactor(string: str) -> str:
-    """Convert filesystem paths into python packages paths."""
-    return string.replace("/", ".").replace("\\", ".").replace(".py", "")
 
+# pytest_plugins = (
+#     [refactor(fixture) for fixture in glob("tests/fixtures/[!__]*.py")]
+#     + [refactor(fixture) for fixture in glob("tests/*/fixtures*.py")]
+#     + [refactor(fixture) for fixture in glob("tests/*/*/fixtures*.py")]
+# )
 
-pytest_plugins = (
-    [refactor(fixture) for fixture in glob("tests/fixtures/[!__]*.py")]
-    + [refactor(fixture) for fixture in glob("tests/*/fixtures*.py")]
-    + [refactor(fixture) for fixture in glob("tests/*/*/fixtures*.py")]
-)
-
-pytest.register_assert_rewrite("tests.utils")
-pytest.register_assert_rewrite("tests.common")
+# pytest.register_assert_rewrite("tests.utils")
+# pytest.register_assert_rewrite("tests.common")
 
 
 # DB specific fixtures
