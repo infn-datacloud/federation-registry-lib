@@ -91,6 +91,18 @@ def get_providers(
     item: ProviderQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve all providers.
+
+    It can receive the following group op parameters:
+    - comm: parameters common to all DB queries to limit, skip or sort results.
+    - page: parameters to limit and select the number of results to return to the user.
+    - size: parameters to define the number of information contained in each result.
+    - item: parameters specific for this item typology. Used to apply filters.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     items = provider_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -115,6 +127,13 @@ def get_providers(
         Moreover check the received lists do not contain duplicates.",
 )
 def post_provider(item: ProviderCreateExtended):
+    """POST operation to create a new provider and all its related items.
+
+    The endpoints expect an object with a provider information all the new related
+    entities' data to add to the DB.
+
+    Only authenticated users can view this function.
+    """
     return provider_mng.create(obj_in=item)
 
 
@@ -138,6 +157,17 @@ def get_provider(
     item: Provider = Depends(valid_provider_id),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve the provider matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    It can receive the following group op parameters:
+    - size: parameters to define the number of information contained in each result.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     return provider_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -169,6 +199,17 @@ def put_provider(
     item: Provider = Depends(valid_provider_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """PATCH operation to update the provider matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence. It also
+    expects the new data to write in the database. It updates only the item attributes,
+    not its relationships.
+
+    If the new data equals the current data, no update is performed and the function
+    returns a response with an empty body and the 304 status code.
+
+    Only authenticated users can view this function.
+    """
     db_item = provider_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
@@ -193,6 +234,12 @@ def delete_providers(
     item: Provider = Depends(valid_provider_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """DELETE operation to remove the provider matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    Only authenticated users can view this function.
+    """
     if not provider_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

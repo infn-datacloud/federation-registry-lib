@@ -60,6 +60,18 @@ def get_locations(
     item: LocationQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve all locations.
+
+    It can receive the following group op parameters:
+    - comm: parameters common to all DB queries to limit, skip or sort results.
+    - page: parameters to limit and select the number of results to return to the user.
+    - size: parameters to define the number of information contained in each result.
+    - item: parameters specific for this item typology. Used to apply filters.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     items = location_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -89,6 +101,17 @@ def get_location(
     item: Location = Depends(valid_location_id),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve the location matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    It can receive the following group op parameters:
+    - size: parameters to define the number of information contained in each result.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     return location_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -119,6 +142,17 @@ def put_location(
     response: Response,
     item: Location = Depends(valid_location_id),
 ):
+    """PATCH operation to update the location matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence. It also
+    expects the new data to write in the database. It updates only the item attributes,
+    not its relationships.
+
+    If the new data equals the current data, no update is performed and the function
+    returns a response with an empty body and the 304 status code.
+
+    Only authenticated users can view this function.
+    """
     db_item = location_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
@@ -143,6 +177,12 @@ def delete_location(
     item: Location = Depends(valid_location_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """DELETE operation to remove the location matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    Only authenticated users can view this function.
+    """
     if not location_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

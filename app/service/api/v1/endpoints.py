@@ -105,6 +105,18 @@ def get_block_storage_services(
     item: BlockStorageServiceQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve all block storage services.
+
+    It can receive the following group op parameters:
+    - comm: parameters common to all DB queries to limit, skip or sort results.
+    - page: parameters to limit and select the number of results to return to the user.
+    - size: parameters to define the number of information contained in each result.
+    - item: parameters specific for this item typology. Used to apply filters.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     items = block_storage_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -136,6 +148,17 @@ def get_block_storage_service(
     item: BlockStorageService = Depends(valid_block_storage_service_id),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve the block storage service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    It can receive the following group op parameters:
+    - size: parameters to define the number of information contained in each result.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     return block_storage_service_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -167,6 +190,17 @@ def put_block_storage_service(
     item: BlockStorageService = Depends(valid_block_storage_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """PATCH operation to update the block storage service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence. It also
+    expects the new data to write in the database. It updates only the item attributes,
+    not its relationships.
+
+    If the new data equals the current data, no update is performed and the function
+    returns a response with an empty body and the 304 status code.
+
+    Only authenticated users can view this function.
+    """
     db_item = block_storage_service_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
@@ -192,6 +226,12 @@ def delete_block_storage_services(
     item: BlockStorageService = Depends(valid_block_storage_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """DELETE operation to remove the block storage service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    Only authenticated users can view this function.
+    """
     if not block_storage_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -224,6 +264,18 @@ def get_compute_services(
     item: ComputeServiceQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve all compute services.
+
+    It can receive the following group op parameters:
+    - comm: parameters common to all DB queries to limit, skip or sort results.
+    - page: parameters to limit and select the number of results to return to the user.
+    - size: parameters to define the number of information contained in each result.
+    - item: parameters specific for this item typology. Used to apply filters.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     items = compute_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -253,6 +305,17 @@ def get_compute_service(
     item: ComputeService = Depends(valid_compute_service_id),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve the compute service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    It can receive the following group op parameters:
+    - size: parameters to define the number of information contained in each result.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     return compute_service_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -284,6 +347,17 @@ def put_compute_service(
     item: ComputeService = Depends(valid_compute_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """PATCH operation to update the compute service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence. It also
+    expects the new data to write in the database. It updates only the item attributes,
+    not its relationships.
+
+    If the new data equals the current data, no update is performed and the function
+    returns a response with an empty body and the 304 status code.
+
+    Only authenticated users can view this function.
+    """
     db_item = compute_service_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
@@ -309,6 +383,12 @@ def delete_compute_services(
     item: ComputeService = Depends(valid_compute_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """DELETE operation to remove the compute service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    Only authenticated users can view this function.
+    """
     if not compute_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -341,6 +421,18 @@ def get_identity_services(
     item: IdentityServiceQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve all identity services.
+
+    It can receive the following group op parameters:
+    - comm: parameters common to all DB queries to limit, skip or sort results.
+    - page: parameters to limit and select the number of results to return to the user.
+    - size: parameters to define the number of information contained in each result.
+    - item: parameters specific for this item typology. Used to apply filters.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     items = identity_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -370,6 +462,17 @@ def get_identity_service(
     item: IdentityService = Depends(valid_identity_service_id),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve the identity service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    It can receive the following group op parameters:
+    - size: parameters to define the number of information contained in each result.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     return identity_service_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -401,6 +504,17 @@ def put_identity_service(
     item: IdentityService = Depends(valid_identity_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """PATCH operation to update the identity service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence. It also
+    expects the new data to write in the database. It updates only the item attributes,
+    not its relationships.
+
+    If the new data equals the current data, no update is performed and the function
+    returns a response with an empty body and the 304 status code.
+
+    Only authenticated users can view this function.
+    """
     db_item = identity_service_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
@@ -426,6 +540,12 @@ def delete_identity_services(
     item: IdentityService = Depends(valid_identity_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """DELETE operation to remove the identity service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    Only authenticated users can view this function.
+    """
     if not identity_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -458,6 +578,18 @@ def get_network_services(
     item: NetworkServiceQuery = Depends(),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve all network services.
+
+    It can receive the following group op parameters:
+    - comm: parameters common to all DB queries to limit, skip or sort results.
+    - page: parameters to limit and select the number of results to return to the user.
+    - size: parameters to define the number of information contained in each result.
+    - item: parameters specific for this item typology. Used to apply filters.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     items = network_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -487,6 +619,17 @@ def get_network_service(
     item: NetworkService = Depends(valid_network_service_id),
     user_infos: Optional[Any] = None,
 ):
+    """GET operation to retrieve the network service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    It can receive the following group op parameters:
+    - size: parameters to define the number of information contained in each result.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
     return network_service_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -518,6 +661,17 @@ def put_network_service(
     item: NetworkService = Depends(valid_network_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """PATCH operation to update the network service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence. It also
+    expects the new data to write in the database. It updates only the item attributes,
+    not its relationships.
+
+    If the new data equals the current data, no update is performed and the function
+    returns a response with an empty body and the 304 status code.
+
+    Only authenticated users can view this function.
+    """
     db_item = network_service_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
@@ -543,6 +697,12 @@ def delete_network_services(
     item: NetworkService = Depends(valid_network_service_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
+    """DELETE operation to remove the network service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    Only authenticated users can view this function.
+    """
     if not network_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
