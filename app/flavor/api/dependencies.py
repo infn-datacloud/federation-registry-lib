@@ -1,3 +1,4 @@
+"""Flavor REST API dependencies."""
 from typing import List, Union
 
 from fastapi import Depends, HTTPException, status
@@ -14,7 +15,7 @@ def valid_flavor_id(flavor_uid: str) -> Flavor:
 
     Args:
     ----
-        flavor_uid (UUID4): uid of the target DB entity.
+        flavor_uid (str): uid of the target DB entity.
 
     Returns:
     -------
@@ -45,6 +46,7 @@ def valid_flavor_name(
     Args:
     ----
         item (FlavorCreate | FlavorUpdate): new data.
+        services (list of ComputeService): List of services to inspect.
 
     Returns:
     -------
@@ -77,6 +79,7 @@ def valid_flavor_uuid(
     Args:
     ----
         item (FlavorCreate | FlavorUpdate): new data.
+        services (list of ComputeService): List of services to inspect.
 
     Returns:
     -------
@@ -102,9 +105,8 @@ def validate_new_flavor_values(
 ) -> None:
     """Check given data are valid ones.
 
-    Check there are no other flavors, belonging to
-    the same service, with the same uuid and name.
-    Avoid to change flavor visibility.
+    Check there are no other flavors, belonging to the same service, with the same uuid
+    and name. Avoid to change flavor visibility.
 
     Args:
     ----

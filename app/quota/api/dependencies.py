@@ -1,3 +1,4 @@
+"""Quota REST API dependencies."""
 from fastapi import Depends, HTTPException, status
 
 from app.quota.crud import block_storage_quota_mng, compute_quota_mng, network_quota_mng

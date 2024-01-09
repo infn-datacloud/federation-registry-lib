@@ -1,3 +1,4 @@
+"""Region endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
 from typing import Any, List, Optional, Union
 
 from fastapi import (

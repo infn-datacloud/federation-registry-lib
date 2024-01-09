@@ -1,3 +1,4 @@
+"""Provider REST API dependencies."""
 from typing import Union
 
 from fastapi import Depends, HTTPException, status

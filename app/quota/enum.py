@@ -1,8 +1,9 @@
+"""Quota custom enumerations."""
 from enum import Enum
 
 
 class QuotaType(Enum):
-    """Possibile Quota types."""
+    """Possible Quota types."""
 
     BLOCK_STORAGE: str = "block-storage"
     COMPUTE: str = "compute"

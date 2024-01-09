@@ -1,3 +1,7 @@
+"""Services endpoints to execute POST, GET, PUT, PATCH and DELETE operations.
+
+They are divided into BlockStorage, Compute, Identity and Network services.
+"""
 from typing import Any, List, Optional, Union
 
 from fastapi import (

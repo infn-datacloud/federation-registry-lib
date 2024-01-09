@@ -1,3 +1,4 @@
+"""Image REST API dependencies."""
 from typing import List, Union
 
 from fastapi import Depends, HTTPException, status
