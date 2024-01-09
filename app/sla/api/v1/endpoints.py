@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 # from app.user_group.api.dependencies import valid_user_group_id
 # from app.user_group.models import UserGroup
@@ -14,7 +14,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 
 # from app.project.api.dependencies import project_has_no_sla
 # from app.project.models import Project
@@ -50,14 +50,19 @@ router = APIRouter(prefix="/slas", tags=["slas"])
         It is possible to filter on SLAs attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_slas(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: SLAQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = sla_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -122,12 +127,17 @@ def get_slas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_sla(
+    request: Request,
     size: SchemaSize = Depends(),
     item: SLA = Depends(valid_sla_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return sla_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

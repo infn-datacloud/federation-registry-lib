@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import (
     APIRouter,
@@ -12,7 +12,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 from app.image.api.dependencies import (
     valid_image_id,
     validate_new_image_values,
@@ -48,14 +48,19 @@ router = APIRouter(prefix="/images", tags=["images"])
         It is possible to filter on images attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_images(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ImageQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = image_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -79,12 +84,17 @@ def get_images(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_image(
+    request: Request,
     size: SchemaSize = Depends(),
     item: Image = Depends(valid_image_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return image_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

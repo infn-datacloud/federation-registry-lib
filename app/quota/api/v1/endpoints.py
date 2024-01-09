@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import (
     APIRouter,
@@ -12,7 +12,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.quota.api.dependencies import (
     valid_block_storage_quota_id,
@@ -64,14 +64,19 @@ bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quota
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_block_storage_quotas(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageQuotaQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = block_storage_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -134,12 +139,17 @@ def get_block_storage_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_block_storage_quota(
+    request: Request,
     size: SchemaSize = Depends(),
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return block_storage_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -217,14 +227,19 @@ c_router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_compute_quotas(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeQuotaQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = compute_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -285,12 +300,17 @@ def get_compute_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_compute_quota(
+    request: Request,
     size: SchemaSize = Depends(),
     item: ComputeQuota = Depends(valid_compute_quota_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return compute_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -368,14 +388,19 @@ n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
         It is possible to filter on quotas attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_network_quotas(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkQuotaQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = network_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -399,12 +424,17 @@ def get_network_quotas(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_network_quota(
+    request: Request,
     size: SchemaSize = Depends(),
     item: NetworkQuota = Depends(valid_network_quota_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return network_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

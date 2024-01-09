@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import (
     APIRouter,
@@ -12,7 +12,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 
 # from app.identity_provider.crud import identity_provider
 # from app.identity_provider.schemas import (
@@ -93,14 +93,19 @@ bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_ser
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_block_storage_services(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageServiceQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = block_storage_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -126,12 +131,17 @@ def get_block_storage_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_block_storage_service(
+    request: Request,
     size: SchemaSize = Depends(),
     item: BlockStorageService = Depends(valid_block_storage_service_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return block_storage_service_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -212,14 +222,19 @@ c_router = APIRouter(prefix="/compute_services", tags=["compute_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_compute_services(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeServiceQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = compute_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -243,12 +258,17 @@ def get_compute_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_compute_service(
+    request: Request,
     size: SchemaSize = Depends(),
     item: ComputeService = Depends(valid_compute_service_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return compute_service_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -329,14 +349,19 @@ i_router = APIRouter(prefix="/identity_services", tags=["identity_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_identity_services(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: IdentityServiceQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = identity_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -360,12 +385,17 @@ def get_identity_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_identity_service(
+    request: Request,
     size: SchemaSize = Depends(),
     item: IdentityService = Depends(valid_identity_service_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return identity_service_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -446,14 +476,19 @@ n_router = APIRouter(prefix="/network_services", tags=["network_services"])
         It is possible to filter on services attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_network_services(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkServiceQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = network_service_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -477,12 +512,17 @@ def get_network_services(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_network_service(
+    request: Request,
     size: SchemaSize = Depends(),
     item: NetworkService = Depends(valid_network_service_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return network_service_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

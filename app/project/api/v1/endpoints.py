@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import (
     APIRouter,
@@ -12,7 +12,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
 # from app.flavor.crud import flavor
@@ -61,15 +61,20 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         It is possible to filter on projects attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_projects(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ProjectQuery = Depends(),
     region_name: Optional[str] = None,
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = project_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -95,13 +100,18 @@ def get_projects(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_project(
+    request: Request,
     size: SchemaSize = Depends(),
     item: Project = Depends(valid_project_id),
     region_name: Optional[str] = None,
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=[item], region_query=region_query)
     items = project_mng.choose_out_schema(
