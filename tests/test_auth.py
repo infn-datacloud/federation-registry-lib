@@ -4,7 +4,9 @@ from flaat.user_infos import UserInfos
 
 from app.auth import has_write_access
 from app.main import settings
-from tests.common.client import MOCK_READ_EMAIL, MOCK_WRITE_EMAIL
+
+MOCK_READ_EMAIL = "user@test.it"
+MOCK_WRITE_EMAIL = "admin@test.it"
 
 
 @pytest.fixture
