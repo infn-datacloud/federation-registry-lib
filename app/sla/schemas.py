@@ -35,6 +35,15 @@ class SLABase(SLABasePublic):
     start_date: date = Field(description=DOC_START)
     end_date: date = Field(description=DOC_END)
 
+    @root_validator
+    def start_date_before_end_date(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Verify start date precedes end date."""
+        start = values.get("start_date", None)
+        end = values.get("end_date", None)
+        if start and end:
+            assert start < end, f"Start date {start} greater than end date {end}"
+        return values
+
 
 class SLACreate(BaseNodeCreate, SLABase):
     """Model to create an SLA.
@@ -49,14 +58,6 @@ class SLACreate(BaseNodeCreate, SLABase):
         start_date (datetime): SLA validity start date.
         end_date (datetime): SLA validity end date.
     """
-
-    @root_validator
-    def start_date_before_end_date(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """Verify start date precedes end date."""
-        start = values.get("start_date")
-        end = values.get("end_date")
-        assert start < end, f"Start date {start} greater than end date {end}"
-        return values
 
 
 class SLAUpdate(BaseNodeCreate, SLABase):

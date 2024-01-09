@@ -22,7 +22,6 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Federation-Registry"
     DOMAIN: str = "localhost:8000"
     API_V1_STR: str = "/api/v1"
-    DOMAIN: str = "localhost:8000"
 
     NEO4J_SERVER: str = "localhost:7687"
     NEO4J_USER: str = "neo4j"
@@ -57,7 +56,7 @@ class Settings(BaseSettings):
 
     DOC_V1_URL: Optional[AnyHttpUrl] = None
 
-    @validator("DOC_V1_URL")
+    @validator("DOC_V1_URL", pre=True)
     def create_doc_url(cls, v: Optional[AnyHttpUrl], values: Dict[str, Any]) -> str:
         """Build URL for internal documentation."""
         if isinstance(v, AnyUrl):
