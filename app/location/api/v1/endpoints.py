@@ -117,6 +117,7 @@ def put_location(
     update_data: LocationUpdate,
     response: Response,
     item: Location = Depends(valid_location_id),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     db_item = location_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
