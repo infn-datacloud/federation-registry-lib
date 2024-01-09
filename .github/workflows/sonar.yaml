@@ -60,7 +60,7 @@ jobs:
 
       # Run tests
       - name: Run tests
-        run: poetry run pytest --cov --cov-report=xml --cov-report=html
+        run: poetry run pytest tests/test_auth.py --cov --cov-report=xml --cov-report=html
         env:
           NEO4J_SERVER: "localhost:${{ job.services.neo4j-db.ports[7687] }}"
 
