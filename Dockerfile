@@ -1,5 +1,5 @@
 # Create requirements.txt from poetry dependencies
-FROM python:3.8 as requirements
+FROM python:3.8 AS requirements
 
 WORKDIR /tmp
 
@@ -15,7 +15,7 @@ RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then ${INSTALL_CMD} --dev ; else ${
 
 
 # Stage used for development in containers
-FROM python:3.8 as development
+FROM python:3.8 AS development
 
 ARG USERNAME=vscode
 ARG USER_UID=1000
@@ -47,11 +47,11 @@ COPY ./app /code/app
 
 
 # Stage used in production
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 as prod-backend
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 AS prod-backend
 
 WORKDIR /app/
 
-COPY --from=requirements /app/requirements.txt /app/requirements.txt
+COPY --from=requirements /tmp/requirements.txt /app/requirements.txt
 
 RUN pip install --user --upgrade pip
 RUN pip install --user --no-cache-dir --upgrade -r /app/requirements.txt
