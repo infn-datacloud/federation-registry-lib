@@ -35,15 +35,16 @@ def valid_image_id(image_uid: str) -> Image:
 
 
 def valid_image_name(
-    item: Union[ImageCreate, ImageUpdate],
-    services: List[ComputeService],
+    item: Union[ImageCreate, ImageUpdate], services: List[ComputeService]
 ) -> None:
-    """Check there are no other images, belonging to the same service, with the same
-    name.
+    """Check given data are valid ones.
+
+    Check there are no other images, belonging to the same service, with the same name.
 
     Args:
     ----
         item (ImageCreate | ImageUpdate): new data.
+        services (list of ComputeService): List of services to inspect.
 
     Returns:
     -------
@@ -68,12 +69,14 @@ def valid_image_uuid(
     item: Union[ImageCreate, ImageUpdate],
     services: List[ComputeService] = Depends(valid_compute_service_id),
 ) -> None:
-    """Check there are no other images, belonging to the same service, with the same
-    uuid.
+    """Check given data are valid ones.
+
+    Check there are no other images, belonging to the same service, with the same uuid.
 
     Args:
     ----
         item (ImageCreate | ImageUpdate): new data.
+        services (list of ComputeService): List of services to inspect.
 
     Returns:
     -------
@@ -97,8 +100,10 @@ def valid_image_uuid(
 def validate_new_image_values(
     update_data: ImageUpdate, item: Image = Depends(valid_image_id)
 ) -> None:
-    """Check given data are valid ones. Check there are no other images, belonging to
-    the same service, with the same uuid and name. Avoid to change image visibility.
+    """Check given data are valid ones.
+
+    Check there are no other images, belonging to the same service, with the same uuid
+    and name. Avoid to change image visibility.
 
     Args:
     ----

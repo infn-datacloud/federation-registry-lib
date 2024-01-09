@@ -48,7 +48,7 @@ def valid_provider_id(provider_uid: UUID4) -> Provider:
 
 
 def is_unique_provider(item: Union[ProviderCreateExtended, ProviderUpdate]) -> None:
-    """Check there are no other providers with the same name.
+    """Check there are no other providers with the same name and type.
 
     Args:
     ----
@@ -63,21 +63,21 @@ def is_unique_provider(item: Union[ProviderCreateExtended, ProviderUpdate]) -> N
         BadRequestError: DB entity with given name already exists.
     """
     db_item = provider_mng.get(name=item.name)
-    if db_item is not None:
-        if db_item.type == item.type:
-            msg = f"Provider with name '{item.name}' and type '{db_item.type}' "
-            msg += "already registered"
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
-            )
+    if db_item is not None and db_item.type == item.type:
+        msg = f"Provider with name '{item.name}' and type '{db_item.type}' "
+        msg += "already registered"
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=msg,
+        )
 
 
 def validate_new_provider_values(
     update_data: ProviderUpdate, item: Provider = Depends(valid_provider_id)
 ) -> None:
-    """Check given data are valid ones. Check there are no other providers with the same
-    name.
+    """Check given data are valid ones.
+
+    Check there are no other providers with the same name and type.
 
     Args:
     ----
@@ -98,8 +98,9 @@ def validate_new_provider_values(
 
 
 def valid_provider(item: ProviderCreateExtended) -> None:
-    """Check provider does not already exists and validate identity providers and
-    regions.
+    """Check given data are valid ones.
+
+    Check provider does not already exists and validate identity providers and regions.
     """
     is_unique_provider(item)
     for idp in item.identity_providers:
@@ -108,10 +109,10 @@ def valid_provider(item: ProviderCreateExtended) -> None:
         valid_region(region)
 
 
-def valid_identity_provider(
-    item: IdentityProviderCreateExtended,
-) -> None:
-    """Check there are no identity providers with the same endpoint, in the identity
+def valid_identity_provider(item: IdentityProviderCreateExtended) -> None:
+    """Check given data are valid ones.
+
+    Check there are no identity providers with the same endpoint, in the identity
     provider list of the received provider. Check that all items have a corresponding
     relationship Check that if there is another identity provider in the DB with the
     same endpoint, it matches the given attributes.
@@ -150,7 +151,7 @@ def valid_identity_provider(
 
 
 def valid_region(item: RegionCreateExtended) -> None:
-    """"""
+    """Check given data are valid one."""
     if item.location is not None:
         db_item = location_mng.get(site=item.location.site)
         if db_item is not None:

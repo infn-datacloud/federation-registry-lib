@@ -38,12 +38,15 @@ def valid_network_uuid(
     item: Union[NetworkCreate, NetworkUpdate],
     service: NetworkService = Depends(valid_network_service_id),
 ) -> None:
-    """Check there are no other networks, belonging to the same service, with the same
+    """Check given data are valid ones.
+
+    Check there are no other networks, belonging to the same service, with the same
     uuid.
 
     Args:
     ----
         item (NetworkCreate | NetworkUpdate): new data.
+        service (NetworkService): Service to inspect.
 
     Returns:
     -------
@@ -66,8 +69,10 @@ def valid_network_uuid(
 def validate_new_network_values(
     update_data: NetworkUpdate, item: Network = Depends(valid_network_id)
 ) -> None:
-    """Check given data are valid ones. Check there are no other networks, belonging to
-    the same service, with the same uuid and name.
+    """Check given data are valid ones.
+
+    Check there are no other networks, belonging to the same service, with the same uuid
+    and name.
 
     Args:
     ----

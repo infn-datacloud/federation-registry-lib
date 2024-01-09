@@ -72,8 +72,9 @@ def valid_block_storage_service_endpoint(
     """
     db_item = block_storage_service_mng.get(endpoint=item.endpoint)
     if db_item is not None:
-        msg = f"Block Storage Service with endpoint '{item.endpoint}' "
-        msg += "already registered"
+        msg = (
+            f"Block Storage Service with endpoint '{item.endpoint}' already registered."
+        )
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
@@ -81,8 +82,9 @@ def validate_new_block_storage_service_values(
     update_data: BlockStorageServiceUpdate,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other services with the same
-    endpoint.
+    """Check given data are valid ones.
+
+    Check there are no other services with the same endpoint.
 
     Args:
     ----
@@ -147,8 +149,7 @@ def valid_compute_service_endpoint(
     """
     db_item = compute_service_mng.get(endpoint=item.endpoint)
     if db_item is not None:
-        msg = f"Compute Service with endpoint '{item.endpoint}' "
-        msg += "already registered"
+        msg = f"Compute Service with endpoint '{item.endpoint}' already registered."
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
@@ -156,8 +157,9 @@ def validate_new_compute_service_values(
     update_data: ComputeServiceUpdate,
     item: ComputeService = Depends(valid_compute_service_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other services with the same
-    endpoint.
+    """Check given data are valid ones.
+
+    Check there are no other services with the same endpoint.
 
     Args:
     ----
@@ -222,8 +224,7 @@ def valid_identity_service_endpoint(
     """
     db_item = identity_service_mng.get(endpoint=item.endpoint)
     if db_item is not None:
-        msg = f"Identity Service with endpoint '{item.endpoint}' "
-        msg += "already registered"
+        msg = f"Identity Service with endpoint '{item.endpoint}' already registered."
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
@@ -231,8 +232,9 @@ def validate_new_identity_service_values(
     update_data: IdentityServiceUpdate,
     item: IdentityService = Depends(valid_identity_service_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other services with the same
-    endpoint.
+    """Check given data are valid ones.
+
+    Check there are no other services with the same endpoint.
 
     Args:
     ----
@@ -297,8 +299,7 @@ def valid_network_service_endpoint(
     """
     db_item = network_service_mng.get(endpoint=item.endpoint)
     if db_item is not None:
-        msg = f"Network Service with endpoint '{item.endpoint}' "
-        msg += "already registered"
+        msg = f"Network Service with endpoint '{item.endpoint}' already registered."
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
@@ -306,8 +307,9 @@ def validate_new_network_service_values(
     update_data: NetworkServiceUpdate,
     item: NetworkService = Depends(valid_network_service_id),
 ) -> None:
-    """Check given data are valid ones. Check there are no other services with the same
-    endpoint.
+    """Check given data are valid ones.
+
+    Check there are no other services with the same endpoint.
 
     Args:
     ----
