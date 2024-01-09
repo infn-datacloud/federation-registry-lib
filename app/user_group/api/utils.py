@@ -1,3 +1,4 @@
+"""Utilities used in User Group endpoints."""
 from typing import List
 
 from app.provider.schemas import ProviderQuery

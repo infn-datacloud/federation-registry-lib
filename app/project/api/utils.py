@@ -1,3 +1,4 @@
+"""Utilities used in Project endpoints."""
 from typing import List
 
 from app.project.models import Project
