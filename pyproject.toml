@@ -16,7 +16,6 @@ pycountry = "^22.3.5"
 
 [tool.poetry.dev-dependencies]
 pytest-cov = "^4.1.0"
-nox = "^2023.4.22"
 mkdocs-material = "^9.1.17"
 mkdocs-git-authors-plugin = "^0.7.2"
 mkdocstrings-python = "^1.1.2"
