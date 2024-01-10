@@ -1,5 +1,4 @@
-"""Identity Provider endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 # from app.user_group.api.dependencies import is_unique_user_group
 # from app.user_group.crud import user_group
@@ -16,7 +15,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 
 # from app.auth_method.schemas import AuthMethodCreate
 from app.identity_provider.api.dependencies import (
@@ -58,13 +57,14 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
         It is possible to filter on identity providers attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_identity_providers(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: IdentityProviderQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve all identity providers.
 
@@ -78,6 +78,10 @@ def get_identity_providers(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = identity_provider_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -101,11 +105,12 @@ def get_identity_providers(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_identity_provider(
+    request: Request,
     size: SchemaSize = Depends(),
     item: IdentityProvider = Depends(valid_identity_provider_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve the identity provider matching a specific uid.
 
@@ -118,6 +123,10 @@ def get_identity_provider(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return identity_provider_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

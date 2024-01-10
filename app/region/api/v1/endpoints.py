@@ -1,5 +1,4 @@
-"""Region endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import (
     APIRouter,
@@ -13,7 +12,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 from app.query import DbQueryCommonParams, Pagination, SchemaSize
 from app.region.api.dependencies import (
     not_last_region,
@@ -50,13 +49,14 @@ router = APIRouter(prefix="/regions", tags=["regions"])
         It is possible to filter on regions attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_regions(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: RegionQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve all regions.
 
@@ -70,6 +70,10 @@ def get_regions(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = region_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -93,11 +97,12 @@ def get_regions(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_region(
+    request: Request,
     size: SchemaSize = Depends(),
     item: Region = Depends(valid_region_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve the region matching a specific uid.
 
@@ -110,6 +115,10 @@ def get_region(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return region_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

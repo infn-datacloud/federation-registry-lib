@@ -1,5 +1,4 @@
-"""Location endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import (
     APIRouter,
@@ -13,7 +12,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 from app.location.api.dependencies import (
     valid_location_id,
     validate_new_location_values,
@@ -52,13 +51,14 @@ router = APIRouter(prefix="/locations", tags=["locations"])
         It is possible to filter on locations attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_locations(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: LocationQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve all locations.
 
@@ -72,6 +72,10 @@ def get_locations(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = location_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -95,11 +99,12 @@ def get_locations(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_location(
+    request: Request,
     size: SchemaSize = Depends(),
     item: Location = Depends(valid_location_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve the location matching a specific uid.
 
@@ -112,6 +117,10 @@ def get_location(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return location_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -141,6 +150,7 @@ def put_location(
     update_data: LocationUpdate,
     response: Response,
     item: Location = Depends(valid_location_id),
+    client_credentials: HTTPBasicCredentials = Security(security),
 ):
     """PATCH operation to update the location matching a specific uid.
 

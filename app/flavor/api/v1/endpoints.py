@@ -1,5 +1,4 @@
-"""Flavor endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import (
     APIRouter,
@@ -13,7 +12,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 from app.flavor.api.dependencies import (
     valid_flavor_id,
     validate_new_flavor_values,
@@ -49,13 +48,14 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
         It is possible to filter on flavors attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_flavors(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: FlavorQuery = Depends(),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve all flavors.
 
@@ -69,6 +69,10 @@ def get_flavors(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = flavor_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -92,11 +96,12 @@ def get_flavors(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_flavor(
+    request: Request,
     size: SchemaSize = Depends(),
     item: Flavor = Depends(valid_flavor_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve the flavor matching a specific uid.
 
@@ -109,6 +114,10 @@ def get_flavor(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return flavor_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

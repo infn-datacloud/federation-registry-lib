@@ -1,5 +1,6 @@
 """Authentication and authorization rules."""
 from fastapi.security import HTTPBearer
+from flaat import AuthWorkflow
 from flaat.config import AccessLevel
 from flaat.fastapi import Flaat
 from flaat.requirements import AllOf, HasSubIss, IsTrue
@@ -7,10 +8,8 @@ from flaat.user_infos import UserInfos
 
 from app.config import get_settings
 
-
-def security() -> HTTPBearer:
-    """Return HTTP Bearer."""
-    return HTTPBearer()
+security = HTTPBearer()
+lazy_security = HTTPBearer(auto_error=False)
 
 
 def has_write_access(user_infos: UserInfos) -> bool:
@@ -25,3 +24,6 @@ flaat.set_access_levels(
 )
 flaat.set_trusted_OP_list(get_settings().TRUSTED_IDP_LIST)
 flaat.set_request_timeout(30)
+
+
+custom = AuthWorkflow(flaat=flaat, ignore_no_authn=True)

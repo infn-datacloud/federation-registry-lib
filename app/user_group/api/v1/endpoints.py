@@ -1,5 +1,4 @@
-"""User Group endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from fastapi import (
     APIRouter,
@@ -13,7 +12,7 @@ from fastapi import (
 from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
-from app.auth import flaat, security
+from app.auth import custom, flaat, lazy_security, security
 from app.provider.enum import ProviderType
 from app.provider.schemas import ProviderQuery
 
@@ -86,8 +85,9 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
         It is possible to filter on user groups attributes and other \
         common query parameters.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_user_groups(
+    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
@@ -96,7 +96,7 @@ def get_user_groups(
     provider_name: Optional[str] = None,
     provider_type: Optional[ProviderType] = None,
     region_name: Optional[str] = None,
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve all user groups.
 
@@ -110,6 +110,10 @@ def get_user_groups(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     items = user_group_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -146,11 +150,12 @@ def get_user_groups(
         If no entity matches the given *uid*, the endpoint \
         raises a `not found` error.",
 )
-@flaat.inject_user_infos(strict=False)
+@custom.decorate_view_func
 def get_user_group(
+    request: Request,
     size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
-    user_infos: Optional[Any] = None,
+    client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve the user group matching a specific uid.
 
@@ -163,6 +168,10 @@ def get_user_group(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
+    if client_credentials:
+        user_infos = flaat.get_user_infos_from_request(request)
+    else:
+        user_infos = None
     return user_group_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
