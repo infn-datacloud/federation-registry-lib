@@ -79,7 +79,6 @@ from app.service.schemas_extended import (
 bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_services"])
 
 
-@db.read_transaction
 @bs_router.get(
     "/",
     response_model=Union[
@@ -94,6 +93,7 @@ bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_ser
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_block_storage_services(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -129,7 +129,6 @@ def get_block_storage_services(
     )
 
 
-@db.read_transaction
 @bs_router.get(
     "/{service_uid}",
     response_model=Union[
@@ -144,6 +143,7 @@ def get_block_storage_services(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_block_storage_service(
     request: Request,
     size: SchemaSize = Depends(),
@@ -170,7 +170,6 @@ def get_block_storage_service(
     )[0]
 
 
-@db.write_transaction
 @bs_router.patch(
     "/{service_uid}",
     status_code=status.HTTP_200_OK,
@@ -189,6 +188,7 @@ def get_block_storage_service(
         no other items with the given *endpoint*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_block_storage_service(
     request: Request,
     update_data: BlockStorageServiceUpdate,
@@ -213,7 +213,6 @@ def put_block_storage_service(
     return db_item
 
 
-@db.write_transaction
 @bs_router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -227,6 +226,7 @@ def put_block_storage_service(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_block_storage_services(
     request: Request,
     item: BlockStorageService = Depends(valid_block_storage_service_id),
@@ -248,7 +248,6 @@ def delete_block_storage_services(
 c_router = APIRouter(prefix="/compute_services", tags=["compute_services"])
 
 
-@db.read_transaction
 @c_router.get(
     "/",
     response_model=Union[
@@ -263,6 +262,7 @@ c_router = APIRouter(prefix="/compute_services", tags=["compute_services"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_compute_services(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -296,7 +296,6 @@ def get_compute_services(
     )
 
 
-@db.read_transaction
 @c_router.get(
     "/{service_uid}",
     response_model=Union[
@@ -311,6 +310,7 @@ def get_compute_services(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_compute_service(
     request: Request,
     size: SchemaSize = Depends(),
@@ -337,7 +337,6 @@ def get_compute_service(
     )[0]
 
 
-@db.write_transaction
 @c_router.patch(
     "/{service_uid}",
     status_code=status.HTTP_200_OK,
@@ -356,6 +355,7 @@ def get_compute_service(
         no other items with the given *endpoint*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_compute_service(
     request: Request,
     update_data: ComputeServiceUpdate,
@@ -380,7 +380,6 @@ def put_compute_service(
     return db_item
 
 
-@db.write_transaction
 @c_router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -394,6 +393,7 @@ def put_compute_service(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_compute_services(
     request: Request,
     item: ComputeService = Depends(valid_compute_service_id),
@@ -415,7 +415,6 @@ def delete_compute_services(
 i_router = APIRouter(prefix="/identity_services", tags=["identity_services"])
 
 
-@db.read_transaction
 @i_router.get(
     "/",
     response_model=Union[
@@ -430,6 +429,7 @@ i_router = APIRouter(prefix="/identity_services", tags=["identity_services"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_identity_services(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -463,7 +463,6 @@ def get_identity_services(
     )
 
 
-@db.read_transaction
 @i_router.get(
     "/{service_uid}",
     response_model=Union[
@@ -478,6 +477,7 @@ def get_identity_services(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_identity_service(
     request: Request,
     size: SchemaSize = Depends(),
@@ -504,7 +504,6 @@ def get_identity_service(
     )[0]
 
 
-@db.write_transaction
 @i_router.patch(
     "/{service_uid}",
     status_code=status.HTTP_200_OK,
@@ -523,6 +522,7 @@ def get_identity_service(
         no other items with the given *endpoint*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_identity_service(
     request: Request,
     update_data: IdentityServiceUpdate,
@@ -547,7 +547,6 @@ def put_identity_service(
     return db_item
 
 
-@db.write_transaction
 @i_router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -561,6 +560,7 @@ def put_identity_service(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_identity_services(
     request: Request,
     item: IdentityService = Depends(valid_identity_service_id),
@@ -582,7 +582,6 @@ def delete_identity_services(
 n_router = APIRouter(prefix="/network_services", tags=["network_services"])
 
 
-@db.read_transaction
 @n_router.get(
     "/",
     response_model=Union[
@@ -597,6 +596,7 @@ n_router = APIRouter(prefix="/network_services", tags=["network_services"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_network_services(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -630,7 +630,6 @@ def get_network_services(
     )
 
 
-@db.read_transaction
 @n_router.get(
     "/{service_uid}",
     response_model=Union[
@@ -645,6 +644,7 @@ def get_network_services(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_network_service(
     request: Request,
     size: SchemaSize = Depends(),
@@ -671,7 +671,6 @@ def get_network_service(
     )[0]
 
 
-@db.write_transaction
 @n_router.patch(
     "/{service_uid}",
     status_code=status.HTTP_200_OK,
@@ -690,6 +689,7 @@ def get_network_service(
         no other items with the given *endpoint*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_network_service(
     request: Request,
     update_data: NetworkServiceUpdate,
@@ -714,7 +714,6 @@ def put_network_service(
     return db_item
 
 
-@db.write_transaction
 @n_router.delete(
     "/{service_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -728,6 +727,7 @@ def put_network_service(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_network_services(
     request: Request,
     item: NetworkService = Depends(valid_network_service_id),

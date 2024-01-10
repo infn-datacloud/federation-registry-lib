@@ -43,7 +43,6 @@ from app.query import DbQueryCommonParams, Pagination, SchemaSize
 router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -58,6 +57,7 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_identity_providers(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -91,7 +91,6 @@ def get_identity_providers(
     )
 
 
-@db.read_transaction
 @router.get(
     "/{identity_provider_uid}",
     response_model=Union[
@@ -106,6 +105,7 @@ def get_identity_providers(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_identity_provider(
     request: Request,
     size: SchemaSize = Depends(),
@@ -132,7 +132,6 @@ def get_identity_provider(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{identity_provider_uid}",
     status_code=status.HTTP_200_OK,
@@ -151,6 +150,7 @@ def get_identity_provider(
         no other items with the given *endpoint*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_identity_provider(
     request: Request,
     update_data: IdentityProviderUpdate,
@@ -175,7 +175,6 @@ def put_identity_provider(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{identity_provider_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -187,6 +186,7 @@ def put_identity_provider(
         On cascade, delete related user groups.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_identity_providers(
     request: Request,
     item: IdentityProvider = Depends(valid_identity_provider_id),

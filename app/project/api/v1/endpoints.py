@@ -47,7 +47,6 @@ from app.region.schemas import RegionQuery
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -62,6 +61,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_projects(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -98,7 +98,6 @@ def get_projects(
     )
 
 
-@db.read_transaction
 @router.get(
     "/{project_uid}",
     response_model=Union[
@@ -113,6 +112,7 @@ def get_projects(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_project(
     request: Request,
     size: SchemaSize = Depends(),
@@ -143,7 +143,6 @@ def get_project(
     return items[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{project_uid}",
     status_code=status.HTTP_200_OK,
@@ -162,6 +161,7 @@ def get_project(
         no other items with the given *uuid* and *name*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_project(
     request: Request,
     update_data: ProjectUpdate,
@@ -186,7 +186,6 @@ def put_project(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{project_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -200,6 +199,7 @@ def put_project(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_project(
     request: Request,
     item: Project = Depends(valid_project_id),

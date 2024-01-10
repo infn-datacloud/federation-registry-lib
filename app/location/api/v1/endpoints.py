@@ -37,7 +37,6 @@ from app.query import DbQueryCommonParams, Pagination, SchemaSize
 router = APIRouter(prefix="/locations", tags=["locations"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -52,6 +51,7 @@ router = APIRouter(prefix="/locations", tags=["locations"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_locations(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -85,7 +85,6 @@ def get_locations(
     )
 
 
-@db.read_transaction
 @router.get(
     "/{location_uid}",
     response_model=Union[
@@ -100,6 +99,7 @@ def get_locations(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_location(
     request: Request,
     size: SchemaSize = Depends(),
@@ -126,7 +126,6 @@ def get_location(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{location_uid}",
     status_code=status.HTTP_200_OK,
@@ -145,6 +144,7 @@ def get_location(
         no other items with the given *site*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_location(
     request: Request,
     update_data: LocationUpdate,
@@ -169,7 +169,6 @@ def put_location(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{location_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -182,6 +181,7 @@ def put_location(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_location(
     request: Request,
     item: Location = Depends(valid_location_id),

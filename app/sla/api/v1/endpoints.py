@@ -36,7 +36,6 @@ from app.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
 router = APIRouter(prefix="/slas", tags=["slas"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -51,6 +50,7 @@ router = APIRouter(prefix="/slas", tags=["slas"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_slas(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -125,7 +125,6 @@ def get_slas(
 #     return sla.create(obj_in=item, project=project, user_group=user_group, force=True)
 
 
-@db.read_transaction
 @router.get(
     "/{sla_uid}",
     response_model=Union[
@@ -140,6 +139,7 @@ def get_slas(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_sla(
     request: Request,
     size: SchemaSize = Depends(),
@@ -166,7 +166,6 @@ def get_sla(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{sla_uid}",
     status_code=status.HTTP_200_OK,
@@ -185,6 +184,7 @@ def get_sla(
         no other items with the given *endpoint*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_sla(
     request: Request,
     update_data: SLAUpdate,
@@ -209,7 +209,6 @@ def put_sla(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{sla_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -222,6 +221,7 @@ def put_sla(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_slas(
     request: Request,
     item: SLA = Depends(valid_sla_id),

@@ -50,7 +50,6 @@ from app.quota.schemas_extended import (
 bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quotas"])
 
 
-@db.read_transaction
 @bs_router.get(
     "/",
     response_model=Union[
@@ -65,6 +64,7 @@ bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quota
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_block_storage_quotas(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -137,7 +137,6 @@ def get_block_storage_quotas(
 #     )
 
 
-@db.read_transaction
 @bs_router.get(
     "/{quota_uid}",
     response_model=Union[
@@ -152,6 +151,7 @@ def get_block_storage_quotas(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_block_storage_quota(
     request: Request,
     size: SchemaSize = Depends(),
@@ -178,7 +178,6 @@ def get_block_storage_quota(
     )[0]
 
 
-@db.write_transaction
 @bs_router.patch(
     "/{quota_uid}",
     status_code=status.HTTP_200_OK,
@@ -195,6 +194,7 @@ def get_block_storage_quota(
         and the endpoint returns the `not modified` message.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_block_storage_quota(
     request: Request,
     update_data: BlockStorageQuotaUpdate,
@@ -219,7 +219,6 @@ def put_block_storage_quota(
     return db_item
 
 
-@db.write_transaction
 @bs_router.delete(
     "/{quota_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -232,6 +231,7 @@ def put_block_storage_quota(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_block_storage_quotas(
     request: Request,
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
@@ -253,7 +253,6 @@ def delete_block_storage_quotas(
 c_router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
 
 
-@db.read_transaction
 @c_router.get(
     "/",
     response_model=Union[
@@ -268,6 +267,7 @@ c_router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_compute_quotas(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -338,7 +338,6 @@ def get_compute_quotas(
 #     )
 
 
-@db.read_transaction
 @c_router.get(
     "/{quota_uid}",
     response_model=Union[
@@ -353,6 +352,7 @@ def get_compute_quotas(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_compute_quota(
     request: Request,
     size: SchemaSize = Depends(),
@@ -379,7 +379,6 @@ def get_compute_quota(
     )[0]
 
 
-@db.write_transaction
 @c_router.patch(
     "/{quota_uid}",
     status_code=status.HTTP_200_OK,
@@ -396,6 +395,7 @@ def get_compute_quota(
         and the endpoint returns the `not modified` message.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_compute_quota(
     request: Request,
     update_data: ComputeQuotaUpdate,
@@ -420,7 +420,6 @@ def put_compute_quota(
     return db_item
 
 
-@db.write_transaction
 @c_router.delete(
     "/{quota_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -433,6 +432,7 @@ def put_compute_quota(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_compute_quotas(
     request: Request,
     item: ComputeQuota = Depends(valid_compute_quota_id),
@@ -454,7 +454,6 @@ def delete_compute_quotas(
 n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
 
 
-@db.read_transaction
 @n_router.get(
     "/",
     response_model=Union[
@@ -469,6 +468,7 @@ n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_network_quotas(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -502,7 +502,6 @@ def get_network_quotas(
     )
 
 
-@db.read_transaction
 @n_router.get(
     "/{quota_uid}",
     response_model=Union[
@@ -517,6 +516,7 @@ def get_network_quotas(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_network_quota(
     request: Request,
     size: SchemaSize = Depends(),
@@ -543,7 +543,6 @@ def get_network_quota(
     )[0]
 
 
-@db.write_transaction
 @n_router.patch(
     "/{quota_uid}",
     status_code=status.HTTP_200_OK,
@@ -560,6 +559,7 @@ def get_network_quota(
         and the endpoint returns the `not modified` message.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_network_quota(
     request: Request,
     update_data: NetworkQuotaUpdate,
@@ -584,7 +584,6 @@ def put_network_quota(
     return db_item
 
 
-@db.write_transaction
 @n_router.delete(
     "/{quota_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -597,6 +596,7 @@ def put_network_quota(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_network_quotas(
     request: Request,
     item: NetworkQuota = Depends(valid_network_quota_id),

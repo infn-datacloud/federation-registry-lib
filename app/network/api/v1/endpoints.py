@@ -34,7 +34,6 @@ from app.query import DbQueryCommonParams, Pagination, SchemaSize
 router = APIRouter(prefix="/networks", tags=["networks"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -49,6 +48,7 @@ router = APIRouter(prefix="/networks", tags=["networks"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_networks(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -82,7 +82,6 @@ def get_networks(
     )
 
 
-@db.read_transaction
 @router.get(
     "/{network_uid}",
     response_model=Union[
@@ -97,6 +96,7 @@ def get_networks(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_network(
     request: Request,
     size: SchemaSize = Depends(),
@@ -123,7 +123,6 @@ def get_network(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{network_uid}",
     status_code=status.HTTP_200_OK,
@@ -142,6 +141,7 @@ def get_network(
         no other items with the given *uuid* and *name*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_network(
     request: Request,
     update_data: NetworkUpdate,
@@ -166,7 +166,6 @@ def put_network(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{network_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -179,6 +178,7 @@ def put_network(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_networks(
     request: Request,
     item: Network = Depends(valid_network_id),

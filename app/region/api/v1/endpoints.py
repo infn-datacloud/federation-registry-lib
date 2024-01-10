@@ -35,7 +35,6 @@ from app.region.schemas_extended import (
 router = APIRouter(prefix="/regions", tags=["regions"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -50,6 +49,7 @@ router = APIRouter(prefix="/regions", tags=["regions"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_regions(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -83,7 +83,6 @@ def get_regions(
     )
 
 
-@db.read_transaction
 @router.get(
     "/{region_uid}",
     response_model=Union[
@@ -98,6 +97,7 @@ def get_regions(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_region(
     request: Request,
     size: SchemaSize = Depends(),
@@ -124,7 +124,6 @@ def get_region(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{region_uid}",
     status_code=status.HTTP_200_OK,
@@ -144,6 +143,7 @@ def get_region(
         the given *name*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_region(
     request: Request,
     update_data: RegionUpdate,
@@ -168,7 +168,6 @@ def put_region(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{region_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -182,6 +181,7 @@ def put_region(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_regions(
     request: Request,
     item: Region = Depends(valid_region_id),

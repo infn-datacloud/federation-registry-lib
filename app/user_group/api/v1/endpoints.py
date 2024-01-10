@@ -71,7 +71,6 @@ from app.user_group.schemas_extended import (
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -86,6 +85,7 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_user_groups(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -136,7 +136,6 @@ def get_user_groups(
     )
 
 
-@db.read_transaction
 @router.get(
     "/{user_group_uid}",
     response_model=Union[
@@ -151,6 +150,7 @@ def get_user_groups(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_user_group(
     request: Request,
     size: SchemaSize = Depends(),
@@ -177,7 +177,6 @@ def get_user_group(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{user_group_uid}",
     status_code=status.HTTP_200_OK,
@@ -195,6 +194,7 @@ def get_user_group(
         with the given *name*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_user_group(
     request: Request,
     update_data: UserGroupUpdate,
@@ -219,7 +219,6 @@ def put_user_group(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{user_group_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -231,6 +230,7 @@ def put_user_group(
         On cascade, delete related SLAs.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_user_group(
     request: Request,
     item: UserGroup = Depends(valid_user_group_id),

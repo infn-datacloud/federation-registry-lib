@@ -34,7 +34,6 @@ from app.query import DbQueryCommonParams, Pagination, SchemaSize
 router = APIRouter(prefix="/flavors", tags=["flavors"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -49,6 +48,7 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_flavors(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -82,7 +82,6 @@ def get_flavors(
     )
 
 
-@db.read_transaction
 @router.get(
     "/{flavor_uid}",
     response_model=Union[
@@ -97,6 +96,7 @@ def get_flavors(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_flavor(
     request: Request,
     size: SchemaSize = Depends(),
@@ -123,7 +123,6 @@ def get_flavor(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{flavor_uid}",
     status_code=status.HTTP_200_OK,
@@ -142,6 +141,7 @@ def get_flavor(
         no other items with the given *uuid* and *name*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_flavor(
     request: Request,
     update_data: FlavorUpdate,
@@ -166,7 +166,6 @@ def put_flavor(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{flavor_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -179,6 +178,7 @@ def put_flavor(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_flavors(
     request: Request,
     item: Flavor = Depends(valid_flavor_id),

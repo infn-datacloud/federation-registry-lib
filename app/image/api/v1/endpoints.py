@@ -34,7 +34,6 @@ from app.query import DbQueryCommonParams, Pagination, SchemaSize
 router = APIRouter(prefix="/images", tags=["images"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -49,6 +48,7 @@ router = APIRouter(prefix="/images", tags=["images"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_images(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -82,7 +82,6 @@ def get_images(
     )
 
 
-@db.read_transaction
 @router.get(
     "/{image_uid}",
     response_model=Union[
@@ -97,6 +96,7 @@ def get_images(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_image(
     request: Request,
     size: SchemaSize = Depends(),
@@ -123,7 +123,6 @@ def get_image(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{image_uid}",
     status_code=status.HTTP_200_OK,
@@ -142,6 +141,7 @@ def get_image(
         no other items with the given *uuid* and *name*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_image(
     request: Request,
     update_data: ImageUpdate,
@@ -166,7 +166,6 @@ def put_image(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{image_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -179,6 +178,7 @@ def put_image(
         server` error",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_images(
     request: Request,
     item: Image = Depends(valid_image_id),

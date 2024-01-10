@@ -68,7 +68,6 @@ from app.query import DbQueryCommonParams, Pagination, SchemaSize
 router = APIRouter(prefix="/providers", tags=["providers"])
 
 
-@db.read_transaction
 @router.get(
     "/",
     response_model=Union[
@@ -83,6 +82,7 @@ router = APIRouter(prefix="/providers", tags=["providers"])
         common query parameters.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_providers(
     request: Request,
     comm: DbQueryCommonParams = Depends(),
@@ -116,7 +116,6 @@ def get_providers(
     )
 
 
-@db.write_transaction
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
@@ -131,6 +130,7 @@ def get_providers(
         Moreover check the received lists do not contain duplicates.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def post_provider(
     request: Request,
     item: ProviderCreateExtended,
@@ -146,7 +146,6 @@ def post_provider(
     return provider_mng.create(obj_in=item)
 
 
-@db.read_transaction
 @router.get(
     "/{provider_uid}",
     response_model=Union[
@@ -161,6 +160,7 @@ def post_provider(
         raises a `not found` error.",
 )
 @custom.decorate_view_func
+@db.read_transaction
 def get_provider(
     request: Request,
     size: SchemaSize = Depends(),
@@ -187,7 +187,6 @@ def get_provider(
     )[0]
 
 
-@db.write_transaction
 @router.patch(
     "/{provider_uid}",
     status_code=status.HTTP_200_OK,
@@ -206,6 +205,7 @@ def get_provider(
         no other items with the given *name*.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def put_provider(
     request: Request,
     update_data: ProviderUpdate,
@@ -230,7 +230,6 @@ def put_provider(
     return db_item
 
 
-@db.write_transaction
 @router.delete(
     "/{provider_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -243,6 +242,7 @@ def put_provider(
         and services.",
 )
 @flaat.access_level("write")
+@db.write_transaction
 def delete_providers(
     request: Request,
     item: Provider = Depends(valid_provider_id),
