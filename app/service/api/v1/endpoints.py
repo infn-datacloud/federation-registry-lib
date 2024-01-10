@@ -1,3 +1,4 @@
+"""Services endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
 from typing import List, Optional, Union
 
 from fastapi import (

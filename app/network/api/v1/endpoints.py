@@ -1,3 +1,4 @@
+"""Network endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
 from typing import List, Optional, Union
 
 from fastapi import (

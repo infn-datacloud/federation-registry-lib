@@ -1,3 +1,4 @@
+"""Identity Provider endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
 from typing import List, Optional, Union
 
 # from app.user_group.api.dependencies import is_unique_user_group
