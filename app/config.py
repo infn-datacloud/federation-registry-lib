@@ -34,22 +34,20 @@ class Settings(BaseSettings):
         """Retrive the string from the enum value."""
         return v.value
 
-    @validator("NEOMODEL_DATABASE_URL", pre=True)
+    @validator("NEOMODEL_DATABASE_URL")
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         """Before checking the DB URL, assemble the target DB uri from single parts."""
         if isinstance(v, AnyUrl):
-            return str(v)
-        s = f"{values.get('NEO4J_URI_SCHEME')}://"
-        s += f"{values.get('NEO4J_USER')}:"
-        s += f"{values.get('NEO4J_PASSWORD')}@"
-        s += f"{values.get('NEO4J_SERVER')}"
-        return s
+            s = v
+        else:
+            s = f"{values.get('NEO4J_URI_SCHEME')}://"
+            s += f"{values.get('NEO4J_USER')}:"
+            s += f"{values.get('NEO4J_PASSWORD')}@"
+            s += f"{values.get('NEO4J_SERVER')}"
 
-    @validator("NEOMODEL_DATABASE_URL")
-    def save_db_url(cls, v: Optional[str]) -> str:
-        """Set the DB uri for this application."""
-        config.DATABASE_URL = v
-        return v
+        # Set the DB uri for this application
+        config.DATABASE_URL = s
+        return s
 
     ADMIN_EMAIL_LIST: List[EmailStr] = []
     TRUSTED_IDP_LIST: List[AnyHttpUrl] = []
