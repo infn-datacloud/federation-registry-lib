@@ -30,11 +30,13 @@ class Settings(BaseSettings):
     NEOMODEL_DATABASE_URL: Optional[AnyUrl] = None
 
     @validator("NEO4J_URI_SCHEME")
+    @classmethod
     def get_enum_val(cls, v: Neo4jUriScheme) -> str:
         """Retrive the string from the enum value."""
         return v.value
 
     @validator("NEOMODEL_DATABASE_URL")
+    @classmethod
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         """Before checking the DB URL, assemble the target DB uri from single parts."""
         if isinstance(v, AnyUrl):
@@ -55,6 +57,7 @@ class Settings(BaseSettings):
     DOC_V1_URL: Optional[AnyHttpUrl] = None
 
     @validator("DOC_V1_URL", pre=True)
+    @classmethod
     def create_doc_url(cls, v: Optional[AnyHttpUrl], values: Dict[str, Any]) -> str:
         """Build URL for internal documentation."""
         if isinstance(v, AnyUrl):

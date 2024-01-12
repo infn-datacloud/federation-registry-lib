@@ -63,6 +63,7 @@ class DbQueryCommonParams(BaseModel):
     sort: Optional[str] = Field(default=None, description="Sorting rule.")
 
     @validator("sort")
+    @classmethod
     def parse_sort_rule(cls, v: Optional[str]) -> Dict[str, Any]:
         """Parse and correct sort rule.
 

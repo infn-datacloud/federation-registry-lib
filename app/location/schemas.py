@@ -42,6 +42,7 @@ class LocationBase(LocationBasePublic):
     )
 
     @validator("country")
+    @classmethod
     def is_known_country(cls, v) -> str:
         """Validate country."""
         if v:

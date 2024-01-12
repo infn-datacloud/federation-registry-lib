@@ -48,6 +48,7 @@ class BlockStorageServiceBase(ServiceBase):
     name: BlockStorageServiceName = Field(description=DOC_NAME)
 
     @validator("type")
+    @classmethod
     def check_type(cls, v) -> Literal[ServiceType.BLOCK_STORAGE]:
         """Verify that the type value is exactly ServiceType.BLOCK_STORAGE."""
         if v != ServiceType.BLOCK_STORAGE:
@@ -148,6 +149,7 @@ class ComputeServiceBase(ServiceBase):
     name: ComputeServiceName = Field(description=DOC_NAME)
 
     @validator("type")
+    @classmethod
     def check_type(cls, v) -> Literal[ServiceType.COMPUTE]:
         """Verify that the type value is exactly ServiceType.COMPUTE."""
         if v != ServiceType.COMPUTE:
@@ -246,6 +248,7 @@ class IdentityServiceBase(ServiceBase):
     name: IdentityServiceName = Field(description=DOC_NAME)
 
     @validator("type")
+    @classmethod
     def check_type(cls, v) -> Literal[ServiceType.IDENTITY]:
         """Verify that the type value is exactly ServiceType.IDENTITY."""
         if v != ServiceType.IDENTITY:
@@ -343,6 +346,7 @@ class NetworkServiceBase(ServiceBase):
     name: NetworkServiceName = Field(description=DOC_NAME)
 
     @validator("type")
+    @classmethod
     def check_type(cls, v) -> Literal[ServiceType.NETWORK]:
         """Verify that the type value is exactly ServiceType.NETWORK."""
         if v != ServiceType.NETWORK:

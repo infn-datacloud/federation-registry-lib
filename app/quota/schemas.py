@@ -62,6 +62,7 @@ class BlockStorageQuotaBase(QuotaBase):
     volumes: Optional[int] = Field(default=None, ge=-1, description=DOC_VOLS)
 
     @validator("type", check_fields=False)
+    @classmethod
     def check_type(cls, v) -> Literal[QuotaType.BLOCK_STORAGE]:
         """Verify that type value is exactly QuotaType.BLOCK_STORAGE."""
         if v != QuotaType.BLOCK_STORAGE:
@@ -170,6 +171,7 @@ class ComputeQuotaBase(QuotaBase):
     ram: Optional[int] = Field(default=None, ge=0, description=DOC_RAM)
 
     @validator("type", check_fields=False)
+    @classmethod
     def check_type(cls, v) -> Literal[QuotaType.COMPUTE]:
         """Verify that type value is exactly QuotaType.COMPUTE."""
         if v != QuotaType.COMPUTE:
@@ -282,6 +284,7 @@ class NetworkQuotaBase(QuotaBase):
     )
 
     @validator("type", check_fields=False)
+    @classmethod
     def check_type(cls, v) -> Literal[QuotaType.NETWORK]:
         """Verify that type value is exactly QuotaType.NETWORK."""
         if v != QuotaType.NETWORK:

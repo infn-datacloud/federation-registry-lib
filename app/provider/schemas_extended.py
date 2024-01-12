@@ -437,6 +437,7 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
     user_groups: List[UserGroupCreateExtended] = Field(description=DOC_NEW_GROUP)
 
     @validator("user_groups")
+    @classmethod
     def validate_user_groups(
         cls, v: UserGroupCreateExtended
     ) -> UserGroupCreateExtended:
@@ -529,6 +530,7 @@ class FlavorCreateExtended(FlavorCreate):
     projects: List[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
 
     @validator("projects", pre=True)
+    @classmethod
     def validate_projects(cls, v: Union[str, UUID]) -> str:
         """Cast to string possible UUIDs and verify there are no duplicate values."""
         v = [i.hex if isinstance(i, UUID) else i for i in v]
@@ -578,6 +580,7 @@ class ImageCreateExtended(ImageCreate):
     projects: List[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
 
     @validator("projects", pre=True)
+    @classmethod
     def validate_projects(cls, v: Union[str, UUID]) -> str:
         """Cast to string possible UUIDs and verify there are no duplicate values."""
         v = [i.hex if isinstance(i, UUID) else i for i in v]
@@ -653,6 +656,7 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
     )
 
     @validator("quotas")
+    @classmethod
     def max_two_quotas_on_same_project(
         cls, v: List[BlockStorageQuotaCreateExtended]
     ) -> List[BlockStorageQuotaCreateExtended]:
@@ -699,6 +703,7 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
     )
 
     @validator("flavors")
+    @classmethod
     def validate_flavors(
         cls, v: List[FlavorCreateExtended]
     ) -> List[FlavorCreateExtended]:
@@ -708,6 +713,7 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
         return v
 
     @validator("images")
+    @classmethod
     def validate_images(cls, v: List[ImageCreateExtended]) -> List[ImageCreateExtended]:
         """Verify there are no duplicated names or UUIDs in the image list."""
         find_duplicates(v, "uuid")
@@ -715,6 +721,7 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
         return v
 
     @validator("quotas")
+    @classmethod
     def max_two_quotas_on_same_project(
         cls, v: List[ComputeQuotaCreateExtended]
     ) -> List[ComputeQuotaCreateExtended]:
@@ -757,6 +764,7 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
     )
 
     @validator("networks")
+    @classmethod
     def validate_networks(
         cls, v: List[NetworkCreateExtended]
     ) -> List[NetworkCreateExtended]:
@@ -765,6 +773,7 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
         return v
 
     @validator("quotas")
+    @classmethod
     def max_two_quotas_on_same_project(
         cls, v: List[NetworkQuotaCreateExtended]
     ) -> List[NetworkQuotaCreateExtended]:
@@ -821,6 +830,7 @@ class RegionCreateExtended(RegionCreate):
     )
 
     @validator("block_storage_services")
+    @classmethod
     def validate_block_storage_services(
         cls, v: List[BlockStorageServiceCreateExtended]
     ) -> List[BlockStorageServiceCreateExtended]:
@@ -829,6 +839,7 @@ class RegionCreateExtended(RegionCreate):
         return v
 
     @validator("compute_services")
+    @classmethod
     def validate_compute_services(
         cls, v: List[ComputeServiceCreateExtended]
     ) -> List[ComputeServiceCreateExtended]:
@@ -837,6 +848,7 @@ class RegionCreateExtended(RegionCreate):
         return v
 
     @validator("identity_services")
+    @classmethod
     def validate_identity_services(
         cls, v: List[IdentityServiceCreate]
     ) -> List[IdentityServiceCreate]:
@@ -845,6 +857,7 @@ class RegionCreateExtended(RegionCreate):
         return v
 
     @validator("network_services")
+    @classmethod
     def validate_network_services(
         cls, v: List[NetworkServiceCreateExtended]
     ) -> List[NetworkServiceCreateExtended]:
@@ -881,6 +894,7 @@ class ProviderCreateExtended(ProviderCreate):
     )
 
     @validator("identity_providers")
+    @classmethod
     def validate_identity_providers(
         cls, v: List[IdentityProviderCreateExtended]
     ) -> List[IdentityProviderCreateExtended]:
@@ -889,6 +903,7 @@ class ProviderCreateExtended(ProviderCreate):
         return v
 
     @validator("projects")
+    @classmethod
     def validate_projects(cls, v: List[ProjectCreate]) -> List[ProjectCreate]:
         """Verify there are no duplicated names and UUIDs in the project list."""
         find_duplicates(v, "uuid")
@@ -896,6 +911,7 @@ class ProviderCreateExtended(ProviderCreate):
         return v
 
     @validator("regions")
+    @classmethod
     def validate_regions(
         cls, v: List[RegionCreateExtended]
     ) -> List[RegionCreateExtended]:
