@@ -1,11 +1,11 @@
 """Core pydantic models."""
 from enum import Enum
-from typing import Dict
+from typing import Any
 from uuid import UUID
 
 from neo4j.time import DateTime
 from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, validator
 
 
 class BaseNode(BaseModel):
@@ -20,11 +20,17 @@ class BaseNode(BaseModel):
 
     description: str = Field(default="", description="Brief item description")
 
-    @root_validator(pre=True)
-    def get_str_from_uuid(cls, data: Dict) -> Dict:
-        """Get hex attribute from UUID values from all the enumeration field values."""
-        uuid_fields = {k: v.hex for k, v in data.items() if isinstance(v, UUID)}
-        return {**data, **uuid_fields}
+    @validator("*", pre=True)
+    @classmethod
+    def get_str_from_uuid(cls, v: Any) -> Any:
+        """Get hex attribute from UUID values."""
+        return v.hex if isinstance(v, UUID) else v
+
+    @validator("*")
+    @classmethod
+    def get_value_from_enums(cls, v: Any) -> Any:
+        """Get value from all the enumeration field values."""
+        return v.value if isinstance(v, Enum) else v
 
 
 class BaseNodeCreate(BaseModel):
@@ -33,14 +39,6 @@ class BaseNodeCreate(BaseModel):
     When dealing with enumerations retrieve the enum value.
     Always validate assignments.
     """
-
-    @root_validator
-    def get_value_from_enums(cls, data: Dict) -> Dict:
-        """Get value from all the enumeration field values."""
-        enumeration_fields = {
-            k: v.value for k, v in data.items() if isinstance(v, Enum)
-        }
-        return {**data, **enumeration_fields}
 
     class Config:
         """Sub class to validate assignments."""
@@ -67,40 +65,37 @@ class BaseNodeRead(BaseModel):
 
     uid: str = Field(description="Database item's unique identifier.")
 
-    @root_validator(pre=True)
-    def get_relations(cls, data: Dict) -> Dict:
-        """From One or ZeroOrOne relationships get that single relationship.
+    @validator("*", pre=True)
+    @classmethod
+    def get_single_relation(cls, v: Any) -> Any:
+        """From One or ZeroOrOne relationships get that single relationship."""
+        return v.single() if isinstance(v, (One, ZeroOrOne)) else v
 
-        From OneOrMore or ZeroOrMore relationships get all relationships; if that
-        relationships has a model return a dict with the data stored in the
+    @validator("*", pre=True)
+    @classmethod
+    def get_multi_relations(cls, v: Any) -> Any:
+        """From OneOrMore or ZeroOrMore relationships get all relationships.
+
+        If the relationship has a model, return a dict with the data stored in the
         relationship.
         """
-        relations = {}
-        for k, v in data.items():
-            if isinstance(v, One) or isinstance(v, ZeroOrOne):
-                relations[k] = v.single()
-            elif isinstance(v, OneOrMore) or isinstance(v, ZeroOrMore):
-                if v.definition.get("model") is None:
-                    relations[k] = v.all()
-                else:
-                    items = []
-                    for node in v.all():
-                        item = node.__dict__
-                        item["relationship"] = v.relationship(node)
-                        items.append(item)
-                    relations[k] = items
-        return {**data, **relations}
+        if isinstance(v, (OneOrMore, ZeroOrMore)):
+            if v.definition.get("model") is None:
+                return v.all()
+            else:
+                items = []
+                for node in v.all():
+                    item = node.__dict__
+                    item["relationship"] = v.relationship(node)
+                    items.append(item)
+                return items
+        return v
 
-    @root_validator
-    def cast_neo4j_datetime(cls, data: Dict) -> Dict:
+    @validator("*")
+    @classmethod
+    def cast_neo4j_datetime(cls, v: Any) -> Any:
         """Cast neo4j datetime to python datetime."""
-        datetime_fields = {
-            k: v.to_native() for k, v in data.items() if isinstance(v, DateTime)
-        }
-        enumeration_fields = {
-            k: v.value for k, v in data.items() if isinstance(v, Enum)
-        }
-        return {**data, **datetime_fields, **enumeration_fields}
+        return v.to_native() if isinstance(v, DateTime) else v
 
     class Config:
         """Sub class to validate assignments and enable orm mode."""
