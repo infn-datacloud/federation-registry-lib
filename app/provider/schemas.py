@@ -4,8 +4,7 @@ from typing import List, Optional
 from pydantic import EmailStr, Field
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
-from app.project.constants import DOC_NAME
-from app.provider.constants import DOC_EMAIL, DOC_SHARED, DOC_STAT, DOC_TYPE
+from app.provider.constants import DOC_EMAIL, DOC_NAME, DOC_SHARED, DOC_STAT, DOC_TYPE
 from app.provider.enum import ProviderStatus, ProviderType
 from app.query import create_query_model
 
