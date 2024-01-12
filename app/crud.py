@@ -1,5 +1,5 @@
 """Module with common Create, Read, Update and delete operations."""
-from typing import Generic, List, Optional, Type, TypeVar, Union
+from typing import Generic, List, Literal, Optional, Type, TypeVar, Union
 
 from neomodel import StructuredNode
 
@@ -158,7 +158,7 @@ class CRUDBase(
                 setattr(db_obj, field, update_data[field])
         return db_obj.save()
 
-    def remove(self, *, db_obj: ModelType) -> bool:
+    def remove(self, *, db_obj: ModelType) -> Literal[True]:
         """Delete the target instance from the DB.
 
         Args:
@@ -167,7 +167,7 @@ class CRUDBase(
 
         Returns:
         -------
-            bool. True if the operations succeeded, False otherwise.
+            bool. True if the operations succeeded. Raises exception otherwise.
         """
         return db_obj.delete()
 
