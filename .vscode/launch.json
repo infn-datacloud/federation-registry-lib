@@ -5,12 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: FastAPI App",
+      "name": "Python: Current File and Dependencies",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Uvicorn: FastAPI App",
       "type": "python",
       "request": "launch",
       "module": "uvicorn",
       "args": ["app.main:app", "--reload"],
-      "justMyCode": true
+      "console": "integratedTerminal",
+      "justMyCode": false
     },
     {
       "name": "Pytest: Specific test",
@@ -18,6 +27,7 @@
       "request": "launch",
       "module": "pytest",
       "args": ["${lineNumber}"],
+      "console": "integratedTerminal",
       "justMyCode": true
     },
     {
@@ -26,6 +36,7 @@
       "request": "launch",
       "module": "pytest",
       "args": ["${relativeFile}"],
+      "console": "integratedTerminal",
       "justMyCode": true
     },
     {
@@ -34,6 +45,7 @@
       "request": "launch",
       "module": "pytest",
       "args": ["${relativeFileDirname}"],
+      "console": "integratedTerminal",
       "justMyCode": true
     },
     {
@@ -42,6 +54,7 @@
       "request": "launch",
       "module": "pytest",
       "args": ["${workspaceFolder}/tests"],
+      "console": "integratedTerminal",
       "justMyCode": true
     }
   ]
