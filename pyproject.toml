@@ -51,7 +51,6 @@ extend-immutable-calls = [
 [tool.ruff.lint.pep8-naming]
 # Ignore pep8-naming errors raised by functions decorated with @validator and @root_validator
 classmethod-decorators = [
-    "classmethod",
     "pydantic.root_validator",
 ]
 
