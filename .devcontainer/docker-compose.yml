@@ -2,7 +2,7 @@ version: "3"
 
 services:
   db:
-    image: neo4j:5.8.0
+    image: neo4j:5.15
     volumes:
       - dev-db-data:/data
       - dev-db-logs:/logs
