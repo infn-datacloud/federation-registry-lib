@@ -10,7 +10,7 @@ python = "^3.8.1"
 flaat = "^1.1.15"
 fastapi = "^0.95.2"
 uvicorn = "^0.22.0"
-neomodel = "5.0.1"
+neomodel = { git = "https://github.com/giosava94/neomodel.git", branch = "db-transaction" } # "^5.2.1"
 pydantic = {extras = ["email"], version = "^1.10.9"}
 pycountry = "^22.3.5"
 
