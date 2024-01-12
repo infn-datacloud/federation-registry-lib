@@ -14,7 +14,7 @@ from fastapi.security import HTTPBasicCredentials
 from neomodel import db
 
 from app.auth import custom, flaat, lazy_security, security
-from app.provider.enum import ProviderType
+from app.provider.enum import ProviderStatus, ProviderType
 from app.provider.schemas import ProviderQuery
 
 # from app.flavor.crud import flavor
@@ -96,6 +96,7 @@ def get_user_groups(
     idp_endpoint: Optional[str] = None,
     provider_name: Optional[str] = None,
     provider_type: Optional[ProviderType] = None,
+    provider_status: Optional[ProviderStatus] = None,
     region_name: Optional[str] = None,
     client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
@@ -125,7 +126,11 @@ def get_user_groups(
 
     if provider_type:
         provider_type = provider_type.value
-    provider_query = ProviderQuery(name=provider_name, type=provider_type)
+    if provider_status:
+        provider_status = provider_status.value
+    provider_query = ProviderQuery(
+        name=provider_name, type=provider_type, status=provider_status
+    )
     items = filter_on_provider_attr(items=items, provider_query=provider_query)
 
     region_query = RegionQuery(name=region_name)
