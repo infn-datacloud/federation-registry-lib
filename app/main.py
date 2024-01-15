@@ -17,14 +17,14 @@ Agreement connecting these data.
 This database is mainly populated by scripts.
 """
 version = "0.1.0"
-contact = {
-    "name": "Giovanni Savarese",
-    "url": "https://github.com/giosava94",
-    "email": "giovanni.savarese@ba.infn.it",
-}
 
 settings = get_settings()
 
+contact = {
+    "name": settings.MAINTAINER_NAME,
+    "url": settings.MAINTAINER_URL,
+    "email": settings.MAINTAINER_EMAIL,
+}
 tags_metadata = [
     {
         "name": settings.API_V1_STR,

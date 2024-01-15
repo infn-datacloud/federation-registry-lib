@@ -51,6 +51,10 @@ class Settings(BaseSettings):
         config.DATABASE_URL = s
         return s
 
+    MAINTAINER_NAME: Optional[str] = None
+    MAINTAINER_URL: Optional[AnyHttpUrl] = None
+    MAINTAINER_EMAIL: Optional[EmailStr] = None
+
     ADMIN_EMAIL_LIST: List[EmailStr] = []
     TRUSTED_IDP_LIST: List[AnyHttpUrl] = []
 

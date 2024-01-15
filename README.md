@@ -55,6 +55,9 @@ It uses environment variables to configure the database connection, the list of 
 | `NEO4J_USER`            |           | This value defines the user to use to access to the database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                                                                            | neo4j                                |
 | `NEO4J_PASSWORD`        |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                                                        | password                             |
 | `NEO4J_URI_SCHEME`      |           | This value defines the host and eventually the port providing the neo4j database. **It is used only if `NEOMODEL_DATABASE_URL` has not been set.**                                                                                                                                        | bolt                                 |
+| `MAINTAINER_NAME`       |           | Name and surname of the application maintainer. This will be shown in the automatic OpenAPI documentation.                                                                                                                                                                                | null                                 |
+| `MAINTAINER_URL`        |           | Link to the application maintainer's personal home page (i.e. github). This will be shown in the automatic OpenAPI documentation.                                                                                                                                                         | null                                 |
+| `MAINTAINER_EMAIL`      |           | Email of the application maintainer. This will be shown in the automatic OpenAPI documentation.                                                                                                                                                                                           | null                                 |
 | `ADMIN_EMAIL_LIST`      | x         | List of emails belonging to the users authorized to perform write operations. **The project starts also if this variable is not set but write operations will fail.**                                                                                                                     | []                                   |
 | `TRUSTED_IDP_LIST`      | x         | List of trusted identity providers to use to verify users' identity. **The project starts also if this variable is not set but operations requiring authentication will fail.**                                                                                                           | []                                   |
 
@@ -73,6 +76,10 @@ API_V1_STR=/my-fed-reg/api/v1
 
 NEOMODEL_DATABASE_URL=bolt://neo4j:mypwdlongandlong@test.db-host.it
 
+MAINTAINER_NAME="John"
+MAINTAINER_URL="https://app-maintainer@github.com/"
+MAINTAINER_EMAIL="test@support.it"
+
 TRUSTED_IDP_LIST=["https://test.idp.it"]
 ADMIN_EMAIL_LIST=["test@admin-user.it"]
 ```
@@ -90,6 +97,10 @@ NEO4J_SERVER=test.db-host.it
 NEO4J_USER=neo4j
 NEO4J_PASSWORD=mypwdlongandlong
 NEO4J_URI_SCHEME=bolt
+
+MAINTAINER_NAME="John"
+MAINTAINER_URL="https://app-maintainer@github.com/"
+MAINTAINER_EMAIL="test@support.it"
 
 TRUSTED_IDP_LIST=["https://test.idp.it"]
 ADMIN_EMAIL_LIST=["test@admin-user.it"]
