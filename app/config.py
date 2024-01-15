@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "password"
     NEO4J_URI_SCHEME: Neo4jUriScheme = Neo4jUriScheme.BOLT.value
-    NEOMODEL_DATABASE_URL: Optional[AnyUrl] = None
+    NEO4J_DB_URL: Optional[AnyUrl] = None
 
     @validator("NEO4J_URI_SCHEME")
     @classmethod
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
         """Retrive the string from the enum value."""
         return v.value
 
-    @validator("NEOMODEL_DATABASE_URL")
+    @validator("NEO4J_DB_URL")
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         """Before checking the DB URL, assemble the target DB uri from single parts."""
