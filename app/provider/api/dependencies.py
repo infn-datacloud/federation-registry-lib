@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
 
 from app.identity_provider.crud import identity_provider_mng
+from app.identity_provider.models import IdentityProvider
 from app.location.crud import location_mng
 from app.provider.crud import provider_mng
 from app.provider.models import Provider
@@ -21,6 +22,7 @@ from app.service.api.dependencies import (
     valid_network_service_endpoint,
 )
 from app.sla.crud import sla_mng
+from app.user_group.models import UserGroup
 
 
 def valid_provider_id(provider_uid: UUID4) -> Provider:
@@ -143,8 +145,8 @@ def valid_identity_provider(item: IdentityProviderCreateExtended) -> None:
     for group in item.user_groups:
         db_item = sla_mng.get(doc_uuid=group.sla.doc_uuid)
         if db_item is not None:
-            db_group = db_item.user_group.single()
-            db_idp = db_group.identity_provider_mng.single()
+            db_group: UserGroup = db_item.user_group.single()
+            db_idp: IdentityProvider = db_group.identity_provider.single()
             if db_group.name != group.name or db_idp.endpoint != item.endpoint:
                 msg = f"SLA {group.sla.doc_uuid} already used by another group"
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
