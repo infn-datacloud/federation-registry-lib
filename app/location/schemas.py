@@ -2,7 +2,7 @@
 from typing import Any, Dict, Optional
 
 from pycountry import countries
-from pydantic import Field, root_validator, validator
+from pydantic import Field, validator
 
 from app.location.constants import DOC_CODE, DOC_COUNTRY, DOC_LATI, DOC_LONG, DOC_SITE
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
@@ -125,13 +125,15 @@ class LocationRead(BaseNodeRead, LocationBase):
 
     country_code: Optional[str] = Field(default=None, description=DOC_CODE)
 
-    @root_validator(pre=True)
-    def get_country_code(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("country_code", pre=True, always=True)
+    @classmethod
+    def get_country_code(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         """From country retrieve country code."""
-        matches = countries.search_fuzzy(values["country"])
-        if len(matches) > 0:
-            values["country_code"] = matches[0].alpha_3
-        return values
+        if not v:
+            matches = countries.search_fuzzy(values.get("country"))
+            if len(matches) > 0:
+                return matches[0].alpha_3
+        return v
 
 
 LocationQuery = create_query_model("LocationQuery", LocationBase)
