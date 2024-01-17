@@ -3,6 +3,7 @@ version: "3"
 services:
   db:
     image: neo4j:5.15
+    container_name: fed-reg-dev-db
     volumes:
       - dev-db-data:/data
       - dev-db-logs:/logs
@@ -12,26 +13,40 @@ services:
     environment:
       - NEO4J_AUTH=none
       - NEO4J_PLUGINS=["apoc"]
+    networks:
+      - fed-reg-db
 
   oidc-agent:
     image: opensciencegrid/oidc-agent:3.6-release-20230802-1615
+    container_name: fed-reg-dev-oidc-agent
     platform: linux/amd64
+    networks:
+      - fed-reg-oidc-agent
 
   base:
     build:
       context: ../.
-      target: development
+      dockerfile: .devcontainer/Dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV-true}
+    container_name: fed-reg-dev
     depends_on:
       - db
+      - oidc-agent
     volumes:
       - ..:/workspace:cached
     environment:
-      - NEO4J_SERVER=db
+      - NEO4J_SERVER=fed-reg-dev-db
+    networks:
+      - fed-reg-db
+      - fed-reg-oidc-agent
     # Infinite loop to keep container live doing nothing
     command: bash -c "while true; do sleep 1; done"
 
 volumes:
   dev-db-data:
   dev-db-logs:
+
+networks:
+  fed-reg-db:
+  fed-reg-oidc-agent:
