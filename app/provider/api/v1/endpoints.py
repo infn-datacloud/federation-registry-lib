@@ -203,11 +203,11 @@ def get_provider(
         current ones, the database entity is left unchanged \
         and the endpoint returns the `not modified` message. \
         At first validate new provider values checking there are \
-        no other items with the given *name*.",
+        no other items with the given *name* and *type*.",
 )
 @flaat.access_level("write")
 @db.write_transaction
-def put_provider(
+def patch_provider(
     request: Request,
     update_data: ProviderUpdate,
     response: Response,
@@ -226,6 +226,50 @@ def put_provider(
     Only authenticated users can view this function.
     """
     db_item = provider_mng.update(db_obj=item, obj_in=update_data)
+    if not db_item:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
+
+
+@router.put(
+    "/{provider_uid}",
+    status_code=status.HTTP_200_OK,
+    response_model=Optional[ProviderReadExtended],
+    dependencies=[
+        Depends(validate_new_provider_values),
+    ],
+    summary="Edit a specific provider and all nested relationships and items",
+    description="Update attribute values of a specific provider. \
+        The target provider is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new provider values checking there are \
+        no other items with the given *name* and *type*. \
+        Recursively update relationships and related nodes.",
+)
+@flaat.access_level("write")
+@db.write_transaction
+def put_provider(
+    request: Request,
+    update_data: ProviderCreateExtended,
+    response: Response,
+    item: Provider = Depends(valid_provider_id),
+    client_credentials: HTTPBasicCredentials = Security(security),
+):
+    """PUT operation to update the provider matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence. It also
+    expects the new data to write in the database. It updates only the item attributes,
+    not its relationships.
+
+    If the new data equals the current data, no update is performed and the function
+    returns a response with an empty body and the 304 status code.
+
+    Only authenticated users can view this function.
+    """
+    db_item = provider_mng.update(db_obj=item, obj_in=update_data, force=True)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
