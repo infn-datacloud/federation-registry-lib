@@ -8,14 +8,11 @@ RUN pip install poetry
 # Copy poetry.lock* in case it doesn't exist in the repo
 COPY ./pyproject.toml ./poetry.lock* /tmp/
 
-# Allow installing dev dependencies to run tests
-ARG INSTALL_DEV=false
-ENV INSTALL_CMD="poetry export -f requirements.txt --output requirements.txt --without-hashes"
-RUN bash -c "if [ $INSTALL_DEV == 'true' ] ; then ${INSTALL_CMD} --dev ; else ${INSTALL_CMD} ; fi"
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 
 # Stage used in production
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 AS prod-backend
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8 AS production
 
 WORKDIR /app/
 

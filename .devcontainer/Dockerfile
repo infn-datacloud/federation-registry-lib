@@ -1,5 +1,18 @@
+# Create requirements.txt from poetry dependencies
+FROM python:3.8 AS requirements
+
+WORKDIR /tmp
+
+RUN pip install poetry
+
+# Copy poetry.lock* in case it doesn't exist in the repo
+COPY ./pyproject.toml ./poetry.lock* /tmp/
+
+# Allow installing dev dependencies to run tests
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes --dev
+
 # Stage used for development in containers
-FROM python:3.8
+FROM python:3.8 AS devcontainer
 
 ARG USERNAME=vscode
 ARG USER_UID=1000
@@ -22,7 +35,7 @@ USER ${USERNAME}
 WORKDIR /code/
 
 # Import requirements from production image
-COPY --from=indigopaas/federation-registry:build-docker /app/requirements.txt /code/requirements.txt
+COPY --from=requirements /tmp/requirements.txt /code/requirements.txt
 
 # Upgrade pip and install requirements
 RUN pip install --upgrade pip && \
