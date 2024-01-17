@@ -49,7 +49,9 @@ class BlockStorageServiceBase(ServiceBase):
 
     @validator("type")
     @classmethod
-    def check_type(cls, v) -> Literal[ServiceType.BLOCK_STORAGE]:
+    def check_type(
+        cls, v: Literal[ServiceType.BLOCK_STORAGE]
+    ) -> Literal[ServiceType.BLOCK_STORAGE]:
         """Verify that the type value is exactly ServiceType.BLOCK_STORAGE."""
         if v != ServiceType.BLOCK_STORAGE:
             raise ValueError(f"Not valid type: {v}")
