@@ -1,4 +1,5 @@
 """Module with the configuration parameters."""
+import os
 from enum import Enum
 from functools import lru_cache
 from typing import Any, Dict, List, Optional
@@ -22,6 +23,16 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Federation-Registry"
     DOMAIN: str = "localhost:8000"
     API_V1_STR: str = "/api/v1"
+
+    @validator("API_V1_STR")
+    @classmethod
+    def start_with_single_slash(cls, v: str) -> str:
+        """String must start with a single slash."""
+        assert v.startswith("/"), ValueError("API V1 string must start with '/'")
+        assert len(v) > 1, ValueError(
+            "API V1 string can't have an empty string after the '/'"
+        )
+        return v
 
     NEO4J_SERVER: str = "localhost:7687"
     NEO4J_USER: str = "neo4j"
@@ -67,7 +78,8 @@ class Settings(BaseSettings):
         if isinstance(v, AnyUrl):
             return str(v)
         protocol = "http"
-        return f"{protocol}://{values.get('DOMAIN')}{values.get('API_V1_STR')}/docs"
+        link = os.path.join(values.get("DOMAIN"), values.get("API_V1_STR")[1:], "docs")
+        return f"{protocol}://{link}"
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
     # e.g: '["http://localhost", "http://localhost:4200",
