@@ -76,7 +76,7 @@ A database with about 20000 entities occupies 500MB of disk space.
 
 > These details can be retrieved running `docker stats` on the host machine and running `du -hs <path-to>/data` on the machine hosting the database.
 
-## Start up the services
+## Start up the main service
 
 In production mode you should run the application using the dedicated image [indigopaas/federation-registry](https://hub.docker.com/r/indigopaas/federation-registry) available on DockerHub.
 
@@ -90,7 +90,7 @@ The command to correctly start up the application inside a container using the e
 docker run -p 8000:80 -d indigopaas/federation-registry
 ```
 
-The previous command makes the application available on port 8000 of the host in detached mode. Moreover the application will try to connect to a neo4j instance located at bolt://neo4j:password@localhost:7687. Unfortunately, operations requiring authentication or authorizations will fail since no trusted issuers and admin users have been set.
+The previous command makes the application available on port 8000 of the host in detached mode. Moreover the application will try to connect to a `neo4j` instance located at bolt://neo4j:password@localhost:7687. Unfortunately, operations requiring authentication or authorizations will fail since no trusted issuers and admin users have been set.
 
 In the following table we list all the environment variables that can be passed to the command using the `-e` param.
 
@@ -205,6 +205,8 @@ ADMIN_EMAIL_LIST=["test@admin-user.it"]
 
 ## Ancillary services
 
+### Neo4j
+
 To correctly work, the application requires a running neo4j database instance with the **apoc** extension.
 
 If you don't have an already running instance, we suggest to deploy your instance using the [neo4j](https://hub.docker.com/_/neo4j) docker image available on DockerHub and make persistent the `/data` and `/logs` volumes.
@@ -237,7 +239,7 @@ Requirements:
 - Docker (to start `neo4j` and `oidc-agent` services)
 - Poetry
 
-If you don't have an already running instance, we suggest to start the `neo4j` database and the optional `oidc-agent` service using the `docker-compose.yml` is located inside the `.devcontainer` folder.
+If you don't have an already running instance, we suggest to start the `neo4j` database and the optional `oidc-agent` service using the `docker-compose.yml` located inside the `.devcontainer` folder.
 
 ```bash
 cd .devcontainer
@@ -281,11 +283,13 @@ Using VSCode you can open the entire folder inside the provided development cont
 
 ## Start up the app
 
-To run the application in development mode developers can use the following command(the --reload flag allows server reload on changes):
+To run the application in development mode developers can use the following command from the project top folder:
 
 ```bash
 uvicorn app.main --reload
 ```
+
+> The --reload flag allows server reload on changes
 
 Alternatively, users using VSCode, can use the `launch.json` file provided in the `.vscode` folder to run the application. The `Uvicorn: FastAPI app` configuration will execute the previous command.
 
