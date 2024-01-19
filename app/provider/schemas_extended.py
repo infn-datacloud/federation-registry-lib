@@ -1,6 +1,5 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
 from typing import Any, Dict, List, Optional, Union
-from uuid import UUID
 
 from pydantic import Field, root_validator, validator
 
@@ -529,11 +528,10 @@ class FlavorCreateExtended(FlavorCreate):
 
     projects: List[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
 
-    @validator("projects", pre=True)
+    @validator("projects")
     @classmethod
-    def validate_projects(cls, v: Union[str, UUID]) -> str:
+    def validate_projects(cls, v: List[str]) -> List[str]:
         """Cast to string possible UUIDs and verify there are no duplicate values."""
-        v = [i.hex if isinstance(i, UUID) else i for i in v]
         find_duplicates(v)
         return v
 
@@ -579,11 +577,10 @@ class ImageCreateExtended(ImageCreate):
 
     projects: List[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
 
-    @validator("projects", pre=True)
+    @validator("projects")
     @classmethod
-    def validate_projects(cls, v: Union[str, UUID]) -> str:
+    def validate_projects(cls, v: List[str]) -> str:
         """Cast to string possible UUIDs and verify there are no duplicate values."""
-        v = [i.hex if isinstance(i, UUID) else i for i in v]
         find_duplicates(v)
         return v
 

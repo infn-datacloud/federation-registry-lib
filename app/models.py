@@ -5,7 +5,7 @@ from uuid import UUID
 
 from neo4j.time import DateTime
 from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, fields, validator
 
 
 class BaseNode(BaseModel):
@@ -22,8 +22,12 @@ class BaseNode(BaseModel):
 
     @validator("*", pre=True)
     @classmethod
-    def get_str_from_uuid(cls, v: Any) -> Any:
+    def get_str_from_uuid(cls, v: Any, field: fields.ModelField) -> Any:
         """Get hex attribute from UUID values."""
+        if field.shape == fields.SHAPE_LIST and not isinstance(
+            v, (OneOrMore, ZeroOrMore)
+        ):
+            return [i.hex if isinstance(i, UUID) else i for i in v]
         return v.hex if isinstance(v, UUID) else v
 
     @validator("*")
