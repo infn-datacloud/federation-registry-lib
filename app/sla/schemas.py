@@ -2,7 +2,7 @@
 from datetime import date
 from typing import Any, Dict, Optional
 
-from pydantic import Field, root_validator
+from pydantic import Field, validator
 
 from app.models import BaseNode, BaseNodeCreate, BaseNodeRead
 from app.query import create_query_model
@@ -35,14 +35,14 @@ class SLABase(SLABasePublic):
     start_date: date = Field(description=DOC_START)
     end_date: date = Field(description=DOC_END)
 
-    @root_validator
-    def start_date_before_end_date(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("end_date")
+    @classmethod
+    def start_date_before_end_date(cls, v: date, values: Dict[str, Any]) -> date:
         """Verify start date precedes end date."""
         start = values.get("start_date", None)
-        end = values.get("end_date", None)
-        if start and end:
-            assert start < end, f"Start date {start} greater than end date {end}"
-        return values
+        if start:
+            assert start < v, f"Start date {start} greater or equal than end date {v}"
+        return v
 
 
 class SLACreate(BaseNodeCreate, SLABase):
