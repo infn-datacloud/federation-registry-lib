@@ -20,7 +20,7 @@ class BaseNode(BaseModel):
 
     description: str = Field(default="", description="Brief item description")
 
-    @validator("*", pre=True)
+    @validator("*", pre=True, always=True)
     @classmethod
     def get_str_from_uuid(cls, v: Any, field: fields.ModelField) -> Any:
         """Get hex attribute from UUID values."""
@@ -30,7 +30,7 @@ class BaseNode(BaseModel):
             return [i.hex if isinstance(i, UUID) else i for i in v]
         return v.hex if isinstance(v, UUID) else v
 
-    @validator("*")
+    @validator("*", always=True)
     @classmethod
     def get_value_from_enums(cls, v: Any) -> Any:
         """Get value from all the enumeration field values."""

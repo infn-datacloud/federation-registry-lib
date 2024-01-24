@@ -40,7 +40,7 @@ class SLABase(SLABasePublic):
     def start_date_before_end_date(cls, v: date, values: Dict[str, Any]) -> date:
         """Verify start date precedes end date."""
         start = values.get("start_date", None)
-        if start:
+        if start and v:
             assert start < v, f"Start date {start} greater or equal than end date {v}"
         return v
 
