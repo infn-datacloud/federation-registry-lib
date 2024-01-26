@@ -438,8 +438,8 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
     @validator("user_groups")
     @classmethod
     def validate_user_groups(
-        cls, v: UserGroupCreateExtended
-    ) -> UserGroupCreateExtended:
+        cls, v: List[UserGroupCreateExtended]
+    ) -> List[UserGroupCreateExtended]:
         """Verify the list is not empty and there are no duplicates."""
         find_duplicates(v, "name")
         assert len(v), "Identity provider's user group list can't be empty"
