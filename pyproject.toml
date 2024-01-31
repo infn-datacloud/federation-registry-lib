@@ -10,21 +10,21 @@ python = "^3.8.1"
 flaat = "^1.1.15"
 fastapi = "^0.95.2"
 uvicorn = "^0.22.0"
-neomodel = { git = "https://github.com/giosava94/neomodel.git", branch = "db-transaction" } # "^5.2.1"
+neomodel = {git = "https://github.com/giosava94/neomodel.git", branch = "db-transaction"}
 pydantic = {extras = ["email"], version = "^1.10.9"}
 pycountry = "^22.3.5"
 
-[tool.poetry.dev-dependencies]
-pytest-cov = "^4.1.0"
+[tool.poetry.group.dev.dependencies]
+CairoSVG = "^2.7.0"
+httpx = "^0.24.1"
 mkdocs-material = "^9.1.17"
 mkdocs-git-authors-plugin = "^0.7.2"
 mkdocstrings-python = "^1.1.2"
 Pillow = "^9.5.0"
-CairoSVG = "^2.7.0"
-httpx = "^0.24.1"
+pytest-cases = "^3.8.1"
+pytest-cov = "^4.1.0"
 pre-commit = "^3.3.3"
 ruff = "^0.1.4"
-pytest-cases = "^3.8.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -35,7 +35,7 @@ build-backend = "poetry.core.masonry.api"
 # mccabe (C90) pep8-naming (N), pydocstyle (D), pyupgrade (UP), 
 # ruff specific rules (RUF),
 # flake8-bugbear (B), flake8-logging-format (G), flake8-quotes (Q)
-extend-select = ["B", "C90", "E", "F", "G", "I", "N", "Q", "RUF", "UP", "W"]
+extend-select = ["B", "C90", "E", "D", "F", "G", "I", "N", "Q", "RUF", "UP", "W"]
 
 [tool.ruff.lint.flake8-bugbear]
 # Ignore flake8-bugbear errors raised by Depends, Query and Security
