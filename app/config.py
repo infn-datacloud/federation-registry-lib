@@ -5,7 +5,7 @@ from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
 from neomodel import config
-from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, validator
+from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, Field, validator
 
 
 class Neo4jUriScheme(Enum):
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     NEO4J_SERVER: str = "localhost:7687"
     NEO4J_USER: str = "neo4j"
     NEO4J_PASSWORD: str = "password"
-    NEO4J_URI_SCHEME: Neo4jUriScheme = Neo4jUriScheme.BOLT.value
+    NEO4J_URI_SCHEME: Neo4jUriScheme = Field(default=Neo4jUriScheme.BOLT)
     NEO4J_DB_URL: Optional[AnyUrl] = None
 
     @validator("NEO4J_URI_SCHEME")
@@ -46,21 +46,24 @@ class Settings(BaseSettings):
         """Retrive the string from the enum value."""
         return v.value
 
-    @validator("NEO4J_DB_URL")
+    @validator("NEO4J_DB_URL", pre=True)
     @classmethod
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         """Before checking the DB URL, assemble the target DB uri from single parts."""
-        if isinstance(v, AnyUrl):
-            s = v
-        else:
-            s = f"{values.get('NEO4J_URI_SCHEME')}://"
-            s += f"{values.get('NEO4J_USER')}:"
-            s += f"{values.get('NEO4J_PASSWORD')}@"
-            s += f"{values.get('NEO4J_SERVER')}"
-
-        # Set the DB uri for this application
-        config.DATABASE_URL = s
+        if v:
+            return v
+        s = f"{values.get('NEO4J_URI_SCHEME')}://"
+        s += f"{values.get('NEO4J_USER')}:"
+        s += f"{values.get('NEO4J_PASSWORD')}@"
+        s += f"{values.get('NEO4J_SERVER')}"
         return s
+
+    @validator("NEO4J_DB_URL")
+    @classmethod
+    def set_neo4j_db_url(cls, v: AnyUrl) -> AnyUrl:
+        """Set the DATABASE_URL."""
+        config.DATABASE_URL = str(v)
+        return v
 
     MAINTAINER_NAME: Optional[str] = None
     MAINTAINER_URL: Optional[AnyHttpUrl] = None
@@ -73,10 +76,10 @@ class Settings(BaseSettings):
 
     @validator("DOC_V1_URL", pre=True)
     @classmethod
-    def create_doc_url(cls, v: Optional[AnyHttpUrl], values: Dict[str, Any]) -> str:
+    def create_doc_url(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         """Build URL for internal documentation."""
-        if isinstance(v, AnyUrl):
-            return str(v)
+        if v:
+            return v
         protocol = "http"
         link = os.path.join(values.get("DOMAIN"), values.get("API_V1_STR")[1:], "docs")
         return f"{protocol}://{link}"
@@ -85,7 +88,7 @@ class Settings(BaseSettings):
     # e.g: '["http://localhost", "http://localhost:4200",
     # "http://localhost:3000", "http://localhost:8080",
     # "http://local.dockertoolbox.tiangolo.com"]'
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:3000"]
+    # BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:3000"]
 
     class Config:
         """Sub class to set attribute as case sensitive."""
