@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-from neo4j.time import DateTime
+from neo4j.time import Date, DateTime
 from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
 from pydantic import BaseModel, Field, fields, validator
 
@@ -95,11 +95,17 @@ class BaseNodeRead(BaseModel):
                 return items
         return v
 
-    @validator("*")
+    @validator("*", pre=True)
     @classmethod
     def cast_neo4j_datetime(cls, v: Any) -> Any:
         """Cast neo4j datetime to python datetime."""
         return v.to_native() if isinstance(v, DateTime) else v
+
+    @validator("*", pre=True)
+    @classmethod
+    def cast_neo4j_date(cls, v: Any) -> Any:
+        """Cast neo4j date to python date."""
+        return v.to_native() if isinstance(v, Date) else v
 
     class Config:
         """Sub class to validate assignments and enable orm mode."""
