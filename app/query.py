@@ -1,5 +1,5 @@
 """Module defining the classes with query common attributes."""
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import Any, Dict, Optional, Type, get_origin
 
@@ -139,6 +139,13 @@ def create_query_model(
             d[f"{k}__ne"] = t
         elif issubclass(v.type_, datetime):
             t = (Optional[datetime], None)
+            d[f"{k}__lt"] = t
+            d[f"{k}__gt"] = t
+            d[f"{k}__lte"] = t
+            d[f"{k}__gte"] = t
+            d[f"{k}__ne"] = t
+        elif issubclass(v.type_, date):
+            t = (Optional[date], None)
             d[f"{k}__lt"] = t
             d[f"{k}__gt"] = t
             d[f"{k}__lte"] = t
