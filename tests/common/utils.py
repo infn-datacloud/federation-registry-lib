@@ -2,7 +2,7 @@
 import string
 import time
 from datetime import date, datetime, timezone
-from random import choices, getrandbits, randint, randrange
+from random import choices, getrandbits, randint, random, randrange
 from typing import Tuple, Type
 
 from pydantic import AnyHttpUrl
@@ -63,9 +63,9 @@ def random_url() -> AnyHttpUrl:
     return "http://" + random_lower_string() + ".com"
 
 
-def random_float() -> float:
-    """Return a generic float."""
-    return float(random_int())
+def random_float(start: int, end: int) -> float:
+    """Return a random float between start and end (included)."""
+    return randint(start, end - 1) + random()
 
 
 def random_positive_float() -> float:
