@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 from neo4j.graph import Node
-from neomodel import RelationshipManager, RequiredProperty
+from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from app.flavor.models import Flavor
@@ -89,12 +89,27 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
+def test_required_rel() -> None:
+    item = Flavor(**flavor_dict())
+    with pytest.raises(CardinalityViolation):
+        item.services.all()
+    with pytest.raises(CardinalityViolation):
+        item.services.single()
+
+
+def test_optional_rel() -> None:
+    item = Flavor(**flavor_dict())
+    assert len(item.projects.all()) == 0
+    assert item.projects.single() is None
+
+
 # TODO test_invalid_relationships
 
 
 # @patch("neomodel.core.db")
-# def test_invalid_rel(mock_db: Mock) -> None:
-#     d = {"name": random_lower_string(), "uuid": uuid4().hex}
+# def test_a(mock_db: Mock, project_model: Project) -> None:
+#     d = flavor_dict()
+#     item = Flavor(**d)
 
 #     db_version = "5"
 #     type(mock_db).database_version = PropertyMock(return_value=db_version)
@@ -103,6 +118,12 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
 #         [[Node(..., element_id=element_id, id_=0, properties=d)]],
 #         None,
 #     )
-#     item = Flavor(**d)
-#     saved = item.save()
-#     assert saved.id_element_property is not None
+
+#     item = item.save()
+#     project_model.save()
+#     r = item.projects.connect(project_model)
+#     print(item.projects.source)
+#     print(item.projects.name)
+#     print(item.projects.definition)
+#     print(r)
+#     assert len(item.projects.all()) == 1

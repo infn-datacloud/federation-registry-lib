@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 from neo4j.graph import Node
-from neomodel import RelationshipManager, RequiredProperty
+from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from app.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
@@ -166,3 +166,27 @@ def test_network_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.element_id_property == element_id
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
+
+
+def test_block_storage_required_rel() -> None:
+    item = BlockStorageQuota(**quota_dict())
+    with pytest.raises(CardinalityViolation):
+        item.service.all()
+    with pytest.raises(CardinalityViolation):
+        item.service.single()
+
+
+def test_compute_required_rel() -> None:
+    item = ComputeQuota(**quota_dict())
+    with pytest.raises(CardinalityViolation):
+        item.service.all()
+    with pytest.raises(CardinalityViolation):
+        item.service.single()
+
+
+def test_network_required_rel() -> None:
+    item = NetworkQuota(**quota_dict())
+    with pytest.raises(CardinalityViolation):
+        item.service.all()
+    with pytest.raises(CardinalityViolation):
+        item.service.single()

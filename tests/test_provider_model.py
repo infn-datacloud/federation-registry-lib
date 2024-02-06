@@ -81,3 +81,13 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.element_id_property == element_id
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
+
+
+def test_optional_rel() -> None:
+    item = Provider(**provider_dict())
+    assert len(item.identity_providers.all()) == 0
+    assert item.identity_providers.single() is None
+    assert len(item.projects.all()) == 0
+    assert item.projects.single() is None
+    assert len(item.regions.all()) == 0
+    assert item.regions.single() is None

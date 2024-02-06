@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 from neo4j.graph import Node
-from neomodel import RelationshipManager, RequiredProperty
+from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from app.project.models import Project
@@ -71,6 +71,28 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.element_id_property == element_id
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
+
+
+def test_required_rel() -> None:
+    item = Project(**project_dict())
+    with pytest.raises(CardinalityViolation):
+        item.provider.all()
+    with pytest.raises(CardinalityViolation):
+        item.provider.single()
+
+
+def test_optional_rel() -> None:
+    item = Project(**project_dict())
+    assert len(item.sla.all()) == 0
+    assert item.sla.single() is None
+    assert len(item.quotas.all()) == 0
+    assert item.quotas.single() is None
+    assert len(item.private_flavors.all()) == 0
+    assert item.private_flavors.single() is None
+    assert len(item.private_images.all()) == 0
+    assert item.private_images.single() is None
+    assert len(item.private_networks.all()) == 0
+    assert item.private_networks.single() is None
 
 
 # TODO test public_flavors

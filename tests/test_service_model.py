@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 from neo4j.graph import Node
-from neomodel import RelationshipManager, RequiredProperty
+from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from app.service.models import (
@@ -208,3 +208,59 @@ def test_network_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.element_id_property == element_id
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
+
+
+def test_block_storage_required_rel() -> None:
+    item = BlockStorageService(**service_dict())
+    with pytest.raises(CardinalityViolation):
+        item.region.all()
+    with pytest.raises(CardinalityViolation):
+        item.region.single()
+
+
+def test_block_storage_optional_rel() -> None:
+    item = BlockStorageService(**service_dict())
+    assert len(item.quotas.all()) == 0
+    assert item.quotas.single() is None
+
+
+def test_compute_required_rel() -> None:
+    item = ComputeService(**service_dict())
+    with pytest.raises(CardinalityViolation):
+        item.region.all()
+    with pytest.raises(CardinalityViolation):
+        item.region.single()
+
+
+def test_compute_optional_rel() -> None:
+    item = ComputeService(**service_dict())
+    assert len(item.quotas.all()) == 0
+    assert item.quotas.single() is None
+    assert len(item.flavors.all()) == 0
+    assert item.flavors.single() is None
+    assert len(item.images.all()) == 0
+    assert item.images.single() is None
+
+
+def test_identity_required_rel() -> None:
+    item = IdentityService(**service_dict())
+    with pytest.raises(CardinalityViolation):
+        item.region.all()
+    with pytest.raises(CardinalityViolation):
+        item.region.single()
+
+
+def test_network_required_rel() -> None:
+    item = NetworkService(**service_dict())
+    with pytest.raises(CardinalityViolation):
+        item.region.all()
+    with pytest.raises(CardinalityViolation):
+        item.region.single()
+
+
+def test_network_optional_rel() -> None:
+    item = NetworkService(**service_dict())
+    assert len(item.quotas.all()) == 0
+    assert item.quotas.single() is None
+    assert len(item.networks.all()) == 0
+    assert item.networks.single() is None

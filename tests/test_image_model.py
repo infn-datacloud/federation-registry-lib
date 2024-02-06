@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 from neo4j.graph import Node
-from neomodel import RelationshipManager, RequiredProperty
+from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from app.image.models import Image
@@ -95,3 +95,17 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.element_id_property == element_id
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
+
+
+def test_required_rel() -> None:
+    item = Image(**image_dict())
+    with pytest.raises(CardinalityViolation):
+        item.services.all()
+    with pytest.raises(CardinalityViolation):
+        item.services.single()
+
+
+def test_optional_rel() -> None:
+    item = Image(**image_dict())
+    assert len(item.projects.all()) == 0
+    assert item.projects.single() is None
