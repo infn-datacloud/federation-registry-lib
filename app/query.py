@@ -3,7 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional, Type, get_origin
 
-from pydantic import BaseModel, Field, create_model, root_validator, validator
+from pydantic import BaseModel, Field, create_model, validator
 from pydantic.fields import SHAPE_LIST
 
 from app.models import BaseNode, BaseNodeQuery
@@ -31,15 +31,16 @@ class Pagination(BaseModel):
         size (int | None): Chunk size.
     """
 
+    size: Optional[int] = Field(default=None, ge=1, description="Chunk size.")
     page: int = Field(default=0, ge=0, description="Divide the list in chunks")
-    size: Optional[int] = Field(default=None, ge=0, description="Chunk size.")
 
-    @root_validator(pre=True)
-    def set_page_to_0(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("page", pre=True)
+    @classmethod
+    def set_page_to_0(cls, v: int, values: Dict[str, Any]) -> int:
         """If chunk size is 0 set page index to 0."""
         if values.get("size") is None:
-            values["page"] = 0
-        return values
+            return 0
+        return v
 
 
 class DbQueryCommonParams(BaseModel):
@@ -64,7 +65,7 @@ class DbQueryCommonParams(BaseModel):
 
     @validator("sort")
     @classmethod
-    def parse_sort_rule(cls, v: Optional[str]) -> Dict[str, Any]:
+    def parse_sort_rule(cls, v: Optional[str]) -> Optional[str]:
         """Parse and correct sort rule.
 
         Remove `_asc` or `_desc` suffix. Prepend `-` when `_desc` is received.
@@ -75,7 +76,9 @@ class DbQueryCommonParams(BaseModel):
         if v.endswith("_asc"):
             return v[: -len("_asc")]
         elif v.endswith("_desc"):
-            return v[: -len("_desc")]
+            if v.startswith("-"):
+                return v[: -len("_desc")]
+            return f"-{v[: -len('_desc')]}"
         return v
 
 
