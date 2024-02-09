@@ -8,7 +8,7 @@ packages = [{ include = "app"}]
 [tool.poetry.dependencies]
 python = "^3.8.1"
 flaat = "^1.1.15"
-fastapi = "^0.95.2"
+fastapi = "^0.109"
 uvicorn = "^0.22.0"
 neomodel = {git = "https://github.com/giosava94/neomodel.git", branch = "db-transaction"}
 pydantic = {extras = ["email"], version = "^1.10.9"}
