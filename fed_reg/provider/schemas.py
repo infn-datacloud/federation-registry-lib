@@ -22,9 +22,11 @@ class ProviderBasePublic(BaseNode):
     ----------
         description (str): Brief description.
         name (str): Provider name.
+        type (str): Provider type.
     """
 
     name: str = Field(description=DOC_NAME)
+    type: ProviderType = Field(description=DOC_TYPE)
 
 
 class ProviderBase(ProviderBasePublic):
@@ -40,7 +42,6 @@ class ProviderBase(ProviderBasePublic):
         support_email (list of str): List of maintainers emails.
     """
 
-    type: ProviderType = Field(description=DOC_TYPE)
     status: ProviderStatus = Field(default=ProviderStatus.ACTIVE, description=DOC_STAT)
     is_public: bool = Field(default=False, description=DOC_SHARED)
     support_emails: List[EmailStr] = Field(default_factory=list, description=DOC_EMAIL)
@@ -98,6 +99,7 @@ class ProviderReadPublic(BaseNodeRead, ProviderBasePublic):
         uid (str): Provider unique ID.
         description (str): Brief description.
         name (str): Provider name.
+        type (str): Provider type.
     """
 
 
