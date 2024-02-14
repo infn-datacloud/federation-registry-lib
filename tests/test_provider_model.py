@@ -7,7 +7,7 @@ from neo4j.graph import Node
 from neomodel import RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
-from app.provider.models import Provider
+from fed_reg.provider.models import Provider
 from tests.common.utils import random_lower_string
 
 

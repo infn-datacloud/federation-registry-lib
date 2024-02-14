@@ -4,7 +4,7 @@ from typing import Any, Literal, Optional, Tuple
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
 
-from app.query import DbQueryCommonParams, Pagination, SchemaSize
+from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 
 
 class CaseSchemaSizeAttr:

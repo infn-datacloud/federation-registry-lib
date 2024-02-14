@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Python: Current File and Dependencies",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
@@ -14,16 +14,16 @@
     },
     {
       "name": "Uvicorn: FastAPI App",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "uvicorn",
-      "args": ["app.main:app", "--reload"],
+      "args": ["fed_reg.main:app", "--reload"],
       "console": "integratedTerminal",
       "justMyCode": false
     },
     {
       "name": "Pytest: Specific test",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "pytest",
       "args": ["${lineNumber}"],
@@ -32,7 +32,7 @@
     },
     {
       "name": "Pytest: Specific file",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "pytest",
       "args": ["${relativeFile}"],
@@ -41,7 +41,7 @@
     },
     {
       "name": "Pytest: Specific folder",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "pytest",
       "args": ["${relativeFileDirname}"],
@@ -50,7 +50,7 @@
     },
     {
       "name": "Pytest: All",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "pytest",
       "args": ["${workspaceFolder}/tests"],

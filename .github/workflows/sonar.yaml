@@ -87,7 +87,7 @@ jobs:
           args: >
             -Dsonar.organization=${{ github.repository_owner }}
             -Dsonar.projectKey=${{ github.repository_owner }}_federation-registry
-            -Dsonar.sources=app
+            -Dsonar.sources=fed_reg
             -Dsonar.tests=tests
             -Dsonar.python.version=${{ matrix.python-version }}
             -Dsonar.python.coverage.reportPaths=coverage.xml

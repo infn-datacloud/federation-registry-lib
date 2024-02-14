@@ -3,7 +3,7 @@ name = "federation-registry"
 version = "0.1.0"
 description = "Python web application providing public REST API to inspect the configurations of the providers registered into the DataCloud project"
 authors = ["Giovanni Savarese <giovanni.savarese@ba.infn.it>", "Marica Antonacci <marica.antonacci@ba.infn.it>"]
-packages = [{ include = "app"}]
+packages = [{ include = "fed_reg"}]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"

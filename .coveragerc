@@ -1,4 +1,4 @@
 [run]
 relative_files = True
-source = app/
+source = fed_reg/
 branch = True

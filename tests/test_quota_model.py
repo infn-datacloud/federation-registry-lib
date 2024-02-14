@@ -8,7 +8,7 @@ from neo4j.graph import Node
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
-from app.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 from tests.common.utils import random_lower_string
 
 

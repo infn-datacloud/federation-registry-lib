@@ -7,7 +7,7 @@ from neo4j.graph import Node
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
-from app.service.models import (
+from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,

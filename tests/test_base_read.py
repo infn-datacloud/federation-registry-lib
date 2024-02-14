@@ -8,7 +8,7 @@ from neomodel import DateProperty, DateTimeProperty, StringProperty, StructuredN
 from pydantic import Field
 from pytest_cases import case, parametrize_with_cases
 
-from app.models import BaseNodeRead
+from fed_reg.models import BaseNodeRead
 from tests.common.utils import random_date, random_datetime, random_lower_string
 
 

@@ -41,4 +41,4 @@ COPY --from=requirements /tmp/requirements.txt /code/requirements.txt
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-COPY ../app /code/app
+COPY ../fed_reg /code/fed_reg

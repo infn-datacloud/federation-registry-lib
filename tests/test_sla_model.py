@@ -7,7 +7,7 @@ from neo4j.graph import Node
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
-from app.sla.models import SLA
+from fed_reg.sla.models import SLA
 from tests.common.utils import random_date, random_lower_string
 
 

@@ -8,7 +8,7 @@ from neo4j.graph import Node
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
-from app.flavor.models import Flavor
+from fed_reg.flavor.models import Flavor
 from tests.common.utils import random_lower_string
 
 

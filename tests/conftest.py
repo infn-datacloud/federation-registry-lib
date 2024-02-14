@@ -4,8 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from app.project.models import Project
-from app.service.models import ComputeService
+from fed_reg.project.models import Project
+from fed_reg.service.models import ComputeService
 from tests.common.utils import random_lower_string
 
 

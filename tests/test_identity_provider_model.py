@@ -7,7 +7,7 @@ from neo4j.graph import Node
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
-from app.identity_provider.models import IdentityProvider
+from fed_reg.identity_provider.models import IdentityProvider
 from tests.common.utils import random_lower_string
 
 

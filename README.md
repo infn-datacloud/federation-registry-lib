@@ -286,7 +286,7 @@ Using VSCode you can open the entire folder inside the provided development cont
 To run the application in development mode developers can use the following command from the project top folder:
 
 ```bash
-uvicorn app.main --reload
+uvicorn fed_reg.main:app --reload
 ```
 
 > The --reload flag allows server reload on changes

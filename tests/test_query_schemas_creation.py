@@ -4,8 +4,8 @@ from typing import Type, Union
 
 from pytest_cases import case, parametrize_with_cases
 
-from app.models import BaseNode
-from app.query import create_query_model
+from fed_reg.models import BaseNode
+from fed_reg.query import create_query_model
 from tests.common.utils import random_lower_string
 
 

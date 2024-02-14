@@ -6,7 +6,7 @@ import pytest
 from pydantic import AnyHttpUrl, AnyUrl, EmailStr
 from pytest_cases import parametrize, parametrize_with_cases
 
-from app.config import Neo4jUriScheme, Settings
+from fed_reg.config import Neo4jUriScheme, Settings
 from tests.common.utils import random_email, random_lower_string, random_url
 
 

@@ -2,8 +2,8 @@
 import pytest
 from flaat.user_infos import UserInfos
 
-from app.auth import has_write_access
-from app.main import settings
+from fed_reg.auth import has_write_access
+from fed_reg.main import settings
 
 MOCK_READ_EMAIL = "user@test.it"
 MOCK_WRITE_EMAIL = "admin@test.it"

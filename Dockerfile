@@ -25,5 +25,7 @@ RUN apt-get update \
 RUN pip install --user --upgrade pip \
     && pip install --user --no-cache-dir --upgrade -r /app/requirements.txt
 
-COPY ./app /app/app
+COPY ./fed_reg /app/fed_reg
+
 ENV PYTHONPATH=/app
+ENV APP_MODULE=fed_reg.main:app
