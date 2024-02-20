@@ -9,7 +9,7 @@ from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
-from tests.utils import random_lower_string
+from tests.create_dict import quota_dict
 
 
 class CaseQuotaEmpty:
@@ -47,10 +47,6 @@ class CaseNetworkAttr:
     )
     def case_int(self, key: str) -> Tuple[str, int]:
         return key, randint(0, 100)
-
-
-def quota_dict():
-    return {"type": random_lower_string()}
 
 
 def test_block_storage_default_attr() -> None:

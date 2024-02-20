@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, Dict, Literal, Tuple
+from typing import Any, Literal, Tuple
 from unittest.mock import Mock, PropertyMock, patch
 from uuid import uuid4
 
@@ -9,6 +9,8 @@ from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
+from fed_reg.project.models import Project
+from tests.create_dict import flavor_dict, project_dict
 from tests.utils import random_lower_string
 
 
@@ -30,10 +32,6 @@ class CaseAttr:
     @parametrize(key=["is_public", "infiniband"])
     def case_bool(self, key: str) -> Tuple[str, Literal[True]]:
         return key, True
-
-
-def flavor_dict() -> Dict[str, str]:
-    return {"name": random_lower_string(), "uuid": uuid4().hex}
 
 
 def test_default_attr() -> None:
@@ -113,27 +111,37 @@ def test_optional_rel(mock_db: Mock) -> None:
     assert item.projects.single() is None
 
 
-# TODO test_invalid_relationships
+@patch("neomodel.relationship_manager.db")
+@patch("neomodel.match.db")
+@patch("neomodel.core.db")
+def test_a(mock_core_db: Mock, mock_match_db: Mock, mock_rel_mgr_db: Mock) -> None:
+    fd = flavor_dict()
+    pd = project_dict()
 
+    db_version = "5"
+    type(mock_core_db).database_version = PropertyMock(return_value=db_version)
+    type(mock_match_db).database_version = PropertyMock(return_value=db_version)
+    type(mock_rel_mgr_db).database_version = PropertyMock(return_value=db_version)
+    element_id = f"{db_version}:{uuid4().hex}:0"
+    mock_core_db.cypher_query.return_value = (
+        [[Node(..., element_id=element_id, id_=0, properties=fd)]],
+        None,
+    )
+    element_id = f"{db_version}:{uuid4().hex}:1"
+    mock_match_db.cypher_query.return_value = (
+        [[Node(..., element_id=element_id, id_=1, properties=pd)]],
+        None,
+    )
 
-# @patch("neomodel.core.db")
-# def test_a(mock_db: Mock, project_model: Project) -> None:
-#     d = flavor_dict()
-#     item = Flavor(**d)
+    item = Flavor(**fd)
+    item = item.save()
+    project_model = Project(**pd)
+    project_model = project_model.save()
 
-#     db_version = "5"
-#     type(mock_db).database_version = PropertyMock(return_value=db_version)
-#     element_id = f"{db_version}:{uuid4().hex}:0"
-#     mock_db.cypher_query.return_value = (
-#         [[Node(..., element_id=element_id, id_=0, properties=d)]],
-#         None,
-#     )
-
-#     item = item.save()
-#     project_model.save()
-#     r = item.projects.connect(project_model)
-#     print(item.projects.source)
-#     print(item.projects.name)
-#     print(item.projects.definition)
-#     print(r)
-#     assert len(item.projects.all()) == 1
+    r = item.projects.connect(project_model)
+    assert r is True
+    assert item.projects.source
+    assert item.projects.name
+    assert item.projects.definition
+    assert len(item.projects.all()) == 1
+    assert project_model.uid

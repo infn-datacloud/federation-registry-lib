@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Tuple
+from typing import Any, List, Literal, Tuple
 from unittest.mock import Mock, PropertyMock, patch
 from uuid import uuid4
 
@@ -8,6 +8,7 @@ from neomodel import RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.provider.models import Provider
+from tests.create_dict import provider_dict
 from tests.utils import random_lower_string
 
 
@@ -31,10 +32,6 @@ class CaseAttr:
         if key == "empty":
             return key, []
         return key, [random_lower_string()]
-
-
-def provider_dict() -> Dict[str, str]:
-    return {"name": random_lower_string(), "type": random_lower_string()}
 
 
 def test_default_attr() -> None:

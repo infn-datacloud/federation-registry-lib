@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any, Tuple
 from unittest.mock import Mock, PropertyMock, patch
 from uuid import uuid4
 
@@ -8,7 +8,8 @@ from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.sla.models import SLA
-from tests.utils import random_date, random_lower_string
+from tests.create_dict import sla_dict
+from tests.utils import random_lower_string
 
 
 class CaseMissing:
@@ -21,14 +22,6 @@ class CaseAttr:
     @parametrize(key=["description"])
     def case_str(self, key: str) -> Tuple[str, str]:
         return key, random_lower_string()
-
-
-def sla_dict() -> Dict[str, Any]:
-    return {
-        "doc_uuid": uuid4().hex,
-        "start_date": random_date(),
-        "end_date": random_date(),
-    }
 
 
 def test_default_attr() -> None:

@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any, Tuple
 from unittest.mock import Mock, PropertyMock, patch
 from uuid import uuid4
 
@@ -8,6 +8,7 @@ from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.location.models import Location
+from tests.create_dict import location_dict
 from tests.utils import random_float, random_lower_string
 
 
@@ -25,10 +26,6 @@ class CaseAttr:
     @parametrize(key=["latitude", "longitude"])
     def case_float(self, key: str) -> Tuple[str, float]:
         return key, random_float(0, 100)
-
-
-def location_dict() -> Dict[str, str]:
-    return {"site": random_lower_string(), "country": random_lower_string()}
 
 
 def test_default_attr() -> None:

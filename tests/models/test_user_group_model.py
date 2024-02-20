@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any, Tuple
 from unittest.mock import Mock, PropertyMock, patch
 from uuid import uuid4
 
@@ -8,6 +8,7 @@ from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.user_group.models import UserGroup
+from tests.create_dict import user_group_dict
 from tests.utils import random_lower_string
 
 
@@ -15,10 +16,6 @@ class CaseAttr:
     @parametrize(key=["description"])
     def case_str(self, key: str) -> Tuple[str, str]:
         return key, random_lower_string()
-
-
-def user_group_dict() -> Dict[str, str]:
-    return {"name": random_lower_string()}
 
 
 def test_default_attr() -> None:

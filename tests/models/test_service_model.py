@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any, Tuple
 from unittest.mock import Mock, PropertyMock, patch
 from uuid import uuid4
 
@@ -13,6 +13,7 @@ from fed_reg.service.models import (
     IdentityService,
     NetworkService,
 )
+from tests.create_dict import service_dict
 from tests.utils import random_lower_string
 
 
@@ -26,14 +27,6 @@ class CaseAttr:
     @parametrize(key=["description"])
     def case_str(self, key: str) -> Tuple[str, str]:
         return key, random_lower_string()
-
-
-def service_dict() -> Dict[str, str]:
-    return {
-        "type": random_lower_string(),
-        "endpoint": random_lower_string(),
-        "name": random_lower_string(),
-    }
 
 
 def test_block_storage_default_attr() -> None:
