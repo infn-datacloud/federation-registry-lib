@@ -9,7 +9,7 @@ from pydantic import Field
 from pytest_cases import case, parametrize_with_cases
 
 from fed_reg.models import BaseNodeRead
-from tests.common.utils import random_date, random_datetime, random_lower_string
+from tests.utils import random_date, random_datetime, random_lower_string
 
 
 class CaseDates:
@@ -37,19 +37,23 @@ class CaseDates:
 
 
 class TestModelDate(BaseNodeRead):
+    __test__ = False
     date_test: date = Field(..., description="A test field for dates")
 
 
 class TestModelDateTime(BaseNodeRead):
+    __test__ = False
     datetime_test: datetime = Field(..., description="A test field for dates")
 
 
 class TestORMDate(StructuredNode):
+    __test__ = False
     uid = StringProperty(default=random_lower_string())
     date_test = DateProperty()
 
 
 class TestORMDateTime(StructuredNode):
+    __test__ = False
     uid = StringProperty(default=random_lower_string())
     date_test = DateTimeProperty()
 

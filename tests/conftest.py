@@ -6,7 +6,7 @@ import pytest
 
 from fed_reg.project.models import Project
 from fed_reg.service.models import ComputeService
-from tests.common.utils import random_lower_string
+from tests.utils import random_lower_string
 
 
 @pytest.fixture(autouse=True)

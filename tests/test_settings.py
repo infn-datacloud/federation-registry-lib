@@ -7,7 +7,7 @@ from pydantic import AnyHttpUrl, AnyUrl, EmailStr
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.config import Neo4jUriScheme, Settings
-from tests.common.utils import random_email, random_lower_string, random_url
+from tests.utils import random_email, random_lower_string, random_url
 
 
 def random_neo4j_uri_scheme() -> Neo4jUriScheme:

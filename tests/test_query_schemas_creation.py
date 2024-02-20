@@ -6,39 +6,47 @@ from pytest_cases import case, parametrize_with_cases
 
 from fed_reg.models import BaseNode
 from fed_reg.query import create_query_model
-from tests.common.utils import random_lower_string
+from tests.utils import random_lower_string
 
 
 class TestModelBool(BaseNode):
+    __test__ = False
     test_field: bool
 
 
 class TestModelInt(BaseNode):
+    __test__ = False
     test_field: int
 
 
 class TestModelFloat(BaseNode):
+    __test__ = False
     test_field: float
 
 
 class TestModelDate(BaseNode):
+    __test__ = False
     test_field: date
 
 
 class TestModelDateTime(BaseNode):
+    __test__ = False
     test_field: datetime
 
 
 class TestModelStr(BaseNode):
+    __test__ = False
     test_field: str
 
 
 class TestEnum(Enum):
+    __test__ = False
     VALUE_1 = "value_1"
     VALUE_2 = "value_2"
 
 
 class TestModelEnum(BaseNode):
+    __test__ = False
     test_field: TestEnum
 
 
@@ -98,7 +106,7 @@ def test_dates(model: Union[Type[TestModelDate], Type[TestModelDateTime]]) -> No
 
 
 @parametrize_with_cases("model", cases=CaseModel, has_tag="str")
-def test_str_enum(model: [Type[TestModelStr], Type[TestModelEnum]]) -> None:
+def test_str_enum(model: Union[Type[TestModelStr], Type[TestModelEnum]]) -> None:
     cls = create_query_model(random_lower_string(), model)
     item = cls()
     assert item.test_field is None

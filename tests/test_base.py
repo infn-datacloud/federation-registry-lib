@@ -7,19 +7,22 @@ import pytest
 from pydantic import Field
 
 from fed_reg.models import BaseNode
-from tests.common.utils import random_lower_string
+from tests.utils import random_lower_string
 
 
 class TestEnum(Enum):
+    __test__ = False
     VALUE_1 = "value_1"
     VALUE_2 = "value_2"
 
 
 class TestModelEnum(BaseNode):
+    __test__ = False
     test_field: TestEnum = Field(..., description="A test field")
 
 
 class TestModelUUID(BaseNode):
+    __test__ = False
     uuid: str = Field(default="", description="A test field for uuid")
     uuid_list: List[str] = Field(
         default_factory=list, description="A test field for list of uuids"
