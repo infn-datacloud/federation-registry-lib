@@ -12,16 +12,16 @@ from fed_reg.flavor.schemas import (
     FlavorUpdate,
 )
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
-from tests.create_dict import flavor_dict
+from tests.create_dict import flavor_schema_dict
 from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["base_public", "base", "update"])
+    @case(tags=["base_public", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
-    @case(tags=["base_public", "base"])
+    @case(tags=["base_public"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
@@ -57,18 +57,18 @@ class CaseInvalidAttr:
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
 def test_base_public(key: str, value: str) -> None:
     assert issubclass(FlavorBasePublic, BaseNode)
-    d = flavor_dict()
+    d = flavor_schema_dict()
     if key:
         d[key] = value
     item = FlavorBasePublic(**d)
     assert item.description == d.get("description", "")
     assert item.name == d.get("name")
-    assert item.uuid == d.get("uuid")
+    assert item.uuid == d.get("uuid").hex
 
 
 @parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
 def test_invalid_base_public(key: str, value: None) -> None:
-    d = flavor_dict()
+    d = flavor_schema_dict()
     d[key] = value
     with pytest.raises(ValueError):
         FlavorBasePublic(**d)
@@ -77,14 +77,14 @@ def test_invalid_base_public(key: str, value: None) -> None:
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_base(key: str, value: Any) -> None:
     assert issubclass(FlavorBase, FlavorBasePublic)
-    d = flavor_dict()
+    d = flavor_schema_dict()
     if key:
         d[key] = value
         if key.startswith("gpu_"):
             d["gpus"] = 1
     item = FlavorBase(**d)
     assert item.name == d.get("name")
-    assert item.uuid == d.get("uuid")
+    assert item.uuid == d.get("uuid").hex
     assert item.disk == d.get("disk", 0)
     assert item.ram == d.get("ram", 0)
     assert item.vcpus == d.get("vcpus", 0)
@@ -100,7 +100,7 @@ def test_base(key: str, value: Any) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseInvalidAttr)
 def test_invalid_base(key: str, value: Any) -> None:
-    d = flavor_dict()
+    d = flavor_schema_dict()
     d[key] = value
     with pytest.raises(ValueError):
         FlavorBase(**d)
@@ -117,12 +117,12 @@ def test_create() -> None:
 def test_update(key: str, value: Any) -> None:
     assert issubclass(FlavorUpdate, BaseNodeCreate)
     assert issubclass(FlavorUpdate, FlavorBase)
-    d = flavor_dict()
+    d = flavor_schema_dict()
     if key:
         d[key] = value
     item = FlavorUpdate(**d)
     assert item.name == d.get("name")
-    assert item.uuid == d.get("uuid")
+    assert item.uuid == (d.get("uuid").hex if d.get("uuid") else None)
 
 
 def test_query() -> None:

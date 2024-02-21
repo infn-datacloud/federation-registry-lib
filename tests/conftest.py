@@ -25,8 +25,8 @@ from fed_reg.service.models import (
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
 from tests.create_dict import (
-    flavor_dict,
-    identity_provider_dict,
+    flavor_model_dict,
+    identity_provider_model_dict,
     image_dict,
     location_dict,
     network_dict,
@@ -96,7 +96,7 @@ def db_rel_mgr() -> Generator[MagicMock, Any, None]:
 
 @pytest.fixture
 def flavor_model(db_core: MagicMock) -> Flavor:
-    d = flavor_dict()
+    d = flavor_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{FLAVOR_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=FLAVOR_ID, properties=d)]],
@@ -107,7 +107,7 @@ def flavor_model(db_core: MagicMock) -> Flavor:
 
 @pytest.fixture
 def identity_provider_model(db_core: MagicMock) -> IdentityProvider:
-    d = identity_provider_dict()
+    d = identity_provider_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{IDENTITY_PROVIDER_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=IDENTITY_PROVIDER_ID, properties=d)]],

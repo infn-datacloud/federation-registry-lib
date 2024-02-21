@@ -1,19 +1,27 @@
 from typing import Any, Dict
 from uuid import uuid4
 
-from tests.utils import random_date, random_lower_string
+from tests.utils import random_date, random_lower_string, random_url
 
 
 def auth_method_dict() -> Dict[str, str]:
     return {"idp_name": random_lower_string(), "protocol": random_lower_string()}
 
 
-def flavor_dict() -> Dict[str, str]:
+def flavor_model_dict() -> Dict[str, str]:
     return {"name": random_lower_string(), "uuid": uuid4().hex}
 
 
-def identity_provider_dict() -> Dict[str, str]:
+def flavor_schema_dict() -> Dict[str, str]:
+    return {"name": random_lower_string(), "uuid": uuid4()}
+
+
+def identity_provider_model_dict() -> Dict[str, str]:
     return {"endpoint": random_lower_string(), "group_claim": random_lower_string()}
+
+
+def identity_provider_schema_dict() -> Dict[str, str]:
+    return {"endpoint": random_url(), "group_claim": random_lower_string()}
 
 
 def image_dict() -> Dict[str, str]:

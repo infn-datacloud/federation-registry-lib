@@ -11,7 +11,7 @@ from fed_reg.auth_method.models import AuthMethod
 from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.provider.models import Provider
 from fed_reg.user_group.models import UserGroup
-from tests.create_dict import auth_method_dict, identity_provider_dict
+from tests.create_dict import auth_method_dict, identity_provider_model_dict
 from tests.utils import random_lower_string
 
 
@@ -28,7 +28,7 @@ class CaseAttr:
 
 
 def test_default_attr() -> None:
-    d = identity_provider_dict()
+    d = identity_provider_model_dict()
     item = IdentityProvider(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -40,7 +40,7 @@ def test_default_attr() -> None:
 
 @parametrize_with_cases("missing_attr", cases=CaseMissing)
 def test_missing_attr(missing_attr: str) -> None:
-    d = identity_provider_dict()
+    d = identity_provider_model_dict()
     d[missing_attr] = None
     item = IdentityProvider(**d)
     with pytest.raises(RequiredProperty):
@@ -49,7 +49,7 @@ def test_missing_attr(missing_attr: str) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = identity_provider_dict()
+    d = identity_provider_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"
