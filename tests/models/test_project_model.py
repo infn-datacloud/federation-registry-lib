@@ -1,5 +1,5 @@
 from typing import Any, Tuple
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -48,16 +48,13 @@ def test_missing_attr(missing_attr: str) -> None:
         item.save()
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = project_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -70,36 +67,26 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.match.db")
-def test_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = Project(**project_dict())
+def test_required_rel(db_match: MagicMock, project_model: Project) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.provider.all()
+        project_model.provider.all()
     with pytest.raises(CardinalityViolation):
-        item.provider.single()
+        project_model.provider.single()
 
 
-@patch("neomodel.match.db")
-def test_optional_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = Project(**project_dict())
-    assert len(item.sla.all()) == 0
-    assert item.sla.single() is None
-    assert len(item.quotas.all()) == 0
-    assert item.quotas.single() is None
-    assert len(item.private_flavors.all()) == 0
-    assert item.private_flavors.single() is None
-    assert len(item.private_images.all()) == 0
-    assert item.private_images.single() is None
-    assert len(item.private_networks.all()) == 0
-    assert item.private_networks.single() is None
+def test_optional_rel(db_match: MagicMock, project_model: Project) -> None:
+    db_match.cypher_query.return_value = ([], None)
+    assert len(project_model.sla.all()) == 0
+    assert project_model.sla.single() is None
+    assert len(project_model.quotas.all()) == 0
+    assert project_model.quotas.single() is None
+    assert len(project_model.private_flavors.all()) == 0
+    assert project_model.private_flavors.single() is None
+    assert len(project_model.private_images.all()) == 0
+    assert project_model.private_images.single() is None
+    assert len(project_model.private_networks.all()) == 0
+    assert project_model.private_networks.single() is None
 
 
 # TODO test public_flavors

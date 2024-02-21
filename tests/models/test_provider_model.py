@@ -1,5 +1,5 @@
 from typing import Any, List, Literal, Tuple
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -58,16 +58,13 @@ def test_missing_attr(missing_attr: str) -> None:
         item.save()
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = provider_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -80,16 +77,11 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.match.db")
-def test_optional_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = Provider(**provider_dict())
-    assert len(item.identity_providers.all()) == 0
-    assert item.identity_providers.single() is None
-    assert len(item.projects.all()) == 0
-    assert item.projects.single() is None
-    assert len(item.regions.all()) == 0
-    assert item.regions.single() is None
+def test_optional_rel(db_match: MagicMock, provider_model: Provider) -> None:
+    db_match.cypher_query.return_value = ([], None)
+    assert len(provider_model.identity_providers.all()) == 0
+    assert provider_model.identity_providers.single() is None
+    assert len(provider_model.projects.all()) == 0
+    assert provider_model.projects.single() is None
+    assert len(provider_model.regions.all()) == 0
+    assert provider_model.regions.single() is None

@@ -1,5 +1,5 @@
 from typing import Any, Tuple
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -115,16 +115,13 @@ def test_network_missing_attr(missing_attr: str) -> None:
         item.save()
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_block_storage_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_block_storage_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = service_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -137,16 +134,13 @@ def test_block_storage_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_compute_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_compute_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = service_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -159,16 +153,13 @@ def test_compute_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_identity_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_identity_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = service_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -181,16 +172,13 @@ def test_identity_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_network_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_network_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = service_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -203,92 +191,71 @@ def test_network_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.match.db")
-def test_block_storage_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = BlockStorageService(**service_dict())
+def test_block_storage_required_rel(
+    db_match: MagicMock, block_storage_service_model: BlockStorageService
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.region.all()
+        block_storage_service_model.region.all()
     with pytest.raises(CardinalityViolation):
-        item.region.single()
+        block_storage_service_model.region.single()
 
 
-@patch("neomodel.match.db")
-def test_block_storage_optional_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = BlockStorageService(**service_dict())
-    assert len(item.quotas.all()) == 0
-    assert item.quotas.single() is None
+def test_block_storage_optional_rel(
+    db_match: MagicMock, block_storage_service_model: BlockStorageService
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
+    assert len(block_storage_service_model.quotas.all()) == 0
+    assert block_storage_service_model.quotas.single() is None
 
 
-@patch("neomodel.match.db")
-def test_compute_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = ComputeService(**service_dict())
+def test_compute_required_rel(
+    db_match: MagicMock, compute_service_model: ComputeService
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.region.all()
+        compute_service_model.region.all()
     with pytest.raises(CardinalityViolation):
-        item.region.single()
+        compute_service_model.region.single()
 
 
-@patch("neomodel.match.db")
-def test_compute_optional_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = ComputeService(**service_dict())
-    assert len(item.quotas.all()) == 0
-    assert item.quotas.single() is None
-    assert len(item.flavors.all()) == 0
-    assert item.flavors.single() is None
-    assert len(item.images.all()) == 0
-    assert item.images.single() is None
+def test_compute_optional_rel(
+    db_match: MagicMock, compute_service_model: ComputeService
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
+    assert len(compute_service_model.quotas.all()) == 0
+    assert compute_service_model.quotas.single() is None
+    assert len(compute_service_model.flavors.all()) == 0
+    assert compute_service_model.flavors.single() is None
+    assert len(compute_service_model.images.all()) == 0
+    assert compute_service_model.images.single() is None
 
 
-@patch("neomodel.match.db")
-def test_identity_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = IdentityService(**service_dict())
+def test_identity_required_rel(
+    db_match: MagicMock, identity_service_model: IdentityService
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.region.all()
+        identity_service_model.region.all()
     with pytest.raises(CardinalityViolation):
-        item.region.single()
+        identity_service_model.region.single()
 
 
-@patch("neomodel.match.db")
-def test_network_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = NetworkService(**service_dict())
+def test_network_required_rel(
+    db_match: MagicMock, network_service_model: NetworkService
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.region.all()
+        network_service_model.region.all()
     with pytest.raises(CardinalityViolation):
-        item.region.single()
+        network_service_model.region.single()
 
 
-@patch("neomodel.match.db")
-def test_network_optional_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = NetworkService(**service_dict())
-    assert len(item.quotas.all()) == 0
-    assert item.quotas.single() is None
-    assert len(item.networks.all()) == 0
-    assert item.networks.single() is None
+def test_network_optional_rel(
+    db_match: MagicMock, network_service_model: NetworkService
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
+    assert len(network_service_model.quotas.all()) == 0
+    assert network_service_model.quotas.single() is None
+    assert len(network_service_model.networks.all()) == 0
+    assert network_service_model.networks.single() is None

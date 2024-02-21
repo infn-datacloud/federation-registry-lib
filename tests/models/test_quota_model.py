@@ -1,6 +1,6 @@
 from random import randint
 from typing import Any, Tuple, Union
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -98,16 +98,13 @@ def test_missing_attr(
         item.save()
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseBlockStorageAttr)
-def test_block_storage_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_block_storage_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = quota_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -120,16 +117,13 @@ def test_block_storage_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseComputeAttr)
-def test_compute_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_compute_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = quota_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -142,16 +136,13 @@ def test_compute_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseNetworkAttr)
-def test_network_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_network_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = quota_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -164,40 +155,31 @@ def test_network_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.match.db")
-def test_block_storage_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = BlockStorageQuota(**quota_dict())
+def test_block_storage_required_rel(
+    db_match: MagicMock, block_storage_quota_model: BlockStorageQuota
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.service.all()
+        block_storage_quota_model.service.all()
     with pytest.raises(CardinalityViolation):
-        item.service.single()
+        block_storage_quota_model.service.single()
 
 
-@patch("neomodel.match.db")
-def test_compute_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = ComputeQuota(**quota_dict())
+def test_compute_required_rel(
+    db_match: MagicMock, compute_quota_model: ComputeQuota
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.service.all()
+        compute_quota_model.service.all()
     with pytest.raises(CardinalityViolation):
-        item.service.single()
+        compute_quota_model.service.single()
 
 
-@patch("neomodel.match.db")
-def test_network_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = NetworkQuota(**quota_dict())
+def test_network_required_rel(
+    db_match: MagicMock, network_quota_model: NetworkQuota
+) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.service.all()
+        network_quota_model.service.all()
     with pytest.raises(CardinalityViolation):
-        item.service.single()
+        network_quota_model.service.single()

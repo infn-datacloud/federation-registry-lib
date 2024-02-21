@@ -1,5 +1,5 @@
 from typing import Any, Tuple
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -34,16 +34,13 @@ def test_missing_attr() -> None:
         item.save()
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = user_group_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -56,25 +53,15 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.match.db")
-def test_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = UserGroup(**user_group_dict())
+def test_required_rel(db_match: MagicMock, user_group_model: UserGroup) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.identity_provider.all()
+        user_group_model.identity_provider.all()
     with pytest.raises(CardinalityViolation):
-        item.identity_provider.single()
+        user_group_model.identity_provider.single()
 
 
-@patch("neomodel.match.db")
-def test_optional_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = UserGroup(**user_group_dict())
-    assert len(item.slas.all()) == 0
-    assert item.slas.single() is None
+def test_optional_rel(db_match: MagicMock, user_group_model: UserGroup) -> None:
+    db_match.cypher_query.return_value = ([], None)
+    assert len(user_group_model.slas.all()) == 0
+    assert user_group_model.slas.single() is None
