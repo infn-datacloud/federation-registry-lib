@@ -15,7 +15,7 @@ from pytest_cases import parametrize, parametrize_with_cases
 from fed_reg.project.models import Project
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
-from tests.create_dict import sla_dict
+from tests.create_dict import sla_model_dict
 from tests.utils import random_lower_string
 
 
@@ -32,7 +32,7 @@ class CaseAttr:
 
 
 def test_default_attr() -> None:
-    d = sla_dict()
+    d = sla_model_dict()
     item = SLA(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -45,7 +45,7 @@ def test_default_attr() -> None:
 
 @parametrize_with_cases("missing_attr", cases=CaseMissing)
 def test_missing_attr(missing_attr: str) -> None:
-    d = sla_dict()
+    d = sla_model_dict()
     d[missing_attr] = None
     item = SLA(**d)
     with pytest.raises(RequiredProperty):
@@ -54,7 +54,7 @@ def test_missing_attr(missing_attr: str) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = sla_dict()
+    d = sla_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"

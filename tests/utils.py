@@ -2,9 +2,10 @@
 import string
 import time
 from datetime import date, datetime, timezone
-from random import choices, getrandbits, randint, random, randrange
+from random import choice, choices, getrandbits, randint, random, randrange
 from typing import Tuple, Type
 
+from pycountry import countries
 from pydantic import AnyHttpUrl
 
 from fed_reg.models import BaseNodeRead
@@ -94,3 +95,8 @@ def detect_public_extended_details(read_class: Type[BaseNodeRead]) -> Tuple[bool
     if "Extended" in cls_name:
         is_extended = True
     return is_public, is_extended
+
+
+def random_country() -> str:
+    """Return random country."""
+    return choice([i.name for i in countries])

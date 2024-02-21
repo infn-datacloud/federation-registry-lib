@@ -16,7 +16,7 @@ from pytest_cases import parametrize, parametrize_with_cases
 from fed_reg.project.models import Project
 from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota, Quota
 from fed_reg.service.models import BlockStorageService, ComputeService, NetworkService
-from tests.create_dict import quota_dict
+from tests.create_dict import quota_model_dict
 
 
 class CaseQuotaEmpty:
@@ -70,7 +70,7 @@ class CaseQuotaModel:
 
 
 def test_block_storage_default_attr() -> None:
-    d = quota_dict()
+    d = quota_model_dict()
     item = BlockStorageQuota(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -83,7 +83,7 @@ def test_block_storage_default_attr() -> None:
 
 
 def test_compute_default_attr() -> None:
-    d = quota_dict()
+    d = quota_model_dict()
     item = ComputeQuota(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -96,7 +96,7 @@ def test_compute_default_attr() -> None:
 
 
 def test_network_default_attr() -> None:
-    d = quota_dict()
+    d = quota_model_dict()
     item = NetworkQuota(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -120,7 +120,7 @@ def test_missing_attr(
 
 @parametrize_with_cases("key, value", cases=CaseBlockStorageAttr)
 def test_block_storage_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = quota_dict()
+    d = quota_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"
@@ -139,7 +139,7 @@ def test_block_storage_attr(db_core: MagicMock, key: str, value: Any) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseComputeAttr)
 def test_compute_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = quota_dict()
+    d = quota_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"
@@ -158,7 +158,7 @@ def test_compute_attr(db_core: MagicMock, key: str, value: Any) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseNetworkAttr)
 def test_network_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = quota_dict()
+    d = quota_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"

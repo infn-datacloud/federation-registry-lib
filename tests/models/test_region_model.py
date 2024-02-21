@@ -22,7 +22,7 @@ from fed_reg.service.models import (
     NetworkService,
     Service,
 )
-from tests.create_dict import region_dict
+from tests.create_dict import region_model_dict
 from tests.utils import random_lower_string
 
 
@@ -55,7 +55,7 @@ class CaseServiceModel:
 
 
 def test_default_attr() -> None:
-    d = region_dict()
+    d = region_model_dict()
     item = Region(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -73,7 +73,7 @@ def test_missing_attr() -> None:
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = region_dict()
+    d = region_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"

@@ -17,7 +17,7 @@ from fed_reg.service.models import (
     IdentityService,
     NetworkService,
 )
-from tests.create_dict import service_dict
+from tests.create_dict import service_model_dict
 from tests.utils import random_lower_string
 
 
@@ -56,7 +56,7 @@ class CaseServiceModel:
 
 
 def test_block_storage_default_attr() -> None:
-    d = service_dict()
+    d = service_model_dict()
     item = BlockStorageService(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -68,7 +68,7 @@ def test_block_storage_default_attr() -> None:
 
 
 def test_compute_default_attr() -> None:
-    d = service_dict()
+    d = service_model_dict()
     item = ComputeService(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -82,7 +82,7 @@ def test_compute_default_attr() -> None:
 
 
 def test_identity_default_attr() -> None:
-    d = service_dict()
+    d = service_model_dict()
     item = IdentityService(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -93,7 +93,7 @@ def test_identity_default_attr() -> None:
 
 
 def test_network_default_attr() -> None:
-    d = service_dict()
+    d = service_model_dict()
     item = NetworkService(**d)
     assert item.uid is not None
     assert item.description == ""
@@ -107,7 +107,7 @@ def test_network_default_attr() -> None:
 
 @parametrize_with_cases("missing_attr", cases=CaseMissing)
 def test_block_storage_missing_attr(missing_attr: str) -> None:
-    d = service_dict()
+    d = service_model_dict()
     d[missing_attr] = None
     item = BlockStorageService(**d)
     with pytest.raises(RequiredProperty):
@@ -116,7 +116,7 @@ def test_block_storage_missing_attr(missing_attr: str) -> None:
 
 @parametrize_with_cases("missing_attr", cases=CaseMissing)
 def test_compute_missing_attr(missing_attr: str) -> None:
-    d = service_dict()
+    d = service_model_dict()
     d[missing_attr] = None
     item = ComputeService(**d)
     with pytest.raises(RequiredProperty):
@@ -125,7 +125,7 @@ def test_compute_missing_attr(missing_attr: str) -> None:
 
 @parametrize_with_cases("missing_attr", cases=CaseMissing)
 def test_identity_missing_attr(missing_attr: str) -> None:
-    d = service_dict()
+    d = service_model_dict()
     d[missing_attr] = None
     item = IdentityService(**d)
     with pytest.raises(RequiredProperty):
@@ -134,7 +134,7 @@ def test_identity_missing_attr(missing_attr: str) -> None:
 
 @parametrize_with_cases("missing_attr", cases=CaseMissing)
 def test_network_missing_attr(missing_attr: str) -> None:
-    d = service_dict()
+    d = service_model_dict()
     d[missing_attr] = None
     item = NetworkService(**d)
     with pytest.raises(RequiredProperty):
@@ -143,7 +143,7 @@ def test_network_missing_attr(missing_attr: str) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_block_storage_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = service_dict()
+    d = service_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"
@@ -162,7 +162,7 @@ def test_block_storage_attr(db_core: MagicMock, key: str, value: Any) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_compute_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = service_dict()
+    d = service_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"
@@ -181,7 +181,7 @@ def test_compute_attr(db_core: MagicMock, key: str, value: Any) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_identity_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = service_dict()
+    d = service_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"
@@ -200,7 +200,7 @@ def test_identity_attr(db_core: MagicMock, key: str, value: Any) -> None:
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_network_attr(db_core: MagicMock, key: str, value: Any) -> None:
-    d = service_dict()
+    d = service_model_dict()
     d[key] = value
 
     element_id = f"{db_core.database_version}:{uuid4().hex}:0"

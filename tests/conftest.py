@@ -27,16 +27,16 @@ from fed_reg.user_group.models import UserGroup
 from tests.create_dict import (
     flavor_model_dict,
     identity_provider_model_dict,
-    image_dict,
-    location_dict,
-    network_dict,
-    project_dict,
-    provider_dict,
-    quota_dict,
-    region_dict,
-    service_dict,
-    sla_dict,
-    user_group_dict,
+    image_model_dict,
+    location_model_dict,
+    network_model_dict,
+    project_model_dict,
+    provider_model_dict,
+    quota_model_dict,
+    region_model_dict,
+    service_model_dict,
+    sla_model_dict,
+    user_group_model_dict,
 )
 
 FLAVOR_ID = 10
@@ -118,7 +118,7 @@ def identity_provider_model(db_core: MagicMock) -> IdentityProvider:
 
 @pytest.fixture
 def image_model(db_core: MagicMock) -> Image:
-    d = image_dict()
+    d = image_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{IMAGE_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=IMAGE_ID, properties=d)]],
@@ -129,7 +129,7 @@ def image_model(db_core: MagicMock) -> Image:
 
 @pytest.fixture
 def location_model(db_core: MagicMock) -> Location:
-    d = location_dict()
+    d = location_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{LOCATION_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=LOCATION_ID, properties=d)]],
@@ -140,7 +140,7 @@ def location_model(db_core: MagicMock) -> Location:
 
 @pytest.fixture
 def network_model(db_core: MagicMock) -> Network:
-    d = network_dict()
+    d = network_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{NETWORK_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=NETWORK_ID, properties=d)]],
@@ -151,7 +151,7 @@ def network_model(db_core: MagicMock) -> Network:
 
 @pytest.fixture
 def project_model(db_core: MagicMock) -> Project:
-    d = project_dict()
+    d = project_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{PROJECT_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=PROJECT_ID, properties=d)]],
@@ -162,7 +162,7 @@ def project_model(db_core: MagicMock) -> Project:
 
 @pytest.fixture
 def provider_model(db_core: MagicMock) -> Provider:
-    d = provider_dict()
+    d = provider_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{PROVIDER_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=PROVIDER_ID, properties=d)]],
@@ -173,7 +173,7 @@ def provider_model(db_core: MagicMock) -> Provider:
 
 @pytest.fixture
 def block_storage_quota_model(db_core: MagicMock) -> BlockStorageQuota:
-    d = quota_dict()
+    d = quota_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{BLOCK_STORAGE_QUOTA_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=BLOCK_STORAGE_QUOTA_ID, properties=d)]],
@@ -184,7 +184,7 @@ def block_storage_quota_model(db_core: MagicMock) -> BlockStorageQuota:
 
 @pytest.fixture
 def compute_quota_model(db_core: MagicMock) -> ComputeQuota:
-    d = quota_dict()
+    d = quota_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{COMPUTE_QUOTA_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=COMPUTE_QUOTA_ID, properties=d)]],
@@ -195,7 +195,7 @@ def compute_quota_model(db_core: MagicMock) -> ComputeQuota:
 
 @pytest.fixture
 def network_quota_model(db_core: MagicMock) -> NetworkQuota:
-    d = quota_dict()
+    d = quota_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{NETWORK_QUOTA_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=NETWORK_QUOTA_ID, properties=d)]],
@@ -206,7 +206,7 @@ def network_quota_model(db_core: MagicMock) -> NetworkQuota:
 
 @pytest.fixture
 def region_model(db_core: MagicMock) -> Region:
-    d = region_dict()
+    d = region_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{REGION_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=REGION_ID, properties=d)]],
@@ -217,7 +217,7 @@ def region_model(db_core: MagicMock) -> Region:
 
 @pytest.fixture
 def block_storage_service_model(db_core: MagicMock) -> BlockStorageService:
-    d = service_dict()
+    d = service_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{BLOCK_STORAGE_SERVICE_ID}"
     db_core.cypher_query.return_value = (
         [
@@ -237,7 +237,7 @@ def block_storage_service_model(db_core: MagicMock) -> BlockStorageService:
 
 @pytest.fixture
 def compute_service_model(db_core: MagicMock) -> ComputeService:
-    d = service_dict()
+    d = service_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{COMPUTE_SERVICE_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=COMPUTE_SERVICE_ID, properties=d)]],
@@ -248,7 +248,7 @@ def compute_service_model(db_core: MagicMock) -> ComputeService:
 
 @pytest.fixture
 def identity_service_model(db_core: MagicMock) -> IdentityService:
-    d = service_dict()
+    d = service_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{IDENTITY_SERVICE_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=IDENTITY_SERVICE_ID, properties=d)]],
@@ -259,7 +259,7 @@ def identity_service_model(db_core: MagicMock) -> IdentityService:
 
 @pytest.fixture
 def network_service_model(db_core: MagicMock) -> NetworkService:
-    d = service_dict()
+    d = service_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{NETWORK_SERVICE_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=NETWORK_SERVICE_ID, properties=d)]],
@@ -270,7 +270,7 @@ def network_service_model(db_core: MagicMock) -> NetworkService:
 
 @pytest.fixture
 def sla_model(db_core: MagicMock) -> SLA:
-    d = sla_dict()
+    d = sla_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{SLA_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=SLA_ID, properties=d)]],
@@ -281,7 +281,7 @@ def sla_model(db_core: MagicMock) -> SLA:
 
 @pytest.fixture
 def user_group_model(db_core: MagicMock) -> UserGroup:
-    d = user_group_dict()
+    d = user_group_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{USER_GROUP_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=USER_GROUP_ID, properties=d)]],
