@@ -4,6 +4,10 @@ from uuid import uuid4
 from tests.utils import random_date, random_lower_string
 
 
+def auth_method_dict() -> Dict[str, str]:
+    return {"idp_name": random_lower_string(), "protocol": random_lower_string()}
+
+
 def flavor_dict() -> Dict[str, str]:
     return {"name": random_lower_string(), "uuid": uuid4().hex}
 

@@ -27,7 +27,7 @@ class CaseAttr:
         return key, random_lower_string()
 
     @parametrize(key=["disk", "ram", "vcpus", "swap", "ephemeral", "gpus"])
-    def case_int(self, key: str) -> Tuple[str, int]:
+    def case_integer(self, key: str) -> Tuple[str, int]:
         return key, randint(0, 100)
 
     @parametrize(key=["is_public", "infiniband"])
@@ -105,8 +105,6 @@ def test_linked_project(
     flavor_model: Flavor,
     project_model: Project,
 ) -> None:
-    r = flavor_model.projects.connect(project_model)
-    assert r is True
     assert flavor_model.projects.name
     assert flavor_model.projects.source
     assert isinstance(flavor_model.projects.source, Flavor)
@@ -114,12 +112,27 @@ def test_linked_project(
     assert flavor_model.projects.definition
     assert flavor_model.projects.definition["node_class"] == Project
 
+    r = flavor_model.projects.connect(project_model)
+    assert r is True
+
     db_match.cypher_query.return_value = ([[project_model]], ["projects_r1"])
     assert len(flavor_model.projects.all()) == 1
     project = flavor_model.projects.single()
     assert isinstance(project, Project)
-    assert project.name == project_model.name
-    assert project.uuid == project_model.uuid
+    assert project.uid == project_model.uid
+
+
+def test_multiple_linked_projects(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    flavor_model: Flavor,
+    project_model: ComputeService,
+) -> None:
+    db_match.cypher_query.return_value = (
+        [[project_model], [project_model]],
+        ["projects_r1", "projects_r2"],
+    )
+    assert len(flavor_model.projects.all()) == 2
 
 
 def test_linked_service(
@@ -128,8 +141,6 @@ def test_linked_service(
     flavor_model: Flavor,
     compute_service_model: ComputeService,
 ) -> None:
-    r = flavor_model.services.connect(compute_service_model)
-    assert r is True
     assert flavor_model.services.name
     assert flavor_model.services.source
     assert isinstance(flavor_model.projects.source, Flavor)
@@ -137,10 +148,24 @@ def test_linked_service(
     assert flavor_model.services.definition
     assert flavor_model.services.definition["node_class"] == ComputeService
 
+    r = flavor_model.services.connect(compute_service_model)
+    assert r is True
+
     db_match.cypher_query.return_value = ([[compute_service_model]], ["services_r1"])
     assert len(flavor_model.services.all()) == 1
     service = flavor_model.services.single()
     assert isinstance(service, ComputeService)
-    assert service.name == compute_service_model.name
-    assert service.type == compute_service_model.type
-    assert service.endpoint == compute_service_model.endpoint
+    assert service.uid == compute_service_model.uid
+
+
+def test_multiple_linked_services(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    flavor_model: Flavor,
+    compute_service_model: ComputeService,
+) -> None:
+    db_match.cypher_query.return_value = (
+        [[compute_service_model], [compute_service_model]],
+        ["services_r1", "services_r2"],
+    )
+    assert len(flavor_model.services.all()) == 2
