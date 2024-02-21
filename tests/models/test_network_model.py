@@ -1,14 +1,21 @@
 from random import randint
 from typing import Any, List, Literal, Tuple
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 import pytest
 from neo4j.graph import Node
-from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
+from neomodel import (
+    AttemptedCardinalityViolation,
+    CardinalityViolation,
+    RelationshipManager,
+    RequiredProperty,
+)
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.network.models import Network
+from fed_reg.project.models import Project
+from fed_reg.service.models import NetworkService
 from tests.create_dict import network_dict
 from tests.utils import random_lower_string
 
@@ -97,3 +104,91 @@ def test_optional_rel(db_match: MagicMock, network_model: Network) -> None:
     db_match.cypher_query.return_value = ([], None)
     assert len(network_model.project.all()) == 0
     assert network_model.project.single() is None
+
+
+@patch("neomodel.match.QueryBuilder._count", return_value=0)
+def test_linked_project(
+    mock_count: MagicMock,
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    network_model: Network,
+    project_model: Project,
+) -> None:
+    assert network_model.project.name
+    assert network_model.project.source
+    assert isinstance(network_model.project.source, Network)
+    assert network_model.project.source.uid == network_model.uid
+    assert network_model.project.definition
+    assert network_model.project.definition["node_class"] == Project
+
+    r = network_model.project.connect(project_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = ([[project_model]], ["project_r1"])
+    assert len(network_model.project.all()) == 1
+    project = network_model.project.single()
+    assert isinstance(project, Project)
+    assert project.uid == project_model.uid
+
+
+def test_multiple_linked_project(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    network_model: Network,
+    project_model: Project,
+) -> None:
+    with patch("neomodel.match.QueryBuilder._count") as mock_count:
+        mock_count.return_value = 1
+        with pytest.raises(AttemptedCardinalityViolation):
+            network_model.project.connect(project_model)
+
+    db_match.cypher_query.return_value = (
+        [[project_model], [project_model]],
+        ["project_r1", "project_r2"],
+    )
+    with pytest.raises(CardinalityViolation):
+        network_model.project.all()
+
+
+@patch("neomodel.match.QueryBuilder._count", return_value=0)
+def test_linked_service(
+    mock_count: MagicMock,
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    network_model: Network,
+    network_service_model: NetworkService,
+) -> None:
+    assert network_model.service.name
+    assert network_model.service.source
+    assert isinstance(network_model.service.source, Network)
+    assert network_model.service.source.uid == network_model.uid
+    assert network_model.service.definition
+    assert network_model.service.definition["node_class"] == NetworkService
+
+    r = network_model.service.connect(network_service_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = ([[network_service_model]], ["service_r1"])
+    assert len(network_model.service.all()) == 1
+    service = network_model.service.single()
+    assert isinstance(service, NetworkService)
+    assert service.uid == network_service_model.uid
+
+
+def test_multiple_linked_service(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    network_model: Network,
+    network_service_model: NetworkService,
+) -> None:
+    with patch("neomodel.match.QueryBuilder._count") as mock_count:
+        mock_count.return_value = 1
+        with pytest.raises(AttemptedCardinalityViolation):
+            network_model.service.connect(network_service_model)
+
+    db_match.cypher_query.return_value = (
+        [[network_service_model], [network_service_model]],
+        ["service_r1", "service_r2"],
+    )
+    with pytest.raises(CardinalityViolation):
+        network_model.service.all()

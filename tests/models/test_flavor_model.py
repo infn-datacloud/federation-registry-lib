@@ -126,7 +126,7 @@ def test_multiple_linked_projects(
     db_rel_mgr: MagicMock,
     db_match: MagicMock,
     flavor_model: Flavor,
-    project_model: ComputeService,
+    project_model: Project,
 ) -> None:
     db_match.cypher_query.return_value = (
         [[project_model], [project_model]],
@@ -143,7 +143,7 @@ def test_linked_service(
 ) -> None:
     assert flavor_model.services.name
     assert flavor_model.services.source
-    assert isinstance(flavor_model.projects.source, Flavor)
+    assert isinstance(flavor_model.services.source, Flavor)
     assert flavor_model.services.source.uid == flavor_model.uid
     assert flavor_model.services.definition
     assert flavor_model.services.definition["node_class"] == ComputeService

@@ -1,12 +1,19 @@
 from typing import Any, Tuple
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 import pytest
 from neo4j.graph import Node
-from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
+from neomodel import (
+    AttemptedCardinalityViolation,
+    CardinalityViolation,
+    RelationshipManager,
+    RequiredProperty,
+)
 from pytest_cases import parametrize, parametrize_with_cases
 
+from fed_reg.identity_provider.models import IdentityProvider
+from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
 from tests.create_dict import user_group_dict
 from tests.utils import random_lower_string
@@ -65,3 +72,88 @@ def test_optional_rel(db_match: MagicMock, user_group_model: UserGroup) -> None:
     db_match.cypher_query.return_value = ([], None)
     assert len(user_group_model.slas.all()) == 0
     assert user_group_model.slas.single() is None
+
+
+def test_linked_sla(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    user_group_model: UserGroup,
+    sla_model: SLA,
+) -> None:
+    assert user_group_model.slas.name
+    assert user_group_model.slas.source
+    assert isinstance(user_group_model.slas.source, UserGroup)
+    assert user_group_model.slas.source.uid == user_group_model.uid
+    assert user_group_model.slas.definition
+    assert user_group_model.slas.definition["node_class"] == SLA
+
+    r = user_group_model.slas.connect(sla_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = ([[sla_model]], ["slas_r1"])
+    assert len(user_group_model.slas.all()) == 1
+    sla = user_group_model.slas.single()
+    assert isinstance(sla, SLA)
+    assert sla.uid == sla_model.uid
+
+
+def test_multiple_linked_slas(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    user_group_model: UserGroup,
+    sla_model: SLA,
+) -> None:
+    db_match.cypher_query.return_value = (
+        [[sla_model], [sla_model]],
+        ["slas_r1", "slas_r2"],
+    )
+    assert len(user_group_model.slas.all()) == 2
+
+
+@patch("neomodel.match.QueryBuilder._count", return_value=0)
+def test_linked_identity_provider(
+    mock_count: MagicMock,
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    user_group_model: UserGroup,
+    identity_provider_model: IdentityProvider,
+) -> None:
+    assert user_group_model.identity_provider.name
+    assert user_group_model.identity_provider.source
+    assert isinstance(user_group_model.identity_provider.source, UserGroup)
+    assert user_group_model.identity_provider.source.uid == user_group_model.uid
+    assert user_group_model.identity_provider.definition
+    assert (
+        user_group_model.identity_provider.definition["node_class"] == IdentityProvider
+    )
+
+    r = user_group_model.identity_provider.connect(identity_provider_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = (
+        [[identity_provider_model]],
+        ["identity_provider_r1"],
+    )
+    assert len(user_group_model.identity_provider.all()) == 1
+    identity_provider = user_group_model.identity_provider.single()
+    assert isinstance(identity_provider, IdentityProvider)
+    assert identity_provider.uid == identity_provider_model.uid
+
+
+def test_multiple_linked_identity_provider(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    user_group_model: UserGroup,
+    identity_provider_model: IdentityProvider,
+) -> None:
+    with patch("neomodel.match.QueryBuilder._count") as mock_count:
+        mock_count.return_value = 1
+        with pytest.raises(AttemptedCardinalityViolation):
+            user_group_model.identity_provider.connect(identity_provider_model)
+
+    db_match.cypher_query.return_value = (
+        [[identity_provider_model], [identity_provider_model]],
+        ["identity_provider_r1", "identity_provider_r2"],
+    )
+    with pytest.raises(CardinalityViolation):
+        user_group_model.identity_provider.all()

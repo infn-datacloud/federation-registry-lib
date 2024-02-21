@@ -8,6 +8,8 @@ from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.image.models import Image
+from fed_reg.project.models import Project
+from fed_reg.service.models import ComputeService
 from tests.create_dict import image_dict
 from tests.utils import random_lower_string
 
@@ -103,3 +105,75 @@ def test_optional_rel(db_match: MagicMock, image_model: Image) -> None:
     db_match.cypher_query.return_value = ([], None)
     assert len(image_model.projects.all()) == 0
     assert image_model.projects.single() is None
+
+
+def test_linked_project(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    image_model: Image,
+    project_model: Project,
+) -> None:
+    assert image_model.projects.name
+    assert image_model.projects.source
+    assert isinstance(image_model.projects.source, Image)
+    assert image_model.projects.source.uid == image_model.uid
+    assert image_model.projects.definition
+    assert image_model.projects.definition["node_class"] == Project
+
+    r = image_model.projects.connect(project_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = ([[project_model]], ["projects_r1"])
+    assert len(image_model.projects.all()) == 1
+    project = image_model.projects.single()
+    assert isinstance(project, Project)
+    assert project.uid == project_model.uid
+
+
+def test_multiple_linked_projects(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    image_model: Image,
+    project_model: Project,
+) -> None:
+    db_match.cypher_query.return_value = (
+        [[project_model], [project_model]],
+        ["projects_r1", "projects_r2"],
+    )
+    assert len(image_model.projects.all()) == 2
+
+
+def test_linked_service(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    image_model: Image,
+    compute_service_model: ComputeService,
+) -> None:
+    assert image_model.services.name
+    assert image_model.services.source
+    assert isinstance(image_model.services.source, Image)
+    assert image_model.services.source.uid == image_model.uid
+    assert image_model.services.definition
+    assert image_model.services.definition["node_class"] == ComputeService
+
+    r = image_model.services.connect(compute_service_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = ([[compute_service_model]], ["services_r1"])
+    assert len(image_model.services.all()) == 1
+    service = image_model.services.single()
+    assert isinstance(service, ComputeService)
+    assert service.uid == compute_service_model.uid
+
+
+def test_multiple_linked_services(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    image_model: Image,
+    compute_service_model: ComputeService,
+) -> None:
+    db_match.cypher_query.return_value = (
+        [[compute_service_model], [compute_service_model]],
+        ["services_r1", "services_r2"],
+    )
+    assert len(image_model.services.all()) == 2

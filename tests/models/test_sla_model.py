@@ -1,13 +1,20 @@
 from typing import Any, Tuple
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 import pytest
 from neo4j.graph import Node
-from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
+from neomodel import (
+    AttemptedCardinalityViolation,
+    CardinalityViolation,
+    RelationshipManager,
+    RequiredProperty,
+)
 from pytest_cases import parametrize, parametrize_with_cases
 
+from fed_reg.project.models import Project
 from fed_reg.sla.models import SLA
+from fed_reg.user_group.models import UserGroup
 from tests.create_dict import sla_dict
 from tests.utils import random_lower_string
 
@@ -74,3 +81,83 @@ def test_required_rel(db_match: MagicMock, sla_model: SLA) -> None:
         sla_model.projects.all()
     with pytest.raises(CardinalityViolation):
         sla_model.projects.single()
+
+
+@patch("neomodel.match.QueryBuilder._count", return_value=0)
+def test_linked_user_group(
+    mock_count: MagicMock,
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    sla_model: SLA,
+    user_group_model: UserGroup,
+) -> None:
+    assert sla_model.user_group.name
+    assert sla_model.user_group.source
+    assert isinstance(sla_model.user_group.source, SLA)
+    assert sla_model.user_group.source.uid == sla_model.uid
+    assert sla_model.user_group.definition
+    assert sla_model.user_group.definition["node_class"] == UserGroup
+
+    r = sla_model.user_group.connect(user_group_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = ([[user_group_model]], ["user_group_r1"])
+    assert len(sla_model.user_group.all()) == 1
+    user_group = sla_model.user_group.single()
+    assert isinstance(user_group, UserGroup)
+    assert user_group.uid == user_group_model.uid
+
+
+def test_multiple_linked_user_group(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    sla_model: SLA,
+    user_group_model: UserGroup,
+) -> None:
+    with patch("neomodel.match.QueryBuilder._count") as mock_count:
+        mock_count.return_value = 1
+        with pytest.raises(AttemptedCardinalityViolation):
+            sla_model.user_group.connect(user_group_model)
+
+    db_match.cypher_query.return_value = (
+        [[user_group_model], [user_group_model]],
+        ["user_group_r1", "user_group_r2"],
+    )
+    with pytest.raises(CardinalityViolation):
+        sla_model.user_group.all()
+
+
+def test_linked_project(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    sla_model: SLA,
+    project_model: Project,
+) -> None:
+    assert sla_model.projects.name
+    assert sla_model.projects.source
+    assert isinstance(sla_model.projects.source, SLA)
+    assert sla_model.projects.source.uid == sla_model.uid
+    assert sla_model.projects.definition
+    assert sla_model.projects.definition["node_class"] == Project
+
+    r = sla_model.projects.connect(project_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = ([[project_model]], ["projects_r1"])
+    assert len(sla_model.projects.all()) == 1
+    project = sla_model.projects.single()
+    assert isinstance(project, Project)
+    assert project.uid == project_model.uid
+
+
+def test_multiple_linked_projects(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    sla_model: SLA,
+    project_model: Project,
+) -> None:
+    db_match.cypher_query.return_value = (
+        [[project_model], [project_model]],
+        ["projects_r1", "projects_r2"],
+    )
+    assert len(sla_model.projects.all()) == 2

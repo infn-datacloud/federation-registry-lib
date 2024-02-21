@@ -8,6 +8,7 @@ from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.location.models import Location
+from fed_reg.region.models import Region
 from tests.create_dict import location_dict
 from tests.utils import random_float, random_lower_string
 
@@ -74,3 +75,39 @@ def test_required_rel(db_match: MagicMock, location_model: Location) -> None:
         location_model.regions.all()
     with pytest.raises(CardinalityViolation):
         location_model.regions.single()
+
+
+def test_linked_region(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    location_model: Location,
+    region_model: Region,
+) -> None:
+    assert location_model.regions.name
+    assert location_model.regions.source
+    assert isinstance(location_model.regions.source, Location)
+    assert location_model.regions.source.uid == location_model.uid
+    assert location_model.regions.definition
+    assert location_model.regions.definition["node_class"] == Region
+
+    r = location_model.regions.connect(region_model)
+    assert r is True
+
+    db_match.cypher_query.return_value = ([[region_model]], ["regions_r1"])
+    assert len(location_model.regions.all()) == 1
+    region = location_model.regions.single()
+    assert isinstance(region, Region)
+    assert region.uid == region_model.uid
+
+
+def test_multiple_linked_regions(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    location_model: Location,
+    region_model: Region,
+) -> None:
+    db_match.cypher_query.return_value = (
+        [[region_model], [region_model]],
+        ["regions_r1", "regions_r2"],
+    )
+    assert len(location_model.regions.all()) == 2
