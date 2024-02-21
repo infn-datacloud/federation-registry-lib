@@ -1,6 +1,6 @@
 from random import randint
 from typing import Any, Literal, Tuple
-from unittest.mock import Mock, PropertyMock, patch
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -10,7 +10,8 @@ from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.project.models import Project
-from tests.create_dict import flavor_dict, project_dict
+from fed_reg.service.models import ComputeService
+from tests.create_dict import flavor_dict
 from tests.utils import random_lower_string
 
 
@@ -65,16 +66,13 @@ def test_missing_attr(missing_attr: str) -> None:
         item.save()
 
 
-@patch("neomodel.core.db")
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(mock_db: Mock, key: str, value: Any) -> None:
+def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = flavor_dict()
     d[key] = value
 
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_db.cypher_query.return_value = (
+    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
+    db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=0, properties=d)]],
         None,
     )
@@ -87,61 +85,62 @@ def test_attr(mock_db: Mock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-@patch("neomodel.match.db")
-def test_required_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = Flavor(**flavor_dict())
+def test_required_rel(db_match: MagicMock, flavor_model: Flavor) -> None:
+    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
-        item.services.all()
+        flavor_model.services.all()
     with pytest.raises(CardinalityViolation):
-        item.services.single()
+        flavor_model.services.single()
 
 
-@patch("neomodel.match.db")
-def test_optional_rel(mock_db: Mock) -> None:
-    db_version = "5"
-    type(mock_db).database_version = PropertyMock(return_value=db_version)
-    mock_db.cypher_query.return_value = ([], None)
-
-    item = Flavor(**flavor_dict())
-    assert len(item.projects.all()) == 0
-    assert item.projects.single() is None
+def test_optional_rel(db_match: MagicMock, flavor_model: Flavor) -> None:
+    db_match.cypher_query.return_value = ([], None)
+    assert len(flavor_model.projects.all()) == 0
+    assert flavor_model.projects.single() is None
 
 
-@patch("neomodel.relationship_manager.db")
-@patch("neomodel.match.db")
-@patch("neomodel.core.db")
-def test_a(mock_core_db: Mock, mock_match_db: Mock, mock_rel_mgr_db: Mock) -> None:
-    fd = flavor_dict()
-    pd = project_dict()
-
-    db_version = "5"
-    type(mock_core_db).database_version = PropertyMock(return_value=db_version)
-    type(mock_match_db).database_version = PropertyMock(return_value=db_version)
-    type(mock_rel_mgr_db).database_version = PropertyMock(return_value=db_version)
-    element_id = f"{db_version}:{uuid4().hex}:0"
-    mock_core_db.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=fd)]],
-        None,
-    )
-    element_id = f"{db_version}:{uuid4().hex}:1"
-    mock_match_db.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=1, properties=pd)]],
-        None,
-    )
-
-    item = Flavor(**fd)
-    item = item.save()
-    project_model = Project(**pd)
-    project_model = project_model.save()
-
-    r = item.projects.connect(project_model)
+def test_linked_project(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    flavor_model: Flavor,
+    project_model: Project,
+) -> None:
+    r = flavor_model.projects.connect(project_model)
     assert r is True
-    assert item.projects.source
-    assert item.projects.name
-    assert item.projects.definition
-    assert len(item.projects.all()) == 1
-    assert project_model.uid
+    assert flavor_model.projects.name
+    assert flavor_model.projects.source
+    assert isinstance(flavor_model.projects.source, Flavor)
+    assert flavor_model.projects.source.uid == flavor_model.uid
+    assert flavor_model.projects.definition
+    assert flavor_model.projects.definition["node_class"] == Project
+
+    db_match.cypher_query.return_value = ([[project_model]], ["projects_r1"])
+    assert len(flavor_model.projects.all()) == 1
+    project = flavor_model.projects.single()
+    assert isinstance(project, Project)
+    assert project.name == project_model.name
+    assert project.uuid == project_model.uuid
+
+
+def test_linked_service(
+    db_rel_mgr: MagicMock,
+    db_match: MagicMock,
+    flavor_model: Flavor,
+    compute_service_model: ComputeService,
+) -> None:
+    r = flavor_model.services.connect(compute_service_model)
+    assert r is True
+    assert flavor_model.services.name
+    assert flavor_model.services.source
+    assert isinstance(flavor_model.projects.source, Flavor)
+    assert flavor_model.services.source.uid == flavor_model.uid
+    assert flavor_model.services.definition
+    assert flavor_model.services.definition["node_class"] == ComputeService
+
+    db_match.cypher_query.return_value = ([[compute_service_model]], ["services_r1"])
+    assert len(flavor_model.services.all()) == 1
+    service = flavor_model.services.single()
+    assert isinstance(service, ComputeService)
+    assert service.name == compute_service_model.name
+    assert service.type == compute_service_model.type
+    assert service.endpoint == compute_service_model.endpoint
