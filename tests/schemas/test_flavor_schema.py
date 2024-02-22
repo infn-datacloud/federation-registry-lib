@@ -46,7 +46,7 @@ class CaseInvalidAttr:
         return attr, None
 
     @parametrize(attr=["disk", "ram", "vcpus", "swap", "ephemeral", "gpus"])
-    def case_integer(self, attr: str) -> Tuple[str, None]:
+    def case_integer(self, attr: str) -> Tuple[str, Literal[-1]]:
         return attr, -1
 
     @parametrize(attr=["gpu_model", "gpu_vendor"])

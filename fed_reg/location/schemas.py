@@ -27,6 +27,14 @@ class LocationBasePublic(BaseNode):
     site: str = Field(description=DOC_SITE)
     country: str = Field(description=DOC_COUNTRY)
 
+    @validator("country")
+    @classmethod
+    def is_known_country(cls, v: str) -> str:
+        """Validate country."""
+        if v:
+            assert v in [i.name for i in countries]
+        return v
+
 
 class LocationBase(LocationBasePublic):
     """Model with Location public and restricted attributes.
@@ -40,20 +48,10 @@ class LocationBase(LocationBasePublic):
         longitude (float | None): Longitude coordinate.
     """
 
-    latitude: Optional[float] = Field(
-        default=None, ge=-180, le=180, description=DOC_LATI
-    )
+    latitude: Optional[float] = Field(default=None, ge=-90, le=90, description=DOC_LATI)
     longitude: Optional[float] = Field(
-        default=None, ge=-90, le=90, description=DOC_LONG
+        default=None, ge=-180, le=180, description=DOC_LONG
     )
-
-    @validator("country")
-    @classmethod
-    def is_known_country(cls, v) -> str:
-        """Validate country."""
-        if v:
-            assert v in [i.name for i in countries]
-        return v
 
 
 class LocationCreate(BaseNodeCreate, LocationBase):

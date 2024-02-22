@@ -100,3 +100,13 @@ def detect_public_extended_details(read_class: Type[BaseNodeRead]) -> Tuple[bool
 def random_country() -> str:
     """Return random country."""
     return choice([i.name for i in countries])
+
+
+def random_latitude() -> float:
+    """Return a valid latitude value."""
+    return randint(-90, 89) + random()
+
+
+def random_longitude() -> float:
+    """Return a valid longitude value."""
+    return randint(-180, 179) + random()
