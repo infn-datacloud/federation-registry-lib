@@ -78,6 +78,10 @@ def region_model_dict() -> Dict[str, str]:
     return {"name": random_lower_string()}
 
 
+def region_schema_dict() -> Dict[str, str]:
+    return region_model_dict()
+
+
 def service_model_dict() -> Dict[str, str]:
     return {
         "type": random_lower_string(),
@@ -96,3 +100,7 @@ def sla_model_dict() -> Dict[str, Any]:
 
 def user_group_model_dict() -> Dict[str, str]:
     return {"name": random_lower_string()}
+
+
+def user_group_schema_dict() -> Dict[str, str]:
+    return user_group_model_dict()
