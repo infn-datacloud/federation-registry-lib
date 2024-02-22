@@ -2,8 +2,9 @@
 import string
 import time
 from datetime import date, datetime, timezone
+from enum import Enum
 from random import choice, choices, getrandbits, randint, random, randrange
-from typing import Tuple, Type
+from typing import Any, Tuple, Type
 
 from pycountry import countries
 from pydantic import AnyHttpUrl
@@ -130,3 +131,7 @@ def random_start_end_dates() -> Tuple[date, date]:
         start_date = d2
         end_date = d1
     return start_date, end_date
+
+
+def random_service_name(enum_cls: Enum) -> Any:
+    return choice([i for i in enum_cls])

@@ -101,6 +101,8 @@ def test_update(key: str, value: Any) -> None:
         d[key] = value
     item = SLAUpdate(**d)
     assert item.doc_uuid == (d.get("doc_uuid").hex if d.get("doc_uuid") else None)
+    assert item.start_date == d.get("start_date")
+    assert item.end_date == d.get("end_date")
 
 
 def test_query() -> None:

@@ -1,11 +1,18 @@
 from typing import Any, Dict
 from uuid import uuid4
 
+from fed_reg.service.enum import (
+    BlockStorageServiceName,
+    ComputeServiceName,
+    IdentityServiceName,
+    NetworkServiceName,
+)
 from tests.utils import (
     random_country,
     random_date,
     random_lower_string,
     random_provider_type,
+    random_service_name,
     random_start_end_dates,
     random_url,
 )
@@ -89,6 +96,34 @@ def service_model_dict() -> Dict[str, str]:
         "endpoint": random_lower_string(),
         "name": random_lower_string(),
     }
+
+
+def service_schema_dict() -> Dict[str, str]:
+    return {"endpoint": random_url()}
+
+
+def block_storage_service_schema_dict() -> Dict[str, str]:
+    d = service_schema_dict()
+    d["name"] = random_service_name(BlockStorageServiceName)
+    return d
+
+
+def compute_service_schema_dict() -> Dict[str, str]:
+    d = service_schema_dict()
+    d["name"] = random_service_name(ComputeServiceName)
+    return d
+
+
+def identity_service_schema_dict() -> Dict[str, str]:
+    d = service_schema_dict()
+    d["name"] = random_service_name(IdentityServiceName)
+    return d
+
+
+def network_service_schema_dict() -> Dict[str, str]:
+    d = service_schema_dict()
+    d["name"] = random_service_name(NetworkServiceName)
+    return d
 
 
 def sla_model_dict() -> Dict[str, Any]:
