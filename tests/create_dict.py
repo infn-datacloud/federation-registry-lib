@@ -6,6 +6,7 @@ from tests.utils import (
     random_date,
     random_lower_string,
     random_provider_type,
+    random_start_end_dates,
     random_url,
 )
 
@@ -96,6 +97,11 @@ def sla_model_dict() -> Dict[str, Any]:
         "start_date": random_date(),
         "end_date": random_date(),
     }
+
+
+def sla_schema_dict() -> Dict[str, Any]:
+    start_date, end_date = random_start_end_dates()
+    return {"doc_uuid": uuid4(), "start_date": start_date, "end_date": end_date}
 
 
 def user_group_model_dict() -> Dict[str, str]:
