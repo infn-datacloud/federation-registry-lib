@@ -44,6 +44,10 @@ def network_model_dict() -> Dict[str, str]:
     return {"name": random_lower_string(), "uuid": uuid4().hex}
 
 
+def network_schema_dict() -> Dict[str, str]:
+    return {"name": random_lower_string(), "uuid": uuid4()}
+
+
 def project_model_dict() -> Dict[str, str]:
     return {"name": random_lower_string(), "uuid": uuid4().hex}
 
