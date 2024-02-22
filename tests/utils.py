@@ -9,6 +9,7 @@ from pycountry import countries
 from pydantic import AnyHttpUrl
 
 from fed_reg.models import BaseNodeRead
+from fed_reg.provider.enum import ProviderType
 
 
 def random_lower_string() -> str:
@@ -110,3 +111,7 @@ def random_latitude() -> float:
 def random_longitude() -> float:
     """Return a valid longitude value."""
     return randint(-180, 179) + random()
+
+
+def random_provider_type() -> ProviderType:
+    return choice([i for i in ProviderType])

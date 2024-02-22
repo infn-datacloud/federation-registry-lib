@@ -1,7 +1,13 @@
 from typing import Any, Dict
 from uuid import uuid4
 
-from tests.utils import random_country, random_date, random_lower_string, random_url
+from tests.utils import (
+    random_country,
+    random_date,
+    random_lower_string,
+    random_provider_type,
+    random_url,
+)
 
 
 def auth_method_dict() -> Dict[str, str]:
@@ -52,11 +58,19 @@ def project_model_dict() -> Dict[str, str]:
     return {"name": random_lower_string(), "uuid": uuid4().hex}
 
 
+def project_schema_dict() -> Dict[str, str]:
+    return {"name": random_lower_string(), "uuid": uuid4()}
+
+
 def provider_model_dict() -> Dict[str, str]:
     return {"name": random_lower_string(), "type": random_lower_string()}
 
 
-def quota_model_dict():
+def provider_schema_dict() -> Dict[str, str]:
+    return {"name": random_lower_string(), "type": random_provider_type()}
+
+
+def quota_model_dict() -> Dict[str, str]:
     return {"type": random_lower_string()}
 
 
