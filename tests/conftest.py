@@ -14,6 +14,7 @@ from fed_reg.location.models import Location
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.provider.models import Provider
+from fed_reg.provider.schemas_extended import SLACreateExtended, UserGroupCreateExtended
 from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
@@ -36,7 +37,9 @@ from tests.create_dict import (
     region_model_dict,
     service_model_dict,
     sla_model_dict,
+    sla_schema_dict,
     user_group_model_dict,
+    user_group_schema_dict,
 )
 
 FLAVOR_ID = 10
@@ -288,3 +291,16 @@ def user_group_model(db_core: MagicMock) -> UserGroup:
         None,
     )
     return UserGroup(**d).save()
+
+
+@pytest.fixture
+def sla_create_ext_schema() -> SLACreateExtended:
+    return SLACreateExtended(**sla_schema_dict(), project=uuid4())
+
+
+@pytest.fixture
+def user_group_create_ext_schema() -> UserGroupCreateExtended:
+    return UserGroupCreateExtended(
+        **user_group_schema_dict(),
+        sla=SLACreateExtended(**sla_schema_dict(), project=uuid4()),
+    )

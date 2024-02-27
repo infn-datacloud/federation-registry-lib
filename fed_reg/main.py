@@ -63,8 +63,6 @@ sub_app_v1 = FastAPI(
 sub_app_v1.include_router(router_v1)
 app.mount(settings.API_V1_STR, sub_app_v1)
 
-print(settings)
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0")

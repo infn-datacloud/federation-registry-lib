@@ -1,9 +1,16 @@
-from typing import Any, Literal, Tuple
+from typing import Any, List, Literal, Optional, Tuple, Union
 
 import pytest
-from pytest_cases import case, parametrize_with_cases
+from pytest_cases import case, parametrize, parametrize_with_cases
 
+from fed_reg.location.schemas import LocationCreate
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.provider.schemas_extended import (
+    BlockStorageServiceCreateExtended,
+    ComputeServiceCreateExtended,
+    NetworkServiceCreateExtended,
+    RegionCreateExtended,
+)
 from fed_reg.region.schemas import (
     RegionBase,
     RegionBasePublic,
@@ -11,8 +18,16 @@ from fed_reg.region.schemas import (
     RegionQuery,
     RegionUpdate,
 )
-from tests.create_dict import region_schema_dict
-from tests.utils import random_lower_string
+from fed_reg.service.schemas import IdentityServiceCreate
+from tests.create_dict import (
+    block_storage_service_schema_dict,
+    compute_service_schema_dict,
+    identity_service_schema_dict,
+    location_schema_dict,
+    network_service_schema_dict,
+    region_schema_dict,
+)
+from tests.utils import random_lower_string, random_url
 
 
 class CaseAttr:
@@ -24,11 +39,101 @@ class CaseAttr:
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
+    @case(tags=["create_extended"])
+    @parametrize(
+        type=[
+            "block_storage_services",
+            "compute_services",
+            "identity_services",
+            "network_services",
+        ]
+    )
+    @parametrize(len=[0, 1, 2])
+    def case_services(
+        self, type: str, len: int
+    ) -> Tuple[
+        str,
+        Union[
+            List[BlockStorageServiceCreateExtended],
+            List[ComputeServiceCreateExtended],
+            List[IdentityServiceCreate],
+            List[NetworkServiceCreateExtended],
+        ],
+    ]:
+        if len > 0:
+            if type == "block_storage_services":
+                service = BlockStorageServiceCreateExtended(
+                    **block_storage_service_schema_dict()
+                )
+            elif type == "compute_services":
+                service = ComputeServiceCreateExtended(**compute_service_schema_dict())
+            elif type == "identity_services":
+                service = IdentityServiceCreate(**identity_service_schema_dict())
+            elif type == "network_services":
+                service = NetworkServiceCreateExtended(**network_service_schema_dict())
+
+            if len == 1:
+                return type, [service]
+            elif len == 2:
+                service2 = service.copy()
+                service2.endpoint = random_url()
+                return type, [service, service2]
+        else:
+            return type, []
+
+    @case(tags=["create_extended"])
+    @parametrize(with_loc=[True, False])
+    def case_location(
+        self, with_loc: bool
+    ) -> Tuple[Literal["location"], Optional[LocationCreate]]:
+        if with_loc:
+            return "location", LocationCreate(**location_schema_dict())
+        else:
+            return "location", None
+
 
 class CaseInvalidAttr:
     @case(tags=["base_public", "update"])
     def case_attr(self) -> Tuple[Literal["name"], None]:
         return "name", None
+
+    @case(tags=["create_extended"])
+    @parametrize(
+        type=[
+            "block_storage_services",
+            "compute_services",
+            "identity_services",
+            "network_services",
+        ]
+    )
+    def case_services(
+        self, type: str
+    ) -> Tuple[
+        str,
+        Union[
+            List[BlockStorageServiceCreateExtended],
+            List[ComputeServiceCreateExtended],
+            List[IdentityServiceCreate],
+            List[NetworkServiceCreateExtended],
+        ],
+        str,
+    ]:
+        if type == "block_storage_services":
+            service = BlockStorageServiceCreateExtended(
+                **block_storage_service_schema_dict()
+            )
+        elif type == "compute_services":
+            service = ComputeServiceCreateExtended(**compute_service_schema_dict())
+        elif type == "identity_services":
+            service = IdentityServiceCreate(**identity_service_schema_dict())
+        elif type == "network_services":
+            service = NetworkServiceCreateExtended(**network_service_schema_dict())
+
+        return (
+            type,
+            [service, service],
+            "There are multiple items with identical endpoint",
+        )
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -50,7 +155,9 @@ def test_invalid_base_public(key: str, value: None) -> None:
         RegionBasePublic(**d)
 
 
-@parametrize_with_cases("key, value", cases=CaseAttr)
+@parametrize_with_cases(
+    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
+)
 def test_base(key: str, value: Any) -> None:
     assert issubclass(RegionBase, RegionBasePublic)
     d = region_schema_dict()
@@ -60,7 +167,11 @@ def test_base(key: str, value: Any) -> None:
     assert item.name == d.get("name")
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+@parametrize_with_cases(
+    "key, value",
+    cases=CaseInvalidAttr,
+    filter=lambda f: not f.has_tag("create_extended"),
+)
 def test_invalid_base(key: str, value: Any) -> None:
     d = region_schema_dict()
     d[key] = value
@@ -88,6 +199,46 @@ def test_update(key: str, value: Any) -> None:
 
 def test_query() -> None:
     assert issubclass(RegionQuery, BaseNodeQuery)
+
+
+@parametrize_with_cases("attr, values", cases=CaseAttr, has_tag=["create_extended"])
+def test_create_extended(
+    attr: str,
+    values: Optional[
+        Union[
+            LocationCreate,
+            List[BlockStorageServiceCreateExtended],
+            List[ComputeServiceCreateExtended],
+            List[IdentityServiceCreate],
+            List[NetworkServiceCreateExtended],
+        ]
+    ],
+) -> None:
+    assert issubclass(RegionCreateExtended, RegionCreate)
+    d = region_schema_dict()
+    d[attr] = values
+    item = RegionCreateExtended(**d)
+    assert item.__getattribute__(attr) == values
+
+
+@parametrize_with_cases(
+    "attr, values, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
+)
+def test_invalid_create_extended(
+    attr: str,
+    values: Union[
+        List[BlockStorageServiceCreateExtended],
+        List[ComputeServiceCreateExtended],
+        List[IdentityServiceCreate],
+        List[NetworkServiceCreateExtended],
+    ],
+    msg: str,
+) -> None:
+    assert issubclass(RegionCreateExtended, RegionCreate)
+    d = region_schema_dict()
+    d[attr] = values
+    with pytest.raises(ValueError, match=msg):
+        RegionCreateExtended(**d)
 
 
 # TODO Test all read classes

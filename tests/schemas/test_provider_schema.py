@@ -1,10 +1,12 @@
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, List, Literal, Optional, Tuple, Union
+from uuid import uuid4
 
 import pytest
 from pydantic import EmailStr
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.project.schemas import ProjectCreate
 from fed_reg.provider.enum import ProviderStatus, ProviderType
 from fed_reg.provider.schemas import (
     ProviderBase,
@@ -13,7 +15,22 @@ from fed_reg.provider.schemas import (
     ProviderQuery,
     ProviderUpdate,
 )
-from tests.create_dict import provider_schema_dict
+from fed_reg.provider.schemas_extended import (
+    IdentityProviderCreateExtended,
+    ProviderCreateExtended,
+    RegionCreateExtended,
+    SLACreateExtended,
+    UserGroupCreateExtended,
+)
+from tests.create_dict import (
+    auth_method_dict,
+    identity_provider_schema_dict,
+    project_schema_dict,
+    provider_schema_dict,
+    region_schema_dict,
+    sla_schema_dict,
+    user_group_schema_dict,
+)
 from tests.utils import random_email, random_lower_string
 
 
@@ -53,6 +70,70 @@ class CaseAttr:
         else:
             return attr, [random_email() for _ in range(len)]
 
+    @case(tags=["create_extended"])
+    @parametrize(len=[0, 1, 2])
+    def case_projects(
+        self, len: int
+    ) -> Tuple[Literal["projects"], List[ProjectCreate]]:
+        if len == 1:
+            return "projects", [ProjectCreate(**project_schema_dict())]
+        elif len == 2:
+            return "projects", [
+                ProjectCreate(**project_schema_dict()),
+                ProjectCreate(**project_schema_dict()),
+            ]
+        else:
+            return "projects", []
+
+    @case(tags=["create_extended"])
+    @parametrize(len=[0, 1, 2])
+    def case_regions(
+        self, len: int
+    ) -> Tuple[Literal["regions"], List[RegionCreateExtended]]:
+        if len == 1:
+            return "regions", [RegionCreateExtended(**region_schema_dict())]
+        elif len == 2:
+            return "regions", [
+                RegionCreateExtended(**region_schema_dict()),
+                RegionCreateExtended(**region_schema_dict()),
+            ]
+        else:
+            return "regions", []
+
+    @case(tags=["create_extended"])
+    @parametrize(len=[0, 1, 2])
+    def case_identity_providers(
+        self, user_group_create_ext_schema: UserGroupCreateExtended, len: int
+    ) -> Tuple[Literal["identity_providers"], List[IdentityProviderCreateExtended]]:
+        if len == 1:
+            return "identity_providers", [
+                IdentityProviderCreateExtended(
+                    **identity_provider_schema_dict(),
+                    relationship=auth_method_dict(),
+                    user_groups=[user_group_create_ext_schema],
+                )
+            ]
+        elif len == 2:
+            return "identity_providers", [
+                IdentityProviderCreateExtended(
+                    **identity_provider_schema_dict(),
+                    relationship=auth_method_dict(),
+                    user_groups=[user_group_create_ext_schema],
+                ),
+                IdentityProviderCreateExtended(
+                    **identity_provider_schema_dict(),
+                    relationship=auth_method_dict(),
+                    user_groups=[
+                        UserGroupCreateExtended(
+                            **user_group_schema_dict(),
+                            sla=SLACreateExtended(**sla_schema_dict(), project=uuid4()),
+                        )
+                    ],
+                ),
+            ]
+        else:
+            return "identity_providers", []
+
 
 class CaseInvalidAttr:
     @case(tags=["base_public", "update"])
@@ -69,6 +150,47 @@ class CaseInvalidAttr:
 
     def case_email(self) -> Tuple[Literal["support_emails"], List[str]]:
         return "support_emails", [random_lower_string()]
+
+    @case(tags=["create_extended"])
+    @parametrize(attr=["name", "uuid"])
+    def case_dup_projects(
+        self, attr: str
+    ) -> Tuple[Literal["projects"], List[ProjectCreate]]:
+        project = ProjectCreate(**project_schema_dict())
+        project2 = project.copy()
+        if attr == "name":
+            project2.uuid = uuid4().hex
+        else:
+            project2.name = random_lower_string()
+        return (
+            "projects",
+            [project, project2],
+            f"There are multiple items with identical {attr}",
+        )
+
+    @case(tags=["create_extended"])
+    def case_dup_regions(self) -> Tuple[Literal["regions"], List[RegionCreateExtended]]:
+        region = RegionCreateExtended(**project_schema_dict())
+        return (
+            "regions",
+            [region, region],
+            "There are multiple items with identical name",
+        )
+
+    @case(tags=["create_extended"])
+    def case_dup_idps(
+        self, user_group_create_ext_schema: IdentityProviderCreateExtended
+    ) -> Tuple[Literal["identity_providers"], List[ProjectCreate]]:
+        idp = IdentityProviderCreateExtended(
+            **identity_provider_schema_dict(),
+            relationship=auth_method_dict(),
+            user_groups=[user_group_create_ext_schema],
+        )
+        return (
+            "identity_providers",
+            [idp, idp],
+            "There are multiple items with identical endpoint",
+        )
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -91,7 +213,9 @@ def test_invalid_base_public(key: str, value: None) -> None:
         ProviderBasePublic(**d)
 
 
-@parametrize_with_cases("key, value", cases=CaseAttr)
+@parametrize_with_cases(
+    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
+)
 def test_base(key: str, value: Any) -> None:
     assert issubclass(ProviderBase, ProviderBasePublic)
     d = provider_schema_dict()
@@ -105,7 +229,11 @@ def test_base(key: str, value: Any) -> None:
     assert item.support_emails == d.get("support_emails", [])
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+@parametrize_with_cases(
+    "key, value",
+    cases=CaseInvalidAttr,
+    filter=lambda f: not f.has_tag("create_extended"),
+)
 def test_invalid_base(key: str, value: Any) -> None:
     d = provider_schema_dict()
     d[key] = value
@@ -136,4 +264,78 @@ def test_query() -> None:
     assert issubclass(ProviderQuery, BaseNodeQuery)
 
 
+@parametrize_with_cases("attr, values", cases=CaseAttr, has_tag=["create_extended"])
+def test_create_extended(
+    attr: str,
+    values: Optional[
+        Union[
+            List[IdentityProviderCreateExtended],
+            List[ProjectCreate],
+            List[RegionCreateExtended],
+        ]
+    ],
+) -> None:
+    assert issubclass(ProviderCreateExtended, ProviderCreate)
+    d = provider_schema_dict()
+    d[attr] = values
+    if attr == "identity_providers":
+        projects = []
+        for idp in values:
+            for user_group in idp.user_groups:
+                projects.append(user_group.sla.project)
+        d["projects"] = [
+            ProjectCreate(name=random_lower_string(), uuid=p) for p in projects
+        ]
+    item = ProviderCreateExtended(**d)
+    assert item.__getattribute__(attr) == values
+
+
+@parametrize_with_cases(
+    "attr, values, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
+)
+def test_invalid_create_extended(
+    attr: str,
+    values: Union[
+        List[IdentityProviderCreateExtended],
+        List[ProjectCreate],
+        List[RegionCreateExtended],
+    ],
+    msg: str,
+) -> None:
+    assert issubclass(ProviderCreateExtended, ProviderCreate)
+    d = provider_schema_dict()
+    d[attr] = values
+    if attr == "identity_providers":
+        projects = set()
+        for idp in values:
+            for user_group in idp.user_groups:
+                projects.add(user_group.sla.project)
+        d["projects"] = [
+            ProjectCreate(name=random_lower_string(), uuid=p) for p in projects
+        ]
+    with pytest.raises(ValueError, match=msg):
+        ProviderCreateExtended(**d)
+
+
+# @parametrize_with_cases(
+#     "attr, values, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
+# )
+# def test_invalid_projects_create_extended(
+#     attr: str,
+#     values: Union[
+#         List[IdentityProviderCreateExtended],
+#         List[ProjectCreate],
+#         List[RegionCreateExtended],
+#     ],
+#     msg: str,
+# ) -> None:
+#     assert issubclass(ProviderCreateExtended, ProviderCreate)
+#     d = provider_schema_dict()
+#     d[attr] = values
+#     with pytest.raises(ValueError, match=msg):
+#         ProviderCreateExtended(**d)
+
+# TODO CreateExtended -> IDP projects do not exist or are duplicated
+#                     -> Services' quotas and resources' projects do not exist
+# TODO Update functions in schemas_extended.py
 # TODO Test all read classes

@@ -1,9 +1,11 @@
 from typing import Any, Literal, Tuple
+from uuid import uuid4
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.provider.schemas_extended import SLACreateExtended
 from fed_reg.sla.schemas import (
     SLABase,
     SLABasePublic,
@@ -107,6 +109,21 @@ def test_update(key: str, value: Any) -> None:
 
 def test_query() -> None:
     assert issubclass(SLAQuery, BaseNodeQuery)
+
+
+def test_create_extended() -> None:
+    assert issubclass(SLACreateExtended, SLACreate)
+    d = sla_schema_dict()
+    d["project"] = uuid4()
+    item = SLACreateExtended(**d)
+    assert item.project == d["project"].hex
+
+
+def test_invalid_create_extended() -> None:
+    assert issubclass(SLACreateExtended, SLACreate)
+    d = sla_schema_dict()
+    with pytest.raises(ValueError):
+        SLACreateExtended(**d)
 
 
 # TODO Test all read classes

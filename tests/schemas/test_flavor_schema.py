@@ -1,5 +1,6 @@
 from random import randint
-from typing import Any, Literal, Tuple
+from typing import Any, List, Literal, Tuple
+from uuid import UUID, uuid4
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
@@ -12,6 +13,7 @@ from fed_reg.flavor.schemas import (
     FlavorUpdate,
 )
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.provider.schemas_extended import FlavorCreateExtended
 from tests.create_dict import flavor_schema_dict
 from tests.utils import random_lower_string
 
@@ -38,6 +40,15 @@ class CaseAttr:
     def case_string(self, attr: str) -> Tuple[str, str]:
         return attr, random_lower_string()
 
+    @case(tags=["create_extended"])
+    @parametrize(len=[0, 1, 2])
+    def case_projects(self, len: int) -> List[UUID]:
+        if len == 1:
+            return [uuid4()]
+        elif len == 2:
+            return [uuid4(), uuid4()]
+        return []
+
 
 class CaseInvalidAttr:
     @case(tags=["base_public", "update"])
@@ -52,6 +63,16 @@ class CaseInvalidAttr:
     @parametrize(attr=["gpu_model", "gpu_vendor"])
     def case_gpu_details(self, attr: str) -> Tuple[str, str]:
         return attr, random_lower_string()
+
+    @case(tags=["create_extended"])
+    @parametrize(len=[0, 1, 2])
+    def case_projects(self, len: int) -> Tuple[List[UUID], str]:
+        if len == 1:
+            return [uuid4()], "Public flavors do not have linked projects"
+        elif len == 2:
+            i = uuid4()
+            return [i, i], "There are multiple identical items"
+        return [], "Projects are mandatory for private flavors"
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -74,7 +95,9 @@ def test_invalid_base_public(key: str, value: None) -> None:
         FlavorBasePublic(**d)
 
 
-@parametrize_with_cases("key, value", cases=CaseAttr)
+@parametrize_with_cases(
+    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
+)
 def test_base(key: str, value: Any) -> None:
     assert issubclass(FlavorBase, FlavorBasePublic)
     d = flavor_schema_dict()
@@ -98,7 +121,11 @@ def test_base(key: str, value: Any) -> None:
     assert item.local_storage == d.get("local_storage")
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+@parametrize_with_cases(
+    "key, value",
+    cases=CaseInvalidAttr,
+    filter=lambda f: not f.has_tag("create_extended"),
+)
 def test_invalid_base(key: str, value: Any) -> None:
     d = flavor_schema_dict()
     d[key] = value
@@ -127,6 +154,31 @@ def test_update(key: str, value: Any) -> None:
 
 def test_query() -> None:
     assert issubclass(FlavorQuery, BaseNodeQuery)
+
+
+@parametrize_with_cases("projects", cases=CaseAttr, has_tag=["create_extended"])
+def test_create_extended(projects: List[UUID]) -> None:
+    assert issubclass(FlavorCreateExtended, FlavorCreate)
+    d = flavor_schema_dict()
+    d["is_public"] = len(projects) == 0
+    d["projects"] = projects
+    item = FlavorCreateExtended(**d)
+    assert item.projects == [i.hex for i in projects]
+
+
+@parametrize_with_cases(
+    "projects, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
+)
+def test_invalid_create_extended(projects: List[UUID], msg: str) -> None:
+    assert issubclass(FlavorCreateExtended, FlavorCreate)
+    d = flavor_schema_dict()
+    if len(projects) == 0 or len(projects) == 2:
+        d["is_public"] = False
+    elif len(projects) == 1:
+        d["is_public"] = True
+    d["projects"] = projects
+    with pytest.raises(ValueError, match=msg):
+        FlavorCreateExtended(**d)
 
 
 # TODO Test all read classes

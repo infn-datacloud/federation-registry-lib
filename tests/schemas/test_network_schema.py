@@ -1,5 +1,6 @@
 from random import randint
 from typing import Any, List, Literal, Optional, Tuple
+from uuid import UUID, uuid4
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
@@ -12,6 +13,7 @@ from fed_reg.network.schemas import (
     NetworkQuery,
     NetworkUpdate,
 )
+from fed_reg.provider.schemas_extended import NetworkCreateExtended
 from tests.create_dict import network_schema_dict
 from tests.utils import random_lower_string
 
@@ -48,6 +50,11 @@ class CaseAttr:
         else:
             return attr, [random_lower_string() for _ in range(len)]
 
+    @case(tags=["create_extended"])
+    @parametrize(with_project=[True, False])
+    def case_project(self, with_project: bool) -> Optional[UUID]:
+        return uuid4() if with_project else None
+
 
 class CaseInvalidAttr:
     @case(tags=["base_public", "update"])
@@ -58,6 +65,14 @@ class CaseInvalidAttr:
     @parametrize(attr=["mtu"])
     def case_integer(self, attr: str) -> Tuple[str, Literal[-1]]:
         return attr, -1
+
+    @case(tags=["create_extended"])
+    @parametrize(with_project=[True, False])
+    def case_project(self, with_project: bool) -> Tuple[Optional[UUID], str]:
+        if with_project:
+            return uuid4(), "Shared networks do not have a linked project"
+        else:
+            return None, "Projects is mandatory for private networks"
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -80,7 +95,9 @@ def test_invalid_base_public(key: str, value: None) -> None:
         NetworkBasePublic(**d)
 
 
-@parametrize_with_cases("key, value", cases=CaseAttr)
+@parametrize_with_cases(
+    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
+)
 def test_base(key: str, value: Any) -> None:
     assert issubclass(NetworkBase, NetworkBasePublic)
     d = network_schema_dict()
@@ -98,7 +115,11 @@ def test_base(key: str, value: Any) -> None:
     assert item.tags == d.get("tags", [])
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+@parametrize_with_cases(
+    "key, value",
+    cases=CaseInvalidAttr,
+    filter=lambda f: not f.has_tag("create_extended"),
+)
 def test_invalid_base(key: str, value: Any) -> None:
     d = network_schema_dict()
     d[key] = value
@@ -127,6 +148,28 @@ def test_update(key: str, value: Any) -> None:
 
 def test_query() -> None:
     assert issubclass(NetworkQuery, BaseNodeQuery)
+
+
+@parametrize_with_cases("project", cases=CaseAttr, has_tag=["create_extended"])
+def test_create_extended(project: Optional[UUID]) -> None:
+    assert issubclass(NetworkCreateExtended, NetworkCreate)
+    d = network_schema_dict()
+    d["is_shared"] = project is None
+    d["project"] = project
+    item = NetworkCreateExtended(**d)
+    assert item.project == (d.get("project").hex if d.get("project") else None)
+
+
+@parametrize_with_cases(
+    "project, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
+)
+def test_invalid_create_extended(project: Optional[UUID], msg: str) -> None:
+    assert issubclass(NetworkCreateExtended, NetworkCreate)
+    d = network_schema_dict()
+    d["is_shared"] = project is not None
+    d["project"] = project
+    with pytest.raises(ValueError, match=msg):
+        NetworkCreateExtended(**d)
 
 
 # TODO Test all read classes

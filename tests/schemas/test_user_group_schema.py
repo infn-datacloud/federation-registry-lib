@@ -4,6 +4,7 @@ import pytest
 from pytest_cases import case, parametrize_with_cases
 
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.provider.schemas_extended import SLACreateExtended, UserGroupCreateExtended
 from fed_reg.user_group.schemas import (
     UserGroupBase,
     UserGroupBasePublic,
@@ -88,6 +89,21 @@ def test_update(key: str, value: Any) -> None:
 
 def test_query() -> None:
     assert issubclass(UserGroupQuery, BaseNodeQuery)
+
+
+def test_create_extended(sla_create_ext_schema: SLACreateExtended) -> None:
+    assert issubclass(UserGroupCreateExtended, UserGroupCreate)
+    d = user_group_schema_dict()
+    d["sla"] = sla_create_ext_schema
+    item = UserGroupCreateExtended(**d)
+    assert item.sla == d["sla"]
+
+
+def test_invalid_create_extended() -> None:
+    assert issubclass(UserGroupCreateExtended, UserGroupCreate)
+    d = user_group_schema_dict()
+    with pytest.raises(ValueError):
+        UserGroupCreateExtended(**d)
 
 
 # TODO Test all read classes

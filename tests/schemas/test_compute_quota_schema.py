@@ -1,10 +1,12 @@
 from random import randint
 from typing import Any, Literal, Tuple
+from uuid import uuid4
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.provider.schemas_extended import ComputeQuotaCreateExtended
 from fed_reg.quota.enum import QuotaType
 from fed_reg.quota.schemas import (
     ComputeQuotaBase,
@@ -76,6 +78,20 @@ def test_update(key: str, value: Any) -> None:
 
 def test_query() -> None:
     assert issubclass(ComputeQuotaQuery, BaseNodeQuery)
+
+
+def test_create_extended() -> None:
+    assert issubclass(ComputeQuotaCreateExtended, ComputeQuotaCreate)
+    d = {"project": uuid4()}
+    item = ComputeQuotaCreateExtended(**d)
+    assert item.project == d["project"].hex
+
+
+def test_invalid_create_extended() -> None:
+    assert issubclass(ComputeQuotaCreateExtended, ComputeQuotaCreate)
+    d = {}
+    with pytest.raises(ValueError):
+        ComputeQuotaCreateExtended(**d)
 
 
 # TODO Test all read classes

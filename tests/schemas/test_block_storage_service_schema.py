@@ -1,9 +1,14 @@
-from typing import Any, Literal, Tuple
+from typing import Any, List, Literal, Tuple
+from uuid import uuid4
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.provider.schemas_extended import (
+    BlockStorageQuotaCreateExtended,
+    BlockStorageServiceCreateExtended,
+)
 from fed_reg.service.enum import BlockStorageServiceName, ServiceType
 from fed_reg.service.schemas import (
     BlockStorageServiceBase,
@@ -28,6 +33,26 @@ class CaseAttr:
     def case_name(self, value: int) -> Tuple[Literal["name"], int]:
         return "name", value
 
+    @case(tags=["create_extended"])
+    @parametrize(len=[0, 1, 2, 3])
+    def case_quotas(self, len: int) -> List[BlockStorageQuotaCreateExtended]:
+        if len == 1:
+            return [BlockStorageQuotaCreateExtended(project=uuid4())]
+        elif len == 2:
+            return [
+                BlockStorageQuotaCreateExtended(project=uuid4()),
+                BlockStorageQuotaCreateExtended(project=uuid4()),
+            ]
+        elif len == 3:
+            # Same project, different users scope
+            project = uuid4()
+            return [
+                BlockStorageQuotaCreateExtended(per_user=True, project=project),
+                BlockStorageQuotaCreateExtended(per_user=False, project=project),
+            ]
+        else:
+            return []
+
 
 class CaseInvalidAttr:
     @case(tags=["update"])
@@ -42,8 +67,17 @@ class CaseInvalidAttr:
     def case_type(self, value: ServiceType) -> Tuple[Literal["type"], ServiceType]:
         return "type", value
 
+    @case(tags=["create_extended"])
+    def case_dup_quotas(
+        self,
+    ) -> Tuple[List[BlockStorageQuotaCreateExtended], str]:
+        quota = BlockStorageQuotaCreateExtended(project=uuid4())
+        return [quota, quota], "Multiple quotas on same project"
 
-@parametrize_with_cases("key, value", cases=CaseAttr)
+
+@parametrize_with_cases(
+    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
+)
 def test_base(key: str, value: Any) -> None:
     assert issubclass(BlockStorageServiceBase, ServiceBase)
     d = block_storage_service_schema_dict()
@@ -55,7 +89,11 @@ def test_base(key: str, value: Any) -> None:
     assert item.name == d.get("name").value
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+@parametrize_with_cases(
+    "key, value",
+    cases=CaseInvalidAttr,
+    filter=lambda f: not f.has_tag("create_extended"),
+)
 def test_invalid_base(key: str, value: Any) -> None:
     d = block_storage_service_schema_dict()
     d[key] = value
@@ -85,6 +123,28 @@ def test_update(key: str, value: Any) -> None:
 
 def test_query() -> None:
     assert issubclass(BlockStorageServiceQuery, BaseNodeQuery)
+
+
+@parametrize_with_cases("quotas", cases=CaseAttr, has_tag=["create_extended"])
+def test_create_extended(quotas: List[BlockStorageQuotaCreateExtended]) -> None:
+    assert issubclass(BlockStorageServiceCreateExtended, BlockStorageServiceCreate)
+    d = block_storage_service_schema_dict()
+    d["quotas"] = quotas
+    item = BlockStorageServiceCreateExtended(**d)
+    assert item.quotas == quotas
+
+
+@parametrize_with_cases(
+    "quotas, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
+)
+def test_invalid_create_extended(
+    quotas: List[BlockStorageQuotaCreateExtended], msg: str
+) -> None:
+    assert issubclass(BlockStorageServiceCreateExtended, BlockStorageServiceCreate)
+    d = block_storage_service_schema_dict()
+    d["quotas"] = quotas
+    with pytest.raises(ValueError, match=msg):
+        BlockStorageServiceCreateExtended(**d)
 
 
 # TODO Test all read classes

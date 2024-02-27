@@ -390,6 +390,24 @@ def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
         assert len(dupes) == 0, f"There are multiple identical items: {','.join(dupes)}"
 
 
+def multiple_quotas_same_project(quotas: List[Any]) -> None:
+    """Verify maximum number of quotas on same project.
+
+    A project can have at most one `project` quota and one `per-user` quota on a
+    specific service.
+    """
+    d = {}
+    for quota in quotas:
+        if quota.project is not None:
+            msg = f"Multiple quotas on same project {quota.project}"
+            q = d.get(quota.project)
+            if not q:
+                d[quota.project] = [1, quota.per_user]
+            else:
+                q[0] += 1
+                assert q[0] <= 2 and q[1] != quota.per_user, msg
+
+
 class SLACreateExtended(SLACreate):
     """Model to extend the SLA data to add to the DB.
 
@@ -629,9 +647,13 @@ class NetworkCreateExtended(NetworkCreate):
         If shared verify the project is None, otherwise the project must be defined.
         """
         if not values.get("is_shared"):
-            assert values.get("project") is not None
+            assert (
+                values.get("project") is not None
+            ), "Projects is mandatory for private networks"
         else:
-            assert not values.get("project")
+            assert not values.get(
+                "project"
+            ), "Shared networks do not have a linked project"
         return values
 
 
@@ -657,21 +679,8 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
     def max_two_quotas_on_same_project(
         cls, v: List[BlockStorageQuotaCreateExtended]
     ) -> List[BlockStorageQuotaCreateExtended]:
-        """Verify maximum number of quotas on same project.
-
-        A project can have at most one `project` quota and one `per-user` quota on a
-        specific service.
-        """
-        d = {}
-        for quota in v:
-            if quota.project is not None:
-                msg = f"Multiple quotas on same project {quota.project}"
-                q = d.get(quota.project)
-                if not q:
-                    d[quota.project] = [1, quota.per_user]
-                else:
-                    q[0] += 1
-                    assert q[0] <= 2 and q[1] != quota.per_user, msg
+        """Verify maximum number of quotas on same project."""
+        multiple_quotas_same_project(v)
         return v
 
 
@@ -699,20 +708,12 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
-    @validator("flavors")
+    @validator("flavors", "images")
     @classmethod
     def validate_flavors(
-        cls, v: List[FlavorCreateExtended]
-    ) -> List[FlavorCreateExtended]:
+        cls, v: Union[List[FlavorCreateExtended], List[ImageCreateExtended]]
+    ) -> Union[List[FlavorCreateExtended], List[ImageCreateExtended]]:
         """Verify there are no duplicated names or UUIDs in the flavor list."""
-        find_duplicates(v, "uuid")
-        find_duplicates(v, "name")
-        return v
-
-    @validator("images")
-    @classmethod
-    def validate_images(cls, v: List[ImageCreateExtended]) -> List[ImageCreateExtended]:
-        """Verify there are no duplicated names or UUIDs in the image list."""
         find_duplicates(v, "uuid")
         find_duplicates(v, "name")
         return v
@@ -722,21 +723,8 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
     def max_two_quotas_on_same_project(
         cls, v: List[ComputeQuotaCreateExtended]
     ) -> List[ComputeQuotaCreateExtended]:
-        """Verify maximum number of quotas on same project.
-
-        A project can have at most one `project` quota and one `per-user` quota on a
-        specific service.
-        """
-        d = {}
-        for quota in v:
-            if quota.project is not None:
-                msg = f"Multiple quotas on same project {quota.project}"
-                q = d.get(quota.project)
-                if not q:
-                    d[quota.project] = [1, quota.per_user]
-                else:
-                    q[0] += 1
-                    assert q[0] <= 2 and q[1] != quota.per_user, msg
+        """Verify maximum number of quotas on same project."""
+        multiple_quotas_same_project(v)
         return v
 
 
@@ -774,21 +762,8 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
     def max_two_quotas_on_same_project(
         cls, v: List[NetworkQuotaCreateExtended]
     ) -> List[NetworkQuotaCreateExtended]:
-        """Verify maximum number of quotas on same project.
-
-        A project can have at most one `project` quota and one `per-user` quota on a
-        specific service.
-        """
-        d = {}
-        for quota in v:
-            if quota.project is not None:
-                msg = f"Multiple quotas on same project {quota.project}"
-                q = d.get(quota.project)
-                if not q:
-                    d[quota.project] = [1, quota.per_user]
-                else:
-                    q[0] += 1
-                    assert q[0] <= 2 and q[1] != quota.per_user, msg
+        """Verify maximum number of quotas on same project."""
+        multiple_quotas_same_project(v)
         return v
 
 
@@ -826,39 +801,28 @@ class RegionCreateExtended(RegionCreate):
         default_factory=list, description=DOC_NEW_SERV_NET
     )
 
-    @validator("block_storage_services")
+    @validator(
+        "block_storage_services",
+        "compute_services",
+        "identity_services",
+        "network_services",
+    )
     @classmethod
-    def validate_block_storage_services(
-        cls, v: List[BlockStorageServiceCreateExtended]
-    ) -> List[BlockStorageServiceCreateExtended]:
-        """Verify there are no duplicated endpoints in the service list."""
-        find_duplicates(v, "endpoint")
-        return v
-
-    @validator("compute_services")
-    @classmethod
-    def validate_compute_services(
-        cls, v: List[ComputeServiceCreateExtended]
-    ) -> List[ComputeServiceCreateExtended]:
-        """Verify there are no duplicated endpoints in the service list."""
-        find_duplicates(v, "endpoint")
-        return v
-
-    @validator("identity_services")
-    @classmethod
-    def validate_identity_services(
-        cls, v: List[IdentityServiceCreate]
-    ) -> List[IdentityServiceCreate]:
-        """Verify there are no duplicated endpoints in the service list."""
-        find_duplicates(v, "endpoint")
-        return v
-
-    @validator("network_services")
-    @classmethod
-    def validate_network_services(
-        cls, v: List[NetworkServiceCreateExtended]
-    ) -> List[NetworkServiceCreateExtended]:
-        """Verify there are no duplicated endpoints in the service list."""
+    def validate_services(
+        cls,
+        v: Union[
+            List[BlockStorageServiceCreateExtended],
+            List[ComputeServiceCreateExtended],
+            List[IdentityServiceCreate],
+            List[NetworkServiceCreateExtended],
+        ],
+    ) -> Union[
+        List[BlockStorageServiceCreateExtended],
+        List[ComputeServiceCreateExtended],
+        List[IdentityServiceCreate],
+        List[NetworkServiceCreateExtended],
+    ]:
+        """Verify there are no duplicated endpoints in the service lists."""
         find_duplicates(v, "endpoint")
         return v
 
@@ -917,7 +881,7 @@ class ProviderCreateExtended(ProviderCreate):
         return v
 
     @root_validator
-    def check_idp_projs_exits(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def check_idp_projects_exist(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         """Verify SLA and Projects relations.
 
         Check that an SLA is not used by multiple user groups.
