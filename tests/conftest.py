@@ -11,11 +11,23 @@ from fed_reg.flavor.models import Flavor
 from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.image.models import Image
 from fed_reg.location.models import Location
+from fed_reg.location.schemas import LocationCreate
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
+from fed_reg.project.schemas import ProjectCreate
 from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas_extended import (
+    BlockStorageQuotaCreateExtended,
+    BlockStorageServiceCreateExtended,
+    ComputeQuotaCreateExtended,
+    ComputeServiceCreateExtended,
+    FlavorCreateExtended,
     IdentityProviderCreateExtended,
+    ImageCreateExtended,
+    NetworkCreateExtended,
+    NetworkQuotaCreateExtended,
+    NetworkServiceCreateExtended,
+    RegionCreateExtended,
     SLACreateExtended,
     UserGroupCreateExtended,
 )
@@ -27,20 +39,31 @@ from fed_reg.service.models import (
     IdentityService,
     NetworkService,
 )
+from fed_reg.service.schemas import IdentityServiceCreate
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
 from tests.create_dict import (
     auth_method_dict,
+    block_storage_service_schema_dict,
+    compute_service_schema_dict,
     flavor_model_dict,
+    flavor_schema_dict,
     identity_provider_model_dict,
     identity_provider_schema_dict,
+    identity_service_schema_dict,
     image_model_dict,
+    image_schema_dict,
     location_model_dict,
+    location_schema_dict,
     network_model_dict,
+    network_schema_dict,
+    network_service_schema_dict,
     project_model_dict,
+    project_schema_dict,
     provider_model_dict,
     quota_model_dict,
     region_model_dict,
+    region_schema_dict,
     service_model_dict,
     sla_model_dict,
     sla_schema_dict,
@@ -300,6 +323,82 @@ def user_group_model(db_core: MagicMock) -> UserGroup:
 
 
 @pytest.fixture
+def location_create_schema() -> LocationCreate:
+    return LocationCreate(**location_schema_dict())
+
+
+@pytest.fixture
+def project_create_schema() -> ProjectCreate:
+    return ProjectCreate(**project_schema_dict())
+
+
+@pytest.fixture
+def identity_service_create_schema() -> IdentityServiceCreate:
+    return IdentityServiceCreate(**identity_service_schema_dict())
+
+
+@pytest.fixture
+def flavor_create_ext_schema() -> FlavorCreateExtended:
+    return FlavorCreateExtended(**flavor_schema_dict())
+
+
+@pytest.fixture
+def image_create_ext_schema() -> ImageCreateExtended:
+    return ImageCreateExtended(**image_schema_dict())
+
+
+@pytest.fixture
+def identity_provider_create_ext_schema(
+    user_group_create_ext_schema: UserGroupCreateExtended,
+) -> IdentityProviderCreateExtended:
+    return IdentityProviderCreateExtended(
+        **identity_provider_schema_dict(),
+        relationship=auth_method_dict(),
+        user_groups=[user_group_create_ext_schema],
+    )
+
+
+@pytest.fixture
+def network_create_ext_schema() -> NetworkCreateExtended:
+    return NetworkCreateExtended(**network_schema_dict())
+
+
+@pytest.fixture
+def block_storage_quota_create_ext_schema() -> BlockStorageQuotaCreateExtended:
+    return BlockStorageQuotaCreateExtended(project=uuid4())
+
+
+@pytest.fixture
+def compute_quota_create_ext_schema() -> ComputeQuotaCreateExtended:
+    return ComputeQuotaCreateExtended(project=uuid4())
+
+
+@pytest.fixture
+def network_quota_create_ext_schema() -> NetworkQuotaCreateExtended:
+    return NetworkQuotaCreateExtended(project=uuid4())
+
+
+@pytest.fixture
+def region_create_ext_schema() -> RegionCreateExtended:
+    return RegionCreateExtended(**region_schema_dict())
+
+
+@pytest.fixture
+def block_storage_service_create_ext_schema() -> BlockStorageServiceCreateExtended:
+    return BlockStorageServiceCreateExtended(**block_storage_service_schema_dict())
+
+
+@pytest.fixture
+def compute_service_create_ext_schema() -> ComputeServiceCreateExtended:
+    return ComputeServiceCreateExtended(**compute_service_schema_dict())
+
+
+@pytest.fixture
+def network_service_create_ext_schema() -> NetworkServiceCreateExtended:
+    return NetworkServiceCreateExtended(**network_service_schema_dict())
+
+
+@pytest.fixture
 def sla_create_ext_schema() -> SLACreateExtended:
     return SLACreateExtended(**sla_schema_dict(), project=uuid4())
 
@@ -311,15 +410,4 @@ def user_group_create_ext_schema(
     return UserGroupCreateExtended(
         **user_group_schema_dict(),
         sla=sla_create_ext_schema,
-    )
-
-
-@pytest.fixture
-def identity_provider_create_ext_schema(
-    user_group_create_ext_schema: UserGroupCreateExtended,
-) -> IdentityProviderCreateExtended:
-    return IdentityProviderCreateExtended(
-        **identity_provider_schema_dict(),
-        relationship=auth_method_dict(),
-        user_groups=[user_group_create_ext_schema],
     )

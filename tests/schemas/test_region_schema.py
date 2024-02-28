@@ -20,11 +20,6 @@ from fed_reg.region.schemas import (
 )
 from fed_reg.service.schemas import IdentityServiceCreate
 from tests.create_dict import (
-    block_storage_service_schema_dict,
-    compute_service_schema_dict,
-    identity_service_schema_dict,
-    location_schema_dict,
-    network_service_schema_dict,
     region_schema_dict,
 )
 from tests.utils import random_lower_string, random_url
@@ -50,7 +45,13 @@ class CaseAttr:
     )
     @parametrize(len=[0, 1, 2])
     def case_services(
-        self, type: str, len: int
+        self,
+        block_storage_service_create_ext_schema: BlockStorageServiceCreateExtended,
+        compute_service_create_ext_schema: ComputeServiceCreateExtended,
+        identity_service_create_schema: IdentityServiceCreate,
+        network_service_create_ext_schema: NetworkServiceCreateExtended,
+        type: str,
+        len: int,
     ) -> Tuple[
         str,
         Union[
@@ -62,15 +63,13 @@ class CaseAttr:
     ]:
         if len > 0:
             if type == "block_storage_services":
-                service = BlockStorageServiceCreateExtended(
-                    **block_storage_service_schema_dict()
-                )
+                service = block_storage_service_create_ext_schema
             elif type == "compute_services":
-                service = ComputeServiceCreateExtended(**compute_service_schema_dict())
+                service = compute_service_create_ext_schema
             elif type == "identity_services":
-                service = IdentityServiceCreate(**identity_service_schema_dict())
+                service = identity_service_create_schema
             elif type == "network_services":
-                service = NetworkServiceCreateExtended(**network_service_schema_dict())
+                service = network_service_create_ext_schema
 
             if len == 1:
                 return type, [service]
@@ -84,10 +83,10 @@ class CaseAttr:
     @case(tags=["create_extended"])
     @parametrize(with_loc=[True, False])
     def case_location(
-        self, with_loc: bool
+        self, location_create_schema: LocationCreate, with_loc: bool
     ) -> Tuple[Literal["location"], Optional[LocationCreate]]:
         if with_loc:
-            return "location", LocationCreate(**location_schema_dict())
+            return "location", location_create_schema
         else:
             return "location", None
 
@@ -107,7 +106,12 @@ class CaseInvalidAttr:
         ]
     )
     def case_services(
-        self, type: str
+        self,
+        block_storage_service_create_ext_schema: BlockStorageServiceCreateExtended,
+        compute_service_create_ext_schema: ComputeServiceCreateExtended,
+        identity_service_create_schema: IdentityServiceCreate,
+        network_service_create_ext_schema: NetworkServiceCreateExtended,
+        type: str,
     ) -> Tuple[
         str,
         Union[
@@ -119,15 +123,13 @@ class CaseInvalidAttr:
         str,
     ]:
         if type == "block_storage_services":
-            service = BlockStorageServiceCreateExtended(
-                **block_storage_service_schema_dict()
-            )
+            service = block_storage_service_create_ext_schema
         elif type == "compute_services":
-            service = ComputeServiceCreateExtended(**compute_service_schema_dict())
+            service = compute_service_create_ext_schema
         elif type == "identity_services":
-            service = IdentityServiceCreate(**identity_service_schema_dict())
+            service = identity_service_create_schema
         elif type == "network_services":
-            service = NetworkServiceCreateExtended(**network_service_schema_dict())
+            service = network_service_create_ext_schema
 
         return (
             type,

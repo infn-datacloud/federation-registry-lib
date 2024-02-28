@@ -35,21 +35,23 @@ class CaseAttr:
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2, 3])
-    def case_quotas(self, len: int) -> List[BlockStorageQuotaCreateExtended]:
+    def case_quotas(
+        self,
+        block_storage_quota_create_ext_schema: BlockStorageQuotaCreateExtended,
+        len: int,
+    ) -> List[BlockStorageQuotaCreateExtended]:
         if len == 1:
-            return [BlockStorageQuotaCreateExtended(project=uuid4())]
+            return [block_storage_quota_create_ext_schema]
         elif len == 2:
             return [
-                BlockStorageQuotaCreateExtended(project=uuid4()),
+                block_storage_quota_create_ext_schema,
                 BlockStorageQuotaCreateExtended(project=uuid4()),
             ]
         elif len == 3:
             # Same project, different users scope
-            project = uuid4()
-            return [
-                BlockStorageQuotaCreateExtended(per_user=True, project=project),
-                BlockStorageQuotaCreateExtended(per_user=False, project=project),
-            ]
+            quota2 = block_storage_quota_create_ext_schema.copy()
+            quota2.per_user = not quota2.per_user
+            return [block_storage_quota_create_ext_schema, quota2]
         else:
             return []
 
@@ -69,10 +71,12 @@ class CaseInvalidAttr:
 
     @case(tags=["create_extended"])
     def case_dup_quotas(
-        self,
+        self, block_storage_quota_create_ext_schema: BlockStorageQuotaCreateExtended
     ) -> Tuple[List[BlockStorageQuotaCreateExtended], str]:
-        quota = BlockStorageQuotaCreateExtended(project=uuid4())
-        return [quota, quota], "Multiple quotas on same project"
+        return [
+            block_storage_quota_create_ext_schema,
+            block_storage_quota_create_ext_schema,
+        ], "Multiple quotas on same project"
 
 
 @parametrize_with_cases(

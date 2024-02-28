@@ -37,35 +37,33 @@ class CaseAttr:
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2, 3])
     def case_quotas(
-        self, len: int
+        self, network_quota_create_ext_schema: NetworkQuotaCreateExtended, len: int
     ) -> Tuple[Literal["quotas"], List[NetworkQuotaCreateExtended]]:
         if len == 1:
-            return "quotas", [NetworkQuotaCreateExtended(project=uuid4())]
+            return "quotas", [network_quota_create_ext_schema]
         elif len == 2:
             return "quotas", [
-                NetworkQuotaCreateExtended(project=uuid4()),
+                network_quota_create_ext_schema,
                 NetworkQuotaCreateExtended(project=uuid4()),
             ]
         elif len == 3:
             # Same project, different users scope
-            project = uuid4()
-            return "quotas", [
-                NetworkQuotaCreateExtended(per_user=True, project=project),
-                NetworkQuotaCreateExtended(per_user=False, project=project),
-            ]
+            quota2 = network_quota_create_ext_schema.copy()
+            quota2.per_user = not quota2.per_user
+            return "quotas", [network_quota_create_ext_schema, quota2]
         else:
             return "quotas", []
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
     def case_networks(
-        self, len: int
+        self, network_create_ext_schema: NetworkCreateExtended, len: int
     ) -> Tuple[Literal["networks"], List[NetworkCreateExtended]]:
         if len == 1:
-            return "networks", [NetworkCreateExtended(**network_schema_dict())]
+            return "networks", [network_create_ext_schema]
         elif len == 2:
             return "networks", [
-                NetworkCreateExtended(**network_schema_dict()),
+                network_create_ext_schema,
                 NetworkCreateExtended(**network_schema_dict()),
             ]
         else:
@@ -87,19 +85,21 @@ class CaseInvalidAttr:
 
     @case(tags=["create_extended"])
     def case_dup_quotas(
-        self,
+        self, network_quota_create_ext_schema: NetworkQuotaCreateExtended
     ) -> Tuple[Literal["quotas"], List[NetworkQuotaCreateExtended], str]:
-        quota = NetworkQuotaCreateExtended(project=uuid4())
-        return "quotas", [quota, quota], "Multiple quotas on same project"
+        return (
+            "quotas",
+            [network_quota_create_ext_schema, network_quota_create_ext_schema],
+            "Multiple quotas on same project",
+        )
 
     @case(tags=["create_extended"])
     def case_dup_networks(
-        self,
+        self, network_create_ext_schema: NetworkCreateExtended
     ) -> Tuple[Literal["networks"], List[NetworkCreateExtended], str]:
-        network = NetworkCreateExtended(**network_schema_dict())
         return (
             "networks",
-            [network, network],
+            [network_create_ext_schema, network_create_ext_schema],
             "There are multiple items with identical uuid",
         )
 

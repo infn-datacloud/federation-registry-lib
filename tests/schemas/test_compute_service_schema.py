@@ -42,35 +42,33 @@ class CaseAttr:
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2, 3])
     def case_quotas(
-        self, len: int
+        self, compute_quota_create_ext_schema: ComputeQuotaCreateExtended, len: int
     ) -> Tuple[Literal["quotas"], List[ComputeQuotaCreateExtended]]:
         if len == 1:
-            return "quotas", [ComputeQuotaCreateExtended(project=uuid4())]
+            return "quotas", [compute_quota_create_ext_schema]
         elif len == 2:
             return "quotas", [
-                ComputeQuotaCreateExtended(project=uuid4()),
+                compute_quota_create_ext_schema,
                 ComputeQuotaCreateExtended(project=uuid4()),
             ]
         elif len == 3:
             # Same project, different users scope
-            project = uuid4()
-            return "quotas", [
-                ComputeQuotaCreateExtended(per_user=True, project=project),
-                ComputeQuotaCreateExtended(per_user=False, project=project),
-            ]
+            quota2 = compute_quota_create_ext_schema.copy()
+            quota2.per_user = not quota2.per_user
+            return "quotas", [compute_quota_create_ext_schema, quota2]
         else:
             return "quotas", []
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
     def case_flavors(
-        self, len: int
+        self, flavor_create_ext_schema: FlavorCreateExtended, len: int
     ) -> Tuple[Literal["flavors"], List[FlavorCreateExtended]]:
         if len == 1:
-            return "flavors", [FlavorCreateExtended(**flavor_schema_dict())]
+            return "flavors", [flavor_create_ext_schema]
         elif len == 2:
             return "flavors", [
-                FlavorCreateExtended(**flavor_schema_dict()),
+                flavor_create_ext_schema,
                 FlavorCreateExtended(**flavor_schema_dict()),
             ]
         else:
@@ -79,13 +77,13 @@ class CaseAttr:
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
     def case_images(
-        self, len: int
+        self, image_create_ext_schema: ImageCreateExtended, len: int
     ) -> Tuple[Literal["images"], List[ImageCreateExtended]]:
         if len == 1:
-            return "images", [ImageCreateExtended(**image_schema_dict())]
+            return "images", [image_create_ext_schema]
         elif len == 2:
             return "images", [
-                ImageCreateExtended(**image_schema_dict()),
+                image_create_ext_schema,
                 ImageCreateExtended(**image_schema_dict()),
             ]
         else:
@@ -107,24 +105,28 @@ class CaseInvalidAttr:
 
     @case(tags=["create_extended"])
     def case_dup_quotas(
-        self,
+        self, compute_quota_create_ext_schema: ComputeQuotaCreateExtended
     ) -> Tuple[Literal["quotas"], List[ComputeQuotaCreateExtended], str]:
-        quota = ComputeQuotaCreateExtended(project=uuid4())
-        return "quotas", [quota, quota], "Multiple quotas on same project"
+        return (
+            "quotas",
+            [compute_quota_create_ext_schema, compute_quota_create_ext_schema],
+            "Multiple quotas on same project",
+        )
 
     @case(tags=["create_extended"])
     @parametrize(attr=["name", "uuid"])
     @parametrize(res=["flavors", "images"])
     def case_dup_res(
-        self, attr: str, res: str
+        self,
+        flavor_create_ext_schema: FlavorCreateExtended,
+        image_create_ext_schema: ImageCreateExtended,
+        attr: str,
+        res: str,
     ) -> Tuple[str, Union[List[FlavorCreateExtended], List[ImageCreateExtended]], str]:
-        if res == "flavors":
-            item = FlavorCreateExtended(**flavor_schema_dict())
-        else:
-            item = ImageCreateExtended(**image_schema_dict())
+        item = flavor_create_ext_schema if res == "flavors" else image_create_ext_schema
         item2 = item.copy()
         if attr == "name":
-            item2.uuid = uuid4().hex
+            item2.uuid = uuid4()
         else:
             item2.name = random_lower_string()
         return (

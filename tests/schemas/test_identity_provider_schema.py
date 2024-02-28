@@ -70,25 +70,48 @@ class CaseInvalidAttr:
         return "relationship", None, None
 
     @case(tags=["create_extended"])
-    @parametrize(len=[0, 2])
-    def case_user_groups(
-        self, user_group_create_ext_schema: UserGroupCreateExtended, len: int
+    def case_no_user_groups(self) -> Tuple[Literal["user_groups"], List, str]:
+        return (
+            "user_groups",
+            [],
+            "Identity provider's user group list can't be empty",
+        )
+
+    @case(tags=["create_extended"])
+    def case_dup_user_groups(
+        self, user_group_create_ext_schema: UserGroupCreateExtended
     ) -> Tuple[Literal["user_groups"], List[UserGroupCreateExtended], str]:
-        if len == 0:
-            return (
-                "user_groups",
-                [],
-                "Identity provider's user group list can't be empty",
-            )
-        else:
-            return (
-                "user_groups",
-                [
-                    user_group_create_ext_schema,
-                    user_group_create_ext_schema,
-                ],
-                "There are multiple items with identical name",
-            )
+        return (
+            "user_groups",
+            [user_group_create_ext_schema, user_group_create_ext_schema],
+            "There are multiple items with identical name",
+        )
+
+    @case(tags=["create_extended"])
+    def case_dup_sla_doc_uuid(
+        self, user_group_create_ext_schema: UserGroupCreateExtended
+    ) -> Tuple[Literal["user_groups"], List[UserGroupCreateExtended], str]:
+        user_group2 = user_group_create_ext_schema.copy()
+        user_group2.name = random_lower_string()
+        return (
+            "user_groups",
+            [user_group_create_ext_schema, user_group2],
+            "already used by another user group",
+        )
+
+    @case(tags=["create_extended"])
+    def case_dup_sla_project(
+        self, user_group_create_ext_schema: UserGroupCreateExtended
+    ) -> Tuple[Literal["user_groups"], List[UserGroupCreateExtended], str]:
+        user_group2 = user_group_create_ext_schema.copy()
+        user_group2.name = random_lower_string()
+        user_group2.sla = user_group_create_ext_schema.sla.copy()
+        user_group2.sla.doc_uuid = uuid4()
+        return (
+            "user_groups",
+            [user_group_create_ext_schema, user_group2],
+            "already used by another SLA",
+        )
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])

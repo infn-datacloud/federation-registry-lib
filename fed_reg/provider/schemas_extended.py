@@ -1,5 +1,5 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Set, Union
 
 from pydantic import Field, root_validator, validator
 
@@ -408,6 +408,28 @@ def multiple_quotas_same_project(quotas: List[Any]) -> None:
                 assert q[0] <= 2 and q[1] != quota.per_user, msg
 
 
+def find_duplicate_projects(project: str, seen: Set[str]) -> None:
+    msg = f"Project {project} already used by another SLA"
+    assert project not in seen, msg
+    seen.add(project)
+
+
+def find_duplicate_slas(doc_uuid: str, seen: Set[str]) -> None:
+    msg = f"SLA {doc_uuid} already used by another user group"
+    assert doc_uuid not in seen, msg
+    seen.add(doc_uuid)
+
+
+def proj_in_provider(
+    project: Optional[str], projects: List[str], *, parent: str
+) -> None:
+    """Verify project is in projects list."""
+    if project:
+        msg = f"{parent}'s project {project} "
+        msg += f"not in this provider: {projects}"
+        assert project in projects, msg
+
+
 class SLACreateExtended(SLACreate):
     """Model to extend the SLA data to add to the DB.
 
@@ -458,9 +480,18 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
     def validate_user_groups(
         cls, v: List[UserGroupCreateExtended]
     ) -> List[UserGroupCreateExtended]:
-        """Verify the list is not empty and there are no duplicates."""
-        find_duplicates(v, "name")
+        """Check user group list content.
+
+        Verify the list is not empty and there are no duplicates.
+        Check that an SLA is not used by multiple user groups of the same IDP.
+        """
         assert len(v), "Identity provider's user group list can't be empty"
+        find_duplicates(v, "name")
+        seen_slas = set()
+        seen_projects = set()
+        for user_group in v:
+            find_duplicate_slas(user_group.sla.doc_uuid, seen_slas)
+            find_duplicate_projects(user_group.sla.project, seen_projects)
         return v
 
 
@@ -857,10 +888,29 @@ class ProviderCreateExtended(ProviderCreate):
     @validator("identity_providers")
     @classmethod
     def validate_identity_providers(
-        cls, v: List[IdentityProviderCreateExtended]
+        cls, v: List[IdentityProviderCreateExtended], values: Dict[str, Any]
     ) -> List[IdentityProviderCreateExtended]:
-        """Verify there are no duplicated endpoints in the identity provider list."""
+        """Validate list of identity providers.
+
+        Verify there are no duplicated endpoints in the identity provider list.
+        Check that an SLA is not used by multiple user groups of different IDPs.
+        Check that the project pointed by an SLA is not used by multiple user groups of
+        different IDPs.
+        Check that the SLA's projects belong to the target provider.
+        """
         find_duplicates(v, "endpoint")
+        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        seen_slas = set()
+        seen_projects = set()
+        for identity_provider in v:
+            for user_group in identity_provider.user_groups:
+                find_duplicate_slas(user_group.sla.doc_uuid, seen_slas)
+                find_duplicate_projects(user_group.sla.project, seen_projects)
+                proj_in_provider(
+                    user_group.sla.project,
+                    projects,
+                    parent=f"SLA {user_group.sla.doc_uuid}",
+                )
         return v
 
     @validator("projects")
@@ -874,101 +924,65 @@ class ProviderCreateExtended(ProviderCreate):
     @validator("regions")
     @classmethod
     def validate_regions(
-        cls, v: List[RegionCreateExtended]
+        cls, v: List[RegionCreateExtended], values: Dict[str, Any]
     ) -> List[RegionCreateExtended]:
-        """Verify there are no duplicated names in the region list."""
+        """Validate list of regions.
+
+        Verify there are no duplicated names in the region list.
+        Verify region's services projects belong to the target provider.
+        """
         find_duplicates(v, "name")
+        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        for region in v:
+            cls.__check_block_storage_service_projects(
+                region.block_storage_services, projects
+            )
+            cls.__check_compute_service_projects(region.compute_services, projects)
+            cls.__check_network_service_projects(region.network_services, projects)
         return v
 
-    @validator("identity_providers")
     @classmethod
-    def check_idp_projects_exist(
-        cls, v: List[IdentityProviderCreateExtended], values: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Verify SLA and Projects relations.
+    def __check_block_storage_service_projects(
+        cls, services: List[BlockStorageServiceCreateExtended], projects: List[str]
+    ) -> None:
+        """Check Block Storage service's projects.
 
-        Check that an SLA is not used by multiple user groups.
-        Check that the SLA's projects belong to the target provider.
+        Check quotas' projects belong to the provider.
         """
-        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
-        seen = set()
-        for identity_provider in v:
-            for user_group in identity_provider.user_groups:
-                msg = f"SLA {user_group.sla.doc_uuid} "
-                msg += "already used by another user group"
-                assert user_group.sla.doc_uuid not in seen, msg
+        for service in services:
+            for quota in service.quotas:
+                proj_in_provider(quota.project, projects, parent="Block Storage quota")
 
-                seen.add(user_group.sla.doc_uuid)
+    @classmethod
+    def __check_compute_service_projects(
+        cls, services: List[ComputeServiceCreateExtended], projects: List[str]
+    ) -> None:
+        """Check Compute service's projects.
 
-                msg = f"SLA {user_group.sla.doc_uuid}'s "
-                msg += f"project {user_group.sla.project} "
-                msg += f"not in this provider: {projects}"
-                assert user_group.sla.project in projects, msg
-        return v
-
-    @root_validator
-    def check_block_storage_serv_projs_exist(
-        cls, values: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """Verify Block Storage Service projects belong to the target provider."""
-        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
-        regions: List[RegionCreateExtended] = values.get("regions", [])
-        for region in regions:
-            for service in region.block_storage_services:
-                for quota in service.quotas:
-                    if quota.project is not None:
-                        msg = f"Block storage quota's project {quota.project} "
-                        msg += f"not in this provider: {projects}"
-                        assert quota.project in projects, msg
-        return values
-
-    @root_validator
-    def check_compute_serv_projs_exist(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """Verify Compute Service and Projects relations.
-
-        Check that the Compute Service's projects, flavors and images belong to the
-        target provider.
+        Check quotas, flavors and images' projects belong to the provider.
         """
-        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
-        regions: List[RegionCreateExtended] = values.get("regions", [])
-        for region in regions:
-            for service in region.compute_services:
-                for flavor in service.flavors:
-                    for project in flavor.projects:
-                        msg = f"Flavor {flavor.name}'s project {project} "
-                        msg += f"not in this provider: {projects}"
-                        assert project in projects, msg
-                for image in service.images:
-                    for project in image.projects:
-                        msg = f"Image {image.name}'s project {project} "
-                        msg += f"not in this provider: {projects}"
-                        assert project in projects, msg
-                for quota in service.quotas:
-                    if quota.project is not None:
-                        msg = f"Compute quota's project {quota.project} "
-                        msg += f"not in this provider: {projects}"
-                        assert quota.project in projects, msg
-        return values
+        for service in services:
+            for flavor in service.flavors:
+                for project in flavor.projects:
+                    proj_in_provider(project, projects, parent=f"Flavor {flavor.name}")
+            for image in service.images:
+                for project in image.projects:
+                    proj_in_provider(project, projects, parent=f"Image {image.name}")
+            for quota in service.quotas:
+                proj_in_provider(quota.project, projects, parent="Compute quota")
 
-    @root_validator
-    def check_network_serv_projs_exist(cls, values: Dict[str, Any]) -> Dict[str, Any]:
-        """Verify Network Service and Projects relations.
+    @classmethod
+    def __check_network_service_projects(
+        cls, services: List[NetworkServiceCreateExtended], projects: List[str]
+    ) -> None:
+        """Check Network service's projects.
 
-        Check that the Compute Service's projects, networks belong to the target
-        provider.
+        Check quotas and networks' projects belong to the provider.
         """
-        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
-        regions: List[RegionCreateExtended] = values.get("regions", [])
-        for region in regions:
-            for service in region.network_services:
-                for network in service.networks:
-                    if network.project is not None:
-                        msg = f"Network {network.name}'s project {network.project} "
-                        msg += f"not in this provider: {projects}"
-                        assert network.project in projects, msg
-                for quota in service.quotas:
-                    if quota.project is not None:
-                        msg = f"Network quota's project {quota.project} "
-                        msg += f"not in this provider: {projects}"
-                        assert quota.project in projects, msg
-        return values
+        for service in services:
+            for network in service.networks:
+                proj_in_provider(
+                    network.project, projects, parent=f"Network {network.name}"
+                )
+            for quota in service.quotas:
+                proj_in_provider(quota.project, projects, parent="Network quota")

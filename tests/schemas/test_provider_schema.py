@@ -16,20 +16,27 @@ from fed_reg.provider.schemas import (
     ProviderUpdate,
 )
 from fed_reg.provider.schemas_extended import (
+    BlockStorageServiceCreateExtended,
+    ComputeQuotaCreateExtended,
+    ComputeServiceCreateExtended,
+    FlavorCreateExtended,
     IdentityProviderCreateExtended,
+    ImageCreateExtended,
+    NetworkCreateExtended,
+    NetworkQuotaCreateExtended,
+    NetworkServiceCreateExtended,
     ProviderCreateExtended,
     RegionCreateExtended,
     SLACreateExtended,
-    UserGroupCreateExtended,
 )
 from tests.create_dict import (
-    auth_method_dict,
-    identity_provider_schema_dict,
+    flavor_schema_dict,
+    image_schema_dict,
+    network_schema_dict,
     project_schema_dict,
     provider_schema_dict,
     region_schema_dict,
     sla_schema_dict,
-    user_group_schema_dict,
 )
 from tests.utils import random_email, random_lower_string, random_url
 
@@ -73,13 +80,13 @@ class CaseAttr:
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
     def case_projects(
-        self, len: int
+        self, project_create_schema: ProjectCreate, len: int
     ) -> Tuple[Literal["projects"], List[ProjectCreate]]:
         if len == 1:
-            return "projects", [ProjectCreate(**project_schema_dict())]
+            return "projects", [project_create_schema]
         elif len == 2:
             return "projects", [
-                ProjectCreate(**project_schema_dict()),
+                project_create_schema,
                 ProjectCreate(**project_schema_dict()),
             ]
         else:
@@ -88,13 +95,13 @@ class CaseAttr:
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
     def case_regions(
-        self, len: int
+        self, region_create_ext_schema: RegionCreateExtended, len: int
     ) -> Tuple[Literal["regions"], List[RegionCreateExtended]]:
         if len == 1:
-            return "regions", [RegionCreateExtended(**region_schema_dict())]
+            return "regions", [region_create_ext_schema]
         elif len == 2:
             return "regions", [
-                RegionCreateExtended(**region_schema_dict()),
+                region_create_ext_schema,
                 RegionCreateExtended(**region_schema_dict()),
             ]
         else:
@@ -103,34 +110,19 @@ class CaseAttr:
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
     def case_identity_providers(
-        self, user_group_create_ext_schema: UserGroupCreateExtended, len: int
+        self,
+        identity_provider_create_ext_schema: IdentityProviderCreateExtended,
+        len: int,
     ) -> Tuple[Literal["identity_providers"], List[IdentityProviderCreateExtended]]:
         if len == 1:
-            return "identity_providers", [
-                IdentityProviderCreateExtended(
-                    **identity_provider_schema_dict(),
-                    relationship=auth_method_dict(),
-                    user_groups=[user_group_create_ext_schema],
-                )
-            ]
+            return "identity_providers", [identity_provider_create_ext_schema]
         elif len == 2:
-            return "identity_providers", [
-                IdentityProviderCreateExtended(
-                    **identity_provider_schema_dict(),
-                    relationship=auth_method_dict(),
-                    user_groups=[user_group_create_ext_schema],
-                ),
-                IdentityProviderCreateExtended(
-                    **identity_provider_schema_dict(),
-                    relationship=auth_method_dict(),
-                    user_groups=[
-                        UserGroupCreateExtended(
-                            **user_group_schema_dict(),
-                            sla=SLACreateExtended(**sla_schema_dict(), project=uuid4()),
-                        )
-                    ],
-                ),
-            ]
+            idp2 = identity_provider_create_ext_schema.copy()
+            user_group = idp2.user_groups[0].copy()
+            user_group.sla = SLACreateExtended(**sla_schema_dict(), project=uuid4())
+            idp2.user_groups = [user_group]
+            idp2.endpoint = random_url()
+            return "identity_providers", [identity_provider_create_ext_schema, idp2]
         else:
             return "identity_providers", []
 
@@ -154,73 +146,152 @@ class CaseInvalidAttr:
     @case(tags=["create_extended"])
     @parametrize(attr=["name", "uuid"])
     def case_dup_projects(
-        self, attr: str
+        self, project_create_schema: ProjectCreate, attr: str
     ) -> Tuple[Literal["projects"], List[ProjectCreate]]:
-        project = ProjectCreate(**project_schema_dict())
-        project2 = project.copy()
+        project2 = project_create_schema.copy()
         if attr == "name":
-            project2.uuid = uuid4().hex
+            project2.uuid = uuid4()
         else:
             project2.name = random_lower_string()
         return (
             "projects",
-            [project, project2],
+            [project_create_schema, project2],
             f"There are multiple items with identical {attr}",
         )
 
     @case(tags=["create_extended"])
-    def case_dup_regions(self) -> Tuple[Literal["regions"], List[RegionCreateExtended]]:
-        region = RegionCreateExtended(**project_schema_dict())
+    def case_dup_regions(
+        self, region_create_ext_schema: RegionCreateExtended
+    ) -> Tuple[Literal["regions"], List[RegionCreateExtended]]:
         return (
             "regions",
-            [region, region],
+            [region_create_ext_schema, region_create_ext_schema],
             "There are multiple items with identical name",
         )
 
     @case(tags=["create_extended"])
     def case_dup_idps(
-        self, user_group_create_ext_schema: UserGroupCreateExtended
+        self, identity_provider_create_ext_schema: IdentityProviderCreateExtended
     ) -> Tuple[
         Literal["identity_providers"], List[IdentityProviderCreateExtended], str
     ]:
-        idp = IdentityProviderCreateExtended(
-            **identity_provider_schema_dict(),
-            relationship=auth_method_dict(),
-            user_groups=[user_group_create_ext_schema],
-        )
         return (
             "identity_providers",
-            [idp, idp],
+            [identity_provider_create_ext_schema, identity_provider_create_ext_schema],
             "There are multiple items with identical endpoint",
         )
 
     @case(tags=["idps"])
-    def case_dup_proj_in_single_idp(
-        self, user_group_create_ext_schema: UserGroupCreateExtended
-    ) -> Tuple[List[IdentityProviderCreateExtended], str]:
-        user_group2 = user_group_create_ext_schema.copy()
-        user_group2.name = random_lower_string()
-        # ! Same SLA should not be possible but in this case should not be a problem
-        idp = IdentityProviderCreateExtended(
-            **identity_provider_schema_dict(),
-            relationship=auth_method_dict(),
-            user_groups=[user_group_create_ext_schema, user_group2],
+    def case_dup_sla_in_multi_idps(
+        self, identity_provider_create_ext_schema: IdentityProviderCreateExtended
+    ) -> Tuple[Literal["identity_providers"], List[ProjectCreate]]:
+        idp2 = identity_provider_create_ext_schema.copy()
+        idp2.endpoint = random_url()
+        return (
+            [identity_provider_create_ext_schema, idp2],
+            "already used by another user group",
         )
-        return ([idp], "already used by another user group")
 
     @case(tags=["idps"])
-    def case_dup_proj_in_multi_idps(
-        self, user_group_create_ext_schema: UserGroupCreateExtended
+    def case_dup_project_in_multi_idps(
+        self, identity_provider_create_ext_schema: IdentityProviderCreateExtended
     ) -> Tuple[Literal["identity_providers"], List[ProjectCreate]]:
-        idp = IdentityProviderCreateExtended(
-            **identity_provider_schema_dict(),
-            relationship=auth_method_dict(),
-            user_groups=[user_group_create_ext_schema],
-        )
-        idp2 = idp.copy()
+        idp2 = identity_provider_create_ext_schema.copy()
+        user_group = idp2.user_groups[0].copy()
+        sla = user_group.sla.copy()
+        sla.doc_uuid = uuid4()
+        user_group.sla = sla
+        idp2.user_groups = [user_group]
         idp2.endpoint = random_url()
-        # ! Same SLA should not be possible but in this case should not be a problem
-        return ([idp, idp2], "already used by another user group")
+        return (
+            [identity_provider_create_ext_schema, idp2],
+            "already used by another SLA",
+        )
+
+    @case(tags=["missing"])
+    def case_missing_idp_projects(
+        self,
+        identity_provider_create_ext_schema: IdentityProviderCreateExtended,
+    ) -> Tuple[
+        str,
+        Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+        Literal["not in this provider"],
+    ]:
+        return (
+            "identity_providers",
+            [identity_provider_create_ext_schema],
+            "not in this provider",
+        )
+
+    @case(tags=["missing"])
+    def case_missing_block_storage_projects(
+        self,
+        region_create_ext_schema: RegionCreateExtended,
+        block_storage_service_create_ext_schema: BlockStorageServiceCreateExtended,
+        block_storage_quota_create_ext_schema: BlockStorageServiceCreateExtended,
+    ) -> Tuple[
+        str,
+        Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+        Literal["not in this provider"],
+    ]:
+        block_storage_service_create_ext_schema.quotas = [
+            block_storage_quota_create_ext_schema
+        ]
+        region_create_ext_schema.block_storage_services = [
+            block_storage_service_create_ext_schema
+        ]
+        return ("regions", [region_create_ext_schema], "not in this provider")
+
+    @case(tags=["missing"])
+    @parametrize(resource=["quotas", "flavors", "images"])
+    def case_missing_compute_projects(
+        self,
+        region_create_ext_schema: RegionCreateExtended,
+        compute_service_create_ext_schema: ComputeServiceCreateExtended,
+        compute_quota_create_ext_schema: ComputeQuotaCreateExtended,
+        resource: str,
+    ) -> Tuple[
+        str,
+        Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+        Literal["not in this provider"],
+    ]:
+        if resource == "quotas":
+            compute_service_create_ext_schema.quotas = [compute_quota_create_ext_schema]
+        elif resource == "flavors":
+            item = FlavorCreateExtended(
+                **flavor_schema_dict(), is_public=False, projects=[uuid4()]
+            )
+            compute_service_create_ext_schema.flavors = [item]
+        elif resource == "images":
+            item = ImageCreateExtended(
+                **image_schema_dict(), is_public=False, projects=[uuid4()]
+            )
+            compute_service_create_ext_schema.images = [item]
+        region_create_ext_schema.compute_services = [compute_service_create_ext_schema]
+        return ("regions", [region_create_ext_schema], "not in this provider")
+
+    @case(tags=["missing"])
+    @parametrize(resource=["quotas", "networks"])
+    def case_missing_network_projects(
+        self,
+        region_create_ext_schema: RegionCreateExtended,
+        network_service_create_ext_schema: NetworkServiceCreateExtended,
+        network_quota_create_ext_schema: NetworkQuotaCreateExtended,
+        resource: str,
+    ) -> Tuple[
+        str,
+        Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+        Literal["not in this provider"],
+    ]:
+        if resource == "quotas":
+            network_service_create_ext_schema.quotas = [network_quota_create_ext_schema]
+        elif resource == "networks":
+            item = NetworkCreateExtended(
+                **network_schema_dict(), is_shared=False, project=uuid4()
+            )
+            network_service_create_ext_schema.networks = [item]
+        region_create_ext_schema.network_services = [network_service_create_ext_schema]
+        return ("regions", [region_create_ext_schema], "not in this provider")
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -246,7 +317,9 @@ def test_invalid_base_public(key: str, value: None) -> None:
 @parametrize_with_cases(
     "key, value",
     cases=CaseAttr,
-    filter=lambda f: not (f.has_tag("create_extended") or f.has_tag("idps")),
+    filter=lambda f: not (
+        f.has_tag("create_extended") or f.has_tag("idps") or f.has_tag("missing")
+    ),
 )
 def test_base(key: str, value: Any) -> None:
     assert issubclass(ProviderBase, ProviderBasePublic)
@@ -264,7 +337,9 @@ def test_base(key: str, value: Any) -> None:
 @parametrize_with_cases(
     "key, value",
     cases=CaseInvalidAttr,
-    filter=lambda f: not (f.has_tag("create_extended") or f.has_tag("idps")),
+    filter=lambda f: not (
+        f.has_tag("create_extended") or f.has_tag("idps") or f.has_tag("missing")
+    ),
 )
 def test_invalid_base(key: str, value: Any) -> None:
     d = provider_schema_dict()
@@ -311,10 +386,10 @@ def test_create_extended(
     d = provider_schema_dict()
     d[attr] = values
     if attr == "identity_providers":
-        projects = []
+        projects = set()
         for idp in values:
             for user_group in idp.user_groups:
-                projects.append(user_group.sla.project)
+                projects.add(user_group.sla.project)
         d["projects"] = [
             ProjectCreate(name=random_lower_string(), uuid=p) for p in projects
         ]
@@ -372,14 +447,16 @@ def test_dup_proj_in_idps_in_create_extended(
         ProviderCreateExtended(**d)
 
 
+@parametrize_with_cases("attr, values, msg", cases=CaseInvalidAttr, has_tag=["missing"])
 def test_miss_proj_in_idps_in_create_extended(
-    identity_provider_create_ext_schema: IdentityProviderCreateExtended,
+    attr: str,
+    values: Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+    msg: str,
 ) -> None:
     d = provider_schema_dict()
-    d["identity_providers"] = [identity_provider_create_ext_schema]
-    with pytest.raises(ValueError, match="not in this provider"):
+    d[attr] = values
+    with pytest.raises(ValueError, match=msg):
         ProviderCreateExtended(**d)
 
 
-# TODO CreateExtended -> Services' quotas and resources' projects do not exist
 # TODO Test all read classes
