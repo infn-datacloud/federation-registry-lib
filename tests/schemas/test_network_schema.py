@@ -164,7 +164,6 @@ def test_create_extended(project: Optional[UUID]) -> None:
     "project, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
 )
 def test_invalid_create_extended(project: Optional[UUID], msg: str) -> None:
-    assert issubclass(NetworkCreateExtended, NetworkCreate)
     d = network_schema_dict()
     d["is_shared"] = project is not None
     d["project"] = project

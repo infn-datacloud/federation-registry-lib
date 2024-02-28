@@ -14,7 +14,11 @@ from fed_reg.location.models import Location
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.provider.models import Provider
-from fed_reg.provider.schemas_extended import SLACreateExtended, UserGroupCreateExtended
+from fed_reg.provider.schemas_extended import (
+    IdentityProviderCreateExtended,
+    SLACreateExtended,
+    UserGroupCreateExtended,
+)
 from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
@@ -26,8 +30,10 @@ from fed_reg.service.models import (
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
 from tests.create_dict import (
+    auth_method_dict,
     flavor_model_dict,
     identity_provider_model_dict,
+    identity_provider_schema_dict,
     image_model_dict,
     location_model_dict,
     network_model_dict,
@@ -299,8 +305,21 @@ def sla_create_ext_schema() -> SLACreateExtended:
 
 
 @pytest.fixture
-def user_group_create_ext_schema() -> UserGroupCreateExtended:
+def user_group_create_ext_schema(
+    sla_create_ext_schema: SLACreateExtended,
+) -> UserGroupCreateExtended:
     return UserGroupCreateExtended(
         **user_group_schema_dict(),
-        sla=SLACreateExtended(**sla_schema_dict(), project=uuid4()),
+        sla=sla_create_ext_schema,
+    )
+
+
+@pytest.fixture
+def identity_provider_create_ext_schema(
+    user_group_create_ext_schema: UserGroupCreateExtended,
+) -> IdentityProviderCreateExtended:
+    return IdentityProviderCreateExtended(
+        **identity_provider_schema_dict(),
+        relationship=auth_method_dict(),
+        user_groups=[user_group_create_ext_schema],
     )

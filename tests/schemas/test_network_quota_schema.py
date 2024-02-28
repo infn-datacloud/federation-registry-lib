@@ -107,7 +107,6 @@ def test_create_extended() -> None:
 
 
 def test_invalid_create_extended() -> None:
-    assert issubclass(NetworkQuotaCreateExtended, NetworkQuotaCreate)
     d = {}
     with pytest.raises(ValueError):
         NetworkQuotaCreateExtended(**d)

@@ -234,7 +234,6 @@ def test_invalid_create_extended(
     ],
     msg: str,
 ) -> None:
-    assert issubclass(RegionCreateExtended, RegionCreate)
     d = region_schema_dict()
     d[attr] = values
     with pytest.raises(ValueError, match=msg):

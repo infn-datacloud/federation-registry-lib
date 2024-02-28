@@ -89,7 +89,6 @@ def test_create_extended() -> None:
 
 
 def test_invalid_create_extended() -> None:
-    assert issubclass(BlockStorageQuotaCreateExtended, BlockStorageQuotaCreate)
     d = {}
     with pytest.raises(ValueError):
         BlockStorageQuotaCreateExtended(**d)

@@ -178,7 +178,6 @@ def test_invalid_create_extended(
     value: UserGroupCreateExtended,
     msg: Optional[str],
 ) -> None:
-    assert issubclass(IdentityProviderCreateExtended, IdentityProviderCreate)
     d = identity_provider_schema_dict()
     d["relationship"] = (
         value if attr == "relationship" else AuthMethodCreate(**auth_method_dict())

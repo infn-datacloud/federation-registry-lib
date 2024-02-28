@@ -31,7 +31,7 @@ from tests.create_dict import (
     sla_schema_dict,
     user_group_schema_dict,
 )
-from tests.utils import random_email, random_lower_string
+from tests.utils import random_email, random_lower_string, random_url
 
 
 class CaseAttr:
@@ -179,8 +179,10 @@ class CaseInvalidAttr:
 
     @case(tags=["create_extended"])
     def case_dup_idps(
-        self, user_group_create_ext_schema: IdentityProviderCreateExtended
-    ) -> Tuple[Literal["identity_providers"], List[ProjectCreate]]:
+        self, user_group_create_ext_schema: UserGroupCreateExtended
+    ) -> Tuple[
+        Literal["identity_providers"], List[IdentityProviderCreateExtended], str
+    ]:
         idp = IdentityProviderCreateExtended(
             **identity_provider_schema_dict(),
             relationship=auth_method_dict(),
@@ -191,6 +193,34 @@ class CaseInvalidAttr:
             [idp, idp],
             "There are multiple items with identical endpoint",
         )
+
+    @case(tags=["idps"])
+    def case_dup_proj_in_single_idp(
+        self, user_group_create_ext_schema: UserGroupCreateExtended
+    ) -> Tuple[List[IdentityProviderCreateExtended], str]:
+        user_group2 = user_group_create_ext_schema.copy()
+        user_group2.name = random_lower_string()
+        # ! Same SLA should not be possible but in this case should not be a problem
+        idp = IdentityProviderCreateExtended(
+            **identity_provider_schema_dict(),
+            relationship=auth_method_dict(),
+            user_groups=[user_group_create_ext_schema, user_group2],
+        )
+        return ([idp], "already used by another user group")
+
+    @case(tags=["idps"])
+    def case_dup_proj_in_multi_idps(
+        self, user_group_create_ext_schema: UserGroupCreateExtended
+    ) -> Tuple[Literal["identity_providers"], List[ProjectCreate]]:
+        idp = IdentityProviderCreateExtended(
+            **identity_provider_schema_dict(),
+            relationship=auth_method_dict(),
+            user_groups=[user_group_create_ext_schema],
+        )
+        idp2 = idp.copy()
+        idp2.endpoint = random_url()
+        # ! Same SLA should not be possible but in this case should not be a problem
+        return ([idp, idp2], "already used by another user group")
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -214,7 +244,9 @@ def test_invalid_base_public(key: str, value: None) -> None:
 
 
 @parametrize_with_cases(
-    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
+    "key, value",
+    cases=CaseAttr,
+    filter=lambda f: not (f.has_tag("create_extended") or f.has_tag("idps")),
 )
 def test_base(key: str, value: Any) -> None:
     assert issubclass(ProviderBase, ProviderBasePublic)
@@ -232,7 +264,7 @@ def test_base(key: str, value: Any) -> None:
 @parametrize_with_cases(
     "key, value",
     cases=CaseInvalidAttr,
-    filter=lambda f: not f.has_tag("create_extended"),
+    filter=lambda f: not (f.has_tag("create_extended") or f.has_tag("idps")),
 )
 def test_invalid_base(key: str, value: Any) -> None:
     d = provider_schema_dict()
@@ -302,7 +334,6 @@ def test_invalid_create_extended(
     ],
     msg: str,
 ) -> None:
-    assert issubclass(ProviderCreateExtended, ProviderCreate)
     d = provider_schema_dict()
     d[attr] = values
     if attr == "identity_providers":
@@ -317,25 +348,38 @@ def test_invalid_create_extended(
         ProviderCreateExtended(**d)
 
 
-# @parametrize_with_cases(
-#     "attr, values, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
-# )
-# def test_invalid_projects_create_extended(
-#     attr: str,
-#     values: Union[
-#         List[IdentityProviderCreateExtended],
-#         List[ProjectCreate],
-#         List[RegionCreateExtended],
-#     ],
-#     msg: str,
-# ) -> None:
-#     assert issubclass(ProviderCreateExtended, ProviderCreate)
-#     d = provider_schema_dict()
-#     d[attr] = values
-#     with pytest.raises(ValueError, match=msg):
-#         ProviderCreateExtended(**d)
+@parametrize_with_cases(
+    "identity_providers, msg", cases=CaseInvalidAttr, has_tag=["idps"]
+)
+def test_dup_proj_in_idps_in_create_extended(
+    identity_providers: Union[
+        List[IdentityProviderCreateExtended],
+        List[ProjectCreate],
+        List[RegionCreateExtended],
+    ],
+    msg: str,
+) -> None:
+    d = provider_schema_dict()
+    d["identity_providers"] = identity_providers
+    projects = set()
+    for idp in identity_providers:
+        for user_group in idp.user_groups:
+            projects.add(user_group.sla.project)
+    d["projects"] = [
+        ProjectCreate(name=random_lower_string(), uuid=p) for p in projects
+    ]
+    with pytest.raises(ValueError, match=msg):
+        ProviderCreateExtended(**d)
 
-# TODO CreateExtended -> IDP projects do not exist or are duplicated
-#                     -> Services' quotas and resources' projects do not exist
-# TODO Update functions in schemas_extended.py
+
+def test_miss_proj_in_idps_in_create_extended(
+    identity_provider_create_ext_schema: IdentityProviderCreateExtended,
+) -> None:
+    d = provider_schema_dict()
+    d["identity_providers"] = [identity_provider_create_ext_schema]
+    with pytest.raises(ValueError, match="not in this provider"):
+        ProviderCreateExtended(**d)
+
+
+# TODO CreateExtended -> Services' quotas and resources' projects do not exist
 # TODO Test all read classes

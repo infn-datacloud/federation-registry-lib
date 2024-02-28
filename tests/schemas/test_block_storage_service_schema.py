@@ -140,7 +140,6 @@ def test_create_extended(quotas: List[BlockStorageQuotaCreateExtended]) -> None:
 def test_invalid_create_extended(
     quotas: List[BlockStorageQuotaCreateExtended], msg: str
 ) -> None:
-    assert issubclass(BlockStorageServiceCreateExtended, BlockStorageServiceCreate)
     d = block_storage_service_schema_dict()
     d["quotas"] = quotas
     with pytest.raises(ValueError, match=msg):

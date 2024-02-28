@@ -206,7 +206,6 @@ def test_create_extended(
 def test_invalid_create_extended(
     attr: str, values: List[ComputeQuotaCreateExtended], msg: str
 ) -> None:
-    assert issubclass(ComputeServiceCreateExtended, ComputeServiceCreate)
     d = compute_service_schema_dict()
     d[attr] = values
     with pytest.raises(ValueError, match=msg):

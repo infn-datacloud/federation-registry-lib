@@ -172,7 +172,6 @@ def test_create_extended(
 def test_invalid_create_extended(
     attr: str, values: List[NetworkQuotaCreateExtended], msg: str
 ) -> None:
-    assert issubclass(NetworkServiceCreateExtended, NetworkServiceCreate)
     d = network_service_schema_dict()
     d[attr] = values
     with pytest.raises(ValueError, match=msg):

@@ -168,7 +168,6 @@ def test_create_extended(projects: List[UUID]) -> None:
     "projects, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
 )
 def test_invalid_create_extended(projects: List[UUID], msg: str) -> None:
-    assert issubclass(ImageCreateExtended, ImageCreate)
     d = image_schema_dict()
     if len(projects) == 0 or len(projects) == 2:
         d["is_public"] = False

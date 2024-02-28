@@ -100,7 +100,6 @@ def test_create_extended(sla_create_ext_schema: SLACreateExtended) -> None:
 
 
 def test_invalid_create_extended() -> None:
-    assert issubclass(UserGroupCreateExtended, UserGroupCreate)
     d = user_group_schema_dict()
     with pytest.raises(ValueError):
         UserGroupCreateExtended(**d)

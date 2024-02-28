@@ -844,11 +844,11 @@ class ProviderCreateExtended(ProviderCreate):
         regions (list of RegionCreateExtended): Supplied regions.
     """
 
-    identity_providers: List[IdentityProviderCreateExtended] = Field(
-        default_factory=list, description=DOC_EXT_IDP
-    )
     projects: List[ProjectCreate] = Field(
         default_factory=list, description=DOC_EXT_PROJ
+    )
+    identity_providers: List[IdentityProviderCreateExtended] = Field(
+        default_factory=list, description=DOC_EXT_IDP
     )
     regions: List[RegionCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_REG
@@ -880,8 +880,11 @@ class ProviderCreateExtended(ProviderCreate):
         find_duplicates(v, "name")
         return v
 
-    @root_validator
-    def check_idp_projects_exist(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    @validator("identity_providers")
+    @classmethod
+    def check_idp_projects_exist(
+        cls, v: List[IdentityProviderCreateExtended], values: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Verify SLA and Projects relations.
 
         Check that an SLA is not used by multiple user groups.
@@ -889,22 +892,19 @@ class ProviderCreateExtended(ProviderCreate):
         """
         projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
         seen = set()
-        identity_providers: List[IdentityProviderCreateExtended] = values.get(
-            "identity_providers", []
-        )
-        for identity_provider in identity_providers:
+        for identity_provider in v:
             for user_group in identity_provider.user_groups:
-                assert (
-                    user_group.sla.doc_uuid not in seen
-                ), f"SLA {user_group.sla.doc_uuid} already used by another user group"
+                msg = f"SLA {user_group.sla.doc_uuid} "
+                msg += "already used by another user group"
+                assert user_group.sla.doc_uuid not in seen, msg
+
                 seen.add(user_group.sla.doc_uuid)
 
-                msg = (
-                    f"SLA {user_group.sla.doc_uuid}'s project {user_group.sla.project} "
-                )
+                msg = f"SLA {user_group.sla.doc_uuid}'s "
+                msg += f"project {user_group.sla.project} "
                 msg += f"not in this provider: {projects}"
                 assert user_group.sla.project in projects, msg
-        return values
+        return v
 
     @root_validator
     def check_block_storage_serv_projs_exist(

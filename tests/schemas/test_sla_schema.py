@@ -120,7 +120,6 @@ def test_create_extended() -> None:
 
 
 def test_invalid_create_extended() -> None:
-    assert issubclass(SLACreateExtended, SLACreate)
     d = sla_schema_dict()
     with pytest.raises(ValueError):
         SLACreateExtended(**d)

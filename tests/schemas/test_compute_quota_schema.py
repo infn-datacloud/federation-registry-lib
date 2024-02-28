@@ -88,7 +88,6 @@ def test_create_extended() -> None:
 
 
 def test_invalid_create_extended() -> None:
-    assert issubclass(ComputeQuotaCreateExtended, ComputeQuotaCreate)
     d = {}
     with pytest.raises(ValueError):
         ComputeQuotaCreateExtended(**d)
