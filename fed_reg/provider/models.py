@@ -42,7 +42,7 @@ class Provider(StructuredNode):
     type = StringProperty(required=True)
     status = StringProperty()
     is_public = BooleanProperty(default=False)
-    support_emails = ArrayProperty(StringProperty())
+    support_emails = ArrayProperty(StringProperty(), default=[])
 
     projects = RelationshipTo(
         "fed_reg.project.models.Project",

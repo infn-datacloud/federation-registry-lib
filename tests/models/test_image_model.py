@@ -60,7 +60,7 @@ def test_default_attr() -> None:
     assert item.kernel_id is None
     assert item.cuda_support is False
     assert item.gpu_driver is False
-    assert item.tags is None
+    assert item.tags == []
     assert isinstance(item.projects, RelationshipManager)
     assert isinstance(item.services, RelationshipManager)
 

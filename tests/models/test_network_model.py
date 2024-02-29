@@ -59,7 +59,7 @@ def test_default_attr() -> None:
     assert item.mtu is None
     assert item.proxy_ip is None
     assert item.proxy_user is None
-    assert item.tags is None
+    assert item.tags == []
     assert isinstance(item.project, RelationshipManager)
     assert isinstance(item.service, RelationshipManager)
 

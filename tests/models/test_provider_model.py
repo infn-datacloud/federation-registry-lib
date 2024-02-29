@@ -47,7 +47,7 @@ def test_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.is_public is False
     assert item.status is None
-    assert item.support_emails is None
+    assert item.support_emails == []
     assert isinstance(item.projects, RelationshipManager)
     assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.identity_providers, RelationshipManager)

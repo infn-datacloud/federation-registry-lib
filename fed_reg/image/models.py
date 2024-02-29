@@ -52,7 +52,7 @@ class Image(StructuredNode):
     # TODO Understand what does it mean and add to documentation
     gpu_driver = BooleanProperty(default=False)
     is_public = BooleanProperty(default=True)
-    tags = ArrayProperty(StringProperty())
+    tags = ArrayProperty(StringProperty(), default=[])
 
     services = RelationshipFrom(
         "fed_reg.service.models.ComputeService",

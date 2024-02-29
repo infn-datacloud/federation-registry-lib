@@ -50,7 +50,7 @@ class Network(StructuredNode):
     mtu = IntegerProperty()
     proxy_ip = StringProperty()
     proxy_user = StringProperty()
-    tags = ArrayProperty(StringProperty())
+    tags = ArrayProperty(StringProperty(), default=[])
 
     service = RelationshipFrom(
         "fed_reg.service.models.NetworkService",
