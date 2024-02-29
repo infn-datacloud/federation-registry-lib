@@ -1,16 +1,20 @@
 from typing import Any, Literal, Tuple
 
 import pytest
+from pycountry import countries
 from pytest_cases import case, parametrize, parametrize_with_cases
 
+from fed_reg.location.models import Location
 from fed_reg.location.schemas import (
     LocationBase,
     LocationBasePublic,
     LocationCreate,
     LocationQuery,
+    LocationRead,
+    LocationReadPublic,
     LocationUpdate,
 )
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from tests.create_dict import location_schema_dict
 from tests.utils import (
     random_country,
@@ -125,4 +129,55 @@ def test_query() -> None:
     assert issubclass(LocationQuery, BaseNodeQuery)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(location_model: Location, key: str, value: str) -> None:
+    assert issubclass(LocationReadPublic, LocationBasePublic)
+    assert issubclass(LocationReadPublic, BaseNodeRead)
+    assert LocationReadPublic.__config__.orm_mode
+
+    if key:
+        location_model.__setattr__(key, value)
+    item = LocationReadPublic.from_orm(location_model)
+
+    assert item.uid
+    assert item.uid == location_model.uid
+    assert item.description == location_model.description
+    assert item.site == location_model.site
+    assert item.country == location_model.country
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
+def test_invalid_read_public(location_model: Location, key: str, value: str) -> None:
+    location_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        LocationReadPublic.from_orm(location_model)
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_read(location_model: Location, key: str, value: Any) -> None:
+    assert issubclass(LocationRead, LocationBase)
+    assert issubclass(LocationRead, BaseNodeRead)
+    assert LocationRead.__config__.orm_mode
+
+    if key:
+        location_model.__setattr__(key, value)
+    item = LocationRead.from_orm(location_model)
+
+    assert item.uid
+    assert item.uid == location_model.uid
+    assert item.description == location_model.description
+    assert item.site == location_model.site
+    assert item.country == location_model.country
+    assert item.latitude == location_model.latitude
+    assert item.longitude == location_model.longitude
+    assert item.country_code == countries.search_fuzzy(item.country)[0].alpha_3
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+def test_invalid_read(location_model: Location, key: str, value: str) -> None:
+    location_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        LocationRead.from_orm(location_model)
+
+
+# TODO Test read extended classes

@@ -3,13 +3,16 @@ from typing import Any, Literal, Tuple
 import pytest
 from pytest_cases import case, parametrize_with_cases
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import SLACreateExtended, UserGroupCreateExtended
+from fed_reg.user_group.models import UserGroup
 from fed_reg.user_group.schemas import (
     UserGroupBase,
     UserGroupBasePublic,
     UserGroupCreate,
     UserGroupQuery,
+    UserGroupRead,
+    UserGroupReadPublic,
     UserGroupUpdate,
 )
 from tests.create_dict import user_group_schema_dict
@@ -105,4 +108,50 @@ def test_invalid_create_extended() -> None:
         UserGroupCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(user_group_model: UserGroup, key: str, value: str) -> None:
+    assert issubclass(UserGroupReadPublic, UserGroupBasePublic)
+    assert issubclass(UserGroupReadPublic, BaseNodeRead)
+    assert UserGroupReadPublic.__config__.orm_mode
+
+    if key:
+        user_group_model.__setattr__(key, value)
+    item = UserGroupReadPublic.from_orm(user_group_model)
+
+    assert item.uid
+    assert item.uid == user_group_model.uid
+    assert item.description == user_group_model.description
+    assert item.name == user_group_model.name
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
+def test_invalid_read_public(user_group_model: UserGroup, key: str, value: str) -> None:
+    user_group_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        UserGroupReadPublic.from_orm(user_group_model)
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_read(user_group_model: UserGroup, key: str, value: Any) -> None:
+    assert issubclass(UserGroupRead, UserGroupBase)
+    assert issubclass(UserGroupRead, BaseNodeRead)
+    assert UserGroupRead.__config__.orm_mode
+
+    if key:
+        user_group_model.__setattr__(key, value)
+    item = UserGroupRead.from_orm(user_group_model)
+
+    assert item.uid
+    assert item.uid == user_group_model.uid
+    assert item.description == user_group_model.description
+    assert item.name == user_group_model.name
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+def test_invalid_read(user_group_model: UserGroup, key: str, value: str) -> None:
+    user_group_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        UserGroupRead.from_orm(user_group_model)
+
+
+# TODO Test read extended classes

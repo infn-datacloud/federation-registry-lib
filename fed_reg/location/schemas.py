@@ -133,7 +133,7 @@ class LocationRead(BaseNodeRead, LocationBase):
     @classmethod
     def get_country_code(cls, v: Optional[str], values: Dict[str, Any]) -> str:
         """From country retrieve country code."""
-        if not v:
+        if not v and values.get("country", None):
             matches = countries.search_fuzzy(values.get("country"))
             if len(matches) > 0:
                 return matches[0].alpha_3

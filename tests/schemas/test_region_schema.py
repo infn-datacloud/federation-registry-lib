@@ -4,18 +4,21 @@ import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.location.schemas import LocationCreate
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
     RegionCreateExtended,
 )
+from fed_reg.region.models import Region
 from fed_reg.region.schemas import (
     RegionBase,
     RegionBasePublic,
     RegionCreate,
     RegionQuery,
+    RegionRead,
+    RegionReadPublic,
     RegionUpdate,
 )
 from fed_reg.service.schemas import IdentityServiceCreate
@@ -26,11 +29,11 @@ from tests.utils import random_lower_string, random_url
 
 
 class CaseAttr:
-    @case(tags=["base_public", "update"])
+    @case(tags=["base_public", "base", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
-    @case(tags=["base_public"])
+    @case(tags=["base_public", "base"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
@@ -92,7 +95,7 @@ class CaseAttr:
 
 
 class CaseInvalidAttr:
-    @case(tags=["base_public", "update"])
+    @case(tags=["base_public", "base", "update"])
     def case_attr(self) -> Tuple[Literal["name"], None]:
         return "name", None
 
@@ -157,9 +160,7 @@ def test_invalid_base_public(key: str, value: None) -> None:
         RegionBasePublic(**d)
 
 
-@parametrize_with_cases(
-    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
-)
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
 def test_base(key: str, value: Any) -> None:
     assert issubclass(RegionBase, RegionBasePublic)
     d = region_schema_dict()
@@ -169,11 +170,7 @@ def test_base(key: str, value: Any) -> None:
     assert item.name == d.get("name")
 
 
-@parametrize_with_cases(
-    "key, value",
-    cases=CaseInvalidAttr,
-    filter=lambda f: not f.has_tag("create_extended"),
-)
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
 def test_invalid_base(key: str, value: Any) -> None:
     d = region_schema_dict()
     d[key] = value
@@ -242,4 +239,50 @@ def test_invalid_create_extended(
         RegionCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(region_model: Region, key: str, value: str) -> None:
+    assert issubclass(RegionReadPublic, RegionBasePublic)
+    assert issubclass(RegionReadPublic, BaseNodeRead)
+    assert RegionReadPublic.__config__.orm_mode
+
+    if key:
+        region_model.__setattr__(key, value)
+    item = RegionReadPublic.from_orm(region_model)
+
+    assert item.uid
+    assert item.uid == region_model.uid
+    assert item.description == region_model.description
+    assert item.name == region_model.name
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
+def test_invalid_read_public(region_model: Region, key: str, value: str) -> None:
+    region_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        RegionReadPublic.from_orm(region_model)
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+def test_read(region_model: Region, key: str, value: Any) -> None:
+    assert issubclass(RegionRead, RegionBase)
+    assert issubclass(RegionRead, BaseNodeRead)
+    assert RegionRead.__config__.orm_mode
+
+    if key:
+        region_model.__setattr__(key, value)
+    item = RegionRead.from_orm(region_model)
+
+    assert item.uid
+    assert item.uid == region_model.uid
+    assert item.description == region_model.description
+    assert item.name == region_model.name
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
+def test_invalid_read(region_model: Region, key: str, value: str) -> None:
+    region_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        RegionRead.from_orm(region_model)
+
+
+# TODO Test read extended classes

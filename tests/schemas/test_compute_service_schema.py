@@ -4,7 +4,7 @@ from uuid import uuid4
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import (
     ComputeQuotaCreateExtended,
     ComputeServiceCreateExtended,
@@ -12,10 +12,13 @@ from fed_reg.provider.schemas_extended import (
     ImageCreateExtended,
 )
 from fed_reg.service.enum import ComputeServiceName, ServiceType
+from fed_reg.service.models import ComputeService
 from fed_reg.service.schemas import (
     ComputeServiceBase,
     ComputeServiceCreate,
     ComputeServiceQuery,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
     ComputeServiceUpdate,
     ServiceBase,
 )
@@ -28,13 +31,15 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["update"])
+    @case(tags=["base_public", "base", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
+    @case(tags=["base_public", "base"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
+    @case(tags=["base"])
     @parametrize(value=[i for i in ComputeServiceName])
     def case_name(self, value: int) -> Tuple[Literal["name"], int]:
         return "name", value
@@ -91,14 +96,16 @@ class CaseAttr:
 
 
 class CaseInvalidAttr:
-    @case(tags=["update"])
+    @case(tags=["base", "update"])
     @parametrize(attr=["endpoint", "name"])
     def case_none(self, attr: str) -> Tuple[str, None]:
         return attr, None
 
+    @case(tags=["base"])
     def case_endpoint(self) -> Tuple[Literal["endpoint"], None]:
         return "endpoint", random_lower_string()
 
+    @case(tags=["base"])
     @parametrize(value=[i for i in ServiceType if i != ServiceType.COMPUTE])
     def case_type(self, value: ServiceType) -> Tuple[Literal["type"], ServiceType]:
         return "type", value
@@ -136,9 +143,7 @@ class CaseInvalidAttr:
         )
 
 
-@parametrize_with_cases(
-    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
-)
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
 def test_base(key: str, value: Any) -> None:
     assert issubclass(ComputeServiceBase, ServiceBase)
     d = compute_service_schema_dict()
@@ -150,11 +155,7 @@ def test_base(key: str, value: Any) -> None:
     assert item.name == d.get("name").value
 
 
-@parametrize_with_cases(
-    "key, value",
-    cases=CaseInvalidAttr,
-    filter=lambda f: not f.has_tag("create_extended"),
-)
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
 def test_invalid_base(key: str, value: Any) -> None:
     d = compute_service_schema_dict()
     d[key] = value
@@ -214,4 +215,51 @@ def test_invalid_create_extended(
         ComputeServiceCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(
+    compute_service_model: ComputeService, key: str, value: str
+) -> None:
+    assert issubclass(ComputeServiceReadPublic, ServiceBase)
+    assert issubclass(ComputeServiceReadPublic, BaseNodeRead)
+    assert ComputeServiceReadPublic.__config__.orm_mode
+
+    if key:
+        compute_service_model.__setattr__(key, value)
+    item = ComputeServiceReadPublic.from_orm(compute_service_model)
+
+    assert item.uid
+    assert item.uid == compute_service_model.uid
+    assert item.description == compute_service_model.description
+    assert item.endpoint == compute_service_model.endpoint
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+def test_read(compute_service_model: ComputeService, key: str, value: Any) -> None:
+    assert issubclass(ComputeServiceRead, ComputeServiceBase)
+    assert issubclass(ComputeServiceRead, BaseNodeRead)
+    assert ComputeServiceRead.__config__.orm_mode
+
+    if key:
+        if isinstance(value, ComputeServiceName):
+            value = value.value
+        compute_service_model.__setattr__(key, value)
+    item = ComputeServiceRead.from_orm(compute_service_model)
+
+    assert item.uid
+    assert item.uid == compute_service_model.uid
+    assert item.description == compute_service_model.description
+    assert item.endpoint == compute_service_model.endpoint
+    assert item.type == compute_service_model.type
+    assert item.name == compute_service_model.name
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
+def test_invalid_read(
+    compute_service_model: ComputeService, key: str, value: str
+) -> None:
+    compute_service_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        ComputeServiceRead.from_orm(compute_service_model)
+
+
+# TODO Test read extended classes

@@ -5,14 +5,17 @@ import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.auth_method.schemas import AuthMethodCreate
+from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.identity_provider.schemas import (
     IdentityProviderBase,
     IdentityProviderBasePublic,
     IdentityProviderCreate,
     IdentityProviderQuery,
+    IdentityProviderRead,
+    IdentityProviderReadPublic,
     IdentityProviderUpdate,
 )
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import (
     IdentityProviderCreateExtended,
     SLACreateExtended,
@@ -28,14 +31,15 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["base_public", "update"])
+    @case(tags=["base_public", "base", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
-    @case(tags=["base_public"])
+    @case(tags=["base_public", "base"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
+    @case(tags=["base"])
     def case_group_claim(self) -> Tuple[Literal["group_claim"], str]:
         return "group_claim", random_lower_string()
 
@@ -133,9 +137,7 @@ def test_invalid_base_public(key: str, value: None) -> None:
         IdentityProviderBasePublic(**d)
 
 
-@parametrize_with_cases(
-    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
-)
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
 def test_base(key: str, value: Any) -> None:
     assert issubclass(IdentityProviderBase, IdentityProviderBasePublic)
     d = identity_provider_schema_dict()
@@ -146,11 +148,7 @@ def test_base(key: str, value: Any) -> None:
     assert item.group_claim == d.get("group_claim")
 
 
-@parametrize_with_cases(
-    "key, value",
-    cases=CaseInvalidAttr,
-    filter=lambda f: not f.has_tag("create_extended"),
-)
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
 def test_invalid_base(key: str, value: Any) -> None:
     d = identity_provider_schema_dict()
     d[key] = value
@@ -210,4 +208,57 @@ def test_invalid_create_extended(
         IdentityProviderCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(
+    identity_provider_model: IdentityProvider, key: str, value: str
+) -> None:
+    assert issubclass(IdentityProviderReadPublic, IdentityProviderBasePublic)
+    assert issubclass(IdentityProviderReadPublic, BaseNodeRead)
+    assert IdentityProviderReadPublic.__config__.orm_mode
+
+    if key:
+        identity_provider_model.__setattr__(key, value)
+    item = IdentityProviderReadPublic.from_orm(identity_provider_model)
+
+    assert item.uid
+    assert item.uid == identity_provider_model.uid
+    assert item.description == identity_provider_model.description
+    assert item.endpoint == identity_provider_model.endpoint
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
+def test_invalid_read_public(
+    identity_provider_model: IdentityProvider, key: str, value: str
+) -> None:
+    identity_provider_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        IdentityProviderReadPublic.from_orm(identity_provider_model)
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+def test_read(identity_provider_model: IdentityProvider, key: str, value: Any) -> None:
+    assert issubclass(IdentityProviderRead, IdentityProviderBase)
+    assert issubclass(IdentityProviderRead, BaseNodeRead)
+    assert IdentityProviderRead.__config__.orm_mode
+
+    if key:
+        identity_provider_model.__setattr__(key, value)
+    item = IdentityProviderRead.from_orm(identity_provider_model)
+
+    assert item.uid
+    assert item.uid == identity_provider_model.uid
+    assert item.description == identity_provider_model.description
+    assert item.endpoint == identity_provider_model.endpoint
+    assert item.group_claim == identity_provider_model.group_claim
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
+def test_invalid_read(
+    identity_provider_model: IdentityProvider, key: str, value: str
+) -> None:
+    identity_provider_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        IdentityProviderRead.from_orm(identity_provider_model)
+
+
+# TODO Test read extended classes

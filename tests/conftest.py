@@ -44,27 +44,32 @@ from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
 from tests.create_dict import (
     auth_method_dict,
+    block_storage_quota_model_dict,
+    block_storage_service_model_dict,
     block_storage_service_schema_dict,
+    compute_quota_model_dict,
+    compute_service_model_dict,
     compute_service_schema_dict,
     flavor_model_dict,
     flavor_schema_dict,
     identity_provider_model_dict,
     identity_provider_schema_dict,
+    identity_service_model_dict,
     identity_service_schema_dict,
     image_model_dict,
     image_schema_dict,
     location_model_dict,
     location_schema_dict,
     network_model_dict,
+    network_quota_model_dict,
     network_schema_dict,
+    network_service_model_dict,
     network_service_schema_dict,
     project_model_dict,
     project_schema_dict,
     provider_model_dict,
-    quota_model_dict,
     region_model_dict,
     region_schema_dict,
-    service_model_dict,
     sla_model_dict,
     sla_schema_dict,
     user_group_model_dict,
@@ -205,7 +210,7 @@ def provider_model(db_core: MagicMock) -> Provider:
 
 @pytest.fixture
 def block_storage_quota_model(db_core: MagicMock) -> BlockStorageQuota:
-    d = quota_model_dict()
+    d = block_storage_quota_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{BLOCK_STORAGE_QUOTA_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=BLOCK_STORAGE_QUOTA_ID, properties=d)]],
@@ -216,7 +221,7 @@ def block_storage_quota_model(db_core: MagicMock) -> BlockStorageQuota:
 
 @pytest.fixture
 def compute_quota_model(db_core: MagicMock) -> ComputeQuota:
-    d = quota_model_dict()
+    d = compute_quota_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{COMPUTE_QUOTA_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=COMPUTE_QUOTA_ID, properties=d)]],
@@ -227,7 +232,7 @@ def compute_quota_model(db_core: MagicMock) -> ComputeQuota:
 
 @pytest.fixture
 def network_quota_model(db_core: MagicMock) -> NetworkQuota:
-    d = quota_model_dict()
+    d = network_quota_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{NETWORK_QUOTA_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=NETWORK_QUOTA_ID, properties=d)]],
@@ -249,7 +254,7 @@ def region_model(db_core: MagicMock) -> Region:
 
 @pytest.fixture
 def block_storage_service_model(db_core: MagicMock) -> BlockStorageService:
-    d = service_model_dict()
+    d = block_storage_service_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{BLOCK_STORAGE_SERVICE_ID}"
     db_core.cypher_query.return_value = (
         [
@@ -269,7 +274,7 @@ def block_storage_service_model(db_core: MagicMock) -> BlockStorageService:
 
 @pytest.fixture
 def compute_service_model(db_core: MagicMock) -> ComputeService:
-    d = service_model_dict()
+    d = compute_service_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{COMPUTE_SERVICE_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=COMPUTE_SERVICE_ID, properties=d)]],
@@ -280,7 +285,7 @@ def compute_service_model(db_core: MagicMock) -> ComputeService:
 
 @pytest.fixture
 def identity_service_model(db_core: MagicMock) -> IdentityService:
-    d = service_model_dict()
+    d = identity_service_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{IDENTITY_SERVICE_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=IDENTITY_SERVICE_ID, properties=d)]],
@@ -291,7 +296,7 @@ def identity_service_model(db_core: MagicMock) -> IdentityService:
 
 @pytest.fixture
 def network_service_model(db_core: MagicMock) -> NetworkService:
-    d = service_model_dict()
+    d = network_service_model_dict()
     element_id = f"{db_core.database_version}:{uuid4().hex}:{NETWORK_SERVICE_ID}"
     db_core.cypher_query.return_value = (
         [[Node(..., element_id=element_id, id_=NETWORK_SERVICE_ID, properties=d)]],

@@ -4,13 +4,16 @@ from uuid import uuid4
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import SLACreateExtended
+from fed_reg.sla.models import SLA
 from fed_reg.sla.schemas import (
     SLABase,
     SLABasePublic,
     SLACreate,
     SLAQuery,
+    SLARead,
+    SLAReadPublic,
     SLAUpdate,
 )
 from tests.create_dict import sla_schema_dict
@@ -125,4 +128,57 @@ def test_invalid_create_extended() -> None:
         SLACreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(sla_model: SLA, key: str, value: str) -> None:
+    assert issubclass(SLAReadPublic, SLABasePublic)
+    assert issubclass(SLAReadPublic, BaseNodeRead)
+    assert SLAReadPublic.__config__.orm_mode
+
+    if key:
+        sla_model.__setattr__(key, value)
+    item = SLAReadPublic.from_orm(sla_model)
+
+    assert item.uid
+    assert item.uid == sla_model.uid
+    assert item.description == sla_model.description
+    assert item.doc_uuid == sla_model.doc_uuid
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
+def test_invalid_read_public(sla_model: SLA, key: str, value: str) -> None:
+    sla_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        SLAReadPublic.from_orm(sla_model)
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_read(sla_model: SLA, key: str, value: Any) -> None:
+    assert issubclass(SLARead, SLABase)
+    assert issubclass(SLARead, BaseNodeRead)
+    assert SLARead.__config__.orm_mode
+
+    if key:
+        sla_model.__setattr__(key, value)
+    item = SLARead.from_orm(sla_model)
+
+    assert item.uid
+    assert item.uid == sla_model.uid
+    assert item.description == sla_model.description
+    assert item.doc_uuid == sla_model.doc_uuid
+    assert item.start_date == sla_model.start_date
+    assert item.end_date == sla_model.end_date
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+def test_invalid_read(sla_model: SLA, key: str, value: str) -> None:
+    if key == "reversed_dates":
+        tmp = sla_model.end_date
+        sla_model.__setattr__("end_date", sla_model.start_date)
+        sla_model.__setattr__("start_date", tmp)
+    else:
+        sla_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        SLARead.from_orm(sla_model)
+
+
+# TODO Test read extended classes

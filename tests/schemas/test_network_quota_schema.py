@@ -5,13 +5,16 @@ from uuid import uuid4
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import NetworkQuotaCreateExtended
 from fed_reg.quota.enum import QuotaType
+from fed_reg.quota.models import NetworkQuota
 from fed_reg.quota.schemas import (
     NetworkQuotaBase,
     NetworkQuotaCreate,
     NetworkQuotaQuery,
+    NetworkQuotaRead,
+    NetworkQuotaReadPublic,
     NetworkQuotaUpdate,
     QuotaBase,
 )
@@ -19,10 +22,11 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["update"])
+    @case(tags=["base_public", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
+    @case(tags=["base_public"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
@@ -112,4 +116,49 @@ def test_invalid_create_extended() -> None:
         NetworkQuotaCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(network_quota_model: NetworkQuota, key: str, value: str) -> None:
+    assert issubclass(NetworkQuotaReadPublic, QuotaBase)
+    assert issubclass(NetworkQuotaReadPublic, BaseNodeRead)
+    assert NetworkQuotaReadPublic.__config__.orm_mode
+
+    if key:
+        network_quota_model.__setattr__(key, value)
+    item = NetworkQuotaReadPublic.from_orm(network_quota_model)
+
+    assert item.uid
+    assert item.uid == network_quota_model.uid
+    assert item.description == network_quota_model.description
+    assert item.per_user == network_quota_model.per_user
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_read(network_quota_model: NetworkQuota, key: str, value: Any) -> None:
+    assert issubclass(NetworkQuotaRead, NetworkQuotaBase)
+    assert issubclass(NetworkQuotaRead, BaseNodeRead)
+    assert NetworkQuotaRead.__config__.orm_mode
+
+    if key:
+        network_quota_model.__setattr__(key, value)
+    item = NetworkQuotaRead.from_orm(network_quota_model)
+
+    assert item.uid
+    assert item.uid == network_quota_model.uid
+    assert item.description == network_quota_model.description
+    assert item.per_user == network_quota_model.per_user
+    assert item.type == network_quota_model.type
+    assert item.networks == network_quota_model.networks
+    assert item.ports == network_quota_model.ports
+    assert item.public_ips == network_quota_model.public_ips
+    assert item.security_groups == network_quota_model.security_groups
+    assert item.security_group_rules == network_quota_model.security_group_rules
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+def test_invalid_read(network_quota_model: NetworkQuota, key: str, value: str) -> None:
+    network_quota_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        NetworkQuotaRead.from_orm(network_quota_model)
+
+
+# TODO Test read extended classes

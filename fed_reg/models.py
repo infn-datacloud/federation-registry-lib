@@ -36,6 +36,14 @@ class BaseNode(BaseModel):
         """Get value from all the enumeration field values."""
         return v.value if isinstance(v, Enum) else v
 
+    @validator("*", pre=True, always=True)
+    @classmethod
+    def not_none(cls, v: Any, field: fields.ModelField) -> Any:
+        if all((getattr(field, "default", None) is not None, v is None)):
+            return field.default
+        else:
+            return v
+
 
 class BaseNodeCreate(BaseModel):
     """Common validator when updating or creating a node in the DB.

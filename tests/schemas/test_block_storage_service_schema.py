@@ -4,16 +4,19 @@ from uuid import uuid4
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
     BlockStorageServiceCreateExtended,
 )
 from fed_reg.service.enum import BlockStorageServiceName, ServiceType
+from fed_reg.service.models import BlockStorageService
 from fed_reg.service.schemas import (
     BlockStorageServiceBase,
     BlockStorageServiceCreate,
     BlockStorageServiceQuery,
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
     BlockStorageServiceUpdate,
     ServiceBase,
 )
@@ -22,13 +25,15 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["update"])
+    @case(tags=["base_public", "base", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
+    @case(tags=["base_public", "base"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
+    @case(tags=["base"])
     @parametrize(value=[i for i in BlockStorageServiceName])
     def case_name(self, value: int) -> Tuple[Literal["name"], int]:
         return "name", value
@@ -57,14 +62,16 @@ class CaseAttr:
 
 
 class CaseInvalidAttr:
-    @case(tags=["update"])
+    @case(tags=["base", "update"])
     @parametrize(attr=["endpoint", "name"])
     def case_none(self, attr: str) -> Tuple[str, None]:
         return attr, None
 
+    @case(tags=["base"])
     def case_endpoint(self) -> Tuple[Literal["endpoint"], None]:
         return "endpoint", random_lower_string()
 
+    @case(tags=["base"])
     @parametrize(value=[i for i in ServiceType if i != ServiceType.BLOCK_STORAGE])
     def case_type(self, value: ServiceType) -> Tuple[Literal["type"], ServiceType]:
         return "type", value
@@ -79,9 +86,7 @@ class CaseInvalidAttr:
         ], "Multiple quotas on same project"
 
 
-@parametrize_with_cases(
-    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
-)
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
 def test_base(key: str, value: Any) -> None:
     assert issubclass(BlockStorageServiceBase, ServiceBase)
     d = block_storage_service_schema_dict()
@@ -93,11 +98,7 @@ def test_base(key: str, value: Any) -> None:
     assert item.name == d.get("name").value
 
 
-@parametrize_with_cases(
-    "key, value",
-    cases=CaseInvalidAttr,
-    filter=lambda f: not f.has_tag("create_extended"),
-)
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
 def test_invalid_base(key: str, value: Any) -> None:
     d = block_storage_service_schema_dict()
     d[key] = value
@@ -150,4 +151,53 @@ def test_invalid_create_extended(
         BlockStorageServiceCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(
+    block_storage_service_model: BlockStorageService, key: str, value: str
+) -> None:
+    assert issubclass(BlockStorageServiceReadPublic, ServiceBase)
+    assert issubclass(BlockStorageServiceReadPublic, BaseNodeRead)
+    assert BlockStorageServiceReadPublic.__config__.orm_mode
+
+    if key:
+        block_storage_service_model.__setattr__(key, value)
+    item = BlockStorageServiceReadPublic.from_orm(block_storage_service_model)
+
+    assert item.uid
+    assert item.uid == block_storage_service_model.uid
+    assert item.description == block_storage_service_model.description
+    assert item.endpoint == block_storage_service_model.endpoint
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+def test_read(
+    block_storage_service_model: BlockStorageService, key: str, value: Any
+) -> None:
+    assert issubclass(BlockStorageServiceRead, BlockStorageServiceBase)
+    assert issubclass(BlockStorageServiceRead, BaseNodeRead)
+    assert BlockStorageServiceRead.__config__.orm_mode
+
+    if key:
+        if isinstance(value, BlockStorageServiceName):
+            value = value.value
+        block_storage_service_model.__setattr__(key, value)
+    item = BlockStorageServiceRead.from_orm(block_storage_service_model)
+
+    assert item.uid
+    assert item.uid == block_storage_service_model.uid
+    assert item.description == block_storage_service_model.description
+    assert item.endpoint == block_storage_service_model.endpoint
+    assert item.type == block_storage_service_model.type
+    assert item.name == block_storage_service_model.name
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
+def test_invalid_read(
+    block_storage_service_model: BlockStorageService, key: str, value: str
+) -> None:
+    block_storage_service_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        BlockStorageServiceRead.from_orm(block_storage_service_model)
+
+
+# TODO Test read extended classes

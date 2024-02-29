@@ -3,12 +3,15 @@ from typing import Any, Literal, Tuple
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.service.enum import IdentityServiceName, ServiceType
+from fed_reg.service.models import IdentityService
 from fed_reg.service.schemas import (
     IdentityServiceBase,
     IdentityServiceCreate,
     IdentityServiceQuery,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
     IdentityServiceUpdate,
     ServiceBase,
 )
@@ -17,10 +20,11 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["update"])
+    @case(tags=["base_public", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
+    @case(tags=["base_public"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
@@ -87,4 +91,51 @@ def test_query() -> None:
     assert issubclass(IdentityServiceQuery, BaseNodeQuery)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(
+    identity_service_model: IdentityService, key: str, value: str
+) -> None:
+    assert issubclass(IdentityServiceReadPublic, ServiceBase)
+    assert issubclass(IdentityServiceReadPublic, BaseNodeRead)
+    assert IdentityServiceReadPublic.__config__.orm_mode
+
+    if key:
+        identity_service_model.__setattr__(key, value)
+    item = IdentityServiceReadPublic.from_orm(identity_service_model)
+
+    assert item.uid
+    assert item.uid == identity_service_model.uid
+    assert item.description == identity_service_model.description
+    assert item.endpoint == identity_service_model.endpoint
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_read(identity_service_model: IdentityService, key: str, value: Any) -> None:
+    assert issubclass(IdentityServiceRead, IdentityServiceBase)
+    assert issubclass(IdentityServiceRead, BaseNodeRead)
+    assert IdentityServiceRead.__config__.orm_mode
+
+    if key:
+        if isinstance(value, IdentityServiceName):
+            value = value.value
+        identity_service_model.__setattr__(key, value)
+    item = IdentityServiceRead.from_orm(identity_service_model)
+
+    assert item.uid
+    assert item.uid == identity_service_model.uid
+    assert item.description == identity_service_model.description
+    assert item.endpoint == identity_service_model.endpoint
+    assert item.type == identity_service_model.type
+    assert item.name == identity_service_model.name
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+def test_invalid_read(
+    identity_service_model: IdentityService, key: str, value: str
+) -> None:
+    identity_service_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        IdentityServiceRead.from_orm(identity_service_model)
+
+
+# TODO Test read extended classes

@@ -5,14 +5,17 @@ import pytest
 from pydantic import EmailStr
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.project.schemas import ProjectCreate
 from fed_reg.provider.enum import ProviderStatus, ProviderType
+from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas import (
     ProviderBase,
     ProviderBasePublic,
     ProviderCreate,
     ProviderQuery,
+    ProviderRead,
+    ProviderReadPublic,
     ProviderUpdate,
 )
 from fed_reg.provider.schemas_extended import (
@@ -42,29 +45,32 @@ from tests.utils import random_email, random_lower_string, random_url
 
 
 class CaseAttr:
-    @case(tags=["base_public", "update"])
+    @case(tags=["base_public", "base", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
-    @case(tags=["base_public"])
+    @case(tags=["base_public", "base"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
-    @case(tags=["base_public"])
+    @case(tags=["base_public", "base"])
     @parametrize(value=[i for i in ProviderType])
     def case_type(self, value: ProviderType) -> Tuple[Literal["type"], ProviderType]:
         return "type", value
 
+    @case(tags=["base"])
     @parametrize(value=[True, False])
     def case_is_public(self, value: bool) -> Tuple[Literal["is_public"], bool]:
         return "is_public", value
 
+    @case(tags=["base"])
     @parametrize(value=[i for i in ProviderStatus])
     def case_status(
         self, value: ProviderStatus
     ) -> Tuple[Literal["status"], ProviderStatus]:
         return "status", value
 
+    @case(tags=["base"])
     @parametrize(len=[0, 1, 2])
     def case_email_list(
         self, len: int
@@ -128,18 +134,20 @@ class CaseAttr:
 
 
 class CaseInvalidAttr:
-    @case(tags=["base_public", "update"])
+    @case(tags=["base_public", "base", "update"])
     @parametrize(attr=["name", "type"])
     def case_attr(self, attr: str) -> Tuple[str, None]:
         return attr, None
 
-    @case(tags=["base_public"])
+    @case(tags=["base_public", "base"])
     def case_type(self) -> Tuple[Literal["type"], str]:
         return "type", random_lower_string()
 
+    @case(tags=["base"])
     def case_status(self) -> Tuple[Literal["status"], str]:
         return "status", random_lower_string()
 
+    @case(tags=["base"])
     def case_email(self) -> Tuple[Literal["support_emails"], List[str]]:
         return "support_emails", [random_lower_string()]
 
@@ -314,13 +322,7 @@ def test_invalid_base_public(key: str, value: None) -> None:
         ProviderBasePublic(**d)
 
 
-@parametrize_with_cases(
-    "key, value",
-    cases=CaseAttr,
-    filter=lambda f: not (
-        f.has_tag("create_extended") or f.has_tag("idps") or f.has_tag("missing")
-    ),
-)
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
 def test_base(key: str, value: Any) -> None:
     assert issubclass(ProviderBase, ProviderBasePublic)
     d = provider_schema_dict()
@@ -334,13 +336,7 @@ def test_base(key: str, value: Any) -> None:
     assert item.support_emails == d.get("support_emails", [])
 
 
-@parametrize_with_cases(
-    "key, value",
-    cases=CaseInvalidAttr,
-    filter=lambda f: not (
-        f.has_tag("create_extended") or f.has_tag("idps") or f.has_tag("missing")
-    ),
-)
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
 def test_invalid_base(key: str, value: Any) -> None:
     d = provider_schema_dict()
     d[key] = value
@@ -459,4 +455,62 @@ def test_miss_proj_in_idps_in_create_extended(
         ProviderCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(provider_model: Provider, key: str, value: str) -> None:
+    assert issubclass(ProviderReadPublic, ProviderBasePublic)
+    assert issubclass(ProviderReadPublic, BaseNodeRead)
+    assert ProviderReadPublic.__config__.orm_mode
+
+    if key:
+        if isinstance(value, ProviderType):
+            value = value.value
+        provider_model.__setattr__(key, value)
+    item = ProviderReadPublic.from_orm(provider_model)
+
+    assert item.uid
+    assert item.uid == provider_model.uid
+    assert item.description == provider_model.description
+    assert item.name == provider_model.name
+    assert item.type == provider_model.type
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
+def test_invalid_read_public(provider_model: Provider, key: str, value: str) -> None:
+    provider_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        ProviderReadPublic.from_orm(provider_model)
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+def test_read(provider_model: Provider, key: str, value: Any) -> None:
+    assert issubclass(ProviderRead, ProviderBase)
+    assert issubclass(ProviderRead, BaseNodeRead)
+    assert ProviderRead.__config__.orm_mode
+
+    if key:
+        if isinstance(value, (ProviderType, ProviderStatus)):
+            value = value.value
+        provider_model.__setattr__(key, value)
+    item = ProviderRead.from_orm(provider_model)
+
+    assert item.uid
+    assert item.uid == provider_model.uid
+    assert item.description == provider_model.description
+    assert item.name == provider_model.name
+    assert item.type == provider_model.type
+    if provider_model.status:
+        assert item.status == provider_model.status
+    else:
+        assert item.status == ProviderStatus.ACTIVE.value
+    assert item.is_public == provider_model.is_public
+    assert item.support_emails == provider_model.support_emails
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
+def test_invalid_read(provider_model: Provider, key: str, value: str) -> None:
+    provider_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        ProviderRead.from_orm(provider_model)
+
+
+# TODO Test read extended classes

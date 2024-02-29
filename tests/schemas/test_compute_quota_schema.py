@@ -5,13 +5,16 @@ from uuid import uuid4
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import ComputeQuotaCreateExtended
 from fed_reg.quota.enum import QuotaType
+from fed_reg.quota.models import ComputeQuota
 from fed_reg.quota.schemas import (
     ComputeQuotaBase,
     ComputeQuotaCreate,
     ComputeQuotaQuery,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
     ComputeQuotaUpdate,
     QuotaBase,
 )
@@ -19,10 +22,11 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["update"])
+    @case(tags=["base_public", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
+    @case(tags=["base_public"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
@@ -93,4 +97,47 @@ def test_invalid_create_extended() -> None:
         ComputeQuotaCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(compute_quota_model: ComputeQuota, key: str, value: str) -> None:
+    assert issubclass(ComputeQuotaReadPublic, QuotaBase)
+    assert issubclass(ComputeQuotaReadPublic, BaseNodeRead)
+    assert ComputeQuotaReadPublic.__config__.orm_mode
+
+    if key:
+        compute_quota_model.__setattr__(key, value)
+    item = ComputeQuotaReadPublic.from_orm(compute_quota_model)
+
+    assert item.uid
+    assert item.uid == compute_quota_model.uid
+    assert item.description == compute_quota_model.description
+    assert item.per_user == compute_quota_model.per_user
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_read(compute_quota_model: ComputeQuota, key: str, value: Any) -> None:
+    assert issubclass(ComputeQuotaRead, ComputeQuotaBase)
+    assert issubclass(ComputeQuotaRead, BaseNodeRead)
+    assert ComputeQuotaRead.__config__.orm_mode
+
+    if key:
+        compute_quota_model.__setattr__(key, value)
+    item = ComputeQuotaRead.from_orm(compute_quota_model)
+
+    assert item.uid
+    assert item.uid == compute_quota_model.uid
+    assert item.description == compute_quota_model.description
+    assert item.per_user == compute_quota_model.per_user
+    assert item.type == compute_quota_model.type
+    assert item.cores == compute_quota_model.cores
+    assert item.instances == compute_quota_model.instances
+    assert item.ram == compute_quota_model.ram
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+def test_invalid_read(compute_quota_model: ComputeQuota, key: str, value: str) -> None:
+    compute_quota_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        ComputeQuotaRead.from_orm(compute_quota_model)
+
+
+# TODO Test read extended classes

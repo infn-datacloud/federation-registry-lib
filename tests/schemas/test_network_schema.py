@@ -5,12 +5,15 @@ from uuid import UUID, uuid4
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from fed_reg.network.models import Network
 from fed_reg.network.schemas import (
     NetworkBase,
     NetworkBasePublic,
     NetworkCreate,
     NetworkQuery,
+    NetworkRead,
+    NetworkReadPublic,
     NetworkUpdate,
 )
 from fed_reg.provider.schemas_extended import NetworkCreateExtended
@@ -19,27 +22,31 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["base_public", "update"])
+    @case(tags=["base_public", "base", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
-    @case(tags=["base_public"])
+    @case(tags=["base_public", "base"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
+    @case(tags=["base"])
     @parametrize(attr=["mtu"])
     def case_integer(self, attr: str) -> Tuple[str, int]:
         return attr, randint(0, 100)
 
+    @case(tags=["base"])
     @parametrize(value=[True, False])
     @parametrize(attr=["is_shared", "is_router_external", "is_default"])
     def case_boolean(self, attr: str, value: bool) -> Tuple[str, bool]:
         return attr, value
 
+    @case(tags=["base"])
     @parametrize(attr=["proxy_ip", "proxy_user"])
     def case_string(self, attr: str) -> Tuple[str, str]:
         return attr, random_lower_string()
 
+    @case(tags=["base"])
     @parametrize(len=[0, 1, 2])
     def case_tag_list(self, len: int) -> Tuple[Literal["tags"], Optional[List[str]]]:
         attr = "tags"
@@ -57,11 +64,12 @@ class CaseAttr:
 
 
 class CaseInvalidAttr:
-    @case(tags=["base_public", "update"])
+    @case(tags=["base_public", "base", "update"])
     @parametrize(attr=["name", "uuid"])
     def case_attr(self, attr: str) -> Tuple[str, None]:
         return attr, None
 
+    @case(tags=["base"])
     @parametrize(attr=["mtu"])
     def case_integer(self, attr: str) -> Tuple[str, Literal[-1]]:
         return attr, -1
@@ -95,9 +103,7 @@ def test_invalid_base_public(key: str, value: None) -> None:
         NetworkBasePublic(**d)
 
 
-@parametrize_with_cases(
-    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
-)
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
 def test_base(key: str, value: Any) -> None:
     assert issubclass(NetworkBase, NetworkBasePublic)
     d = network_schema_dict()
@@ -115,11 +121,7 @@ def test_base(key: str, value: Any) -> None:
     assert item.tags == d.get("tags", [])
 
 
-@parametrize_with_cases(
-    "key, value",
-    cases=CaseInvalidAttr,
-    filter=lambda f: not f.has_tag("create_extended"),
-)
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
 def test_invalid_base(key: str, value: Any) -> None:
     d = network_schema_dict()
     d[key] = value
@@ -171,4 +173,59 @@ def test_invalid_create_extended(project: Optional[UUID], msg: str) -> None:
         NetworkCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(network_model: Network, key: str, value: str) -> None:
+    assert issubclass(NetworkReadPublic, NetworkBasePublic)
+    assert issubclass(NetworkReadPublic, BaseNodeRead)
+    assert NetworkReadPublic.__config__.orm_mode
+
+    if key:
+        network_model.__setattr__(key, value)
+    item = NetworkReadPublic.from_orm(network_model)
+
+    assert item.uid
+    assert item.uid == network_model.uid
+    assert item.description == network_model.description
+    assert item.name == network_model.name
+    assert item.uuid == network_model.uuid
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
+def test_invalid_read_public(network_model: Network, key: str, value: str) -> None:
+    network_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        NetworkReadPublic.from_orm(network_model)
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+def test_read(network_model: Network, key: str, value: Any) -> None:
+    assert issubclass(NetworkRead, NetworkBase)
+    assert issubclass(NetworkRead, BaseNodeRead)
+    assert NetworkRead.__config__.orm_mode
+
+    if key:
+        network_model.__setattr__(key, value)
+    item = NetworkRead.from_orm(network_model)
+
+    assert item.uid
+    assert item.uid == network_model.uid
+    assert item.description == network_model.description
+    assert item.name == network_model.name
+    assert item.uuid == network_model.uuid
+    assert item.is_shared == network_model.is_shared
+    assert item.is_router_external == network_model.is_router_external
+    assert item.is_default == network_model.is_default
+    assert item.mtu == network_model.mtu
+    assert item.proxy_ip == network_model.proxy_ip
+    assert item.proxy_user == network_model.proxy_user
+    assert item.tags == network_model.tags
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
+def test_invalid_read(network_model: Network, key: str, value: str) -> None:
+    network_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        NetworkRead.from_orm(network_model)
+
+
+# TODO Test read extended classes

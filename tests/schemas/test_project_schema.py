@@ -3,12 +3,15 @@ from typing import Any, Literal, Tuple
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from fed_reg.project.models import Project
 from fed_reg.project.schemas import (
     ProjectBase,
     ProjectBasePublic,
     ProjectCreate,
     ProjectQuery,
+    ProjectRead,
+    ProjectReadPublic,
     ProjectUpdate,
 )
 from tests.create_dict import project_schema_dict
@@ -94,4 +97,52 @@ def test_query() -> None:
     assert issubclass(ProjectQuery, BaseNodeQuery)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(project_model: Project, key: str, value: str) -> None:
+    assert issubclass(ProjectReadPublic, ProjectBasePublic)
+    assert issubclass(ProjectReadPublic, BaseNodeRead)
+    assert ProjectReadPublic.__config__.orm_mode
+
+    if key:
+        project_model.__setattr__(key, value)
+    item = ProjectReadPublic.from_orm(project_model)
+
+    assert item.uid
+    assert item.uid == project_model.uid
+    assert item.description == project_model.description
+    assert item.name == project_model.name
+    assert item.uuid == project_model.uuid
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
+def test_invalid_read_public(project_model: Project, key: str, value: str) -> None:
+    project_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        ProjectReadPublic.from_orm(project_model)
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_read(project_model: Project, key: str, value: Any) -> None:
+    assert issubclass(ProjectRead, ProjectBase)
+    assert issubclass(ProjectRead, BaseNodeRead)
+    assert ProjectRead.__config__.orm_mode
+
+    if key:
+        project_model.__setattr__(key, value)
+    item = ProjectRead.from_orm(project_model)
+
+    assert item.uid
+    assert item.uid == project_model.uid
+    assert item.description == project_model.description
+    assert item.name == project_model.name
+    assert item.uuid == project_model.uuid
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+def test_invalid_read(project_model: Project, key: str, value: str) -> None:
+    project_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        ProjectRead.from_orm(project_model)
+
+
+# TODO Test read extended classes

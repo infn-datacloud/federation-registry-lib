@@ -4,17 +4,20 @@ from uuid import uuid4
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import (
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
 )
 from fed_reg.service.enum import NetworkServiceName, ServiceType
+from fed_reg.service.models import NetworkService
 from fed_reg.service.schemas import (
     NetworkServiceBase,
     NetworkServiceCreate,
     NetworkServiceQuery,
+    NetworkServiceRead,
+    NetworkServiceReadPublic,
     NetworkServiceUpdate,
     ServiceBase,
 )
@@ -23,13 +26,15 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["update"])
+    @case(tags=["base_public", "base", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
+    @case(tags=["base_public", "base"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
+    @case(tags=["base"])
     @parametrize(value=[i for i in NetworkServiceName])
     def case_name(self, value: int) -> Tuple[Literal["name"], int]:
         return "name", value
@@ -71,14 +76,16 @@ class CaseAttr:
 
 
 class CaseInvalidAttr:
-    @case(tags=["update"])
+    @case(tags=["base", "update"])
     @parametrize(attr=["endpoint", "name"])
     def case_none(self, attr: str) -> Tuple[str, None]:
         return attr, None
 
+    @case(tags=["base"])
     def case_endpoint(self) -> Tuple[Literal["endpoint"], None]:
         return "endpoint", random_lower_string()
 
+    @case(tags=["base"])
     @parametrize(value=[i for i in ServiceType if i != ServiceType.NETWORK])
     def case_type(self, value: ServiceType) -> Tuple[Literal["type"], ServiceType]:
         return "type", value
@@ -104,9 +111,7 @@ class CaseInvalidAttr:
         )
 
 
-@parametrize_with_cases(
-    "key, value", cases=CaseAttr, filter=lambda f: not f.has_tag("create_extended")
-)
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
 def test_base(key: str, value: Any) -> None:
     assert issubclass(NetworkServiceBase, ServiceBase)
     d = network_service_schema_dict()
@@ -118,11 +123,7 @@ def test_base(key: str, value: Any) -> None:
     assert item.name == d.get("name").value
 
 
-@parametrize_with_cases(
-    "key, value",
-    cases=CaseInvalidAttr,
-    filter=lambda f: not f.has_tag("create_extended"),
-)
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
 def test_invalid_base(key: str, value: Any) -> None:
     d = network_service_schema_dict()
     d[key] = value
@@ -178,4 +179,51 @@ def test_invalid_create_extended(
         NetworkServiceCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(
+    network_service_model: NetworkService, key: str, value: str
+) -> None:
+    assert issubclass(NetworkServiceReadPublic, ServiceBase)
+    assert issubclass(NetworkServiceReadPublic, BaseNodeRead)
+    assert NetworkServiceReadPublic.__config__.orm_mode
+
+    if key:
+        network_service_model.__setattr__(key, value)
+    item = NetworkServiceReadPublic.from_orm(network_service_model)
+
+    assert item.uid
+    assert item.uid == network_service_model.uid
+    assert item.description == network_service_model.description
+    assert item.endpoint == network_service_model.endpoint
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+def test_read(network_service_model: NetworkService, key: str, value: Any) -> None:
+    assert issubclass(NetworkServiceRead, NetworkServiceBase)
+    assert issubclass(NetworkServiceRead, BaseNodeRead)
+    assert NetworkServiceRead.__config__.orm_mode
+
+    if key:
+        if isinstance(value, NetworkServiceName):
+            value = value.value
+        network_service_model.__setattr__(key, value)
+    item = NetworkServiceRead.from_orm(network_service_model)
+
+    assert item.uid
+    assert item.uid == network_service_model.uid
+    assert item.description == network_service_model.description
+    assert item.endpoint == network_service_model.endpoint
+    assert item.type == network_service_model.type
+    assert item.name == network_service_model.name
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
+def test_invalid_read(
+    network_service_model: NetworkService, key: str, value: str
+) -> None:
+    network_service_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        NetworkServiceRead.from_orm(network_service_model)
+
+
+# TODO Test read extended classes

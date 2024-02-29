@@ -42,9 +42,10 @@ def test_valid_schema() -> None:
     assert base_node.description == desc
 
 
-def test_invalid_schema() -> None:
-    with pytest.raises(ValueError):
-        BaseNode(description=None)
+def test_not_none() -> None:
+    base_node = BaseNode(description=None)
+    assert base_node.description is not None
+    assert base_node.description == ""
 
 
 def test_get_str_from_uuid() -> None:

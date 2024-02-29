@@ -5,13 +5,16 @@ from uuid import uuid4
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNodeCreate, BaseNodeQuery
+from fed_reg.models import BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import BlockStorageQuotaCreateExtended
 from fed_reg.quota.enum import QuotaType
+from fed_reg.quota.models import BlockStorageQuota
 from fed_reg.quota.schemas import (
     BlockStorageQuotaBase,
     BlockStorageQuotaCreate,
     BlockStorageQuotaQuery,
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
     BlockStorageQuotaUpdate,
     QuotaBase,
 )
@@ -19,10 +22,11 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    @case(tags=["update"])
+    @case(tags=["base_public", "update"])
     def case_none(self) -> Tuple[None, None]:
         return None, None
 
+    @case(tags=["base_public"])
     def case_desc(self) -> Tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
@@ -94,4 +98,54 @@ def test_invalid_create_extended() -> None:
         BlockStorageQuotaCreateExtended(**d)
 
 
-# TODO Test all read classes
+@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+def test_read_public(
+    block_storage_quota_model: BlockStorageQuota, key: str, value: str
+) -> None:
+    assert issubclass(BlockStorageQuotaReadPublic, QuotaBase)
+    assert issubclass(BlockStorageQuotaReadPublic, BaseNodeRead)
+    assert BlockStorageQuotaReadPublic.__config__.orm_mode
+
+    if key:
+        block_storage_quota_model.__setattr__(key, value)
+    item = BlockStorageQuotaReadPublic.from_orm(block_storage_quota_model)
+
+    assert item.uid
+    assert item.uid == block_storage_quota_model.uid
+    assert item.description == block_storage_quota_model.description
+    assert item.per_user == block_storage_quota_model.per_user
+
+
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_read(
+    block_storage_quota_model: BlockStorageQuota, key: str, value: Any
+) -> None:
+    assert issubclass(BlockStorageQuotaRead, BlockStorageQuotaBase)
+    assert issubclass(BlockStorageQuotaRead, BaseNodeRead)
+    assert BlockStorageQuotaRead.__config__.orm_mode
+
+    if key:
+        block_storage_quota_model.__setattr__(key, value)
+    print(block_storage_quota_model)
+    item = BlockStorageQuotaRead.from_orm(block_storage_quota_model)
+
+    assert item.uid
+    assert item.uid == block_storage_quota_model.uid
+    assert item.description == block_storage_quota_model.description
+    assert item.per_user == block_storage_quota_model.per_user
+    assert item.type == block_storage_quota_model.type
+    assert item.gigabytes == block_storage_quota_model.gigabytes
+    assert item.per_volume_gigabytes == block_storage_quota_model.per_volume_gigabytes
+    assert item.volumes == block_storage_quota_model.volumes
+
+
+@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
+def test_invalid_read(
+    block_storage_quota_model: BlockStorageQuota, key: str, value: str
+) -> None:
+    block_storage_quota_model.__setattr__(key, value)
+    with pytest.raises(ValueError):
+        BlockStorageQuotaRead.from_orm(block_storage_quota_model)
+
+
+# TODO Test read extended classes
