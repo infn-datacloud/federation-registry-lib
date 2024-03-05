@@ -285,6 +285,15 @@ def identity_provider_neomodel_query(n: int, db: MagicMock):
     return [[i] for i in items], rels
 
 
+def location_neomodel_query(n: int, db: MagicMock):
+    items = []
+    rels = None
+    for _ in range(n):
+        items.append(location_neomodel(db))
+        rels = ["location_r1"]
+    return [[i] for i in items], rels
+
+
 def project_neomodel_query(n: int, db: MagicMock):
     items = []
     rels = None
@@ -300,4 +309,49 @@ def region_neomodel_query(n: int, db: MagicMock):
     for _ in range(n):
         items.append(region_neomodel(db))
         rels = ["regions_r1"]
+    return [[i] for i in items], rels
+
+
+def block_storage_service_neomodel_query(n: int, db: MagicMock):
+    items = []
+    rels = None
+    for _ in range(n):
+        items.append(block_storage_service_neomodel(db))
+        rels = ["block_storage_services_r1"]
+    return [[i] for i in items], rels
+
+
+def compute_service_neomodel_query(n: int, db: MagicMock):
+    items = []
+    rels = None
+    for _ in range(n):
+        items.append(compute_service_neomodel(db))
+        rels = ["compute_services_r1"]
+    return [[i] for i in items], rels
+
+
+def identity_service_neomodel_query(n: int, db: MagicMock):
+    items = []
+    rels = None
+    for _ in range(n):
+        items.append(identity_service_neomodel(db))
+        rels = ["identity_services_r1"]
+    return [[i] for i in items], rels
+
+
+def network_service_neomodel_query(n: int, db: MagicMock):
+    items = []
+    rels = None
+    for _ in range(n):
+        items.append(network_service_neomodel(db))
+        rels = ["network_services_r1"]
+    return [[i] for i in items], rels
+
+
+def user_group_neomodel_query(n: int, db: MagicMock):
+    items = []
+    rels = None
+    for _ in range(n):
+        items.append(user_group_neomodel(db))
+        rels = ["user_groups_r1"]
     return [[i] for i in items], rels

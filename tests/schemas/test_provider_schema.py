@@ -318,10 +318,11 @@ class CaseInvalidAttr:
 
 
 class CaseDBInstance:
+    @case(tags=["provider"])
     @parametrize(tot_proj=[0, 1, 2])
     @parametrize(tot_reg=[0, 1, 2])
     @parametrize(tot_idp=[0, 1, 2])
-    def case_provider_no_relationships(
+    def case_provider(
         self,
         db_core: MagicMock,
         db_match: MagicMock,
@@ -352,6 +353,12 @@ class CaseDBInstance:
         db_match.cypher_query.side_effect = query_call
 
         return provider_model
+
+
+class CasePublic:
+    @parametrize(is_public=[True, False])
+    def case_public(self, is_public: bool):
+        return is_public
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -565,43 +572,31 @@ def test_invalid_read(provider_model: Provider, key: str, value: str) -> None:
         ProviderRead.from_orm(provider_model)
 
 
-@parametrize_with_cases("model", cases=CaseDBInstance)
-def test_read_extended_public(model: Provider) -> None:
-    assert issubclass(ProviderReadExtendedPublic, ProviderReadPublic)
-    assert ProviderReadExtendedPublic.__config__.orm_mode
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="provider")
+@parametrize_with_cases("public", cases=CasePublic)
+def test_read_extended(model: Provider, public: bool) -> None:
+    if public:
+        cls = ProviderReadPublic
+        cls_ext = ProviderReadExtendedPublic
+        idp_cls = IdentityProviderReadExtendedPublic
+        reg_cls = RegionReadExtendedPublic
+        proj_cls = ProjectReadPublic
+    else:
+        cls = ProviderRead
+        cls_ext = ProviderReadExtended
+        idp_cls = IdentityProviderReadExtended
+        reg_cls = RegionReadExtended
+        proj_cls = ProjectRead
 
-    item = ProviderReadExtendedPublic.from_orm(model)
+    assert issubclass(cls_ext, cls)
+    assert cls_ext.__config__.orm_mode
 
-    assert len(item.identity_providers) == len(model.identity_providers.all())
-    assert len(item.projects) == len(model.projects.all())
-    assert len(item.regions) == len(model.regions.all())
-
-    assert all(
-        [
-            isinstance(i, IdentityProviderReadExtendedPublic)
-            for i in item.identity_providers
-        ]
-    )
-    assert all([isinstance(i, ProjectReadPublic) for i in item.projects])
-    assert all([isinstance(i, RegionReadExtendedPublic) for i in item.regions])
-
-
-@parametrize_with_cases("model", cases=CaseDBInstance)
-def test_read_extended(model: Provider) -> None:
-    assert issubclass(ProviderReadExtended, ProviderRead)
-    assert ProviderReadExtended.__config__.orm_mode
-
-    item = ProviderReadExtended.from_orm(model)
+    item = cls_ext.from_orm(model)
 
     assert len(item.identity_providers) == len(model.identity_providers.all())
     assert len(item.projects) == len(model.projects.all())
     assert len(item.regions) == len(model.regions.all())
 
-    assert all(
-        [isinstance(i, IdentityProviderReadExtended) for i in item.identity_providers]
-    )
-    assert all([isinstance(i, ProjectRead) for i in item.projects])
-    assert all([isinstance(i, RegionReadExtended) for i in item.regions])
-
-
-# TODO Test read extended classes
+    assert all([isinstance(i, idp_cls) for i in item.identity_providers])
+    assert all([isinstance(i, proj_cls) for i in item.projects])
+    assert all([isinstance(i, reg_cls) for i in item.regions])
