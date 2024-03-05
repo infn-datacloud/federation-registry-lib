@@ -303,6 +303,15 @@ def project_neomodel_query(n: int, db: MagicMock):
     return [[i] for i in items], rels
 
 
+def provider_neomodel_query(n: int, db: MagicMock):
+    items = []
+    rels = None
+    for _ in range(n):
+        items.append(provider_neomodel(db))
+        rels = ["providers_r1"]
+    return [[i] for i in items], rels
+
+
 def region_neomodel_query(n: int, db: MagicMock):
     items = []
     rels = None

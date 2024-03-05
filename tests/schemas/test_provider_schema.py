@@ -318,7 +318,6 @@ class CaseInvalidAttr:
 
 
 class CaseDBInstance:
-    @case(tags=["provider"])
     @parametrize(tot_proj=[0, 1, 2])
     @parametrize(tot_reg=[0, 1, 2])
     @parametrize(tot_idp=[0, 1, 2])

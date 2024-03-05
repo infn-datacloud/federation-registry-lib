@@ -1,10 +1,12 @@
 from typing import Any, List, Literal, Optional, Tuple, Union
+from unittest.mock import MagicMock
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.location.schemas import LocationCreate
+from fed_reg.location.schemas import LocationCreate, LocationRead, LocationReadPublic
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
@@ -21,9 +23,28 @@ from fed_reg.region.schemas import (
     RegionReadPublic,
     RegionUpdate,
 )
-from fed_reg.service.schemas import IdentityServiceCreate
+from fed_reg.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
+from fed_reg.service.schemas import (
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
+    IdentityServiceCreate,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
+    NetworkServiceRead,
+    NetworkServiceReadPublic,
+)
 from tests.create_dict import (
     region_schema_dict,
+)
+from tests.create_model import (
+    block_storage_service_neomodel_query,
+    compute_service_neomodel_query,
+    identity_service_neomodel_query,
+    location_neomodel_query,
+    network_service_neomodel_query,
+    provider_neomodel_query,
 )
 from tests.utils import random_lower_string, random_url
 
@@ -139,6 +160,162 @@ class CaseInvalidAttr:
             [service, service],
             "There are multiple items with identical endpoint",
         )
+
+
+class CaseDBInstance:
+    @parametrize(tot_loc=[0, 1])
+    def case_location(
+        self,
+        db_core: MagicMock,
+        db_match: MagicMock,
+        db_rel_mgr: MagicMock,
+        region_model: Region,
+        tot_loc: int,
+    ) -> Region:
+        def query_call(query, params, **kwargs) -> Tuple[List, None]:
+            """Mock function to emulate cypher query.
+
+            Response changes based on parametrized value and on executed query.
+            """
+            if "provider_r1" in query:
+                return provider_neomodel_query(1, db_core)
+            if "location_r1" in query:
+                return location_neomodel_query(tot_loc, db_core)
+            return ([], None)
+
+        db_match.cypher_query.side_effect = query_call
+
+        return region_model
+
+    @parametrize(tot_bsto_srv=[0, 1, 2])
+    def case_block_storage_services(
+        self,
+        db_core: MagicMock,
+        db_match: MagicMock,
+        db_rel_mgr: MagicMock,
+        region_model: Region,
+        tot_bsto_srv: int,
+    ) -> Region:
+        def query_call(query, params, **kwargs) -> Tuple[List, None]:
+            """Mock function to emulate cypher query.
+
+            Response changes based on parametrized value and on executed query.
+            """
+            if "provider_r1" in query:
+                return provider_neomodel_query(1, db_core)
+            if "block_storage_services_r1" in query:
+                return block_storage_service_neomodel_query(tot_bsto_srv, db_core)
+            return ([], None)
+
+        db_match.cypher_query.side_effect = query_call
+
+        return region_model
+
+    @parametrize(tot_comp_srv=[0, 1, 2])
+    def case_compute_services(
+        self,
+        db_core: MagicMock,
+        db_match: MagicMock,
+        db_rel_mgr: MagicMock,
+        region_model: Region,
+        tot_comp_srv: int,
+    ) -> Region:
+        def query_call(query, params, **kwargs) -> Tuple[List, None]:
+            """Mock function to emulate cypher query.
+
+            Response changes based on parametrized value and on executed query.
+            """
+            if "provider_r1" in query:
+                return provider_neomodel_query(1, db_core)
+            if "compute_services_r1" in query:
+                return compute_service_neomodel_query(tot_comp_srv, db_core)
+            return ([], None)
+
+        db_match.cypher_query.side_effect = query_call
+
+        return region_model
+
+    @parametrize(tot_id_srv=[0, 1, 2])
+    def case_identity_services(
+        self,
+        db_core: MagicMock,
+        db_match: MagicMock,
+        db_rel_mgr: MagicMock,
+        region_model: Region,
+        tot_id_srv: int,
+    ) -> Region:
+        def query_call(query, params, **kwargs) -> Tuple[List, None]:
+            """Mock function to emulate cypher query.
+
+            Response changes based on parametrized value and on executed query.
+            """
+            if "provider_r1" in query:
+                return provider_neomodel_query(1, db_core)
+            if "identity_services_r1" in query:
+                return identity_service_neomodel_query(tot_id_srv, db_core)
+            return ([], None)
+
+        db_match.cypher_query.side_effect = query_call
+
+        return region_model
+
+    @parametrize(tot_net_srv=[0, 1, 2])
+    def case_network_services(
+        self,
+        db_core: MagicMock,
+        db_match: MagicMock,
+        db_rel_mgr: MagicMock,
+        region_model: Region,
+        tot_net_srv: int,
+    ) -> Region:
+        def query_call(query, params, **kwargs) -> Tuple[List, None]:
+            """Mock function to emulate cypher query.
+
+            Response changes based on parametrized value and on executed query.
+            """
+            if "provider_r1" in query:
+                return provider_neomodel_query(1, db_core)
+            if "network_services_r1" in query:
+                return network_service_neomodel_query(tot_net_srv, db_core)
+            return ([], None)
+
+        db_match.cypher_query.side_effect = query_call
+
+        return region_model
+
+    def case_mixed_srv(
+        self,
+        db_core: MagicMock,
+        db_match: MagicMock,
+        db_rel_mgr: MagicMock,
+        region_model: Region,
+    ) -> Region:
+        def query_call(query, params, **kwargs) -> Tuple[List, None]:
+            """Mock function to emulate cypher query.
+
+            Response changes based on parametrized value and on executed query.
+            """
+            if "provider_r1" in query:
+                return provider_neomodel_query(1, db_core)
+            if "block_storage_services_r1" in query:
+                return block_storage_service_neomodel_query(1, db_core)
+            if "compute_services_r1" in query:
+                return compute_service_neomodel_query(1, db_core)
+            if "identity_services_r1" in query:
+                return identity_service_neomodel_query(1, db_core)
+            if "network_services_r1" in query:
+                return network_service_neomodel_query(1, db_core)
+            return ([], None)
+
+        db_match.cypher_query.side_effect = query_call
+
+        return region_model
+
+
+class CasePublic:
+    @parametrize(is_public=[True, False])
+    def case_public(self, is_public: bool):
+        return is_public
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -285,4 +462,49 @@ def test_invalid_read(region_model: Region, key: str, value: str) -> None:
         RegionRead.from_orm(region_model)
 
 
-# TODO Test read extended classes
+@parametrize_with_cases("model", cases=CaseDBInstance)
+@parametrize_with_cases("public", cases=CasePublic)
+def test_read_extended(model: Region, public: bool) -> None:
+    if public:
+        cls = RegionReadPublic
+        cls_ext = RegionReadExtendedPublic
+        prov_cls = ProviderReadPublic
+        loc_cls = LocationReadPublic
+        bsto_srv_cls = BlockStorageServiceReadPublic
+        comp_srv_cls = ComputeServiceReadPublic
+        id_srv_cls = IdentityServiceReadPublic
+        net_srv_cls = NetworkServiceReadPublic
+    else:
+        cls = RegionRead
+        cls_ext = RegionReadExtended
+        prov_cls = ProviderRead
+        loc_cls = LocationRead
+        bsto_srv_cls = BlockStorageServiceRead
+        comp_srv_cls = ComputeServiceRead
+        id_srv_cls = IdentityServiceRead
+        net_srv_cls = NetworkServiceRead
+
+    assert issubclass(cls_ext, cls)
+    assert cls_ext.__config__.orm_mode
+
+    item = cls_ext.from_orm(model)
+
+    if not item.location:
+        assert not len(model.location.all())
+        assert not model.location.single()
+    else:
+        assert len(model.location.all()) == 1
+        assert model.location.single()
+    assert len(model.provider.all()) == 1
+    assert model.provider.single()
+    assert len(item.services) == len(model.services.all())
+
+    if item.location:
+        assert isinstance(item.location, loc_cls)
+    assert isinstance(item.provider, prov_cls)
+    assert all(
+        [
+            isinstance(i, (bsto_srv_cls, comp_srv_cls, id_srv_cls, net_srv_cls))
+            for i in item.services
+        ]
+    )

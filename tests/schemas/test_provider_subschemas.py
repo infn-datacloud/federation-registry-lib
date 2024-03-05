@@ -96,7 +96,7 @@ class CaseDBInstance:
         tot_comp_srv: int,
         tot_id_srv: int,
         tot_net_srv: int,
-    ) -> Provider:
+    ) -> Region:
         def query_call(query, params, **kwargs) -> Tuple[List, None]:
             """Mock function to emulate cypher query.
 
