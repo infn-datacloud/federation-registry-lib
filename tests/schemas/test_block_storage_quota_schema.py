@@ -126,7 +126,6 @@ def test_read(
 
     if key:
         block_storage_quota_model.__setattr__(key, value)
-    print(block_storage_quota_model)
     item = BlockStorageQuotaRead.from_orm(block_storage_quota_model)
 
     assert item.uid

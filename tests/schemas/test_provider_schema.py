@@ -1,4 +1,5 @@
 from typing import Any, List, Literal, Optional, Tuple, Union
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -6,7 +7,7 @@ from pydantic import EmailStr
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from fed_reg.project.schemas import ProjectCreate
+from fed_reg.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from fed_reg.provider.enum import ProviderStatus, ProviderType
 from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas import (
@@ -24,12 +25,18 @@ from fed_reg.provider.schemas_extended import (
     ComputeServiceCreateExtended,
     FlavorCreateExtended,
     IdentityProviderCreateExtended,
+    IdentityProviderReadExtended,
+    IdentityProviderReadExtendedPublic,
     ImageCreateExtended,
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
     ProviderCreateExtended,
+    ProviderReadExtended,
+    ProviderReadExtendedPublic,
     RegionCreateExtended,
+    RegionReadExtended,
+    RegionReadExtendedPublic,
     SLACreateExtended,
 )
 from tests.create_dict import (
@@ -40,6 +47,12 @@ from tests.create_dict import (
     provider_schema_dict,
     region_schema_dict,
     sla_schema_dict,
+)
+from tests.create_model import (
+    connect_provider_and_idp_neomodel,
+    identity_provider_neomodel_query,
+    project_neomodel_query,
+    region_neomodel_query,
 )
 from tests.utils import random_email, random_lower_string, random_url
 
@@ -55,7 +68,9 @@ class CaseAttr:
 
     @case(tags=["base_public", "base"])
     @parametrize(value=[i for i in ProviderType])
-    def case_type(self, value: ProviderType) -> Tuple[Literal["type"], ProviderType]:
+    def case_prov_type(
+        self, value: ProviderType
+    ) -> Tuple[Literal["type"], ProviderType]:
         return "type", value
 
     @case(tags=["base"])
@@ -140,7 +155,7 @@ class CaseInvalidAttr:
         return attr, None
 
     @case(tags=["base_public", "base"])
-    def case_type(self) -> Tuple[Literal["type"], str]:
+    def case_prov_type(self) -> Tuple[Literal["type"], str]:
         return "type", random_lower_string()
 
     @case(tags=["base"])
@@ -300,6 +315,43 @@ class CaseInvalidAttr:
             network_service_create_ext_schema.networks = [item]
         region_create_ext_schema.network_services = [network_service_create_ext_schema]
         return ("regions", [region_create_ext_schema], "not in this provider")
+
+
+class CaseDBInstance:
+    @parametrize(tot_proj=[0, 1, 2])
+    @parametrize(tot_reg=[0, 1, 2])
+    @parametrize(tot_idp=[0, 1, 2])
+    def case_provider_no_relationships(
+        self,
+        db_core: MagicMock,
+        db_match: MagicMock,
+        db_rel_mgr: MagicMock,
+        provider_model: Provider,
+        tot_proj: int,
+        tot_reg: int,
+        tot_idp: int,
+    ) -> Provider:
+        def query_call(query, params, **kwargs) -> Tuple[List, None]:
+            """Mock function to emulate cypher query.
+
+            Response changes based on parametrized value and on executed query.
+            """
+            if "identity_providers_r1" in query:
+                items, rels = identity_provider_neomodel_query(tot_idp, db_core)
+                for item in items:
+                    connect_provider_and_idp_neomodel(
+                        db_core, provider=provider_model, identity_provider=item[0]
+                    )
+                return items, rels
+            if "projects_r1" in query:
+                return project_neomodel_query(tot_proj, db_core)
+            if "regions_r1" in query:
+                return region_neomodel_query(tot_reg, db_core)
+            return ([], None)
+
+        db_match.cypher_query.side_effect = query_call
+
+        return provider_model
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -511,6 +563,45 @@ def test_invalid_read(provider_model: Provider, key: str, value: str) -> None:
     provider_model.__setattr__(key, value)
     with pytest.raises(ValueError):
         ProviderRead.from_orm(provider_model)
+
+
+@parametrize_with_cases("model", cases=CaseDBInstance)
+def test_read_extended_public(model: Provider) -> None:
+    assert issubclass(ProviderReadExtendedPublic, ProviderReadPublic)
+    assert ProviderReadExtendedPublic.__config__.orm_mode
+
+    item = ProviderReadExtendedPublic.from_orm(model)
+
+    assert len(item.identity_providers) == len(model.identity_providers.all())
+    assert len(item.projects) == len(model.projects.all())
+    assert len(item.regions) == len(model.regions.all())
+
+    assert all(
+        [
+            isinstance(i, IdentityProviderReadExtendedPublic)
+            for i in item.identity_providers
+        ]
+    )
+    assert all([isinstance(i, ProjectReadPublic) for i in item.projects])
+    assert all([isinstance(i, RegionReadExtendedPublic) for i in item.regions])
+
+
+@parametrize_with_cases("model", cases=CaseDBInstance)
+def test_read_extended(model: Provider) -> None:
+    assert issubclass(ProviderReadExtended, ProviderRead)
+    assert ProviderReadExtended.__config__.orm_mode
+
+    item = ProviderReadExtended.from_orm(model)
+
+    assert len(item.identity_providers) == len(model.identity_providers.all())
+    assert len(item.projects) == len(model.projects.all())
+    assert len(item.regions) == len(model.regions.all())
+
+    assert all(
+        [isinstance(i, IdentityProviderReadExtended) for i in item.identity_providers]
+    )
+    assert all([isinstance(i, ProjectRead) for i in item.projects])
+    assert all([isinstance(i, RegionReadExtended) for i in item.regions])
 
 
 # TODO Test read extended classes

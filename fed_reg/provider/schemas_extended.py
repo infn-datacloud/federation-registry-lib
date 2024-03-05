@@ -18,7 +18,7 @@ from fed_reg.location.schemas import (
     LocationReadPublic,
 )
 from fed_reg.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
-from fed_reg.project.schemas import ProjectCreate, ProjectRead
+from fed_reg.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from fed_reg.provider.constants import (
     DOC_EXT_AUTH_METH,
     DOC_EXT_IDP,
@@ -364,7 +364,7 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
         description=DOC_EXT_IDP
     )
-    projects: List[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    projects: List[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
     regions: List[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
