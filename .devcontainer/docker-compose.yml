@@ -32,7 +32,7 @@ services:
       - ..:/workspace:cached
     environment:
       - NEO4J_SERVER=fed-reg-devc-db
-      - OIRC_AGENT_CONTAINER_NAME=fed-reg-devc-oidc-agent
+      - OIDC_AGENT_CONTAINER_NAME=fed-reg-devc-oidc-agent
     networks:
       - fed-reg-devc-db
       - fed-reg-devc-oidc-agent
