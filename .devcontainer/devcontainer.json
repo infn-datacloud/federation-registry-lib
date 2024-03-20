@@ -12,21 +12,38 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "redhat.vscode-yaml",
-        "charliermarsh.ruff",
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "yzhang.markdown-all-in-one",
-        "eamodio.gitlens",
         "ms-azuretools.vscode-docker",
+        "esbenp.prettier-vscode",
         "streetsidesoftware.code-spell-checker",
-        "esbenp.prettier-vscode"
+        "SonarSource.sonarlint-vscode",
+        "eamodio.gitlens",
+        "charliermarsh.ruff"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/home/node/.venv/bin/python"
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        },
+        "[dockerfile]": {
+          "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+        },
+        "[dockercompose]": {
+          "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+        },
+        "sonarlint.connectedMode.project": {
+          "connectionId": "indigo-paas/federation-registry",
+          "projectKey": "indigo-paas_federation-registry"
+        },
+        "python.analysis.autoFormatStrings": true,
+        "python.analysis.inlayHints.functionReturnTypes": true,
+        "python.analysis.inlayHints.pytestParameters": true,
+        "python.analysis.autoImportCompletions": true,
+        "python.analysis.completeFunctionParens": true,
+        "python.defaultInterpreterPath": "/home/node/.venv/bin/python",
+        "python.testing.pytestEnabled": true
       }
     }
   },
+
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
     "ghcr.io/devcontainers-contrib/features/act:1": {},
@@ -47,7 +64,6 @@
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postStartCommand": "bash .devcontainer/postCreateCommand.sh"
-  // "git config --global --add safe.directory ${containerWorkspaceFolder}"
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "root"
