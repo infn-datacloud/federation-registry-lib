@@ -1,6 +1,5 @@
 from random import randint
 from typing import Any, Literal, Tuple
-from unittest.mock import MagicMock
 
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
@@ -65,7 +64,7 @@ def test_missing_attr(missing_attr: str) -> None:
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_attr(key: str, value: Any) -> None:
     d = flavor_model_dict()
     d[key] = value
 
@@ -77,24 +76,19 @@ def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
-def test_required_rel(db_match: MagicMock, flavor_model: Flavor) -> None:
+def test_required_rel(flavor_model: Flavor) -> None:
     with pytest.raises(CardinalityViolation):
         flavor_model.services.all()
     with pytest.raises(CardinalityViolation):
         flavor_model.services.single()
 
 
-def test_optional_rel(db_match: MagicMock, flavor_model: Flavor) -> None:
+def test_optional_rel(flavor_model: Flavor) -> None:
     assert len(flavor_model.projects.all()) == 0
     assert flavor_model.projects.single() is None
 
 
-def test_linked_project(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    flavor_model: Flavor,
-    project_model: Project,
-) -> None:
+def test_linked_project(flavor_model: Flavor, project_model: Project) -> None:
     assert flavor_model.projects.name
     assert flavor_model.projects.source
     assert isinstance(flavor_model.projects.source, Flavor)
@@ -111,12 +105,7 @@ def test_linked_project(
     assert project.uid == project_model.uid
 
 
-def test_multiple_linked_projects(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    flavor_model: Flavor,
-    project_model: Project,
-) -> None:
+def test_multiple_linked_projects(flavor_model: Flavor, project_model: Project) -> None:
     flavor_model.projects.connect(project_model)
     flavor_model.projects.connect(project_model)
 
@@ -124,10 +113,7 @@ def test_multiple_linked_projects(
 
 
 def test_linked_service(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    flavor_model: Flavor,
-    compute_service_model: ComputeService,
+    flavor_model: Flavor, compute_service_model: ComputeService
 ) -> None:
     assert flavor_model.services.name
     assert flavor_model.services.source
@@ -146,10 +132,7 @@ def test_linked_service(
 
 
 def test_multiple_linked_services(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    flavor_model: Flavor,
-    compute_service_model: ComputeService,
+    flavor_model: Flavor, compute_service_model: ComputeService
 ) -> None:
     flavor_model.services.connect(compute_service_model)
     flavor_model.services.connect(compute_service_model)
