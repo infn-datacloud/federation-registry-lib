@@ -2,7 +2,7 @@ import re
 from typing import Any, Dict
 from uuid import uuid4
 
-from neo4j.graph import Node
+from neo4j.graph import Node, Relationship
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.identity_provider.models import IdentityProvider
@@ -31,7 +31,7 @@ CLASS_DICT = {
     "Project": Project,
     "Provider": Provider,
     "BlockStorageQuota": BlockStorageQuota,
-    "ComputeQuota":ComputeQuota,
+    "ComputeQuota": ComputeQuota,
     "NetworkQuota": NetworkQuota,
     "Region": Region,
     "BlockStorageService": BlockStorageService,
@@ -41,6 +41,7 @@ CLASS_DICT = {
     "SLA": SLA,
     "UserGroup": UserGroup,
 }
+
 
 class MockDatabase:
     def __init__(self, db_version: int = 5) -> None:
@@ -61,6 +62,9 @@ class MockDatabase:
         match = re.search(r"(?<=MATCH\s\()\w+(?=\))", query)
         if match is not None:
             item_type = match.group(0).capitalize()
+            match = re.search(r"(?<=MERGE.).*$", query)
+            if match is not None:
+                return self.merge(params, match.group(0))
             match = re.search(r"(?<=RETURN\s)\w+(?=$|\s)", query)
             if match is not None:
                 node_name = match.group(0)
@@ -68,12 +72,8 @@ class MockDatabase:
                     item_type,
                     node_name,
                     query,
-                    resolve_objects=kwargs.get("resolve_objects", False)
-                    )
-            match = re.search(r"(?<=MERGE.).*$", query)
-            if match is not None:
-                return self.merge(params, match.group(0))
-
+                    resolve_objects=kwargs.get("resolve_objects", False),
+                )
 
     def create(self, item_type, params):
         element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
@@ -87,12 +87,11 @@ class MockDatabase:
         self.count += 1
         return [[i] for i in self.data[item_type]], None
 
-
     def match(self, src_type, node_name, query, resolve_objects):
         if src_type not in node_name:
             idx = node_name.rfind("_")
             if idx > -1:
-                rel_name = node_name[idx+1:]
+                rel_name = node_name[idx + 1 :]
                 match = re.search(rf"(?<={rel_name}:\`)\w+(?=\`)", query)
                 rel_type = match.group(0)
                 match = re.search(rf"(?<={node_name}:)\w+(?=\))", query)
@@ -102,7 +101,6 @@ class MockDatabase:
                 )
                 return relationships, [rel_type]
         return [[i] for i in self.data[src_type]], None
-
 
     def get_related_items(self, rel_type, dest_type, resolve_objects):
         relationships = []
@@ -116,9 +114,33 @@ class MockDatabase:
         return relationships
 
     def merge(self, params, query):
+        rel = None
         match = re.search(r"(?<=\`).*(?=\`)", query)
         relationship = match.group(0)
+
+        data = {**params}
+        data.pop("them", None)
+        data.pop("self", None)
+
+        if data:
+            element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
+            rel = Relationship(
+                ...,
+                element_id=element_id,
+                id_=self.count,
+                properties=data,
+            )
+            rel._start_node = self.search_node(params.get("self"))
+            rel._end_node = self.search_node(params.get("them"))
+
         if self.data.get(relationship):
             self.data[relationship].append(params)
         else:
             self.data[relationship] = [params]
+        return [[rel]], ["r"]
+
+    def search_node(self, element_id):
+        for v in self.data.values():
+            for i in filter(lambda x: isinstance(x, Node), v):
+                if i.element_id == element_id:
+                    return i
