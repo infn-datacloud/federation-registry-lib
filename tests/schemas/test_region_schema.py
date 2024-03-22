@@ -1,12 +1,12 @@
 from typing import Any, List, Literal, Optional, Tuple, Union
-from unittest.mock import MagicMock
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.location.schemas import LocationCreate, LocationRead, LocationReadPublic
+from fed_reg.location.models import Location
+from fed_reg.location.schemas import LocationCreate
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
+from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
@@ -23,28 +23,37 @@ from fed_reg.region.schemas import (
     RegionReadPublic,
     RegionUpdate,
 )
-from fed_reg.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
-from fed_reg.service.schemas import (
+from fed_reg.region.schemas_extended import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    IdentityServiceCreate,
     IdentityServiceRead,
     IdentityServiceReadPublic,
+    LocationRead,
+    LocationReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
+    ProviderRead,
+    ProviderReadPublic,
+    RegionReadExtended,
+    RegionReadExtendedPublic,
 )
+from fed_reg.service.models import (
+    BlockStorageService,
+    ComputeService,
+    IdentityService,
+    NetworkService,
+)
+from fed_reg.service.schemas import IdentityServiceCreate
 from tests.create_dict import (
+    block_storage_service_model_dict,
+    compute_service_model_dict,
+    identity_service_model_dict,
+    location_model_dict,
+    network_service_model_dict,
+    provider_model_dict,
     region_schema_dict,
-)
-from tests.create_model import (
-    block_storage_service_neomodel_query,
-    compute_service_neomodel_query,
-    identity_service_neomodel_query,
-    location_neomodel_query,
-    network_service_neomodel_query,
-    provider_neomodel_query,
 )
 from tests.utils import random_lower_string, random_url
 
@@ -163,152 +172,62 @@ class CaseInvalidAttr:
 
 
 class CaseDBInstance:
-    @parametrize(tot_loc=[0, 1])
-    def case_location(
-        self,
-        db_core: MagicMock,
-        db_match: MagicMock,
-        db_rel_mgr: MagicMock,
-        region_model: Region,
-        tot_loc: int,
-    ) -> Region:
-        def query_call(query, params, **kwargs) -> Tuple[List, None]:
-            """Mock function to emulate cypher query.
-
-            Response changes based on parametrized value and on executed query.
-            """
-            if "provider_r1" in query:
-                return provider_neomodel_query(1, db_core)
-            if "location_r1" in query:
-                return location_neomodel_query(tot_loc, db_core)
-            return ([], None)
-
-        db_match.cypher_query.side_effect = query_call
-
+    @parametrize(has_loc=[False, True])
+    def case_location(self, region_model: Region, has_loc: bool) -> Region:
+        p = Provider(**provider_model_dict()).save()
+        region_model.provider.connect(p)
+        if has_loc:
+            loc = Location(**location_model_dict()).save()
+            region_model.location.connect(loc)
         return region_model
 
-    @parametrize(tot_bsto_srv=[0, 1, 2])
-    def case_block_storage_services(
-        self,
-        db_core: MagicMock,
-        db_match: MagicMock,
-        db_rel_mgr: MagicMock,
-        region_model: Region,
-        tot_bsto_srv: int,
-    ) -> Region:
-        def query_call(query, params, **kwargs) -> Tuple[List, None]:
-            """Mock function to emulate cypher query.
-
-            Response changes based on parametrized value and on executed query.
-            """
-            if "provider_r1" in query:
-                return provider_neomodel_query(1, db_core)
-            if "block_storage_services_r1" in query:
-                return block_storage_service_neomodel_query(tot_bsto_srv, db_core)
-            return ([], None)
-
-        db_match.cypher_query.side_effect = query_call
-
+    @parametrize(tot=[0, 1, 2])
+    def case_block_storage_services(self, region_model: Region, tot: int) -> Region:
+        p = Provider(**provider_model_dict()).save()
+        region_model.provider.connect(p)
+        for _ in range(tot):
+            s = BlockStorageService(**block_storage_service_model_dict()).save()
+            region_model.services.connect(s)
         return region_model
 
-    @parametrize(tot_comp_srv=[0, 1, 2])
-    def case_compute_services(
-        self,
-        db_core: MagicMock,
-        db_match: MagicMock,
-        db_rel_mgr: MagicMock,
-        region_model: Region,
-        tot_comp_srv: int,
-    ) -> Region:
-        def query_call(query, params, **kwargs) -> Tuple[List, None]:
-            """Mock function to emulate cypher query.
-
-            Response changes based on parametrized value and on executed query.
-            """
-            if "provider_r1" in query:
-                return provider_neomodel_query(1, db_core)
-            if "compute_services_r1" in query:
-                return compute_service_neomodel_query(tot_comp_srv, db_core)
-            return ([], None)
-
-        db_match.cypher_query.side_effect = query_call
-
+    @parametrize(tot=[0, 1, 2])
+    def case_compute_services(self, region_model: Region, tot: int) -> Region:
+        p = Provider(**provider_model_dict()).save()
+        region_model.provider.connect(p)
+        for _ in range(tot):
+            s = ComputeService(**compute_service_model_dict()).save()
+            region_model.services.connect(s)
         return region_model
 
-    @parametrize(tot_id_srv=[0, 1, 2])
-    def case_identity_services(
-        self,
-        db_core: MagicMock,
-        db_match: MagicMock,
-        db_rel_mgr: MagicMock,
-        region_model: Region,
-        tot_id_srv: int,
-    ) -> Region:
-        def query_call(query, params, **kwargs) -> Tuple[List, None]:
-            """Mock function to emulate cypher query.
-
-            Response changes based on parametrized value and on executed query.
-            """
-            if "provider_r1" in query:
-                return provider_neomodel_query(1, db_core)
-            if "identity_services_r1" in query:
-                return identity_service_neomodel_query(tot_id_srv, db_core)
-            return ([], None)
-
-        db_match.cypher_query.side_effect = query_call
-
+    @parametrize(tot=[0, 1, 2])
+    def case_identity_services(self, region_model: Region, tot: int) -> Region:
+        p = Provider(**provider_model_dict()).save()
+        region_model.provider.connect(p)
+        for _ in range(tot):
+            s = IdentityService(**identity_service_model_dict()).save()
+            region_model.services.connect(s)
         return region_model
 
-    @parametrize(tot_net_srv=[0, 1, 2])
-    def case_network_services(
-        self,
-        db_core: MagicMock,
-        db_match: MagicMock,
-        db_rel_mgr: MagicMock,
-        region_model: Region,
-        tot_net_srv: int,
-    ) -> Region:
-        def query_call(query, params, **kwargs) -> Tuple[List, None]:
-            """Mock function to emulate cypher query.
-
-            Response changes based on parametrized value and on executed query.
-            """
-            if "provider_r1" in query:
-                return provider_neomodel_query(1, db_core)
-            if "network_services_r1" in query:
-                return network_service_neomodel_query(tot_net_srv, db_core)
-            return ([], None)
-
-        db_match.cypher_query.side_effect = query_call
-
+    @parametrize(tot=[0, 1, 2])
+    def case_network_services(self, region_model: Region, tot: int) -> Region:
+        p = Provider(**provider_model_dict()).save()
+        region_model.provider.connect(p)
+        for _ in range(tot):
+            s = NetworkService(**network_service_model_dict()).save()
+            region_model.services.connect(s)
         return region_model
 
-    def case_mixed_srv(
-        self,
-        db_core: MagicMock,
-        db_match: MagicMock,
-        db_rel_mgr: MagicMock,
-        region_model: Region,
-    ) -> Region:
-        def query_call(query, params, **kwargs) -> Tuple[List, None]:
-            """Mock function to emulate cypher query.
-
-            Response changes based on parametrized value and on executed query.
-            """
-            if "provider_r1" in query:
-                return provider_neomodel_query(1, db_core)
-            if "block_storage_services_r1" in query:
-                return block_storage_service_neomodel_query(1, db_core)
-            if "compute_services_r1" in query:
-                return compute_service_neomodel_query(1, db_core)
-            if "identity_services_r1" in query:
-                return identity_service_neomodel_query(1, db_core)
-            if "network_services_r1" in query:
-                return network_service_neomodel_query(1, db_core)
-            return ([], None)
-
-        db_match.cypher_query.side_effect = query_call
-
+    def case_mixed_srv(self, region_model: Region) -> Region:
+        p = Provider(**provider_model_dict()).save()
+        region_model.provider.connect(p)
+        s = BlockStorageService(**block_storage_service_model_dict()).save()
+        region_model.services.connect(s)
+        s = ComputeService(**compute_service_model_dict()).save()
+        region_model.services.connect(s)
+        s = IdentityService(**identity_service_model_dict()).save()
+        region_model.services.connect(s)
+        s = NetworkService(**network_service_model_dict()).save()
+        region_model.services.connect(s)
         return region_model
 
 

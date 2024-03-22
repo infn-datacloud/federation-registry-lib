@@ -1,13 +1,14 @@
 from typing import Any, List, Literal, Optional, Tuple, Union
-from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
 from pydantic import EmailStr
 from pytest_cases import case, parametrize, parametrize_with_cases
 
+from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from fed_reg.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
+from fed_reg.project.models import Project
+from fed_reg.project.schemas import ProjectCreate
 from fed_reg.provider.enum import ProviderStatus, ProviderType
 from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas import (
@@ -31,6 +32,8 @@ from fed_reg.provider.schemas_extended import (
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
+    ProjectRead,
+    ProjectReadPublic,
     ProviderCreateExtended,
     ProviderReadExtended,
     ProviderReadExtendedPublic,
@@ -39,20 +42,19 @@ from fed_reg.provider.schemas_extended import (
     RegionReadExtendedPublic,
     SLACreateExtended,
 )
+from fed_reg.region.models import Region
 from tests.create_dict import (
+    auth_method_dict,
     flavor_schema_dict,
+    identity_provider_model_dict,
     image_schema_dict,
     network_schema_dict,
+    project_model_dict,
     project_schema_dict,
     provider_schema_dict,
+    region_model_dict,
     region_schema_dict,
     sla_schema_dict,
-)
-from tests.create_model import (
-    connect_provider_and_idp_neomodel,
-    identity_provider_neomodel_query,
-    project_neomodel_query,
-    region_neomodel_query,
 )
 from tests.utils import random_email, random_lower_string, random_url
 
@@ -318,39 +320,25 @@ class CaseInvalidAttr:
 
 
 class CaseDBInstance:
-    @parametrize(tot_proj=[0, 1, 2])
-    @parametrize(tot_reg=[0, 1, 2])
-    @parametrize(tot_idp=[0, 1, 2])
-    def case_provider(
-        self,
-        db_core: MagicMock,
-        db_match: MagicMock,
-        db_rel_mgr: MagicMock,
-        provider_model: Provider,
-        tot_proj: int,
-        tot_reg: int,
-        tot_idp: int,
-    ) -> Provider:
-        def query_call(query, params, **kwargs) -> Tuple[List, None]:
-            """Mock function to emulate cypher query.
+    @parametrize(tot=[0, 1, 2])
+    def case_projects(self, provider_model: Provider, tot: int) -> Provider:
+        for _ in range(tot):
+            p = Project(**project_model_dict()).save()
+            provider_model.projects.connect(p)
+        return provider_model
 
-            Response changes based on parametrized value and on executed query.
-            """
-            if "identity_providers_r1" in query:
-                items, rels = identity_provider_neomodel_query(tot_idp, db_core)
-                for item in items:
-                    connect_provider_and_idp_neomodel(
-                        db_core, provider=provider_model, identity_provider=item[0]
-                    )
-                return items, rels
-            if "projects_r1" in query:
-                return project_neomodel_query(tot_proj, db_core)
-            if "regions_r1" in query:
-                return region_neomodel_query(tot_reg, db_core)
-            return ([], None)
+    @parametrize(tot=[0, 1, 2])
+    def case_regions(self, provider_model: Provider, tot: int) -> Provider:
+        for _ in range(tot):
+            p = Region(**region_model_dict()).save()
+            provider_model.regions.connect(p)
+        return provider_model
 
-        db_match.cypher_query.side_effect = query_call
-
+    @parametrize(tot=[0, 1, 2])
+    def case_identity_providers(self, provider_model: Provider, tot: int) -> Provider:
+        for _ in range(tot):
+            p = IdentityProvider(**identity_provider_model_dict()).save()
+            provider_model.identity_providers.connect(p, auth_method_dict())
         return provider_model
 
 
@@ -571,7 +559,7 @@ def test_invalid_read(provider_model: Provider, key: str, value: str) -> None:
         ProviderRead.from_orm(provider_model)
 
 
-@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="provider")
+@parametrize_with_cases("model", cases=CaseDBInstance)
 @parametrize_with_cases("public", cases=CasePublic)
 def test_read_extended(model: Provider, public: bool) -> None:
     if public:

@@ -53,7 +53,7 @@ class MockDatabase:
         self.count = 0
 
     def query_call(self, query: str, params: Dict[str, Any], **kwargs):
-        # print(query, kwargs)
+        print(query, kwargs)
 
         # Detect if it is a CREATE request.
         match = re.search(r"(?<=CREATE\s\(n\:)[\w\:]+(?=\s)", query)
@@ -79,6 +79,7 @@ class MockDatabase:
                     item_type,
                     node_name,
                     query,
+                    params,
                     resolve_objects=kwargs.get("resolve_objects", False),
                 )
 
@@ -104,7 +105,7 @@ class MockDatabase:
             self.data[t].append(item)
         return [[item]], None
 
-    def match(self, src_type, node_name, query, resolve_objects):
+    def match(self, src_type, node_name, query, params, resolve_objects):
         match = re.search(r"(?<=count\()\w+(?=\))", node_name)
         if match is not None:
             node_name = match.group(0)
@@ -132,13 +133,23 @@ class MockDatabase:
                     rel_type, dest_type, resolve_objects
                 )
                 return relationships, [rel_type]
+            else:
+                rel_name = node_name
+                match = re.search(rf"(?<={rel_name}:\`)\w+(?=\`)", query)
+                rel_type = match.group(0)
+                relationships = filter(
+                    lambda x: x[1].get("self") == params.get("self"),
+                    self.data[rel_type],
+                )
+                return [[i[0]] for i in relationships], None
+
         return [[i] for i in self.data[src_type]], None
 
     def get_related_items(self, rel_type, dest_type, resolve_objects):
         relationships = []
         for i in self.data.get(dest_type, []):
             for j in self.data.get(rel_type, []):
-                if j.get("them") == i.element_id:
+                if j[1].get("them") == i.element_id:
                     if resolve_objects:
                         relationships += [[CLASS_DICT[dest_type](**i)]]
                     else:
@@ -174,9 +185,9 @@ class MockDatabase:
             rel._end_node = self.search_node(params.get("them"))
 
         if self.data.get(relationship):
-            self.data[relationship].append(params)
+            self.data[relationship].append((rel, params))
         else:
-            self.data[relationship] = [params]
+            self.data[relationship] = [(rel, params)]
         return [[rel]], ["r"]
 
     def search_node(self, element_id) -> Optional[Node]:

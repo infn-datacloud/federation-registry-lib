@@ -43,27 +43,32 @@ from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
 from tests.create_dict import (
     auth_method_dict,
+    block_storage_quota_model_dict,
+    block_storage_service_model_dict,
     block_storage_service_schema_dict,
+    compute_quota_model_dict,
+    compute_service_model_dict,
     compute_service_schema_dict,
     flavor_model_dict,
     flavor_schema_dict,
     identity_provider_model_dict,
     identity_provider_schema_dict,
+    identity_service_model_dict,
     identity_service_schema_dict,
     image_model_dict,
     image_schema_dict,
     location_model_dict,
     location_schema_dict,
     network_model_dict,
+    network_quota_model_dict,
     network_schema_dict,
+    network_service_model_dict,
     network_service_schema_dict,
     project_model_dict,
     project_schema_dict,
     provider_model_dict,
-    quota_model_dict,
     region_model_dict,
     region_schema_dict,
-    service_model_dict,
     sla_model_dict,
     sla_schema_dict,
     user_group_model_dict,
@@ -164,19 +169,19 @@ def provider_model() -> Provider:
 
 @pytest.fixture
 def block_storage_quota_model() -> BlockStorageQuota:
-    d = quota_model_dict()
+    d = block_storage_quota_model_dict()
     return BlockStorageQuota(**d).save()
 
 
 @pytest.fixture
 def compute_quota_model() -> ComputeQuota:
-    d = quota_model_dict()
+    d = compute_quota_model_dict()
     return ComputeQuota(**d).save()
 
 
 @pytest.fixture
 def network_quota_model() -> NetworkQuota:
-    d = quota_model_dict()
+    d = network_quota_model_dict()
     return NetworkQuota(**d).save()
 
 
@@ -188,25 +193,25 @@ def region_model() -> Region:
 
 @pytest.fixture
 def block_storage_service_model() -> BlockStorageService:
-    d = service_model_dict()
+    d = block_storage_service_model_dict()
     return BlockStorageService(**d).save()
 
 
 @pytest.fixture
 def compute_service_model() -> ComputeService:
-    d = service_model_dict()
+    d = compute_service_model_dict()
     return ComputeService(**d).save()
 
 
 @pytest.fixture
 def identity_service_model() -> IdentityService:
-    d = service_model_dict()
+    d = identity_service_model_dict()
     return IdentityService(**d).save()
 
 
 @pytest.fixture
 def network_service_model() -> NetworkService:
-    d = service_model_dict()
+    d = network_service_model_dict()
     return NetworkService(**d).save()
 
 
