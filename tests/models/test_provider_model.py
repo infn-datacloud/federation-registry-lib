@@ -1,9 +1,6 @@
 from typing import Any, List, Literal, Tuple
-from unittest.mock import MagicMock
-from uuid import uuid4
 
 import pytest
-from neo4j.graph import Node, Relationship
 from neomodel import RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
@@ -63,26 +60,19 @@ def test_missing_attr(missing_attr: str) -> None:
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_attr(key: str, value: Any) -> None:
     d = provider_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = Provider(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
-def test_optional_rel(db_match: MagicMock, provider_model: Provider) -> None:
-    db_match.cypher_query.return_value = ([], None)
+def test_optional_rel(provider_model: Provider) -> None:
     assert len(provider_model.identity_providers.all()) == 0
     assert provider_model.identity_providers.single() is None
     assert len(provider_model.projects.all()) == 0
@@ -91,12 +81,7 @@ def test_optional_rel(db_match: MagicMock, provider_model: Provider) -> None:
     assert provider_model.regions.single() is None
 
 
-def test_linked_project(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    provider_model: Provider,
-    project_model: Project,
-) -> None:
+def test_linked_project(provider_model: Provider, project_model: Project) -> None:
     assert provider_model.projects.name
     assert provider_model.projects.source
     assert isinstance(provider_model.projects.source, Provider)
@@ -107,7 +92,6 @@ def test_linked_project(
     r = provider_model.projects.connect(project_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[project_model]], ["projects_r1"])
     assert len(provider_model.projects.all()) == 1
     project = provider_model.projects.single()
     assert isinstance(project, Project)
@@ -115,24 +99,14 @@ def test_linked_project(
 
 
 def test_multiple_linked_projects(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    provider_model: Provider,
-    project_model: Project,
+    provider_model: Provider, project_model: Project
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[project_model], [project_model]],
-        ["projects_r1", "projects_r2"],
-    )
+    provider_model.projects.connect(project_model)
+    provider_model.projects.connect(project_model)
     assert len(provider_model.projects.all()) == 2
 
 
-def test_linked_region(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    provider_model: Provider,
-    region_model: Region,
-) -> None:
+def test_linked_region(provider_model: Provider, region_model: Region) -> None:
     assert provider_model.regions.name
     assert provider_model.regions.source
     assert isinstance(provider_model.regions.source, Provider)
@@ -143,7 +117,6 @@ def test_linked_region(
     r = provider_model.regions.connect(region_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[region_model]], ["regions_r1"])
     assert len(provider_model.regions.all()) == 1
     region = provider_model.regions.single()
     assert isinstance(region, Region)
@@ -151,24 +124,15 @@ def test_linked_region(
 
 
 def test_multiple_linked_regions(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    provider_model: Provider,
-    region_model: Region,
+    provider_model: Provider, region_model: Region
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[region_model], [region_model]],
-        ["regions_r1", "regions_r2"],
-    )
+    provider_model.regions.connect(region_model)
+    provider_model.regions.connect(region_model)
     assert len(provider_model.regions.all()) == 2
 
 
 def test_linked_identity_provider(
-    db_rel_mgr: MagicMock,
-    db_core: MagicMock,
-    db_match: MagicMock,
-    provider_model: Provider,
-    identity_provider_model: IdentityProvider,
+    provider_model: Provider, identity_provider_model: IdentityProvider
 ) -> None:
     assert provider_model.identity_providers.name
     assert provider_model.identity_providers.source
@@ -180,32 +144,11 @@ def test_linked_identity_provider(
     )
 
     d = auth_method_dict()
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    r = Relationship(..., element_id=element_id, id_=0, properties=d)
-    r._start_node = Node(
-        ...,
-        element_id=provider_model.element_id,
-        id_=int(provider_model.element_id[provider_model.element_id.rfind(":") + 1 :]),
-    )
-    r._end_node = Node(
-        ...,
-        element_id=identity_provider_model.element_id,
-        id_=int(
-            identity_provider_model.element_id[
-                identity_provider_model.element_id.rfind(":") + 1 :
-            ]
-        ),
-    )
-    db_core.cypher_query.return_value = ([[r]], None)
     r = provider_model.identity_providers.connect(identity_provider_model, d)
     assert isinstance(r, AuthMethod)
     assert r.idp_name == d["idp_name"]
     assert r.protocol == d["protocol"]
 
-    db_match.cypher_query.return_value = (
-        [[identity_provider_model]],
-        ["identity_providers_r1"],
-    )
     assert len(provider_model.identity_providers.all()) == 1
     identity_provider = provider_model.identity_providers.single()
     assert isinstance(identity_provider, IdentityProvider)
@@ -213,13 +156,12 @@ def test_linked_identity_provider(
 
 
 def test_multiple_linked_identity_providers(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    provider_model: Provider,
-    identity_provider_model: IdentityProvider,
+    provider_model: Provider, identity_provider_model: IdentityProvider
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[identity_provider_model], [identity_provider_model]],
-        ["identity_providers_r1", "identity_providers_r2"],
+    provider_model.identity_providers.connect(
+        identity_provider_model, auth_method_dict()
+    )
+    provider_model.identity_providers.connect(
+        identity_provider_model, auth_method_dict()
     )
     assert len(provider_model.identity_providers.all()) == 2

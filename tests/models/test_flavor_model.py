@@ -71,7 +71,7 @@ def test_attr(key: str, value: Any) -> None:
     item = Flavor(**d)
     saved = item.save()
 
-    assert saved.element_id_property is not None
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
@@ -108,7 +108,6 @@ def test_linked_project(flavor_model: Flavor, project_model: Project) -> None:
 def test_multiple_linked_projects(flavor_model: Flavor, project_model: Project) -> None:
     flavor_model.projects.connect(project_model)
     flavor_model.projects.connect(project_model)
-
     assert len(flavor_model.projects.all()) == 2
 
 

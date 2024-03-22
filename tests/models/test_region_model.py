@@ -1,9 +1,7 @@
 from typing import Any, Tuple, Union
-from unittest.mock import MagicMock, patch
-from uuid import uuid4
+from unittest.mock import patch
 
 import pytest
-from neo4j.graph import Node
 from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
@@ -72,34 +70,26 @@ def test_missing_attr() -> None:
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_attr(key: str, value: Any) -> None:
     d = region_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = Region(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
-def test_required_rel(db_match: MagicMock, region_model: Region) -> None:
-    db_match.cypher_query.return_value = ([], None)
+def test_required_rel(region_model: Region) -> None:
     with pytest.raises(CardinalityViolation):
         region_model.provider.all()
     with pytest.raises(CardinalityViolation):
         region_model.provider.single()
 
 
-def test_optional_rel(db_match: MagicMock, region_model: Region) -> None:
-    db_match.cypher_query.return_value = ([], None)
+def test_optional_rel(region_model: Region) -> None:
     assert len(region_model.location.all()) == 0
     assert region_model.location.single() is None
     assert len(region_model.services.all()) == 0
@@ -108,8 +98,6 @@ def test_optional_rel(db_match: MagicMock, region_model: Region) -> None:
 
 @parametrize_with_cases("service_model", cases=CaseServiceModel)
 def test_linked_service(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
     region_model: Region,
     service_model: Union[
         BlockStorageService, ComputeService, IdentityService, NetworkService
@@ -125,7 +113,6 @@ def test_linked_service(
     r = region_model.services.connect(service_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[service_model]], ["services_r1"])
     assert len(region_model.services.all()) == 1
     service = region_model.services.single()
     assert isinstance(service, Service)
@@ -134,28 +121,17 @@ def test_linked_service(
 
 @parametrize_with_cases("service_model", cases=CaseServiceModel)
 def test_multiple_linked_services(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
     region_model: Region,
     service_model: Union[
         BlockStorageService, ComputeService, IdentityService, NetworkService
     ],
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[service_model], [service_model]],
-        ["services_r1", "services_r2"],
-    )
+    region_model.services.connect(service_model)
+    region_model.services.connect(service_model)
     assert len(region_model.services.all()) == 2
 
 
-@patch("neomodel.match.QueryBuilder._count", return_value=0)
-def test_linked_location(
-    mock_count: MagicMock,
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    region_model: Region,
-    location_model: Location,
-) -> None:
+def test_linked_location(region_model: Region, location_model: Location) -> None:
     assert region_model.location.name
     assert region_model.location.source
     assert isinstance(region_model.location.source, Region)
@@ -166,7 +142,6 @@ def test_linked_location(
     r = region_model.location.connect(location_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[location_model]], ["location_r1"])
     assert len(region_model.location.all()) == 1
     location = region_model.location.single()
     assert isinstance(location, Location)
@@ -174,32 +149,19 @@ def test_linked_location(
 
 
 def test_multiple_linked_location(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    region_model: Region,
-    location_model: Location,
+    region_model: Region, location_model: Location
 ) -> None:
-    with patch("neomodel.match.QueryBuilder._count") as mock_count:
-        mock_count.return_value = 1
-        with pytest.raises(AttemptedCardinalityViolation):
-            region_model.location.connect(location_model)
+    region_model.location.connect(location_model)
+    with pytest.raises(AttemptedCardinalityViolation):
+        region_model.location.connect(location_model)
 
-    db_match.cypher_query.return_value = (
-        [[location_model], [location_model]],
-        ["location_r1", "location_r2"],
-    )
-    with pytest.raises(CardinalityViolation):
-        region_model.location.all()
+    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+        region_model.location.connect(location_model)
+        with pytest.raises(CardinalityViolation):
+            region_model.location.all()
 
 
-@patch("neomodel.match.QueryBuilder._count", return_value=0)
-def test_linked_provider(
-    mock_count: MagicMock,
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    region_model: Region,
-    provider_model: Provider,
-) -> None:
+def test_linked_provider(region_model: Region, provider_model: Provider) -> None:
     assert region_model.provider.name
     assert region_model.provider.source
     assert isinstance(region_model.provider.source, Region)
@@ -210,7 +172,6 @@ def test_linked_provider(
     r = region_model.provider.connect(provider_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[provider_model]], ["provider_r1"])
     assert len(region_model.provider.all()) == 1
     provider = region_model.provider.single()
     assert isinstance(provider, Provider)
@@ -218,19 +179,13 @@ def test_linked_provider(
 
 
 def test_multiple_linked_provider(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    region_model: Region,
-    provider_model: Provider,
+    region_model: Region, provider_model: Provider
 ) -> None:
-    with patch("neomodel.match.QueryBuilder._count") as mock_count:
-        mock_count.return_value = 1
-        with pytest.raises(AttemptedCardinalityViolation):
-            region_model.provider.connect(provider_model)
+    region_model.provider.connect(provider_model)
+    with pytest.raises(AttemptedCardinalityViolation):
+        region_model.provider.connect(provider_model)
 
-    db_match.cypher_query.return_value = (
-        [[provider_model], [provider_model]],
-        ["provider_r1", "provider_r2"],
-    )
-    with pytest.raises(CardinalityViolation):
-        region_model.provider.all()
+    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+        region_model.provider.connect(provider_model)
+        with pytest.raises(CardinalityViolation):
+            region_model.provider.all()

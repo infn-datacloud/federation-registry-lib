@@ -1,9 +1,7 @@
 from typing import Any, Tuple
-from unittest.mock import MagicMock, patch
-from uuid import uuid4
+from unittest.mock import patch
 
 import pytest
-from neo4j.graph import Node
 from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
@@ -59,34 +57,26 @@ def test_missing_attr(missing_attr: str) -> None:
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_attr(key: str, value: Any) -> None:
     d = project_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = Project(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
-def test_required_rel(db_match: MagicMock, project_model: Project) -> None:
-    db_match.cypher_query.return_value = ([], None)
+def test_required_rel(project_model: Project) -> None:
     with pytest.raises(CardinalityViolation):
         project_model.provider.all()
     with pytest.raises(CardinalityViolation):
         project_model.provider.single()
 
 
-def test_optional_rel(db_match: MagicMock, project_model: Project) -> None:
-    db_match.cypher_query.return_value = ([], None)
+def test_optional_rel(project_model: Project) -> None:
     assert len(project_model.sla.all()) == 0
     assert project_model.sla.single() is None
     assert len(project_model.quotas.all()) == 0
@@ -99,12 +89,7 @@ def test_optional_rel(db_match: MagicMock, project_model: Project) -> None:
     assert project_model.private_networks.single() is None
 
 
-def test_linked_flavor(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    project_model: Project,
-    flavor_model: Flavor,
-) -> None:
+def test_linked_flavor(project_model: Project, flavor_model: Flavor) -> None:
     assert project_model.private_flavors.name
     assert project_model.private_flavors.source
     assert isinstance(project_model.private_flavors.source, Project)
@@ -115,32 +100,19 @@ def test_linked_flavor(
     r = project_model.private_flavors.connect(flavor_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[flavor_model]], ["projects_r1"])
     assert len(project_model.private_flavors.all()) == 1
     project = project_model.private_flavors.single()
     assert isinstance(project, Flavor)
     assert project.uid == flavor_model.uid
 
 
-def test_multiple_linked_flavors(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    flavor_model: Flavor,
-    project_model: Project,
-) -> None:
-    db_match.cypher_query.return_value = (
-        [[flavor_model], [flavor_model]],
-        ["projects_r1", "projects_r2"],
-    )
+def test_multiple_linked_flavors(flavor_model: Flavor, project_model: Project) -> None:
+    project_model.private_flavors.connect(flavor_model)
+    project_model.private_flavors.connect(flavor_model)
     assert len(project_model.private_flavors.all()) == 2
 
 
-def test_linked_image(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    project_model: Project,
-    image_model: Image,
-) -> None:
+def test_linked_image(project_model: Project, image_model: Image) -> None:
     assert project_model.private_images.name
     assert project_model.private_images.source
     assert isinstance(project_model.private_images.source, Project)
@@ -151,32 +123,19 @@ def test_linked_image(
     r = project_model.private_images.connect(image_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[image_model]], ["projects_r1"])
     assert len(project_model.private_images.all()) == 1
     project = project_model.private_images.single()
     assert isinstance(project, Image)
     assert project.uid == image_model.uid
 
 
-def test_multiple_linked_images(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    image_model: Image,
-    project_model: Project,
-) -> None:
-    db_match.cypher_query.return_value = (
-        [[image_model], [image_model]],
-        ["projects_r1", "projects_r2"],
-    )
+def test_multiple_linked_images(image_model: Image, project_model: Project) -> None:
+    project_model.private_images.connect(image_model)
+    project_model.private_images.connect(image_model)
     assert len(project_model.private_images.all()) == 2
 
 
-def test_linked_network(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    project_model: Project,
-    network_model: Network,
-) -> None:
+def test_linked_network(project_model: Project, network_model: Network) -> None:
     assert project_model.private_networks.name
     assert project_model.private_networks.source
     assert isinstance(project_model.private_networks.source, Project)
@@ -187,7 +146,6 @@ def test_linked_network(
     r = project_model.private_networks.connect(network_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[network_model]], ["projects_r1"])
     assert len(project_model.private_networks.all()) == 1
     project = project_model.private_networks.single()
     assert isinstance(project, Network)
@@ -195,26 +153,14 @@ def test_linked_network(
 
 
 def test_multiple_linked_networks(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    network_model: Network,
-    project_model: Project,
+    network_model: Network, project_model: Project
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[network_model], [network_model]],
-        ["projects_r1", "projects_r2"],
-    )
+    project_model.private_networks.connect(network_model)
+    project_model.private_networks.connect(network_model)
     assert len(project_model.private_networks.all()) == 2
 
 
-@patch("neomodel.match.QueryBuilder._count", return_value=0)
-def test_linked_provider(
-    mock_count: MagicMock,
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    project_model: Project,
-    provider_model: Provider,
-) -> None:
+def test_linked_provider(project_model: Project, provider_model: Provider) -> None:
     assert project_model.provider.name
     assert project_model.provider.source
     assert isinstance(project_model.provider.source, Project)
@@ -225,7 +171,6 @@ def test_linked_provider(
     r = project_model.provider.connect(provider_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[provider_model]], ["provider_r1"])
     assert len(project_model.provider.all()) == 1
     provider = project_model.provider.single()
     assert isinstance(provider, Provider)
@@ -233,32 +178,19 @@ def test_linked_provider(
 
 
 def test_multiple_linked_provider(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    project_model: Project,
-    provider_model: Provider,
+    project_model: Project, provider_model: Provider
 ) -> None:
-    with patch("neomodel.match.QueryBuilder._count") as mock_count:
-        mock_count.return_value = 1
-        with pytest.raises(AttemptedCardinalityViolation):
-            project_model.provider.connect(provider_model)
+    project_model.provider.connect(provider_model)
+    with pytest.raises(AttemptedCardinalityViolation):
+        project_model.provider.connect(provider_model)
 
-    db_match.cypher_query.return_value = (
-        [[provider_model], [provider_model]],
-        ["provider_r1", "provider_r2"],
-    )
-    with pytest.raises(CardinalityViolation):
-        project_model.provider.all()
+    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+        project_model.provider.connect(provider_model)
+        with pytest.raises(CardinalityViolation):
+            project_model.provider.all()
 
 
-@patch("neomodel.match.QueryBuilder._count", return_value=0)
-def test_linked_sla(
-    mock_count: MagicMock,
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    project_model: Project,
-    sla_model: SLA,
-) -> None:
+def test_linked_sla(project_model: Project, sla_model: SLA) -> None:
     assert project_model.sla.name
     assert project_model.sla.source
     assert isinstance(project_model.sla.source, Project)
@@ -269,30 +201,21 @@ def test_linked_sla(
     r = project_model.sla.connect(sla_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[sla_model]], ["sla_r1"])
     assert len(project_model.sla.all()) == 1
     sla = project_model.sla.single()
     assert isinstance(sla, SLA)
     assert sla.uid == sla_model.uid
 
 
-def test_multiple_linked_sla(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    project_model: Project,
-    sla_model: SLA,
-) -> None:
-    with patch("neomodel.match.QueryBuilder._count") as mock_count:
-        mock_count.return_value = 1
-        with pytest.raises(AttemptedCardinalityViolation):
-            project_model.sla.connect(sla_model)
+def test_multiple_linked_sla(project_model: Project, sla_model: SLA) -> None:
+    project_model.sla.connect(sla_model)
+    with pytest.raises(AttemptedCardinalityViolation):
+        project_model.sla.connect(sla_model)
 
-    db_match.cypher_query.return_value = (
-        [[sla_model], [sla_model]],
-        ["sla_r1", "sla_r2"],
-    )
-    with pytest.raises(CardinalityViolation):
-        project_model.sla.all()
+    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+        project_model.sla.connect(sla_model)
+        with pytest.raises(CardinalityViolation):
+            project_model.sla.all()
 
 
 # TODO test public_flavors

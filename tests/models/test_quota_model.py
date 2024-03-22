@@ -1,10 +1,8 @@
 from random import randint
 from typing import Any, Tuple, Union
-from unittest.mock import MagicMock, patch
-from uuid import uuid4
+from unittest.mock import patch
 
 import pytest
-from neo4j.graph import Node
 from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
@@ -119,68 +117,48 @@ def test_missing_attr(
 
 
 @parametrize_with_cases("key, value", cases=CaseBlockStorageAttr)
-def test_block_storage_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_block_storage_attr(key: str, value: Any) -> None:
     d = quota_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = BlockStorageQuota(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("key, value", cases=CaseComputeAttr)
-def test_compute_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_compute_attr(key: str, value: Any) -> None:
     d = quota_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = ComputeQuota(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("key, value", cases=CaseNetworkAttr)
-def test_network_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_network_attr(key: str, value: Any) -> None:
     d = quota_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = NetworkQuota(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_required_rel(
-    db_match: MagicMock,
     quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
 ) -> None:
-    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
         quota_model.service.all()
     with pytest.raises(CardinalityViolation):
@@ -191,12 +169,8 @@ def test_required_rel(
         quota_model.project.single()
 
 
-@patch("neomodel.match.QueryBuilder._count", return_value=0)
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_linked_project(
-    mock_count: MagicMock,
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
     quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
     project_model: Project,
 ) -> None:
@@ -210,7 +184,6 @@ def test_linked_project(
     r = quota_model.project.connect(project_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[project_model]], ["project_r1"])
     assert len(quota_model.project.all()) == 1
     project = quota_model.project.single()
     assert isinstance(project, Project)
@@ -219,29 +192,20 @@ def test_linked_project(
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_multiple_linked_project(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
     quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
     project_model: Project,
 ) -> None:
-    with patch("neomodel.match.QueryBuilder._count") as mock_count:
-        mock_count.return_value = 1
-        with pytest.raises(AttemptedCardinalityViolation):
-            quota_model.project.connect(project_model)
+    quota_model.project.connect(project_model)
+    with pytest.raises(AttemptedCardinalityViolation):
+        quota_model.project.connect(project_model)
 
-    db_match.cypher_query.return_value = (
-        [[project_model], [project_model]],
-        ["project_r1", "project_r2"],
-    )
-    with pytest.raises(CardinalityViolation):
-        quota_model.project.all()
+    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+        quota_model.project.connect(project_model)
+        with pytest.raises(CardinalityViolation):
+            quota_model.project.all()
 
 
-@patch("neomodel.match.QueryBuilder._count", return_value=0)
 def test_linked_block_storage_service(
-    mock_count: MagicMock,
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
     block_storage_quota_model: BlockStorageQuota,
     block_storage_service_model: BlockStorageService,
 ) -> None:
@@ -258,23 +222,14 @@ def test_linked_block_storage_service(
     r = block_storage_quota_model.service.connect(block_storage_service_model)
     assert r is True
 
-    db_match.cypher_query.return_value = (
-        [[block_storage_service_model]],
-        ["service_r1"],
-    )
     assert len(block_storage_quota_model.service.all()) == 1
     service = block_storage_quota_model.service.single()
     assert isinstance(service, BlockStorageService)
     assert service.uid == block_storage_service_model.uid
 
 
-@patch("neomodel.match.QueryBuilder._count", return_value=0)
 def test_linked_compute_service(
-    mock_count: MagicMock,
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    compute_quota_model: ComputeQuota,
-    compute_service_model: ComputeService,
+    compute_quota_model: ComputeQuota, compute_service_model: ComputeService
 ) -> None:
     assert compute_quota_model.service.name
     assert compute_quota_model.service.source
@@ -286,20 +241,14 @@ def test_linked_compute_service(
     r = compute_quota_model.service.connect(compute_service_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[compute_service_model]], ["service_r1"])
     assert len(compute_quota_model.service.all()) == 1
     service = compute_quota_model.service.single()
     assert isinstance(service, ComputeService)
     assert service.uid == compute_service_model.uid
 
 
-@patch("neomodel.match.QueryBuilder._count", return_value=0)
 def test_linked_network_service(
-    mock_count: MagicMock,
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    network_quota_model: NetworkQuota,
-    network_service_model: NetworkService,
+    network_quota_model: NetworkQuota, network_service_model: NetworkService
 ) -> None:
     assert network_quota_model.service.name
     assert network_quota_model.service.source
@@ -311,7 +260,6 @@ def test_linked_network_service(
     r = network_quota_model.service.connect(network_service_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[network_service_model]], ["service_r1"])
     assert len(network_quota_model.service.all()) == 1
     service = network_quota_model.service.single()
     assert isinstance(service, NetworkService)
@@ -319,57 +267,40 @@ def test_linked_network_service(
 
 
 def test_multiple_linked_block_storage_services(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
     block_storage_quota_model: BlockStorageQuota,
     block_storage_service_model: BlockStorageService,
 ) -> None:
-    with patch("neomodel.match.QueryBuilder._count") as mock_count:
-        mock_count.return_value = 1
-        with pytest.raises(AttemptedCardinalityViolation):
-            block_storage_quota_model.service.connect(block_storage_service_model)
+    block_storage_quota_model.service.connect(block_storage_service_model)
+    with pytest.raises(AttemptedCardinalityViolation):
+        block_storage_quota_model.service.connect(block_storage_service_model)
 
-    db_match.cypher_query.return_value = (
-        [[block_storage_service_model], [block_storage_service_model]],
-        ["service_r1", "service_r2"],
-    )
-    with pytest.raises(CardinalityViolation):
-        block_storage_quota_model.service.all()
+    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+        block_storage_quota_model.service.connect(block_storage_service_model)
+        with pytest.raises(CardinalityViolation):
+            block_storage_quota_model.service.all()
 
 
 def test_multiple_linked_compute_services(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    compute_quota_model: ComputeQuota,
-    compute_service_model: ComputeService,
+    compute_quota_model: ComputeQuota, compute_service_model: ComputeService
 ) -> None:
-    with patch("neomodel.match.QueryBuilder._count") as mock_count:
-        mock_count.return_value = 1
-        with pytest.raises(AttemptedCardinalityViolation):
-            compute_quota_model.service.connect(compute_service_model)
+    compute_quota_model.service.connect(compute_service_model)
+    with pytest.raises(AttemptedCardinalityViolation):
+        compute_quota_model.service.connect(compute_service_model)
 
-    db_match.cypher_query.return_value = (
-        [[compute_service_model], [compute_service_model]],
-        ["service_r1", "service_r2"],
-    )
-    with pytest.raises(CardinalityViolation):
-        compute_quota_model.service.all()
+    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+        compute_quota_model.service.connect(compute_service_model)
+        with pytest.raises(CardinalityViolation):
+            compute_quota_model.service.all()
 
 
 def test_multiple_linked_network_services(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    network_quota_model: NetworkQuota,
-    network_service_model: NetworkService,
+    network_quota_model: NetworkQuota, network_service_model: NetworkService
 ) -> None:
-    with patch("neomodel.match.QueryBuilder._count") as mock_count:
-        mock_count.return_value = 1
-        with pytest.raises(AttemptedCardinalityViolation):
-            network_quota_model.service.connect(network_service_model)
+    network_quota_model.service.connect(network_service_model)
+    with pytest.raises(AttemptedCardinalityViolation):
+        network_quota_model.service.connect(network_service_model)
 
-    db_match.cypher_query.return_value = (
-        [[network_service_model], [network_service_model]],
-        ["service_r1", "service_r2"],
-    )
-    with pytest.raises(CardinalityViolation):
-        network_quota_model.service.all()
+    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+        network_quota_model.service.connect(network_service_model)
+        with pytest.raises(CardinalityViolation):
+            network_quota_model.service.all()

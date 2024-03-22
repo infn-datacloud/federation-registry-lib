@@ -52,7 +52,7 @@ def test_attr(key: str, value: Any) -> None:
     item = IdentityProvider(**d)
     saved = item.save()
 
-    assert saved.element_id_property is not None
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 

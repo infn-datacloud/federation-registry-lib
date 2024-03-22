@@ -1,9 +1,6 @@
 from typing import Any, Tuple, Union
-from unittest.mock import MagicMock
-from uuid import uuid4
 
 import pytest
-from neo4j.graph import Node
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
@@ -142,89 +139,63 @@ def test_network_missing_attr(missing_attr: str) -> None:
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_block_storage_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_block_storage_attr(key: str, value: Any) -> None:
     d = service_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = BlockStorageService(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_compute_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_compute_attr(key: str, value: Any) -> None:
     d = service_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = ComputeService(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_identity_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_identity_attr(key: str, value: Any) -> None:
     d = service_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = IdentityService(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_network_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_network_attr(key: str, value: Any) -> None:
     d = service_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = NetworkService(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("service_model", cases=CaseServiceModel)
 def test_required_rel(
-    db_match: MagicMock,
     service_model: Union[
         BlockStorageService, ComputeService, IdentityService, NetworkService
     ],
 ) -> None:
-    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
         service_model.region.all()
     with pytest.raises(CardinalityViolation):
@@ -232,17 +203,13 @@ def test_required_rel(
 
 
 def test_block_storage_optional_rel(
-    db_match: MagicMock, block_storage_service_model: BlockStorageService
+    block_storage_service_model: BlockStorageService,
 ) -> None:
-    db_match.cypher_query.return_value = ([], None)
     assert len(block_storage_service_model.quotas.all()) == 0
     assert block_storage_service_model.quotas.single() is None
 
 
-def test_compute_optional_rel(
-    db_match: MagicMock, compute_service_model: ComputeService
-) -> None:
-    db_match.cypher_query.return_value = ([], None)
+def test_compute_optional_rel(compute_service_model: ComputeService) -> None:
     assert len(compute_service_model.quotas.all()) == 0
     assert compute_service_model.quotas.single() is None
     assert len(compute_service_model.flavors.all()) == 0
@@ -251,10 +218,7 @@ def test_compute_optional_rel(
     assert compute_service_model.images.single() is None
 
 
-def test_network_optional_rel(
-    db_match: MagicMock, network_service_model: NetworkService
-) -> None:
-    db_match.cypher_query.return_value = ([], None)
+def test_network_optional_rel(network_service_model: NetworkService) -> None:
     assert len(network_service_model.quotas.all()) == 0
     assert network_service_model.quotas.single() is None
     assert len(network_service_model.networks.all()) == 0
@@ -262,8 +226,6 @@ def test_network_optional_rel(
 
 
 def test_linked_block_storage_quota(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
     block_storage_service_model: BlockStorageService,
     block_storage_quota_model: BlockStorageQuota,
 ) -> None:
@@ -281,7 +243,6 @@ def test_linked_block_storage_quota(
     r = block_storage_service_model.quotas.connect(block_storage_quota_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[block_storage_quota_model]], ["quotass_r1"])
     assert len(block_storage_service_model.quotas.all()) == 1
     quotas = block_storage_service_model.quotas.single()
     assert isinstance(quotas, BlockStorageQuota)
@@ -289,23 +250,16 @@ def test_linked_block_storage_quota(
 
 
 def test_multiple_linked_block_storage_quotas(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
     block_storage_service_model: BlockStorageService,
     block_storage_quota_model: BlockStorageQuota,
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[block_storage_quota_model], [block_storage_quota_model]],
-        ["quotass_r1", "quotass_r2"],
-    )
+    block_storage_service_model.quotas.connect(block_storage_quota_model)
+    block_storage_service_model.quotas.connect(block_storage_quota_model)
     assert len(block_storage_service_model.quotas.all()) == 2
 
 
 def test_linked_compute_quota(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    compute_service_model: ComputeService,
-    compute_quota_model: ComputeQuota,
+    compute_service_model: ComputeService, compute_quota_model: ComputeQuota
 ) -> None:
     assert compute_service_model.quotas.name
     assert compute_service_model.quotas.source
@@ -317,7 +271,6 @@ def test_linked_compute_quota(
     r = compute_service_model.quotas.connect(compute_quota_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[compute_quota_model]], ["quotass_r1"])
     assert len(compute_service_model.quotas.all()) == 1
     quotas = compute_service_model.quotas.single()
     assert isinstance(quotas, ComputeQuota)
@@ -325,23 +278,15 @@ def test_linked_compute_quota(
 
 
 def test_multiple_linked_compute_quotas(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    compute_service_model: ComputeService,
-    compute_quota_model: ComputeQuota,
+    compute_service_model: ComputeService, compute_quota_model: ComputeQuota
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[compute_quota_model], [compute_quota_model]],
-        ["quotass_r1", "quotass_r2"],
-    )
+    compute_service_model.quotas.connect(compute_quota_model)
+    compute_service_model.quotas.connect(compute_quota_model)
     assert len(compute_service_model.quotas.all()) == 2
 
 
 def test_linked_flavor(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    compute_service_model: ComputeService,
-    flavor_model: Flavor,
+    compute_service_model: ComputeService, flavor_model: Flavor
 ) -> None:
     assert compute_service_model.flavors.name
     assert compute_service_model.flavors.source
@@ -353,7 +298,6 @@ def test_linked_flavor(
     r = compute_service_model.flavors.connect(flavor_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[flavor_model]], ["flavorss_r1"])
     assert len(compute_service_model.flavors.all()) == 1
     flavors = compute_service_model.flavors.single()
     assert isinstance(flavors, Flavor)
@@ -361,23 +305,15 @@ def test_linked_flavor(
 
 
 def test_multiple_linked_flavors(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    compute_service_model: ComputeService,
-    flavor_model: Flavor,
+    compute_service_model: ComputeService, flavor_model: Flavor
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[flavor_model], [flavor_model]],
-        ["flavors_r1", "flavors_r2"],
-    )
+    compute_service_model.flavors.connect(flavor_model)
+    compute_service_model.flavors.connect(flavor_model)
     assert len(compute_service_model.flavors.all()) == 2
 
 
 def test_linked_image(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    compute_service_model: ComputeService,
-    image_model: Image,
+    compute_service_model: ComputeService, image_model: Image
 ) -> None:
     assert compute_service_model.images.name
     assert compute_service_model.images.source
@@ -389,7 +325,6 @@ def test_linked_image(
     r = compute_service_model.images.connect(image_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[image_model]], ["imagess_r1"])
     assert len(compute_service_model.images.all()) == 1
     images = compute_service_model.images.single()
     assert isinstance(images, Image)
@@ -397,23 +332,15 @@ def test_linked_image(
 
 
 def test_multiple_linked_images(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    compute_service_model: ComputeService,
-    image_model: Image,
+    compute_service_model: ComputeService, image_model: Image
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[image_model], [image_model]],
-        ["images_r1", "images_r2"],
-    )
+    compute_service_model.images.connect(image_model)
+    compute_service_model.images.connect(image_model)
     assert len(compute_service_model.images.all()) == 2
 
 
 def test_linked_network_quota(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    network_service_model: NetworkService,
-    network_quota_model: NetworkQuota,
+    network_service_model: NetworkService, network_quota_model: NetworkQuota
 ) -> None:
     assert network_service_model.quotas.name
     assert network_service_model.quotas.source
@@ -425,7 +352,6 @@ def test_linked_network_quota(
     r = network_service_model.quotas.connect(network_quota_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[network_quota_model]], ["quotass_r1"])
     assert len(network_service_model.quotas.all()) == 1
     quotas = network_service_model.quotas.single()
     assert isinstance(quotas, NetworkQuota)
@@ -433,23 +359,15 @@ def test_linked_network_quota(
 
 
 def test_multiple_linked_network_quotas(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    network_service_model: NetworkService,
-    network_quota_model: NetworkQuota,
+    network_service_model: NetworkService, network_quota_model: NetworkQuota
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[network_quota_model], [network_quota_model]],
-        ["quotass_r1", "quotass_r2"],
-    )
+    network_service_model.quotas.connect(network_quota_model)
+    network_service_model.quotas.connect(network_quota_model)
     assert len(network_service_model.quotas.all()) == 2
 
 
 def test_linked_network(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    network_service_model: NetworkService,
-    network_model: Network,
+    network_service_model: NetworkService, network_model: Network
 ) -> None:
     assert network_service_model.networks.name
     assert network_service_model.networks.source
@@ -461,7 +379,6 @@ def test_linked_network(
     r = network_service_model.networks.connect(network_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[network_model]], ["networkss_r1"])
     assert len(network_service_model.networks.all()) == 1
     networks = network_service_model.networks.single()
     assert isinstance(networks, Network)
@@ -469,13 +386,8 @@ def test_linked_network(
 
 
 def test_multiple_linked_networks(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    network_service_model: NetworkService,
-    network_model: Network,
+    network_service_model: NetworkService, network_model: Network
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[network_model], [network_model]],
-        ["networks_r1", "networks_r2"],
-    )
+    network_service_model.networks.connect(network_model)
+    network_service_model.networks.connect(network_model)
     assert len(network_service_model.networks.all()) == 2

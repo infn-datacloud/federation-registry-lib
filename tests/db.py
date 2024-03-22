@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Tuple
 from uuid import uuid4
 
 from neo4j.graph import Node, Relationship
@@ -11,29 +11,32 @@ from fed_reg.location.models import Location
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.provider.models import Provider
-from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota, Quota
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
+    Service,
 )
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
 
 CLASS_DICT = {
     "Flavor": Flavor,
-    "Identity_Provider": IdentityProvider,
+    "IdentityProvider": IdentityProvider,
     "Image": Image,
     "Location": Location,
     "Network": Network,
     "Project": Project,
     "Provider": Provider,
+    "Quota": Quota,
     "BlockStorageQuota": BlockStorageQuota,
     "ComputeQuota": ComputeQuota,
     "NetworkQuota": NetworkQuota,
     "Region": Region,
+    "Service": Service,
     "BlockStorageService": BlockStorageService,
     "ComputeService": ComputeService,
     "IdentityService": IdentityService,
@@ -50,10 +53,10 @@ class MockDatabase:
         self.count = 0
 
     def query_call(self, query: str, params: Dict[str, Any], **kwargs):
-        print(query, kwargs)
+        # print(query, kwargs)
 
         # Detect if it is a CREATE request.
-        match = re.search(r"(?<=CREATE\s\(n\:)\w+(?=\s|\:)", query)
+        match = re.search(r"(?<=CREATE\s\(n\:)[\w\:]+(?=\s)", query)
         if match is not None:
             item_type = match.group(0)
             return self.create(item_type, params)
@@ -62,10 +65,14 @@ class MockDatabase:
         match = re.search(r"(?<=MATCH\s\()\w+(?=\))", query)
         if match is not None:
             item_type = match.group(0).capitalize()
+
+            # Detect if it is a MERGE request (connect)
             match = re.search(r"(?<=MERGE.).*$", query)
             if match is not None:
                 return self.merge(params, match.group(0))
-            match = re.search(r"(?<=RETURN\s)\w+(?=$|\s)", query)
+
+            # Detect return type
+            match = re.search(r"(?<=RETURN\s)[^\s]+(?=$|\s)", query)
             if match is not None:
                 node_name = match.group(0)
                 return self.match(
@@ -75,7 +82,14 @@ class MockDatabase:
                     resolve_objects=kwargs.get("resolve_objects", False),
                 )
 
-    def create(self, item_type, params):
+    def create(self, item_type, params) -> Tuple[List[List[Node]], None]:
+        """
+        Create a node element with the given parameters.
+
+        Save the node in the class' dict. The key to use is the received label.
+        Each label stores a list of nodes.
+        When receiving multiple labels, create the node once and add it to each list.
+        """
         element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
         item = Node(
             ...,
@@ -83,11 +97,29 @@ class MockDatabase:
             id_=self.count,
             properties=params["create_params"],
         )
-        self.data[item_type] = [item]
         self.count += 1
-        return [[i] for i in self.data[item_type]], None
+        for t in item_type.split(":"):
+            if not self.data.get(t, None):
+                self.data[t] = []
+            self.data[t].append(item)
+        return [[item]], None
 
     def match(self, src_type, node_name, query, resolve_objects):
+        match = re.search(r"(?<=count\()\w+(?=\))", node_name)
+        if match is not None:
+            node_name = match.group(0)
+            idx = node_name.rfind("_")
+            if idx > -1:
+                rel_name = node_name[idx + 1 :]
+                match = re.search(rf"(?<={rel_name}:\`)\w+(?=\`)", query)
+                rel_type = match.group(0)
+                match = re.search(rf"(?<={node_name}:)\w+(?=\))", query)
+                dest_type = match.group(0)
+                relationships = self.get_related_items(
+                    rel_type, dest_type, resolve_objects
+                )
+            return [[len(relationships)]], None
+
         if src_type not in node_name:
             idx = node_name.rfind("_")
             if idx > -1:
@@ -114,6 +146,14 @@ class MockDatabase:
         return relationships
 
     def merge(self, params, query):
+        """
+        Connect 2 nodes.
+
+        With normal relationships return nothing.
+        If in the params dict there are other keys other then them and self, the
+        relationship stores additional data; in that case set the start and end node
+        of the relationship and return it.
+        """
         rel = None
         match = re.search(r"(?<=\`).*(?=\`)", query)
         relationship = match.group(0)
@@ -139,7 +179,12 @@ class MockDatabase:
             self.data[relationship] = [params]
         return [[rel]], ["r"]
 
-    def search_node(self, element_id):
+    def search_node(self, element_id) -> Optional[Node]:
+        """
+        When the node label is not specified, search in all nodes.
+
+        Return the node with the given element_id otherwise return None.
+        """
         for v in self.data.values():
             for i in filter(lambda x: isinstance(x, Node), v):
                 if i.element_id == element_id:

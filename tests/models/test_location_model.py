@@ -1,9 +1,6 @@
 from typing import Any, Tuple
-from unittest.mock import MagicMock
-from uuid import uuid4
 
 import pytest
-from neo4j.graph import Node
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
@@ -51,38 +48,26 @@ def test_missing_attr(missing_attr: str) -> None:
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
+def test_attr(key: str, value: Any) -> None:
     d = location_model_dict()
     d[key] = value
-
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
 
     item = Location(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
-def test_required_rel(db_match: MagicMock, location_model: Location) -> None:
-    db_match.cypher_query.return_value = ([], None)
+def test_required_rel(location_model: Location) -> None:
     with pytest.raises(CardinalityViolation):
         location_model.regions.all()
     with pytest.raises(CardinalityViolation):
         location_model.regions.single()
 
 
-def test_linked_region(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    location_model: Location,
-    region_model: Region,
-) -> None:
+def test_linked_region(location_model: Location, region_model: Region) -> None:
     assert location_model.regions.name
     assert location_model.regions.source
     assert isinstance(location_model.regions.source, Location)
@@ -93,7 +78,6 @@ def test_linked_region(
     r = location_model.regions.connect(region_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[region_model]], ["regions_r1"])
     assert len(location_model.regions.all()) == 1
     region = location_model.regions.single()
     assert isinstance(region, Region)
@@ -101,13 +85,8 @@ def test_linked_region(
 
 
 def test_multiple_linked_regions(
-    db_rel_mgr: MagicMock,
-    db_match: MagicMock,
-    location_model: Location,
-    region_model: Region,
+    location_model: Location, region_model: Region
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[region_model], [region_model]],
-        ["regions_r1", "regions_r2"],
-    )
+    location_model.regions.connect(region_model)
+    location_model.regions.connect(region_model)
     assert len(location_model.regions.all()) == 2

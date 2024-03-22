@@ -78,12 +78,12 @@ def clear_os_environment() -> None:
     os.environ.clear()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def db() -> MockDatabase:
     return MockDatabase()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def db_core(db: MockDatabase) -> Generator[None, Any, None]:
     with patch("neomodel.core.db") as mock_db:
         type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
@@ -91,7 +91,7 @@ def db_core(db: MockDatabase) -> Generator[None, Any, None]:
         yield
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def db_match(db: MockDatabase) -> Generator[None, Any, None]:
     with patch("neomodel.match.db") as mock_db:
         type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
@@ -99,7 +99,7 @@ def db_match(db: MockDatabase) -> Generator[None, Any, None]:
         yield
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def db_rel_mgr(db: MockDatabase) -> Generator[None, Any, None]:
     with patch("neomodel.relationship_manager.db") as mock_db:
         type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
@@ -113,7 +113,7 @@ def db_rel_mgr(db: MockDatabase) -> Generator[None, Any, None]:
         yield
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(autouse=True)
 def mock_db(
     db_core: None, db_match: None, db_rel_mgr: None
 ) -> Generator[None, Any, None]:
