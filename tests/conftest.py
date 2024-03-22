@@ -45,39 +45,31 @@ from tests.create_dict import (
     auth_method_dict,
     block_storage_service_schema_dict,
     compute_service_schema_dict,
+    flavor_model_dict,
     flavor_schema_dict,
+    identity_provider_model_dict,
     identity_provider_schema_dict,
     identity_service_schema_dict,
+    image_model_dict,
     image_schema_dict,
+    location_model_dict,
     location_schema_dict,
+    network_model_dict,
     network_schema_dict,
     network_service_schema_dict,
+    project_model_dict,
     project_schema_dict,
+    provider_model_dict,
+    quota_model_dict,
+    region_model_dict,
     region_schema_dict,
+    service_model_dict,
+    sla_model_dict,
     sla_schema_dict,
+    user_group_model_dict,
     user_group_schema_dict,
 )
-from tests.create_model import (
-    block_storage_quota_neomodel,
-    block_storage_service_neomodel,
-    compute_quota_neomodel,
-    compute_service_neomodel,
-    flavor_neomodel,
-    identity_provider_neomodel,
-    identity_service_neomodel,
-    image_neomodel,
-    location_neomodel,
-    network_neomodel,
-    network_quota_neomodel,
-    network_service_neomodel,
-    project_neomodel,
-    provider_neomodel,
-    region_neomodel,
-    sla_neomodel,
-    user_group_neomodel,
-)
-
-DB_VERSION = "5"
+from tests.db import MockDatabase
 
 
 @pytest.fixture(autouse=True)
@@ -87,23 +79,30 @@ def clear_os_environment() -> None:
 
 
 @pytest.fixture(scope="session")
-def db_core() -> Generator[MagicMock, Any, None]:
+def db() -> MockDatabase:
+    return MockDatabase()
+
+
+@pytest.fixture(scope="session")
+def db_core(db: MockDatabase) -> Generator[MagicMock, Any, None]:
     with patch("neomodel.core.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=DB_VERSION)
+        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
+        mock_db.cypher_query.side_effect = db.query_call
         yield mock_db
 
 
 @pytest.fixture(scope="session")
-def db_match() -> Generator[MagicMock, Any, None]:
+def db_match(db: MockDatabase) -> Generator[MagicMock, Any, None]:
     with patch("neomodel.match.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=DB_VERSION)
+        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
+        mock_db.cypher_query.side_effect = db.query_call
         yield mock_db
 
 
 @pytest.fixture(scope="session")
-def db_rel_mgr() -> Generator[MagicMock, Any, None]:
+def db_rel_mgr(db: MockDatabase) -> Generator[MagicMock, Any, None]:
     with patch("neomodel.relationship_manager.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=DB_VERSION)
+        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
 
         d = {}
         cls_registry = MagicMock()
@@ -116,87 +115,104 @@ def db_rel_mgr() -> Generator[MagicMock, Any, None]:
 
 @pytest.fixture
 def flavor_model(db_core: MagicMock) -> Flavor:
-    return flavor_neomodel(db_core)
+    d = flavor_model_dict()
+    return Flavor(**d).save()
 
 
 @pytest.fixture
 def identity_provider_model(db_core: MagicMock) -> IdentityProvider:
-    return identity_provider_neomodel(db_core)
+    d = identity_provider_model_dict()
+    return IdentityProvider(**d).save()
 
 
 @pytest.fixture
 def image_model(db_core: MagicMock) -> Image:
-    return image_neomodel(db_core)
+    d = image_model_dict()
+    return Image(**d).save()
 
 
 @pytest.fixture
 def location_model(db_core: MagicMock) -> Location:
-    return location_neomodel(db_core)
+    d = location_model_dict()
+    return Location(**d).save()
 
 
 @pytest.fixture
 def network_model(db_core: MagicMock) -> Network:
-    return network_neomodel(db_core)
+    d = network_model_dict()
+    return Network(**d).save()
 
 
 @pytest.fixture
 def project_model(db_core: MagicMock) -> Project:
-    return project_neomodel(db_core)
+    d = project_model_dict()
+    return Project(**d).save()
 
 
 @pytest.fixture
 def provider_model(db_core: MagicMock) -> Provider:
-    return provider_neomodel(db_core)
+    d = provider_model_dict()
+    return Provider(**d).save()
 
 
 @pytest.fixture
 def block_storage_quota_model(db_core: MagicMock) -> BlockStorageQuota:
-    return block_storage_quota_neomodel(db_core)
+    d = quota_model_dict()
+    return BlockStorageQuota(**d).save()
 
 
 @pytest.fixture
 def compute_quota_model(db_core: MagicMock) -> ComputeQuota:
-    return compute_quota_neomodel(db_core)
+    d = quota_model_dict()
+    return ComputeQuota(**d).save()
 
 
 @pytest.fixture
 def network_quota_model(db_core: MagicMock) -> NetworkQuota:
-    return network_quota_neomodel(db_core)
+    d = quota_model_dict()
+    return NetworkQuota(**d).save()
 
 
 @pytest.fixture
 def region_model(db_core: MagicMock) -> Region:
-    return region_neomodel(db_core)
+    d = region_model_dict()
+    return Region(**d).save()
 
 
 @pytest.fixture
 def block_storage_service_model(db_core: MagicMock) -> BlockStorageService:
-    return block_storage_service_neomodel(db_core)
+    d = service_model_dict()
+    return BlockStorageService(**d).save()
 
 
 @pytest.fixture
 def compute_service_model(db_core: MagicMock) -> ComputeService:
-    return compute_service_neomodel(db_core)
+    d = service_model_dict()
+    return ComputeService(**d).save()
 
 
 @pytest.fixture
 def identity_service_model(db_core: MagicMock) -> IdentityService:
-    return identity_service_neomodel(db_core)
+    d = service_model_dict()
+    return IdentityService(**d).save()
 
 
 @pytest.fixture
 def network_service_model(db_core: MagicMock) -> NetworkService:
-    return network_service_neomodel(db_core)
+    d = service_model_dict()
+    return NetworkService(**d).save()
 
 
 @pytest.fixture
 def sla_model(db_core: MagicMock) -> SLA:
-    return sla_neomodel(db_core)
+    d = sla_model_dict()
+    return SLA(**d).save()
 
 
 @pytest.fixture
 def user_group_model(db_core: MagicMock) -> UserGroup:
-    return user_group_neomodel(db_core)
+    d = user_group_model_dict()
+    return UserGroup(**d).save()
 
 
 @pytest.fixture

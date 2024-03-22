@@ -1,10 +1,8 @@
 from random import randint
 from typing import Any, Literal, Tuple
 from unittest.mock import MagicMock
-from uuid import uuid4
 
 import pytest
-from neo4j.graph import Node
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize, parametrize_with_cases
 
@@ -71,22 +69,15 @@ def test_attr(db_core: MagicMock, key: str, value: Any) -> None:
     d = flavor_model_dict()
     d[key] = value
 
-    element_id = f"{db_core.database_version}:{uuid4().hex}:0"
-    db_core.cypher_query.return_value = (
-        [[Node(..., element_id=element_id, id_=0, properties=d)]],
-        None,
-    )
-
     item = Flavor(**d)
     saved = item.save()
 
-    assert saved.element_id_property == element_id
+    assert saved.element_id_property is not None
     assert saved.uid == item.uid
     assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(db_match: MagicMock, flavor_model: Flavor) -> None:
-    db_match.cypher_query.return_value = ([], None)
     with pytest.raises(CardinalityViolation):
         flavor_model.services.all()
     with pytest.raises(CardinalityViolation):
@@ -94,7 +85,6 @@ def test_required_rel(db_match: MagicMock, flavor_model: Flavor) -> None:
 
 
 def test_optional_rel(db_match: MagicMock, flavor_model: Flavor) -> None:
-    db_match.cypher_query.return_value = ([], None)
     assert len(flavor_model.projects.all()) == 0
     assert flavor_model.projects.single() is None
 
@@ -115,7 +105,6 @@ def test_linked_project(
     r = flavor_model.projects.connect(project_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[project_model]], ["projects_r1"])
     assert len(flavor_model.projects.all()) == 1
     project = flavor_model.projects.single()
     assert isinstance(project, Project)
@@ -128,10 +117,9 @@ def test_multiple_linked_projects(
     flavor_model: Flavor,
     project_model: Project,
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[project_model], [project_model]],
-        ["projects_r1", "projects_r2"],
-    )
+    flavor_model.projects.connect(project_model)
+    flavor_model.projects.connect(project_model)
+
     assert len(flavor_model.projects.all()) == 2
 
 
@@ -151,7 +139,6 @@ def test_linked_service(
     r = flavor_model.services.connect(compute_service_model)
     assert r is True
 
-    db_match.cypher_query.return_value = ([[compute_service_model]], ["services_r1"])
     assert len(flavor_model.services.all()) == 1
     service = flavor_model.services.single()
     assert isinstance(service, ComputeService)
@@ -164,8 +151,6 @@ def test_multiple_linked_services(
     flavor_model: Flavor,
     compute_service_model: ComputeService,
 ) -> None:
-    db_match.cypher_query.return_value = (
-        [[compute_service_model], [compute_service_model]],
-        ["services_r1", "services_r2"],
-    )
+    flavor_model.services.connect(compute_service_model)
+    flavor_model.services.connect(compute_service_model)
     assert len(flavor_model.services.all()) == 2
