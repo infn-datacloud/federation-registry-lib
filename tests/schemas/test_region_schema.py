@@ -3,10 +3,8 @@ from typing import Any, List, Literal, Optional, Tuple, Union
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.location.models import Location
 from fed_reg.location.schemas import LocationCreate
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
@@ -39,22 +37,11 @@ from fed_reg.region.schemas_extended import (
     RegionReadExtended,
     RegionReadExtendedPublic,
 )
-from fed_reg.service.models import (
-    BlockStorageService,
-    ComputeService,
-    IdentityService,
-    NetworkService,
-)
 from fed_reg.service.schemas import IdentityServiceCreate
 from tests.create_dict import (
-    block_storage_service_model_dict,
-    compute_service_model_dict,
-    identity_service_model_dict,
-    location_model_dict,
-    network_service_model_dict,
-    provider_model_dict,
     region_schema_dict,
 )
+from tests.schemas.cases_db_instances import CaseDBInstance, CasePublic
 from tests.utils import random_lower_string, random_url
 
 
@@ -169,72 +156,6 @@ class CaseInvalidAttr:
             [service, service],
             "There are multiple items with identical endpoint",
         )
-
-
-class CaseDBInstance:
-    @parametrize(has_loc=[False, True])
-    def case_location(self, region_model: Region, has_loc: bool) -> Region:
-        p = Provider(**provider_model_dict()).save()
-        region_model.provider.connect(p)
-        if has_loc:
-            loc = Location(**location_model_dict()).save()
-            region_model.location.connect(loc)
-        return region_model
-
-    @parametrize(tot=[0, 1, 2])
-    def case_block_storage_services(self, region_model: Region, tot: int) -> Region:
-        p = Provider(**provider_model_dict()).save()
-        region_model.provider.connect(p)
-        for _ in range(tot):
-            s = BlockStorageService(**block_storage_service_model_dict()).save()
-            region_model.services.connect(s)
-        return region_model
-
-    @parametrize(tot=[0, 1, 2])
-    def case_compute_services(self, region_model: Region, tot: int) -> Region:
-        p = Provider(**provider_model_dict()).save()
-        region_model.provider.connect(p)
-        for _ in range(tot):
-            s = ComputeService(**compute_service_model_dict()).save()
-            region_model.services.connect(s)
-        return region_model
-
-    @parametrize(tot=[0, 1, 2])
-    def case_identity_services(self, region_model: Region, tot: int) -> Region:
-        p = Provider(**provider_model_dict()).save()
-        region_model.provider.connect(p)
-        for _ in range(tot):
-            s = IdentityService(**identity_service_model_dict()).save()
-            region_model.services.connect(s)
-        return region_model
-
-    @parametrize(tot=[0, 1, 2])
-    def case_network_services(self, region_model: Region, tot: int) -> Region:
-        p = Provider(**provider_model_dict()).save()
-        region_model.provider.connect(p)
-        for _ in range(tot):
-            s = NetworkService(**network_service_model_dict()).save()
-            region_model.services.connect(s)
-        return region_model
-
-    def case_mixed_srv(self, region_model: Region) -> Region:
-        p = Provider(**provider_model_dict()).save()
-        region_model.provider.connect(p)
-        s = BlockStorageService(**block_storage_service_model_dict()).save()
-        region_model.services.connect(s)
-        s = ComputeService(**compute_service_model_dict()).save()
-        region_model.services.connect(s)
-        s = IdentityService(**identity_service_model_dict()).save()
-        region_model.services.connect(s)
-        s = NetworkService(**network_service_model_dict()).save()
-        region_model.services.connect(s)
-        return region_model
-
-
-class CasePublic:
-    @parametrize(is_public=[True, False])
-    def case_public(self, is_public: bool):
-        return is_public
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
@@ -381,7 +302,7 @@ def test_invalid_read(region_model: Region, key: str, value: str) -> None:
         RegionRead.from_orm(region_model)
 
 
-@parametrize_with_cases("model", cases=CaseDBInstance)
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="region")
 @parametrize_with_cases("public", cases=CasePublic)
 def test_read_extended(model: Region, public: bool) -> None:
     if public:

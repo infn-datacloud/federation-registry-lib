@@ -5,9 +5,7 @@ import pytest
 from pydantic import EmailStr
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
-from fed_reg.project.models import Project
 from fed_reg.project.schemas import ProjectCreate
 from fed_reg.provider.enum import ProviderStatus, ProviderType
 from fed_reg.provider.models import Provider
@@ -21,41 +19,78 @@ from fed_reg.provider.schemas import (
     ProviderUpdate,
 )
 from fed_reg.provider.schemas_extended import (
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
     BlockStorageServiceCreateExtended,
+    BlockStorageServiceRead,
+    BlockStorageServiceReadExtended,
+    BlockStorageServiceReadExtendedPublic,
+    BlockStorageServiceReadPublic,
     ComputeQuotaCreateExtended,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
     ComputeServiceCreateExtended,
+    ComputeServiceRead,
+    ComputeServiceReadExtended,
+    ComputeServiceReadExtendedPublic,
+    ComputeServiceReadPublic,
     FlavorCreateExtended,
+    FlavorRead,
+    FlavorReadPublic,
     IdentityProviderCreateExtended,
+    IdentityProviderRead,
     IdentityProviderReadExtended,
     IdentityProviderReadExtendedPublic,
+    IdentityProviderReadPublic,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
     ImageCreateExtended,
+    ImageRead,
+    ImageReadPublic,
+    LocationRead,
+    LocationReadPublic,
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
+    NetworkQuotaRead,
+    NetworkQuotaReadPublic,
+    NetworkRead,
+    NetworkReadPublic,
     NetworkServiceCreateExtended,
+    NetworkServiceRead,
+    NetworkServiceReadExtended,
+    NetworkServiceReadExtendedPublic,
+    NetworkServiceReadPublic,
     ProjectRead,
     ProjectReadPublic,
     ProviderCreateExtended,
     ProviderReadExtended,
     ProviderReadExtendedPublic,
     RegionCreateExtended,
+    RegionRead,
     RegionReadExtended,
     RegionReadExtendedPublic,
+    RegionReadPublic,
     SLACreateExtended,
+    SLARead,
+    SLAReadPublic,
+    UserGroupRead,
+    UserGroupReadExtended,
+    UserGroupReadExtendedPublic,
+    UserGroupReadPublic,
 )
 from fed_reg.region.models import Region
+from fed_reg.service.models import BlockStorageService, ComputeService, NetworkService
+from fed_reg.user_group.models import UserGroup
 from tests.create_dict import (
-    auth_method_dict,
     flavor_schema_dict,
-    identity_provider_model_dict,
     image_schema_dict,
     network_schema_dict,
-    project_model_dict,
     project_schema_dict,
     provider_schema_dict,
-    region_model_dict,
     region_schema_dict,
     sla_schema_dict,
 )
+from tests.schemas.cases_db_instances import CaseDBInstance, CasePublic
 from tests.utils import random_email, random_lower_string, random_url
 
 
@@ -319,35 +354,6 @@ class CaseInvalidAttr:
         return ("regions", [region_create_ext_schema], "not in this provider")
 
 
-class CaseDBInstance:
-    @parametrize(tot=[0, 1, 2])
-    def case_projects(self, provider_model: Provider, tot: int) -> Provider:
-        for _ in range(tot):
-            p = Project(**project_model_dict()).save()
-            provider_model.projects.connect(p)
-        return provider_model
-
-    @parametrize(tot=[0, 1, 2])
-    def case_regions(self, provider_model: Provider, tot: int) -> Provider:
-        for _ in range(tot):
-            p = Region(**region_model_dict()).save()
-            provider_model.regions.connect(p)
-        return provider_model
-
-    @parametrize(tot=[0, 1, 2])
-    def case_identity_providers(self, provider_model: Provider, tot: int) -> Provider:
-        for _ in range(tot):
-            p = IdentityProvider(**identity_provider_model_dict()).save()
-            provider_model.identity_providers.connect(p, auth_method_dict())
-        return provider_model
-
-
-class CasePublic:
-    @parametrize(is_public=[True, False])
-    def case_public(self, is_public: bool):
-        return is_public
-
-
 @parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
 def test_base_public(key: str, value: str) -> None:
     assert issubclass(ProviderBasePublic, BaseNode)
@@ -559,7 +565,7 @@ def test_invalid_read(provider_model: Provider, key: str, value: str) -> None:
         ProviderRead.from_orm(provider_model)
 
 
-@parametrize_with_cases("model", cases=CaseDBInstance)
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="provider")
 @parametrize_with_cases("public", cases=CasePublic)
 def test_read_extended(model: Provider, public: bool) -> None:
     if public:
@@ -587,3 +593,183 @@ def test_read_extended(model: Provider, public: bool) -> None:
     assert all([isinstance(i, idp_cls) for i in item.identity_providers])
     assert all([isinstance(i, proj_cls) for i in item.projects])
     assert all([isinstance(i, reg_cls) for i in item.regions])
+
+
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="region")
+@parametrize_with_cases("public", cases=CasePublic)
+def test_read_extended_subclass_region(model: Region, public: bool) -> None:
+    if public:
+        cls = RegionReadPublic
+        cls_ext = RegionReadExtendedPublic
+        loc_cls = LocationReadPublic
+        bsto_srv_cls = BlockStorageServiceReadExtendedPublic
+        comp_srv_cls = ComputeServiceReadExtendedPublic
+        id_srv_cls = IdentityServiceReadPublic
+        net_srv_cls = NetworkServiceReadExtendedPublic
+    else:
+        cls = RegionRead
+        cls_ext = RegionReadExtended
+        loc_cls = LocationRead
+        bsto_srv_cls = BlockStorageServiceReadExtended
+        comp_srv_cls = ComputeServiceReadExtended
+        id_srv_cls = IdentityServiceRead
+        net_srv_cls = NetworkServiceReadExtended
+
+    assert issubclass(cls_ext, cls)
+    assert cls_ext.__config__.orm_mode
+
+    item = cls_ext.from_orm(model)
+
+    if not item.location:
+        assert not len(model.location.all())
+        assert not model.location.single()
+    else:
+        assert len(model.location.all()) == 1
+        assert model.location.single()
+    assert len(item.services) == len(model.services.all())
+
+    if item.location:
+        assert isinstance(item.location, loc_cls)
+    assert all(
+        [
+            isinstance(i, (bsto_srv_cls, comp_srv_cls, id_srv_cls, net_srv_cls))
+            for i in item.services
+        ]
+    )
+
+
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="identity_provider")
+@parametrize_with_cases("public", cases=CasePublic)
+def test_read_extended_subclass_identity_provider(
+    model: Provider, public: bool
+) -> None:
+    if public:
+        cls = IdentityProviderReadPublic
+        cls_ext = IdentityProviderReadExtendedPublic
+        prov_cls = ProviderReadExtendedPublic
+        group_cls = UserGroupReadExtendedPublic
+    else:
+        cls = IdentityProviderRead
+        cls_ext = IdentityProviderReadExtended
+        prov_cls = ProviderReadExtended
+        group_cls = UserGroupReadExtended
+
+    assert issubclass(cls_ext, cls)
+    assert cls_ext.__config__.orm_mode
+
+    item = prov_cls.from_orm(model)
+
+    model = model.identity_providers.single()
+    item = item.identity_providers[0]
+
+    assert item.relationship is not None
+
+    assert len(item.user_groups) == len(model.user_groups.all())
+
+    assert all([isinstance(i, group_cls) for i in item.user_groups])
+
+
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="user_group")
+@parametrize_with_cases("public", cases=CasePublic)
+def test_read_extended_subclass_user_groups(model: UserGroup, public: bool) -> None:
+    if public:
+        cls = UserGroupReadPublic
+        cls_ext = UserGroupReadExtendedPublic
+        sla_cls = SLAReadPublic
+    else:
+        cls = UserGroupRead
+        cls_ext = UserGroupReadExtended
+        sla_cls = SLARead
+
+    assert issubclass(cls_ext, cls)
+    assert cls_ext.__config__.orm_mode
+
+    item = cls_ext.from_orm(model)
+
+    assert len(item.slas) == len(model.slas.all())
+
+    assert all([isinstance(i, sla_cls) for i in item.slas])
+
+
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="block_storage_service")
+@parametrize_with_cases("public", cases=CasePublic)
+def test_read_extended_subclass_block_storage_service(
+    model: BlockStorageService, public: bool
+) -> None:
+    if public:
+        cls = BlockStorageServiceReadPublic
+        cls_ext = BlockStorageServiceReadExtendedPublic
+        quota_cls = BlockStorageQuotaReadPublic
+    else:
+        cls = BlockStorageServiceRead
+        cls_ext = BlockStorageServiceReadExtended
+        quota_cls = BlockStorageQuotaRead
+
+    assert issubclass(cls_ext, cls)
+    assert cls_ext.__config__.orm_mode
+
+    item = cls_ext.from_orm(model)
+
+    assert len(item.quotas) == len(model.quotas.all())
+
+    assert all([isinstance(i, quota_cls) for i in item.quotas])
+
+
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="compute_service")
+@parametrize_with_cases("public", cases=CasePublic)
+def test_read_extended_subclass_compute_service(
+    model: ComputeService, public: bool
+) -> None:
+    if public:
+        cls = ComputeServiceReadPublic
+        cls_ext = ComputeServiceReadExtendedPublic
+        flavor_cls = FlavorReadPublic
+        image_cls = ImageReadPublic
+        quota_cls = ComputeQuotaReadPublic
+    else:
+        cls = ComputeServiceRead
+        cls_ext = ComputeServiceReadExtended
+        flavor_cls = FlavorRead
+        image_cls = ImageRead
+        quota_cls = ComputeQuotaRead
+
+    assert issubclass(cls_ext, cls)
+    assert cls_ext.__config__.orm_mode
+
+    item = cls_ext.from_orm(model)
+
+    assert len(item.flavors) == len(model.flavors.all())
+    assert len(item.images) == len(model.images.all())
+    assert len(item.quotas) == len(model.quotas.all())
+
+    assert all([isinstance(i, flavor_cls) for i in item.flavors])
+    assert all([isinstance(i, image_cls) for i in item.images])
+    assert all([isinstance(i, quota_cls) for i in item.quotas])
+
+
+@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="network_service")
+@parametrize_with_cases("public", cases=CasePublic)
+def test_read_extended_subclass_network_service(
+    model: NetworkService, public: bool
+) -> None:
+    if public:
+        cls = NetworkServiceReadPublic
+        cls_ext = NetworkServiceReadExtendedPublic
+        net_cls = NetworkReadPublic
+        quota_cls = NetworkQuotaReadPublic
+    else:
+        cls = NetworkServiceRead
+        cls_ext = NetworkServiceReadExtended
+        net_cls = NetworkRead
+        quota_cls = NetworkQuotaRead
+
+    assert issubclass(cls_ext, cls)
+    assert cls_ext.__config__.orm_mode
+
+    item = cls_ext.from_orm(model)
+
+    assert len(item.networks) == len(model.networks.all())
+    assert len(item.quotas) == len(model.quotas.all())
+
+    assert all([isinstance(i, net_cls) for i in item.networks])
+    assert all([isinstance(i, quota_cls) for i in item.quotas])
