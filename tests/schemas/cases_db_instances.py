@@ -56,7 +56,7 @@ class CaseDBInstance:
 
     @case(tags=["provider"])
     @parametrize(tot=[0, 1, 2])
-    def case_regions(self, provider_model: Provider, tot: int) -> Provider:
+    def case_provider_regions(self, provider_model: Provider, tot: int) -> Provider:
         for _ in range(tot):
             p = Region(**region_model_dict()).save()
             provider_model.regions.connect(p)
@@ -267,3 +267,11 @@ class CaseDBInstance:
             item = Network(**network_model_dict()).save()
             network_service_model.networks.connect(item)
         return network_service_model
+
+    @case(tags=["location"])
+    @parametrize(tot=[1, 2])
+    def case_location_regions(self, location_model: Location, tot: int) -> Location:
+        for _ in range(tot):
+            item = Region(**region_model_dict()).save()
+            location_model.regions.connect(item)
+        return location_model

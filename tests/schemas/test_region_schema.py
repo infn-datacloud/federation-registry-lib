@@ -335,8 +335,10 @@ def test_read_extended(model: Region, public: bool) -> None:
     else:
         assert len(model.location.all()) == 1
         assert model.location.single()
+        assert item.location
     assert len(model.provider.all()) == 1
     assert model.provider.single()
+    assert item.provider
     assert len(item.services) == len(model.services.all())
 
     if item.location:
