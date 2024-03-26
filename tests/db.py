@@ -117,9 +117,9 @@ class MockDatabase:
                 match = re.search(rf"(?<={node_name}:)\w+(?=\))", query)
                 dest_type = match.group(0)
                 relationships = self.get_related_items(
-                    rel_type, dest_type, resolve_objects
+                    rel_type, dest_type, resolve_objects, params
                 )
-            return [[len(relationships)]], None
+            return [[len(relationships)]], [node_name]
 
         if src_type not in node_name:
             idx = node_name.rfind("_")
@@ -130,26 +130,31 @@ class MockDatabase:
                 match = re.search(rf"(?<={node_name}:)\w+(?=\))", query)
                 dest_type = match.group(0)
                 relationships = self.get_related_items(
-                    rel_type, dest_type, resolve_objects
+                    rel_type, dest_type, resolve_objects, params
                 )
                 return relationships, [rel_type]
             else:
+                relationships = []
                 rel_name = node_name
                 match = re.search(rf"(?<={rel_name}:\`)\w+(?=\`)", query)
-                rel_type = match.group(0)
-                relationships = filter(
-                    lambda x: x[1].get("self") == params.get("self"),
-                    self.data[rel_type],
-                )
-                return [[i[0]] for i in relationships], None
+                if match is not None:
+                    rel_type = match.group(0)
+                    relationships = filter(
+                        lambda x: x[1].get("self") == params.get("self"),
+                        self.data[rel_type],
+                    )
+                return [[i[0]] for i in relationships], [node_name]
 
-        return [[i] for i in self.data[src_type]], None
+        return [[i] for i in self.data[src_type]], [node_name]
 
-    def get_related_items(self, rel_type, dest_type, resolve_objects):
+    def get_related_items(self, rel_type, dest_type, resolve_objects, params):
+        src_element_id = next(iter(params.values()))
         relationships = []
         for i in self.data.get(dest_type, []):
             for j in self.data.get(rel_type, []):
-                if j[1].get("them") == i.element_id:
+                if j[1].get("them") == i.element_id and (
+                    not src_element_id or j[1].get("self") == src_element_id
+                ):
                     if resolve_objects:
                         relationships += [[CLASS_DICT[dest_type](**i)]]
                     else:
