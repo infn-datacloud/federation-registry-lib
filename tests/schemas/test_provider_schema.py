@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional, Tuple, Union
+from typing import Any, Literal, Optional, Union
 from uuid import uuid4
 
 import pytest
@@ -96,37 +96,37 @@ from tests.utils import random_email, random_lower_string, random_url
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["base_public", "base"])
     @parametrize(value=[i for i in ProviderType])
     def case_prov_type(
         self, value: ProviderType
-    ) -> Tuple[Literal["type"], ProviderType]:
+    ) -> tuple[Literal["type"], ProviderType]:
         return "type", value
 
     @case(tags=["base"])
     @parametrize(value=[True, False])
-    def case_is_public(self, value: bool) -> Tuple[Literal["is_public"], bool]:
+    def case_is_public(self, value: bool) -> tuple[Literal["is_public"], bool]:
         return "is_public", value
 
     @case(tags=["base"])
     @parametrize(value=[i for i in ProviderStatus])
     def case_status(
         self, value: ProviderStatus
-    ) -> Tuple[Literal["status"], ProviderStatus]:
+    ) -> tuple[Literal["status"], ProviderStatus]:
         return "status", value
 
     @case(tags=["base"])
     @parametrize(len=[0, 1, 2])
     def case_email_list(
         self, len: int
-    ) -> Tuple[Literal["support_emails"], Optional[List[EmailStr]]]:
+    ) -> tuple[Literal["support_emails"], Optional[list[EmailStr]]]:
         attr = "support_emails"
         if len == 0:
             return attr, []
@@ -139,7 +139,7 @@ class CaseAttr:
     @parametrize(len=[0, 1, 2])
     def case_projects(
         self, project_create_schema: ProjectCreate, len: int
-    ) -> Tuple[Literal["projects"], List[ProjectCreate]]:
+    ) -> tuple[Literal["projects"], list[ProjectCreate]]:
         if len == 1:
             return "projects", [project_create_schema]
         elif len == 2:
@@ -154,7 +154,7 @@ class CaseAttr:
     @parametrize(len=[0, 1, 2])
     def case_regions(
         self, region_create_ext_schema: RegionCreateExtended, len: int
-    ) -> Tuple[Literal["regions"], List[RegionCreateExtended]]:
+    ) -> tuple[Literal["regions"], list[RegionCreateExtended]]:
         if len == 1:
             return "regions", [region_create_ext_schema]
         elif len == 2:
@@ -171,7 +171,7 @@ class CaseAttr:
         self,
         identity_provider_create_ext_schema: IdentityProviderCreateExtended,
         len: int,
-    ) -> Tuple[Literal["identity_providers"], List[IdentityProviderCreateExtended]]:
+    ) -> tuple[Literal["identity_providers"], list[IdentityProviderCreateExtended]]:
         if len == 1:
             return "identity_providers", [identity_provider_create_ext_schema]
         elif len == 2:
@@ -188,26 +188,26 @@ class CaseAttr:
 class CaseInvalidAttr:
     @case(tags=["base_public", "base", "update"])
     @parametrize(attr=["name", "type"])
-    def case_attr(self, attr: str) -> Tuple[str, None]:
+    def case_attr(self, attr: str) -> tuple[str, None]:
         return attr, None
 
     @case(tags=["base_public", "base"])
-    def case_prov_type(self) -> Tuple[Literal["type"], str]:
+    def case_prov_type(self) -> tuple[Literal["type"], str]:
         return "type", random_lower_string()
 
     @case(tags=["base"])
-    def case_status(self) -> Tuple[Literal["status"], str]:
+    def case_status(self) -> tuple[Literal["status"], str]:
         return "status", random_lower_string()
 
     @case(tags=["base"])
-    def case_email(self) -> Tuple[Literal["support_emails"], List[str]]:
+    def case_email(self) -> tuple[Literal["support_emails"], list[str]]:
         return "support_emails", [random_lower_string()]
 
     @case(tags=["create_extended"])
     @parametrize(attr=["name", "uuid"])
     def case_dup_projects(
         self, project_create_schema: ProjectCreate, attr: str
-    ) -> Tuple[Literal["projects"], List[ProjectCreate]]:
+    ) -> tuple[Literal["projects"], list[ProjectCreate]]:
         project2 = project_create_schema.copy()
         if attr == "name":
             project2.uuid = uuid4()
@@ -222,7 +222,7 @@ class CaseInvalidAttr:
     @case(tags=["create_extended"])
     def case_dup_regions(
         self, region_create_ext_schema: RegionCreateExtended
-    ) -> Tuple[Literal["regions"], List[RegionCreateExtended]]:
+    ) -> tuple[Literal["regions"], list[RegionCreateExtended]]:
         return (
             "regions",
             [region_create_ext_schema, region_create_ext_schema],
@@ -232,8 +232,8 @@ class CaseInvalidAttr:
     @case(tags=["create_extended"])
     def case_dup_idps(
         self, identity_provider_create_ext_schema: IdentityProviderCreateExtended
-    ) -> Tuple[
-        Literal["identity_providers"], List[IdentityProviderCreateExtended], str
+    ) -> tuple[
+        Literal["identity_providers"], list[IdentityProviderCreateExtended], str
     ]:
         return (
             "identity_providers",
@@ -244,7 +244,7 @@ class CaseInvalidAttr:
     @case(tags=["idps"])
     def case_dup_sla_in_multi_idps(
         self, identity_provider_create_ext_schema: IdentityProviderCreateExtended
-    ) -> Tuple[Literal["identity_providers"], List[ProjectCreate]]:
+    ) -> tuple[Literal["identity_providers"], list[ProjectCreate]]:
         idp2 = identity_provider_create_ext_schema.copy()
         idp2.endpoint = random_url()
         return (
@@ -255,7 +255,7 @@ class CaseInvalidAttr:
     @case(tags=["idps"])
     def case_dup_project_in_multi_idps(
         self, identity_provider_create_ext_schema: IdentityProviderCreateExtended
-    ) -> Tuple[Literal["identity_providers"], List[ProjectCreate]]:
+    ) -> tuple[Literal["identity_providers"], list[ProjectCreate]]:
         idp2 = identity_provider_create_ext_schema.copy()
         user_group = idp2.user_groups[0].copy()
         sla = user_group.sla.copy()
@@ -272,9 +272,9 @@ class CaseInvalidAttr:
     def case_missing_idp_projects(
         self,
         identity_provider_create_ext_schema: IdentityProviderCreateExtended,
-    ) -> Tuple[
+    ) -> tuple[
         str,
-        Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+        Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
         Literal["not in this provider"],
     ]:
         return (
@@ -289,9 +289,9 @@ class CaseInvalidAttr:
         region_create_ext_schema: RegionCreateExtended,
         block_storage_service_create_ext_schema: BlockStorageServiceCreateExtended,
         block_storage_quota_create_ext_schema: BlockStorageServiceCreateExtended,
-    ) -> Tuple[
+    ) -> tuple[
         str,
-        Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+        Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
         Literal["not in this provider"],
     ]:
         block_storage_service_create_ext_schema.quotas = [
@@ -310,9 +310,9 @@ class CaseInvalidAttr:
         compute_service_create_ext_schema: ComputeServiceCreateExtended,
         compute_quota_create_ext_schema: ComputeQuotaCreateExtended,
         resource: str,
-    ) -> Tuple[
+    ) -> tuple[
         str,
-        Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+        Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
         Literal["not in this provider"],
     ]:
         if resource == "quotas":
@@ -338,9 +338,9 @@ class CaseInvalidAttr:
         network_service_create_ext_schema: NetworkServiceCreateExtended,
         network_quota_create_ext_schema: NetworkQuotaCreateExtended,
         resource: str,
-    ) -> Tuple[
+    ) -> tuple[
         str,
-        Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+        Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
         Literal["not in this provider"],
     ]:
         if resource == "quotas":
@@ -424,9 +424,9 @@ def test_create_extended(
     attr: str,
     values: Optional[
         Union[
-            List[IdentityProviderCreateExtended],
-            List[ProjectCreate],
-            List[RegionCreateExtended],
+            list[IdentityProviderCreateExtended],
+            list[ProjectCreate],
+            list[RegionCreateExtended],
         ]
     ],
 ) -> None:
@@ -451,9 +451,9 @@ def test_create_extended(
 def test_invalid_create_extended(
     attr: str,
     values: Union[
-        List[IdentityProviderCreateExtended],
-        List[ProjectCreate],
-        List[RegionCreateExtended],
+        list[IdentityProviderCreateExtended],
+        list[ProjectCreate],
+        list[RegionCreateExtended],
     ],
     msg: str,
 ) -> None:
@@ -476,9 +476,9 @@ def test_invalid_create_extended(
 )
 def test_dup_proj_in_idps_in_create_extended(
     identity_providers: Union[
-        List[IdentityProviderCreateExtended],
-        List[ProjectCreate],
-        List[RegionCreateExtended],
+        list[IdentityProviderCreateExtended],
+        list[ProjectCreate],
+        list[RegionCreateExtended],
     ],
     msg: str,
 ) -> None:
@@ -498,7 +498,7 @@ def test_dup_proj_in_idps_in_create_extended(
 @parametrize_with_cases("attr, values, msg", cases=CaseInvalidAttr, has_tag=["missing"])
 def test_miss_proj_in_idps_in_create_extended(
     attr: str,
-    values: Union[List[IdentityProviderCreateExtended], List[RegionCreateExtended]],
+    values: Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
     msg: str,
 ) -> None:
     d = provider_schema_dict()

@@ -1,6 +1,5 @@
 """Test custom  authentication functions."""
 from enum import Enum
-from typing import List
 from uuid import uuid4
 
 import pytest
@@ -24,7 +23,7 @@ class TestModelEnum(BaseNode):
 class TestModelUUID(BaseNode):
     __test__ = False
     uuid: str = Field(default="", description="A test field for uuid")
-    uuid_list: List[str] = Field(
+    uuid_list: list[str] = Field(
         default_factory=list, description="A test field for list of uuids"
     )
 

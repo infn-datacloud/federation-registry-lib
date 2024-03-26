@@ -1,4 +1,4 @@
-from typing import Literal, Tuple
+from typing import Literal
 
 from pytest_cases import parametrize, parametrize_with_cases
 
@@ -8,14 +8,14 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @parametrize(value=[True, False])
-    def case_boolean(self, value: bool) -> Tuple[Literal["per_user"], bool]:
+    def case_boolean(self, value: bool) -> tuple[Literal["per_user"], bool]:
         return "per_user", value
 
 

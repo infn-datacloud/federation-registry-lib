@@ -4,7 +4,7 @@ import time
 from datetime import date, datetime, timezone
 from enum import Enum
 from random import choice, choices, getrandbits, randint, random, randrange
-from typing import Any, Tuple, Type
+from typing import Any, Type
 
 from pycountry import countries
 from pydantic import AnyHttpUrl
@@ -87,7 +87,7 @@ def random_non_negative_float() -> float:
     return float(random_non_negative_int())
 
 
-def detect_public_extended_details(read_class: Type[BaseNodeRead]) -> Tuple[bool, bool]:
+def detect_public_extended_details(read_class: Type[BaseNodeRead]) -> tuple[bool, bool]:
     """From class name detect if it public or not, extended or not."""
     cls_name = read_class.__name__
     is_public = False
@@ -118,7 +118,7 @@ def random_provider_type() -> ProviderType:
     return choice([i for i in ProviderType])
 
 
-def random_start_end_dates() -> Tuple[date, date]:
+def random_start_end_dates() -> tuple[date, date]:
     """Return a random couples of valid start and end dates (in order)."""
     d1 = random_date()
     d2 = random_date()

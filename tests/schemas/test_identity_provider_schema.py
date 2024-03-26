@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, Literal, Optional
 from uuid import uuid4
 
 import pytest
@@ -32,22 +32,22 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["base"])
-    def case_group_claim(self) -> Tuple[Literal["group_claim"], str]:
+    def case_group_claim(self) -> tuple[Literal["group_claim"], str]:
         return "group_claim", random_lower_string()
 
     @case(tags=["create_extended"])
     @parametrize(len=[1, 2])
     def case_user_groups(
         self, user_group_create_ext_schema: UserGroupCreateExtended, len: int
-    ) -> List[UserGroupCreateExtended]:
+    ) -> list[UserGroupCreateExtended]:
         if len == 1:
             return [user_group_create_ext_schema]
         else:
@@ -62,19 +62,19 @@ class CaseAttr:
 
 class CaseInvalidAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_endpoint(self) -> Tuple[Literal["endpoint"], None]:
+    def case_endpoint(self) -> tuple[Literal["endpoint"], None]:
         return "endpoint", None
 
     @case(tags=["base", "update"])
-    def case_group_claim(self) -> Tuple[Literal["group_claim"], None]:
+    def case_group_claim(self) -> tuple[Literal["group_claim"], None]:
         return "group_claim", None
 
     @case(tags=["create_extended"])
-    def case_missing_relationship(self) -> Tuple[Literal["relationship"], None, None]:
+    def case_missing_relationship(self) -> tuple[Literal["relationship"], None, None]:
         return "relationship", None, None
 
     @case(tags=["create_extended"])
-    def case_no_user_groups(self) -> Tuple[Literal["user_groups"], List, str]:
+    def case_no_user_groups(self) -> tuple[Literal["user_groups"], list, str]:
         return (
             "user_groups",
             [],
@@ -84,7 +84,7 @@ class CaseInvalidAttr:
     @case(tags=["create_extended"])
     def case_dup_user_groups(
         self, user_group_create_ext_schema: UserGroupCreateExtended
-    ) -> Tuple[Literal["user_groups"], List[UserGroupCreateExtended], str]:
+    ) -> tuple[Literal["user_groups"], list[UserGroupCreateExtended], str]:
         return (
             "user_groups",
             [user_group_create_ext_schema, user_group_create_ext_schema],
@@ -94,7 +94,7 @@ class CaseInvalidAttr:
     @case(tags=["create_extended"])
     def case_dup_sla_doc_uuid(
         self, user_group_create_ext_schema: UserGroupCreateExtended
-    ) -> Tuple[Literal["user_groups"], List[UserGroupCreateExtended], str]:
+    ) -> tuple[Literal["user_groups"], list[UserGroupCreateExtended], str]:
         user_group2 = user_group_create_ext_schema.copy()
         user_group2.name = random_lower_string()
         return (
@@ -106,7 +106,7 @@ class CaseInvalidAttr:
     @case(tags=["create_extended"])
     def case_dup_sla_project(
         self, user_group_create_ext_schema: UserGroupCreateExtended
-    ) -> Tuple[Literal["user_groups"], List[UserGroupCreateExtended], str]:
+    ) -> tuple[Literal["user_groups"], list[UserGroupCreateExtended], str]:
         user_group2 = user_group_create_ext_schema.copy()
         user_group2.name = random_lower_string()
         user_group2.sla = user_group_create_ext_schema.sla.copy()
@@ -180,7 +180,7 @@ def test_query() -> None:
 
 
 @parametrize_with_cases("user_groups", cases=CaseAttr, has_tag="create_extended")
-def test_create_extended(user_groups: List[UserGroupCreateExtended]) -> None:
+def test_create_extended(user_groups: list[UserGroupCreateExtended]) -> None:
     assert issubclass(IdentityProviderCreateExtended, IdentityProviderCreate)
     d = identity_provider_schema_dict()
     d["relationship"] = AuthMethodCreate(**auth_method_dict())

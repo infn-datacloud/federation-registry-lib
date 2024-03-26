@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Tuple
+from typing import Any, Literal
 from uuid import uuid4
 
 import pytest
@@ -26,16 +26,16 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(value=[i for i in BlockStorageServiceName])
-    def case_name(self, value: int) -> Tuple[Literal["name"], int]:
+    def case_name(self, value: int) -> tuple[Literal["name"], int]:
         return "name", value
 
     @case(tags=["create_extended"])
@@ -44,7 +44,7 @@ class CaseAttr:
         self,
         block_storage_quota_create_ext_schema: BlockStorageQuotaCreateExtended,
         len: int,
-    ) -> List[BlockStorageQuotaCreateExtended]:
+    ) -> list[BlockStorageQuotaCreateExtended]:
         if len == 1:
             return [block_storage_quota_create_ext_schema]
         elif len == 2:
@@ -64,22 +64,22 @@ class CaseAttr:
 class CaseInvalidAttr:
     @case(tags=["base", "update"])
     @parametrize(attr=["endpoint", "name"])
-    def case_none(self, attr: str) -> Tuple[str, None]:
+    def case_none(self, attr: str) -> tuple[str, None]:
         return attr, None
 
     @case(tags=["base"])
-    def case_endpoint(self) -> Tuple[Literal["endpoint"], None]:
+    def case_endpoint(self) -> tuple[Literal["endpoint"], None]:
         return "endpoint", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(value=[i for i in ServiceType if i != ServiceType.BLOCK_STORAGE])
-    def case_type(self, value: ServiceType) -> Tuple[Literal["type"], ServiceType]:
+    def case_type(self, value: ServiceType) -> tuple[Literal["type"], ServiceType]:
         return "type", value
 
     @case(tags=["create_extended"])
     def case_dup_quotas(
         self, block_storage_quota_create_ext_schema: BlockStorageQuotaCreateExtended
-    ) -> Tuple[List[BlockStorageQuotaCreateExtended], str]:
+    ) -> tuple[list[BlockStorageQuotaCreateExtended], str]:
         return [
             block_storage_quota_create_ext_schema,
             block_storage_quota_create_ext_schema,
@@ -131,7 +131,7 @@ def test_query() -> None:
 
 
 @parametrize_with_cases("quotas", cases=CaseAttr, has_tag=["create_extended"])
-def test_create_extended(quotas: List[BlockStorageQuotaCreateExtended]) -> None:
+def test_create_extended(quotas: list[BlockStorageQuotaCreateExtended]) -> None:
     assert issubclass(BlockStorageServiceCreateExtended, BlockStorageServiceCreate)
     d = block_storage_service_schema_dict()
     d["quotas"] = quotas
@@ -143,7 +143,7 @@ def test_create_extended(quotas: List[BlockStorageQuotaCreateExtended]) -> None:
     "quotas, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
 )
 def test_invalid_create_extended(
-    quotas: List[BlockStorageQuotaCreateExtended], msg: str
+    quotas: list[BlockStorageQuotaCreateExtended], msg: str
 ) -> None:
     d = block_storage_service_schema_dict()
     d["quotas"] = quotas

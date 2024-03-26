@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, List, Literal, Tuple
+from typing import Any, Literal
 from uuid import UUID, uuid4
 
 import pytest
@@ -23,32 +23,32 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(attr=["disk", "ram", "vcpus", "swap", "ephemeral", "gpus"])
-    def case_integer(self, attr: str) -> Tuple[str, int]:
+    def case_integer(self, attr: str) -> tuple[str, int]:
         return attr, randint(0, 100)
 
     @case(tags=["base"])
     @parametrize(value=[True, False])
     @parametrize(attr=["is_public", "infiniband"])
-    def case_boolean(self, attr: str, value: bool) -> Tuple[str, bool]:
+    def case_boolean(self, attr: str, value: bool) -> tuple[str, bool]:
         return attr, value
 
     @case(tags=["base"])
     @parametrize(attr=["gpu_model", "gpu_vendor", "local_storage"])
-    def case_string(self, attr: str) -> Tuple[str, str]:
+    def case_string(self, attr: str) -> tuple[str, str]:
         return attr, random_lower_string()
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
-    def case_projects(self, len: int) -> List[UUID]:
+    def case_projects(self, len: int) -> list[UUID]:
         if len == 1:
             return [uuid4()]
         elif len == 2:
@@ -59,22 +59,22 @@ class CaseAttr:
 class CaseInvalidAttr:
     @case(tags=["base_public", "base", "update"])
     @parametrize(attr=["name", "uuid"])
-    def case_attr(self, attr: str) -> Tuple[str, None]:
+    def case_attr(self, attr: str) -> tuple[str, None]:
         return attr, None
 
     @case(tags=["base"])
     @parametrize(attr=["disk", "ram", "vcpus", "swap", "ephemeral", "gpus"])
-    def case_integer(self, attr: str) -> Tuple[str, Literal[-1]]:
+    def case_integer(self, attr: str) -> tuple[str, Literal[-1]]:
         return attr, -1
 
     @case(tags=["base"])
     @parametrize(attr=["gpu_model", "gpu_vendor"])
-    def case_gpu_details(self, attr: str) -> Tuple[str, str]:
+    def case_gpu_details(self, attr: str) -> tuple[str, str]:
         return attr, random_lower_string()
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
-    def case_projects(self, len: int) -> Tuple[List[UUID], str]:
+    def case_projects(self, len: int) -> tuple[list[UUID], str]:
         if len == 1:
             return [uuid4()], "Public flavors do not have linked projects"
         elif len == 2:
@@ -159,7 +159,7 @@ def test_query() -> None:
 
 
 @parametrize_with_cases("projects", cases=CaseAttr, has_tag=["create_extended"])
-def test_create_extended(projects: List[UUID]) -> None:
+def test_create_extended(projects: list[UUID]) -> None:
     assert issubclass(FlavorCreateExtended, FlavorCreate)
     d = flavor_schema_dict()
     d["is_public"] = len(projects) == 0
@@ -171,7 +171,7 @@ def test_create_extended(projects: List[UUID]) -> None:
 @parametrize_with_cases(
     "projects, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
 )
-def test_invalid_create_extended(projects: List[UUID], msg: str) -> None:
+def test_invalid_create_extended(projects: list[UUID], msg: str) -> None:
     d = flavor_schema_dict()
     if len(projects) == 0 or len(projects) == 2:
         d["is_public"] = False

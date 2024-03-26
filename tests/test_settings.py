@@ -1,6 +1,6 @@
 """Test settings."""
 from random import choice
-from typing import Any, Literal, Tuple
+from typing import Any, Literal
 
 import pytest
 from pydantic import AnyHttpUrl, AnyUrl, EmailStr
@@ -20,7 +20,7 @@ def random_neo4j_uri_scheme() -> Neo4jUriScheme:
 
 
 class CaseValidSettings:
-    def case_project_name(self) -> Tuple[Literal["PROJECT_NAME"], str]:
+    def case_project_name(self) -> tuple[Literal["PROJECT_NAME"], str]:
         """Returns the PROJECT_NAME and a random lowercase string.
 
         Returns:
@@ -28,7 +28,7 @@ class CaseValidSettings:
         """
         return "PROJECT_NAME", random_lower_string()
 
-    def case_domain(self) -> Tuple[Literal["DOMAIN"], str]:
+    def case_domain(self) -> tuple[Literal["DOMAIN"], str]:
         """Returns the DOMAIN setting and a random lowercase string.
 
         Returns:
@@ -36,7 +36,7 @@ class CaseValidSettings:
         """
         return "DOMAIN", random_lower_string()
 
-    def case_api_v1(self) -> Tuple[Literal["API_V1_STR"], str]:
+    def case_api_v1(self) -> tuple[Literal["API_V1_STR"], str]:
         """Returns the API_V1_STR setting and a random lowercase string.
 
         Returns:
@@ -44,7 +44,7 @@ class CaseValidSettings:
         """
         return "API_V1_STR", f"/{random_lower_string()}"
 
-    def case_neo4j_db_url(self) -> Tuple[Literal["NEO4J_DB_URL"], AnyHttpUrl]:
+    def case_neo4j_db_url(self) -> tuple[Literal["NEO4J_DB_URL"], AnyHttpUrl]:
         """Returns the NEO4J_DB_URL setting and a random URL.
 
         Returns:
@@ -52,7 +52,7 @@ class CaseValidSettings:
         """
         return "NEO4J_DB_URL", random_url()
 
-    def case_maintainer_name(self) -> Tuple[Literal["MAINTAINER_NAME"], str]:
+    def case_maintainer_name(self) -> tuple[Literal["MAINTAINER_NAME"], str]:
         """Returns the MAINTAINER_NAME setting and a random Neo4jUriScheme value.
 
         Returns:
@@ -61,7 +61,7 @@ class CaseValidSettings:
         """
         return "MAINTAINER_NAME", random_lower_string()
 
-    def case_maintainer_url(self) -> Tuple[Literal["MAINTAINER_URL"], str]:
+    def case_maintainer_url(self) -> tuple[Literal["MAINTAINER_URL"], str]:
         """Returns the MAINTAINER_URL setting and a random Neo4jUriScheme value.
 
         Returns:
@@ -70,7 +70,7 @@ class CaseValidSettings:
         """
         return "MAINTAINER_URL", random_url()
 
-    def case_maintainer_email(self) -> Tuple[Literal["MAINTAINER_EMAIL"], EmailStr]:
+    def case_maintainer_email(self) -> tuple[Literal["MAINTAINER_EMAIL"], EmailStr]:
         """Returns the MAINTAINER_EMAIL setting and a random Neo4jUriScheme value.
 
         Returns:
@@ -79,7 +79,7 @@ class CaseValidSettings:
         """
         return "MAINTAINER_EMAIL", random_email()
 
-    def case_doc_v1_url(self) -> Tuple[Literal["DOC_V1_URL"], AnyHttpUrl]:
+    def case_doc_v1_url(self) -> tuple[Literal["DOC_V1_URL"], AnyHttpUrl]:
         """Returns the DOC_V1_URL setting and a random URL.
 
         Returns:
@@ -89,7 +89,7 @@ class CaseValidSettings:
 
 
 class CaseNeo4jAttr:
-    def case_neo4j_server(self) -> Tuple[Literal["NEO4J_SERVER"], str]:
+    def case_neo4j_server(self) -> tuple[Literal["NEO4J_SERVER"], str]:
         """Returns the NEO4J_SERVER setting and a random lowercase string.
 
         Returns:
@@ -97,7 +97,7 @@ class CaseNeo4jAttr:
         """
         return "NEO4J_SERVER", random_lower_string()
 
-    def case_neo4j_user(self) -> Tuple[Literal["NEO4J_USER"], str]:
+    def case_neo4j_user(self) -> tuple[Literal["NEO4J_USER"], str]:
         """Returns the NEO4J_USER setting and a random lowercase string.
 
         Returns:
@@ -105,7 +105,7 @@ class CaseNeo4jAttr:
         """
         return "NEO4J_USER", random_lower_string()
 
-    def case_neo4j_password(self) -> Tuple[Literal["NEO4J_PASSWORD"], str]:
+    def case_neo4j_password(self) -> tuple[Literal["NEO4J_PASSWORD"], str]:
         """Returns the NEO4J_PASSWORD setting and a random lowercase string.
 
         Returns:
@@ -113,7 +113,7 @@ class CaseNeo4jAttr:
         """
         return "NEO4J_PASSWORD", random_lower_string()
 
-    def case_neo4j_uri_scheme(self) -> Tuple[Literal["NEO4J_URI_SCHEME"], str]:
+    def case_neo4j_uri_scheme(self) -> tuple[Literal["NEO4J_URI_SCHEME"], str]:
         """Returns the NEO4J_URI_SCHEME setting and a random Neo4jUriScheme value.
 
         Returns:
@@ -125,7 +125,7 @@ class CaseNeo4jAttr:
 
 class CaseInvalidSettings:
     @parametrize(value=["", "/"])
-    def case_api_v1(self, value: str) -> Tuple[Literal["API_V1_STR"], str]:
+    def case_api_v1(self, value: str) -> tuple[Literal["API_V1_STR"], str]:
         """Returns the API_V1_STR setting and a random invalid string.
 
         Args:
@@ -136,7 +136,7 @@ class CaseInvalidSettings:
         """
         return "API_V1_STR", value
 
-    def case_neo4j_db_url_not_url(self) -> Tuple[Literal["NEO4J_DB_URL"], str]:
+    def case_neo4j_db_url_not_url(self) -> tuple[Literal["NEO4J_DB_URL"], str]:
         return "NEO4J_DB_URL", random_lower_string()
 
 

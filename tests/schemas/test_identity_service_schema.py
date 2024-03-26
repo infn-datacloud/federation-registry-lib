@@ -1,4 +1,4 @@
-from typing import Any, Literal, Tuple
+from typing import Any, Literal
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
@@ -21,29 +21,29 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @parametrize(value=[i for i in IdentityServiceName])
-    def case_name(self, value: int) -> Tuple[Literal["name"], int]:
+    def case_name(self, value: int) -> tuple[Literal["name"], int]:
         return "name", value
 
 
 class CaseInvalidAttr:
     @case(tags=["update"])
     @parametrize(attr=["endpoint", "name"])
-    def case_none(self, attr: str) -> Tuple[str, None]:
+    def case_none(self, attr: str) -> tuple[str, None]:
         return attr, None
 
-    def case_endpoint(self) -> Tuple[Literal["endpoint"], None]:
+    def case_endpoint(self) -> tuple[Literal["endpoint"], None]:
         return "endpoint", random_lower_string()
 
     @parametrize(value=[i for i in ServiceType if i != ServiceType.IDENTITY])
-    def case_type(self, value: ServiceType) -> Tuple[Literal["type"], ServiceType]:
+    def case_type(self, value: ServiceType) -> tuple[Literal["type"], ServiceType]:
         return "type", value
 
 

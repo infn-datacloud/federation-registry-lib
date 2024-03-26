@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List, Tuple
+from typing import Any
 from uuid import uuid4
 
 import networkx as nx
@@ -54,7 +54,7 @@ class MockDatabase:
         self.data = {}
         self.count = 0
 
-    def query_call(self, query: str, params: Dict[str, Any], **kwargs):
+    def query_call(self, query: str, params: dict[str, Any], **kwargs):
         # print(query, kwargs)
         resolve_objects = kwargs.get("resolve_objects", False)
 
@@ -147,7 +147,7 @@ class MockDatabase:
             relationships = self._get_related_nodes(start_node, dest_type)
             return [[len(relationships)]], [return_string]
 
-    def create(self, *, item_type, data) -> Tuple[List[List[Node]], None]:
+    def create(self, *, item_type, data) -> tuple[list[list[Node]], None]:
         """
         Create a node element with the given parameters.
 

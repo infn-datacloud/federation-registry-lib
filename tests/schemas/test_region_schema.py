@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional, Tuple, Union
+from typing import Any, Literal, Optional, Union
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
@@ -47,11 +47,11 @@ from tests.utils import random_lower_string, random_url
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["create_extended"])
@@ -72,13 +72,13 @@ class CaseAttr:
         network_service_create_ext_schema: NetworkServiceCreateExtended,
         type: str,
         len: int,
-    ) -> Tuple[
+    ) -> tuple[
         str,
         Union[
-            List[BlockStorageServiceCreateExtended],
-            List[ComputeServiceCreateExtended],
-            List[IdentityServiceCreate],
-            List[NetworkServiceCreateExtended],
+            list[BlockStorageServiceCreateExtended],
+            list[ComputeServiceCreateExtended],
+            list[IdentityServiceCreate],
+            list[NetworkServiceCreateExtended],
         ],
     ]:
         if len > 0:
@@ -104,7 +104,7 @@ class CaseAttr:
     @parametrize(with_loc=[True, False])
     def case_location(
         self, location_create_schema: LocationCreate, with_loc: bool
-    ) -> Tuple[Literal["location"], Optional[LocationCreate]]:
+    ) -> tuple[Literal["location"], Optional[LocationCreate]]:
         if with_loc:
             return "location", location_create_schema
         else:
@@ -113,7 +113,7 @@ class CaseAttr:
 
 class CaseInvalidAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_attr(self) -> Tuple[Literal["name"], None]:
+    def case_attr(self) -> tuple[Literal["name"], None]:
         return "name", None
 
     @case(tags=["create_extended"])
@@ -132,13 +132,13 @@ class CaseInvalidAttr:
         identity_service_create_schema: IdentityServiceCreate,
         network_service_create_ext_schema: NetworkServiceCreateExtended,
         type: str,
-    ) -> Tuple[
+    ) -> tuple[
         str,
         Union[
-            List[BlockStorageServiceCreateExtended],
-            List[ComputeServiceCreateExtended],
-            List[IdentityServiceCreate],
-            List[NetworkServiceCreateExtended],
+            list[BlockStorageServiceCreateExtended],
+            list[ComputeServiceCreateExtended],
+            list[IdentityServiceCreate],
+            list[NetworkServiceCreateExtended],
         ],
         str,
     ]:
@@ -223,10 +223,10 @@ def test_create_extended(
     values: Optional[
         Union[
             LocationCreate,
-            List[BlockStorageServiceCreateExtended],
-            List[ComputeServiceCreateExtended],
-            List[IdentityServiceCreate],
-            List[NetworkServiceCreateExtended],
+            list[BlockStorageServiceCreateExtended],
+            list[ComputeServiceCreateExtended],
+            list[IdentityServiceCreate],
+            list[NetworkServiceCreateExtended],
         ]
     ],
 ) -> None:
@@ -243,10 +243,10 @@ def test_create_extended(
 def test_invalid_create_extended(
     attr: str,
     values: Union[
-        List[BlockStorageServiceCreateExtended],
-        List[ComputeServiceCreateExtended],
-        List[IdentityServiceCreate],
-        List[NetworkServiceCreateExtended],
+        list[BlockStorageServiceCreateExtended],
+        list[ComputeServiceCreateExtended],
+        list[IdentityServiceCreate],
+        list[NetworkServiceCreateExtended],
     ],
     msg: str,
 ) -> None:

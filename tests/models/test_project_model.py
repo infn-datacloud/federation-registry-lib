@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -35,7 +35,7 @@ class CaseMissing:
 
 class CaseAttr:
     @parametrize(key=["description"])
-    def case_str(self, key: str) -> Tuple[str, str]:
+    def case_str(self, key: str) -> tuple[str, str]:
         return key, random_lower_string()
 
 

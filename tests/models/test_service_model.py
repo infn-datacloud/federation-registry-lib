@@ -1,4 +1,4 @@
-from typing import Any, Tuple, Union
+from typing import Any, Union
 
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
@@ -34,7 +34,7 @@ class CaseMissing:
 
 class CaseAttr:
     @parametrize(key=["description"])
-    def case_str(self, key: str) -> Tuple[str, str]:
+    def case_str(self, key: str) -> tuple[str, str]:
         return key, random_lower_string()
 
 

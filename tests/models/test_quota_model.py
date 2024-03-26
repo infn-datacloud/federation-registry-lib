@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, Tuple, Union
+from typing import Any, Union
 from unittest.mock import patch
 
 import pytest
@@ -36,13 +36,13 @@ class CaseQuotaEmpty:
 
 class CaseBlockStorageAttr:
     @parametrize(key=["gigabytes", "volumes", "per_volume_gigabytes"])
-    def case_int(self, key: str) -> Tuple[str, int]:
+    def case_int(self, key: str) -> tuple[str, int]:
         return key, randint(0, 100)
 
 
 class CaseComputeAttr:
     @parametrize(key=["cores", "instances", "ram"])
-    def case_int(self, key: str) -> Tuple[str, int]:
+    def case_int(self, key: str) -> tuple[str, int]:
         return key, randint(0, 100)
 
 
@@ -56,7 +56,7 @@ class CaseNetworkAttr:
             "security_group_rules",
         ]
     )
-    def case_int(self, key: str) -> Tuple[str, int]:
+    def case_int(self, key: str) -> tuple[str, int]:
         return key, randint(0, 100)
 
 

@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, Literal, Optional
 from uuid import UUID, uuid4
 
 import pytest
@@ -23,32 +23,32 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(value=[True, False])
     @parametrize(attr=["is_public", "cuda_support", "gpu_driver"])
-    def case_boolean(self, attr: str, value: bool) -> Tuple[str, bool]:
+    def case_boolean(self, attr: str, value: bool) -> tuple[str, bool]:
         return attr, value
 
     @case(tags=["base"])
     @parametrize(attr=["os_distro", "os_version", "architecture", "kernel_id"])
-    def case_string(self, attr: str) -> Tuple[str, str]:
+    def case_string(self, attr: str) -> tuple[str, str]:
         return attr, random_lower_string()
 
     @case(tags=["base"])
     @parametrize(value=[i for i in ImageOS])
-    def case_os_type(self, value: str) -> Tuple[Literal["os_type"], ImageOS]:
+    def case_os_type(self, value: str) -> tuple[Literal["os_type"], ImageOS]:
         return "os_type", value
 
     @case(tags=["base"])
     @parametrize(len=[0, 1, 2])
-    def case_tag_list(self, len: int) -> Tuple[Literal["tags"], Optional[List[str]]]:
+    def case_tag_list(self, len: int) -> tuple[Literal["tags"], Optional[list[str]]]:
         attr = "tags"
         if len == 0:
             return attr, []
@@ -59,7 +59,7 @@ class CaseAttr:
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
-    def case_projects(self, len: int) -> List[UUID]:
+    def case_projects(self, len: int) -> list[UUID]:
         if len == 1:
             return [uuid4()]
         elif len == 2:
@@ -70,12 +70,12 @@ class CaseAttr:
 class CaseInvalidAttr:
     @case(tags=["base_public", "base", "update"])
     @parametrize(attr=["name", "uuid"])
-    def case_attr(self, attr: str) -> Tuple[str, None]:
+    def case_attr(self, attr: str) -> tuple[str, None]:
         return attr, None
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2])
-    def case_projects(self, len: int) -> Tuple[List[UUID], str]:
+    def case_projects(self, len: int) -> tuple[list[UUID], str]:
         if len == 1:
             return [uuid4()], "Public images do not have linked projects"
         elif len == 2:
@@ -156,7 +156,7 @@ def test_query() -> None:
 
 
 @parametrize_with_cases("projects", cases=CaseAttr, has_tag=["create_extended"])
-def test_create_extended(projects: List[UUID]) -> None:
+def test_create_extended(projects: list[UUID]) -> None:
     assert issubclass(ImageCreateExtended, ImageCreate)
     d = image_schema_dict()
     d["is_public"] = len(projects) == 0
@@ -168,7 +168,7 @@ def test_create_extended(projects: List[UUID]) -> None:
 @parametrize_with_cases(
     "projects, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
 )
-def test_invalid_create_extended(projects: List[UUID], msg: str) -> None:
+def test_invalid_create_extended(projects: list[UUID], msg: str) -> None:
     d = image_schema_dict()
     if len(projects) == 0 or len(projects) == 2:
         d["is_public"] = False

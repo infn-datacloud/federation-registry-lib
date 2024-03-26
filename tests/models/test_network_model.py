@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, List, Literal, Tuple
+from typing import Any, Literal
 from unittest.mock import patch
 
 import pytest
@@ -30,19 +30,19 @@ class CaseMissing:
 
 class CaseAttr:
     @parametrize(key=["description", "proxy_ip", "proxy_user"])
-    def case_str(self, key: str) -> Tuple[str, str]:
+    def case_str(self, key: str) -> tuple[str, str]:
         return key, random_lower_string()
 
     @parametrize(key=["mtu"])
-    def case_int(self, key: str) -> Tuple[str, int]:
+    def case_int(self, key: str) -> tuple[str, int]:
         return key, randint(0, 100)
 
     @parametrize(key=["is_shared", "is_router_external", "is_default"])
-    def case_bool(self, key: str) -> Tuple[str, Literal[True]]:
+    def case_bool(self, key: str) -> tuple[str, Literal[True]]:
         return key, True
 
     @parametrize(key=["empty", "full"])
-    def case_list_str(self, key: str) -> Tuple[str, List[str]]:
+    def case_list_str(self, key: str) -> tuple[str, list[str]]:
         if key == "empty":
             return key, []
         return key, [random_lower_string()]

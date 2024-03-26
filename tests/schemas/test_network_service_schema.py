@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Tuple, Union
+from typing import Any, Literal, Union
 from uuid import uuid4
 
 import pytest
@@ -27,23 +27,23 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(value=[i for i in NetworkServiceName])
-    def case_name(self, value: int) -> Tuple[Literal["name"], int]:
+    def case_name(self, value: int) -> tuple[Literal["name"], int]:
         return "name", value
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2, 3])
     def case_quotas(
         self, network_quota_create_ext_schema: NetworkQuotaCreateExtended, len: int
-    ) -> Tuple[Literal["quotas"], List[NetworkQuotaCreateExtended]]:
+    ) -> tuple[Literal["quotas"], list[NetworkQuotaCreateExtended]]:
         if len == 1:
             return "quotas", [network_quota_create_ext_schema]
         elif len == 2:
@@ -63,7 +63,7 @@ class CaseAttr:
     @parametrize(len=[0, 1, 2])
     def case_networks(
         self, network_create_ext_schema: NetworkCreateExtended, len: int
-    ) -> Tuple[Literal["networks"], List[NetworkCreateExtended]]:
+    ) -> tuple[Literal["networks"], list[NetworkCreateExtended]]:
         if len == 1:
             return "networks", [network_create_ext_schema]
         elif len == 2:
@@ -78,22 +78,22 @@ class CaseAttr:
 class CaseInvalidAttr:
     @case(tags=["base", "update"])
     @parametrize(attr=["endpoint", "name"])
-    def case_none(self, attr: str) -> Tuple[str, None]:
+    def case_none(self, attr: str) -> tuple[str, None]:
         return attr, None
 
     @case(tags=["base"])
-    def case_endpoint(self) -> Tuple[Literal["endpoint"], None]:
+    def case_endpoint(self) -> tuple[Literal["endpoint"], None]:
         return "endpoint", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(value=[i for i in ServiceType if i != ServiceType.NETWORK])
-    def case_type(self, value: ServiceType) -> Tuple[Literal["type"], ServiceType]:
+    def case_type(self, value: ServiceType) -> tuple[Literal["type"], ServiceType]:
         return "type", value
 
     @case(tags=["create_extended"])
     def case_dup_quotas(
         self, network_quota_create_ext_schema: NetworkQuotaCreateExtended
-    ) -> Tuple[Literal["quotas"], List[NetworkQuotaCreateExtended], str]:
+    ) -> tuple[Literal["quotas"], list[NetworkQuotaCreateExtended], str]:
         return (
             "quotas",
             [network_quota_create_ext_schema, network_quota_create_ext_schema],
@@ -103,7 +103,7 @@ class CaseInvalidAttr:
     @case(tags=["create_extended"])
     def case_dup_networks(
         self, network_create_ext_schema: NetworkCreateExtended
-    ) -> Tuple[Literal["networks"], List[NetworkCreateExtended], str]:
+    ) -> tuple[Literal["networks"], list[NetworkCreateExtended], str]:
         return (
             "networks",
             [network_create_ext_schema, network_create_ext_schema],
@@ -158,7 +158,7 @@ def test_query() -> None:
 @parametrize_with_cases("attr, values", cases=CaseAttr, has_tag=["create_extended"])
 def test_create_extended(
     attr: str,
-    values: Union[List[NetworkQuotaCreateExtended], List[NetworkCreateExtended]],
+    values: Union[list[NetworkQuotaCreateExtended], list[NetworkCreateExtended]],
 ) -> None:
     assert issubclass(NetworkServiceCreateExtended, NetworkServiceCreate)
     d = network_service_schema_dict()
@@ -171,7 +171,7 @@ def test_create_extended(
     "attr, values, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
 )
 def test_invalid_create_extended(
-    attr: str, values: List[NetworkQuotaCreateExtended], msg: str
+    attr: str, values: list[NetworkQuotaCreateExtended], msg: str
 ) -> None:
     d = network_service_schema_dict()
     d[attr] = values

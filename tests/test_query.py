@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, Literal, Optional, Tuple
+from typing import Any, Literal, Optional
 
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
@@ -21,42 +21,42 @@ class CasePaginationAttr:
 
 class CasePaginationInvalidAttr:
     @parametrize(value=[None, -1])
-    def case_page(self, value: Optional[int]) -> Tuple[Literal["page"], Optional[int]]:
+    def case_page(self, value: Optional[int]) -> tuple[Literal["page"], Optional[int]]:
         return "page", value
 
     @parametrize(value=[-1, 0])
-    def case_size(self, value: Optional[int]) -> Tuple[Literal["size"], Optional[int]]:
+    def case_size(self, value: Optional[int]) -> tuple[Literal["size"], Optional[int]]:
         return "size", value
 
 
 class CaseDbQueryAttr:
-    def case_skip(self) -> Tuple[Literal["skip"], int]:
+    def case_skip(self) -> tuple[Literal["skip"], int]:
         return "skip", randint(0, 100)
 
-    def case_limit(self) -> Tuple[Literal["limit"], int]:
+    def case_limit(self) -> tuple[Literal["limit"], int]:
         return "limit", randint(0, 100)
 
     @parametrize(key=["limit", "sort"])
-    def case_none(self, key: str) -> Tuple[str, None]:
+    def case_none(self, key: str) -> tuple[str, None]:
         return key, None
 
 
 class CaseSort:
     @parametrize(value=["test", "test_asc"])
-    def case_sort_asc(self, value: str) -> Tuple[str]:
+    def case_sort_asc(self, value: str) -> tuple[str]:
         return value, "test"
 
     @parametrize(value=["test_desc", "-test", "-test_desc"])
-    def case_sort_desc(self, value: str) -> Tuple[str]:
+    def case_sort_desc(self, value: str) -> tuple[str]:
         return value, "-test"
 
 
 class CaseDbQueryInvalidAttr:
     @parametrize(value=[None, -1])
-    def case_skip(self, value) -> Tuple[Literal["skip"], Optional[int]]:
+    def case_skip(self, value) -> tuple[Literal["skip"], Optional[int]]:
         return "skip", value
 
-    def case_limit(self) -> Tuple[Literal["limit"], int]:
+    def case_limit(self) -> tuple[Literal["limit"], int]:
         return "limit", -1
 
 

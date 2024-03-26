@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, Literal, Tuple
+from typing import Any, Literal
 
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
@@ -24,15 +24,15 @@ class CaseMissing:
 
 class CaseAttr:
     @parametrize(key=["description", "gpu_model", "gpu_vendor", "local_storage"])
-    def case_str(self, key: str) -> Tuple[str, str]:
+    def case_str(self, key: str) -> tuple[str, str]:
         return key, random_lower_string()
 
     @parametrize(key=["disk", "ram", "vcpus", "swap", "ephemeral", "gpus"])
-    def case_integer(self, key: str) -> Tuple[str, int]:
+    def case_integer(self, key: str) -> tuple[str, int]:
         return key, randint(0, 100)
 
     @parametrize(key=["is_public", "infiniband"])
-    def case_bool(self, key: str) -> Tuple[str, Literal[True]]:
+    def case_bool(self, key: str) -> tuple[str, Literal[True]]:
         return key, True
 
 

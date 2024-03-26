@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Tuple
+from typing import Literal, Optional
 
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
@@ -10,10 +10,10 @@ from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
 
@@ -21,7 +21,7 @@ class CaseInvalidAttr:
     @parametrize(value=[None, random_lower_string()])
     def case_endpoint(
         self, value: Optional[str]
-    ) -> Tuple[Literal["endpoint"], Optional[str]]:
+    ) -> tuple[Literal["endpoint"], Optional[str]]:
         return "endpoint", value
 
 

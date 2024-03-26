@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, Literal, Optional
 from uuid import UUID, uuid4
 
 import pytest
@@ -23,32 +23,32 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(attr=["mtu"])
-    def case_integer(self, attr: str) -> Tuple[str, int]:
+    def case_integer(self, attr: str) -> tuple[str, int]:
         return attr, randint(0, 100)
 
     @case(tags=["base"])
     @parametrize(value=[True, False])
     @parametrize(attr=["is_shared", "is_router_external", "is_default"])
-    def case_boolean(self, attr: str, value: bool) -> Tuple[str, bool]:
+    def case_boolean(self, attr: str, value: bool) -> tuple[str, bool]:
         return attr, value
 
     @case(tags=["base"])
     @parametrize(attr=["proxy_ip", "proxy_user"])
-    def case_string(self, attr: str) -> Tuple[str, str]:
+    def case_string(self, attr: str) -> tuple[str, str]:
         return attr, random_lower_string()
 
     @case(tags=["base"])
     @parametrize(len=[0, 1, 2])
-    def case_tag_list(self, len: int) -> Tuple[Literal["tags"], Optional[List[str]]]:
+    def case_tag_list(self, len: int) -> tuple[Literal["tags"], Optional[list[str]]]:
         attr = "tags"
         if len == 0:
             return attr, []
@@ -66,17 +66,17 @@ class CaseAttr:
 class CaseInvalidAttr:
     @case(tags=["base_public", "base", "update"])
     @parametrize(attr=["name", "uuid"])
-    def case_attr(self, attr: str) -> Tuple[str, None]:
+    def case_attr(self, attr: str) -> tuple[str, None]:
         return attr, None
 
     @case(tags=["base"])
     @parametrize(attr=["mtu"])
-    def case_integer(self, attr: str) -> Tuple[str, Literal[-1]]:
+    def case_integer(self, attr: str) -> tuple[str, Literal[-1]]:
         return attr, -1
 
     @case(tags=["create_extended"])
     @parametrize(with_project=[True, False])
-    def case_project(self, with_project: bool) -> Tuple[Optional[UUID], str]:
+    def case_project(self, with_project: bool) -> tuple[Optional[UUID], str]:
         if with_project:
             return uuid4(), "Shared networks do not have a linked project"
         else:

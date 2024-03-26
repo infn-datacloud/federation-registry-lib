@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Tuple, Union
+from typing import Any, Literal, Union
 from uuid import uuid4
 
 import pytest
@@ -32,23 +32,23 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public", "base"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(value=[i for i in ComputeServiceName])
-    def case_name(self, value: int) -> Tuple[Literal["name"], int]:
+    def case_name(self, value: int) -> tuple[Literal["name"], int]:
         return "name", value
 
     @case(tags=["create_extended"])
     @parametrize(len=[0, 1, 2, 3])
     def case_quotas(
         self, compute_quota_create_ext_schema: ComputeQuotaCreateExtended, len: int
-    ) -> Tuple[Literal["quotas"], List[ComputeQuotaCreateExtended]]:
+    ) -> tuple[Literal["quotas"], list[ComputeQuotaCreateExtended]]:
         if len == 1:
             return "quotas", [compute_quota_create_ext_schema]
         elif len == 2:
@@ -68,7 +68,7 @@ class CaseAttr:
     @parametrize(len=[0, 1, 2])
     def case_flavors(
         self, flavor_create_ext_schema: FlavorCreateExtended, len: int
-    ) -> Tuple[Literal["flavors"], List[FlavorCreateExtended]]:
+    ) -> tuple[Literal["flavors"], list[FlavorCreateExtended]]:
         if len == 1:
             return "flavors", [flavor_create_ext_schema]
         elif len == 2:
@@ -83,7 +83,7 @@ class CaseAttr:
     @parametrize(len=[0, 1, 2])
     def case_images(
         self, image_create_ext_schema: ImageCreateExtended, len: int
-    ) -> Tuple[Literal["images"], List[ImageCreateExtended]]:
+    ) -> tuple[Literal["images"], list[ImageCreateExtended]]:
         if len == 1:
             return "images", [image_create_ext_schema]
         elif len == 2:
@@ -98,22 +98,22 @@ class CaseAttr:
 class CaseInvalidAttr:
     @case(tags=["base", "update"])
     @parametrize(attr=["endpoint", "name"])
-    def case_none(self, attr: str) -> Tuple[str, None]:
+    def case_none(self, attr: str) -> tuple[str, None]:
         return attr, None
 
     @case(tags=["base"])
-    def case_endpoint(self) -> Tuple[Literal["endpoint"], None]:
+    def case_endpoint(self) -> tuple[Literal["endpoint"], None]:
         return "endpoint", random_lower_string()
 
     @case(tags=["base"])
     @parametrize(value=[i for i in ServiceType if i != ServiceType.COMPUTE])
-    def case_type(self, value: ServiceType) -> Tuple[Literal["type"], ServiceType]:
+    def case_type(self, value: ServiceType) -> tuple[Literal["type"], ServiceType]:
         return "type", value
 
     @case(tags=["create_extended"])
     def case_dup_quotas(
         self, compute_quota_create_ext_schema: ComputeQuotaCreateExtended
-    ) -> Tuple[Literal["quotas"], List[ComputeQuotaCreateExtended], str]:
+    ) -> tuple[Literal["quotas"], list[ComputeQuotaCreateExtended], str]:
         return (
             "quotas",
             [compute_quota_create_ext_schema, compute_quota_create_ext_schema],
@@ -129,7 +129,7 @@ class CaseInvalidAttr:
         image_create_ext_schema: ImageCreateExtended,
         attr: str,
         res: str,
-    ) -> Tuple[str, Union[List[FlavorCreateExtended], List[ImageCreateExtended]], str]:
+    ) -> tuple[str, Union[list[FlavorCreateExtended], list[ImageCreateExtended]], str]:
         item = flavor_create_ext_schema if res == "flavors" else image_create_ext_schema
         item2 = item.copy()
         if attr == "name":
@@ -191,9 +191,9 @@ def test_query() -> None:
 def test_create_extended(
     attr: str,
     values: Union[
-        List[ComputeQuotaCreateExtended],
-        List[FlavorCreateExtended],
-        List[ImageCreateExtended],
+        list[ComputeQuotaCreateExtended],
+        list[FlavorCreateExtended],
+        list[ImageCreateExtended],
     ],
 ) -> None:
     assert issubclass(ComputeServiceCreateExtended, ComputeServiceCreate)
@@ -207,7 +207,7 @@ def test_create_extended(
     "attr, values, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
 )
 def test_invalid_create_extended(
-    attr: str, values: List[ComputeQuotaCreateExtended], msg: str
+    attr: str, values: list[ComputeQuotaCreateExtended], msg: str
 ) -> None:
     d = compute_service_schema_dict()
     d[attr] = values

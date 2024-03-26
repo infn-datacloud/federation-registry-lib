@@ -1,4 +1,4 @@
-from typing import Any, List, Literal, Tuple
+from typing import Any, Literal
 
 import pytest
 from neomodel import RelationshipManager, RequiredProperty
@@ -27,15 +27,15 @@ class CaseMissing:
 
 class CaseAttr:
     @parametrize(key=["description", "status"])
-    def case_str(self, key: str) -> Tuple[str, str]:
+    def case_str(self, key: str) -> tuple[str, str]:
         return key, random_lower_string()
 
     @parametrize(key=["is_public"])
-    def case_bool(self, key: str) -> Tuple[str, Literal[True]]:
+    def case_bool(self, key: str) -> tuple[str, Literal[True]]:
         return key, True
 
     @parametrize(key=["empty", "full"])
-    def case_list_str(self, key: str) -> Tuple[str, List[str]]:
+    def case_list_str(self, key: str) -> tuple[str, list[str]]:
         if key == "empty":
             return key, []
         return key, [random_lower_string()]

@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, Literal, Tuple
+from typing import Any, Literal
 from uuid import uuid4
 
 import pytest
@@ -23,25 +23,25 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
     @parametrize(attr=["cores", "instances", "ram"])
-    def case_integer(self, attr: str) -> Tuple[str, int]:
+    def case_integer(self, attr: str) -> tuple[str, int]:
         return attr, randint(0, 100)
 
 
 class CaseInvalidAttr:
     @parametrize(attr=["cores", "instances", "ram"])
-    def case_integer(self, attr: str) -> Tuple[str, Literal[-1]]:
+    def case_integer(self, attr: str) -> tuple[str, Literal[-1]]:
         return attr, -1
 
     @parametrize(value=[i for i in QuotaType if i != QuotaType.COMPUTE])
-    def case_type(self, value: QuotaType) -> Tuple[Literal["type"], QuotaType]:
+    def case_type(self, value: QuotaType) -> tuple[Literal["type"], QuotaType]:
         return "type", value
 
 

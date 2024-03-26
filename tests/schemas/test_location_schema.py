@@ -1,4 +1,4 @@
-from typing import Any, Literal, Tuple
+from typing import Any, Literal
 
 import pytest
 from pycountry import countries
@@ -36,42 +36,42 @@ from tests.utils import (
 
 class CaseAttr:
     @case(tags=["base_public", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
-    def case_latitude(self) -> Tuple[Literal["latitude"], float]:
+    def case_latitude(self) -> tuple[Literal["latitude"], float]:
         return "latitude", random_latitude()
 
-    def case_longitude(self) -> Tuple[Literal["longitude"], float]:
+    def case_longitude(self) -> tuple[Literal["longitude"], float]:
         return "longitude", random_longitude()
 
-    def case_country(self) -> Tuple[Literal["country"], str]:
+    def case_country(self) -> tuple[Literal["country"], str]:
         return "country", random_country()
 
-    def case_site(self) -> Tuple[Literal["site"], str]:
+    def case_site(self) -> tuple[Literal["site"], str]:
         return "site", random_lower_string()
 
 
 class CaseInvalidAttr:
     @case(tags=["base_public", "update"])
     @parametrize(attr=["site", "country"])
-    def case_attr(self, attr: str) -> Tuple[str, None]:
+    def case_attr(self, attr: str) -> tuple[str, None]:
         return attr, None
 
     @case(tags=["base_public"])
-    def case_country(self) -> Tuple[Literal["country"], str]:
+    def case_country(self) -> tuple[Literal["country"], str]:
         return "country", random_lower_string()
 
     @parametrize(value=[-91.0, 91.0])
-    def case_latitude(self, value: float) -> Tuple[Literal["latitude"], float]:
+    def case_latitude(self, value: float) -> tuple[Literal["latitude"], float]:
         return "latitude", value
 
     @parametrize(value=[-181.0, 181.0])
-    def case_longitude(self, value: float) -> Tuple[Literal["longitude"], float]:
+    def case_longitude(self, value: float) -> tuple[Literal["longitude"], float]:
         return "longitude", value
 
 

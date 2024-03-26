@@ -1,4 +1,4 @@
-from typing import Any, Literal, Tuple
+from typing import Any, Literal
 from uuid import uuid4
 
 import pytest
@@ -22,25 +22,25 @@ from tests.utils import random_lower_string
 
 class CaseAttr:
     @case(tags=["base_public", "update"])
-    def case_none(self) -> Tuple[None, None]:
+    def case_none(self) -> tuple[None, None]:
         return None, None
 
     @case(tags=["base_public"])
-    def case_desc(self) -> Tuple[Literal["description"], str]:
+    def case_desc(self) -> tuple[Literal["description"], str]:
         return "description", random_lower_string()
 
 
 class CaseInvalidAttr:
     @case(tags=["base_public", "update"])
-    def case_attr(self) -> Tuple[Literal["doc_uuid"], None]:
+    def case_attr(self) -> tuple[Literal["doc_uuid"], None]:
         return "doc_uuid", None
 
     @case(tags=["update"])
     @parametrize(attr=["start_date", "end_date"])
-    def case_nullable_dates(self, attr: str) -> Tuple[str, None]:
+    def case_nullable_dates(self, attr: str) -> tuple[str, None]:
         return attr, None
 
-    def case_reversed_dates(self) -> Tuple[Literal["reversed_dates"], None]:
+    def case_reversed_dates(self) -> tuple[Literal["reversed_dates"], None]:
         return "reversed_dates", None
 
 
