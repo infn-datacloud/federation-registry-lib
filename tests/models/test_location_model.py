@@ -6,7 +6,7 @@ from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.location.models import Location
 from fed_reg.region.models import Region
-from tests.create_dict import location_model_dict
+from tests.create_dict import location_model_dict, region_model_dict
 from tests.utils import random_float, random_lower_string
 
 
@@ -84,9 +84,9 @@ def test_linked_region(location_model: Location, region_model: Region) -> None:
     assert region.uid == region_model.uid
 
 
-def test_multiple_linked_regions(
-    location_model: Location, region_model: Region
-) -> None:
-    location_model.regions.connect(region_model)
-    location_model.regions.connect(region_model)
+def test_multiple_linked_regions(location_model: Location) -> None:
+    item = Region(**region_model_dict()).save()
+    location_model.regions.connect(item)
+    item = Region(**region_model_dict()).save()
+    location_model.regions.connect(item)
     assert len(location_model.regions.all()) == 2

@@ -1,7 +1,8 @@
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 from uuid import uuid4
 
+import networkx as nx
 from neo4j.graph import Node, Relationship
 
 from fed_reg.flavor.models import Flavor
@@ -49,17 +50,20 @@ CLASS_DICT = {
 class MockDatabase:
     def __init__(self, db_version: int = 5) -> None:
         self.db_version = db_version
+        self.graph = nx.Graph()
         self.data = {}
         self.count = 0
 
     def query_call(self, query: str, params: Dict[str, Any], **kwargs):
-        print(query, kwargs)
+        # print(query, kwargs)
+        resolve_objects = kwargs.get("resolve_objects", False)
 
         # Detect if it is a CREATE request.
         match = re.search(r"(?<=CREATE\s\(n\:)[\w\:]+(?=\s)", query)
         if match is not None:
             item_type = match.group(0)
-            return self.create(item_type, params)
+            data = params["create_params"]
+            return self.create(item_type=item_type, data=data)
 
         # Detect if it is a MATCH request
         match = re.search(r"(?<=MATCH\s\()\w+(?=\))", query)
@@ -69,99 +73,49 @@ class MockDatabase:
             # Detect if it is a MERGE request (connect)
             match = re.search(r"(?<=MERGE.).*$", query)
             if match is not None:
-                return self.merge(params, match.group(0))
+                match = re.search(r"(?<=\`).*(?=\`)", match.group(0))
+                rel_type = match.group(0)
+                start_node, end_node = self._get_start_end_nodes(params)
+                exclude_keys = {"self", "them"}
+                data = {k: params[k] for k in set(params.keys()) - exclude_keys}
+                return self.connect(
+                    start_node=start_node,
+                    end_node=end_node,
+                    rel_type=rel_type,
+                    data=data,
+                )
 
             # Detect return type
             match = re.search(r"(?<=RETURN\s)[^\s]+(?=$|\s)", query)
             if match is not None:
-                node_name = match.group(0)
-                return self.match(
-                    item_type,
-                    node_name,
-                    query,
-                    params,
-                    resolve_objects=kwargs.get("resolve_objects", False),
-                )
+                return_string = match.group(0)
+                start_node = self._get_start_node(params)
+                if start_node is not None:
+                    match = re.search(r"(?<=count\()\w+(?=\))", return_string)
+                    # Return the number of related nodes
+                    if match is not None:
+                        return self.count_related_nodes(
+                            start_node=start_node,
+                            return_string=match.group(0),
+                            query=query,
+                        )
+                    # Return related nodes
+                    if item_type not in return_string:
+                        rel_string = return_string.rsplit("_", 1)[-1]
+                        return self.get_relationships(
+                            start_node=start_node,
+                            rel_string=rel_string,
+                            return_string=return_string,
+                            query=query,
+                            resolve_objects=resolve_objects,
+                        )
+                    # Return nodes of `item_type`.
+                    # return [[i] for i in self.data[item_type]], [return_string]
 
-    def create(self, item_type, params) -> Tuple[List[List[Node]], None]:
-        """
-        Create a node element with the given parameters.
+                else:
+                    return [], None
 
-        Save the node in the class' dict. The key to use is the received label.
-        Each label stores a list of nodes.
-        When receiving multiple labels, create the node once and add it to each list.
-        """
-        element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
-        item = Node(
-            ...,
-            element_id=element_id,
-            id_=self.count,
-            properties=params["create_params"],
-        )
-        self.count += 1
-        for t in item_type.split(":"):
-            if not self.data.get(t, None):
-                self.data[t] = []
-            self.data[t].append(item)
-        return [[item]], None
-
-    def match(self, src_type, node_name, query, params, resolve_objects):
-        match = re.search(r"(?<=count\()\w+(?=\))", node_name)
-        if match is not None:
-            node_name = match.group(0)
-            idx = node_name.rfind("_")
-            if idx > -1:
-                rel_name = node_name[idx + 1 :]
-                match = re.search(rf"(?<={rel_name}:\`)\w+(?=\`)", query)
-                rel_type = match.group(0)
-                match = re.search(rf"(?<={node_name}:)\w+(?=\))", query)
-                dest_type = match.group(0)
-                relationships = self.get_related_items(
-                    rel_type, dest_type, resolve_objects, params
-                )
-            return [[len(relationships)]], [node_name]
-
-        if src_type not in node_name:
-            idx = node_name.rfind("_")
-            if idx > -1:
-                rel_name = node_name[idx + 1 :]
-                match = re.search(rf"(?<={rel_name}:\`)\w+(?=\`)", query)
-                rel_type = match.group(0)
-                match = re.search(rf"(?<={node_name}:)\w+(?=\))", query)
-                dest_type = match.group(0)
-                relationships = self.get_related_items(
-                    rel_type, dest_type, resolve_objects, params
-                )
-                return relationships, [rel_type]
-            else:
-                relationships = []
-                rel_name = node_name
-                match = re.search(rf"(?<={rel_name}:\`)\w+(?=\`)", query)
-                if match is not None:
-                    rel_type = match.group(0)
-                    relationships = filter(
-                        lambda x: x[1].get("self") == params.get("self"),
-                        self.data[rel_type],
-                    )
-                return [[i[0]] for i in relationships], [node_name]
-
-        return [[i] for i in self.data[src_type]], [node_name]
-
-    def get_related_items(self, rel_type, dest_type, resolve_objects, params):
-        src_element_id = next(iter(params.values()))
-        relationships = []
-        for i in self.data.get(dest_type, []):
-            for j in self.data.get(rel_type, []):
-                if j[1].get("them") == i.element_id and (
-                    not src_element_id or j[1].get("self") == src_element_id
-                ):
-                    if resolve_objects:
-                        relationships += [[CLASS_DICT[dest_type](**i)]]
-                    else:
-                        relationships += [i]
-        return relationships
-
-    def merge(self, params, query):
+    def connect(self, *, start_node, end_node, rel_type, data):
         """
         Connect 2 nodes.
 
@@ -171,37 +125,109 @@ class MockDatabase:
         of the relationship and return it.
         """
         rel = None
-        match = re.search(r"(?<=\`).*(?=\`)", query)
-        relationship = match.group(0)
-
-        data = {**params}
-        data.pop("them", None)
-        data.pop("self", None)
-
         if data:
             element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
             rel = Relationship(
-                ...,
-                element_id=element_id,
-                id_=self.count,
-                properties=data,
+                ..., element_id=element_id, id_=self.count, properties=data
             )
-            rel._start_node = self.search_node(params.get("self"))
-            rel._end_node = self.search_node(params.get("them"))
-
-        if self.data.get(relationship):
-            self.data[relationship].append((rel, params))
-        else:
-            self.data[relationship] = [(rel, params)]
+            rel._start_node = start_node
+            rel._end_node = end_node
+        self.graph.add_edge(start_node, end_node, data=rel, labels=rel_type.split(":"))
         return [[rel]], ["r"]
 
-    def search_node(self, element_id) -> Optional[Node]:
+    def count_related_nodes(self, *, start_node, return_string, query):
         """
-        When the node label is not specified, search in all nodes.
+        Count neighbors nodes
 
-        Return the node with the given element_id otherwise return None.
+        Detect from the return string the type of the neighbors.
         """
-        for v in self.data.values():
-            for i in filter(lambda x: isinstance(x, Node), v):
-                if i.element_id == element_id:
-                    return i
+        if return_string.rfind("_") > -1:
+            match = re.search(rf"(?<={return_string}:)\w+(?=\))", query)
+            dest_type = match.group(0)
+            relationships = self._get_related_nodes(start_node, dest_type)
+            return [[len(relationships)]], [return_string]
+
+    def create(self, *, item_type, data) -> Tuple[List[List[Node]], None]:
+        """
+        Create a node element with the given parameters.
+
+        Store the node in the graph. `labels` attribute contains the list of the neo4j
+        labels matching this item.
+        """
+        element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
+        item = Node(..., element_id=element_id, id_=self.count, properties=data)
+        self.graph.add_node(item, labels=item_type.split(":"))
+        self.count += 1
+        return [[item]], None
+
+    def get_relationships(
+        self, *, start_node, rel_string, return_string, query, resolve_objects
+    ):
+        """
+        Retrieve related nodes or relationships from a given node.
+
+        If `dest_type` is defined, then return the related nodes, otherwise return the
+        relationships.
+        """
+        match = re.search(rf"(?<={rel_string}:\`)\w+(?=\`)", query)
+        rel_type = match.group(0)
+        match = re.search(rf"(?<={return_string}:)\w+(?=\))", query)
+        if match is not None:
+            dest_type = match.group(0)
+            relationships = self._get_related_nodes(
+                start_node, dest_type, resolve_objects
+            )
+        else:
+            relationships = self._get_related_edges(start_node, rel_type)
+        return relationships, [rel_type]
+
+    def _get_start_end_nodes(self, params):
+        """
+        Search in the graph the start and end nodes.
+
+        Start node match the `self` attribute in the params dictionary.
+        End node match the `them` attribute in the params dictionary.
+        """
+        for node in self.graph.nodes:
+            if node.element_id == params.get("self"):
+                start_node = node
+            if node.element_id == params.get("them"):
+                end_node = node
+        return start_node, end_node
+
+    def _get_start_node(self, params):
+        """
+        Search the node matching the id in the params dictionary.
+        """
+        target_id = params.get("self", None)
+        if not target_id:
+            target_id = next(iter(params.values()))
+        for node in self.graph.nodes:
+            if node.element_id == target_id:
+                return node
+
+    def _get_related_nodes(self, start_node, dest_type, resolve_objects=False):
+        """
+        Get neighbors of a given node.
+
+        Inflate nodes type if `resolve_objects` is true.
+        """
+        relationships = filter(
+            lambda x: dest_type in self.graph.nodes[x]["labels"],
+            self.graph.neighbors(start_node),
+        )
+        if resolve_objects:
+            relationships = [[CLASS_DICT[dest_type](**i)] for i in relationships]
+        return list(relationships)
+
+    def _get_related_edges(self, start_node, rel_type):
+        """
+        Get neighbors of a given node.
+
+        Inflate nodes type if `resolve_objects` is true.
+        """
+        relationships = filter(
+            lambda x: rel_type in x[2]["labels"],
+            self.graph.edges(start_node, data=True),
+        )
+        return [[rel[2]["data"]] for rel in relationships]

@@ -14,7 +14,15 @@ from fed_reg.service.models import (
     IdentityService,
     NetworkService,
 )
-from tests.create_dict import service_model_dict
+from tests.create_dict import (
+    block_storage_quota_model_dict,
+    compute_quota_model_dict,
+    flavor_model_dict,
+    image_model_dict,
+    network_model_dict,
+    network_quota_model_dict,
+    service_model_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -251,10 +259,11 @@ def test_linked_block_storage_quota(
 
 def test_multiple_linked_block_storage_quotas(
     block_storage_service_model: BlockStorageService,
-    block_storage_quota_model: BlockStorageQuota,
 ) -> None:
-    block_storage_service_model.quotas.connect(block_storage_quota_model)
-    block_storage_service_model.quotas.connect(block_storage_quota_model)
+    item = BlockStorageQuota(**block_storage_quota_model_dict()).save()
+    block_storage_service_model.quotas.connect(item)
+    item = BlockStorageQuota(**block_storage_quota_model_dict()).save()
+    block_storage_service_model.quotas.connect(item)
     assert len(block_storage_service_model.quotas.all()) == 2
 
 
@@ -277,11 +286,11 @@ def test_linked_compute_quota(
     assert quotas.uid == compute_quota_model.uid
 
 
-def test_multiple_linked_compute_quotas(
-    compute_service_model: ComputeService, compute_quota_model: ComputeQuota
-) -> None:
-    compute_service_model.quotas.connect(compute_quota_model)
-    compute_service_model.quotas.connect(compute_quota_model)
+def test_multiple_linked_compute_quotas(compute_service_model: ComputeService) -> None:
+    item = ComputeQuota(**compute_quota_model_dict()).save()
+    compute_service_model.quotas.connect(item)
+    item = ComputeQuota(**compute_quota_model_dict()).save()
+    compute_service_model.quotas.connect(item)
     assert len(compute_service_model.quotas.all()) == 2
 
 
@@ -304,11 +313,11 @@ def test_linked_flavor(
     assert flavors.uid == flavor_model.uid
 
 
-def test_multiple_linked_flavors(
-    compute_service_model: ComputeService, flavor_model: Flavor
-) -> None:
-    compute_service_model.flavors.connect(flavor_model)
-    compute_service_model.flavors.connect(flavor_model)
+def test_multiple_linked_flavors(compute_service_model: ComputeService) -> None:
+    item = Flavor(**flavor_model_dict()).save()
+    compute_service_model.flavors.connect(item)
+    item = Flavor(**flavor_model_dict()).save()
+    compute_service_model.flavors.connect(item)
     assert len(compute_service_model.flavors.all()) == 2
 
 
@@ -331,11 +340,11 @@ def test_linked_image(
     assert images.uid == image_model.uid
 
 
-def test_multiple_linked_images(
-    compute_service_model: ComputeService, image_model: Image
-) -> None:
-    compute_service_model.images.connect(image_model)
-    compute_service_model.images.connect(image_model)
+def test_multiple_linked_images(compute_service_model: ComputeService) -> None:
+    item = Image(**image_model_dict()).save()
+    compute_service_model.images.connect(item)
+    item = Image(**image_model_dict()).save()
+    compute_service_model.images.connect(item)
     assert len(compute_service_model.images.all()) == 2
 
 
@@ -358,11 +367,11 @@ def test_linked_network_quota(
     assert quotas.uid == network_quota_model.uid
 
 
-def test_multiple_linked_network_quotas(
-    network_service_model: NetworkService, network_quota_model: NetworkQuota
-) -> None:
-    network_service_model.quotas.connect(network_quota_model)
-    network_service_model.quotas.connect(network_quota_model)
+def test_multiple_linked_network_quotas(network_service_model: NetworkService) -> None:
+    item = NetworkQuota(**network_quota_model_dict()).save()
+    network_service_model.quotas.connect(item)
+    item = NetworkQuota(**network_quota_model_dict()).save()
+    network_service_model.quotas.connect(item)
     assert len(network_service_model.quotas.all()) == 2
 
 
@@ -385,9 +394,9 @@ def test_linked_network(
     assert networks.uid == network_model.uid
 
 
-def test_multiple_linked_networks(
-    network_service_model: NetworkService, network_model: Network
-) -> None:
-    network_service_model.networks.connect(network_model)
-    network_service_model.networks.connect(network_model)
+def test_multiple_linked_networks(network_service_model: NetworkService) -> None:
+    item = Network(**network_model_dict()).save()
+    network_service_model.networks.connect(item)
+    item = Network(**network_model_dict()).save()
+    network_service_model.networks.connect(item)
     assert len(network_service_model.networks.all()) == 2

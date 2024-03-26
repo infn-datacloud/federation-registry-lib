@@ -13,7 +13,7 @@ from pytest_cases import parametrize, parametrize_with_cases
 from fed_reg.project.models import Project
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
-from tests.create_dict import sla_model_dict
+from tests.create_dict import project_model_dict, sla_model_dict, user_group_model_dict
 from tests.utils import random_lower_string
 
 
@@ -91,15 +91,15 @@ def test_linked_user_group(sla_model: SLA, user_group_model: UserGroup) -> None:
     assert user_group.uid == user_group_model.uid
 
 
-def test_multiple_linked_user_group(
-    sla_model: SLA, user_group_model: UserGroup
-) -> None:
-    sla_model.user_group.connect(user_group_model)
+def test_multiple_linked_user_group(sla_model: SLA) -> None:
+    item = UserGroup(**user_group_model_dict()).save()
+    sla_model.user_group.connect(item)
+    item = UserGroup(**user_group_model_dict()).save()
     with pytest.raises(AttemptedCardinalityViolation):
-        sla_model.user_group.connect(user_group_model)
+        sla_model.user_group.connect(item)
 
     with patch("neomodel.match.QueryBuilder._count", return_value=0):
-        sla_model.user_group.connect(user_group_model)
+        sla_model.user_group.connect(item)
         with pytest.raises(CardinalityViolation):
             sla_model.user_group.all()
 
@@ -121,7 +121,9 @@ def test_linked_project(sla_model: SLA, project_model: Project) -> None:
     assert project.uid == project_model.uid
 
 
-def test_multiple_linked_projects(sla_model: SLA, project_model: Project) -> None:
-    sla_model.projects.connect(project_model)
-    sla_model.projects.connect(project_model)
+def test_multiple_linked_projects(sla_model: SLA) -> None:
+    item = Project(**project_model_dict()).save()
+    sla_model.projects.connect(item)
+    item = Project(**project_model_dict()).save()
+    sla_model.projects.connect(item)
     assert len(sla_model.projects.all()) == 2

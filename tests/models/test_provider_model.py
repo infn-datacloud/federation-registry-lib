@@ -9,7 +9,13 @@ from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.project.models import Project
 from fed_reg.provider.models import Provider
 from fed_reg.region.models import Region
-from tests.create_dict import auth_method_dict, provider_model_dict
+from tests.create_dict import (
+    auth_method_dict,
+    identity_provider_model_dict,
+    project_model_dict,
+    provider_model_dict,
+    region_model_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -98,11 +104,11 @@ def test_linked_project(provider_model: Provider, project_model: Project) -> Non
     assert project.uid == project_model.uid
 
 
-def test_multiple_linked_projects(
-    provider_model: Provider, project_model: Project
-) -> None:
-    provider_model.projects.connect(project_model)
-    provider_model.projects.connect(project_model)
+def test_multiple_linked_projects(provider_model: Provider) -> None:
+    item = Project(**project_model_dict()).save()
+    provider_model.projects.connect(item)
+    item = Project(**project_model_dict()).save()
+    provider_model.projects.connect(item)
     assert len(provider_model.projects.all()) == 2
 
 
@@ -123,11 +129,11 @@ def test_linked_region(provider_model: Provider, region_model: Region) -> None:
     assert region.uid == region_model.uid
 
 
-def test_multiple_linked_regions(
-    provider_model: Provider, region_model: Region
-) -> None:
-    provider_model.regions.connect(region_model)
-    provider_model.regions.connect(region_model)
+def test_multiple_linked_regions(provider_model: Provider) -> None:
+    item = Region(**region_model_dict()).save()
+    provider_model.regions.connect(item)
+    item = Region(**region_model_dict()).save()
+    provider_model.regions.connect(item)
     assert len(provider_model.regions.all()) == 2
 
 
@@ -155,13 +161,9 @@ def test_linked_identity_provider(
     assert identity_provider.uid == identity_provider_model.uid
 
 
-def test_multiple_linked_identity_providers(
-    provider_model: Provider, identity_provider_model: IdentityProvider
-) -> None:
-    provider_model.identity_providers.connect(
-        identity_provider_model, auth_method_dict()
-    )
-    provider_model.identity_providers.connect(
-        identity_provider_model, auth_method_dict()
-    )
+def test_multiple_linked_identity_providers(provider_model: Provider) -> None:
+    item = IdentityProvider(**identity_provider_model_dict()).save()
+    provider_model.identity_providers.connect(item, auth_method_dict())
+    item = IdentityProvider(**identity_provider_model_dict()).save()
+    provider_model.identity_providers.connect(item, auth_method_dict())
     assert len(provider_model.identity_providers.all()) == 2

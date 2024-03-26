@@ -7,7 +7,11 @@ from pytest_cases import parametrize, parametrize_with_cases
 from fed_reg.image.models import Image
 from fed_reg.project.models import Project
 from fed_reg.service.models import ComputeService
-from tests.create_dict import image_model_dict
+from tests.create_dict import (
+    compute_service_model_dict,
+    image_model_dict,
+    project_model_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -113,9 +117,11 @@ def test_linked_project(image_model: Image, project_model: Project) -> None:
     assert project.uid == project_model.uid
 
 
-def test_multiple_linked_projects(image_model: Image, project_model: Project) -> None:
-    image_model.projects.connect(project_model)
-    image_model.projects.connect(project_model)
+def test_multiple_linked_projects(image_model: Image) -> None:
+    item = Project(**project_model_dict()).save()
+    image_model.projects.connect(item)
+    item = Project(**project_model_dict()).save()
+    image_model.projects.connect(item)
     assert len(image_model.projects.all()) == 2
 
 
@@ -138,9 +144,9 @@ def test_linked_service(
     assert service.uid == compute_service_model.uid
 
 
-def test_multiple_linked_services(
-    image_model: Image, compute_service_model: ComputeService
-) -> None:
-    image_model.services.connect(compute_service_model)
-    image_model.services.connect(compute_service_model)
+def test_multiple_linked_services(image_model: Image) -> None:
+    item = ComputeService(**compute_service_model_dict()).save()
+    image_model.services.connect(item)
+    item = ComputeService(**compute_service_model_dict()).save()
+    image_model.services.connect(item)
     assert len(image_model.services.all()) == 2

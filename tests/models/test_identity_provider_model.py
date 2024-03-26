@@ -8,7 +8,12 @@ from fed_reg.auth_method.models import AuthMethod
 from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.provider.models import Provider
 from fed_reg.user_group.models import UserGroup
-from tests.create_dict import auth_method_dict, identity_provider_model_dict
+from tests.create_dict import (
+    auth_method_dict,
+    identity_provider_model_dict,
+    provider_model_dict,
+    user_group_model_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -88,11 +93,11 @@ def test_linked_user_group(
     assert user_group.uid == user_group_model.uid
 
 
-def test_multiple_linked_user_groups(
-    identity_provider_model: IdentityProvider, user_group_model: UserGroup
-) -> None:
-    identity_provider_model.user_groups.connect(user_group_model)
-    identity_provider_model.user_groups.connect(user_group_model)
+def test_multiple_linked_user_groups(identity_provider_model: IdentityProvider) -> None:
+    item = UserGroup(**user_group_model_dict()).save()
+    identity_provider_model.user_groups.connect(item)
+    item = UserGroup(**user_group_model_dict()).save()
+    identity_provider_model.user_groups.connect(item)
     assert len(identity_provider_model.user_groups.all()) == 2
 
 
@@ -118,9 +123,9 @@ def test_linked_provider(
     assert provider.uid == provider_model.uid
 
 
-def test_multiple_linked_providers(
-    identity_provider_model: IdentityProvider, provider_model: Provider
-) -> None:
-    identity_provider_model.providers.connect(provider_model, auth_method_dict())
-    identity_provider_model.providers.connect(provider_model, auth_method_dict())
+def test_multiple_linked_providers(identity_provider_model: IdentityProvider) -> None:
+    item = Provider(**provider_model_dict()).save()
+    identity_provider_model.providers.connect(item, auth_method_dict())
+    item = Provider(**provider_model_dict()).save()
+    identity_provider_model.providers.connect(item, auth_method_dict())
     assert len(identity_provider_model.providers.all()) == 2

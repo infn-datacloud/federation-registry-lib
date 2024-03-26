@@ -13,7 +13,11 @@ from pytest_cases import parametrize, parametrize_with_cases
 from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
-from tests.create_dict import user_group_model_dict
+from tests.create_dict import (
+    identity_provider_model_dict,
+    sla_model_dict,
+    user_group_model_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -81,9 +85,11 @@ def test_linked_sla(user_group_model: UserGroup, sla_model: SLA) -> None:
     assert sla.uid == sla_model.uid
 
 
-def test_multiple_linked_slas(user_group_model: UserGroup, sla_model: SLA) -> None:
-    user_group_model.slas.connect(sla_model)
-    user_group_model.slas.connect(sla_model)
+def test_multiple_linked_slas(user_group_model: UserGroup) -> None:
+    item = SLA(**sla_model_dict()).save()
+    user_group_model.slas.connect(item)
+    item = SLA(**sla_model_dict()).save()
+    user_group_model.slas.connect(item)
     assert len(user_group_model.slas.all()) == 2
 
 
@@ -108,14 +114,14 @@ def test_linked_identity_provider(
     assert identity_provider.uid == identity_provider_model.uid
 
 
-def test_multiple_linked_identity_provider(
-    user_group_model: UserGroup, identity_provider_model: IdentityProvider
-) -> None:
-    user_group_model.identity_provider.connect(identity_provider_model)
+def test_multiple_linked_identity_provider(user_group_model: UserGroup) -> None:
+    item = IdentityProvider(**identity_provider_model_dict()).save()
+    user_group_model.identity_provider.connect(item)
+    item = IdentityProvider(**identity_provider_model_dict()).save()
     with pytest.raises(AttemptedCardinalityViolation):
-        user_group_model.identity_provider.connect(identity_provider_model)
+        user_group_model.identity_provider.connect(item)
 
     with patch("neomodel.match.QueryBuilder._count", return_value=0):
-        user_group_model.identity_provider.connect(identity_provider_model)
+        user_group_model.identity_provider.connect(item)
         with pytest.raises(CardinalityViolation):
             user_group_model.identity_provider.all()

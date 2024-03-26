@@ -8,7 +8,11 @@ from pytest_cases import parametrize, parametrize_with_cases
 from fed_reg.flavor.models import Flavor
 from fed_reg.project.models import Project
 from fed_reg.service.models import ComputeService
-from tests.create_dict import flavor_model_dict
+from tests.create_dict import (
+    compute_service_model_dict,
+    flavor_model_dict,
+    project_model_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -105,9 +109,11 @@ def test_linked_project(flavor_model: Flavor, project_model: Project) -> None:
     assert project.uid == project_model.uid
 
 
-def test_multiple_linked_projects(flavor_model: Flavor, project_model: Project) -> None:
-    flavor_model.projects.connect(project_model)
-    flavor_model.projects.connect(project_model)
+def test_multiple_linked_projects(flavor_model: Flavor) -> None:
+    item = Project(**project_model_dict()).save()
+    flavor_model.projects.connect(item)
+    item = Project(**project_model_dict()).save()
+    flavor_model.projects.connect(item)
     assert len(flavor_model.projects.all()) == 2
 
 
@@ -130,9 +136,9 @@ def test_linked_service(
     assert service.uid == compute_service_model.uid
 
 
-def test_multiple_linked_services(
-    flavor_model: Flavor, compute_service_model: ComputeService
-) -> None:
-    flavor_model.services.connect(compute_service_model)
-    flavor_model.services.connect(compute_service_model)
+def test_multiple_linked_services(flavor_model: Flavor) -> None:
+    item = ComputeService(**compute_service_model_dict()).save()
+    flavor_model.services.connect(item)
+    item = ComputeService(**compute_service_model_dict()).save()
+    flavor_model.services.connect(item)
     assert len(flavor_model.services.all()) == 2

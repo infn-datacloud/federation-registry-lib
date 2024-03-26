@@ -14,7 +14,11 @@ from pytest_cases import parametrize, parametrize_with_cases
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.service.models import NetworkService
-from tests.create_dict import network_model_dict
+from tests.create_dict import (
+    network_model_dict,
+    network_service_model_dict,
+    project_model_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -113,15 +117,15 @@ def test_linked_project(network_model: Network, project_model: Project) -> None:
     assert project.uid == project_model.uid
 
 
-def test_multiple_linked_projects(
-    network_model: Network, project_model: Project
-) -> None:
-    network_model.project.connect(project_model)
+def test_multiple_linked_projects(network_model: Network) -> None:
+    item = Project(**project_model_dict()).save()
+    network_model.project.connect(item)
+    item = Project(**project_model_dict()).save()
     with pytest.raises(AttemptedCardinalityViolation):
-        network_model.project.connect(project_model)
+        network_model.project.connect(item)
 
     with patch("neomodel.match.QueryBuilder._count", return_value=0):
-        network_model.project.connect(project_model)
+        network_model.project.connect(item)
         with pytest.raises(CardinalityViolation):
             network_model.project.all()
 
@@ -145,14 +149,14 @@ def test_linked_service(
     assert service.uid == network_service_model.uid
 
 
-def test_multiple_linked_services(
-    network_model: Network, network_service_model: NetworkService
-) -> None:
-    network_model.service.connect(network_service_model)
+def test_multiple_linked_services(network_model: Network) -> None:
+    item = NetworkService(**network_service_model_dict()).save()
+    network_model.service.connect(item)
+    item = NetworkService(**network_service_model_dict()).save()
     with pytest.raises(AttemptedCardinalityViolation):
-        network_model.service.connect(network_service_model)
+        network_model.service.connect(item)
 
     with patch("neomodel.match.QueryBuilder._count", return_value=0):
-        network_model.service.connect(network_service_model)
+        network_model.service.connect(item)
         with pytest.raises(CardinalityViolation):
             network_model.service.all()

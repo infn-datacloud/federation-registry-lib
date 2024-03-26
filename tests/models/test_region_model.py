@@ -8,7 +8,7 @@ from neomodel import (
     RelationshipManager,
     RequiredProperty,
 )
-from pytest_cases import parametrize, parametrize_with_cases
+from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.location.models import Location
 from fed_reg.provider.models import Provider
@@ -20,7 +20,15 @@ from fed_reg.service.models import (
     NetworkService,
     Service,
 )
-from tests.create_dict import region_model_dict
+from tests.create_dict import (
+    block_storage_service_model_dict,
+    compute_service_model_dict,
+    identity_service_model_dict,
+    location_model_dict,
+    network_service_model_dict,
+    provider_model_dict,
+    region_model_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -31,25 +39,57 @@ class CaseAttr:
 
 
 class CaseServiceModel:
+    @case(tags=["single"])
     def case_block_storage_service(
         self, block_storage_service_model: BlockStorageService
     ) -> BlockStorageService:
         return block_storage_service_model
 
+    @case(tags=["single"])
     def case_compute_service(
         self, compute_service_model: ComputeService
     ) -> ComputeService:
         return compute_service_model
 
+    @case(tags=["single"])
     def case_identity_service(
         self, identity_service_model: IdentityService
     ) -> IdentityService:
         return identity_service_model
 
+    @case(tags=["single"])
     def case_network_service(
         self, network_service_model: NetworkService
     ) -> NetworkService:
         return network_service_model
+
+    @case(tags=["multi"])
+    def case_block_storage_services(self) -> list[BlockStorageService]:
+        return [
+            BlockStorageService(**block_storage_service_model_dict()).save(),
+            BlockStorageService(**block_storage_service_model_dict()).save(),
+        ]
+
+    @case(tags=["multi"])
+    def case_compute_services(self) -> list[ComputeService]:
+        return [
+            ComputeService(**compute_service_model_dict()).save(),
+            ComputeService(**compute_service_model_dict()).save(),
+        ]
+
+    @case(tags=["multi"])
+    def case_identity_services(self) -> list[IdentityService]:
+        return [
+            IdentityService(**identity_service_model_dict()).save(),
+            IdentityService(**identity_service_model_dict()).save(),
+        ]
+
+    @case(tags=["multi"])
+    def case_network_services(self) -> list[NetworkService]:
+        return [
+            NetworkService(**network_service_model_dict()).save(),
+            NetworkService(**network_service_model_dict()).save(),
+        ]
 
 
 def test_default_attr() -> None:
@@ -96,7 +136,7 @@ def test_optional_rel(region_model: Region) -> None:
     assert region_model.services.single() is None
 
 
-@parametrize_with_cases("service_model", cases=CaseServiceModel)
+@parametrize_with_cases("service_model", cases=CaseServiceModel, has_tag="single")
 def test_linked_service(
     region_model: Region,
     service_model: Union[
@@ -119,15 +159,15 @@ def test_linked_service(
     assert service.uid == service_model.uid
 
 
-@parametrize_with_cases("service_model", cases=CaseServiceModel)
+@parametrize_with_cases("service_models", cases=CaseServiceModel, has_tag="multi")
 def test_multiple_linked_services(
     region_model: Region,
-    service_model: Union[
+    service_models: Union[
         BlockStorageService, ComputeService, IdentityService, NetworkService
     ],
 ) -> None:
-    region_model.services.connect(service_model)
-    region_model.services.connect(service_model)
+    region_model.services.connect(service_models[0])
+    region_model.services.connect(service_models[1])
     assert len(region_model.services.all()) == 2
 
 
@@ -148,15 +188,15 @@ def test_linked_location(region_model: Region, location_model: Location) -> None
     assert location.uid == location_model.uid
 
 
-def test_multiple_linked_location(
-    region_model: Region, location_model: Location
-) -> None:
-    region_model.location.connect(location_model)
+def test_multiple_linked_location(region_model: Region) -> None:
+    item = Location(**location_model_dict()).save()
+    region_model.location.connect(item)
+    item = Location(**location_model_dict()).save()
     with pytest.raises(AttemptedCardinalityViolation):
-        region_model.location.connect(location_model)
+        region_model.location.connect(item)
 
     with patch("neomodel.match.QueryBuilder._count", return_value=0):
-        region_model.location.connect(location_model)
+        region_model.location.connect(item)
         with pytest.raises(CardinalityViolation):
             region_model.location.all()
 
@@ -178,14 +218,14 @@ def test_linked_provider(region_model: Region, provider_model: Provider) -> None
     assert provider.uid == provider_model.uid
 
 
-def test_multiple_linked_provider(
-    region_model: Region, provider_model: Provider
-) -> None:
-    region_model.provider.connect(provider_model)
+def test_multiple_linked_provider(region_model: Region) -> None:
+    item = Provider(**provider_model_dict()).save()
+    region_model.provider.connect(item)
+    item = Provider(**provider_model_dict()).save()
     with pytest.raises(AttemptedCardinalityViolation):
-        region_model.provider.connect(provider_model)
+        region_model.provider.connect(item)
 
     with patch("neomodel.match.QueryBuilder._count", return_value=0):
-        region_model.provider.connect(provider_model)
+        region_model.provider.connect(item)
         with pytest.raises(CardinalityViolation):
             region_model.provider.all()
