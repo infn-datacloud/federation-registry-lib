@@ -76,7 +76,7 @@ class Project(StructuredNode):
     query_prefix = """
         MATCH (p:Project)
         WHERE (elementId(p)=$self)
-        MATCH (p)-[:USE_SERVICE_WITH]-(q)
+        MATCH (p)-[:`USE_SERVICE_WITH`]-(q)
         """
 
     def public_flavors(self) -> List[Flavor]:
@@ -88,8 +88,8 @@ class Project(StructuredNode):
             f"""
                 {self.query_prefix}
                 WHERE q.type = "{ServiceType.COMPUTE.value}"
-                MATCH (q)-[:APPLY_TO]-(s)
-                MATCH (s)-[:AVAILABLE_VM_FLAVOR]->(u)
+                MATCH (q)-[:`APPLY_TO`]-(s)
+                MATCH (s)-[:`AVAILABLE_VM_FLAVOR`]->(u:Flavor)
                 WHERE u.is_public = True
                 RETURN u
             """
@@ -105,8 +105,8 @@ class Project(StructuredNode):
             f"""
                 {self.query_prefix}
                 WHERE q.type = "{ServiceType.COMPUTE.value}"
-                MATCH (q)-[:APPLY_TO]-(s)
-                MATCH (s)-[:AVAILABLE_VM_IMAGE]->(u)
+                MATCH (q)-[:`APPLY_TO`]-(s)
+                MATCH (s)-[:`AVAILABLE_VM_IMAGE`]->(u:Image)
                 WHERE u.is_public = True
                 RETURN u
             """
@@ -122,8 +122,8 @@ class Project(StructuredNode):
             f"""
                 {self.query_prefix}
                 WHERE q.type = "{ServiceType.NETWORK.value}"
-                MATCH (q)-[:APPLY_TO]-(s)
-                MATCH (s)-[:AVAILABLE_NETWORK]->(u)
+                MATCH (q)-[:`APPLY_TO`]-(s)
+                MATCH (s)-[:`AVAILABLE_NETWORK`]->(u:Network)
                 WHERE u.is_shared = True
                 RETURN u
             """

@@ -275,3 +275,84 @@ class CaseDBInstance:
             item = Region(**region_model_dict()).save()
             location_model.regions.connect(item)
         return location_model
+
+    @case(tags=["project"])
+    @parametrize(**{"tot,pub": [(0, 0), (1, 0), (1, 1), (2, 0), (2, 1), (2, 2)]})
+    def case_project_flavors(
+        self,
+        project_model: Project,
+        provider_model: Provider,
+        compute_quota_model: ComputeQuota,
+        compute_service_model: ComputeService,
+        tot: int,
+        pub: int,
+    ) -> Project:
+        project_model.provider.connect(provider_model)
+        for _ in range(pub):
+            item = Flavor(**flavor_model_dict()).save()
+            compute_service_model.flavors.connect(item)
+        compute_service_model.quotas.connect(compute_quota_model)
+        project_model.quotas.connect(compute_quota_model)
+        for _ in range(tot - pub):
+            item = Flavor(**flavor_model_dict(), is_public=False).save()
+            project_model.private_flavors.connect(item)
+        return project_model
+
+    @case(tags=["project"])
+    @parametrize(**{"tot,pub": [(0, 0), (1, 0), (1, 1), (2, 0), (2, 1), (2, 2)]})
+    def case_project_images(
+        self,
+        project_model: Project,
+        provider_model: Provider,
+        compute_quota_model: ComputeQuota,
+        compute_service_model: ComputeService,
+        tot: int,
+        pub: int,
+    ) -> Project:
+        project_model.provider.connect(provider_model)
+        for _ in range(pub):
+            item = Image(**image_model_dict()).save()
+            compute_service_model.images.connect(item)
+        compute_service_model.quotas.connect(compute_quota_model)
+        project_model.quotas.connect(compute_quota_model)
+        for _ in range(tot - pub):
+            item = Image(**image_model_dict(), is_public=False).save()
+            project_model.private_images.connect(item)
+        return project_model
+
+    @case(tags=["project"])
+    @parametrize(**{"tot,pub": [(0, 0), (1, 0), (1, 1), (2, 0), (2, 1), (2, 2)]})
+    def case_project_networks(
+        self,
+        project_model: Project,
+        provider_model: Provider,
+        network_quota_model: NetworkQuota,
+        network_service_model: NetworkService,
+        tot: int,
+        pub: int,
+    ) -> Project:
+        project_model.provider.connect(provider_model)
+        for _ in range(pub):
+            item = Network(**network_model_dict()).save()
+            network_service_model.networks.connect(item)
+        network_service_model.quotas.connect(network_quota_model)
+        project_model.quotas.connect(network_quota_model)
+        for _ in range(tot - pub):
+            item = Network(**network_model_dict(), is_shared=False).save()
+            project_model.private_networks.connect(item)
+        return project_model
+
+    @case(tags=["project"])
+    def case_project_slas(
+        self,
+        project_model: Project,
+        provider_model: Provider,
+        identity_provider_model: IdentityProvider,
+        user_group_model: UserGroup,
+        sla_model: SLA,
+    ) -> Project:
+        project_model.provider.connect(provider_model)
+        identity_provider_model.user_groups.connect(user_group_model)
+        user_group_model.slas.connect(sla_model)
+        project_model.sla.connect(sla_model)
+        return project_model

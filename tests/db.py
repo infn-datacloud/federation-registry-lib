@@ -55,7 +55,7 @@ class MockDatabase:
         self.count = 0
 
     def query_call(self, query: str, params: dict[str, Any], **kwargs):
-        # print(query, kwargs)
+        # print(query, params, kwargs)
         resolve_objects = kwargs.get("resolve_objects", False)
 
         # Detect if it is a CREATE request.
@@ -155,7 +155,12 @@ class MockDatabase:
         labels matching this item.
         """
         element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
-        item = Node(..., element_id=element_id, id_=self.count, properties=data)
+        item = Node(
+            ...,
+            element_id=element_id,
+            id_=self.count,
+            properties={**data, "element_id_property": element_id},
+        )
         self.graph.add_node(item, labels=item_type.split(":"))
         self.count += 1
         return [[item]], None
@@ -169,8 +174,6 @@ class MockDatabase:
         If `dest_type` is defined, then return the related nodes, otherwise return the
         relationships.
         """
-        match = re.search(rf"(?<={rel_string}:\`)\w+(?=\`)", query)
-        rel_type = match.group(0)
         match = re.search(rf"(?<={return_string}:)\w+(?=\))", query)
         if match is not None:
             dest_type = match.group(0)
@@ -178,8 +181,10 @@ class MockDatabase:
                 start_node, dest_type, resolve_objects
             )
         else:
+            match = re.search(rf"(?<={rel_string}:\`)\w+(?=\`)", query)
+            rel_type = match.group(0)
             relationships = self._get_related_edges(start_node, rel_type)
-        return relationships, [rel_type]
+        return relationships, [return_string]
 
     def _get_start_end_nodes(self, params):
         """
@@ -217,8 +222,8 @@ class MockDatabase:
             self.graph.neighbors(start_node),
         )
         if resolve_objects:
-            relationships = [[CLASS_DICT[dest_type](**i)] for i in relationships]
-        return list(relationships)
+            return [[CLASS_DICT[dest_type](**i)] for i in relationships]
+        return [[i] for i in relationships]
 
     def _get_related_edges(self, start_node, rel_type):
         """
