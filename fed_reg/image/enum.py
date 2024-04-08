@@ -2,7 +2,7 @@
 from enum import Enum
 
 
-class ImageOS(Enum):
+class ImageOS(str, Enum):
     """Possible operating systems types."""
 
     Linux: str = "Linux"
