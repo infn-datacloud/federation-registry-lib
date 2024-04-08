@@ -8,3 +8,11 @@ class ImageOS(Enum):
     Linux: str = "Linux"
     Windows: str = "Windows"
     MacOS: str = "MacOS"
+
+    @classmethod
+    def _missing_(cls, value):
+        value = value.lower()
+        for member in cls:
+            if member.lower() == value:
+                return member
+        return None
