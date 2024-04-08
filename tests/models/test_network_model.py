@@ -29,7 +29,7 @@ class CaseMissing:
 
 
 class CaseAttr:
-    @parametrize(key=["description", "proxy_ip", "proxy_user"])
+    @parametrize(key=["description", "proxy_host", "proxy_user"])
     def case_str(self, key: str) -> tuple[str, str]:
         return key, random_lower_string()
 
@@ -59,7 +59,7 @@ def test_default_attr() -> None:
     assert item.is_router_external is False
     assert item.is_default is False
     assert item.mtu is None
-    assert item.proxy_ip is None
+    assert item.proxy_host is None
     assert item.proxy_user is None
     assert item.tags == []
     assert isinstance(item.project, RelationshipManager)

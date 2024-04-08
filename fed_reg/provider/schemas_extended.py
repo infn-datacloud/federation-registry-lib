@@ -663,7 +663,7 @@ class NetworkCreateExtended(NetworkCreate):
             network.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
-        proxy_ip (str | None): Proxy IP address.
+        proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): List of tags associated to this Network.
         project (str | None): Target project's UUID in the Provider.

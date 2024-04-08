@@ -35,7 +35,7 @@ class Network(StructuredNode):
         is_router_external (bool): Network with access to the outside.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
-        proxy_ip (str | None): Proxy IP address.
+        proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): List of tags associated to this Network.
     """
@@ -48,7 +48,7 @@ class Network(StructuredNode):
     is_router_external = BooleanProperty(default=False)
     is_default = BooleanProperty(default=False)
     mtu = IntegerProperty()
-    proxy_ip = StringProperty()
+    proxy_host = StringProperty()
     proxy_user = StringProperty()
     tags = ArrayProperty(StringProperty(), default=[])
 

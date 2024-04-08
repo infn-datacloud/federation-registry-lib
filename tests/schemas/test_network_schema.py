@@ -42,7 +42,7 @@ class CaseAttr:
         return attr, value
 
     @case(tags=["base"])
-    @parametrize(attr=["proxy_ip", "proxy_user"])
+    @parametrize(attr=["proxy_host", "proxy_user"])
     def case_string(self, attr: str) -> tuple[str, str]:
         return attr, random_lower_string()
 
@@ -116,7 +116,7 @@ def test_base(key: str, value: Any) -> None:
     assert item.is_router_external == d.get("is_router_external", False)
     assert item.is_default == d.get("is_default", False)
     assert item.mtu == d.get("mtu")
-    assert item.proxy_ip == d.get("proxy_ip")
+    assert item.proxy_host == d.get("proxy_host")
     assert item.proxy_user == d.get("proxy_user")
     assert item.tags == d.get("tags", [])
 
@@ -216,7 +216,7 @@ def test_read(network_model: Network, key: str, value: Any) -> None:
     assert item.is_router_external == network_model.is_router_external
     assert item.is_default == network_model.is_default
     assert item.mtu == network_model.mtu
-    assert item.proxy_ip == network_model.proxy_ip
+    assert item.proxy_host == network_model.proxy_host
     assert item.proxy_user == network_model.proxy_user
     assert item.tags == network_model.tags
 

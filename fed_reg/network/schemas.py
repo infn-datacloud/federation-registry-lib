@@ -9,7 +9,7 @@ from fed_reg.network.constants import (
     DOC_EXT_ROUT,
     DOC_MTU,
     DOC_NAME,
-    DOC_PROXY_IP,
+    DOC_PROXY_HOST,
     DOC_PROXY_USER,
     DOC_SHARED,
     DOC_TAGS,
@@ -45,7 +45,7 @@ class NetworkBase(NetworkBasePublic):
             network.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
-        proxy_ip (str | None): Proxy IP address.
+        proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): List of tags associated to this Network.
     """
@@ -54,7 +54,7 @@ class NetworkBase(NetworkBasePublic):
     is_router_external: bool = Field(default=False, description=DOC_EXT_ROUT)
     is_default: bool = Field(default=False, description=DOC_DEFAULT)
     mtu: Optional[int] = Field(default=None, gt=0, description=DOC_MTU)
-    proxy_ip: Optional[str] = Field(default=None, description=DOC_PROXY_IP)
+    proxy_host: Optional[str] = Field(default=None, description=DOC_PROXY_HOST)
     proxy_user: Optional[str] = Field(default=None, description=DOC_PROXY_USER)
     tags: List[str] = Field(default_factory=list, description=DOC_TAGS)
 
@@ -75,7 +75,7 @@ class NetworkCreate(BaseNodeCreate, NetworkBase):
             network.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
-        proxy_ip (str | None): Proxy IP address.
+        proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): List of tags associated to this Network.
     """
@@ -99,7 +99,7 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
             External network.
         is_default (bool | None): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
-        proxy_ip (str | None): Proxy IP address.
+        proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str | None): List of tags associated to this Network.
     """
@@ -144,7 +144,7 @@ class NetworkRead(BaseNodeRead, NetworkBase):
             network.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
-        proxy_ip (str | None): Proxy IP address.
+        proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): List of tags associated to this Network.
     """
