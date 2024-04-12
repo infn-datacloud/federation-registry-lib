@@ -8,17 +8,17 @@ def prepareEnvironment() {
 }
 
 pipeline {
+    environment {
+        POETRY_VIRTUALENVS_IN_PROJECT = true
+    }
+    agent {
+        docker {
+            image 'python:3.9-slim'
+            reuseNode 'true'
+        }
+    }
     stages {
         stage('Test') {
-            environment {
-                POETRY_VIRTUALENVS_IN_PROJECT = true
-            }
-            agent {
-                docker {
-                    image 'python:3.9-slim'
-                    reuseNode 'true'
-                }
-            }
             steps {
                 prepareEnvironment()
             }
