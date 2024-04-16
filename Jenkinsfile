@@ -1,7 +1,7 @@
 def prepareEnvironment() {
     script {
         sh """
-            pip install poetry
+            pip install --user poetry
             poetry install --no-interaction --no-root
         """
     }
