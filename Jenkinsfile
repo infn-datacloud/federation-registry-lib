@@ -1,9 +1,9 @@
 def prepareEnvironment() {
     script {
-        sh '''
+        sh """
             pip install poetry
             poetry install --no-interaction --no-root
-        '''
+        """
     }
 }
 
@@ -13,6 +13,7 @@ pipeline {
     }
     agent {
         docker {
+            label 'jenkinsworker00'
             image 'python:3.9-slim'
             reuseNode 'true'
         }
