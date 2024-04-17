@@ -26,6 +26,7 @@ from fed_reg.provider.schemas_extended import (
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
+    ProviderCreateExtended,
     RegionCreateExtended,
     SLACreateExtended,
     UserGroupCreateExtended,
@@ -67,6 +68,7 @@ from tests.create_dict import (
     project_model_dict,
     project_schema_dict,
     provider_model_dict,
+    provider_schema_dict,
     region_model_dict,
     region_schema_dict,
     sla_model_dict,
@@ -248,11 +250,6 @@ def flavor_create_ext_schema() -> FlavorCreateExtended:
 
 
 @pytest.fixture
-def image_create_ext_schema() -> ImageCreateExtended:
-    return ImageCreateExtended(**image_schema_dict())
-
-
-@pytest.fixture
 def identity_provider_create_ext_schema(
     user_group_create_ext_schema: UserGroupCreateExtended,
 ) -> IdentityProviderCreateExtended:
@@ -264,8 +261,18 @@ def identity_provider_create_ext_schema(
 
 
 @pytest.fixture
+def image_create_ext_schema() -> ImageCreateExtended:
+    return ImageCreateExtended(**image_schema_dict())
+
+
+@pytest.fixture
 def network_create_ext_schema() -> NetworkCreateExtended:
     return NetworkCreateExtended(**network_schema_dict())
+
+
+@pytest.fixture
+def provider_create_ext_schema() -> ProviderCreateExtended:
+    return ProviderCreateExtended(**provider_schema_dict())
 
 
 @pytest.fixture
