@@ -1,19 +1,23 @@
+from typing import Literal
+
 import pytest
-from pytest_cases import parametrize, parametrize_with_cases
+from pytest_cases import case, parametrize, parametrize_with_cases
 
 from fed_reg.provider.crud import provider_mng
+from fed_reg.provider.enum import ProviderStatus, ProviderType
 from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas_extended import ProviderCreateExtended
 from tests.create_dict import provider_model_dict
+from tests.utils import random_lower_string
 
 
 class CaseAttr:
-    def case_none(self) -> None:
-        return None
+    def case_uid(self) -> Literal["uid"]:
+        return "uid"
 
+    @case(tags=["not-uid"])
     @parametrize(
         value=[
-            "uid",
             "description",
             "name",
             "type",
@@ -27,14 +31,46 @@ class CaseAttr:
 
 
 class CaseProvider:
+    @case(tags=["single"])
+    @parametrize(full=[True, False])
+    def case_single_provider(self, full: bool) -> Provider:
+        d = provider_model_dict()
+        if full:
+            d["status"] = ProviderStatus.ACTIVE.value
+            d["description"] = random_lower_string()
+            d["support_emails"] = [random_lower_string()]
+        return Provider(**d).save()
+
+    @case(tags=["multi"])
     @parametrize(len=[1, 2])
-    def case_provider(self, len: int) -> list[Provider]:
+    def case_providers_list(self, len: int) -> list[Provider]:
         providers = []
         for _ in range(len):
             providers.append(Provider(**provider_model_dict()).save())
         return providers
 
+    @case(tags=["multi-single-match"])
+    def case_providers_list_single_match(self) -> list[Provider]:
+        providers = []
+        statuses = [i for i in ProviderStatus]
+        types = [i for i in ProviderType]
+        for i in range(2):
+            d = provider_model_dict()
+            d["type"] = types[i]
+            d["is_public"] = bool(i % 2)
+            d["status"] = statuses[i]
+            d["description"] = random_lower_string()
+            d["support_emails"] = [random_lower_string()]
+            providers.append(Provider(**d).save())
+        return providers
 
+    @case(tags=["multi-dup-matches"])
+    def case_providers_list_dup_matches(self) -> list[Provider]:
+        d = provider_model_dict()
+        return [Provider(**d).save(), Provider(**d).save()]
+
+
+# TODO parametrize with possible extended cases
 def test_create(provider_create_ext_schema: ProviderCreateExtended) -> None:
     item = provider_mng.create(obj_in=provider_create_ext_schema)
     assert isinstance(item, Provider)
@@ -52,10 +88,34 @@ def test_create(provider_create_ext_schema: ProviderCreateExtended) -> None:
     assert len(item.regions) == len(provider_create_ext_schema.regions)
 
 
-@parametrize_with_cases("providers", cases=CaseProvider)
+@parametrize_with_cases("providers", cases=CaseProvider, has_tag=["multi"])
 def test_read_multi(providers: Provider) -> None:
     items = provider_mng.get_multi()
     assert len(items) == len(providers)
+    for item in items:
+        assert isinstance(item, Provider)
+
+
+@parametrize_with_cases("providers", cases=CaseProvider, has_tag=["multi-single-match"])
+@parametrize_with_cases("attr", cases=CaseAttr)
+def test_read_multi_with_attr_single_match(
+    providers: list[Provider], attr: str
+) -> None:
+    kwargs = {attr: providers[0].__getattribute__(attr)}
+    items = provider_mng.get_multi(**kwargs)
+    assert len(items) == 1
+    assert items[0].uid == providers[0].uid
+
+
+@parametrize_with_cases("providers", cases=CaseProvider, has_tag=["multi-dup-matches"])
+@parametrize_with_cases("attr", cases=CaseAttr, has_tag=["not-uid"])
+def test_read_multi_with_attr_dup_matches(providers: list[Provider], attr: str) -> None:
+    kwargs = {attr: providers[0].__getattribute__(attr)}
+    items = provider_mng.get_multi(**kwargs)
+    assert len(items) == 2
+
+
+# TODO add tests get multi with skip, limit, sort
 
 
 def test_read_empty_list() -> None:
@@ -63,12 +123,18 @@ def test_read_empty_list() -> None:
     assert len(items) == 0
 
 
-@parametrize_with_cases("attr", cases=CaseAttr)
-def test_read_single(provider_model: Provider, attr: str) -> None:
-    kwargs = {attr: provider_model.__getattribute__(attr)} if attr else {}
-    item = provider_mng.get(**kwargs)
+def test_read_single(provider_model: Provider) -> None:
+    item = provider_mng.get()
     assert isinstance(item, Provider)
     assert item.uid == provider_model.uid
+
+
+@parametrize_with_cases("provider", cases=CaseProvider, has_tag=["single"])
+@parametrize_with_cases("attr", cases=CaseAttr)
+def test_read_single_with_attr(provider: Provider, attr: str) -> None:
+    kwargs = {attr: provider.__getattribute__(attr)}
+    item = provider_mng.get(**kwargs)
+    assert item.uid == provider.uid
 
 
 def test_read_none() -> None:
@@ -84,3 +150,6 @@ def test_delete_not_existing(provider_model: Provider) -> None:
     assert provider_mng.remove(db_obj=provider_model)
     with pytest.raises(ValueError):
         provider_mng.remove(db_obj=provider_model)
+
+
+# TODO test update
