@@ -94,7 +94,9 @@ class MockDatabase:
                 return_string = match.group(0)
                 # Return nodes of `item_type`.
                 if item_name == return_string:
-                    return self.get_nodes(item_type, return_string, resolve_objects)
+                    return self.get_nodes(
+                        item_type, params, return_string, resolve_objects
+                    )
 
                 start_node = self._get_start_node(params)
                 if start_node is not None:
@@ -191,8 +193,15 @@ class MockDatabase:
             relationships = self._get_related_edges(start_node, rel_type)
         return relationships, [return_string]
 
-    def get_nodes(self, item_type, return_string, resolve_objects):
-        nodes = filter(lambda x: item_type in x[1], self.graph.nodes.data("labels"))
+    def get_nodes(self, item_type, params, return_string, resolve_objects):
+        attrs = {}
+        for k, v in params.items():
+            attrs[k[k.find("_") + 1 : k.rfind("_")]] = v
+        nodes = filter(
+            lambda x: item_type in x[1]
+            and all([x[0].get(k, "None") == v for k, v in attrs.items()]),
+            self.graph.nodes.data("labels"),
+        )
         nodes = [i[0] for i in nodes]
         if resolve_objects:
             nodes = [[CLASS_DICT[item_type](**i)] for i in nodes]
