@@ -48,8 +48,8 @@ CLASS_DICT = {
 
 
 class MockDatabase:
-    def __init__(self, db_version: int = 5) -> None:
-        self.db_version = db_version
+    def __init__(self, database_version: int = 5) -> None:
+        self.database_version = database_version
         self.graph = nx.Graph()
         self.count = 0
 
@@ -133,7 +133,7 @@ class MockDatabase:
         """
         rel = None
         if data:
-            element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
+            element_id = f"{self.database_version}:{uuid4().hex}:{self.count}"
             rel = Relationship(
                 ..., element_id=element_id, id_=self.count, properties=data
             )
@@ -161,7 +161,7 @@ class MockDatabase:
         Store the node in the graph. `labels` attribute contains the list of the neo4j
         labels matching this item.
         """
-        element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
+        element_id = f"{self.database_version}:{uuid4().hex}:{self.count}"
         item = Node(
             ...,
             element_id=element_id,

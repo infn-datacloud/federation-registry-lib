@@ -5,6 +5,8 @@ from unittest.mock import MagicMock, PropertyMock, patch
 from uuid import uuid4
 
 import pytest
+from neo4j.exceptions import ServiceUnavailable
+from neomodel import db
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.identity_provider.models import IdentityProvider
@@ -78,6 +80,13 @@ from tests.create_dict import (
 )
 from tests.db import MockDatabase
 
+try:
+    db.begin()
+    db.commit()
+    USE_MOCK_DB = False
+except ServiceUnavailable:
+    USE_MOCK_DB = True
+
 
 @pytest.fixture(autouse=True)
 def clear_os_environment() -> None:
@@ -86,30 +95,36 @@ def clear_os_environment() -> None:
 
 
 @pytest.fixture()
-def db() -> MockDatabase:
+def fake_db() -> MockDatabase:
     return MockDatabase()
 
 
 @pytest.fixture()
-def db_core(db: MockDatabase) -> Generator[None, Any, None]:
+def db_core(fake_db: MockDatabase) -> Generator[None, Any, None]:
     with patch("neomodel.core.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
-        mock_db.cypher_query.side_effect = db.query_call
+        type(mock_db).database_version = PropertyMock(
+            return_value=str(fake_db.database_version)
+        )
+        mock_db.cypher_query.side_effect = fake_db.query_call
         yield
 
 
 @pytest.fixture()
-def db_match(db: MockDatabase) -> Generator[None, Any, None]:
+def db_match(fake_db: MockDatabase) -> Generator[None, Any, None]:
     with patch("neomodel.match.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
-        mock_db.cypher_query.side_effect = db.query_call
+        type(mock_db).database_version = PropertyMock(
+            return_value=str(fake_db.database_version)
+        )
+        mock_db.cypher_query.side_effect = fake_db.query_call
         yield
 
 
 @pytest.fixture()
-def db_rel_mgr(db: MockDatabase) -> Generator[None, Any, None]:
+def db_rel_mgr(fake_db: MockDatabase) -> Generator[None, Any, None]:
     with patch("neomodel.relationship_manager.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
+        type(mock_db).database_version = PropertyMock(
+            return_value=str(fake_db.database_version)
+        )
 
         d = {}
         cls_registry = MagicMock()
@@ -120,11 +135,20 @@ def db_rel_mgr(db: MockDatabase) -> Generator[None, Any, None]:
         yield
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=USE_MOCK_DB)
 def mock_db(
     db_core: None, db_match: None, db_rel_mgr: None
 ) -> Generator[None, Any, None]:
+    print("Using MOCK DB")
     yield
+
+
+@pytest.fixture(autouse=not USE_MOCK_DB)
+def clear_db() -> Generator[None, Any, None]:
+    print("Using REAL DB")
+    db.begin()
+    yield
+    db.rollback()
 
 
 @pytest.fixture
