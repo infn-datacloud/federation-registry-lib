@@ -15,18 +15,14 @@ class CaseAttr:
     def case_uid(self) -> Literal["uid"]:
         return "uid"
 
-    @case(tags=["not-uid"])
-    @parametrize(
-        value=[
-            "description",
-            "name",
-            "type",
-            "status",
-            "is_public",
-            "support_emails",
-        ]
-    )
+    @case(tags=["not-uid", "not-enum"])
+    @parametrize(value=["description", "name", "is_public", "support_emails"])
     def case_key(self, value: str) -> str:
+        return value
+
+    @case(tags=["not-uid", "enum"])
+    @parametrize(value=["type", "status"])
+    def case_enum_key(self, value: str) -> str:
         return value
 
 
@@ -36,7 +32,7 @@ class CaseProvider:
     def case_single_provider(self, full: bool) -> Provider:
         d = provider_model_dict()
         if full:
-            d["status"] = ProviderStatus.ACTIVE.value
+            d["status"] = ProviderStatus.ACTIVE
             d["description"] = random_lower_string()
             d["support_emails"] = [random_lower_string()]
         return Provider(**d).save()
@@ -67,6 +63,7 @@ class CaseProvider:
     @case(tags=["multi-dup-matches"])
     def case_providers_list_dup_matches(self) -> list[Provider]:
         d = provider_model_dict()
+        d["status"] = ProviderStatus.ACTIVE
         return [Provider(**d).save(), Provider(**d).save()]
 
 
@@ -115,7 +112,33 @@ def test_read_multi_with_attr_dup_matches(providers: list[Provider], attr: str) 
     assert len(items) == 2
 
 
-# TODO add tests get multi with skip, limit, sort
+@parametrize_with_cases("providers", cases=CaseProvider, has_tag=["multi-single-match"])
+@parametrize_with_cases("attr", cases=CaseAttr, has_tag=["not-enum"])
+def test_read_multi_sort(providers: list[Provider], attr: str) -> None:
+    kwargs = {"sort": attr}
+    items = provider_mng.get_multi(**kwargs)
+    assert len(items) == len(providers)
+    sorted_providers = sorted(providers, key=lambda x: x.__getattribute__(attr))
+    assert items[0].__getattribute__(attr) == sorted_providers[0].__getattribute__(attr)
+    assert items[1].__getattribute__(attr) == sorted_providers[1].__getattribute__(attr)
+
+
+@parametrize_with_cases("providers", cases=CaseProvider, has_tag=["multi-single-match"])
+@parametrize_with_cases("attr", cases=CaseAttr, has_tag=["enum"])
+def test_read_multi_sort_enums(providers: list[Provider], attr: str) -> None:
+    kwargs = {"sort": attr}
+    items = provider_mng.get_multi(**kwargs)
+    assert len(items) == len(providers)
+    sorted_providers = sorted(providers, key=lambda x: x.__getattribute__(attr).value)
+    assert items[0].__getattribute__(attr) == str(
+        sorted_providers[0].__getattribute__(attr)
+    )
+    assert items[1].__getattribute__(attr) == str(
+        sorted_providers[1].__getattribute__(attr)
+    )
+
+
+# TODO add tests get multi with skip, limit
 
 
 def test_read_empty_list() -> None:
@@ -133,8 +156,11 @@ def test_read_single(provider_model: Provider) -> None:
 @parametrize_with_cases("attr", cases=CaseAttr)
 def test_read_single_with_attr(provider: Provider, attr: str) -> None:
     kwargs = {attr: provider.__getattribute__(attr)}
-    item = provider_mng.get(**kwargs)
-    assert item.uid == provider.uid
+    if kwargs[attr] is None:
+        assert not provider_mng.get(**kwargs)
+    else:
+        item = provider_mng.get(**kwargs)
+        assert item.uid == provider.uid
 
 
 def test_read_none() -> None:
