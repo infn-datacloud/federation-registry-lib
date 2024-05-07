@@ -101,7 +101,7 @@ def fake_db() -> MockDatabase:
 
 @pytest.fixture()
 def db_core(fake_db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.core.db") as mock_db:
+    with patch("neomodel.sync_.core.db") as mock_db:
         type(mock_db).database_version = PropertyMock(
             return_value=str(fake_db.database_version)
         )
@@ -111,7 +111,7 @@ def db_core(fake_db: MockDatabase) -> Generator[None, Any, None]:
 
 @pytest.fixture()
 def db_match(fake_db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.match.db") as mock_db:
+    with patch("neomodel.sync_.match.db") as mock_db:
         type(mock_db).database_version = PropertyMock(
             return_value=str(fake_db.database_version)
         )
@@ -121,7 +121,7 @@ def db_match(fake_db: MockDatabase) -> Generator[None, Any, None]:
 
 @pytest.fixture()
 def db_rel_mgr(fake_db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.relationship_manager.db") as mock_db:
+    with patch("neomodel.sync_.relationship_manager.db") as mock_db:
         type(mock_db).database_version = PropertyMock(
             return_value=str(fake_db.database_version)
         )
