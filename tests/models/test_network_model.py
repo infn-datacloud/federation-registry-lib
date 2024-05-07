@@ -124,7 +124,7 @@ def test_multiple_linked_projects(network_model: Network) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         network_model.project.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         network_model.project.connect(item)
         with pytest.raises(CardinalityViolation):
             network_model.project.all()
@@ -156,7 +156,7 @@ def test_multiple_linked_services(network_model: Network) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         network_model.service.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         network_model.service.connect(item)
         with pytest.raises(CardinalityViolation):
             network_model.service.all()
