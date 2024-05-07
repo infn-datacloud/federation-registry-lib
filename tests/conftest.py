@@ -1,97 +1,317 @@
-from glob import glob
-from typing import Any, Dict, Generator, Tuple
+"""File to set tests configuration parameters and common fixtures."""
+import os
+from typing import Any, Generator
+from unittest.mock import MagicMock, PropertyMock, patch
+from uuid import uuid4
 
-import jwt
 import pytest
-from cryptography.hazmat.primitives.asymmetric import rsa
-from fastapi.testclient import TestClient
-from neomodel import clear_neo4j_database, db
 
-from app.main import app
+from fed_reg.flavor.models import Flavor
+from fed_reg.identity_provider.models import IdentityProvider
+from fed_reg.image.models import Image
+from fed_reg.location.models import Location
+from fed_reg.location.schemas import LocationCreate
+from fed_reg.network.models import Network
+from fed_reg.project.models import Project
+from fed_reg.project.schemas import ProjectCreate
+from fed_reg.provider.models import Provider
+from fed_reg.provider.schemas_extended import (
+    BlockStorageQuotaCreateExtended,
+    BlockStorageServiceCreateExtended,
+    ComputeQuotaCreateExtended,
+    ComputeServiceCreateExtended,
+    FlavorCreateExtended,
+    IdentityProviderCreateExtended,
+    ImageCreateExtended,
+    NetworkCreateExtended,
+    NetworkQuotaCreateExtended,
+    NetworkServiceCreateExtended,
+    RegionCreateExtended,
+    SLACreateExtended,
+    UserGroupCreateExtended,
+)
+from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.region.models import Region
+from fed_reg.service.models import (
+    BlockStorageService,
+    ComputeService,
+    IdentityService,
+    NetworkService,
+)
+from fed_reg.service.schemas import IdentityServiceCreate
+from fed_reg.sla.models import SLA
+from fed_reg.user_group.models import UserGroup
+from tests.create_dict import (
+    auth_method_dict,
+    block_storage_quota_model_dict,
+    block_storage_service_model_dict,
+    block_storage_service_schema_dict,
+    compute_quota_model_dict,
+    compute_service_model_dict,
+    compute_service_schema_dict,
+    flavor_model_dict,
+    flavor_schema_dict,
+    identity_provider_model_dict,
+    identity_provider_schema_dict,
+    identity_service_model_dict,
+    identity_service_schema_dict,
+    image_model_dict,
+    image_schema_dict,
+    location_model_dict,
+    location_schema_dict,
+    network_model_dict,
+    network_quota_model_dict,
+    network_schema_dict,
+    network_service_model_dict,
+    network_service_schema_dict,
+    project_model_dict,
+    project_schema_dict,
+    provider_model_dict,
+    region_model_dict,
+    region_schema_dict,
+    sla_model_dict,
+    sla_schema_dict,
+    user_group_model_dict,
+    user_group_schema_dict,
+)
+from tests.db import MockDatabase
 
 
-def refactor(string: str) -> str:
-    return string.replace("/", ".").replace("\\", ".").replace(".py", "")
+@pytest.fixture(autouse=True)
+def clear_os_environment() -> None:
+    """Clear the OS environment."""
+    os.environ.clear()
 
 
-pytest_plugins = [refactor(fixture) for fixture in glob("tests/fixtures/[!__]*.py")]
+@pytest.fixture()
+def db() -> MockDatabase:
+    return MockDatabase()
 
-pytest.register_assert_rewrite("tests.utils")
+
+@pytest.fixture()
+def db_core(db: MockDatabase) -> Generator[None, Any, None]:
+    with patch("neomodel.core.db") as mock_db:
+        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
+        mock_db.cypher_query.side_effect = db.query_call
+        yield
 
 
-# DB specific fixtures
+@pytest.fixture()
+def db_match(db: MockDatabase) -> Generator[None, Any, None]:
+    with patch("neomodel.match.db") as mock_db:
+        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
+        mock_db.cypher_query.side_effect = db.query_call
+        yield
+
+
+@pytest.fixture()
+def db_rel_mgr(db: MockDatabase) -> Generator[None, Any, None]:
+    with patch("neomodel.relationship_manager.db") as mock_db:
+        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
+
+        d = {}
+        cls_registry = MagicMock()
+        cls_registry.__getitem__.side_effect = d.__getitem__
+        cls_registry.__setitem__.side_effect = d.__setitem__
+        mock_db._NODE_CLASS_REGISTRY = cls_registry
+
+        yield
+
+
+@pytest.fixture(autouse=True)
+def mock_db(
+    db_core: None, db_match: None, db_rel_mgr: None
+) -> Generator[None, Any, None]:
+    yield
 
 
 @pytest.fixture
-def setup_and_teardown_db() -> Generator:
-    clear_neo4j_database(db)
-    yield
-    clear_neo4j_database(db)
+def flavor_model() -> Flavor:
+    d = flavor_model_dict()
+    return Flavor(**d).save()
 
 
-# API specific fixtures
+@pytest.fixture
+def identity_provider_model() -> IdentityProvider:
+    d = identity_provider_model_dict()
+    return IdentityProvider(**d).save()
 
 
-def generate_public_private_key_pair() -> Tuple[str, str]:
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    public_key = private_key.public_key()
-    return (public_key, private_key)
+@pytest.fixture
+def image_model() -> Image:
+    d = image_model_dict()
+    return Image(**d).save()
 
 
-(public_key, private_key) = generate_public_private_key_pair()
+@pytest.fixture
+def location_model() -> Location:
+    d = location_model_dict()
+    return Location(**d).save()
 
-ALGORITHM = "RS256"
-PUBLIC_KEY_ID = "cra1"
+
+@pytest.fixture
+def network_model() -> Network:
+    d = network_model_dict()
+    return Network(**d).save()
 
 
-def encode_token(payload) -> str:
-    return jwt.encode(
-        payload=payload,
-        key=private_key,
-        algorithm=ALGORITHM,
-        headers={
-            "kid": PUBLIC_KEY_ID,
-        },
+@pytest.fixture
+def project_model() -> Project:
+    d = project_model_dict()
+    return Project(**d).save()
+
+
+@pytest.fixture
+def provider_model() -> Provider:
+    d = provider_model_dict()
+    return Provider(**d).save()
+
+
+@pytest.fixture
+def block_storage_quota_model() -> BlockStorageQuota:
+    d = block_storage_quota_model_dict()
+    return BlockStorageQuota(**d).save()
+
+
+@pytest.fixture
+def compute_quota_model() -> ComputeQuota:
+    d = compute_quota_model_dict()
+    return ComputeQuota(**d).save()
+
+
+@pytest.fixture
+def network_quota_model() -> NetworkQuota:
+    d = network_quota_model_dict()
+    return NetworkQuota(**d).save()
+
+
+@pytest.fixture
+def region_model() -> Region:
+    d = region_model_dict()
+    return Region(**d).save()
+
+
+@pytest.fixture
+def block_storage_service_model() -> BlockStorageService:
+    d = block_storage_service_model_dict()
+    return BlockStorageService(**d).save()
+
+
+@pytest.fixture
+def compute_service_model() -> ComputeService:
+    d = compute_service_model_dict()
+    return ComputeService(**d).save()
+
+
+@pytest.fixture
+def identity_service_model() -> IdentityService:
+    d = identity_service_model_dict()
+    return IdentityService(**d).save()
+
+
+@pytest.fixture
+def network_service_model() -> NetworkService:
+    d = network_service_model_dict()
+    return NetworkService(**d).save()
+
+
+@pytest.fixture
+def sla_model() -> SLA:
+    d = sla_model_dict()
+    return SLA(**d).save()
+
+
+@pytest.fixture
+def user_group_model() -> UserGroup:
+    d = user_group_model_dict()
+    return UserGroup(**d).save()
+
+
+@pytest.fixture
+def location_create_schema() -> LocationCreate:
+    return LocationCreate(**location_schema_dict())
+
+
+@pytest.fixture
+def project_create_schema() -> ProjectCreate:
+    return ProjectCreate(**project_schema_dict())
+
+
+@pytest.fixture
+def identity_service_create_schema() -> IdentityServiceCreate:
+    return IdentityServiceCreate(**identity_service_schema_dict())
+
+
+@pytest.fixture
+def flavor_create_ext_schema() -> FlavorCreateExtended:
+    return FlavorCreateExtended(**flavor_schema_dict())
+
+
+@pytest.fixture
+def image_create_ext_schema() -> ImageCreateExtended:
+    return ImageCreateExtended(**image_schema_dict())
+
+
+@pytest.fixture
+def identity_provider_create_ext_schema(
+    user_group_create_ext_schema: UserGroupCreateExtended,
+) -> IdentityProviderCreateExtended:
+    return IdentityProviderCreateExtended(
+        **identity_provider_schema_dict(),
+        relationship=auth_method_dict(),
+        user_groups=[user_group_create_ext_schema],
     )
 
 
-def get_mock_user_claims() -> Dict[str, Any]:
-    return {
-        "sub": "123|auth0",
-        "iss": "some-issuer",  # Should match the issuer your app expects
-        "name": "some-name",
-        "groups": ["user-group"],
-        "preferred_username": "short-name",
-        "organisation_name": "organization-name",
-        "exp": 9999999999,  # One long-lasting token, expiring 11/20/2286
-        "iat": 0,  # Issued a long time ago: 1/1/1970
-        "jti": "JWT Unique ID",
-        "client_id": "Client ID",
-        "email": "user-email",
-    }
-
-
-def get_mock_token() -> str:
-    return encode_token(get_mock_user_claims())
+@pytest.fixture
+def network_create_ext_schema() -> NetworkCreateExtended:
+    return NetworkCreateExtended(**network_schema_dict())
 
 
 @pytest.fixture
-def client(setup_and_teardown_db: Generator) -> Generator:
-    with TestClient(app) as c:
-        yield c
+def block_storage_quota_create_ext_schema() -> BlockStorageQuotaCreateExtended:
+    return BlockStorageQuotaCreateExtended(project=uuid4())
 
 
-@pytest.fixture()
-def api_client_read_only(client: TestClient) -> TestClient:
-    client.headers = {"authorization": f"Bearer {get_mock_token()}"}
-    yield client
+@pytest.fixture
+def compute_quota_create_ext_schema() -> ComputeQuotaCreateExtended:
+    return ComputeQuotaCreateExtended(project=uuid4())
 
 
-@pytest.fixture()
-def api_client_read_write(client: TestClient) -> TestClient:
-    client.headers = {
-        "authorization": f"Bearer {get_mock_token()}",
-        "accept": "application/json",
-        "content-type": "application/json",
-    }
-    yield client
+@pytest.fixture
+def network_quota_create_ext_schema() -> NetworkQuotaCreateExtended:
+    return NetworkQuotaCreateExtended(project=uuid4())
+
+
+@pytest.fixture
+def region_create_ext_schema() -> RegionCreateExtended:
+    return RegionCreateExtended(**region_schema_dict())
+
+
+@pytest.fixture
+def block_storage_service_create_ext_schema() -> BlockStorageServiceCreateExtended:
+    return BlockStorageServiceCreateExtended(**block_storage_service_schema_dict())
+
+
+@pytest.fixture
+def compute_service_create_ext_schema() -> ComputeServiceCreateExtended:
+    return ComputeServiceCreateExtended(**compute_service_schema_dict())
+
+
+@pytest.fixture
+def network_service_create_ext_schema() -> NetworkServiceCreateExtended:
+    return NetworkServiceCreateExtended(**network_service_schema_dict())
+
+
+@pytest.fixture
+def sla_create_ext_schema() -> SLACreateExtended:
+    return SLACreateExtended(**sla_schema_dict(), project=uuid4())
+
+
+@pytest.fixture
+def user_group_create_ext_schema(
+    sla_create_ext_schema: SLACreateExtended,
+) -> UserGroupCreateExtended:
+    return UserGroupCreateExtended(
+        **user_group_schema_dict(), sla=sla_create_ext_schema
+    )

@@ -3,28 +3,30 @@ name = "federation-registry"
 version = "0.1.0"
 description = "Python web application providing public REST API to inspect the configurations of the providers registered into the DataCloud project"
 authors = ["Giovanni Savarese <giovanni.savarese@ba.infn.it>", "Marica Antonacci <marica.antonacci@ba.infn.it>"]
-packages = [{ include = "app"}]
+packages = [{ include = "fed_reg"}]
 
 [tool.poetry.dependencies]
-python = "^3.8.1"
-flaat = "^1.1.8"
-fastapi = "^0.95.2"
+python = ">=3.9,<4.0.0"
+flaat = "^1.1.15"
+fastapi = "^0.109"
 uvicorn = "^0.22.0"
-neomodel = "5.0.1"
+neomodel = {git = "https://github.com/giosava94/neomodel.git", branch = "db-transaction"}
 pydantic = {extras = ["email"], version = "^1.10.9"}
 pycountry = "^22.3.5"
 
-[tool.poetry.dev-dependencies]
-pytest-cov = "^4.1.0"
-nox = "^2023.4.22"
+[tool.poetry.group.dev.dependencies]
+CairoSVG = "^2.7.0"
+httpx = "^0.24.1"
 mkdocs-material = "^9.1.17"
 mkdocs-git-authors-plugin = "^0.7.2"
 mkdocstrings-python = "^1.1.2"
 Pillow = "^9.5.0"
-CairoSVG = "^2.7.0"
-httpx = "^0.24.1"
+pytest = "^7.4.4"
+pytest-cases = "^3.8.1"
+pytest-cov = "^4.1.0"
 pre-commit = "^3.3.3"
 ruff = "^0.1.4"
+networkx = "^3.2.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -37,14 +39,22 @@ build-backend = "poetry.core.masonry.api"
 # flake8-bugbear (B), flake8-logging-format (G), flake8-quotes (Q)
 extend-select = ["B", "C90", "E", "F", "G", "I", "N", "Q", "RUF", "UP", "W"]
 
-[tool.ruff.lint.per-file-ignores]
-"dependencies.py" = ["B008"]
-"endpoints.py" = ["B008"]
-"config.py" = ["N805"]
-"app/models.py" = ["N805"]
-"app/query.py" = ["N805"]
-"schemas.py" = ["N805"]
-"schemas_extended.py" = ["N805"]
+[tool.ruff.lint.flake8-bugbear]
+# Ignore flake8-bugbear errors raised by Depends, Query and Security
+extend-immutable-calls = [
+    "fastapi.Depends", 
+    "fastapi.params.Depends", 
+    "fastapi.Query", 
+    "fastapi.params.Query", 
+    "fastapi.Security", 
+    "fastapi.params.Security",
+]
+
+[tool.ruff.lint.pep8-naming]
+# Ignore pep8-naming errors raised by functions decorated with @validator and @root_validator
+classmethod-decorators = [
+    "pydantic.root_validator",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
