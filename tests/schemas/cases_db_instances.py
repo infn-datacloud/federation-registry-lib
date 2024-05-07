@@ -284,6 +284,7 @@ class CaseDBInstance:
         provider_model: Provider,
         compute_quota_model: ComputeQuota,
         compute_service_model: ComputeService,
+        region_model: Region,
         tot: int,
         pub: int,
     ) -> Project:
@@ -292,6 +293,7 @@ class CaseDBInstance:
             item = Flavor(**flavor_model_dict()).save()
             compute_service_model.flavors.connect(item)
         compute_service_model.quotas.connect(compute_quota_model)
+        compute_service_model.region.connect(region_model)
         project_model.quotas.connect(compute_quota_model)
         for _ in range(tot - pub):
             item = Flavor(**flavor_model_dict(), is_public=False).save()
@@ -306,6 +308,7 @@ class CaseDBInstance:
         provider_model: Provider,
         compute_quota_model: ComputeQuota,
         compute_service_model: ComputeService,
+        region_model: Region,
         tot: int,
         pub: int,
     ) -> Project:
@@ -314,6 +317,7 @@ class CaseDBInstance:
             item = Image(**image_model_dict()).save()
             compute_service_model.images.connect(item)
         compute_service_model.quotas.connect(compute_quota_model)
+        compute_service_model.region.connect(region_model)
         project_model.quotas.connect(compute_quota_model)
         for _ in range(tot - pub):
             item = Image(**image_model_dict(), is_public=False).save()
@@ -328,6 +332,7 @@ class CaseDBInstance:
         provider_model: Provider,
         network_quota_model: NetworkQuota,
         network_service_model: NetworkService,
+        region_model: Region,
         tot: int,
         pub: int,
     ) -> Project:
@@ -336,6 +341,7 @@ class CaseDBInstance:
             item = Network(**network_model_dict()).save()
             network_service_model.networks.connect(item)
         network_service_model.quotas.connect(network_quota_model)
+        network_service_model.region.connect(region_model)
         project_model.quotas.connect(network_quota_model)
         for _ in range(tot - pub):
             item = Network(**network_model_dict(), is_shared=False).save()

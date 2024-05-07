@@ -48,10 +48,9 @@ CLASS_DICT = {
 
 
 class MockDatabase:
-    def __init__(self, db_version: int = 5) -> None:
-        self.db_version = db_version
+    def __init__(self, database_version: int = 5) -> None:
+        self.database_version = database_version
         self.graph = nx.Graph()
-        self.data = {}
         self.count = 0
 
     def query_call(self, query: str, params: dict[str, Any], **kwargs):
@@ -66,9 +65,13 @@ class MockDatabase:
             return self.create(item_type=item_type, data=data)
 
         # Detect if it is a MATCH request
-        match = re.search(r"(?<=MATCH\s\()\w+(?=\))", query)
+        match = re.search(r"(?<=MATCH\s\()\S+(?=\))", query)
         if match is not None:
-            item_type = match.group(0).capitalize()
+            if ":" in match.group(0):
+                item_name, item_type = match.group(0).split(":")
+            else:
+                item_type = match.group(0).capitalize()
+                item_name = None
 
             # Detect if it is a MERGE request (connect)
             match = re.search(r"(?<=MERGE.).*$", query)
@@ -89,6 +92,12 @@ class MockDatabase:
             match = re.search(r"(?<=RETURN\s)[^\s]+(?=$|\s)", query)
             if match is not None:
                 return_string = match.group(0)
+                # Return nodes of `item_type`.
+                if item_name == return_string:
+                    return self.get_nodes(
+                        item_type, params, return_string, resolve_objects
+                    )
+
                 start_node = self._get_start_node(params)
                 if start_node is not None:
                     match = re.search(r"(?<=count\()\w+(?=\))", return_string)
@@ -109,8 +118,6 @@ class MockDatabase:
                             query=query,
                             resolve_objects=resolve_objects,
                         )
-                    # Return nodes of `item_type`.
-                    # return [[i] for i in self.data[item_type]], [return_string]
 
                 else:
                     return [], None
@@ -126,7 +133,7 @@ class MockDatabase:
         """
         rel = None
         if data:
-            element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
+            element_id = f"{self.database_version}:{uuid4().hex}:{self.count}"
             rel = Relationship(
                 ..., element_id=element_id, id_=self.count, properties=data
             )
@@ -154,7 +161,7 @@ class MockDatabase:
         Store the node in the graph. `labels` attribute contains the list of the neo4j
         labels matching this item.
         """
-        element_id = f"{self.db_version}:{uuid4().hex}:{self.count}"
+        element_id = f"{self.database_version}:{uuid4().hex}:{self.count}"
         item = Node(
             ...,
             element_id=element_id,
@@ -185,6 +192,20 @@ class MockDatabase:
             rel_type = match.group(0)
             relationships = self._get_related_edges(start_node, rel_type)
         return relationships, [return_string]
+
+    def get_nodes(self, item_type, params, return_string, resolve_objects):
+        attrs = {}
+        for k, v in params.items():
+            attrs[k[k.find("_") + 1 : k.rfind("_")]] = v
+        nodes = filter(
+            lambda x: item_type in x[1]
+            and all([x[0].get(k, "None") == v for k, v in attrs.items()]),
+            self.graph.nodes.data("labels"),
+        )
+        nodes = [i[0] for i in nodes]
+        if resolve_objects:
+            nodes = [[CLASS_DICT[item_type](**i)] for i in nodes]
+        return nodes, [return_string]
 
     def _get_start_end_nodes(self, params):
         """
