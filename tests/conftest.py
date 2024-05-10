@@ -1,11 +1,9 @@
 """File to set tests configuration parameters and common fixtures."""
 import os
 from typing import Any, Generator
-from unittest.mock import MagicMock, PropertyMock, patch
 from uuid import uuid4
 
 import pytest
-from neo4j.exceptions import ServiceUnavailable
 from neomodel import db
 
 from fed_reg.flavor.models import Flavor
@@ -78,77 +76,74 @@ from tests.create_dict import (
     user_group_model_dict,
     user_group_schema_dict,
 )
-from tests.db import MockDatabase
 
-try:
-    db.begin()
-    db.commit()
-    USE_MOCK_DB = False
-except ServiceUnavailable:
-    USE_MOCK_DB = True
+
+def pytest_addoption(parser):
+    """
+    Adds the command line option --resetdb.
+
+    :param parser: The parser object. Please see <https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_addoption>`_
+    :type Parser object: For more information please see <https://docs.pytest.org/en/latest/reference.html#_pytest.config.Parser>`_
+    """
+    parser.addoption(
+        "--resetdb",
+        action="store_true",
+        help="Ensures that the database is clear prior to running tests for neomodel",
+        default=False,
+    )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_neo4j_session(request):
+    """
+    Provides initial connection to the database and sets up the rest of the test suite
+
+    :param request: The request object. Please see <https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_sessionstart>`_
+    :type Request object: For more information please see <https://docs.pytest.org/en/latest/reference.html#request>`_
+    """
+    # config.DATABASE_URL = os.environ.get(
+    #     "NEO4J_BOLT_URL", "bolt://localhost:7687"
+    # )
+
+    # Clear the database if required
+    database_is_populated, _ = db.cypher_query(
+        "MATCH (a) return count(a)>0 as database_is_populated"
+    )
+    if database_is_populated[0][0] and not request.config.getoption("resetdb"):
+        raise SystemError(
+            "Please note: The database seems to be populated.\n"
+            + "\tEither delete all nodesand edges manually, or set the "
+            + "--resetdb parameter when calling pytest\n\n"
+            + "\tpytest --resetdb."
+        )
+
+    db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
+
+    db.install_all_labels()
+
+    db.cypher_query(
+        "CREATE OR REPLACE USER test SET PASSWORD 'foobarbaz' CHANGE NOT REQUIRED"
+    )
+    if db.database_edition == "enterprise":
+        db.cypher_query("GRANT ROLE publisher TO test")
+        db.cypher_query("GRANT IMPERSONATE (test) ON DBMS TO admin")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def cleanup() -> Generator[None, Any, None]:
+    """Close connection with the DB at the end of the test.
+
+    Yields:
+        Generator[None, Any, None]: Nothing
+    """
+    yield
+    db.close_connection()
 
 
 @pytest.fixture(autouse=True)
 def clear_os_environment() -> None:
     """Clear the OS environment."""
     os.environ.clear()
-
-
-@pytest.fixture()
-def fake_db() -> MockDatabase:
-    return MockDatabase()
-
-
-@pytest.fixture()
-def db_core(fake_db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.core.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(
-            return_value=str(fake_db.database_version)
-        )
-        mock_db.cypher_query.side_effect = fake_db.query_call
-        yield
-
-
-@pytest.fixture()
-def db_match(fake_db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.match.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(
-            return_value=str(fake_db.database_version)
-        )
-        mock_db.cypher_query.side_effect = fake_db.query_call
-        yield
-
-
-@pytest.fixture()
-def db_rel_mgr(fake_db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.relationship_manager.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(
-            return_value=str(fake_db.database_version)
-        )
-
-        d = {}
-        cls_registry = MagicMock()
-        cls_registry.__getitem__.side_effect = d.__getitem__
-        cls_registry.__setitem__.side_effect = d.__setitem__
-        mock_db._NODE_CLASS_REGISTRY = cls_registry
-
-        yield
-
-
-@pytest.fixture(autouse=USE_MOCK_DB)
-def mock_db(
-    db_core: None, db_match: None, db_rel_mgr: None
-) -> Generator[None, Any, None]:
-    print("Using MOCK DB")
-    yield
-
-
-@pytest.fixture(autouse=not USE_MOCK_DB)
-def clear_db() -> Generator[None, Any, None]:
-    print("Using REAL DB")
-    db.begin()
-    yield
-    db.rollback()
 
 
 @pytest.fixture

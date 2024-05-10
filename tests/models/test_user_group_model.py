@@ -121,7 +121,7 @@ def test_multiple_linked_identity_provider(user_group_model: UserGroup) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         user_group_model.identity_provider.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         user_group_model.identity_provider.connect(item)
         with pytest.raises(CardinalityViolation):
             user_group_model.identity_provider.all()

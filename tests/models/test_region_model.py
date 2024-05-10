@@ -195,7 +195,7 @@ def test_multiple_linked_location(region_model: Region) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         region_model.location.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         region_model.location.connect(item)
         with pytest.raises(CardinalityViolation):
             region_model.location.all()
@@ -225,7 +225,7 @@ def test_multiple_linked_provider(region_model: Region) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         region_model.provider.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         region_model.provider.connect(item)
         with pytest.raises(CardinalityViolation):
             region_model.provider.all()
