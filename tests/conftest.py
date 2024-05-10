@@ -4,7 +4,6 @@ from typing import Any, Generator
 from uuid import uuid4
 
 import pytest
-from neo4j.exceptions import ServiceUnavailable
 from neomodel import db
 
 from fed_reg.flavor.models import Flavor
