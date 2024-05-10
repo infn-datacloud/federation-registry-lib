@@ -4,6 +4,7 @@ from typing import Any, Generator
 from uuid import uuid4
 
 import pytest
+from fastapi.testclient import TestClient
 from neomodel import db
 
 from fed_reg.flavor.models import Flavor
@@ -11,6 +12,7 @@ from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.image.models import Image
 from fed_reg.location.models import Location
 from fed_reg.location.schemas import LocationCreate
+from fed_reg.main import app
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.project.schemas import ProjectCreate
@@ -341,3 +343,9 @@ def user_group_create_ext_schema(
     return UserGroupCreateExtended(
         **user_group_schema_dict(), sla=sla_create_ext_schema
     )
+
+
+@pytest.fixture
+def client_no_authn():
+    with TestClient(app) as client:
+        yield client
