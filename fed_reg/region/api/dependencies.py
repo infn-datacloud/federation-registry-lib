@@ -90,7 +90,7 @@ def validate_new_region_values(
         is_unique_region(item=update_data, provider=item.provider.single())
 
 
-def not_last_region(item: Region = Depends(valid_region_id)) -> None:
+def not_last_region(item: Region = Depends(valid_region_id)) -> Region:
     """Check parent provider has other regions."""
     db_provider: Provider = item.provider.single()
     if len(db_provider.regions) == 1:
@@ -98,3 +98,4 @@ def not_last_region(item: Region = Depends(valid_region_id)) -> None:
             status_code=status.HTTP_409_CONFLICT,
             detail=f"This region is the provider's {db_provider.uid} last one.",
         )
+    return item

@@ -374,7 +374,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     sla: Optional[SLAReadExtendedPublic] = Field(default=None, description=DOC_EXT_SLA)
 
     @classmethod
-    def from_orm(cls, obj: Project) -> "ProjectReadExtended":
+    def from_orm(cls, obj: Project) -> "ProjectReadExtendedPublic":
         """Method to merge public and private flavors, images and networks.
 
         `obj` is the orm model instance.

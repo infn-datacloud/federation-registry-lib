@@ -172,7 +172,6 @@ def put_region(
 @router.delete(
     "/{region_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(not_last_region)],
     summary="Delete a specific region",
     description="Delete a specific region using its *uid*. \
         Returns `no content`. \
@@ -185,7 +184,7 @@ def put_region(
 @db.write_transaction
 def delete_regions(
     request: Request,
-    item: Region = Depends(valid_region_id),
+    item: Region = Depends(not_last_region),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
     """DELETE operation to remove the region matching a specific uid.
