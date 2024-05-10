@@ -23,15 +23,16 @@ jobs:
         image: neo4j:5.18.0
         ports:
           - 7687
+          - 7474
         env:
           NEO4J_AUTH: none
           NEO4J_PLUGINS: "apoc"
         options: >-
-          --health-cmd: wget http://localhost:7474 || exit 1
-          --health-interval: 1s
-          --health-timeout: 10s
-          --health-retries: 20
-          --health-start-period: 3s
+          --health-cmd wget http://localhost:7474 || exit 1
+          --health-interval 1s
+          --health-timeout 10s
+          --health-retries 20
+          --health-start-period 3s
 
     strategy:
       fail-fast: true
