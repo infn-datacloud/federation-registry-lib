@@ -26,7 +26,7 @@ jobs:
         env:
           NEO4J_AUTH: none
           NEO4J_PLUGINS: "apoc"
-        options:
+        options: >-
           --healthcheck-cmd: wget http://localhost:7474 || exit 1
           --healthcheck-interval: 1s
           --healthcheck-timeout: 10s
