@@ -4,7 +4,7 @@ from fastapi import status
 from pytest_cases import case, parametrize, parametrize_with_cases
 
 
-class CaseEndpoint:
+class CaseItemNameEndpoint:
     @parametrize(
         **{
             "item, endpoint": [
@@ -36,7 +36,7 @@ class CaseEndpoint:
         return "Provider", "providers"
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint)
+@parametrize_with_cases("item, endpoint", cases=CaseItemNameEndpoint)
 def test_get_missing(client_no_authn, item: str, endpoint: str):
     uid = uuid4()
     resp = client_no_authn.get(f"/api/v1/{endpoint}/{uid}")
@@ -44,7 +44,7 @@ def test_get_missing(client_no_authn, item: str, endpoint: str):
     assert resp.json().get("detail") == f"{item} '{uid}' not found"
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint)
+@parametrize_with_cases("item, endpoint", cases=CaseItemNameEndpoint)
 def test_patch_missing(client_no_authn, item: str, endpoint: str):
     uid = uuid4()
     resp = client_no_authn.patch(f"/api/v1/{endpoint}/{uid}")
@@ -52,7 +52,9 @@ def test_patch_missing(client_no_authn, item: str, endpoint: str):
     assert resp.json().get("detail") == f"{item} '{uid}' not found"
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint, has_tag="provider")
+@parametrize_with_cases(
+    "item, endpoint", cases=CaseItemNameEndpoint, has_tag="provider"
+)
 def test_put_missing(client_no_authn, item: str, endpoint: str):
     uid = uuid4()
     resp = client_no_authn.put(f"/api/v1/{endpoint}/{uid}")
@@ -60,7 +62,7 @@ def test_put_missing(client_no_authn, item: str, endpoint: str):
     assert resp.json().get("detail") == f"{item} '{uid}' not found"
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint)
+@parametrize_with_cases("item, endpoint", cases=CaseItemNameEndpoint)
 def test_delete_missing(client_no_authn, item: str, endpoint: str):
     uid = uuid4()
     resp = client_no_authn.delete(f"/api/v1/{endpoint}/{uid}")
@@ -68,7 +70,7 @@ def test_delete_missing(client_no_authn, item: str, endpoint: str):
     assert resp.json().get("detail") == f"{item} '{uid}' not found"
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint)
+@parametrize_with_cases("item, endpoint", cases=CaseItemNameEndpoint)
 def test_get_multi_empty(client_no_authn, item: str, endpoint: str):
     resp = client_no_authn.get(f"/api/v1/{endpoint}/")
     assert resp.status_code == status.HTTP_200_OK

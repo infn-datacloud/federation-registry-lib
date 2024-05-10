@@ -26,7 +26,7 @@ from fed_reg.user_group.models import UserGroup
 from tests.create_dict import region_model_dict
 
 
-class CaseEndpoint:
+class CaseItemEndpoint:
     def case_flavor(self, flavor_model: Flavor) -> tuple[Flavor, str]:
         return flavor_model, "flavors"
 
@@ -101,7 +101,7 @@ class CaseEndpoint:
         return user_group_model, "user_groups"
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint)
+@parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint)
 def test_patch_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
     settings = get_settings()
     url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
@@ -109,7 +109,7 @@ def test_patch_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
     assert resp.status_code == status.HTTP_403_FORBIDDEN
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint, has_tag="provider")
+@parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint, has_tag="provider")
 def test_post_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
     settings = get_settings()
     url = os.path.join(settings.API_V1_STR, endpoint)
@@ -117,7 +117,7 @@ def test_post_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
     assert resp.status_code == status.HTTP_403_FORBIDDEN
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint, has_tag="provider")
+@parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint, has_tag="provider")
 def test_put_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
     settings = get_settings()
     url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
@@ -125,9 +125,29 @@ def test_put_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
     assert resp.status_code == status.HTTP_403_FORBIDDEN
 
 
-@parametrize_with_cases("item, endpoint", cases=CaseEndpoint)
+@parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint)
 def test_delete_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
     settings = get_settings()
     url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
     resp = client_no_authn.delete(url)
     assert resp.status_code == status.HTTP_403_FORBIDDEN
+
+
+@parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint)
+def test_get_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
+    settings = get_settings()
+    url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
+    resp = client_no_authn.get(url)
+    assert resp.status_code == status.HTTP_200_OK
+    data = resp.json()
+    assert data is not None
+
+
+@parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint)
+def test_get_multi_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
+    settings = get_settings()
+    url = os.path.join(settings.API_V1_STR, endpoint)
+    resp = client_no_authn.get(url)
+    assert resp.status_code == status.HTTP_200_OK
+    data = resp.json()
+    assert len(data) > 0
