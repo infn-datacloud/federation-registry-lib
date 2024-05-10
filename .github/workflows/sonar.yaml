@@ -19,13 +19,19 @@ jobs:
 
     services:
       neo4j-db:
-      # Set up neo4j DB with APOC extension for UUIDs.
-        image: neo4j:5.8.0
+        # Set up neo4j DB with APOC extension for UUIDs.
+        image: neo4j:5.18.0
         ports:
           - 7687
         env:
           NEO4J_AUTH: none
           NEO4J_PLUGINS: "apoc"
+        options:
+          --healthcheck-cmd: wget http://localhost:7474 || exit 1
+          --healthcheck-interval: 1s
+          --healthcheck-timeout: 10s
+          --healthcheck-retries: 20
+          --healthcheck-start_period: 3s
 
     strategy:
       fail-fast: true
