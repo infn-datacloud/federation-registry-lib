@@ -181,5 +181,8 @@ class FlavorRead(BaseNodeRead, FlavorBase):
         local_storage (str | None): Local storage presence.
     """
 
+    is_public: bool = Field(description=DOC_SHARED)
+    # Mandatory to be able to distinguish between public schema and not.
+
 
 FlavorQuery = create_query_model("FlavorQuery", FlavorBase)
