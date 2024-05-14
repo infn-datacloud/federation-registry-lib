@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from flaat.user_infos import UserInfos
 from neomodel import db
 
 from fed_reg.flavor.models import Flavor
@@ -78,6 +79,7 @@ from tests.create_dict import (
     user_group_model_dict,
     user_group_schema_dict,
 )
+from tests.utils import MOCK_READ_EMAIL, MOCK_WRITE_EMAIL
 
 
 def pytest_addoption(parser):
@@ -139,6 +141,7 @@ def cleanup() -> Generator[None, Any, None]:
         Generator[None, Any, None]: Nothing
     """
     yield
+    db.clear_neo4j_database()
     db.close_connection()
 
 
@@ -349,3 +352,35 @@ def user_group_create_ext_schema(
 def client_no_authn():
     with TestClient(app) as client:
         yield client
+
+
+@pytest.fixture
+def client_with_token(client_no_authn: TestClient):
+    client_no_authn.headers = {"Authorization": "Bearer fake"}
+    yield client_no_authn
+
+@pytest.fixture
+def user_infos_with_write_email() -> UserInfos:
+    """Fake user with email. It has write access rights."""
+    return UserInfos(
+        access_token_info=None,
+        user_info={"email": MOCK_WRITE_EMAIL},
+        introspection_info=None,
+    )
+
+
+@pytest.fixture
+def user_infos_with_read_email() -> UserInfos:
+    """Fake user with email. It has only read access rights."""
+    return UserInfos(
+        access_token_info=None,
+        user_info={"email": MOCK_READ_EMAIL},
+        introspection_info=None,
+    )
+
+
+@pytest.fixture
+def user_infos_without_email() -> UserInfos:
+    """Fake user without email."""
+    return UserInfos(access_token_info=None, user_info={}, introspection_info=None)
+
