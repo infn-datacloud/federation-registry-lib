@@ -360,14 +360,13 @@ def user_group_create_ext_schema(
 
 @pytest.fixture
 def client_no_authn():
-    with TestClient(app) as client:
-        yield client
+    return TestClient(app)
 
 
 @pytest.fixture
-def client_with_token(client_no_authn: TestClient):
-    client_no_authn.headers = {"Authorization": "Bearer fake"}
-    return client_no_authn
+def client_with_token():
+    return TestClient(app, headers={"Authorization": "Bearer fake"})
+
 
 @pytest.fixture
 def user_infos_with_write_email() -> UserInfos:
@@ -393,4 +392,3 @@ def user_infos_with_read_email() -> UserInfos:
 def user_infos_without_email() -> UserInfos:
     """Fake user without email."""
     return UserInfos(access_token_info=None, user_info={}, introspection_info=None)
-

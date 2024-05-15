@@ -1,5 +1,6 @@
 import os
 from typing import Any
+from unittest.mock import patch
 
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -36,7 +37,10 @@ class CaseClientStatus:
 
 
 class CaseItemEndpoint:
-    def case_flavor(self, flavor_model: Flavor) -> tuple[Flavor, str]:
+    def case_flavor(
+        self, compute_service_model: ComputeService, flavor_model: Flavor
+    ) -> tuple[Flavor, str]:
+        compute_service_model.flavors.connect(flavor_model)
         return flavor_model, "flavors"
 
     def case_identity_provider(
@@ -44,16 +48,25 @@ class CaseItemEndpoint:
     ) -> tuple[IdentityProvider, str]:
         return identity_provider_model, "identity_providers"
 
-    def case_image(self, image_model: Image) -> tuple[Image, str]:
+    def case_image(
+        self, compute_service_model: ComputeService, image_model: Image
+    ) -> tuple[Image, str]:
+        compute_service_model.images.connect(image_model)
         return image_model, "images"
 
     def case_location(self, location_model: Location) -> tuple[Location, str]:
         return location_model, "locations"
 
-    def case_network(self, network_model: Network) -> tuple[Network, str]:
+    def case_network(
+        self,  network_model: Network, network_service_model: NetworkService
+    ) -> tuple[Network, str]:
+        network_service_model.networks.connect(network_model)
         return network_model, "networks"
 
-    def case_project(self, project_model: Project) -> tuple[Project, str]:
+    def case_project(
+        self, project_model: Project, provider_model: Provider
+    ) -> tuple[Project, str]:
+        provider_model.projects.connect(project_model)
         return project_model, "projects"
 
     @case(tags=["provider"])
@@ -106,7 +119,10 @@ class CaseItemEndpoint:
     def case_sla(self, sla_model: SLA) -> tuple[SLA, str]:
         return sla_model, "slas"
 
-    def case_user_group(self, user_group_model: UserGroup) -> tuple[UserGroup, str]:
+    def case_user_group(
+        self, identity_provider_model: IdentityProvider, user_group_model: UserGroup
+    ) -> tuple[UserGroup, str]:
+        identity_provider_model.user_groups.connect(user_group_model)
         return user_group_model, "user_groups"
 
 

@@ -44,7 +44,7 @@ class Network(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
-    is_shared = BooleanProperty(default=False)
+    is_shared = BooleanProperty(default=True)
     is_router_external = BooleanProperty(default=False)
     is_default = BooleanProperty(default=False)
     mtu = IntegerProperty()
