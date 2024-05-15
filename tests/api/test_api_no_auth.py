@@ -23,7 +23,16 @@ from fed_reg.service.models import (
 )
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
-from tests.create_dict import region_model_dict
+from tests.create_dict import provider_schema_dict, region_model_dict
+from tests.utils import random_lower_string
+
+
+class CaseClientStatus:
+    def case_no_authn(self, client_no_authn: TestClient) -> tuple[TestClient, int]:
+        return client_no_authn, status.HTTP_403_FORBIDDEN
+
+    def case_no_authz(self, client_with_token: TestClient) -> tuple[TestClient, int]:
+        return client_with_token, status.HTTP_401_UNAUTHORIZED
 
 
 class CaseItemEndpoint:
@@ -101,36 +110,40 @@ class CaseItemEndpoint:
         return user_group_model, "user_groups"
 
 
+@parametrize_with_cases("client, status_code", cases=CaseClientStatus)
 @parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint)
-def test_patch_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
+def test_patch_no_auth(client: TestClient, status_code: int, item: Any, endpoint: str):
     settings = get_settings()
     url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
-    resp = client_no_authn.patch(url)
-    assert resp.status_code == status.HTTP_403_FORBIDDEN
+    resp = client.patch(url, json={"description": random_lower_string()})
+    assert resp.status_code == status_code
 
 
+@parametrize_with_cases("client, status_code", cases=CaseClientStatus)
 @parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint, has_tag="provider")
-def test_post_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
+def test_post_no_auth(client: TestClient, status_code: int, item: Any, endpoint: str):
     settings = get_settings()
     url = os.path.join(settings.API_V1_STR, endpoint)
-    resp = client_no_authn.post(url)
-    assert resp.status_code == status.HTTP_403_FORBIDDEN
+    resp = client.post(url, json=provider_schema_dict())
+    assert resp.status_code == status_code
 
 
+@parametrize_with_cases("client, status_code", cases=CaseClientStatus)
 @parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint, has_tag="provider")
-def test_put_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
+def test_put_no_auth(client: TestClient, status_code: int, item: Any, endpoint: str):
     settings = get_settings()
     url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
-    resp = client_no_authn.put(url)
-    assert resp.status_code == status.HTTP_403_FORBIDDEN
+    resp = client.put(url, json=provider_schema_dict())
+    assert resp.status_code == status_code
 
 
+@parametrize_with_cases("client, status_code", cases=CaseClientStatus)
 @parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint)
-def test_delete_no_auth(client_no_authn: TestClient, item: Any, endpoint: str):
+def test_delete_no_auth(client: TestClient, status_code: int, item: Any, endpoint: str):
     settings = get_settings()
     url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
-    resp = client_no_authn.delete(url)
-    assert resp.status_code == status.HTTP_403_FORBIDDEN
+    resp = client.delete(url)
+    assert resp.status_code == status_code
 
 
 @parametrize_with_cases("item, endpoint", cases=CaseItemEndpoint)
