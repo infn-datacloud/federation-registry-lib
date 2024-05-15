@@ -8,7 +8,7 @@ from neomodel import config
 from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, Field, validator
 
 
-class Neo4jUriScheme(Enum):
+class Neo4jUriScheme(str, Enum):
     """Enumeration with the accepted neo4j schemas."""
 
     NEO4J: str = "neo4j"
