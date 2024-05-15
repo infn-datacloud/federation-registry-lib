@@ -134,15 +134,25 @@ def setup_neo4j_session(request):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def cleanup() -> Generator[None, Any, None]:
+def close() -> Generator[None, Any, None]:
     """Close connection with the DB at the end of the test.
 
     Yields:
         Generator[None, Any, None]: Nothing
     """
     yield
-    db.clear_neo4j_database()
     db.close_connection()
+
+
+@pytest.fixture(autouse=True)
+def cleanup() -> Generator[None, Any, None]:
+    """Clear DB after every test
+
+    Yields:
+        Generator[None, Any, None]: Nothing
+    """
+    yield
+    db.clear_neo4j_database()
 
 
 @pytest.fixture(autouse=True)

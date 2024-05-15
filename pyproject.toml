@@ -58,3 +58,6 @@ classmethod-decorators = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.pytest.ini_options]
+addopts = "--resetdb"
