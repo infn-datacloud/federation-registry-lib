@@ -1,6 +1,7 @@
 """Neomodel models of the Service supplied by a Provider on a specific Region."""
 from neomodel import (
     One,
+    OneOrMore,
     RelationshipFrom,
     RelationshipTo,
     StringProperty,
@@ -97,6 +98,10 @@ class IdentityService(Service):
         type (str): Service type.
         name (str): Service name.
     """
+
+    region = RelationshipFrom(
+        "fed_reg.region.models.Region", "SUPPLY", cardinality=OneOrMore
+    )
 
 
 class NetworkService(Service):

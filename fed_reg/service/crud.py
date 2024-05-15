@@ -460,11 +460,17 @@ class CRUDIdentityService(
     def create(
         self, *, obj_in: IdentityServiceCreate, region: Region
     ) -> IdentityService:
-        """Create a new Block Storage Service.
+        """Create a new Identity Service.
 
         Connect the service to the given region.
         """
-        db_obj = super().create(obj_in=obj_in)
+        db_obj = self.get(endpoint=obj_in.endpoint)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in)
+        else:
+            updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
+            if updated_data:
+                db_obj = updated_data
         db_obj.region.connect(region)
         return db_obj
 
