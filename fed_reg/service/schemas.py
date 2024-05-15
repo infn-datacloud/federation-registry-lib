@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import AnyHttpUrl, Field, validator
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 from fed_reg.service.constants import DOC_ENDP, DOC_NAME
 from fed_reg.service.enum import (
@@ -93,7 +93,7 @@ class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
     name: Optional[BlockStorageServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class BlockStorageServiceReadPublic(BaseNodeRead, ServiceBase):
+class BlockStorageServiceReadPublic(BaseReadPublic, ServiceBase):
     """Model, for non-authenticated users, to read Block Storage data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -109,7 +109,7 @@ class BlockStorageServiceReadPublic(BaseNodeRead, ServiceBase):
     """
 
 
-class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
+class BlockStorageServiceRead(BaseReadPrivate, BlockStorageServiceBase):
     """Model, for authenticated users, to read Block Storage data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -194,7 +194,7 @@ class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
     name: Optional[ComputeServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class ComputeServiceReadPublic(BaseNodeRead, ServiceBase):
+class ComputeServiceReadPublic(BaseReadPublic, ServiceBase):
     """Model, for non-authenticated users, to read Compute data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -210,7 +210,7 @@ class ComputeServiceReadPublic(BaseNodeRead, ServiceBase):
     """
 
 
-class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
+class ComputeServiceRead(BaseReadPrivate, ComputeServiceBase):
     """Model, for authenticated users, to read Compute data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -293,7 +293,7 @@ class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
     name: Optional[IdentityServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class IdentityServiceReadPublic(BaseNodeRead, ServiceBase):
+class IdentityServiceReadPublic(BaseReadPublic, ServiceBase):
     """Model, for non-authenticated users, to read Identity data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -309,7 +309,7 @@ class IdentityServiceReadPublic(BaseNodeRead, ServiceBase):
     """
 
 
-class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
+class IdentityServiceRead(BaseReadPrivate, IdentityServiceBase):
     """Model, for authenticated users, to read Identity data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -391,7 +391,7 @@ class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
     name: Optional[NetworkServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class NetworkServiceReadPublic(BaseNodeRead, ServiceBase):
+class NetworkServiceReadPublic(BaseReadPublic, ServiceBase):
     """Model, for non-authenticated users, to read Network data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -407,7 +407,7 @@ class NetworkServiceReadPublic(BaseNodeRead, ServiceBase):
     """
 
 
-class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
+class NetworkServiceRead(BaseReadPrivate, NetworkServiceBase):
     """Model, for authenticated users, to read Network data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

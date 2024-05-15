@@ -18,7 +18,7 @@ from fed_reg.flavor.constants import (
     DOC_UUID,
     DOC_VCPUS,
 )
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 
 
@@ -137,7 +137,7 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
     uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
-class FlavorReadPublic(BaseNodeRead, FlavorBasePublic):
+class FlavorReadPublic(BaseReadPublic, FlavorBasePublic):
     """Model, for non-authenticated users, to read Flavor data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -154,7 +154,7 @@ class FlavorReadPublic(BaseNodeRead, FlavorBasePublic):
     """
 
 
-class FlavorRead(BaseNodeRead, FlavorBase):
+class FlavorRead(BaseReadPrivate, FlavorBase):
     """Model, for authenticated users, to read Flavor data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -180,9 +180,6 @@ class FlavorRead(BaseNodeRead, FlavorBase):
         gpu_vendor (str | None): Name of the GPU vendor.
         local_storage (str | None): Local storage presence.
     """
-
-    is_public: bool = Field(description=DOC_SHARED)
-    # Mandatory to be able to distinguish between public schema and not.
 
 
 FlavorQuery = create_query_model("FlavorQuery", FlavorBase)

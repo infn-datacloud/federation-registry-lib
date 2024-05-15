@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 from fed_reg.user_group.constants import DOC_NAME
 
@@ -60,7 +60,7 @@ class UserGroupUpdate(BaseNodeCreate, UserGroupBase):
     name: Optional[str] = Field(default=None, description=DOC_NAME)
 
 
-class UserGroupReadPublic(BaseNodeRead, UserGroupBasePublic):
+class UserGroupReadPublic(BaseReadPublic, UserGroupBasePublic):
     """Model, for non-authenticated users, to read UserGroup data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -77,7 +77,7 @@ class UserGroupReadPublic(BaseNodeRead, UserGroupBasePublic):
     """
 
 
-class UserGroupRead(BaseNodeRead, UserGroupBase):
+class UserGroupRead(BaseReadPrivate, UserGroupBase):
     """Model, for authenticated users, to read UserGroup data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

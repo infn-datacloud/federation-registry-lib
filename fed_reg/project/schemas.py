@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
 from fed_reg.project.constants import DOC_NAME, DOC_UUID
 from fed_reg.query import create_query_model
 
@@ -66,7 +66,7 @@ class ProjectUpdate(BaseNodeCreate, ProjectBase):
     uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
-class ProjectReadPublic(BaseNodeRead, ProjectBasePublic):
+class ProjectReadPublic(BaseReadPublic, ProjectBasePublic):
     """Model, for non-authenticated users, to read Project data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -83,7 +83,7 @@ class ProjectReadPublic(BaseNodeRead, ProjectBasePublic):
     """
 
 
-class ProjectRead(BaseNodeRead, ProjectBase):
+class ProjectRead(BaseReadPrivate, ProjectBase):
     """Model, for authenticated users, to read Project data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

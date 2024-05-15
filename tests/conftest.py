@@ -121,9 +121,9 @@ def setup_neo4j_session(request):
             + "\tpytest --resetdb."
         )
 
-    db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
+    # db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
 
-    db.install_all_labels()
+    # db.install_all_labels()
 
     db.cypher_query(
         "CREATE OR REPLACE USER test SET PASSWORD 'foobarbaz' CHANGE NOT REQUIRED"
@@ -357,7 +357,7 @@ def client_no_authn():
 @pytest.fixture
 def client_with_token(client_no_authn: TestClient):
     client_no_authn.headers = {"Authorization": "Bearer fake"}
-    yield client_no_authn
+    return client_no_authn
 
 @pytest.fixture
 def user_infos_with_write_email() -> UserInfos:

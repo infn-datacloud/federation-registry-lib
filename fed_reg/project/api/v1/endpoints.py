@@ -52,8 +52,8 @@ router = APIRouter(prefix="/projects", tags=["projects"])
     "/",
     response_model=Union[
         List[ProjectReadExtended],
-        List[ProjectRead],
         List[ProjectReadExtendedPublic],
+        List[ProjectRead],
         List[ProjectReadPublic],
     ],
     summary="Read all projects",
@@ -103,8 +103,8 @@ def get_projects(
     "/{project_uid}",
     response_model=Union[
         ProjectReadExtended,
-        ProjectRead,
         ProjectReadExtendedPublic,
+        ProjectRead,
         ProjectReadPublic,
     ],
     summary="Read a specific project",

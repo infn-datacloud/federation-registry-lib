@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import Field, validator
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 from fed_reg.quota.constants import (
     DOC_CORES,
@@ -108,7 +108,7 @@ class BlockStorageQuotaUpdate(BaseNodeCreate, BlockStorageQuotaBase):
     """
 
 
-class BlockStorageQuotaReadPublic(BaseNodeRead, QuotaBase):
+class BlockStorageQuotaReadPublic(BaseReadPublic, QuotaBase):
     """Model, for non-authenticated users, to read Block Storage data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -120,11 +120,12 @@ class BlockStorageQuotaReadPublic(BaseNodeRead, QuotaBase):
     ----------
         uid (str): Quota unique ID.
         description (str): Brief description.
+        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
+    type: QuotaType = Field(description="Block storage type")
 
-
-class BlockStorageQuotaRead(BaseNodeRead, BlockStorageQuotaBase):
+class BlockStorageQuotaRead(BaseReadPrivate, BlockStorageQuotaBase):
     """Model, for authenticated users, to read Block Storage data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -215,7 +216,7 @@ class ComputeQuotaUpdate(BaseNodeCreate, ComputeQuotaBase):
     """
 
 
-class ComputeQuotaReadPublic(BaseNodeRead, QuotaBase):
+class ComputeQuotaReadPublic(BaseReadPublic, QuotaBase):
     """Model, for non-authenticated users, to read Compute data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -227,11 +228,13 @@ class ComputeQuotaReadPublic(BaseNodeRead, QuotaBase):
     ----------
         uid (str): Quota unique ID.
         description (str): Brief description.
+        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
+    type: QuotaType = Field(description="Compute type")
 
 
-class ComputeQuotaRead(BaseNodeRead, ComputeQuotaBase):
+class ComputeQuotaRead(BaseReadPrivate, ComputeQuotaBase):
     """Model, for authenticated users, to read Compute data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -338,7 +341,7 @@ class NetworkQuotaUpdate(BaseNodeCreate, NetworkQuotaBase):
     """
 
 
-class NetworkQuotaReadPublic(BaseNodeRead, QuotaBase):
+class NetworkQuotaReadPublic(BaseReadPublic, QuotaBase):
     """Model, for non-authenticated users, to read Network data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -350,11 +353,13 @@ class NetworkQuotaReadPublic(BaseNodeRead, QuotaBase):
     ----------
         uid (str): Quota unique ID.
         description (str): Brief description.
+        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
+    type: QuotaType = Field(description="Network type")
 
 
-class NetworkQuotaRead(BaseNodeRead, NetworkQuotaBase):
+class NetworkQuotaRead(BaseReadPrivate, NetworkQuotaBase):
     """Model, for authenticated users, to read Network data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

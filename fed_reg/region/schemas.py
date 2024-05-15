@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 from fed_reg.region.constants import DOC_NAME
 
@@ -60,7 +60,7 @@ class RegionUpdate(BaseNodeCreate, RegionBase):
     name: Optional[str] = Field(default=None, description=DOC_NAME)
 
 
-class RegionReadPublic(BaseNodeRead, RegionBasePublic):
+class RegionReadPublic(BaseReadPublic, RegionBasePublic):
     """Model, for non-authenticated users, to read Region data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -76,7 +76,7 @@ class RegionReadPublic(BaseNodeRead, RegionBasePublic):
     """
 
 
-class RegionRead(BaseNodeRead, RegionBase):
+class RegionRead(BaseReadPrivate, RegionBase):
     """Model, for authenticated users, to read Region data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

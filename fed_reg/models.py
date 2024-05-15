@@ -122,6 +122,36 @@ class BaseNodeRead(BaseModel):
         orm_mode = True
 
 
+class BaseReadPublic(BaseNodeRead):
+    """ """
+
+    is_public_schema: bool = Field(
+        default=True,
+        description="Inner attribute to distinguish between public and private schemas",
+    )
+
+    @validator("is_public_schema", always=True)
+    @classmethod
+    def check_public_schema(cls, v: bool) -> bool:
+        assert v
+        return v
+
+
+class BaseReadPrivate(BaseNodeRead):
+    """ """
+
+    is_public_schema: bool = Field(
+        default=False,
+        description="Inner attribute to distinguish between public and private schemas",
+    )
+
+    @validator("is_public_schema", always=True)
+    @classmethod
+    def check_public_schema(cls, v: bool) -> bool:
+        assert not v
+        return v
+
+
 class BaseNodeQuery(BaseModel):
     """Schema used to retrieve possible query parameters when performing GET operations.
 

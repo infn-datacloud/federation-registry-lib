@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import AnyHttpUrl, Field
 
 from fed_reg.identity_provider.constants import DOC_CLAIM, DOC_ENDP
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 
 
@@ -69,7 +69,7 @@ class IdentityProviderUpdate(BaseNodeCreate, IdentityProviderBase):
     group_claim: Optional[str] = Field(default=None, description=DOC_CLAIM)
 
 
-class IdentityProviderReadPublic(BaseNodeRead, IdentityProviderBasePublic):
+class IdentityProviderReadPublic(BaseReadPublic, IdentityProviderBasePublic):
     """Model, for non-authenticated users, to read IdentityProvider data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -85,7 +85,7 @@ class IdentityProviderReadPublic(BaseNodeRead, IdentityProviderBasePublic):
     """
 
 
-class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
+class IdentityProviderRead(BaseReadPrivate, IdentityProviderBase):
     """Model, for authenticated users, to read IdentityProvider data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
