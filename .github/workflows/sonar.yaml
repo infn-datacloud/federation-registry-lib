@@ -20,7 +20,7 @@ jobs:
     services:
       neo4j-db:
         # Set up neo4j DB with APOC extension for UUIDs.
-        image: neo4j:5.18.0
+        image: neo4j:5.18
         ports:
           - 7687
           - 7474
