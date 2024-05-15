@@ -218,38 +218,6 @@ class CRUDBase(
             List[ReadPublicSchemaType] | List[ReadSchemaType] |
             List[ReadExtendedPublicSchemaType] | List[ReadExtendedSchemaType].
         """
-        schemas = self.cast_schemas(
-            items=items, auth=auth, with_conn=with_conn, short=short
-        )
-        for schema in schemas:
-            schema.is_public_schema = not bool(auth)
-        return schemas
-
-    def cast_schemas(
-        self, *, items: List[ModelType], auth: bool, with_conn: bool, short: bool
-    ) -> Union[
-        List[ReadPublicSchemaType],
-        List[ReadSchemaType],
-        List[ReadExtendedPublicSchemaType],
-        List[ReadExtendedSchemaType],
-    ]:
-        """Choose which read model use to return data to users.
-
-        Based on authorization, and on the user request to retrieve linked items, choose
-        one of the read schemas.
-
-        Args:
-        ----
-            items (List[ModelType]): List of items to cast.
-            auth (bool): Flag for authorization.
-            with_conn (bool): Flag to retrieve linked items.
-            short (bool): Only for authenticated users: show shrunk version (public).
-
-        Returns:
-        -------
-            List[ReadPublicSchemaType] | List[ReadSchemaType] |
-            List[ReadExtendedPublicSchemaType] | List[ReadExtendedSchemaType].
-        """
         if auth:
             if short:
                 if with_conn:

@@ -1,6 +1,6 @@
 """Core pydantic models."""
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from neo4j.time import Date, DateTime
@@ -125,31 +125,20 @@ class BaseNodeRead(BaseModel):
 class BaseReadPublic(BaseNodeRead):
     """ """
 
-    is_public_schema: bool = Field(
+    is_public_schema: Literal[True] = Field(
         default=True,
         description="Inner attribute to distinguish between public and private schemas",
     )
 
-    @validator("is_public_schema", always=True)
-    @classmethod
-    def check_public_schema(cls, v: bool) -> bool:
-        assert v
-        return v
 
 
 class BaseReadPrivate(BaseNodeRead):
     """ """
 
-    is_public_schema: bool = Field(
+    is_public_schema: Literal[False] = Field(
         default=False,
         description="Inner attribute to distinguish between public and private schemas",
     )
-
-    @validator("is_public_schema", always=True)
-    @classmethod
-    def check_public_schema(cls, v: bool) -> bool:
-        assert not v
-        return v
 
 
 class BaseNodeQuery(BaseModel):
