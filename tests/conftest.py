@@ -6,7 +6,7 @@ from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 from flaat.user_infos import UserInfos
-from neomodel import db
+from neomodel import config, db
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.identity_provider.models import IdentityProvider
@@ -105,9 +105,9 @@ def setup_neo4j_session(request):
     :param request: The request object. Please see <https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_sessionstart>`_
     :type Request object: For more information please see <https://docs.pytest.org/en/latest/reference.html#request>`_
     """
-    # config.DATABASE_URL = os.environ.get(
-    #     "NEO4J_BOLT_URL", "bolt://localhost:7687"
-    # )
+    config.DATABASE_URL = os.environ.get(
+        "NEO4J_TEST_URL", "bolt://neo4j:password@localhost:7687"
+    )
 
     # Clear the database if required
     database_is_populated, _ = db.cypher_query(
