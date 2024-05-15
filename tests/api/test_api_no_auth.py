@@ -1,6 +1,5 @@
 import os
 from typing import Any
-from unittest.mock import patch
 
 from fastapi import status
 from fastapi.testclient import TestClient
@@ -58,7 +57,7 @@ class CaseItemEndpoint:
         return location_model, "locations"
 
     def case_network(
-        self,  network_model: Network, network_service_model: NetworkService
+        self, network_model: Network, network_service_model: NetworkService
     ) -> tuple[Network, str]:
         network_service_model.networks.connect(network_model)
         return network_model, "networks"

@@ -123,7 +123,9 @@ class BlockStorageQuotaReadPublic(BaseReadPublic, QuotaBase):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
+
     type: QuotaType = Field(description="Block storage type")
+
 
 class BlockStorageQuotaRead(BaseReadPrivate, BlockStorageQuotaBase):
     """Model, for authenticated users, to read Block Storage data from DB.
@@ -231,6 +233,7 @@ class ComputeQuotaReadPublic(BaseReadPublic, QuotaBase):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
+
     type: QuotaType = Field(description="Compute type")
 
 
@@ -356,6 +359,7 @@ class NetworkQuotaReadPublic(BaseReadPublic, QuotaBase):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
+
     type: QuotaType = Field(description="Network type")
 
 

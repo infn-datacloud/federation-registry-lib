@@ -131,7 +131,6 @@ class BaseReadPublic(BaseNodeRead):
     )
 
 
-
 class BaseReadPrivate(BaseNodeRead):
     """ """
 
