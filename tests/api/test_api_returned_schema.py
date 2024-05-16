@@ -9,311 +9,493 @@ from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.config import get_settings
 from fed_reg.flavor.models import Flavor
-from fed_reg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fed_reg.identity_provider.models import IdentityProvider
-from fed_reg.identity_provider.schemas import (
-    IdentityProviderRead,
-    IdentityProviderReadPublic,
-)
 from fed_reg.image.models import Image
-from fed_reg.image.schemas import ImageRead, ImageReadPublic
 from fed_reg.location.models import Location
-from fed_reg.location.schemas import LocationRead, LocationReadPublic
-from fed_reg.models import BaseNodeRead
 from fed_reg.network.models import Network
-from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
 from fed_reg.project.models import Project
-from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.models import Provider
-from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
-from fed_reg.quota.schemas import (
-    BlockStorageQuotaRead,
-    BlockStorageQuotaReadPublic,
-    ComputeQuotaRead,
-    ComputeQuotaReadPublic,
-    NetworkQuotaRead,
-    NetworkQuotaReadPublic,
-)
 from fed_reg.region.models import Region
-from fed_reg.region.schemas import RegionRead, RegionReadPublic
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
 )
-from fed_reg.service.schemas import (
-    BlockStorageServiceRead,
-    BlockStorageServiceReadPublic,
-    ComputeServiceRead,
-    ComputeServiceReadPublic,
-    IdentityServiceRead,
-    IdentityServiceReadPublic,
-    NetworkServiceRead,
-    NetworkServiceReadPublic,
-)
 from fed_reg.sla.models import SLA
-from fed_reg.sla.schemas import SLARead, SLAReadPublic
 from fed_reg.user_group.models import UserGroup
-from fed_reg.user_group.schemas import UserGroupRead, UserGroupReadPublic
+from tests.create_dict import auth_method_dict
 
 
-class CaseSingleMulti:
-    @parametrize(single=[True, False])
-    def case_single_multi(self, single: bool) -> bool:
-        return single
-
-
-class CaseItemEndpointSchemaPublic:
-    def case_flavor(
-        self, flavor_model: Flavor
-    ) -> tuple[Flavor, str, type[FlavorReadPublic]]:
-        return flavor_model, "flavors", FlavorReadPublic
-
-    def case_identity_provider(
-        self, identity_provider_model: IdentityProvider
-    ) -> tuple[IdentityProvider, str, type[IdentityProviderReadPublic]]:
-        return (
-            identity_provider_model,
-            "identity_providers",
-            IdentityProviderReadPublic,
-        )
-
-    def case_image(
-        self, image_model: Image
-    ) -> tuple[Image, str, type[ImageReadPublic]]:
-        return image_model, "images", ImageReadPublic
-
-    def case_location(
-        self, location_model: Location
-    ) -> tuple[Location, str, type[LocationReadPublic]]:
-        return location_model, "locations", LocationReadPublic
-
-    def case_network(
-        self, network_model: Network
-    ) -> tuple[Network, str, type[NetworkReadPublic]]:
-        return network_model, "networks", NetworkReadPublic
-
-    def case_project(
-        self, project_model: Project
-    ) -> tuple[Project, str, type[ProjectReadPublic]]:
-        return project_model, "projects", ProjectReadPublic
-
-    def case_provider(
-        self, provider_model: Provider
-    ) -> tuple[Provider, str, type[ProviderReadPublic]]:
-        return provider_model, "providers", ProviderReadPublic
-
-    def case_block_storage_quota(
-        self, block_storage_quota_model: BlockStorageQuota
-    ) -> tuple[BlockStorageQuota, str, type[BlockStorageQuotaReadPublic]]:
-        return (
-            block_storage_quota_model,
-            "block_storage_quotas",
-            BlockStorageQuotaReadPublic,
-        )
-
-    def case_compute_quota(
-        self, compute_quota_model: ComputeQuota
-    ) -> tuple[ComputeQuota, str, type[ComputeQuotaReadPublic]]:
-        return compute_quota_model, "compute_quotas", ComputeQuotaReadPublic
-
-    def case_network_quota(
-        self, network_quota_model: NetworkQuota
-    ) -> tuple[NetworkQuota, str, type[NetworkQuotaReadPublic]]:
-        return network_quota_model, "network_quotas", NetworkQuotaReadPublic
-
-    def case_region(
-        self, region_model: Region
-    ) -> tuple[Region, str, type[RegionReadPublic]]:
-        return region_model, "regions", RegionReadPublic
-
-    def case_block_storage_service(
-        self, block_storage_service_model: BlockStorageService
-    ) -> tuple[BlockStorageService, str, type[BlockStorageServiceReadPublic]]:
-        return (
-            block_storage_service_model,
-            "block_storage_services",
-            BlockStorageServiceReadPublic,
-        )
-
-    def case_compute_service(
-        self, compute_service_model: ComputeService
-    ) -> tuple[ComputeService, str, type[ComputeServiceReadPublic]]:
-        return (compute_service_model, "compute_services", ComputeServiceReadPublic)
-
-    def case_identity_service(
-        self, identity_service_model: IdentityService
-    ) -> tuple[IdentityService, str, type[IdentityServiceReadPublic]]:
-        return (identity_service_model, "identity_services", IdentityServiceReadPublic)
-
-    def case_network_service(
-        self, network_service_model: NetworkService
-    ) -> tuple[NetworkService, str, type[NetworkServiceReadPublic]]:
-        return (network_service_model, "network_services", NetworkServiceReadPublic)
-
-    def case_sla(self, sla_model: SLA) -> tuple[SLA, str, type[SLAReadPublic]]:
-        return sla_model, "slas", SLAReadPublic
-
-    def case_user_group(
-        self, user_group_model: UserGroup
-    ) -> tuple[UserGroup, str, type[UserGroupReadPublic]]:
-        return user_group_model, "user_groups", UserGroupReadPublic
-
-
+@parametrize(single=[True, False])
+@parametrize(with_conn=[True, False])
+@parametrize(is_public=[True, False])
 class CaseItemEndpointSchemaDir:
+    def _determine_schema(self, *, with_conn: bool, is_public: bool) -> str:
+        if with_conn:
+            return "public_extended" if is_public else "private_extended"
+        else:
+            return "public" if is_public else "private"
+
     def case_flavor(
-        self, flavor_model: Flavor
-    ) -> tuple[Flavor, str, type[FlavorRead], str]:
-        return flavor_model, "flavors", FlavorRead, "flavor"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        compute_service_model: ComputeService,
+        flavor_model: Flavor,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, Flavor, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(compute_service_model)
+            compute_service_model.flavors.connect(flavor_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return client, with_conn, single, schema, flavor_model, "flavors", "flavor"
 
     def case_identity_provider(
-        self, identity_provider_model: IdentityProvider
-    ) -> tuple[IdentityProvider, str, type[IdentityProviderRead], str]:
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        identity_provider_model: IdentityProvider,
+        provider_model: Provider,
+    ) -> tuple[TestClient, bool, bool, str, IdentityProvider, str, str]:
+        if with_conn:
+            provider_model.identity_providers.connect(
+                identity_provider_model, auth_method_dict()
+            )
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
         return (
+            client,
+            with_conn,
+            single,
+            schema,
             identity_provider_model,
             "identity_providers",
-            IdentityProviderRead,
             "identity_provider",
         )
 
-    def case_image(self, image_model: Image) -> tuple[Image, str, type[ImageRead], str]:
-        return image_model, "images", ImageRead, "image"
+    def case_image(
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        compute_service_model: ComputeService,
+        image_model: Image,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, Image, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(compute_service_model)
+            compute_service_model.images.connect(image_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return client, with_conn, single, schema, image_model, "images", "image"
 
     def case_location(
-        self, location_model: Location
-    ) -> tuple[Location, str, type[LocationRead], str]:
-        return location_model, "locations", LocationRead, "location"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        location_model: Location,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, Location, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.location.connect(location_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return (
+            client,
+            with_conn,
+            single,
+            schema,
+            location_model,
+            "locations",
+            "location",
+        )
 
     def case_network(
-        self, network_model: Network
-    ) -> tuple[Network, str, type[NetworkRead], str]:
-        return network_model, "networks", NetworkRead, "network"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        network_model: Network,
+        network_service_model: NetworkService,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, Network, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(network_service_model)
+            network_service_model.networks.connect(network_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return client, with_conn, single, schema, network_model, "networks", "network"
 
     def case_project(
-        self, project_model: Project
-    ) -> tuple[Project, str, type[ProjectRead], str]:
-        return project_model, "projects", ProjectRead, "project"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        project_model: Project,
+        provider_model: Provider,
+    ) -> tuple[TestClient, bool, bool, str, Project, str, str]:
+        if with_conn:
+            provider_model.projects.connect(project_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return client, with_conn, single, schema, project_model, "projects", "project"
 
     def case_provider(
-        self, provider_model: Provider
-    ) -> tuple[Provider, str, type[ProviderRead], str]:
-        return provider_model, "providers", ProviderRead, "provider"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        provider_model: Provider,
+    ) -> tuple[TestClient, bool, bool, str, Provider, str, str]:
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return (
+            client,
+            with_conn,
+            single,
+            schema,
+            provider_model,
+            "providers",
+            "provider",
+        )
 
     def case_block_storage_quota(
-        self, block_storage_quota_model: BlockStorageQuota
-    ) -> tuple[BlockStorageQuota, str, type[BlockStorageQuotaRead], str]:
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        block_storage_quota_model: BlockStorageQuota,
+        block_storage_service_model: BlockStorageService,
+        project_model: Project,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, BlockStorageQuota, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(block_storage_service_model)
+            block_storage_service_model.quotas.connect(block_storage_quota_model)
+            provider_model.projects.connect(project_model)
+            project_model.quotas.connect(block_storage_quota_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
         return (
+            client,
+            with_conn,
+            single,
+            schema,
             block_storage_quota_model,
             "block_storage_quotas",
-            BlockStorageQuotaRead,
             "quota",
         )
 
     def case_compute_quota(
-        self, compute_quota_model: ComputeQuota
-    ) -> tuple[ComputeQuota, str, type[ComputeQuotaRead], str]:
-        return compute_quota_model, "compute_quotas", ComputeQuotaRead, "quota"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        compute_quota_model: ComputeQuota,
+        compute_service_model: BlockStorageService,
+        project_model: Project,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, ComputeQuota, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(compute_service_model)
+            compute_service_model.quotas.connect(compute_quota_model)
+            provider_model.projects.connect(project_model)
+            project_model.quotas.connect(compute_quota_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return (
+            client,
+            with_conn,
+            single,
+            schema,
+            compute_quota_model,
+            "compute_quotas",
+            "quota",
+        )
 
     def case_network_quota(
-        self, network_quota_model: NetworkQuota
-    ) -> tuple[NetworkQuota, str, type[NetworkQuotaRead], str]:
-        return network_quota_model, "network_quotas", NetworkQuotaRead, "quota"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        network_quota_model: NetworkQuota,
+        network_service_model: BlockStorageService,
+        project_model: Project,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, NetworkQuota, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(network_service_model)
+            network_service_model.quotas.connect(network_quota_model)
+            provider_model.projects.connect(project_model)
+            project_model.quotas.connect(network_quota_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return (
+            client,
+            with_conn,
+            single,
+            schema,
+            network_quota_model,
+            "network_quotas",
+            "quota",
+        )
 
     def case_region(
-        self, region_model: Region
-    ) -> tuple[Region, str, type[RegionRead], str]:
-        return region_model, "regions", RegionRead, "region"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, Region, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return client, with_conn, single, schema, region_model, "regions", "region"
 
     def case_block_storage_service(
-        self, block_storage_service_model: BlockStorageService
-    ) -> tuple[BlockStorageService, str, type[BlockStorageServiceRead], str]:
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        block_storage_service_model: BlockStorageService,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, BlockStorageService, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(block_storage_service_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
         return (
+            client,
+            with_conn,
+            single,
+            schema,
             block_storage_service_model,
             "block_storage_services",
-            BlockStorageServiceRead,
             "service",
         )
 
     def case_compute_service(
-        self, compute_service_model: ComputeService
-    ) -> tuple[ComputeService, str, type[ComputeServiceRead], str]:
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        compute_service_model: ComputeService,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, ComputeService, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(compute_service_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
         return (
+            client,
+            with_conn,
+            single,
+            schema,
             compute_service_model,
             "compute_services",
-            ComputeServiceRead,
             "service",
         )
 
     def case_identity_service(
-        self, identity_service_model: IdentityService
-    ) -> tuple[IdentityService, str, type[IdentityServiceRead], str]:
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        identity_service_model: IdentityService,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, IdentityService, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(identity_service_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
         return (
+            client,
+            with_conn,
+            single,
+            schema,
             identity_service_model,
             "identity_services",
-            IdentityServiceRead,
             "service",
         )
 
     def case_network_service(
-        self, network_service_model: NetworkService
-    ) -> tuple[NetworkService, str, type[NetworkServiceRead], str]:
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        network_service_model: NetworkService,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, NetworkService, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(network_service_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
         return (
+            client,
+            with_conn,
+            single,
+            schema,
             network_service_model,
             "network_services",
-            NetworkServiceRead,
             "service",
         )
 
-    def case_sla(self, sla_model: SLA) -> tuple[SLA, str, type[SLARead], str]:
-        return sla_model, "slas", SLARead, "sla"
+    def case_sla(
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        identity_provider_model: IdentityProvider,
+        project_model: Project,
+        provider_model: Provider,
+        sla_model: SLA,
+        user_group_model: UserGroup,
+    ) -> tuple[TestClient, bool, bool, str, SLA, str, str]:
+        if with_conn:
+            provider_model.identity_providers.connect(
+                identity_provider_model, auth_method_dict()
+            )
+            identity_provider_model.user_groups.connect(user_group_model)
+            user_group_model.slas.connect(sla_model)
+            provider_model.projects.connect(project_model)
+            project_model.sla.connect(sla_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return client, with_conn, single, schema, sla_model, "slas", "sla"
 
     def case_user_group(
-        self, user_group_model: UserGroup
-    ) -> tuple[UserGroup, str, type[UserGroupRead], str]:
-        return user_group_model, "user_groups", UserGroupRead, "user_group"
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        identity_provider_model: IdentityProvider,
+        provider_model: Provider,
+        user_group_model: UserGroup,
+    ) -> tuple[TestClient, bool, bool, str, UserGroup, str, str]:
+        if with_conn:
+            provider_model.identity_providers.connect(
+                identity_provider_model, auth_method_dict()
+            )
+            identity_provider_model.user_groups.connect(user_group_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return (
+            client,
+            with_conn,
+            single,
+            schema,
+            user_group_model,
+            "user_groups",
+            "user_group",
+        )
 
 
-@parametrize_with_cases("single", cases=CaseSingleMulti)
-@parametrize_with_cases("item, endpoint, schema", cases=CaseItemEndpointSchemaPublic)
-def test_get_no_authn_verify_class(
-    client_no_authn: TestClient,
-    single: bool,
-    item: Any,
-    endpoint: str,
-    schema: type[BaseNodeRead],
-):
-    settings = get_settings()
-    if single:
-        url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
-    else:
-        url = os.path.join(settings.API_V1_STR, endpoint)
-    resp = client_no_authn.get(url)
-    assert resp.status_code == status.HTTP_200_OK
+# @parametrize_with_cases(
+#     "with_conn, single, schema, item, endpoint", cases=CaseItemEndpointSchemaPublic
+# )
+# def test_get_no_authn_verify_class(
+#     client_no_authn: TestClient,
+#     with_conn: bool,
+#     single: bool,
+#     item: Any,
+#     endpoint: str,
+#     schema: str,
+# ):
+#     settings = get_settings()
+#     if single:
+#         url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
+#     else:
+#         url = os.path.join(settings.API_V1_STR, endpoint)
 
-    data = resp.json()
-    if single:
-        assert data is not None
-    else:
-        assert len(data) > 0
-        data = data[0]
+#     resp = client_no_authn.get(url, params={"with_conn": with_conn})
+#     assert resp.status_code == status.HTTP_200_OK
 
-    fields = {**schema.__fields__}
-    for k in data:
-        fields.pop(k)
-    assert not fields
+#     data = resp.json()
+#     if single:
+#         assert data is not None
+#     else:
+#         assert len(data) > 0
+#         data = data[0]
+
+#     assert data["schema_type"] == schema
 
 
-@parametrize_with_cases("single", cases=CaseSingleMulti)
-@parametrize_with_cases("item, endpoint, schema, dir", cases=CaseItemEndpointSchemaDir)
+@parametrize_with_cases(
+    "client, with_conn, single, schema, item, endpoint, dir",
+    cases=CaseItemEndpointSchemaDir,
+)
 def test_get_authn_verify_class(
-    client_with_token: TestClient,
     user_infos_with_read_email: UserInfos,
+    client: TestClient,
+    with_conn: bool,
     single: bool,
     item: Any,
     endpoint: str,
-    schema: type[BaseNodeRead],
+    schema: str,
     dir: str,
 ):
     settings = get_settings()
@@ -322,11 +504,14 @@ def test_get_authn_verify_class(
     else:
         url = os.path.join(settings.API_V1_STR, endpoint)
 
-    with patch(
-        f"fed_reg.{dir}.api.v1.endpoints.flaat.get_user_infos_from_request",
-        return_value=user_infos_with_read_email,
-    ):
-        resp = client_with_token.get(url)
+    if schema.startswith("private"):
+        with patch(
+            f"fed_reg.{dir}.api.v1.endpoints.flaat.get_user_infos_from_request",
+            return_value=user_infos_with_read_email,
+        ):
+            resp = client.get(url, params={"with_conn": with_conn})
+    else:
+        resp = client.get(url, params={"with_conn": with_conn})
     assert resp.status_code == status.HTTP_200_OK
 
     data = resp.json()
@@ -336,7 +521,4 @@ def test_get_authn_verify_class(
         assert len(data) > 0
         data = data[0]
 
-    fields = {**schema.__fields__}
-    for k in data:
-        fields.pop(k)
-    assert not fields
+    assert data["schema_type"] == schema
