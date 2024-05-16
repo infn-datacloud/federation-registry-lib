@@ -19,12 +19,14 @@ from fed_reg.service.crud import (
     compute_service_mng,
     identity_service_mng,
     network_service_mng,
+    object_storage_service_mng,
 )
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
+    ObjectStorageService,
 )
 
 
@@ -85,6 +87,8 @@ class CRUDRegion(
                 identity_service_mng.remove(db_obj=db_serv)
             elif isinstance(db_serv, NetworkService):
                 network_service_mng.remove(db_obj=db_serv)
+            elif isinstance(db_serv, ObjectStorageService):
+                object_storage_service_mng.remove(db_obj=db_serv)
 
         item = db_obj.location.single()
         if item and len(item.regions) == 1:
@@ -123,12 +127,16 @@ class CRUDRegion(
             net_serv_updated = self.__update_network_services(
                 db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
+            osto_serv_updated = self.__update_object_storage_services(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
             edit = (
                 locations_updated
                 or bsto_serv_updated
                 or comp_serv_updated
                 or idp_serv_updated
                 or net_serv_updated
+                or osto_serv_updated
             )
 
         if isinstance(obj_in, RegionCreateExtended):
@@ -321,6 +329,45 @@ class CRUDRegion(
         for db_item in db_items.values():
             network_service_mng.remove(db_obj=db_item)
         edit = True
+        return edit
+
+    def __update_object_storage_services(
+        self,
+        *,
+        db_obj: Region,
+        obj_in: RegionCreateExtended,
+        provider_projects: list[Project],
+    ) -> bool:
+        """Update region linked object storage services.
+
+        Connect new object storage services not already connect, leave untouched already
+        linked ones and delete old ones no more connected to the region.
+        """
+        edit = False
+        db_items = {
+            db_item.endpoint: db_item
+            for db_item in db_obj.services
+            if isinstance(db_item, ObjectStorageService)
+        }
+        for item in obj_in.object_storage_services:
+            db_item = db_items.pop(item.endpoint, None)
+            if not db_item:
+                object_storage_service_mng.create(
+                    obj_in=item, region=db_obj, projects=provider_projects
+                )
+                edit = True
+            else:
+                updated_data = object_storage_service_mng.update(
+                    db_obj=db_item,
+                    obj_in=item,
+                    projects=provider_projects,
+                    force=True,
+                )
+                if not edit and updated_data is not None:
+                    edit = True
+        for db_item in db_items.values():
+            object_storage_service_mng.remove(db_obj=db_item)
+            edit = True
         return edit
 
 
