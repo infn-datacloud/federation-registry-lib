@@ -7,8 +7,14 @@ from fed_reg.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
     ComputeQuotaCreateExtended,
     NetworkQuotaCreateExtended,
+    ObjectStorageQuotaCreateExtended,
 )
-from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.quota.models import (
+    BlockStorageQuota,
+    ComputeQuota,
+    NetworkQuota,
+    ObjectStorageQuota,
+)
 from fed_reg.quota.schemas import (
     BlockStorageQuotaCreate,
     BlockStorageQuotaRead,
@@ -22,6 +28,10 @@ from fed_reg.quota.schemas import (
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
     NetworkQuotaUpdate,
+    ObjectStorageQuotaCreate,
+    ObjectStorageQuotaRead,
+    ObjectStorageQuotaReadPublic,
+    ObjectStorageQuotaUpdate,
 )
 from fed_reg.quota.schemas_extended import (
     BlockStorageQuotaReadExtended,
@@ -30,8 +40,15 @@ from fed_reg.quota.schemas_extended import (
     ComputeQuotaReadExtendedPublic,
     NetworkQuotaReadExtended,
     NetworkQuotaReadExtendedPublic,
+    ObjectStorageQuotaReadExtended,
+    ObjectStorageQuotaReadExtendedPublic,
 )
-from fed_reg.service.models import BlockStorageService, ComputeService, NetworkService
+from fed_reg.service.models import (
+    BlockStorageService,
+    ComputeService,
+    NetworkService,
+    ObjectStorageService,
+)
 
 
 class CRUDBlockStorageQuota(
@@ -217,6 +234,67 @@ class CRUDNetworkQuota(
         return db_obj if edit else updated_data
 
 
+class CRUDObjectStorageQuota(
+    CRUDBase[
+        ObjectStorageQuota,
+        ObjectStorageQuotaCreate,
+        ObjectStorageQuotaUpdate,
+        ObjectStorageQuotaRead,
+        ObjectStorageQuotaReadPublic,
+        ObjectStorageQuotaReadExtended,
+        ObjectStorageQuotaReadExtendedPublic,
+    ]
+):
+    """Object Storage Quota Create, Read, Update and Delete operations."""
+
+    def create(
+        self,
+        *,
+        obj_in: ObjectStorageQuotaCreate,
+        service: ObjectStorageService,
+        project: Project,
+    ) -> ObjectStorageQuota:
+        """Create a new Object Storage Quota.
+
+        Connect the quota to the given service and project.
+        """
+        db_obj = super().create(obj_in=obj_in)
+        db_obj.service.connect(service)
+        db_obj.project.connect(project)
+        return db_obj
+
+    def update(
+        self,
+        *,
+        db_obj: ObjectStorageQuota,
+        obj_in: ObjectStorageQuotaCreateExtended | ObjectStorageQuotaUpdate,
+        projects: Optional[list[Project]] = None,
+        force: bool = False,
+    ) -> Optional[ObjectStorageQuota]:
+        """Update Quota attributes.
+
+        By default do not update relationships or default values. If force is True, if
+        different from the current one, replace linked project and apply default values
+        when explicit.
+        """
+        if projects is None:
+            projects = []
+        edit = False
+        if force:
+            db_projects = {db_item.uuid: db_item for db_item in projects}
+            db_proj = db_obj.project.single()
+            if obj_in.project != db_proj.uuid:
+                db_item = db_projects.get(obj_in.project)
+                db_obj.project.reconnect(db_proj, db_item)
+                edit = True
+
+        if isinstance(obj_in, ObjectStorageQuotaCreateExtended):
+            obj_in = ObjectStorageQuotaUpdate.parse_obj(obj_in)
+
+        updated_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
+        return db_obj if edit else updated_data
+
+
 block_storage_quota_mng = CRUDBlockStorageQuota(
     model=BlockStorageQuota,
     create_schema=BlockStorageQuotaCreate,
@@ -240,4 +318,12 @@ network_quota_mng = CRUDNetworkQuota(
     read_public_schema=NetworkQuotaReadPublic,
     read_extended_schema=NetworkQuotaReadExtended,
     read_extended_public_schema=NetworkQuotaReadExtendedPublic,
+)
+object_storage_quota_mng = CRUDObjectStorageQuota(
+    model=ObjectStorageQuota,
+    create_schema=ObjectStorageQuotaCreate,
+    read_schema=ObjectStorageQuotaRead,
+    read_public_schema=ObjectStorageQuotaReadPublic,
+    read_extended_schema=ObjectStorageQuotaReadExtended,
+    read_extended_public_schema=ObjectStorageQuotaReadExtendedPublic,
 )

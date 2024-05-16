@@ -291,7 +291,8 @@ class ObjectStorageServiceReadExtended(ObjectStorageServiceRead):
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
         name (str): Service name.
-        quotas (list of ObjectStorageQuotaReadExtended): Quotas pointing to this service.
+        quotas (list of ObjectStorageQuotaReadExtended): Quotas pointing to this
+            service.
     """
 
     quotas: list[ObjectStorageQuotaRead] = Field(

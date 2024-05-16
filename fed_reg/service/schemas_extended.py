@@ -182,6 +182,7 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
 
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
 
+
 class ObjectStorageQuotaReadExtended(ObjectStorageQuotaRead):
     """Model to extend the ObjectStorage Quota data read from the DB.
 
@@ -209,7 +210,8 @@ class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
     """
 
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
-    
+
+
 class BlockStorageServiceReadExtended(
     BaseNodeRead, BaseReadPrivateExtended, BlockStorageServiceBase
 ):
@@ -386,7 +388,8 @@ class ObjectStorageServiceReadExtended(
         type (str): Service type.
         name (str): Service name.
         region (RegionReadExtended): Region hosting this service.
-        quotas (list of ObjectStorageQuotaReadExtended): Quotas pointing to this service.
+        quotas (list of ObjectStorageQuotaReadExtended): Quotas pointing to this
+            service.
     """
 
     region: RegionReadExtended = Field(description=DOC_EXT_REG)

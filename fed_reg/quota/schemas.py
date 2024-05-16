@@ -431,6 +431,7 @@ class NetworkQuotaRead(BaseNodeRead, BaseReadPrivate, NetworkQuotaBase):
 
 NetworkQuotaQuery = create_query_model("NetworkQuotaQuery", NetworkQuotaBase)
 
+
 class ObjectStorageQuotaBasePublic(QuotaBase):
     """Model with the Object Storage Quota public and restricted attributes.
 
@@ -461,6 +462,7 @@ class ObjectStorageQuotaBase(ObjectStorageQuotaBasePublic):
     """
 
     # TODO: understand which fields must contain.
+
 
 class ObjectStorageQuotaCreate(BaseNodeCreate, ObjectStorageQuotaBase):
     """Model to create a Object Storage Quota.

@@ -10,6 +10,9 @@ from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
+    ObjectStorageServiceCreateExtended,
+    ObjectStorageServiceReadExtended,
+    ObjectStorageServiceReadExtendedPublic,
 )
 from fed_reg.quota.crud import (
     block_storage_quota_mng,
@@ -22,6 +25,7 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
+    ObjectStorageService,
 )
 from fed_reg.service.schemas import (
     BlockStorageServiceCreate,
@@ -40,6 +44,10 @@ from fed_reg.service.schemas import (
     NetworkServiceRead,
     NetworkServiceReadPublic,
     NetworkServiceUpdate,
+    ObjectStorageServiceCreate,
+    ObjectStorageServiceRead,
+    ObjectStorageServiceReadPublic,
+    ObjectStorageServiceUpdate,
 )
 from fed_reg.service.schemas_extended import (
     BlockStorageServiceReadExtended,
@@ -665,6 +673,148 @@ class CRUDNetworkService(
         return edit
 
 
+class CRUDObjectStorageService(
+    CRUDBase[
+        ObjectStorageService,
+        ObjectStorageServiceCreate,
+        ObjectStorageServiceUpdate,
+        ObjectStorageServiceRead,
+        ObjectStorageServiceReadPublic,
+        ObjectStorageServiceReadExtended,
+        ObjectStorageServiceReadExtendedPublic,
+    ]
+):
+    """Object Storage Service Create, Read, Update and Delete operations."""
+
+    def create(
+        self,
+        *,
+        obj_in: ObjectStorageServiceCreateExtended,
+        region: Region,
+        projects: Optional[list[Project]] = None,
+    ) -> ObjectStorageService:
+        """Create a new Object Storage Service.
+
+        Connect the service to the given region and create all relative quotas. Filter
+        projects based on received ones and target one. It must be exactly one.
+        """
+        if projects is None:
+            projects = []
+        db_obj = super().create(obj_in=obj_in)
+        db_obj.region.connect(region)
+        for item in obj_in.quotas:
+            db_projects = list(filter(lambda x: x.uuid == item.project, projects))
+            if len(db_projects) == 1:
+                block_storage_quota_mng.create(
+                    obj_in=item, service=db_obj, project=db_projects[0]
+                )
+        return db_obj
+
+    def remove(self, *, db_obj: ObjectStorageService) -> bool:
+        """Delete an existing service and all its relationships.
+
+        At first delete its quotas. Finally delete the service.
+        """
+        for item in db_obj.quotas:
+            block_storage_quota_mng.remove(db_obj=item)
+        return super().remove(db_obj=db_obj)
+
+    def update(
+        self,
+        *,
+        db_obj: ObjectStorageService,
+        obj_in: ObjectStorageServiceCreateExtended | ObjectStorageServiceUpdate,
+        projects: Optional[list[Project]] = None,
+        force: bool = False,
+    ) -> Optional[ObjectStorageService]:
+        """Update Object Storage Service attributes.
+
+        By default do not update relationships or default values. If force is True,
+        update linked quotas and apply default values when explicit.
+        """
+        if projects is None:
+            projects = []
+        edit = False
+        if force:
+            edit = self.__update_quotas(
+                db_obj=db_obj, obj_in=obj_in, provider_projects=projects
+            )
+
+        if isinstance(obj_in, ObjectStorageServiceCreateExtended):
+            obj_in = ObjectStorageServiceUpdate.parse_obj(obj_in)
+
+        update_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
+        return db_obj if edit else update_data
+
+    def __update_quotas(
+        self,
+        *,
+        db_obj: ObjectStorageService,
+        obj_in: ObjectStorageServiceCreateExtended,
+        provider_projects: list[Project],
+    ) -> bool:
+        """Update service linked quotas.
+
+        Connect new quotas not already connect, leave untouched already linked ones and
+        delete old ones no more connected to the service.
+
+        Split quotas in per_user and total. For each one of them, check the linked
+        project. If the project already has a quota of that type, update that quota with
+        the new received values.
+        """
+        edit = False
+
+        db_items_per_user, db_items_total = split_quota(db_obj.quotas)
+        db_projects = {db_item.uuid: db_item for db_item in provider_projects}
+
+        for item in obj_in.quotas:
+            if item.per_user:
+                db_item = db_items_per_user.pop(item.project, None)
+                if not db_item:
+                    block_storage_quota_mng.create(
+                        obj_in=item,
+                        service=db_obj,
+                        project=db_projects.get(item.project),
+                    )
+                    edit = True
+                else:
+                    updated_data = block_storage_quota_mng.update(
+                        db_obj=db_item,
+                        obj_in=item,
+                        projects=provider_projects,
+                        force=True,
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+            else:
+                db_item = db_items_total.pop(item.project, None)
+                if not db_item:
+                    block_storage_quota_mng.create(
+                        obj_in=item,
+                        service=db_obj,
+                        project=db_projects.get(item.project),
+                    )
+                    edit = True
+                else:
+                    updated_data = block_storage_quota_mng.update(
+                        db_obj=db_item,
+                        obj_in=item,
+                        projects=provider_projects,
+                        force=True,
+                    )
+                    if not edit and updated_data is not None:
+                        edit = True
+
+        for db_item in db_items_per_user.values():
+            block_storage_quota_mng.remove(db_obj=db_item)
+            edit = True
+        for db_item in db_items_total.values():
+            block_storage_quota_mng.remove(db_obj=db_item)
+            edit = True
+
+        return edit
+
+
 compute_service_mng = CRUDComputeService(
     model=ComputeService,
     create_schema=ComputeServiceCreate,
@@ -696,4 +846,12 @@ network_service_mng = CRUDNetworkService(
     read_public_schema=NetworkServiceReadPublic,
     read_extended_schema=NetworkServiceReadExtended,
     read_extended_public_schema=NetworkServiceReadExtendedPublic,
+)
+object_storage_service_mng = CRUDObjectStorageService(
+    model=ObjectStorageService,
+    create_schema=ObjectStorageServiceCreate,
+    read_schema=ObjectStorageServiceRead,
+    read_public_schema=ObjectStorageServiceReadPublic,
+    read_extended_schema=ObjectStorageServiceReadExtended,
+    read_extended_public_schema=ObjectStorageServiceReadExtendedPublic,
 )
