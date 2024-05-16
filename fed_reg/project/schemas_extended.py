@@ -35,6 +35,8 @@ from fed_reg.quota.schemas import (
     ComputeQuotaReadPublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
+    ObjectStorageQuotaRead,
+    ObjectStorageQuotaReadPublic,
 )
 from fed_reg.region.schemas import RegionRead, RegionReadPublic
 from fed_reg.service.constants import DOC_EXT_REG
@@ -45,6 +47,8 @@ from fed_reg.service.schemas import (
     ComputeServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
+    ObjectStorageServiceRead,
+    ObjectStorageServiceReadPublic,
 )
 from fed_reg.sla.constants import DOC_EXT_GROUP
 from fed_reg.sla.schemas import SLARead, SLAReadPublic
@@ -130,6 +134,36 @@ class NetworkServiceReadExtended(NetworkServiceRead):
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     """Model to extend the Network Service public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        region (RegionReadPublic): Region hosting this service.
+    """
+
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
+
+
+class ObjectStorageServiceReadExtended(ObjectStorageServiceRead):
+    """Model to extend the Object Storage Service data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionRead): Region hosting this service.
+    """
+
+    region: RegionRead = Field(description=DOC_EXT_REG)
+
+
+class ObjectStorageServiceReadExtendedPublic(ObjectStorageServiceReadPublic):
+    """Model to extend the Object Storage Service public data read from the DB.
 
     Attributes:
     ----------
@@ -245,6 +279,36 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
+class ObjectStorageQuotaReadExtended(ObjectStorageQuotaRead):
+    """Model to extend the Object Storage Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        service (ObjectStorageServiceReadExtended): Target service. Same type of quota.
+    """
+
+    service: ObjectStorageServiceReadExtended = Field(description=DOC_EXT_SERV)
+
+
+class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
+    """Model to extend the Object Storage Quota public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+        service (ObjectStorageServiceReadExtendedPublic): Target service. Same type of
+            quota.
+    """
+
+    service: ObjectStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+
+
 class UserGroupReadExtended(UserGroupRead):
     """Model to extend the User Group data read from the DB.
 
@@ -331,6 +395,7 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
         ComputeQuotaReadExtended
         | BlockStorageQuotaReadExtended
         | NetworkQuotaReadExtended
+        | ObjectStorageQuotaReadExtended
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtended] = Field(default=None, description=DOC_EXT_SLA)
 
@@ -374,6 +439,7 @@ class ProjectReadExtendedPublic(
         ComputeQuotaReadExtendedPublic
         | BlockStorageQuotaReadExtendedPublic
         | NetworkQuotaReadExtendedPublic
+        | ObjectStorageQuotaReadExtendedPublic
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtendedPublic] = Field(default=None, description=DOC_EXT_SLA)
 
