@@ -127,3 +127,24 @@ class NetworkService(Service):
         "fed_reg.quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
     region = RelationshipFrom("fed_reg.region.models.Region", "SUPPLY", cardinality=One)
+
+
+class ObjectStorageService(Service):
+    """Service managing Object Storage resources.
+
+    An Object Storage Service, for each project, support a set of quotas managing the
+    object storage resources.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+    """
+
+    quotas = RelationshipFrom(
+        "fed_reg.quota.models.ObjectStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
+    )
+    region = RelationshipFrom("fed_reg.region.models.Region", "SUPPLY", cardinality=One)
