@@ -118,9 +118,9 @@ class ImageReadExtendedPublic(ImageReadPublic, BaseReadPublicExtended):
 
 
 class ImageReadSingle(BaseModel):
-    __root__: ImageReadExtended | ImageRead | ImageReadExtendedPublic | ImageReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        ImageReadExtended | ImageRead | ImageReadExtendedPublic | ImageReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class ImageReadMulti(BaseModel):

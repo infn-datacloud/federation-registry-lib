@@ -71,9 +71,9 @@ class RegionReadExtendedPublic(RegionReadPublic, BaseReadPublicExtended):
 
 
 class RegionReadSingle(BaseModel):
-    __root__: RegionReadExtended | RegionRead | RegionReadExtendedPublic | RegionReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        RegionReadExtended | RegionRead | RegionReadExtendedPublic | RegionReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class RegionReadMulti(BaseModel):

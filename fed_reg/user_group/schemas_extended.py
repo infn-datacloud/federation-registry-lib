@@ -112,9 +112,12 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic, BaseReadPublicExtended):
 
 
 class UserGroupReadSingle(BaseModel):
-    __root__: UserGroupReadExtended | UserGroupRead | UserGroupReadExtendedPublic | UserGroupReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        UserGroupReadExtended
+        | UserGroupRead
+        | UserGroupReadExtendedPublic
+        | UserGroupReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class UserGroupReadMulti(BaseModel):

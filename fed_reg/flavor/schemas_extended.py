@@ -120,9 +120,9 @@ class FlavorReadExtendedPublic(FlavorReadPublic, BaseReadPublicExtended):
 
 
 class FlavorReadSingle(BaseModel):
-    __root__: FlavorReadExtended | FlavorRead | FlavorReadExtendedPublic | FlavorReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        FlavorReadExtended | FlavorRead | FlavorReadExtendedPublic | FlavorReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class FlavorReadMulti(BaseModel):

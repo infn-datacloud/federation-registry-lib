@@ -383,9 +383,12 @@ class ProjectReadExtendedPublic(ProjectReadPublic, BaseReadPublicExtended):
 
 
 class ProjectReadSingle(BaseModel):
-    __root__: ProjectReadExtended | ProjectRead | ProjectReadExtendedPublic | ProjectReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        ProjectReadExtended
+        | ProjectRead
+        | ProjectReadExtendedPublic
+        | ProjectReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class ProjectReadMulti(BaseModel):

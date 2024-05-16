@@ -42,9 +42,12 @@ class LocationReadExtendedPublic(LocationReadPublic, BaseReadPublicExtended):
 
 
 class LocationReadSingle(BaseModel):
-    __root__: LocationReadExtended | LocationRead | LocationReadExtendedPublic | LocationReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        LocationReadExtended
+        | LocationRead
+        | LocationReadExtendedPublic
+        | LocationReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class LocationReadMulti(BaseModel):

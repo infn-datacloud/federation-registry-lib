@@ -262,9 +262,12 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic, BaseReadPublicExten
 
 
 class BlockStorageQuotaReadSingle(BaseModel):
-    __root__: BlockStorageQuotaReadExtended | BlockStorageQuotaRead | BlockStorageQuotaReadExtendedPublic | BlockStorageQuotaReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        BlockStorageQuotaReadExtended
+        | BlockStorageQuotaRead
+        | BlockStorageQuotaReadExtendedPublic
+        | BlockStorageQuotaReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class BlockStorageQuotaReadMulti(BaseModel):
@@ -274,9 +277,12 @@ class BlockStorageQuotaReadMulti(BaseModel):
 
 
 class ComputeQuotaReadSingle(BaseModel):
-    __root__: ComputeQuotaReadExtended | ComputeQuotaRead | ComputeQuotaReadExtendedPublic | ComputeQuotaReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        ComputeQuotaReadExtended
+        | ComputeQuotaRead
+        | ComputeQuotaReadExtendedPublic
+        | ComputeQuotaReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class ComputeQuotaReadMulti(BaseModel):
@@ -286,9 +292,12 @@ class ComputeQuotaReadMulti(BaseModel):
 
 
 class NetworkQuotaReadSingle(BaseModel):
-    __root__: NetworkQuotaReadExtended | NetworkQuotaRead | NetworkQuotaReadExtendedPublic | NetworkQuotaReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        NetworkQuotaReadExtended
+        | NetworkQuotaRead
+        | NetworkQuotaReadExtendedPublic
+        | NetworkQuotaReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class NetworkQuotaReadMulti(BaseModel):

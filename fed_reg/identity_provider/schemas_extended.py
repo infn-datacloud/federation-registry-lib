@@ -86,9 +86,12 @@ class IdentityProviderReadExtendedPublic(
 
 
 class IdentityProviderReadSingle(BaseModel):
-    __root__: IdentityProviderReadExtended | IdentityProviderRead | IdentityProviderReadExtendedPublic | IdentityProviderReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        IdentityProviderReadExtended
+        | IdentityProviderRead
+        | IdentityProviderReadExtendedPublic
+        | IdentityProviderReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class IdentityProviderReadMulti(BaseModel):

@@ -366,9 +366,12 @@ class ProviderReadExtendedPublic(ProviderReadPublic, BaseReadPublicExtended):
 
 
 class ProviderReadSingle(BaseModel):
-    __root__: ProviderReadExtended | ProviderRead | ProviderReadExtendedPublic | ProviderReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        ProviderReadExtended
+        | ProviderRead
+        | ProviderReadExtendedPublic
+        | ProviderReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class ProviderReadMulti(BaseModel):

@@ -325,9 +325,12 @@ class NetworkServiceReadExtendedPublic(
 
 
 class BlockStorageServiceReadSingle(BaseModel):
-    __root__: BlockStorageServiceReadExtended | BlockStorageServiceRead | BlockStorageServiceReadExtendedPublic | BlockStorageServiceReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        BlockStorageServiceReadExtended
+        | BlockStorageServiceRead
+        | BlockStorageServiceReadExtendedPublic
+        | BlockStorageServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class BlockStorageServiceReadMulti(BaseModel):
@@ -339,9 +342,12 @@ class BlockStorageServiceReadMulti(BaseModel):
 
 
 class ComputeServiceReadSingle(BaseModel):
-    __root__: ComputeServiceReadExtended | ComputeServiceRead | ComputeServiceReadExtendedPublic | ComputeServiceReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        ComputeServiceReadExtended
+        | ComputeServiceRead
+        | ComputeServiceReadExtendedPublic
+        | ComputeServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class ComputeServiceReadMulti(BaseModel):
@@ -351,9 +357,12 @@ class ComputeServiceReadMulti(BaseModel):
 
 
 class IdentityServiceReadSingle(BaseModel):
-    __root__: IdentityServiceReadExtended | IdentityServiceRead | IdentityServiceReadExtendedPublic | IdentityServiceReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        IdentityServiceReadExtended
+        | IdentityServiceRead
+        | IdentityServiceReadExtendedPublic
+        | IdentityServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class IdentityServiceReadMulti(BaseModel):
@@ -363,9 +372,12 @@ class IdentityServiceReadMulti(BaseModel):
 
 
 class NetworkServiceReadSingle(BaseModel):
-    __root__: NetworkServiceReadExtended | NetworkServiceRead | NetworkServiceReadExtendedPublic | NetworkServiceReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        NetworkServiceReadExtended
+        | NetworkServiceRead
+        | NetworkServiceReadExtendedPublic
+        | NetworkServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class NetworkServiceReadMulti(BaseModel):

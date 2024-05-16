@@ -113,9 +113,12 @@ class NetworkReadExtendedPublic(NetworkReadPublic, BaseReadPublicExtended):
 
 
 class NetworkReadSingle(BaseModel):
-    __root__: NetworkReadExtended | NetworkRead | NetworkReadExtendedPublic | NetworkReadPublic = Field(
-        ..., discriminator="schema_type"
-    )
+    __root__: (
+        NetworkReadExtended
+        | NetworkRead
+        | NetworkReadExtendedPublic
+        | NetworkReadPublic
+    ) = Field(..., discriminator="schema_type")
 
 
 class NetworkReadMulti(BaseModel):
