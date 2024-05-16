@@ -264,7 +264,7 @@ class IdentityServiceReadExtended(IdentityServiceRead, BaseReadPrivateExtended):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
 class IdentityServiceReadExtendedPublic(
@@ -280,7 +280,7 @@ class IdentityServiceReadExtendedPublic(
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtended(NetworkServiceRead, BaseReadPrivateExtended):
