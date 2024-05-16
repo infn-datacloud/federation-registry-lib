@@ -1,5 +1,4 @@
 """Region REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
@@ -35,7 +34,7 @@ def valid_region_id(region_uid: str) -> Region:
 
 
 def is_unique_region(
-    item: Union[RegionCreate, RegionUpdate],
+    item: RegionCreate | RegionUpdate,
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
     """Check given data are valid ones.

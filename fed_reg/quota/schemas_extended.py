@@ -1,5 +1,5 @@
 """Pydantic extended models of the Resource limitations for Projects on Services."""
-from typing import List
+
 from pydantic import BaseModel, Field
 
 from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
@@ -268,9 +268,9 @@ class BlockStorageQuotaReadSingle(BaseModel):
 
 
 class BlockStorageQuotaReadMulti(BaseModel):
-    __root__: List[BlockStorageQuotaReadExtended] | List[BlockStorageQuotaRead] | List[
+    __root__: list[BlockStorageQuotaReadExtended] | list[BlockStorageQuotaRead] | list[
         BlockStorageQuotaReadExtendedPublic
-    ] | List[BlockStorageQuotaReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[BlockStorageQuotaReadPublic] = Field(..., discriminator="schema_type")
 
 
 class ComputeQuotaReadSingle(BaseModel):
@@ -280,9 +280,9 @@ class ComputeQuotaReadSingle(BaseModel):
 
 
 class ComputeQuotaReadMulti(BaseModel):
-    __root__: List[ComputeQuotaReadExtended] | List[ComputeQuotaRead] | List[
+    __root__: list[ComputeQuotaReadExtended] | list[ComputeQuotaRead] | list[
         ComputeQuotaReadExtendedPublic
-    ] | List[ComputeQuotaReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[ComputeQuotaReadPublic] = Field(..., discriminator="schema_type")
 
 
 class NetworkQuotaReadSingle(BaseModel):
@@ -292,6 +292,6 @@ class NetworkQuotaReadSingle(BaseModel):
 
 
 class NetworkQuotaReadMulti(BaseModel):
-    __root__: List[NetworkQuotaReadExtended] | List[NetworkQuotaRead] | List[
+    __root__: list[NetworkQuotaReadExtended] | list[NetworkQuotaRead] | list[
         NetworkQuotaReadExtendedPublic
-    ] | List[NetworkQuotaReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[NetworkQuotaReadPublic] = Field(..., discriminator="schema_type")

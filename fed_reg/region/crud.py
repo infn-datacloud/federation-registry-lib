@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for a Region."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.location.crud import location_mng
@@ -97,8 +97,8 @@ class CRUDRegion(
         self,
         *,
         db_obj: Region,
-        obj_in: Union[RegionCreateExtended, RegionUpdate],
-        projects: Optional[List[Project]] = None,
+        obj_in: RegionCreateExtended | RegionUpdate,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[Region]:
         """Update Region attributes.
@@ -178,7 +178,7 @@ class CRUDRegion(
         *,
         db_obj: Region,
         obj_in: RegionCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update region linked block storage services.
 
@@ -217,7 +217,7 @@ class CRUDRegion(
         *,
         db_obj: Region,
         obj_in: RegionCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update region linked compute services.
 
@@ -289,7 +289,7 @@ class CRUDRegion(
         *,
         db_obj: Region,
         obj_in: RegionCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update region linked network services.
 

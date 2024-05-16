@@ -1,5 +1,4 @@
 """Network REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
@@ -35,7 +34,7 @@ def valid_network_id(network_uid: str) -> Network:
 
 
 def valid_network_uuid(
-    item: Union[NetworkCreate, NetworkUpdate],
+    item: NetworkCreate | NetworkUpdate,
     service: NetworkService = Depends(valid_network_service_id),
 ) -> None:
     """Check given data are valid ones.

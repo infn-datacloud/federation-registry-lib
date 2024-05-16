@@ -1,5 +1,5 @@
 """Pydantic extended models of the Virtual Machine Network owned by a Provider."""
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -85,7 +85,7 @@ class NetworkReadExtended(NetworkRead, BaseReadPrivateExtended):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
+        tags (list of str): list of tags associated to this Network.
         project (ProjectRead | None): Project having access to this network if the
             network is not shared.
         service (NetworkServiceReadExtended): Network Service supplying this network.
@@ -119,6 +119,6 @@ class NetworkReadSingle(BaseModel):
 
 
 class NetworkReadMulti(BaseModel):
-    __root__: List[NetworkReadExtended] | List[NetworkRead] | List[
+    __root__: list[NetworkReadExtended] | list[NetworkRead] | list[
         NetworkReadExtendedPublic
-    ] | List[NetworkReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[NetworkReadPublic] = Field(..., discriminator="schema_type")

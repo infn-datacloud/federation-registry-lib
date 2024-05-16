@@ -1,5 +1,5 @@
 """Pydantic extended models of the User Group owned by an Identity Provider."""
-from typing import List
+
 
 from pydantic import BaseModel, Field
 
@@ -60,7 +60,7 @@ class SLAReadExtended(SLARead):
         projects (list of ProjectReadExtended): Target projects.
     """
 
-    projects: List[ProjectReadExtended] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectReadExtended] = Field(description=DOC_EXT_PROJ)
 
 
 class SLAReadExtendedPublic(SLAReadPublic):
@@ -74,7 +74,7 @@ class SLAReadExtendedPublic(SLAReadPublic):
         projects (list of ProjectReadExtended): Target projects.
     """
 
-    projects: List[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
 
 
 class UserGroupReadExtended(UserGroupRead, BaseReadPrivateExtended):
@@ -91,7 +91,7 @@ class UserGroupReadExtended(UserGroupRead, BaseReadPrivateExtended):
     """
 
     identity_provider: IdentityProviderRead = Field(description=DOC_EXT_IDP)
-    slas: List[SLAReadExtended] = Field(description=DOC_EXT_SLA)
+    slas: list[SLAReadExtended] = Field(description=DOC_EXT_SLA)
 
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic, BaseReadPublicExtended):
@@ -108,7 +108,7 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic, BaseReadPublicExtended):
     """
 
     identity_provider: IdentityProviderReadPublic = Field(description=DOC_EXT_IDP)
-    slas: List[SLAReadExtendedPublic] = Field(description=DOC_EXT_SLA)
+    slas: list[SLAReadExtendedPublic] = Field(description=DOC_EXT_SLA)
 
 
 class UserGroupReadSingle(BaseModel):
@@ -118,6 +118,6 @@ class UserGroupReadSingle(BaseModel):
 
 
 class UserGroupReadMulti(BaseModel):
-    __root__: List[UserGroupReadExtended] | List[UserGroupRead] | List[
+    __root__: list[UserGroupReadExtended] | list[UserGroupRead] | list[
         UserGroupReadExtendedPublic
-    ] | List[UserGroupReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[UserGroupReadPublic] = Field(..., discriminator="schema_type")

@@ -1,5 +1,4 @@
 """SLA REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
@@ -32,7 +31,7 @@ def valid_sla_id(sla_uid: str) -> SLA:
     return item
 
 
-def is_unique_sla(item: Union[SLACreate, SLAUpdate]) -> None:
+def is_unique_sla(item: SLACreate | SLAUpdate) -> None:
     """Check there are no other SLAs with the same document uuid.
 
     Args:

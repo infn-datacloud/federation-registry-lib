@@ -56,13 +56,11 @@ from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas import (
     ProviderQuery,
     ProviderRead,
-    ProviderReadPublic,
     ProviderUpdate,
 )
 from fed_reg.provider.schemas_extended import (
     ProviderCreateExtended,
     ProviderReadExtended,
-    ProviderReadExtendedPublic,
     ProviderReadMulti,
     ProviderReadSingle,
 )
@@ -450,11 +448,9 @@ def delete_providers(
 # @db.write_transaction
 # @router.post(
 #     "/{provider_uid}/services/",
-#     response_model=Union[
-#         BlockStorageServiceReadExtended,
-#         IdentityServiceReadExtended,
+#     response_model=         BlockStorageServiceReadExtended|
+#         IdentityServiceReadExtended|
 #         ComputeServiceReadExtended,
-#     ],
 #     status_code=status.HTTP_201_CREATED,
 #       # , Depends(valid_service_endpoint)],
 #     summary="Add new service to provider",
@@ -466,12 +462,10 @@ def delete_providers(
 #         no other items with the given *name* or *uuid*.",
 # )
 # def add_service_to_provider(
-#     item: Union[
-#         BlockStorageServiceCreate,
-#         IdentityServiceCreate,
-#         ComputeServiceCreate,
+#     item: BlockStorageServiceCreate|
+#         IdentityServiceCreate|
+#         ComputeServiceCreate|
 #         NetworkServiceCreate,
-#     ],
 #     provider: Provider = Depends(valid_provider_id),
 # ):
 #     if isinstance(item, BlockStorageServiceCreate):

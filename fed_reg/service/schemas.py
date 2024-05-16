@@ -3,7 +3,13 @@ from typing import Literal, Optional
 
 from pydantic import AnyHttpUrl, Field, validator
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.query import create_query_model
 from fed_reg.service.constants import DOC_ENDP, DOC_NAME
 from fed_reg.service.enum import (

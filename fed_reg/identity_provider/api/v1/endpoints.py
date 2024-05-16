@@ -28,12 +28,9 @@ from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.identity_provider.schemas import (
     IdentityProviderQuery,
     IdentityProviderRead,
-    IdentityProviderReadPublic,
     IdentityProviderUpdate,
 )
 from fed_reg.identity_provider.schemas_extended import (
-    IdentityProviderReadExtended,
-    IdentityProviderReadExtendedPublic,
     IdentityProviderReadMulti,
     IdentityProviderReadSingle,
 )

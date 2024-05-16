@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, Union
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -116,7 +116,7 @@ def test_network_default_attr() -> None:
 
 @parametrize_with_cases("item", cases=CaseQuotaEmpty)
 def test_missing_attr(
-    item: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
+    item: BlockStorageQuota | ComputeQuota | NetworkQuota,
 ) -> None:
     with pytest.raises(RequiredProperty):
         item.save()
@@ -163,7 +163,7 @@ def test_network_attr(key: str, value: Any) -> None:
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_required_rel(
-    quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota,
 ) -> None:
     with pytest.raises(CardinalityViolation):
         quota_model.service.all()
@@ -177,7 +177,7 @@ def test_required_rel(
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_linked_project(
-    quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota,
     project_model: Project,
 ) -> None:
     assert quota_model.project.name
@@ -198,7 +198,7 @@ def test_linked_project(
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_multiple_linked_projects(
-    quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota,
 ) -> None:
     item = Project(**project_model_dict()).save()
     quota_model.project.connect(item)

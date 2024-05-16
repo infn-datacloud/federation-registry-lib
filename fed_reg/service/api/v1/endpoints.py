@@ -51,36 +51,24 @@ from fed_reg.service.models import (
 from fed_reg.service.schemas import (
     BlockStorageServiceQuery,
     BlockStorageServiceRead,
-    BlockStorageServiceReadPublic,
     BlockStorageServiceUpdate,
     ComputeServiceQuery,
     ComputeServiceRead,
-    ComputeServiceReadPublic,
     ComputeServiceUpdate,
     IdentityServiceQuery,
     IdentityServiceRead,
-    IdentityServiceReadPublic,
     IdentityServiceUpdate,
     NetworkServiceQuery,
     NetworkServiceRead,
-    NetworkServiceReadPublic,
     NetworkServiceUpdate,
 )
 from fed_reg.service.schemas_extended import (
-    BlockStorageServiceReadExtended,
-    BlockStorageServiceReadExtendedPublic,
     BlockStorageServiceReadMulti,
     BlockStorageServiceReadSingle,
-    ComputeServiceReadExtended,
-    ComputeServiceReadExtendedPublic,
     ComputeServiceReadMulti,
     ComputeServiceReadSingle,
-    IdentityServiceReadExtended,
-    IdentityServiceReadExtendedPublic,
     IdentityServiceReadMulti,
     IdentityServiceReadSingle,
-    NetworkServiceReadExtended,
-    NetworkServiceReadExtendedPublic,
     NetworkServiceReadMulti,
     NetworkServiceReadSingle,
 )
@@ -718,13 +706,11 @@ def delete_network_services(
 # @db.read_transaction
 # @router.get(
 #     "/{service_uid}/identity_providers",
-#     response_model=Union[
-#         List[IdentityProviderReadExtended],
-#         List[IdentityProviderRead],
-#         List[IdentityProviderReadShort],
-#         List[IdentityProviderReadExtendedPublic],
-#         List[IdentityProviderReadPublic],
-#     ],
+#     response_model=     list[IdentityProviderReadExtended]|
+#         list[IdentityProviderRead]|
+#         list[IdentityProviderReadShort]|
+#         list[IdentityProviderReadExtendedPublic]|
+#         list[IdentityProviderReadPublic],
 #     summary="Read service accessible identity providers",
 #     description="Retrieve all the identity providers the \
 #         service has access to. \

@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for a Quotas."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.project.models import Project
@@ -67,8 +67,8 @@ class CRUDBlockStorageQuota(
         self,
         *,
         db_obj: BlockStorageQuota,
-        obj_in: Union[BlockStorageQuotaCreateExtended, BlockStorageQuotaUpdate],
-        projects: Optional[List[Project]] = None,
+        obj_in: BlockStorageQuotaCreateExtended | BlockStorageQuotaUpdate,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[BlockStorageQuota]:
         """Update Quota attributes.
@@ -128,8 +128,8 @@ class CRUDComputeQuota(
         self,
         *,
         db_obj: ComputeQuota,
-        obj_in: Union[ComputeQuotaCreateExtended, ComputeQuotaUpdate],
-        projects: Optional[List[Project]] = None,
+        obj_in: ComputeQuotaCreateExtended | ComputeQuotaUpdate,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[ComputeQuota]:
         """Update Quota attributes.
@@ -189,8 +189,8 @@ class CRUDNetworkQuota(
         self,
         *,
         db_obj: NetworkQuota,
-        obj_in: Union[NetworkQuotaCreateExtended, NetworkQuotaUpdate],
-        projects: Optional[List[Project]] = None,
+        obj_in: NetworkQuotaCreateExtended | NetworkQuotaUpdate,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[NetworkQuota]:
         """Update Quota attributes.

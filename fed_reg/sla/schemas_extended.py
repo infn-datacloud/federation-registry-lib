@@ -1,5 +1,5 @@
 """Pydantic extended models of the SLA between a Project and a User Group."""
-from typing import List
+
 
 from pydantic import BaseModel, Field
 
@@ -91,7 +91,7 @@ class SLAReadExtended(SLARead, BaseReadPrivateExtended):
         user_group (UserGroupReadExtended): Target user group.
     """
 
-    projects: List[ProjectReadExtended] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectReadExtended] = Field(description=DOC_EXT_PROJ)
     user_group: UserGroupReadExtended = Field(description=DOC_EXT_GROUP)
 
 
@@ -107,7 +107,7 @@ class SLAReadExtendedPublic(SLAReadPublic, BaseReadPublicExtended):
         user_group (UserGroupReadExtendedPublic): Target user group.
     """
 
-    projects: List[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
@@ -118,6 +118,6 @@ class SLAReadSingle(BaseModel):
 
 
 class SLAReadMulti(BaseModel):
-    __root__: List[SLAReadExtended] | List[SLARead] | List[
+    __root__: list[SLAReadExtended] | list[SLARead] | list[
         SLAReadExtendedPublic
-    ] | List[SLAReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[SLAReadPublic] = Field(..., discriminator="schema_type")

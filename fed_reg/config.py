@@ -2,7 +2,7 @@
 import os
 from enum import Enum
 from functools import lru_cache
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from neomodel import config
 from pydantic import AnyHttpUrl, AnyUrl, BaseSettings, EmailStr, Field, validator
@@ -69,8 +69,8 @@ class Settings(BaseSettings):
     MAINTAINER_URL: Optional[AnyHttpUrl] = None
     MAINTAINER_EMAIL: Optional[EmailStr] = None
 
-    ADMIN_EMAIL_LIST: List[EmailStr] = []
-    TRUSTED_IDP_LIST: List[AnyHttpUrl] = []
+    ADMIN_EMAIL_LIST: list[EmailStr] = []
+    TRUSTED_IDP_LIST: list[AnyHttpUrl] = []
 
     DOC_V1_URL: Optional[AnyHttpUrl] = None
 
@@ -88,7 +88,7 @@ class Settings(BaseSettings):
     # e.g: '["http://localhost", "http://localhost:4200",
     # "http://localhost:3000", "http://localhost:8080",
     # "http://local.dockertoolbox.tiangolo.com"]'
-    # BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = ["http://localhost:3000"]
+    # BACKEND_CORS_ORIGINS: list[AnyHttpUrl] = ["http://localhost:3000"]
 
     class Config:
         """Sub class to set attribute as case sensitive."""

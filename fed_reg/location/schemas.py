@@ -11,7 +11,13 @@ from fed_reg.location.constants import (
     DOC_LONG,
     DOC_SITE,
 )
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.query import create_query_model
 
 

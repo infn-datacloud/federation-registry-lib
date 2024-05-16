@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for a Flavor."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.flavor.models import Flavor
@@ -33,7 +33,7 @@ class CRUDFlavor(
         *,
         obj_in: FlavorCreateExtended,
         service: ComputeService,
-        projects: Optional[List[Project]] = None,
+        projects: Optional[list[Project]] = None,
     ) -> Flavor:
         """Create a new Flavor.
 
@@ -68,8 +68,8 @@ class CRUDFlavor(
         self,
         *,
         db_obj: Flavor,
-        obj_in: Union[FlavorUpdate, FlavorCreateExtended],
-        projects: Optional[List[Project]] = None,
+        obj_in: FlavorUpdate | FlavorCreateExtended,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[Flavor]:
         """Update Flavor attributes.
@@ -96,7 +96,7 @@ class CRUDFlavor(
         *,
         obj_in: FlavorCreateExtended,
         db_obj: Flavor,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update flavor linked projects.
 

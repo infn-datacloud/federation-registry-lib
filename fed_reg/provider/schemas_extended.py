@@ -1,5 +1,5 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, Optional, Set
 
 from pydantic import BaseModel, Field, root_validator, validator
 
@@ -91,7 +91,7 @@ class UserGroupReadExtended(UserGroupRead):
         slas (list of SLARead): Owned SLAs.
     """
 
-    slas: List[SLARead] = Field(default_factory=list, description=DOC_EXT_SLA)
+    slas: list[SLARead] = Field(default_factory=list, description=DOC_EXT_SLA)
 
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
@@ -105,7 +105,7 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
         slas (list of SLARead): Owned SLAs.
     """
 
-    slas: List[SLAReadPublic] = Field(default_factory=list, description=DOC_EXT_SLA)
+    slas: list[SLAReadPublic] = Field(default_factory=list, description=DOC_EXT_SLA)
 
 
 class IdentityProviderReadExtended(IdentityProviderRead):
@@ -124,7 +124,7 @@ class IdentityProviderReadExtended(IdentityProviderRead):
     """
 
     relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
-    user_groups: List[UserGroupReadExtended] = Field(
+    user_groups: list[UserGroupReadExtended] = Field(
         default_factory=list, description=DOC_EXT_GROUP
     )
 
@@ -143,7 +143,7 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
     """
 
     relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
-    user_groups: List[UserGroupReadExtendedPublic] = Field(
+    user_groups: list[UserGroupReadExtendedPublic] = Field(
         default_factory=list, description=DOC_EXT_GROUP
     )
 
@@ -161,7 +161,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
         quotas (list of BlockStorageQuotaReadExtended): Quotas pointing to this service.
     """
 
-    quotas: List[BlockStorageQuotaRead] = Field(
+    quotas: list[BlockStorageQuotaRead] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
@@ -179,7 +179,7 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
             service.
     """
 
-    quotas: List[BlockStorageQuotaReadPublic] = Field(
+    quotas: list[BlockStorageQuotaReadPublic] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
@@ -199,9 +199,9 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         quotas (list of ComputeQuotaReadExtended): Quotas pointing to this service.
     """
 
-    flavors: List[FlavorRead] = Field(default_factory=list, description=DOC_EXT_FLAV)
-    images: List[ImageRead] = Field(default_factory=list, description=DOC_EXT_IMAG)
-    quotas: List[ComputeQuotaRead] = Field(
+    flavors: list[FlavorRead] = Field(default_factory=list, description=DOC_EXT_FLAV)
+    images: list[ImageRead] = Field(default_factory=list, description=DOC_EXT_IMAG)
+    quotas: list[ComputeQuotaRead] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
@@ -220,13 +220,13 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
             service.
     """
 
-    flavors: List[FlavorReadPublic] = Field(
+    flavors: list[FlavorReadPublic] = Field(
         default_factory=list, description=DOC_EXT_FLAV
     )
-    images: List[ImageReadPublic] = Field(
+    images: list[ImageReadPublic] = Field(
         default_factory=list, description=DOC_EXT_IMAG
     )
-    quotas: List[ComputeQuotaReadPublic] = Field(
+    quotas: list[ComputeQuotaReadPublic] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
@@ -246,8 +246,8 @@ class NetworkServiceReadExtended(NetworkServiceRead):
             service.
     """
 
-    networks: List[NetworkRead] = Field(default_factory=list, description=DOC_EXT_NETW)
-    quotas: List[NetworkQuotaRead] = Field(
+    networks: list[NetworkRead] = Field(default_factory=list, description=DOC_EXT_NETW)
+    quotas: list[NetworkQuotaRead] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
@@ -265,10 +265,10 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
             service.
     """
 
-    networks: List[NetworkReadPublic] = Field(
+    networks: list[NetworkReadPublic] = Field(
         default_factory=list, description=DOC_EXT_NETW
     )
-    quotas: List[NetworkQuotaReadPublic] = Field(
+    quotas: list[NetworkQuotaReadPublic] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
@@ -287,13 +287,11 @@ class RegionReadExtended(RegionRead):
     """
 
     location: Optional[LocationRead] = Field(default=None, description=DOC_EXT_LOC)
-    services: List[
-        Union[
-            BlockStorageServiceReadExtended,
-            ComputeServiceReadExtended,
-            IdentityServiceRead,
-            NetworkServiceReadExtended,
-        ]
+    services: list[
+        BlockStorageServiceReadExtended
+        | ComputeServiceReadExtended
+        | IdentityServiceRead
+        | NetworkServiceReadExtended
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
@@ -313,13 +311,11 @@ class RegionReadExtendedPublic(RegionReadPublic):
     location: Optional[LocationReadPublic] = Field(
         default=None, description=DOC_EXT_LOC
     )
-    services: List[
-        Union[
-            BlockStorageServiceReadExtendedPublic,
-            ComputeServiceReadExtendedPublic,
-            IdentityServiceReadPublic,
-            NetworkServiceReadExtendedPublic,
-        ]
+    services: list[
+        BlockStorageServiceReadExtendedPublic
+        | ComputeServiceReadExtendedPublic
+        | IdentityServiceReadPublic
+        | NetworkServiceReadExtendedPublic
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
@@ -334,18 +330,18 @@ class ProviderReadExtended(ProviderRead, BaseReadPrivateExtended):
         type (str): Provider type.
         status (str | None): Provider status.
         is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
+        support_email (list of str): list of maintainers emails.
         identity_providers (list of IdentityProviderReadExtended): Supported identity
             providers.
         projects (list of ProjectRead): Supplied projects.
         regions (list of RegionReadExtended): Supplied regions.
     """
 
-    identity_providers: List[IdentityProviderReadExtended] = Field(
+    identity_providers: list[IdentityProviderReadExtended] = Field(
         description=DOC_EXT_IDP
     )
-    projects: List[ProjectRead] = Field(description=DOC_EXT_PROJ)
-    regions: List[RegionReadExtended] = Field(description=DOC_EXT_REG)
+    projects: list[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic, BaseReadPublicExtended):
@@ -362,11 +358,11 @@ class ProviderReadExtendedPublic(ProviderReadPublic, BaseReadPublicExtended):
         projects (list of RegionReadExtendedPublic): Supplied regions.
     """
 
-    identity_providers: List[IdentityProviderReadExtendedPublic] = Field(
+    identity_providers: list[IdentityProviderReadExtendedPublic] = Field(
         description=DOC_EXT_IDP
     )
-    projects: List[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
-    regions: List[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+    projects: list[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
 class ProviderReadSingle(BaseModel):
@@ -376,9 +372,9 @@ class ProviderReadSingle(BaseModel):
 
 
 class ProviderReadMulti(BaseModel):
-    __root__: List[ProviderReadExtended] | List[ProviderRead] | List[
+    __root__: list[ProviderReadExtended] | list[ProviderRead] | list[
         ProviderReadExtendedPublic
-    ] | List[ProviderReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[ProviderReadPublic] = Field(..., discriminator="schema_type")
 
 
 # CREATE CLASSES
@@ -403,7 +399,7 @@ def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
         assert len(dupes) == 0, f"There are multiple identical items: {','.join(dupes)}"
 
 
-def multiple_quotas_same_project(quotas: List[Any]) -> None:
+def multiple_quotas_same_project(quotas: list[Any]) -> None:
     """Verify maximum number of quotas on same project.
 
     A project can have at most one `project` quota and one `per-user` quota on a
@@ -434,7 +430,7 @@ def find_duplicate_slas(doc_uuid: str, seen: Set[str]) -> None:
 
 
 def proj_in_provider(
-    project: Optional[str], projects: List[str], *, parent: str
+    project: Optional[str], projects: list[str], *, parent: str
 ) -> None:
     """Verify project is in projects list."""
     if project:
@@ -486,13 +482,13 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
     """
 
     relationship: AuthMethodCreate = Field(description=DOC_EXT_AUTH_METH)
-    user_groups: List[UserGroupCreateExtended] = Field(description=DOC_NEW_GROUP)
+    user_groups: list[UserGroupCreateExtended] = Field(description=DOC_NEW_GROUP)
 
     @validator("user_groups")
     @classmethod
     def validate_user_groups(
-        cls, v: List[UserGroupCreateExtended]
-    ) -> List[UserGroupCreateExtended]:
+        cls, v: list[UserGroupCreateExtended]
+    ) -> list[UserGroupCreateExtended]:
         """Check user group list content.
 
         Verify the list is not empty and there are no duplicates.
@@ -584,15 +580,15 @@ class FlavorCreateExtended(FlavorCreate):
         gpu_model (str | None): GPU model name.
         gpu_vendor (str | None): Name of the GPU vendor.
         local_storage (str | None): Local storage presence.
-        projects (list of str): List of project' UUIDs in the Provider having access to
+        projects (list of str): list of project' UUIDs in the Provider having access to
             the resource.
     """
 
-    projects: List[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
+    projects: list[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
 
     @validator("projects")
     @classmethod
-    def validate_projects(cls, v: List[str]) -> List[str]:
+    def validate_projects(cls, v: list[str]) -> list[str]:
         """Cast to string possible UUIDs and verify there are no duplicate values."""
         find_duplicates(v)
         return v
@@ -632,16 +628,16 @@ class ImageCreateExtended(ImageCreate):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
-        tags (list of str): List of tags associated to this Image.
-        projects (list of str): List of project' UUIDs in the Provider having access to
+        tags (list of str): list of tags associated to this Image.
+        projects (list of str): list of project' UUIDs in the Provider having access to
             the resource.
     """
 
-    projects: List[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
+    projects: list[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
 
     @validator("projects")
     @classmethod
-    def validate_projects(cls, v: List[str]) -> str:
+    def validate_projects(cls, v: list[str]) -> str:
         """Cast to string possible UUIDs and verify there are no duplicate values."""
         find_duplicates(v)
         return v
@@ -678,7 +674,7 @@ class NetworkCreateExtended(NetworkCreate):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
+        tags (list of str): list of tags associated to this Network.
         project (str | None): Target project's UUID in the Provider.
     """
 
@@ -714,15 +710,15 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
             service.
     """
 
-    quotas: List[BlockStorageQuotaCreateExtended] = Field(
+    quotas: list[BlockStorageQuotaCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
     @validator("quotas")
     @classmethod
     def max_two_quotas_on_same_project(
-        cls, v: List[BlockStorageQuotaCreateExtended]
-    ) -> List[BlockStorageQuotaCreateExtended]:
+        cls, v: list[BlockStorageQuotaCreateExtended]
+    ) -> list[BlockStorageQuotaCreateExtended]:
         """Verify maximum number of quotas on same project."""
         multiple_quotas_same_project(v)
         return v
@@ -742,21 +738,21 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
         images (list of ImageRead): Supplied images.
     """
 
-    flavors: List[FlavorCreateExtended] = Field(
+    flavors: list[FlavorCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_FLAV
     )
-    images: List[ImageCreateExtended] = Field(
+    images: list[ImageCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_IMAG
     )
-    quotas: List[ComputeQuotaCreateExtended] = Field(
+    quotas: list[ComputeQuotaCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
     @validator("flavors", "images")
     @classmethod
     def validate_flavors(
-        cls, v: Union[List[FlavorCreateExtended], List[ImageCreateExtended]]
-    ) -> Union[List[FlavorCreateExtended], List[ImageCreateExtended]]:
+        cls, v: list[FlavorCreateExtended] | list[ImageCreateExtended]
+    ) -> list[FlavorCreateExtended] | list[ImageCreateExtended]:
         """Verify there are no duplicated names or UUIDs in the flavor list."""
         find_duplicates(v, "uuid")
         find_duplicates(v, "name")
@@ -765,8 +761,8 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
     @validator("quotas")
     @classmethod
     def max_two_quotas_on_same_project(
-        cls, v: List[ComputeQuotaCreateExtended]
-    ) -> List[ComputeQuotaCreateExtended]:
+        cls, v: list[ComputeQuotaCreateExtended]
+    ) -> list[ComputeQuotaCreateExtended]:
         """Verify maximum number of quotas on same project."""
         multiple_quotas_same_project(v)
         return v
@@ -785,18 +781,18 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
         networks (list of NetworkRead): Supplied networks.
     """
 
-    networks: List[NetworkCreateExtended] = Field(
+    networks: list[NetworkCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_NETW
     )
-    quotas: List[NetworkQuotaCreateExtended] = Field(
+    quotas: list[NetworkQuotaCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
     @validator("networks")
     @classmethod
     def validate_networks(
-        cls, v: List[NetworkCreateExtended]
-    ) -> List[NetworkCreateExtended]:
+        cls, v: list[NetworkCreateExtended]
+    ) -> list[NetworkCreateExtended]:
         """Verify there are no duplicated UUIDs in the network list."""
         find_duplicates(v, "uuid")
         return v
@@ -804,8 +800,8 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
     @validator("quotas")
     @classmethod
     def max_two_quotas_on_same_project(
-        cls, v: List[NetworkQuotaCreateExtended]
-    ) -> List[NetworkQuotaCreateExtended]:
+        cls, v: list[NetworkQuotaCreateExtended]
+    ) -> list[NetworkQuotaCreateExtended]:
         """Verify maximum number of quotas on same project."""
         multiple_quotas_same_project(v)
         return v
@@ -832,16 +828,16 @@ class RegionCreateExtended(RegionCreate):
     """
 
     location: Optional[LocationCreate] = Field(default=None, description=DOC_EXT_LOC)
-    block_storage_services: List[BlockStorageServiceCreateExtended] = Field(
+    block_storage_services: list[BlockStorageServiceCreateExtended] = Field(
         default_factory=list, description=DOC_NEW_SERV_BLO_STO
     )
-    compute_services: List[ComputeServiceCreateExtended] = Field(
+    compute_services: list[ComputeServiceCreateExtended] = Field(
         default_factory=list, description=DOC_NEW_SERV_COMP
     )
-    identity_services: List[IdentityServiceCreate] = Field(
+    identity_services: list[IdentityServiceCreate] = Field(
         default_factory=list, description=DOC_NEW_SERV_ID
     )
-    network_services: List[NetworkServiceCreateExtended] = Field(
+    network_services: list[NetworkServiceCreateExtended] = Field(
         default_factory=list, description=DOC_NEW_SERV_NET
     )
 
@@ -854,18 +850,16 @@ class RegionCreateExtended(RegionCreate):
     @classmethod
     def validate_services(
         cls,
-        v: Union[
-            List[BlockStorageServiceCreateExtended],
-            List[ComputeServiceCreateExtended],
-            List[IdentityServiceCreate],
-            List[NetworkServiceCreateExtended],
-        ],
-    ) -> Union[
-        List[BlockStorageServiceCreateExtended],
-        List[ComputeServiceCreateExtended],
-        List[IdentityServiceCreate],
-        List[NetworkServiceCreateExtended],
-    ]:
+        v: list[BlockStorageServiceCreateExtended]
+        | list[ComputeServiceCreateExtended]
+        | list[IdentityServiceCreate]
+        | list[NetworkServiceCreateExtended],
+    ) -> (
+        list[BlockStorageServiceCreateExtended]
+        | list[ComputeServiceCreateExtended]
+        | list[IdentityServiceCreate]
+        | list[NetworkServiceCreateExtended]
+    ):
         """Verify there are no duplicated endpoints in the service lists."""
         find_duplicates(v, "endpoint")
         return v
@@ -881,28 +875,28 @@ class ProviderCreateExtended(ProviderCreate):
         type (str): Provider type.
         status (str | None): Provider status.
         is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
+        support_email (list of str): list of maintainers emails.
         identity_providers (list of IdentityProviderCreateExtended): Supported identity
             providers.
         projects (list of ProjectCreate): Supplied projects.
         regions (list of RegionCreateExtended): Supplied regions.
     """
 
-    projects: List[ProjectCreate] = Field(
+    projects: list[ProjectCreate] = Field(
         default_factory=list, description=DOC_EXT_PROJ
     )
-    identity_providers: List[IdentityProviderCreateExtended] = Field(
+    identity_providers: list[IdentityProviderCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_IDP
     )
-    regions: List[RegionCreateExtended] = Field(
+    regions: list[RegionCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_REG
     )
 
     @validator("identity_providers")
     @classmethod
     def validate_identity_providers(
-        cls, v: List[IdentityProviderCreateExtended], values: Dict[str, Any]
-    ) -> List[IdentityProviderCreateExtended]:
+        cls, v: list[IdentityProviderCreateExtended], values: Dict[str, Any]
+    ) -> list[IdentityProviderCreateExtended]:
         """Validate list of identity providers.
 
         Verify there are no duplicated endpoints in the identity provider list.
@@ -912,7 +906,7 @@ class ProviderCreateExtended(ProviderCreate):
         Check that the SLA's projects belong to the target provider.
         """
         find_duplicates(v, "endpoint")
-        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        projects: list[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
         seen_slas = set()
         seen_projects = set()
         for identity_provider in v:
@@ -928,7 +922,7 @@ class ProviderCreateExtended(ProviderCreate):
 
     @validator("projects")
     @classmethod
-    def validate_projects(cls, v: List[ProjectCreate]) -> List[ProjectCreate]:
+    def validate_projects(cls, v: list[ProjectCreate]) -> list[ProjectCreate]:
         """Verify there are no duplicated names and UUIDs in the project list."""
         find_duplicates(v, "uuid")
         find_duplicates(v, "name")
@@ -937,15 +931,15 @@ class ProviderCreateExtended(ProviderCreate):
     @validator("regions")
     @classmethod
     def validate_regions(
-        cls, v: List[RegionCreateExtended], values: Dict[str, Any]
-    ) -> List[RegionCreateExtended]:
+        cls, v: list[RegionCreateExtended], values: Dict[str, Any]
+    ) -> list[RegionCreateExtended]:
         """Validate list of regions.
 
         Verify there are no duplicated names in the region list.
         Verify region's services projects belong to the target provider.
         """
         find_duplicates(v, "name")
-        projects: List[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        projects: list[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
         for region in v:
             cls.__check_block_storage_service_projects(
                 region.block_storage_services, projects
@@ -956,7 +950,7 @@ class ProviderCreateExtended(ProviderCreate):
 
     @classmethod
     def __check_block_storage_service_projects(
-        cls, services: List[BlockStorageServiceCreateExtended], projects: List[str]
+        cls, services: list[BlockStorageServiceCreateExtended], projects: list[str]
     ) -> None:
         """Check Block Storage service's projects.
 
@@ -968,7 +962,7 @@ class ProviderCreateExtended(ProviderCreate):
 
     @classmethod
     def __check_compute_service_projects(
-        cls, services: List[ComputeServiceCreateExtended], projects: List[str]
+        cls, services: list[ComputeServiceCreateExtended], projects: list[str]
     ) -> None:
         """Check Compute service's projects.
 
@@ -986,7 +980,7 @@ class ProviderCreateExtended(ProviderCreate):
 
     @classmethod
     def __check_network_service_projects(
-        cls, services: List[NetworkServiceCreateExtended], projects: List[str]
+        cls, services: list[NetworkServiceCreateExtended], projects: list[str]
     ) -> None:
         """Check Network service's projects.
 

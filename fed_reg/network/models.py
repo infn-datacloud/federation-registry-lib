@@ -37,7 +37,7 @@ class Network(StructuredNode):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
+        tags (list of str): list of tags associated to this Network.
     """
 
     uid = UniqueIdProperty()

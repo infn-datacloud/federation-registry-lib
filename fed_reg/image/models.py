@@ -35,7 +35,7 @@ class Image(StructuredNode):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
-        tags (list of str): List of tags associated to this Image.
+        tags (list of str): list of tags associated to this Image.
     """
 
     uid = UniqueIdProperty()

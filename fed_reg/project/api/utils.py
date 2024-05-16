@@ -1,13 +1,13 @@
 """Utilities used in Project endpoints."""
-from typing import List
+
 
 from fed_reg.project.models import Project
 from fed_reg.region.schemas import RegionQuery
 
 
 def filter_on_region_attr(  # noqa: C901
-    items: List[Project], region_query: RegionQuery
-) -> List[Project]:
+    items: list[Project], region_query: RegionQuery
+) -> list[Project]:
     """Filter projects based on region access."""
     attrs = region_query.dict(exclude_none=True)
     if not attrs:

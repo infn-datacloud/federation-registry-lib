@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from enum import Enum
-from typing import Type, Union
+from typing import Type
 
 from pytest_cases import case, parametrize_with_cases
 
@@ -83,7 +83,7 @@ def test_bool() -> None:
 
 
 @parametrize_with_cases("model", cases=CaseModel, has_tag="number")
-def test_numbers(model: Union[Type[TestModelInt], Type[TestModelFloat]]) -> None:
+def test_numbers(model: type[TestModelInt] | type[TestModelFloat]) -> None:
     cls = create_query_model(random_lower_string(), model)
     item = cls()
     assert item.test_field is None
@@ -95,7 +95,7 @@ def test_numbers(model: Union[Type[TestModelInt], Type[TestModelFloat]]) -> None
 
 
 @parametrize_with_cases("model", cases=CaseModel, has_tag="date")
-def test_dates(model: Union[Type[TestModelDate], Type[TestModelDateTime]]) -> None:
+def test_dates(model: type[TestModelDate] | type[TestModelDateTime]) -> None:
     cls = create_query_model(random_lower_string(), model)
     item = cls()
     assert item.test_field__lt is None
@@ -106,7 +106,7 @@ def test_dates(model: Union[Type[TestModelDate], Type[TestModelDateTime]]) -> No
 
 
 @parametrize_with_cases("model", cases=CaseModel, has_tag="str")
-def test_str_enum(model: Union[Type[TestModelStr], Type[TestModelEnum]]) -> None:
+def test_str_enum(model: type[TestModelStr] | type[TestModelEnum]) -> None:
     cls = create_query_model(random_lower_string(), model)
     item = cls()
     assert item.test_field is None

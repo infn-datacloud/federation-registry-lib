@@ -1,6 +1,4 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
-from typing import List
-
 from pydantic import BaseModel, Field
 
 from fed_reg.image.constants import DOC_EXT_PROJ, DOC_EXT_SERV
@@ -89,15 +87,15 @@ class ImageReadExtended(ImageRead, BaseReadPrivateExtended):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
-        tags (list of str): List of tags associated to this Image.
+        tags (list of str): list of tags associated to this Image.
         projects (list of ProjectRead): Projects having access to this flavor. The list
             is populated only if the flavor is a private one.
         services (list of ComputeServiceReadExtended): Compute Services exploiting this
             flavor.
     """
 
-    projects: List[ProjectRead] = Field(description=DOC_EXT_PROJ)
-    services: List[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
+    projects: list[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    services: list[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
 
 
 class ImageReadExtendedPublic(ImageReadPublic, BaseReadPublicExtended):
@@ -115,8 +113,8 @@ class ImageReadExtendedPublic(ImageReadPublic, BaseReadPublicExtended):
             this flavor.
     """
 
-    projects: List[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
-    services: List[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
+    projects: list[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
+    services: list[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
 
 
 class ImageReadSingle(BaseModel):
@@ -126,6 +124,6 @@ class ImageReadSingle(BaseModel):
 
 
 class ImageReadMulti(BaseModel):
-    __root__: List[ImageReadExtended] | List[ImageRead] | List[
+    __root__: list[ImageReadExtended] | list[ImageRead] | list[
         ImageReadExtendedPublic
-    ] | List[ImageReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[ImageReadPublic] = Field(..., discriminator="schema_type")

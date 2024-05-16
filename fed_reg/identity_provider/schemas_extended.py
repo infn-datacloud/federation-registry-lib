@@ -1,5 +1,5 @@
 """Pydantic extended models of the Identity Provider."""
-from typing import List
+
 
 from pydantic import BaseModel, Field
 
@@ -26,7 +26,7 @@ class ProviderReadExtended(ProviderRead):
         type (str): Provider type.
         status (str | None): Provider status.
         is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
+        support_email (list of str): list of maintainers emails.
         relationship (AuthMethodRead): Authentication method used to connect to the
             target identity provider.
     """
@@ -63,8 +63,8 @@ class IdentityProviderReadExtended(IdentityProviderRead, BaseReadPrivateExtended
         user_groups (list of UserGroupRead): Owned user groups.
     """
 
-    providers: List[ProviderReadExtended] = Field(description=DOC_EXT_PROV)
-    user_groups: List[UserGroupRead] = Field(description=DOC_EXT_GROUP)
+    providers: list[ProviderReadExtended] = Field(description=DOC_EXT_PROV)
+    user_groups: list[UserGroupRead] = Field(description=DOC_EXT_GROUP)
 
 
 class IdentityProviderReadExtendedPublic(
@@ -81,8 +81,8 @@ class IdentityProviderReadExtendedPublic(
         user_groups (list of UserGroupReadPublic): Owned user groups.
     """
 
-    providers: List[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
-    user_groups: List[UserGroupReadPublic] = Field(description=DOC_EXT_GROUP)
+    providers: list[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
+    user_groups: list[UserGroupReadPublic] = Field(description=DOC_EXT_GROUP)
 
 
 class IdentityProviderReadSingle(BaseModel):
@@ -92,6 +92,6 @@ class IdentityProviderReadSingle(BaseModel):
 
 
 class IdentityProviderReadMulti(BaseModel):
-    __root__: List[IdentityProviderReadExtended] | List[IdentityProviderRead] | List[
+    __root__: list[IdentityProviderReadExtended] | list[IdentityProviderRead] | list[
         IdentityProviderReadExtendedPublic
-    ] | List[IdentityProviderReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[IdentityProviderReadPublic] = Field(..., discriminator="schema_type")

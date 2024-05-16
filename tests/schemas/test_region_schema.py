@@ -1,4 +1,4 @@
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal, Optional
 
 import pytest
 from pytest_cases import case, parametrize, parametrize_with_cases
@@ -74,12 +74,10 @@ class CaseAttr:
         len: int,
     ) -> tuple[
         str,
-        Union[
-            list[BlockStorageServiceCreateExtended],
-            list[ComputeServiceCreateExtended],
-            list[IdentityServiceCreate],
-            list[NetworkServiceCreateExtended],
-        ],
+        list[BlockStorageServiceCreateExtended]
+        | list[ComputeServiceCreateExtended]
+        | list[IdentityServiceCreate]
+        | list[NetworkServiceCreateExtended],
     ]:
         if len > 0:
             if type == "block_storage_services":
@@ -134,12 +132,10 @@ class CaseInvalidAttr:
         type: str,
     ) -> tuple[
         str,
-        Union[
-            list[BlockStorageServiceCreateExtended],
-            list[ComputeServiceCreateExtended],
-            list[IdentityServiceCreate],
-            list[NetworkServiceCreateExtended],
-        ],
+        list[BlockStorageServiceCreateExtended]
+        | list[ComputeServiceCreateExtended]
+        | list[IdentityServiceCreate]
+        | list[NetworkServiceCreateExtended],
         str,
     ]:
         if type == "block_storage_services":
@@ -221,13 +217,11 @@ def test_query() -> None:
 def test_create_extended(
     attr: str,
     values: Optional[
-        Union[
-            LocationCreate,
-            list[BlockStorageServiceCreateExtended],
-            list[ComputeServiceCreateExtended],
-            list[IdentityServiceCreate],
-            list[NetworkServiceCreateExtended],
-        ]
+        LocationCreate
+        | list[BlockStorageServiceCreateExtended]
+        | list[ComputeServiceCreateExtended]
+        | list[IdentityServiceCreate]
+        | list[NetworkServiceCreateExtended]
     ],
 ) -> None:
     assert issubclass(RegionCreateExtended, RegionCreate)
@@ -242,12 +236,10 @@ def test_create_extended(
 )
 def test_invalid_create_extended(
     attr: str,
-    values: Union[
-        list[BlockStorageServiceCreateExtended],
-        list[ComputeServiceCreateExtended],
-        list[IdentityServiceCreate],
-        list[NetworkServiceCreateExtended],
-    ],
+    values: list[BlockStorageServiceCreateExtended]
+    | list[ComputeServiceCreateExtended]
+    | list[IdentityServiceCreate]
+    | list[NetworkServiceCreateExtended],
     msg: str,
 ) -> None:
     d = region_schema_dict()

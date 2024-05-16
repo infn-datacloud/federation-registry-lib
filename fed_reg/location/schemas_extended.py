@@ -1,5 +1,5 @@
 """Pydantic extended models of the site geographical Location."""
-from typing import List
+
 
 from pydantic import BaseModel, Field
 
@@ -24,7 +24,7 @@ class LocationReadExtended(LocationRead, BaseReadPrivateExtended):
         regions (list of RegionRead): Hosted regions.
     """
 
-    regions: List[RegionRead] = Field(description=DOC_EXT_REG)
+    regions: list[RegionRead] = Field(description=DOC_EXT_REG)
 
 
 class LocationReadExtendedPublic(LocationReadPublic, BaseReadPublicExtended):
@@ -38,7 +38,7 @@ class LocationReadExtendedPublic(LocationReadPublic, BaseReadPublicExtended):
         regions (list of RegionReadPublic): Hosted regions.
     """
 
-    regions: List[RegionReadPublic] = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadPublic] = Field(description=DOC_EXT_REG)
 
 
 class LocationReadSingle(BaseModel):
@@ -48,6 +48,6 @@ class LocationReadSingle(BaseModel):
 
 
 class LocationReadMulti(BaseModel):
-    __root__: List[LocationReadExtended] | List[LocationRead] | List[
+    __root__: list[LocationReadExtended] | list[LocationRead] | list[
         LocationReadExtendedPublic
-    ] | List[LocationReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[LocationReadPublic] = Field(..., discriminator="schema_type")

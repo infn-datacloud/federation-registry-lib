@@ -1,5 +1,4 @@
 """Provider REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 from pydantic import UUID4
@@ -49,7 +48,7 @@ def valid_provider_id(provider_uid: UUID4) -> Provider:
     return item
 
 
-def is_unique_provider(item: Union[ProviderCreateExtended, ProviderUpdate]) -> None:
+def is_unique_provider(item: ProviderCreateExtended | ProviderUpdate) -> None:
     """Check there are no other providers with the same name and type.
 
     Args:

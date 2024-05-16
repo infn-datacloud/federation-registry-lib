@@ -29,10 +29,12 @@ from fed_reg.sla.models import SLA
 from fed_reg.sla.schemas import (
     SLAQuery,
     SLARead,
-    SLAReadPublic,
     SLAUpdate,
 )
-from fed_reg.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic, SLAReadMulti, SLAReadSingle
+from fed_reg.sla.schemas_extended import (
+    SLAReadMulti,
+    SLAReadSingle,
+)
 
 router = APIRouter(prefix="/slas", tags=["slas"])
 

@@ -18,7 +18,13 @@ from fed_reg.flavor.constants import (
     DOC_UUID,
     DOC_VCPUS,
 )
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseNodeRead, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.query import create_query_model
 
 

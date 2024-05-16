@@ -1,9 +1,15 @@
 """Pydantic models of the Virtual Machine Network owned by a Provider."""
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import Field
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.network.constants import (
     DOC_DEFAULT,
     DOC_EXT_ROUT,
@@ -47,7 +53,7 @@ class NetworkBase(NetworkBasePublic):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
+        tags (list of str): list of tags associated to this Network.
     """
 
     is_shared: bool = Field(default=True, description=DOC_SHARED)
@@ -56,7 +62,7 @@ class NetworkBase(NetworkBasePublic):
     mtu: Optional[int] = Field(default=None, gt=0, description=DOC_MTU)
     proxy_host: Optional[str] = Field(default=None, description=DOC_PROXY_HOST)
     proxy_user: Optional[str] = Field(default=None, description=DOC_PROXY_USER)
-    tags: List[str] = Field(default_factory=list, description=DOC_TAGS)
+    tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
 class NetworkCreate(BaseNodeCreate, NetworkBase):
@@ -77,7 +83,7 @@ class NetworkCreate(BaseNodeCreate, NetworkBase):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
+        tags (list of str): list of tags associated to this Network.
     """
 
 
@@ -101,7 +107,7 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str | None): List of tags associated to this Network.
+        tags (list of str | None): list of tags associated to this Network.
     """
 
     name: Optional[str] = Field(default=None, description=DOC_NAME)
@@ -146,7 +152,7 @@ class NetworkRead(BaseNodeRead, BaseReadPrivate, NetworkBase):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
+        tags (list of str): list of tags associated to this Network.
     """
 
 

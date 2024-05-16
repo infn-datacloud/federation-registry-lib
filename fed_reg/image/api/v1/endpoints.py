@@ -23,12 +23,9 @@ from fed_reg.image.models import Image
 from fed_reg.image.schemas import (
     ImageQuery,
     ImageRead,
-    ImageReadPublic,
     ImageUpdate,
 )
 from fed_reg.image.schemas_extended import (
-    ImageReadExtended,
-    ImageReadExtendedPublic,
     ImageReadMulti,
     ImageReadSingle,
 )

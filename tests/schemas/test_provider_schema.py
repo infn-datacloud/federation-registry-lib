@@ -1,4 +1,4 @@
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal, Optional
 from uuid import uuid4
 
 import pytest
@@ -274,7 +274,7 @@ class CaseInvalidAttr:
         identity_provider_create_ext_schema: IdentityProviderCreateExtended,
     ) -> tuple[
         str,
-        Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
+        list[IdentityProviderCreateExtended] | list[RegionCreateExtended],
         Literal["not in this provider"],
     ]:
         return (
@@ -291,7 +291,7 @@ class CaseInvalidAttr:
         block_storage_quota_create_ext_schema: BlockStorageServiceCreateExtended,
     ) -> tuple[
         str,
-        Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
+        list[IdentityProviderCreateExtended] | list[RegionCreateExtended],
         Literal["not in this provider"],
     ]:
         block_storage_service_create_ext_schema.quotas = [
@@ -312,7 +312,7 @@ class CaseInvalidAttr:
         resource: str,
     ) -> tuple[
         str,
-        Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
+        list[IdentityProviderCreateExtended] | list[RegionCreateExtended],
         Literal["not in this provider"],
     ]:
         if resource == "quotas":
@@ -340,7 +340,7 @@ class CaseInvalidAttr:
         resource: str,
     ) -> tuple[
         str,
-        Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
+        list[IdentityProviderCreateExtended] | list[RegionCreateExtended],
         Literal["not in this provider"],
     ]:
         if resource == "quotas":
@@ -423,11 +423,9 @@ def test_query() -> None:
 def test_create_extended(
     attr: str,
     values: Optional[
-        Union[
-            list[IdentityProviderCreateExtended],
-            list[ProjectCreate],
-            list[RegionCreateExtended],
-        ]
+        list[IdentityProviderCreateExtended]
+        | list[ProjectCreate]
+        | list[RegionCreateExtended]
     ],
 ) -> None:
     assert issubclass(ProviderCreateExtended, ProviderCreate)
@@ -450,11 +448,9 @@ def test_create_extended(
 )
 def test_invalid_create_extended(
     attr: str,
-    values: Union[
-        list[IdentityProviderCreateExtended],
-        list[ProjectCreate],
-        list[RegionCreateExtended],
-    ],
+    values: list[IdentityProviderCreateExtended]
+    | list[ProjectCreate]
+    | list[RegionCreateExtended],
     msg: str,
 ) -> None:
     d = provider_schema_dict()
@@ -475,11 +471,9 @@ def test_invalid_create_extended(
     "identity_providers, msg", cases=CaseInvalidAttr, has_tag=["idps"]
 )
 def test_dup_proj_in_idps_in_create_extended(
-    identity_providers: Union[
-        list[IdentityProviderCreateExtended],
-        list[ProjectCreate],
-        list[RegionCreateExtended],
-    ],
+    identity_providers: list[IdentityProviderCreateExtended]
+    | list[ProjectCreate]
+    | list[RegionCreateExtended],
     msg: str,
 ) -> None:
     d = provider_schema_dict()
@@ -498,7 +492,7 @@ def test_dup_proj_in_idps_in_create_extended(
 @parametrize_with_cases("attr, values, msg", cases=CaseInvalidAttr, has_tag=["missing"])
 def test_miss_proj_in_idps_in_create_extended(
     attr: str,
-    values: Union[list[IdentityProviderCreateExtended], list[RegionCreateExtended]],
+    values: list[IdentityProviderCreateExtended] | list[RegionCreateExtended],
     msg: str,
 ) -> None:
     d = provider_schema_dict()

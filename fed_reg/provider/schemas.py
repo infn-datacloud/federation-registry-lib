@@ -1,9 +1,15 @@
 """Pydantic models of the Resource Provider (openstack, kubernetes...)."""
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import EmailStr, Field
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.provider.constants import (
     DOC_EMAIL,
     DOC_NAME,
@@ -39,12 +45,12 @@ class ProviderBase(ProviderBasePublic):
         type (str): Provider type.
         status (str | None): Provider status.
         is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
+        support_email (list of str): list of maintainers emails.
     """
 
     status: ProviderStatus = Field(default=ProviderStatus.ACTIVE, description=DOC_STAT)
     is_public: bool = Field(default=False, description=DOC_SHARED)
-    support_emails: List[EmailStr] = Field(default_factory=list, description=DOC_EMAIL)
+    support_emails: list[EmailStr] = Field(default_factory=list, description=DOC_EMAIL)
 
 
 class ProviderCreate(BaseNodeCreate, ProviderBase):
@@ -60,7 +66,7 @@ class ProviderCreate(BaseNodeCreate, ProviderBase):
         type (str): Provider type.
         status (str | None): Provider status.
         is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
+        support_email (list of str): list of maintainers emails.
     """
 
 
@@ -79,7 +85,7 @@ class ProviderUpdate(BaseNodeCreate, ProviderBase):
         type (str | None): Provider type.
         status (str | None): Provider status.
         is_public (bool | None): Public or private Provider.
-        support_email (list of str | None): List of maintainers emails.
+        support_email (list of str | None): list of maintainers emails.
     """
 
     name: Optional[str] = Field(default=None, description=DOC_NAME)
@@ -119,7 +125,7 @@ class ProviderRead(BaseNodeRead, BaseReadPrivate, ProviderBase):
         type (str): Provider type.
         status (str | None): Provider status.
         is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
+        support_email (list of str): list of maintainers emails.
     """
 
 

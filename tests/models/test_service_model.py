@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
@@ -200,9 +200,10 @@ def test_network_attr(key: str, value: Any) -> None:
 
 @parametrize_with_cases("service_model", cases=CaseServiceModel)
 def test_required_rel(
-    service_model: Union[
-        BlockStorageService, ComputeService, IdentityService, NetworkService
-    ],
+    service_model: BlockStorageService
+    | ComputeService
+    | IdentityService
+    | NetworkService,
 ) -> None:
     with pytest.raises(CardinalityViolation):
         service_model.region.all()

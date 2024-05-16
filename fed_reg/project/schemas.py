@@ -3,7 +3,13 @@ from typing import Optional
 
 from pydantic import Field
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.project.constants import DOC_NAME, DOC_UUID
 from fed_reg.query import create_query_model
 

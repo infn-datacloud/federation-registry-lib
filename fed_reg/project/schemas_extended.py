@@ -1,5 +1,5 @@
 """Pydantic extended models of the Project owned by a Provider."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -314,20 +314,18 @@ class ProjectReadExtended(ProjectRead, BaseReadPrivateExtended):
         flavors (list of FlavorRead): Private and public accessible flavors.
         images (list of ImageRead): Private and public accessible images.
         networks (list of NetworkRead): Private and public accessible networks.
-        quotas (list of Quota): List of owned quotas pointing to the corresponding
+        quotas (list of Quota): list of owned quotas pointing to the corresponding
             service (block-storage, compute and network type).
     """
 
-    flavors: List[FlavorRead] = Field(description=DOC_EXT_FLAV)
-    images: List[ImageRead] = Field(description=DOC_EXT_IMAG)
-    networks: List[NetworkRead] = Field(description=DOC_EXT_NETW)
+    flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
+    images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
+    networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
     provider: ProviderRead = Field(description=DOC_EXT_PROV)
-    quotas: List[
-        Union[
-            ComputeQuotaReadExtended,
-            BlockStorageQuotaReadExtended,
-            NetworkQuotaReadExtended,
-        ]
+    quotas: list[
+        ComputeQuotaReadExtended
+        | BlockStorageQuotaReadExtended
+        | NetworkQuotaReadExtended
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtended] = Field(default=None, description=DOC_EXT_SLA)
 
@@ -357,20 +355,18 @@ class ProjectReadExtendedPublic(ProjectReadPublic, BaseReadPublicExtended):
         flavors (list of FlavorReadPublic): Private and public accessible flavors.
         images (list of ImageReadPublic): Private and public accessible images.
         networks (list of NetworkReadPublic): Private and public accessible networks.
-        quotas (list of QuotaPublic): List of owned quotas pointing to the corresponding
+        quotas (list of QuotaPublic): list of owned quotas pointing to the corresponding
             service (block-storage, compute and network type).
     """
 
-    flavors: List[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
-    images: List[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
-    networks: List[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
+    flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
+    images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
+    networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
     provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
-    quotas: List[
-        Union[
-            ComputeQuotaReadExtendedPublic,
-            BlockStorageQuotaReadExtendedPublic,
-            NetworkQuotaReadExtendedPublic,
-        ]
+    quotas: list[
+        ComputeQuotaReadExtendedPublic
+        | BlockStorageQuotaReadExtendedPublic
+        | NetworkQuotaReadExtendedPublic
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtendedPublic] = Field(default=None, description=DOC_EXT_SLA)
 
@@ -393,6 +389,6 @@ class ProjectReadSingle(BaseModel):
 
 
 class ProjectReadMulti(BaseModel):
-    __root__: List[ProjectReadExtended] | List[ProjectRead] | List[
+    __root__: list[ProjectReadExtended] | list[ProjectRead] | list[
         ProjectReadExtendedPublic
-    ] | List[ProjectReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[ProjectReadPublic] = Field(..., discriminator="schema_type")

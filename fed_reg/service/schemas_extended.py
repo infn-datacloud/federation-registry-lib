@@ -1,5 +1,5 @@
 """Pydantic extended models of the Service supplied by Providers on specific Regions."""
-from typing import List
+
 
 from pydantic import BaseModel, Field
 
@@ -184,7 +184,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead, BaseReadPrivateEx
     """
 
     region: RegionReadExtended = Field(description=DOC_EXT_REG)
-    quotas: List[BlockStorageQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
+    quotas: list[BlockStorageQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
 
 
 class BlockStorageServiceReadExtendedPublic(
@@ -203,7 +203,7 @@ class BlockStorageServiceReadExtendedPublic(
     """
 
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
-    quotas: List[BlockStorageQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
+    quotas: list[BlockStorageQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
 
 
 class ComputeServiceReadExtended(ComputeServiceRead, BaseReadPrivateExtended):
@@ -223,9 +223,9 @@ class ComputeServiceReadExtended(ComputeServiceRead, BaseReadPrivateExtended):
     """
 
     region: RegionReadExtended = Field(description=DOC_EXT_REG)
-    quotas: List[ComputeQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
-    flavors: List[FlavorRead] = Field(description=DOC_EXT_FLAV)
-    images: List[ImageRead] = Field(description=DOC_EXT_IMAG)
+    quotas: list[ComputeQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
+    flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
+    images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
 
 
 class ComputeServiceReadExtendedPublic(
@@ -246,9 +246,9 @@ class ComputeServiceReadExtendedPublic(
     """
 
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
-    quotas: List[ComputeQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
-    flavors: List[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
-    images: List[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
+    quotas: list[ComputeQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
+    flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
+    images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
 
 
 class IdentityServiceReadExtended(IdentityServiceRead, BaseReadPrivateExtended):
@@ -299,8 +299,8 @@ class NetworkServiceReadExtended(NetworkServiceRead, BaseReadPrivateExtended):
     """
 
     region: RegionReadExtended = Field(description=DOC_EXT_REG)
-    quotas: List[NetworkQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
-    networks: List[NetworkRead] = Field(description=DOC_EXT_NETW)
+    quotas: list[NetworkQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
+    networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
 
 
 class NetworkServiceReadExtendedPublic(
@@ -320,8 +320,8 @@ class NetworkServiceReadExtendedPublic(
     """
 
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
-    quotas: List[NetworkQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
-    networks: List[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
+    quotas: list[NetworkQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
+    networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
 
 
 class BlockStorageServiceReadSingle(BaseModel):
@@ -331,9 +331,9 @@ class BlockStorageServiceReadSingle(BaseModel):
 
 
 class BlockStorageServiceReadMulti(BaseModel):
-    __root__: List[BlockStorageServiceReadExtended] | List[
+    __root__: list[BlockStorageServiceReadExtended] | list[
         BlockStorageServiceRead
-    ] | List[BlockStorageServiceReadExtendedPublic] | List[
+    ] | list[BlockStorageServiceReadExtendedPublic] | list[
         BlockStorageServiceReadPublic
     ] = Field(..., discriminator="schema_type")
 
@@ -345,9 +345,9 @@ class ComputeServiceReadSingle(BaseModel):
 
 
 class ComputeServiceReadMulti(BaseModel):
-    __root__: List[ComputeServiceReadExtended] | List[ComputeServiceRead] | List[
+    __root__: list[ComputeServiceReadExtended] | list[ComputeServiceRead] | list[
         ComputeServiceReadExtendedPublic
-    ] | List[ComputeServiceReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[ComputeServiceReadPublic] = Field(..., discriminator="schema_type")
 
 
 class IdentityServiceReadSingle(BaseModel):
@@ -357,9 +357,9 @@ class IdentityServiceReadSingle(BaseModel):
 
 
 class IdentityServiceReadMulti(BaseModel):
-    __root__: List[IdentityServiceReadExtended] | List[IdentityServiceRead] | List[
+    __root__: list[IdentityServiceReadExtended] | list[IdentityServiceRead] | list[
         IdentityServiceReadExtendedPublic
-    ] | List[IdentityServiceReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[IdentityServiceReadPublic] = Field(..., discriminator="schema_type")
 
 
 class NetworkServiceReadSingle(BaseModel):
@@ -369,6 +369,6 @@ class NetworkServiceReadSingle(BaseModel):
 
 
 class NetworkServiceReadMulti(BaseModel):
-    __root__: List[NetworkServiceReadExtended] | List[NetworkServiceRead] | List[
+    __root__: list[NetworkServiceReadExtended] | list[NetworkServiceRead] | list[
         NetworkServiceReadExtendedPublic
-    ] | List[NetworkServiceReadPublic] = Field(..., discriminator="schema_type")
+    ] | list[NetworkServiceReadPublic] = Field(..., discriminator="schema_type")

@@ -23,12 +23,9 @@ from fed_reg.location.models import Location
 from fed_reg.location.schemas import (
     LocationQuery,
     LocationRead,
-    LocationReadPublic,
     LocationUpdate,
 )
 from fed_reg.location.schemas_extended import (
-    LocationReadExtended,
-    LocationReadExtendedPublic,
     LocationReadMulti,
     LocationReadSingle,
 )

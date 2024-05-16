@@ -25,12 +25,9 @@ from fed_reg.region.models import Region
 from fed_reg.region.schemas import (
     RegionQuery,
     RegionRead,
-    RegionReadPublic,
     RegionUpdate,
 )
 from fed_reg.region.schemas_extended import (
-    RegionReadExtended,
-    RegionReadExtendedPublic,
     RegionReadMulti,
     RegionReadSingle,
 )

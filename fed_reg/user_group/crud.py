@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for a User Group."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.identity_provider.models import IdentityProvider
@@ -37,7 +37,7 @@ class CRUDUserGroup(
         *,
         obj_in: UserGroupCreateExtended,
         identity_provider: IdentityProvider,
-        projects: Optional[List[Project]] = None,
+        projects: Optional[list[Project]] = None,
     ) -> UserGroup:
         """Create a new User Group.
 
@@ -75,8 +75,8 @@ class CRUDUserGroup(
         self,
         *,
         db_obj: UserGroup,
-        obj_in: Union[UserGroupUpdate, UserGroupCreateExtended],
-        projects: Optional[List[Project]] = None,
+        obj_in: UserGroupUpdate | UserGroupCreateExtended,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[UserGroup]:
         """Update User Group attributes.
@@ -103,7 +103,7 @@ class CRUDUserGroup(
         *,
         obj_in: UserGroupCreateExtended,
         db_obj: UserGroup,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update user group linked SLAs.
 

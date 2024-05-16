@@ -32,28 +32,19 @@ from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 from fed_reg.quota.schemas import (
     BlockStorageQuotaQuery,
     BlockStorageQuotaRead,
-    BlockStorageQuotaReadPublic,
     BlockStorageQuotaUpdate,
     ComputeQuotaQuery,
     ComputeQuotaRead,
-    ComputeQuotaReadPublic,
     ComputeQuotaUpdate,
     NetworkQuotaQuery,
     NetworkQuotaRead,
-    NetworkQuotaReadPublic,
     NetworkQuotaUpdate,
 )
 from fed_reg.quota.schemas_extended import (
-    BlockStorageQuotaReadExtended,
-    BlockStorageQuotaReadExtendedPublic,
     BlockStorageQuotaReadMulti,
     BlockStorageQuotaReadSingle,
-    ComputeQuotaReadExtended,
-    ComputeQuotaReadExtendedPublic,
     ComputeQuotaReadMulti,
     ComputeQuotaReadSingle,
-    NetworkQuotaReadExtended,
-    NetworkQuotaReadExtendedPublic,
     NetworkQuotaReadMulti,
     NetworkQuotaReadSingle,
 )

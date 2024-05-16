@@ -23,12 +23,9 @@ from fed_reg.network.models import Network
 from fed_reg.network.schemas import (
     NetworkQuery,
     NetworkRead,
-    NetworkReadPublic,
     NetworkUpdate,
 )
 from fed_reg.network.schemas_extended import (
-    NetworkReadExtended,
-    NetworkReadExtendedPublic,
     NetworkReadMulti,
     NetworkReadSingle,
 )
