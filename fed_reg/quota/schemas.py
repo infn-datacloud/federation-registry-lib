@@ -430,3 +430,104 @@ class NetworkQuotaRead(BaseNodeRead, BaseReadPrivate, NetworkQuotaBase):
 
 
 NetworkQuotaQuery = create_query_model("NetworkQuotaQuery", NetworkQuotaBase)
+
+class ObjectStorageQuotaBasePublic(QuotaBase):
+    """Model with the Object Storage Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+    type: Literal[QuotaType.OBJECT_STORAGE] = Field(
+        default=QuotaType.OBJECT_STORAGE, description="Object storage type"
+    )
+
+
+class ObjectStorageQuotaBase(ObjectStorageQuotaBasePublic):
+    """Model with the Object Storage Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+    # TODO: understand which fields must contain.
+
+class ObjectStorageQuotaCreate(BaseNodeCreate, ObjectStorageQuotaBase):
+    """Model to create a Object Storage Quota.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+
+class ObjectStorageQuotaUpdate(BaseNodeCreate, ObjectStorageQuotaBase):
+    """Model to update a Object Storage Quota.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
+
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        type (str | None): Quota type.
+        per_user (str | None): This limitation should be applied to each user.
+    """
+
+
+class ObjectStorageQuotaReadPublic(
+    BaseNodeRead, BaseReadPublic, ObjectStorageQuotaBasePublic
+):
+    """Model, for non-authenticated users, to read Object Storage data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+
+class ObjectStorageQuotaRead(BaseNodeRead, BaseReadPrivate, ObjectStorageQuotaBase):
+    """Model, for authenticated users, to read Object Storage data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+
+ObjectStorageQuotaQuery = create_query_model(
+    "ObjectStorageQuotaQuery", ObjectStorageQuotaBase
+)

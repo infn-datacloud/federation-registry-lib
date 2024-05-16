@@ -116,3 +116,22 @@ class NetworkQuota(Quota):
     service = RelationshipTo(
         "fed_reg.service.models.NetworkService", "APPLY_TO", cardinality=One
     )
+
+
+class ObjectStorageQuota(Quota):
+    """Resource limitations for Projects on Object Storage Services.
+
+    Object Storage quota limitations apply on a Object Storage Service.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+    """
+
+    # TODO: understand which fields must contain.
+    service = RelationshipTo(
+        "fed_reg.service.models.ObjectStorageService", "APPLY_TO", cardinality=One
+    )
