@@ -14,22 +14,7 @@ from fed_reg.project.schemas import (
     ProjectReadPublic,
     ProjectUpdate,
 )
-from fed_reg.project.schemas_extended import (
-    FlavorRead,
-    FlavorReadPublic,
-    ImageRead,
-    ImageReadPublic,
-    NetworkRead,
-    NetworkReadPublic,
-    ProjectReadExtended,
-    ProjectReadExtendedPublic,
-    ProviderRead,
-    ProviderReadPublic,
-    SLAReadExtended,
-    SLAReadExtendedPublic,
-)
 from tests.create_dict import project_schema_dict
-from tests.schemas.cases_db_instances import CaseDBInstance, CasePublic
 from tests.utils import random_lower_string
 
 

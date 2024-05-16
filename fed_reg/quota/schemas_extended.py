@@ -19,7 +19,6 @@ from fed_reg.quota.schemas import (
     NetworkQuotaBasePublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    QuotaBase,
 )
 from fed_reg.region.constants import DOC_EXT_PROV
 from fed_reg.region.schemas import RegionRead, RegionReadPublic

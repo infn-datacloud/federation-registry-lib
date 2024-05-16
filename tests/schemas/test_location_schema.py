@@ -14,18 +14,8 @@ from fed_reg.location.schemas import (
     LocationReadPublic,
     LocationUpdate,
 )
-from fed_reg.location.schemas_extended import (
-    LocationReadExtended,
-    LocationReadExtendedPublic,
-    RegionRead,
-    RegionReadPublic,
-)
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from tests.create_dict import location_schema_dict
-from tests.schemas.cases_db_instances import (
-    CaseDBInstance,
-    CasePublic,
-)
 from tests.utils import (
     random_country,
     random_latitude,

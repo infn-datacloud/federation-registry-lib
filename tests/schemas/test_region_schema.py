@@ -21,27 +21,10 @@ from fed_reg.region.schemas import (
     RegionReadPublic,
     RegionUpdate,
 )
-from fed_reg.region.schemas_extended import (
-    BlockStorageServiceRead,
-    BlockStorageServiceReadPublic,
-    ComputeServiceRead,
-    ComputeServiceReadPublic,
-    IdentityServiceRead,
-    IdentityServiceReadPublic,
-    LocationRead,
-    LocationReadPublic,
-    NetworkServiceRead,
-    NetworkServiceReadPublic,
-    ProviderRead,
-    ProviderReadPublic,
-    RegionReadExtended,
-    RegionReadExtendedPublic,
-)
 from fed_reg.service.schemas import IdentityServiceCreate
 from tests.create_dict import (
     region_schema_dict,
 )
-from tests.schemas.cases_db_instances import CaseDBInstance, CasePublic
 from tests.utils import random_lower_string, random_url
 
 

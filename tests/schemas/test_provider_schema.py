@@ -19,68 +19,19 @@ from fed_reg.provider.schemas import (
     ProviderUpdate,
 )
 from fed_reg.provider.schemas_extended import (
-    BlockStorageQuotaRead,
-    BlockStorageQuotaReadPublic,
     BlockStorageServiceCreateExtended,
-    BlockStorageServiceRead,
-    BlockStorageServiceReadExtended,
-    BlockStorageServiceReadExtendedPublic,
-    BlockStorageServiceReadPublic,
     ComputeQuotaCreateExtended,
-    ComputeQuotaRead,
-    ComputeQuotaReadPublic,
     ComputeServiceCreateExtended,
-    ComputeServiceRead,
-    ComputeServiceReadExtended,
-    ComputeServiceReadExtendedPublic,
-    ComputeServiceReadPublic,
     FlavorCreateExtended,
-    FlavorRead,
-    FlavorReadPublic,
     IdentityProviderCreateExtended,
-    IdentityProviderRead,
-    IdentityProviderReadExtended,
-    IdentityProviderReadExtendedPublic,
-    IdentityProviderReadPublic,
-    IdentityServiceRead,
-    IdentityServiceReadPublic,
     ImageCreateExtended,
-    ImageRead,
-    ImageReadPublic,
-    LocationRead,
-    LocationReadPublic,
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
-    NetworkQuotaRead,
-    NetworkQuotaReadPublic,
-    NetworkRead,
-    NetworkReadPublic,
     NetworkServiceCreateExtended,
-    NetworkServiceRead,
-    NetworkServiceReadExtended,
-    NetworkServiceReadExtendedPublic,
-    NetworkServiceReadPublic,
-    ProjectRead,
-    ProjectReadPublic,
     ProviderCreateExtended,
-    ProviderReadExtended,
-    ProviderReadExtendedPublic,
     RegionCreateExtended,
-    RegionRead,
-    RegionReadExtended,
-    RegionReadExtendedPublic,
-    RegionReadPublic,
     SLACreateExtended,
-    SLARead,
-    SLAReadPublic,
-    UserGroupRead,
-    UserGroupReadExtended,
-    UserGroupReadExtendedPublic,
-    UserGroupReadPublic,
 )
-from fed_reg.region.models import Region
-from fed_reg.service.models import BlockStorageService, ComputeService, NetworkService
-from fed_reg.user_group.models import UserGroup
 from tests.create_dict import (
     flavor_schema_dict,
     image_schema_dict,
@@ -90,7 +41,6 @@ from tests.create_dict import (
     region_schema_dict,
     sla_schema_dict,
 )
-from tests.schemas.cases_db_instances import CaseDBInstance, CasePublic
 from tests.utils import random_email, random_lower_string, random_url
 
 
@@ -685,7 +635,8 @@ def test_invalid_read(provider_model: Provider, key: str, value: str) -> None:
 #     assert all([isinstance(i, sla_cls) for i in item.slas])
 
 
-# @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="block_storage_service")
+# @parametrize_with_cases("model", cases=CaseDBInstance,
+#   has_tag="block_storage_service")
 # @parametrize_with_cases("public", cases=CasePublic)
 # def test_read_extended_subclass_block_storage_service(
 #     model: BlockStorageService, public: bool
