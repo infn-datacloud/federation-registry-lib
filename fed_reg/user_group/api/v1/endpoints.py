@@ -1,5 +1,5 @@
 """User Group endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -61,12 +61,11 @@ from fed_reg.user_group.models import UserGroup
 from fed_reg.user_group.schemas import (
     UserGroupQuery,
     UserGroupRead,
-    UserGroupReadPublic,
     UserGroupUpdate,
 )
 from fed_reg.user_group.schemas_extended import (
-    UserGroupReadExtended,
-    UserGroupReadExtendedPublic,
+    UserGroupReadMulti,
+    UserGroupReadSingle,
 )
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
@@ -74,12 +73,7 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[UserGroupReadExtended],
-        List[UserGroupRead],
-        List[UserGroupReadExtendedPublic],
-        List[UserGroupReadPublic],
-    ],
+    response_model=UserGroupReadMulti,
     summary="Read all user groups",
     description="Retrieve all user groups stored in the database. \
         It is possible to filter on user groups attributes and other \
@@ -144,12 +138,7 @@ def get_user_groups(
 
 @router.get(
     "/{user_group_uid}",
-    response_model=Union[
-        UserGroupReadExtended,
-        UserGroupRead,
-        UserGroupReadExtendedPublic,
-        UserGroupReadPublic,
-    ],
+    response_model=UserGroupReadSingle,
     summary="Read a specific user group",
     description="Retrieve a specific user group using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -258,13 +247,11 @@ def delete_user_group(
 # @db.read_transaction
 # @router.get(
 #     "/{user_group_uid}/flavors",
-#     response_model=Union[
-#         List[FlavorReadExtended],
-#         List[FlavorRead],
-#         List[FlavorReadShort],
-#         List[FlavorReadExtendedPublic],
-#         List[FlavorReadPublic],
-#     ],
+#     response_model=list[FlavorReadExtended]|
+#         list[FlavorRead]|
+#         list[FlavorReadShort]|
+#         list[FlavorReadExtendedPublic]|
+#         list[FlavorReadPublic],
 #     summary="Read user group accessible flavors",
 #     description="Retrieve all the flavors the user group \
 #         has access to thanks to its SLA. \
@@ -285,13 +272,12 @@ def delete_user_group(
 # @db.read_transaction
 # @router.get(
 #     "/{user_group_uid}/images",
-#     response_model=Union[
-#         List[ImageReadExtended],
-#         List[ImageRead],
-#         List[ImageReadShort],
-#         List[ImageReadExtendedPublic],
-#         List[ImageReadPublic],
-#     ],
+#     response_model=
+#         list[ImageReadExtended]|
+#         list[ImageRead]|
+#         list[ImageReadShort]|
+#         list[ImageReadExtendedPublic]|
+#         list[ImageReadPublic],
 #     summary="Read user group accessible images",
 #     description="Retrieve all the images the user group \
 #         has access to thanks to its SLA. \
@@ -312,13 +298,12 @@ def delete_user_group(
 # @db.read_transaction
 # @router.get(
 #     "/{user_group_uid}/providers",
-#     response_model=Union[
-#         List[ProviderReadExtended],
-#         List[ProviderRead],
-#         List[ProviderReadShort],
-#         List[ProviderReadExtendedPublic],
-#         List[ProviderReadPublic],
-#     ],
+#     response_model=
+#         list[ProviderReadExtended]|
+#         list[ProviderRead]|
+#         list[ProviderReadShort]|
+#         list[ProviderReadExtendedPublic]|
+#         list[ProviderReadPublic],
 #     summary="Read user group accessible providers",
 #     description="Retrieve all the providers the user group \
 #         has access to thanks to its SLA. \
@@ -339,37 +324,28 @@ def delete_user_group(
 # @db.read_transaction
 # @router.get(
 #    "/{user_group_uid}/services",
-#    response_model=Union[
-#        List[
-#            Union[
-#                BlockStorageServiceReadExtended,
-#                IdentityServiceReadExtended,
-#                ComputeServiceReadExtended,
-#            ]
-#        ],
-#        List[Union[BlockStorageServiceRead, IdentityServiceRead, ComputeServiceRead]],
-#        List[
-#            Union[
-#                BlockStorageServiceReadShort,
-#                IdentityServiceReadShort,
-#                ComputeServiceReadShort,
-#            ]
-#        ],
-#        List[
-#            Union[
-#                BlockStorageServiceReadExtendedPublic,
-#                IdentityServiceReadExtendedPublic,
+#    response_model=
+#        list[
+#                BlockStorageServiceReadExtended|
+#                IdentityServiceReadExtended|
+#                ComputeServiceReadExtended
+#        ]|
+#        list[BlockStorageServiceRead| IdentityServiceRead| ComputeServiceRead]|
+#        list[
+#                BlockStorageServiceReadShort|
+#                IdentityServiceReadShort|
+#                ComputeServiceReadShort
+#        ]|
+#        list[
+#                BlockStorageServiceReadExtendedPublic|
+#                IdentityServiceReadExtendedPublic|
 #                ComputeServiceReadExtendedPublic,
-#            ]
-#        ],
-#        List[
-#            Union[
-#                BlockStorageServiceReadPublic,
-#                IdentityServiceReadPublic,
+#        ]|
+#        list[
+#                BlockStorageServiceReadPublic|
+#                IdentityServiceReadPublic|
 #                ComputeServiceReadPublic,
-#            ]
 #        ],
-#    ],
 #    summary="Read user group accessible services",
 #    description="Retrieve all the services the user group \
 #        has access to thanks to its SLA. \

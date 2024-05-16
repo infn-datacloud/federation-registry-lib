@@ -1,5 +1,5 @@
 """SLA endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 # from app.user_group.api.dependencies import valid_user_group_id
 # from app.user_group.models import UserGroup
@@ -29,22 +29,19 @@ from fed_reg.sla.models import SLA
 from fed_reg.sla.schemas import (
     SLAQuery,
     SLARead,
-    SLAReadPublic,
     SLAUpdate,
 )
-from fed_reg.sla.schemas_extended import SLAReadExtended, SLAReadExtendedPublic
+from fed_reg.sla.schemas_extended import (
+    SLAReadMulti,
+    SLAReadSingle,
+)
 
 router = APIRouter(prefix="/slas", tags=["slas"])
 
 
 @router.get(
     "/",
-    response_model=Union[
-        List[SLAReadExtended],
-        List[SLARead],
-        List[SLAReadExtendedPublic],
-        List[SLAReadPublic],
-    ],
+    response_model=SLAReadMulti,
     summary="Read all SLAs",
     description="Retrieve all SLAs stored in the database. \
         It is possible to filter on SLAs attributes and other \
@@ -128,12 +125,7 @@ def get_slas(
 
 @router.get(
     "/{sla_uid}",
-    response_model=Union[
-        SLAReadExtended,
-        SLARead,
-        SLAReadExtendedPublic,
-        SLAReadPublic,
-    ],
+    response_model=SLAReadSingle,
     summary="Read a specific SLA",
     description="Retrieve a specific SLA using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

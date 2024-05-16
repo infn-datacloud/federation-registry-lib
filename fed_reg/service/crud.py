@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for a Services."""
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 from fed_reg.crud import CRUDBase
 from fed_reg.flavor.crud import flavor_mng
@@ -53,7 +53,7 @@ from fed_reg.service.schemas_extended import (
 )
 
 
-def split_quota(quotas: List[Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+def split_quota(quotas: list[Any]) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """Split quotas in total and per-users."""
     db_items_per_user = {
         db_item.project.single().uuid: db_item
@@ -84,7 +84,7 @@ class CRUDBlockStorageService(
         *,
         obj_in: BlockStorageServiceCreateExtended,
         region: Region,
-        projects: Optional[List[Project]] = None,
+        projects: Optional[list[Project]] = None,
     ) -> BlockStorageService:
         """Create a new Block Storage Service.
 
@@ -116,8 +116,8 @@ class CRUDBlockStorageService(
         self,
         *,
         db_obj: BlockStorageService,
-        obj_in: Union[BlockStorageServiceCreateExtended, BlockStorageServiceUpdate],
-        projects: Optional[List[Project]] = None,
+        obj_in: BlockStorageServiceCreateExtended | BlockStorageServiceUpdate,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[BlockStorageService]:
         """Update Block Storage Service attributes.
@@ -144,7 +144,7 @@ class CRUDBlockStorageService(
         *,
         db_obj: BlockStorageService,
         obj_in: BlockStorageServiceCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update service linked quotas.
 
@@ -226,7 +226,7 @@ class CRUDComputeService(
         *,
         obj_in: ComputeServiceCreateExtended,
         region: Region,
-        projects: Optional[List[Project]] = None,
+        projects: Optional[list[Project]] = None,
     ) -> ComputeService:
         """Create a new Block Storage Service.
 
@@ -273,8 +273,8 @@ class CRUDComputeService(
         self,
         *,
         db_obj: ComputeService,
-        obj_in: Union[ComputeServiceCreateExtended, ComputeServiceUpdate],
-        projects: Optional[List[Project]] = None,
+        obj_in: ComputeServiceCreateExtended | ComputeServiceUpdate,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[ComputeService]:
         """Update Compute Service attributes.
@@ -308,7 +308,7 @@ class CRUDComputeService(
         *,
         db_obj: ComputeService,
         obj_in: ComputeServiceCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update service linked flavors.
 
@@ -344,7 +344,7 @@ class CRUDComputeService(
         *,
         db_obj: ComputeService,
         obj_in: ComputeServiceCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update service linked images.
 
@@ -380,7 +380,7 @@ class CRUDComputeService(
         *,
         db_obj: ComputeService,
         obj_in: ComputeServiceCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update service linked quotas.
 
@@ -460,11 +460,17 @@ class CRUDIdentityService(
     def create(
         self, *, obj_in: IdentityServiceCreate, region: Region
     ) -> IdentityService:
-        """Create a new Block Storage Service.
+        """Create a new Identity Service.
 
         Connect the service to the given region.
         """
-        db_obj = super().create(obj_in=obj_in)
+        db_obj = self.get(endpoint=obj_in.endpoint)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in)
+        else:
+            updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
+            if updated_data:
+                db_obj = updated_data
         db_obj.region.connect(region)
         return db_obj
 
@@ -487,7 +493,7 @@ class CRUDNetworkService(
         *,
         obj_in: NetworkServiceCreateExtended,
         region: Region,
-        projects: Optional[List[Project]] = None,
+        projects: Optional[list[Project]] = None,
     ) -> NetworkService:
         """Create a new Block Storage Service.
 
@@ -529,8 +535,8 @@ class CRUDNetworkService(
         self,
         *,
         db_obj: NetworkService,
-        obj_in: Union[NetworkServiceCreateExtended, NetworkServiceUpdate],
-        projects: Optional[List[Project]] = None,
+        obj_in: NetworkServiceCreateExtended | NetworkServiceUpdate,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[NetworkService]:
         """Update Network Service attributes.
@@ -561,7 +567,7 @@ class CRUDNetworkService(
         *,
         db_obj: NetworkService,
         obj_in: NetworkServiceCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update service linked networks.
 
@@ -595,7 +601,7 @@ class CRUDNetworkService(
         *,
         db_obj: NetworkService,
         obj_in: NetworkServiceCreateExtended,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update service linked quotas.
 

@@ -1,5 +1,4 @@
 """User Group REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
@@ -35,7 +34,7 @@ def valid_user_group_id(user_group_uid: str) -> UserGroup:
 
 
 def is_unique_user_group(
-    item: Union[UserGroupCreate, UserGroupUpdate],
+    item: UserGroupCreate | UserGroupUpdate,
     identity_provider: IdentityProvider = Depends(valid_identity_provider_id),
 ) -> None:
     """Check given data are valid ones.

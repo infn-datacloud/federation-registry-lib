@@ -1,5 +1,5 @@
 """Utilities used in User Group endpoints."""
-from typing import List
+
 
 from fed_reg.provider.schemas import ProviderQuery
 from fed_reg.region.schemas import RegionQuery
@@ -7,8 +7,8 @@ from fed_reg.user_group.models import UserGroup
 
 
 def filter_on_provider_attr(
-    items: List[UserGroup], provider_query: ProviderQuery
-) -> List[UserGroup]:
+    items: list[UserGroup], provider_query: ProviderQuery
+) -> list[UserGroup]:
     """Filter projects based on provider access."""
     attrs = provider_query.dict(exclude_none=True)
     if not attrs:
@@ -28,8 +28,8 @@ def filter_on_provider_attr(
 
 
 def filter_on_region_attr(
-    items: List[UserGroup], region_query: RegionQuery
-) -> List[UserGroup]:
+    items: list[UserGroup], region_query: RegionQuery
+) -> list[UserGroup]:
     """Filter projects based on region access."""
     attrs = region_query.dict(exclude_none=True)
     if not attrs:

@@ -11,7 +11,13 @@ from fed_reg.location.constants import (
     DOC_LONG,
     DOC_SITE,
 )
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.query import create_query_model
 
 
@@ -22,6 +28,7 @@ class LocationBasePublic(BaseNode):
     ----------
         description (str): Brief description.
         site (str): Location unique name.
+        country (str): Country name.
     """
 
     site: str = Field(description=DOC_SITE)
@@ -91,7 +98,7 @@ class LocationUpdate(BaseNodeCreate, LocationBase):
     country: Optional[str] = Field(default=None, description=DOC_COUNTRY)
 
 
-class LocationReadPublic(BaseNodeRead, LocationBasePublic):
+class LocationReadPublic(BaseNodeRead, BaseReadPublic, LocationBasePublic):
     """Model, for non-authenticated users, to read Location data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -107,7 +114,7 @@ class LocationReadPublic(BaseNodeRead, LocationBasePublic):
     """
 
 
-class LocationRead(BaseNodeRead, LocationBase):
+class LocationRead(BaseNodeRead, BaseReadPrivate, LocationBase):
     """Model, for authenticated users, to read Location data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

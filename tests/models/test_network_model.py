@@ -55,7 +55,7 @@ def test_default_attr() -> None:
     assert item.description == ""
     assert item.name == d.get("name")
     assert item.uuid == d.get("uuid")
-    assert item.is_shared is False
+    assert item.is_shared is True
     assert item.is_router_external is False
     assert item.is_default is False
     assert item.mtu is None

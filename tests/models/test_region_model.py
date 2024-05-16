@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -139,9 +139,10 @@ def test_optional_rel(region_model: Region) -> None:
 @parametrize_with_cases("service_model", cases=CaseServiceModel, has_tag="single")
 def test_linked_service(
     region_model: Region,
-    service_model: Union[
-        BlockStorageService, ComputeService, IdentityService, NetworkService
-    ],
+    service_model: BlockStorageService
+    | ComputeService
+    | IdentityService
+    | NetworkService,
 ) -> None:
     assert region_model.services.name
     assert region_model.services.source
@@ -162,9 +163,10 @@ def test_linked_service(
 @parametrize_with_cases("service_models", cases=CaseServiceModel, has_tag="multi")
 def test_multiple_linked_services(
     region_model: Region,
-    service_models: Union[
-        BlockStorageService, ComputeService, IdentityService, NetworkService
-    ],
+    service_models: BlockStorageService
+    | ComputeService
+    | IdentityService
+    | NetworkService,
 ) -> None:
     region_model.services.connect(service_models[0])
     region_model.services.connect(service_models[1])

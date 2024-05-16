@@ -1,7 +1,7 @@
 """Pydantic extended models of the Project owned by a Provider."""
-from typing import List, Optional, Union
+from typing import Optional
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fed_reg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fed_reg.identity_provider.schemas import (
@@ -9,6 +9,7 @@ from fed_reg.identity_provider.schemas import (
     IdentityProviderReadPublic,
 )
 from fed_reg.image.schemas import ImageRead, ImageReadPublic
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
 from fed_reg.project.constants import (
     DOC_EXT_FLAV,
@@ -19,7 +20,12 @@ from fed_reg.project.constants import (
     DOC_EXT_SLA,
 )
 from fed_reg.project.models import Project
-from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
+from fed_reg.project.schemas import (
+    ProjectBase,
+    ProjectBasePublic,
+    ProjectRead,
+    ProjectReadPublic,
+)
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.quota.constants import DOC_EXT_SERV
 from fed_reg.quota.schemas import (
@@ -299,7 +305,7 @@ class SLAReadExtendedPublic(SLAReadPublic):
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
-class ProjectReadExtended(ProjectRead):
+class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
     """Model to extend the Project data read from the DB.
 
     Attributes:
@@ -313,20 +319,18 @@ class ProjectReadExtended(ProjectRead):
         flavors (list of FlavorRead): Private and public accessible flavors.
         images (list of ImageRead): Private and public accessible images.
         networks (list of NetworkRead): Private and public accessible networks.
-        quotas (list of Quota): List of owned quotas pointing to the corresponding
+        quotas (list of Quota): list of owned quotas pointing to the corresponding
             service (block-storage, compute and network type).
     """
 
-    flavors: List[FlavorRead] = Field(description=DOC_EXT_FLAV)
-    images: List[ImageRead] = Field(description=DOC_EXT_IMAG)
-    networks: List[NetworkRead] = Field(description=DOC_EXT_NETW)
+    flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
+    images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
+    networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
     provider: ProviderRead = Field(description=DOC_EXT_PROV)
-    quotas: List[
-        Union[
-            ComputeQuotaReadExtended,
-            BlockStorageQuotaReadExtended,
-            NetworkQuotaReadExtended,
-        ]
+    quotas: list[
+        ComputeQuotaReadExtended
+        | BlockStorageQuotaReadExtended
+        | NetworkQuotaReadExtended
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtended] = Field(default=None, description=DOC_EXT_SLA)
 
@@ -342,7 +346,9 @@ class ProjectReadExtended(ProjectRead):
         return super().from_orm(obj)
 
 
-class ProjectReadExtendedPublic(ProjectReadPublic):
+class ProjectReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, ProjectBasePublic
+):
     """Model to extend the Project public data read from the DB.
 
     Attributes:
@@ -356,25 +362,23 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
         flavors (list of FlavorReadPublic): Private and public accessible flavors.
         images (list of ImageReadPublic): Private and public accessible images.
         networks (list of NetworkReadPublic): Private and public accessible networks.
-        quotas (list of QuotaPublic): List of owned quotas pointing to the corresponding
+        quotas (list of QuotaPublic): list of owned quotas pointing to the corresponding
             service (block-storage, compute and network type).
     """
 
-    flavors: List[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
-    images: List[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
-    networks: List[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
+    flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
+    images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
+    networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
     provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
-    quotas: List[
-        Union[
-            ComputeQuotaReadExtendedPublic,
-            BlockStorageQuotaReadExtendedPublic,
-            NetworkQuotaReadExtendedPublic,
-        ]
+    quotas: list[
+        ComputeQuotaReadExtendedPublic
+        | BlockStorageQuotaReadExtendedPublic
+        | NetworkQuotaReadExtendedPublic
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtendedPublic] = Field(default=None, description=DOC_EXT_SLA)
 
     @classmethod
-    def from_orm(cls, obj: Project) -> "ProjectReadExtended":
+    def from_orm(cls, obj: Project) -> "ProjectReadExtendedPublic":
         """Method to merge public and private flavors, images and networks.
 
         `obj` is the orm model instance.
@@ -383,3 +387,18 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
         obj.images = obj.public_images() + obj.private_images.all()
         obj.networks = obj.public_networks() + obj.private_networks.all()
         return super().from_orm(obj)
+
+
+class ProjectReadSingle(BaseModel):
+    __root__: (
+        ProjectReadExtended
+        | ProjectRead
+        | ProjectReadExtendedPublic
+        | ProjectReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class ProjectReadMulti(BaseModel):
+    __root__: list[ProjectReadExtended] | list[ProjectRead] | list[
+        ProjectReadExtendedPublic
+    ] | list[ProjectReadPublic] = Field(..., discriminator="schema_type")

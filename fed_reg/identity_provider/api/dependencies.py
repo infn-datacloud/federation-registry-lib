@@ -1,5 +1,4 @@
 """Identity Provider REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
@@ -36,7 +35,7 @@ def valid_identity_provider_id(identity_provider_uid: str) -> IdentityProvider:
 
 
 def valid_identity_provider_endpoint(
-    item: Union[IdentityProviderCreate, IdentityProviderUpdate]
+    item: IdentityProviderCreate | IdentityProviderUpdate,
 ) -> None:
     """Check there are no other identity providers with the same endpoint.
 

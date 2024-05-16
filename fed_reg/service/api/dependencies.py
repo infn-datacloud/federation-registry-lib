@@ -1,5 +1,4 @@
 """Service REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
@@ -54,7 +53,7 @@ def valid_block_storage_service_id(
 
 
 def valid_block_storage_service_endpoint(
-    item: Union[BlockStorageServiceCreate, BlockStorageServiceUpdate],
+    item: BlockStorageServiceCreate | BlockStorageServiceUpdate,
 ) -> None:
     """Check there are no other services with the same endpoint.
 
@@ -131,7 +130,7 @@ def valid_compute_service_id(
 
 
 def valid_compute_service_endpoint(
-    item: Union[ComputeServiceCreate, ComputeServiceUpdate],
+    item: ComputeServiceCreate | ComputeServiceUpdate,
 ) -> None:
     """Check there are no other services with the same endpoint.
 
@@ -206,7 +205,7 @@ def valid_identity_service_id(
 
 
 def valid_identity_service_endpoint(
-    item: Union[IdentityServiceCreate, IdentityServiceUpdate],
+    item: IdentityServiceCreate | IdentityServiceUpdate,
 ) -> None:
     """Check there are no other services with the same endpoint.
 
@@ -281,7 +280,7 @@ def valid_network_service_id(
 
 
 def valid_network_service_endpoint(
-    item: Union[NetworkServiceCreate, NetworkServiceUpdate],
+    item: NetworkServiceCreate | NetworkServiceUpdate,
 ) -> None:
     """Check there are no other services with the same endpoint.
 

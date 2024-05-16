@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for an Identity Provider."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.identity_provider.models import IdentityProvider
@@ -87,8 +87,8 @@ class CRUDIdentityProvider(
         self,
         *,
         db_obj: IdentityProvider,
-        obj_in: Union[IdentityProviderUpdate, IdentityProviderCreateExtended],
-        projects: Optional[List[Project]] = None,
+        obj_in: IdentityProviderUpdate | IdentityProviderCreateExtended,
+        projects: Optional[list[Project]] = None,
         provider: Optional[Provider] = None,
         force: bool = False,
     ) -> Optional[IdentityProvider]:
@@ -124,7 +124,7 @@ class CRUDIdentityProvider(
         *,
         obj_in: IdentityProviderCreateExtended,
         db_obj: IdentityProvider,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update identity provider linked user groups.
 

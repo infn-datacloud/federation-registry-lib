@@ -1,18 +1,20 @@
 """Module with common Create, Read, Update and delete operations."""
-from typing import Generic, List, Literal, Optional, Type, TypeVar, Union
+from typing import Generic, Literal, Optional, Type, TypeVar
 
 from neomodel import StructuredNode
 
-from fed_reg.models import BaseNodeCreate, BaseNodeRead
+from fed_reg.models import BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
 
 ModelType = TypeVar("ModelType", bound=StructuredNode)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseNodeCreate)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseNodeCreate)
-ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseNodeRead)
-ReadPublicSchemaType = TypeVar("ReadPublicSchemaType", bound=BaseNodeRead)
-ReadExtendedSchemaType = TypeVar("ReadExtendedSchemaType", BaseNodeRead, None)
+ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseReadPrivate)
+ReadPublicSchemaType = TypeVar("ReadPublicSchemaType", bound=BaseReadPublic)
+ReadExtendedSchemaType = TypeVar(
+    "ReadExtendedSchemaType", BaseNodeRead, BaseReadPrivate, None
+)
 ReadExtendedPublicSchemaType = TypeVar(
-    "ReadExtendedPublicSchemaType", BaseNodeRead, None
+    "ReadExtendedPublicSchemaType", BaseNodeRead, BaseReadPublic, None
 )
 
 
@@ -82,7 +84,7 @@ class CRUDBase(
         limit: Optional[int] = None,
         sort: Optional[str] = None,
         **kwargs,
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         """Try to retrieve from DB a list of objects with the given attributes.
 
         Args:
@@ -94,7 +96,7 @@ class CRUDBase(
 
         Returns:
         -------
-            List[ModelType].
+            list[ModelType].
         """
         sorting = []
         if sort:
@@ -172,19 +174,19 @@ class CRUDBase(
         return db_obj.delete()
 
     def paginate(
-        self, *, items: List[ModelType], page: int, size: Optional[int]
-    ) -> List[ModelType]:
+        self, *, items: list[ModelType], page: int, size: Optional[int]
+    ) -> list[ModelType]:
         """Divide the list in chunks.
 
         Args:
         ----
-            items (list[ModelType]): List to split.
+            items (list[ModelType]): list to split.
             page (int): Target chunk (start from 0).
             size (int | None): Chunk size.
 
         Returns:
         -------
-            List[ModelType]. Chunk with index equal to page and length equal to, at
+            list[ModelType]. Chunk with index equal to page and length equal to, at
             most, size.
         """
         if size is None:
@@ -194,13 +196,13 @@ class CRUDBase(
         return items[start:end]
 
     def choose_out_schema(
-        self, *, items: List[ModelType], auth: bool, with_conn: bool, short: bool
-    ) -> Union[
-        List[ReadPublicSchemaType],
-        List[ReadSchemaType],
-        List[ReadExtendedPublicSchemaType],
-        List[ReadExtendedSchemaType],
-    ]:
+        self, *, items: list[ModelType], auth: bool, with_conn: bool, short: bool
+    ) -> (
+        list[ReadPublicSchemaType]
+        | list[ReadSchemaType]
+        | list[ReadExtendedPublicSchemaType]
+        | list[ReadExtendedSchemaType]
+    ):
         """Choose which read model use to return data to users.
 
         Based on authorization, and on the user request to retrieve linked items, choose
@@ -208,15 +210,15 @@ class CRUDBase(
 
         Args:
         ----
-            items (List[ModelType]): List of items to cast.
+            items (list[ModelType]): list of items to cast.
             auth (bool): Flag for authorization.
             with_conn (bool): Flag to retrieve linked items.
             short (bool): Only for authenticated users: show shrunk version (public).
 
         Returns:
         -------
-            List[ReadPublicSchemaType] | List[ReadSchemaType] |
-            List[ReadExtendedPublicSchemaType] | List[ReadExtendedSchemaType].
+            list[ReadPublicSchemaType] | list[ReadSchemaType] |
+            list[ReadExtendedPublicSchemaType] | list[ReadExtendedSchemaType].
         """
         if auth:
             if short:
@@ -231,19 +233,19 @@ class CRUDBase(
         return [self.read_public_schema.from_orm(i) for i in items]
 
     def __apply_limit_and_skip(
-        self, *, items: List[ModelType], skip: int = 0, limit: Optional[int] = None
-    ) -> List[ModelType]:
+        self, *, items: list[ModelType], skip: int = 0, limit: Optional[int] = None
+    ) -> list[ModelType]:
         """Function to apply the limit and skip attributes on the list of values.
 
         Args:
         ----
-            items (list[ModelType]): List to filter.
+            items (list[ModelType]): list to filter.
             skip (int): Number of items to skip from the first one received.
             limit (int | None): Maximum number of items to return.
 
         Returns:
         -------
-            List[ModelType]. Restricted list
+            list[ModelType]. Restricted list
         """
         if limit is None:
             return items[skip:]

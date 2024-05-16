@@ -1,4 +1,4 @@
-from typing import Any, Literal, Union
+from typing import Any, Literal
 from uuid import uuid4
 
 import pytest
@@ -158,7 +158,7 @@ def test_query() -> None:
 @parametrize_with_cases("attr, values", cases=CaseAttr, has_tag=["create_extended"])
 def test_create_extended(
     attr: str,
-    values: Union[list[NetworkQuotaCreateExtended], list[NetworkCreateExtended]],
+    values: list[NetworkQuotaCreateExtended] | list[NetworkCreateExtended],
 ) -> None:
     assert issubclass(NetworkServiceCreateExtended, NetworkServiceCreate)
     d = network_service_schema_dict()

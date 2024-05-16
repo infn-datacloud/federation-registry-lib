@@ -33,7 +33,7 @@ class Provider(StructuredNode):
         type (str): Provider type.
         status (str | None): Provider status.
         is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
+        support_email (list of str): list of maintainers emails.
     """
 
     uid = UniqueIdProperty()

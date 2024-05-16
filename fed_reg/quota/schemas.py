@@ -1,9 +1,15 @@
 """Pydantic models of the Resource limitations for Projects on Services."""
 from typing import Literal, Optional
 
-from pydantic import Field, validator
+from pydantic import Field
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.query import create_query_model
 from fed_reg.quota.constants import (
     DOC_CORES,
@@ -36,7 +42,7 @@ class QuotaBase(BaseNode):
     per_user: bool = Field(default=False, description=DOC_PER_USER)
 
 
-class BlockStorageQuotaBase(QuotaBase):
+class BlockStorageQuotaBasePublic(QuotaBase):
     """Model with the Block Storage Quota public and restricted attributes.
 
     Model derived from QuotaBase to inherit attributes common to all quotas.
@@ -52,22 +58,32 @@ class BlockStorageQuotaBase(QuotaBase):
         volumes (int | None): Number of max volumes a user group can create.
     """
 
-    type: QuotaType = Field(
+    type: Literal[QuotaType.BLOCK_STORAGE] = Field(
         default=QuotaType.BLOCK_STORAGE, description="Block storage type"
     )
+
+
+class BlockStorageQuotaBase(BlockStorageQuotaBasePublic):
+    """Model with the Block Storage Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+    """
+
     gigabytes: Optional[int] = Field(default=None, ge=-1, description=DOC_GB)
     per_volume_gigabytes: Optional[int] = Field(
         default=None, ge=-1, description=DOC_VOL_GB
     )
     volumes: Optional[int] = Field(default=None, ge=-1, description=DOC_VOLS)
-
-    @validator("type", check_fields=False)
-    @classmethod
-    def check_type(cls, v) -> Literal[QuotaType.BLOCK_STORAGE]:
-        """Verify that type value is exactly QuotaType.BLOCK_STORAGE."""
-        if v != QuotaType.BLOCK_STORAGE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
 
 
 class BlockStorageQuotaCreate(BaseNodeCreate, BlockStorageQuotaBase):
@@ -108,7 +124,9 @@ class BlockStorageQuotaUpdate(BaseNodeCreate, BlockStorageQuotaBase):
     """
 
 
-class BlockStorageQuotaReadPublic(BaseNodeRead, QuotaBase):
+class BlockStorageQuotaReadPublic(
+    BaseNodeRead, BaseReadPublic, BlockStorageQuotaBasePublic
+):
     """Model, for non-authenticated users, to read Block Storage data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -120,11 +138,12 @@ class BlockStorageQuotaReadPublic(BaseNodeRead, QuotaBase):
     ----------
         uid (str): Quota unique ID.
         description (str): Brief description.
+        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
 
 
-class BlockStorageQuotaRead(BaseNodeRead, BlockStorageQuotaBase):
+class BlockStorageQuotaRead(BaseNodeRead, BaseReadPrivate, BlockStorageQuotaBase):
     """Model, for authenticated users, to read Block Storage data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -150,7 +169,7 @@ BlockStorageQuotaQuery = create_query_model(
 )
 
 
-class ComputeQuotaBase(QuotaBase):
+class ComputeQuotaBasePublic(QuotaBase):
     """Model with the Compute Quota public and restricted attributes.
 
     Model derived from QuotaBase to inherit attributes common to all quotas.
@@ -165,18 +184,29 @@ class ComputeQuotaBase(QuotaBase):
         ram (int | None): Number of max usable RAM (MiB).
     """
 
-    type: QuotaType = Field(default=QuotaType.COMPUTE, description="Compute type")
+    type: Literal[QuotaType.COMPUTE] = Field(
+        default=QuotaType.COMPUTE, description="Compute type"
+    )
+
+
+class ComputeQuotaBase(ComputeQuotaBasePublic):
+    """Model with the Compute Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        cores (int | None): Number of max usable cores.
+        instances (int | None): Number of max VM instances.
+        ram (int | None): Number of max usable RAM (MiB).
+    """
+
     cores: Optional[int] = Field(default=None, ge=0, description=DOC_CORES)
     instances: Optional[int] = Field(default=None, ge=0, description=DOC_INST)
     ram: Optional[int] = Field(default=None, ge=0, description=DOC_RAM)
-
-    @validator("type", check_fields=False)
-    @classmethod
-    def check_type(cls, v) -> Literal[QuotaType.COMPUTE]:
-        """Verify that type value is exactly QuotaType.COMPUTE."""
-        if v != QuotaType.COMPUTE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
 
 
 class ComputeQuotaCreate(BaseNodeCreate, ComputeQuotaBase):
@@ -215,7 +245,7 @@ class ComputeQuotaUpdate(BaseNodeCreate, ComputeQuotaBase):
     """
 
 
-class ComputeQuotaReadPublic(BaseNodeRead, QuotaBase):
+class ComputeQuotaReadPublic(BaseNodeRead, BaseReadPublic, ComputeQuotaBasePublic):
     """Model, for non-authenticated users, to read Compute data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -227,11 +257,12 @@ class ComputeQuotaReadPublic(BaseNodeRead, QuotaBase):
     ----------
         uid (str): Quota unique ID.
         description (str): Brief description.
+        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
 
 
-class ComputeQuotaRead(BaseNodeRead, ComputeQuotaBase):
+class ComputeQuotaRead(BaseNodeRead, BaseReadPrivate, ComputeQuotaBase):
     """Model, for authenticated users, to read Compute data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -254,7 +285,7 @@ class ComputeQuotaRead(BaseNodeRead, ComputeQuotaBase):
 ComputeQuotaQuery = create_query_model("ComputeQuotaQuery", ComputeQuotaBase)
 
 
-class NetworkQuotaBase(QuotaBase):
+class NetworkQuotaBasePublic(QuotaBase):
     """Model with the Network Quota public and restricted attributes.
 
     Model derived from QuotaBase to inherit attributes common to all quotas.
@@ -274,7 +305,31 @@ class NetworkQuotaBase(QuotaBase):
             for each project.
     """
 
-    type: QuotaType = Field(default=QuotaType.NETWORK, description="Network type")
+    type: Literal[QuotaType.NETWORK] = Field(
+        default=QuotaType.NETWORK, description="Network type"
+    )
+
+
+class NetworkQuotaBase(NetworkQuotaBasePublic):
+    """Model with the Network Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        public_ips (int | None): The number of floating IP addresses allowed for each
+            project.
+        networks (int | None): The number of networks allowed for each project.
+        port (int | None): The number of ports allowed for each project.
+        security_groups (int | None): The number of security groups allowed for each
+            project.
+        security_group_rules (int | None): The number of security group rules allowed
+            for each project.
+    """
+
     public_ips: Optional[int] = Field(default=None, ge=-1, description=DOC_PUB_IPS)
     networks: Optional[int] = Field(default=None, ge=-1, description=DOC_NETS)
     ports: Optional[int] = Field(default=None, ge=-1, description=DOC_PORT)
@@ -282,14 +337,6 @@ class NetworkQuotaBase(QuotaBase):
     security_group_rules: Optional[int] = Field(
         default=None, ge=-1, description=DOC_GROUP_RULES
     )
-
-    @validator("type", check_fields=False)
-    @classmethod
-    def check_type(cls, v) -> Literal[QuotaType.NETWORK]:
-        """Verify that type value is exactly QuotaType.NETWORK."""
-        if v != QuotaType.NETWORK:
-            raise ValueError(f"Not valid type: {v}")
-        return v
 
 
 class NetworkQuotaCreate(BaseNodeCreate, NetworkQuotaBase):
@@ -338,7 +385,7 @@ class NetworkQuotaUpdate(BaseNodeCreate, NetworkQuotaBase):
     """
 
 
-class NetworkQuotaReadPublic(BaseNodeRead, QuotaBase):
+class NetworkQuotaReadPublic(BaseNodeRead, BaseReadPublic, NetworkQuotaBasePublic):
     """Model, for non-authenticated users, to read Network data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -350,11 +397,14 @@ class NetworkQuotaReadPublic(BaseNodeRead, QuotaBase):
     ----------
         uid (str): Quota unique ID.
         description (str): Brief description.
+        type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
     """
 
+    type: QuotaType = Field(description="Network type")
 
-class NetworkQuotaRead(BaseNodeRead, NetworkQuotaBase):
+
+class NetworkQuotaRead(BaseNodeRead, BaseReadPrivate, NetworkQuotaBase):
     """Model, for authenticated users, to read Network data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

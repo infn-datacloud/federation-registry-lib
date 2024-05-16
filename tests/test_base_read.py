@@ -1,6 +1,5 @@
 """Test custom  authentication functions."""
 from datetime import date, datetime
-from typing import Union
 
 import pytest
 from neo4j.time import Date, DateTime
@@ -73,7 +72,7 @@ def test_invalid_read_schema() -> None:
 
 
 @parametrize_with_cases("input, output", cases=CaseDates, has_tag=["date"])
-def test_cast_neo4j_date(input: Union[date, Date], output: date) -> None:
+def test_cast_neo4j_date(input: date | Date, output: date) -> None:
     item = TestORMDate(date_test=input)
     item = TestModelDate.from_orm(item)
     assert item.date_test is not None
@@ -81,7 +80,7 @@ def test_cast_neo4j_date(input: Union[date, Date], output: date) -> None:
 
 
 @parametrize_with_cases("input, output", cases=CaseDates, has_tag=["datetime"])
-def test_cast_neo4j_datetime(input: Union[date, Date], output: date) -> None:
+def test_cast_neo4j_datetime(input: date | Date, output: date) -> None:
     item = TestORMDateTime(datetime_test=input)
     item = TestModelDateTime.from_orm(item)
     assert item.datetime_test is not None

@@ -1,5 +1,5 @@
 """Network endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -23,12 +23,11 @@ from fed_reg.network.models import Network
 from fed_reg.network.schemas import (
     NetworkQuery,
     NetworkRead,
-    NetworkReadPublic,
     NetworkUpdate,
 )
 from fed_reg.network.schemas_extended import (
-    NetworkReadExtended,
-    NetworkReadExtendedPublic,
+    NetworkReadMulti,
+    NetworkReadSingle,
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 
@@ -37,12 +36,7 @@ router = APIRouter(prefix="/networks", tags=["networks"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[NetworkReadExtended],
-        List[NetworkRead],
-        List[NetworkReadExtendedPublic],
-        List[NetworkReadPublic],
-    ],
+    response_model=NetworkReadMulti,
     summary="Read all networks",
     description="Retrieve all networks stored in the database. \
         It is possible to filter on networks attributes and other \
@@ -85,12 +79,7 @@ def get_networks(
 
 @router.get(
     "/{network_uid}",
-    response_model=Union[
-        NetworkReadExtended,
-        NetworkRead,
-        NetworkReadExtendedPublic,
-        NetworkReadPublic,
-    ],
+    response_model=NetworkReadSingle,
     summary="Read a specific network",
     description="Retrieve a specific network using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

@@ -2,7 +2,7 @@
 from enum import Enum
 
 
-class QuotaType(Enum):
+class QuotaType(str, Enum):
     """Possible Quota types."""
 
     BLOCK_STORAGE: str = "block-storage"

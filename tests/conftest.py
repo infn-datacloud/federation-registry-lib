@@ -4,13 +4,16 @@ from typing import Any, Generator
 from uuid import uuid4
 
 import pytest
-from neomodel import db
+from fastapi.testclient import TestClient
+from flaat.user_infos import UserInfos
+from neomodel import config, db
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.image.models import Image
 from fed_reg.location.models import Location
 from fed_reg.location.schemas import LocationCreate
+from fed_reg.main import app
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.project.schemas import ProjectCreate
@@ -76,6 +79,7 @@ from tests.create_dict import (
     user_group_model_dict,
     user_group_schema_dict,
 )
+from tests.utils import MOCK_READ_EMAIL, MOCK_WRITE_EMAIL
 
 
 def pytest_addoption(parser):
@@ -101,9 +105,9 @@ def setup_neo4j_session(request):
     :param request: The request object. Please see <https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_sessionstart>`_
     :type Request object: For more information please see <https://docs.pytest.org/en/latest/reference.html#request>`_
     """
-    # config.DATABASE_URL = os.environ.get(
-    #     "NEO4J_BOLT_URL", "bolt://localhost:7687"
-    # )
+    config.DATABASE_URL = os.environ.get(
+        "NEO4J_TEST_URL", "bolt://neo4j:password@localhost:7687"
+    )
 
     # Clear the database if required
     database_is_populated, _ = db.cypher_query(
@@ -117,9 +121,9 @@ def setup_neo4j_session(request):
             + "\tpytest --resetdb."
         )
 
-    db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
+    # db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
 
-    db.install_all_labels()
+    # db.install_all_labels()
 
     db.cypher_query(
         "CREATE OR REPLACE USER test SET PASSWORD 'foobarbaz' CHANGE NOT REQUIRED"
@@ -130,7 +134,7 @@ def setup_neo4j_session(request):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def cleanup() -> Generator[None, Any, None]:
+def close() -> Generator[None, Any, None]:
     """Close connection with the DB at the end of the test.
 
     Yields:
@@ -138,6 +142,17 @@ def cleanup() -> Generator[None, Any, None]:
     """
     yield
     db.close_connection()
+
+
+@pytest.fixture(autouse=True)
+def cleanup() -> Generator[None, Any, None]:
+    """Clear DB after every test
+
+    Yields:
+        Generator[None, Any, None]: Nothing
+    """
+    yield
+    db.clear_neo4j_database()
 
 
 @pytest.fixture(autouse=True)
@@ -341,3 +356,39 @@ def user_group_create_ext_schema(
     return UserGroupCreateExtended(
         **user_group_schema_dict(), sla=sla_create_ext_schema
     )
+
+
+@pytest.fixture
+def client_no_authn():
+    return TestClient(app)
+
+
+@pytest.fixture
+def client_with_token():
+    return TestClient(app, headers={"Authorization": "Bearer fake"})
+
+
+@pytest.fixture
+def user_infos_with_write_email() -> UserInfos:
+    """Fake user with email. It has write access rights."""
+    return UserInfos(
+        access_token_info=None,
+        user_info={"email": MOCK_WRITE_EMAIL},
+        introspection_info=None,
+    )
+
+
+@pytest.fixture
+def user_infos_with_read_email() -> UserInfos:
+    """Fake user with email. It has only read access rights."""
+    return UserInfos(
+        access_token_info=None,
+        user_info={"email": MOCK_READ_EMAIL},
+        introspection_info=None,
+    )
+
+
+@pytest.fixture
+def user_infos_without_email() -> UserInfos:
+    """Fake user without email."""
+    return UserInfos(access_token_info=None, user_info={}, introspection_info=None)

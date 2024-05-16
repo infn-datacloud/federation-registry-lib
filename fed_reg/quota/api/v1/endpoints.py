@@ -1,5 +1,5 @@
 """Quotas endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -32,24 +32,21 @@ from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
 from fed_reg.quota.schemas import (
     BlockStorageQuotaQuery,
     BlockStorageQuotaRead,
-    BlockStorageQuotaReadPublic,
     BlockStorageQuotaUpdate,
     ComputeQuotaQuery,
     ComputeQuotaRead,
-    ComputeQuotaReadPublic,
     ComputeQuotaUpdate,
     NetworkQuotaQuery,
     NetworkQuotaRead,
-    NetworkQuotaReadPublic,
     NetworkQuotaUpdate,
 )
 from fed_reg.quota.schemas_extended import (
-    BlockStorageQuotaReadExtended,
-    BlockStorageQuotaReadExtendedPublic,
-    ComputeQuotaReadExtended,
-    ComputeQuotaReadExtendedPublic,
-    NetworkQuotaReadExtended,
-    NetworkQuotaReadExtendedPublic,
+    BlockStorageQuotaReadMulti,
+    BlockStorageQuotaReadSingle,
+    ComputeQuotaReadMulti,
+    ComputeQuotaReadSingle,
+    NetworkQuotaReadMulti,
+    NetworkQuotaReadSingle,
 )
 
 bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quotas"])
@@ -57,12 +54,7 @@ bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quota
 
 @bs_router.get(
     "/",
-    response_model=Union[
-        List[BlockStorageQuotaReadExtended],
-        List[BlockStorageQuotaRead],
-        List[BlockStorageQuotaReadExtendedPublic],
-        List[BlockStorageQuotaReadPublic],
-    ],
+    response_model=BlockStorageQuotaReadMulti,
     summary="Read all quotas",
     description="Retrieve all quotas stored in the database. \
         It is possible to filter on quotas attributes and other \
@@ -144,12 +136,7 @@ def get_block_storage_quotas(
 
 @bs_router.get(
     "/{quota_uid}",
-    response_model=Union[
-        BlockStorageQuotaReadExtended,
-        BlockStorageQuotaRead,
-        BlockStorageQuotaReadExtendedPublic,
-        BlockStorageQuotaReadPublic,
-    ],
+    response_model=BlockStorageQuotaReadSingle,
     summary="Read a specific quota",
     description="Retrieve a specific quota using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -260,12 +247,7 @@ c_router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
 
 @c_router.get(
     "/",
-    response_model=Union[
-        List[ComputeQuotaReadExtended],
-        List[ComputeQuotaRead],
-        List[ComputeQuotaReadExtendedPublic],
-        List[ComputeQuotaReadPublic],
-    ],
+    response_model=ComputeQuotaReadMulti,
     summary="Read all compute quotas",
     description="Retrieve all compute quotas stored in the database. \
         It is possible to filter on quotas attributes and other \
@@ -345,12 +327,7 @@ def get_compute_quotas(
 
 @c_router.get(
     "/{quota_uid}",
-    response_model=Union[
-        ComputeQuotaReadExtended,
-        ComputeQuotaRead,
-        ComputeQuotaReadExtendedPublic,
-        ComputeQuotaReadPublic,
-    ],
+    response_model=ComputeQuotaReadSingle,
     summary="Read a specific quota",
     description="Retrieve a specific quota using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -461,12 +438,7 @@ n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
 
 @n_router.get(
     "/",
-    response_model=Union[
-        List[NetworkQuotaReadExtended],
-        List[NetworkQuotaRead],
-        List[NetworkQuotaReadExtendedPublic],
-        List[NetworkQuotaReadPublic],
-    ],
+    response_model=NetworkQuotaReadMulti,
     summary="Read all network quotas",
     description="Retrieve all network quotas stored in the database. \
         It is possible to filter on quotas attributes and other \
@@ -509,12 +481,7 @@ def get_network_quotas(
 
 @n_router.get(
     "/{quota_uid}",
-    response_model=Union[
-        NetworkQuotaReadExtended,
-        NetworkQuotaRead,
-        NetworkQuotaReadExtendedPublic,
-        NetworkQuotaReadPublic,
-    ],
+    response_model=NetworkQuotaReadSingle,
     summary="Read a specific quota",
     description="Retrieve a specific quota using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

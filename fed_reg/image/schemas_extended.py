@@ -1,10 +1,9 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
-from typing import List
-
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fed_reg.image.constants import DOC_EXT_PROJ, DOC_EXT_SERV
-from fed_reg.image.schemas import ImageRead, ImageReadPublic
+from fed_reg.image.schemas import ImageBase, ImageBasePublic, ImageRead, ImageReadPublic
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.region.constants import DOC_EXT_PROV
@@ -71,7 +70,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class ImageReadExtended(ImageRead):
+class ImageReadExtended(BaseNodeRead, BaseReadPrivateExtended, ImageBase):
     """Model to extend the Image data read from the DB.
 
     Attributes:
@@ -88,18 +87,18 @@ class ImageReadExtended(ImageRead):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
-        tags (list of str): List of tags associated to this Image.
+        tags (list of str): list of tags associated to this Image.
         projects (list of ProjectRead): Projects having access to this flavor. The list
             is populated only if the flavor is a private one.
         services (list of ComputeServiceReadExtended): Compute Services exploiting this
             flavor.
     """
 
-    projects: List[ProjectRead] = Field(description=DOC_EXT_PROJ)
-    services: List[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
+    projects: list[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    services: list[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
 
 
-class ImageReadExtendedPublic(ImageReadPublic):
+class ImageReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, ImageBasePublic):
     """Model to extend the Image public data read from the DB.
 
     Attributes:
@@ -114,5 +113,17 @@ class ImageReadExtendedPublic(ImageReadPublic):
             this flavor.
     """
 
-    projects: List[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
-    services: List[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
+    projects: list[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
+    services: list[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
+
+
+class ImageReadSingle(BaseModel):
+    __root__: (
+        ImageReadExtended | ImageRead | ImageReadExtendedPublic | ImageReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class ImageReadMulti(BaseModel):
+    __root__: list[ImageReadExtended] | list[ImageRead] | list[
+        ImageReadExtendedPublic
+    ] | list[ImageReadPublic] = Field(..., discriminator="schema_type")

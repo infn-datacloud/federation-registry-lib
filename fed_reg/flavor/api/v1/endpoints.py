@@ -1,5 +1,5 @@
 """Flavor endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -23,12 +23,11 @@ from fed_reg.flavor.models import Flavor
 from fed_reg.flavor.schemas import (
     FlavorQuery,
     FlavorRead,
-    FlavorReadPublic,
     FlavorUpdate,
 )
 from fed_reg.flavor.schemas_extended import (
-    FlavorReadExtended,
-    FlavorReadExtendedPublic,
+    FlavorReadMulti,
+    FlavorReadSingle,
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 
@@ -37,12 +36,7 @@ router = APIRouter(prefix="/flavors", tags=["flavors"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[FlavorReadExtended],
-        List[FlavorRead],
-        List[FlavorReadExtendedPublic],
-        List[FlavorReadPublic],
-    ],
+    response_model=FlavorReadMulti,
     summary="Read all flavors",
     description="Retrieve all flavors stored in the database. \
         It is possible to filter on flavors attributes and other \
@@ -85,12 +79,7 @@ def get_flavors(
 
 @router.get(
     "/{flavor_uid}",
-    response_model=Union[
-        FlavorReadExtended,
-        FlavorRead,
-        FlavorReadExtendedPublic,
-        FlavorReadPublic,
-    ],
+    response_model=FlavorReadSingle,
     summary="Read a specific flavor",
     description="Retrieve a specific flavor using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

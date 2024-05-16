@@ -1,6 +1,4 @@
 """Flavor REST API dependencies."""
-from typing import List, Union
-
 from fastapi import Depends, HTTPException, status
 
 from fed_reg.flavor.crud import flavor_mng
@@ -35,8 +33,8 @@ def valid_flavor_id(flavor_uid: str) -> Flavor:
 
 
 def valid_flavor_name(
-    item: Union[FlavorCreate, FlavorUpdate],
-    services: List[ComputeService],
+    item: FlavorCreate | FlavorUpdate,
+    services: list[ComputeService],
 ) -> None:
     """Check no duplicate name.
 
@@ -46,7 +44,7 @@ def valid_flavor_name(
     Args:
     ----
         item (FlavorCreate | FlavorUpdate): new data.
-        services (list of ComputeService): List of services to inspect.
+        services (list of ComputeService): list of services to inspect.
 
     Returns:
     -------
@@ -68,8 +66,8 @@ def valid_flavor_name(
 
 
 def valid_flavor_uuid(
-    item: Union[FlavorCreate, FlavorUpdate],
-    services: List[ComputeService] = Depends(valid_compute_service_id),
+    item: FlavorCreate | FlavorUpdate,
+    services: list[ComputeService] = Depends(valid_compute_service_id),
 ) -> None:
     """Check no duplicate UUID.
 
@@ -79,7 +77,7 @@ def valid_flavor_uuid(
     Args:
     ----
         item (FlavorCreate | FlavorUpdate): new data.
-        services (list of ComputeService): List of services to inspect.
+        services (list of ComputeService): list of services to inspect.
 
     Returns:
     -------

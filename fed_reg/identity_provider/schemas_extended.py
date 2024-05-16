@@ -1,14 +1,17 @@
 """Pydantic extended models of the Identity Provider."""
-from typing import List
 
-from pydantic import Field
+
+from pydantic import BaseModel, Field
 
 from fed_reg.auth_method.schemas import AuthMethodRead
 from fed_reg.identity_provider.constants import DOC_EXT_GROUP, DOC_EXT_PROV
 from fed_reg.identity_provider.schemas import (
+    IdentityProviderBase,
+    IdentityProviderBasePublic,
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.provider.constants import DOC_EXT_AUTH_METH
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.user_group.schemas import UserGroupRead, UserGroupReadPublic
@@ -25,7 +28,7 @@ class ProviderReadExtended(ProviderRead):
         type (str): Provider type.
         status (str | None): Provider status.
         is_public (bool): Public or private Provider.
-        support_email (list of str): List of maintainers emails.
+        support_email (list of str): list of maintainers emails.
         relationship (AuthMethodRead): Authentication method used to connect to the
             target identity provider.
     """
@@ -48,7 +51,9 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
 
 
-class IdentityProviderReadExtended(IdentityProviderRead):
+class IdentityProviderReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, IdentityProviderBase
+):
     """Model to extend the Identity Provider data read from the DB.
 
     Attributes:
@@ -62,11 +67,13 @@ class IdentityProviderReadExtended(IdentityProviderRead):
         user_groups (list of UserGroupRead): Owned user groups.
     """
 
-    providers: List[ProviderReadExtended] = Field(description=DOC_EXT_PROV)
-    user_groups: List[UserGroupRead] = Field(description=DOC_EXT_GROUP)
+    providers: list[ProviderReadExtended] = Field(description=DOC_EXT_PROV)
+    user_groups: list[UserGroupRead] = Field(description=DOC_EXT_GROUP)
 
 
-class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
+class IdentityProviderReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, IdentityProviderBasePublic
+):
     """Model to extend the Identity Provider public data read from the DB.
 
     Attributes:
@@ -78,5 +85,20 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
         user_groups (list of UserGroupReadPublic): Owned user groups.
     """
 
-    providers: List[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
-    user_groups: List[UserGroupReadPublic] = Field(description=DOC_EXT_GROUP)
+    providers: list[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
+    user_groups: list[UserGroupReadPublic] = Field(description=DOC_EXT_GROUP)
+
+
+class IdentityProviderReadSingle(BaseModel):
+    __root__: (
+        IdentityProviderReadExtended
+        | IdentityProviderRead
+        | IdentityProviderReadExtendedPublic
+        | IdentityProviderReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class IdentityProviderReadMulti(BaseModel):
+    __root__: list[IdentityProviderReadExtended] | list[IdentityProviderRead] | list[
+        IdentityProviderReadExtendedPublic
+    ] | list[IdentityProviderReadPublic] = Field(..., discriminator="schema_type")

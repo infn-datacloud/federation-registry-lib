@@ -1,5 +1,4 @@
 """Location REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
@@ -32,7 +31,7 @@ def valid_location_id(location_uid: str) -> Location:
     return item
 
 
-def valid_location_site(item: Union[LocationCreate, LocationUpdate]) -> None:
+def valid_location_site(item: LocationCreate | LocationUpdate) -> None:
     """Check there are no other locations with the same site.
 
     Args:

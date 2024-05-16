@@ -1,5 +1,5 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import Field
 
@@ -17,7 +17,13 @@ from fed_reg.image.constants import (
     DOC_UUID,
 )
 from fed_reg.image.enum import ImageOS
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.query import create_query_model
 
 
@@ -51,7 +57,7 @@ class ImageBase(ImageBasePublic):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
-        tags (list of str): List of tags associated to this Image.
+        tags (list of str): list of tags associated to this Image.
     """
 
     os_type: Optional[ImageOS] = Field(default=None, description=DOC_OS_TYPE)
@@ -62,7 +68,7 @@ class ImageBase(ImageBasePublic):
     cuda_support: bool = Field(default=False, description=DOC_CUDA)
     gpu_driver: bool = Field(default=False, description=DOC_GPU_DRIV)
     is_public: bool = Field(default=True, description=DOC_SHARED)
-    tags: List[str] = Field(default_factory=list, description=DOC_TAGS)
+    tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
 class ImageCreate(BaseNodeCreate, ImageBase):
@@ -84,7 +90,7 @@ class ImageCreate(BaseNodeCreate, ImageBase):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
-        tags (list of str): List of tags associated to this Image.
+        tags (list of str): list of tags associated to this Image.
     """
 
 
@@ -109,14 +115,14 @@ class ImageUpdate(BaseNodeCreate, ImageBase):
         cuda_support (str | None): Support for cuda enabled.
         gpu_driver (str | None): Support for GPUs drivers.
         is_public (bool | None): Public or private Image.
-        tags (list of str | None): List of tags associated to this Image.
+        tags (list of str | None): list of tags associated to this Image.
     """
 
     name: Optional[str] = Field(default=None, description=DOC_NAME)
     uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
-class ImageReadPublic(BaseNodeRead, ImageBasePublic):
+class ImageReadPublic(BaseNodeRead, BaseReadPublic, ImageBasePublic):
     """Model, for non-authenticated users, to read Image data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -133,7 +139,7 @@ class ImageReadPublic(BaseNodeRead, ImageBasePublic):
     """
 
 
-class ImageRead(BaseNodeRead, ImageBase):
+class ImageRead(BaseNodeRead, BaseReadPrivate, ImageBase):
     """Model, for authenticated users, to read Image data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -155,7 +161,7 @@ class ImageRead(BaseNodeRead, ImageBase):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
-        tags (list of str): List of tags associated to this Image.
+        tags (list of str): list of tags associated to this Image.
     """
 
 

@@ -1,5 +1,4 @@
 """Project REST API dependencies."""
-from typing import Union
 
 from fastapi import Depends, HTTPException, status
 
@@ -59,7 +58,7 @@ def valid_project_id(project_uid: str) -> Project:
 
 
 def valid_project_name(
-    item: Union[ProjectCreate, ProjectUpdate],
+    item: ProjectCreate | ProjectUpdate,
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
     """Check given data are valid ones.
@@ -90,7 +89,7 @@ def valid_project_name(
 
 
 def valid_project_uuid(
-    item: Union[ProjectCreate, ProjectUpdate],
+    item: ProjectCreate | ProjectUpdate,
     provider: Provider = Depends(valid_provider_id),
 ) -> None:
     """Check given data are valid ones.

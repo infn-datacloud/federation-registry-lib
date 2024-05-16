@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for an SLA."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.project.models import Project
@@ -46,8 +46,8 @@ class CRUDSLA(
         self,
         *,
         db_obj: SLA,
-        obj_in: Union[SLAUpdate, SLACreateExtended],
-        projects: Optional[List[Project]] = None,
+        obj_in: SLAUpdate | SLACreateExtended,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[SLA]:
         """Update SLA attributes.

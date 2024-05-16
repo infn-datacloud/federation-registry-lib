@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for an Image."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.image.models import Image
@@ -28,7 +28,7 @@ class CRUDImage(
         *,
         obj_in: ImageCreateExtended,
         service: ComputeService,
-        projects: Optional[List[Project]] = None,
+        projects: Optional[list[Project]] = None,
     ) -> Image:
         """Create a new Image.
 
@@ -63,8 +63,8 @@ class CRUDImage(
         self,
         *,
         db_obj: Image,
-        obj_in: Union[ImageUpdate, ImageCreateExtended],
-        projects: Optional[List[Project]] = None,
+        obj_in: ImageUpdate | ImageCreateExtended,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[Image]:
         """Update Image attributes.
@@ -91,7 +91,7 @@ class CRUDImage(
         *,
         obj_in: ImageCreateExtended,
         db_obj: Image,
-        provider_projects: List[Project],
+        provider_projects: list[Project],
     ) -> bool:
         """Update image linked projects.
 
