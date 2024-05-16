@@ -3,9 +3,14 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.constants import DOC_EXT_PROJ, DOC_EXT_SERV
-from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
+from fed_reg.network.schemas import (
+    NetworkBase,
+    NetworkBasePublic,
+    NetworkRead,
+    NetworkReadPublic,
+)
 from fed_reg.project.schemas import ProjectRead
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.region.constants import DOC_EXT_PROV
@@ -72,7 +77,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class NetworkReadExtended(NetworkRead, BaseReadPrivateExtended):
+class NetworkReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkBase):
     """Model to extend the Network data read from the DB.
 
     uid (int): Network unique ID.
@@ -95,7 +100,9 @@ class NetworkReadExtended(NetworkRead, BaseReadPrivateExtended):
     service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class NetworkReadExtendedPublic(NetworkReadPublic, BaseReadPublicExtended):
+class NetworkReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, NetworkBasePublic
+):
     """Model to extend the Network public data read from the DB.
 
     uid (int): Network unique ID.

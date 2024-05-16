@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from fed_reg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fed_reg.image.schemas import ImageRead, ImageReadPublic
-from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
@@ -28,12 +28,20 @@ from fed_reg.service.constants import (
     DOC_EXT_REG,
 )
 from fed_reg.service.schemas import (
+    BlockStorageServiceBase,
+    BlockStorageServiceBasePublic,
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
+    ComputeServiceBase,
+    ComputeServiceBasePublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
+    IdentityServiceBase,
+    IdentityServiceBasePublic,
     IdentityServiceRead,
     IdentityServiceReadPublic,
+    NetworkServiceBase,
+    NetworkServiceBasePublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
@@ -169,7 +177,9 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
 
 
-class BlockStorageServiceReadExtended(BlockStorageServiceRead, BaseReadPrivateExtended):
+class BlockStorageServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, BlockStorageServiceBase
+):
     """Model to extend the Block Storage Quota data read from the DB.
 
     Attributes:
@@ -188,7 +198,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead, BaseReadPrivateEx
 
 
 class BlockStorageServiceReadExtendedPublic(
-    BlockStorageServiceReadPublic, BaseReadPublicExtended
+    BaseNodeRead, BaseReadPublicExtended, BlockStorageServiceBasePublic
 ):
     """Model to extend the Block Storage Service public data read from the DB.
 
@@ -206,7 +216,9 @@ class BlockStorageServiceReadExtendedPublic(
     quotas: list[BlockStorageQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
 
 
-class ComputeServiceReadExtended(ComputeServiceRead, BaseReadPrivateExtended):
+class ComputeServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, ComputeServiceBase
+):
     """Model to extend the Compute Service data read from the DB.
 
     Attributes:
@@ -229,7 +241,7 @@ class ComputeServiceReadExtended(ComputeServiceRead, BaseReadPrivateExtended):
 
 
 class ComputeServiceReadExtendedPublic(
-    ComputeServiceReadPublic, BaseReadPublicExtended
+    BaseNodeRead, BaseReadPublicExtended, ComputeServiceBasePublic
 ):
     """Model to extend the Compute Service public data read from the DB.
 
@@ -251,7 +263,9 @@ class ComputeServiceReadExtendedPublic(
     images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
 
 
-class IdentityServiceReadExtended(IdentityServiceRead, BaseReadPrivateExtended):
+class IdentityServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, IdentityServiceBase
+):
     """Model to extend the Identity Service data read from the DB.
 
     Attributes:
@@ -268,7 +282,7 @@ class IdentityServiceReadExtended(IdentityServiceRead, BaseReadPrivateExtended):
 
 
 class IdentityServiceReadExtendedPublic(
-    IdentityServiceReadPublic, BaseReadPublicExtended
+    BaseNodeRead, BaseReadPublicExtended, IdentityServiceBasePublic
 ):
     """Model to extend the Identity Service public data read from the DB.
 
@@ -283,7 +297,9 @@ class IdentityServiceReadExtendedPublic(
     regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
-class NetworkServiceReadExtended(NetworkServiceRead, BaseReadPrivateExtended):
+class NetworkServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, NetworkServiceBase
+):
     """Model to extend the Network Service data read from the DB.
 
     Attributes:
@@ -304,7 +320,7 @@ class NetworkServiceReadExtended(NetworkServiceRead, BaseReadPrivateExtended):
 
 
 class NetworkServiceReadExtendedPublic(
-    NetworkServiceReadPublic, BaseReadPublicExtended
+    BaseNodeRead, BaseReadPublicExtended, NetworkServiceBasePublic
 ):
     """Model to extend the Network Service public data read from the DB.
 

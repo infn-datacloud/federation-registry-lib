@@ -6,10 +6,12 @@ from pydantic import BaseModel, Field
 from fed_reg.auth_method.schemas import AuthMethodRead
 from fed_reg.identity_provider.constants import DOC_EXT_GROUP, DOC_EXT_PROV
 from fed_reg.identity_provider.schemas import (
+    IdentityProviderBase,
+    IdentityProviderBasePublic,
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.provider.constants import DOC_EXT_AUTH_METH
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.user_group.schemas import UserGroupRead, UserGroupReadPublic
@@ -49,7 +51,9 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
 
 
-class IdentityProviderReadExtended(IdentityProviderRead, BaseReadPrivateExtended):
+class IdentityProviderReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, IdentityProviderBase
+):
     """Model to extend the Identity Provider data read from the DB.
 
     Attributes:
@@ -68,7 +72,7 @@ class IdentityProviderReadExtended(IdentityProviderRead, BaseReadPrivateExtended
 
 
 class IdentityProviderReadExtendedPublic(
-    IdentityProviderReadPublic, BaseReadPublicExtended
+    BaseNodeRead, BaseReadPublicExtended, IdentityProviderBasePublic
 ):
     """Model to extend the Identity Provider public data read from the DB.
 

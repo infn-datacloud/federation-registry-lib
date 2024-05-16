@@ -2,8 +2,8 @@
 from pydantic import BaseModel, Field
 
 from fed_reg.image.constants import DOC_EXT_PROJ, DOC_EXT_SERV
-from fed_reg.image.schemas import ImageRead, ImageReadPublic
-from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
+from fed_reg.image.schemas import ImageBase, ImageBasePublic, ImageRead, ImageReadPublic
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.region.constants import DOC_EXT_PROV
@@ -70,7 +70,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class ImageReadExtended(ImageRead, BaseReadPrivateExtended):
+class ImageReadExtended(BaseNodeRead, BaseReadPrivateExtended, ImageBase):
     """Model to extend the Image data read from the DB.
 
     Attributes:
@@ -98,7 +98,7 @@ class ImageReadExtended(ImageRead, BaseReadPrivateExtended):
     services: list[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
 
 
-class ImageReadExtendedPublic(ImageReadPublic, BaseReadPublicExtended):
+class ImageReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, ImageBasePublic):
     """Model to extend the Image public data read from the DB.
 
     Attributes:

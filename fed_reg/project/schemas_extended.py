@@ -9,7 +9,7 @@ from fed_reg.identity_provider.schemas import (
     IdentityProviderReadPublic,
 )
 from fed_reg.image.schemas import ImageRead, ImageReadPublic
-from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
 from fed_reg.project.constants import (
     DOC_EXT_FLAV,
@@ -20,7 +20,12 @@ from fed_reg.project.constants import (
     DOC_EXT_SLA,
 )
 from fed_reg.project.models import Project
-from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
+from fed_reg.project.schemas import (
+    ProjectBase,
+    ProjectBasePublic,
+    ProjectRead,
+    ProjectReadPublic,
+)
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.quota.constants import DOC_EXT_SERV
 from fed_reg.quota.schemas import (
@@ -300,7 +305,7 @@ class SLAReadExtendedPublic(SLAReadPublic):
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
-class ProjectReadExtended(ProjectRead, BaseReadPrivateExtended):
+class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
     """Model to extend the Project data read from the DB.
 
     Attributes:
@@ -341,7 +346,9 @@ class ProjectReadExtended(ProjectRead, BaseReadPrivateExtended):
         return super().from_orm(obj)
 
 
-class ProjectReadExtendedPublic(ProjectReadPublic, BaseReadPublicExtended):
+class ProjectReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, ProjectBasePublic
+):
     """Model to extend the Project public data read from the DB.
 
     Attributes:

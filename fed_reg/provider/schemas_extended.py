@@ -17,7 +17,7 @@ from fed_reg.location.schemas import (
     LocationRead,
     LocationReadPublic,
 )
-from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
 from fed_reg.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from fed_reg.provider.constants import (
@@ -34,6 +34,8 @@ from fed_reg.provider.constants import (
     DOC_NEW_SERV_NET,
 )
 from fed_reg.provider.schemas import (
+    ProviderBase,
+    ProviderBasePublic,
     ProviderCreate,
     ProviderRead,
     ProviderReadPublic,
@@ -319,7 +321,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
-class ProviderReadExtended(ProviderRead, BaseReadPrivateExtended):
+class ProviderReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProviderBase):
     """Model to extend the Provider data read from the DB.
 
     Attributes:
@@ -344,7 +346,9 @@ class ProviderReadExtended(ProviderRead, BaseReadPrivateExtended):
     regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
-class ProviderReadExtendedPublic(ProviderReadPublic, BaseReadPublicExtended):
+class ProviderReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, ProviderBasePublic
+):
     """Model to extend the Provider public data read from the DB.
 
     Attributes:

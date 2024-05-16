@@ -7,14 +7,19 @@ from fed_reg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.project.constants import DOC_EXT_PROV
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.sla.constants import DOC_EXT_PROJ
 from fed_reg.sla.schemas import SLARead, SLAReadPublic
 from fed_reg.user_group.constants import DOC_EXT_IDP, DOC_EXT_SLA
-from fed_reg.user_group.schemas import UserGroupRead, UserGroupReadPublic
+from fed_reg.user_group.schemas import (
+    UserGroupBase,
+    UserGroupBasePublic,
+    UserGroupRead,
+    UserGroupReadPublic,
+)
 
 
 class ProjectReadExtended(ProjectRead):
@@ -77,7 +82,7 @@ class SLAReadExtendedPublic(SLAReadPublic):
     projects: list[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
 
 
-class UserGroupReadExtended(UserGroupRead, BaseReadPrivateExtended):
+class UserGroupReadExtended(BaseNodeRead, BaseReadPrivateExtended, UserGroupBase):
     """Model to extend the User Group data read from the DB.
 
     Attributes:
@@ -94,7 +99,9 @@ class UserGroupReadExtended(UserGroupRead, BaseReadPrivateExtended):
     slas: list[SLAReadExtended] = Field(description=DOC_EXT_SLA)
 
 
-class UserGroupReadExtendedPublic(UserGroupReadPublic, BaseReadPublicExtended):
+class UserGroupReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, UserGroupBasePublic
+):
     """Model to extend the User Group public data read from the DB.
 
     Attributes:
