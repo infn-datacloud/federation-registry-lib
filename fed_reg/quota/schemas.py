@@ -1,7 +1,7 @@
 """Pydantic models of the Resource limitations for Projects on Services."""
 from typing import Literal, Optional
 
-from pydantic import Field, validator
+from pydantic import Field
 
 from fed_reg.models import (
     BaseNode,
@@ -58,17 +58,9 @@ class BlockStorageQuotaBasePublic(QuotaBase):
         volumes (int | None): Number of max volumes a user group can create.
     """
 
-    type: QuotaType = Field(
+    type: Literal[QuotaType.BLOCK_STORAGE] = Field(
         default=QuotaType.BLOCK_STORAGE, description="Block storage type"
     )
-
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[QuotaType.BLOCK_STORAGE]:
-        """Verify that type value is exactly QuotaType.BLOCK_STORAGE."""
-        if v != QuotaType.BLOCK_STORAGE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
 
 
 class BlockStorageQuotaBase(BlockStorageQuotaBasePublic):
@@ -192,15 +184,9 @@ class ComputeQuotaBasePublic(QuotaBase):
         ram (int | None): Number of max usable RAM (MiB).
     """
 
-    type: QuotaType = Field(default=QuotaType.COMPUTE, description="Compute type")
-
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[QuotaType.COMPUTE]:
-        """Verify that type value is exactly QuotaType.COMPUTE."""
-        if v != QuotaType.COMPUTE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
+    type: Literal[QuotaType.COMPUTE] = Field(
+        default=QuotaType.COMPUTE, description="Compute type"
+    )
 
 
 class ComputeQuotaBase(ComputeQuotaBasePublic):
@@ -319,15 +305,9 @@ class NetworkQuotaBasePublic(QuotaBase):
             for each project.
     """
 
-    type: QuotaType = Field(default=QuotaType.NETWORK, description="Network type")
-
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[QuotaType.NETWORK]:
-        """Verify that type value is exactly QuotaType.NETWORK."""
-        if v != QuotaType.NETWORK:
-            raise ValueError(f"Not valid type: {v}")
-        return v
+    type: Literal[QuotaType.NETWORK] = Field(
+        default=QuotaType.NETWORK, description="Network type"
+    )
 
 
 class NetworkQuotaBase(NetworkQuotaBasePublic):

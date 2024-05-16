@@ -48,19 +48,9 @@ class BlockStorageServiceBasePublic(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(
+    type: Literal[ServiceType.BLOCK_STORAGE] = Field(
         default=ServiceType.BLOCK_STORAGE, description="Block Storage service type."
     )
-
-    @validator("type")
-    @classmethod
-    def check_type(
-        cls, v: Literal[ServiceType.BLOCK_STORAGE]
-    ) -> Literal[ServiceType.BLOCK_STORAGE]:
-        """Verify that the type value is exactly ServiceType.BLOCK_STORAGE."""
-        if v != ServiceType.BLOCK_STORAGE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
 
 
 class BlockStorageServiceBase(BlockStorageServiceBasePublic):
@@ -168,17 +158,9 @@ class ComputeServiceBasePublic(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(
+    type: Literal[ServiceType.COMPUTE] = Field(
         default=ServiceType.COMPUTE, description="Compute service type."
     )
-
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[ServiceType.COMPUTE]:
-        """Verify that the type value is exactly ServiceType.COMPUTE."""
-        if v != ServiceType.COMPUTE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
 
 
 class ComputeServiceBase(ComputeServiceBasePublic):
@@ -282,17 +264,9 @@ class IdentityServiceBasePublic(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(
+    type: Literal[ServiceType.IDENTITY] = Field(
         default=ServiceType.IDENTITY, description="Identity service type."
     )
-
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[ServiceType.IDENTITY]:
-        """Verify that the type value is exactly ServiceType.IDENTITY."""
-        if v != ServiceType.IDENTITY:
-            raise ValueError(f"Not valid type: {v}")
-        return v
 
 
 class IdentityServiceBase(IdentityServiceBasePublic):
@@ -397,17 +371,9 @@ class NetworkServiceBasePublic(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(
+    type: Literal[ServiceType.NETWORK] = Field(
         default=ServiceType.NETWORK, description="Network service type."
     )
-
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[ServiceType.NETWORK]:
-        """Verify that the type value is exactly ServiceType.NETWORK."""
-        if v != ServiceType.NETWORK:
-            raise ValueError(f"Not valid type: {v}")
-        return v
 
 
 class NetworkServiceBase(NetworkServiceBasePublic):
