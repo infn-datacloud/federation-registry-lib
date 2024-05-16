@@ -1,5 +1,5 @@
 """Identity Provider endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 # from app.user_group.api.dependencies import is_unique_user_group
 # from app.user_group.crud import user_group
@@ -34,6 +34,8 @@ from fed_reg.identity_provider.schemas import (
 from fed_reg.identity_provider.schemas_extended import (
     IdentityProviderReadExtended,
     IdentityProviderReadExtendedPublic,
+    IdentityProviderReadMulti,
+    IdentityProviderReadSingle,
 )
 
 # from app.project.schemas_extended import UserGroupReadExtended
@@ -46,12 +48,7 @@ router = APIRouter(prefix="/identity_providers", tags=["identity_providers"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[IdentityProviderReadExtended],
-        List[IdentityProviderRead],
-        List[IdentityProviderReadExtendedPublic],
-        List[IdentityProviderReadPublic],
-    ],
+    response_model=IdentityProviderReadMulti,
     summary="Read all identity providers",
     description="Retrieve all identity providers stored in the database. \
         It is possible to filter on identity providers attributes and other \
@@ -94,12 +91,7 @@ def get_identity_providers(
 
 @router.get(
     "/{identity_provider_uid}",
-    response_model=Union[
-        IdentityProviderReadExtended,
-        IdentityProviderRead,
-        IdentityProviderReadExtendedPublic,
-        IdentityProviderReadPublic,
-    ],
+    response_model=IdentityProviderReadSingle,
     summary="Read a specific identity provider",
     description="Retrieve a specific identity provider using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

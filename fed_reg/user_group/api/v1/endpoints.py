@@ -1,5 +1,5 @@
 """User Group endpoints to execute POST, GET, PUT, PATCH and DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -67,6 +67,8 @@ from fed_reg.user_group.schemas import (
 from fed_reg.user_group.schemas_extended import (
     UserGroupReadExtended,
     UserGroupReadExtendedPublic,
+    UserGroupReadMulti,
+    UserGroupReadSingle,
 )
 
 router = APIRouter(prefix="/user_groups", tags=["user_groups"])
@@ -74,12 +76,7 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[UserGroupReadExtended],
-        List[UserGroupRead],
-        List[UserGroupReadExtendedPublic],
-        List[UserGroupReadPublic],
-    ],
+    response_model=UserGroupReadMulti,
     summary="Read all user groups",
     description="Retrieve all user groups stored in the database. \
         It is possible to filter on user groups attributes and other \
@@ -144,12 +141,7 @@ def get_user_groups(
 
 @router.get(
     "/{user_group_uid}",
-    response_model=Union[
-        UserGroupReadExtended,
-        UserGroupRead,
-        UserGroupReadExtendedPublic,
-        UserGroupReadPublic,
-    ],
+    response_model=UserGroupReadSingle,
     summary="Read a specific user group",
     description="Retrieve a specific user group using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

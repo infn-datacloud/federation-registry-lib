@@ -122,21 +122,39 @@ class BaseNodeRead(BaseModel):
         orm_mode = True
 
 
-class BaseReadPublic(BaseNodeRead):
+class BaseReadPublic(BaseModel):
     """ """
 
-    is_public_schema: Literal[True] = Field(
-        default=True,
-        description="Inner attribute to distinguish between public and private schemas",
+    schema_type: Literal["public"] = Field(
+        default="public",
+        description="Inner attribute to distinguish between schema types",
     )
 
 
-class BaseReadPrivate(BaseNodeRead):
+class BaseReadPrivate(BaseModel):
     """ """
 
-    is_public_schema: Literal[False] = Field(
-        default=False,
-        description="Inner attribute to distinguish between public and private schemas",
+    schema_type: Literal["private"] = Field(
+        default="private",
+        description="Inner attribute to distinguish between schema types",
+    )
+
+
+class BaseReadPublicExtended(BaseModel):
+    """ """
+
+    schema_type: Literal["public_extended"] = Field(
+        default="public_extended",
+        description="Inner attribute to distinguish between schema types",
+    )
+
+
+class BaseReadPrivateExtended(BaseModel):
+    """ """
+
+    schema_type: Literal["private_extended"] = Field(
+        default="private_extended",
+        description="Inner attribute to distinguish between schema types",
     )
 
 

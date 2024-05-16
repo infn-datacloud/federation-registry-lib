@@ -1,10 +1,11 @@
 """Pydantic extended models of the Virtual Machine Flavor owned by a Provider."""
-from typing import List
+from typing import List, Union
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fed_reg.flavor.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from fed_reg.flavor.schemas import FlavorRead, FlavorReadPublic
+from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.region.constants import DOC_EXT_PROV
@@ -71,7 +72,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class FlavorReadExtended(FlavorRead):
+class FlavorReadExtended(FlavorRead, BaseReadPrivateExtended):
     """Model to extend the Flavor data read from the DB.
 
     Attributes:
@@ -101,7 +102,7 @@ class FlavorReadExtended(FlavorRead):
     services: List[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
 
 
-class FlavorReadExtendedPublic(FlavorReadPublic):
+class FlavorReadExtendedPublic(FlavorReadPublic, BaseReadPublicExtended):
     """Model to extend the Flavor public data read from the DB.
 
     Attributes:
@@ -118,3 +119,15 @@ class FlavorReadExtendedPublic(FlavorReadPublic):
 
     projects: List[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
     services: List[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
+
+
+class FlavorReadSingle(BaseModel):
+    __root__: FlavorReadExtended | FlavorRead | FlavorReadExtendedPublic | FlavorReadPublic = Field(
+        ..., discriminator="schema_type"
+    )
+
+
+class FlavorReadMulti(BaseModel):
+    __root__: List[FlavorReadExtended] | List[FlavorRead] | List[
+        FlavorReadExtendedPublic
+    ] | List[FlavorReadPublic] = Field(..., discriminator="schema_type")

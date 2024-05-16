@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 from pydantic import Field, validator
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 from fed_reg.sla.constants import DOC_END, DOC_START, DOC_UUID
 
@@ -81,7 +81,7 @@ class SLAUpdate(BaseNodeCreate, SLABase):
     end_date: Optional[date] = Field(default=None, description=DOC_END)
 
 
-class SLAReadPublic(BaseReadPublic, SLABasePublic):
+class SLAReadPublic(BaseNodeRead, BaseReadPublic, SLABasePublic):
     """Model, for non-authenticated users, to read SLA data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -97,7 +97,7 @@ class SLAReadPublic(BaseReadPublic, SLABasePublic):
     """
 
 
-class SLARead(BaseReadPrivate, SLABase):
+class SLARead(BaseNodeRead, BaseReadPrivate, SLABase):
     """Model, for authenticated users, to read SLA data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

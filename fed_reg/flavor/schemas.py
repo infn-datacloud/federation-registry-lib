@@ -18,7 +18,7 @@ from fed_reg.flavor.constants import (
     DOC_UUID,
     DOC_VCPUS,
 )
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseNodeRead, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 
 
@@ -137,7 +137,7 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
     uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
-class FlavorReadPublic(BaseReadPublic, FlavorBasePublic):
+class FlavorReadPublic(BaseNodeRead, BaseReadPublic, FlavorBasePublic):
     """Model, for non-authenticated users, to read Flavor data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -154,7 +154,7 @@ class FlavorReadPublic(BaseReadPublic, FlavorBasePublic):
     """
 
 
-class FlavorRead(BaseReadPrivate, FlavorBase):
+class FlavorRead(BaseNodeRead, BaseReadPrivate, FlavorBase):
     """Model, for authenticated users, to read Flavor data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

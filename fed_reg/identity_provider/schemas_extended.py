@@ -1,7 +1,7 @@
 """Pydantic extended models of the Identity Provider."""
 from typing import List
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fed_reg.auth_method.schemas import AuthMethodRead
 from fed_reg.identity_provider.constants import DOC_EXT_GROUP, DOC_EXT_PROV
@@ -9,6 +9,7 @@ from fed_reg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
+from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.provider.constants import DOC_EXT_AUTH_METH
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.user_group.schemas import UserGroupRead, UserGroupReadPublic
@@ -48,7 +49,7 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
 
 
-class IdentityProviderReadExtended(IdentityProviderRead):
+class IdentityProviderReadExtended(IdentityProviderRead, BaseReadPrivateExtended):
     """Model to extend the Identity Provider data read from the DB.
 
     Attributes:
@@ -66,7 +67,9 @@ class IdentityProviderReadExtended(IdentityProviderRead):
     user_groups: List[UserGroupRead] = Field(description=DOC_EXT_GROUP)
 
 
-class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
+class IdentityProviderReadExtendedPublic(
+    IdentityProviderReadPublic, BaseReadPublicExtended
+):
     """Model to extend the Identity Provider public data read from the DB.
 
     Attributes:
@@ -80,3 +83,15 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
 
     providers: List[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
     user_groups: List[UserGroupReadPublic] = Field(description=DOC_EXT_GROUP)
+
+
+class IdentityProviderReadSingle(BaseModel):
+    __root__: IdentityProviderReadExtended | IdentityProviderRead | IdentityProviderReadExtendedPublic | IdentityProviderReadPublic = Field(
+        ..., discriminator="schema_type"
+    )
+
+
+class IdentityProviderReadMulti(BaseModel):
+    __root__: List[IdentityProviderReadExtended] | List[IdentityProviderRead] | List[
+        IdentityProviderReadExtendedPublic
+    ] | List[IdentityProviderReadPublic] = Field(..., discriminator="schema_type")

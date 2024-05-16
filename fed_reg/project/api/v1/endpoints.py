@@ -1,5 +1,5 @@
 """Project endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -41,6 +41,8 @@ from fed_reg.project.schemas import (
 from fed_reg.project.schemas_extended import (
     ProjectReadExtended,
     ProjectReadExtendedPublic,
+    ProjectReadMulti,
+    ProjectReadSingle,
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 from fed_reg.region.schemas import RegionQuery
@@ -50,12 +52,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[ProjectReadExtended],
-        List[ProjectReadExtendedPublic],
-        List[ProjectRead],
-        List[ProjectReadPublic],
-    ],
+    response_model=ProjectReadMulti,
     summary="Read all projects",
     description="Retrieve all projects stored in the database. \
         It is possible to filter on projects attributes and other \
@@ -101,12 +98,7 @@ def get_projects(
 
 @router.get(
     "/{project_uid}",
-    response_model=Union[
-        ProjectReadExtended,
-        ProjectReadExtendedPublic,
-        ProjectRead,
-        ProjectReadPublic,
-    ],
+    response_model=ProjectReadSingle,
     summary="Read a specific project",
     description="Retrieve a specific project using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

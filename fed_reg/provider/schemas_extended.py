@@ -1,7 +1,7 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
 from typing import Any, Dict, List, Optional, Set, Union
 
-from pydantic import Field, root_validator, validator
+from pydantic import BaseModel, Field, root_validator, validator
 
 from fed_reg.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from fed_reg.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
@@ -17,6 +17,7 @@ from fed_reg.location.schemas import (
     LocationRead,
     LocationReadPublic,
 )
+from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
 from fed_reg.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from fed_reg.provider.constants import (
@@ -322,7 +323,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
-class ProviderReadExtended(ProviderRead):
+class ProviderReadExtended(ProviderRead, BaseReadPrivateExtended):
     """Model to extend the Provider data read from the DB.
 
     Attributes:
@@ -347,7 +348,7 @@ class ProviderReadExtended(ProviderRead):
     regions: List[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
-class ProviderReadExtendedPublic(ProviderReadPublic):
+class ProviderReadExtendedPublic(ProviderReadPublic, BaseReadPublicExtended):
     """Model to extend the Provider public data read from the DB.
 
     Attributes:
@@ -366,6 +367,18 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     )
     projects: List[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
     regions: List[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+
+
+class ProviderReadSingle(BaseModel):
+    __root__: ProviderReadExtended | ProviderRead | ProviderReadExtendedPublic | ProviderReadPublic = Field(
+        ..., discriminator="schema_type"
+    )
+
+
+class ProviderReadMulti(BaseModel):
+    __root__: List[ProviderReadExtended] | List[ProviderRead] | List[
+        ProviderReadExtendedPublic
+    ] | List[ProviderReadPublic] = Field(..., discriminator="schema_type")
 
 
 # CREATE CLASSES

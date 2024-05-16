@@ -1,8 +1,9 @@
 """Pydantic extended models of the Virtual Machine Network owned by a Provider."""
-from typing import Optional
+from typing import List, Optional
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
+from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
 from fed_reg.project.schemas import ProjectRead
@@ -71,7 +72,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class NetworkReadExtended(NetworkRead):
+class NetworkReadExtended(NetworkRead, BaseReadPrivateExtended):
     """Model to extend the Network data read from the DB.
 
     uid (int): Network unique ID.
@@ -94,7 +95,7 @@ class NetworkReadExtended(NetworkRead):
     service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class NetworkReadExtendedPublic(NetworkReadPublic):
+class NetworkReadExtendedPublic(NetworkReadPublic, BaseReadPublicExtended):
     """Model to extend the Network public data read from the DB.
 
     uid (int): Network unique ID.
@@ -109,3 +110,15 @@ class NetworkReadExtendedPublic(NetworkReadPublic):
 
     project: Optional[ProjectRead] = Field(default=None, description=DOC_EXT_PROJ)
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+
+
+class NetworkReadSingle(BaseModel):
+    __root__: NetworkReadExtended | NetworkRead | NetworkReadExtendedPublic | NetworkReadPublic = Field(
+        ..., discriminator="schema_type"
+    )
+
+
+class NetworkReadMulti(BaseModel):
+    __root__: List[NetworkReadExtended] | List[NetworkRead] | List[
+        NetworkReadExtendedPublic
+    ] | List[NetworkReadPublic] = Field(..., discriminator="schema_type")

@@ -1,7 +1,7 @@
 """Pydantic extended models of the Project owned by a Provider."""
 from typing import List, Optional, Union
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fed_reg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fed_reg.identity_provider.schemas import (
@@ -9,6 +9,7 @@ from fed_reg.identity_provider.schemas import (
     IdentityProviderReadPublic,
 )
 from fed_reg.image.schemas import ImageRead, ImageReadPublic
+from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
 from fed_reg.project.constants import (
     DOC_EXT_FLAV,
@@ -299,7 +300,7 @@ class SLAReadExtendedPublic(SLAReadPublic):
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
-class ProjectReadExtended(ProjectRead):
+class ProjectReadExtended(ProjectRead, BaseReadPrivateExtended):
     """Model to extend the Project data read from the DB.
 
     Attributes:
@@ -342,7 +343,7 @@ class ProjectReadExtended(ProjectRead):
         return super().from_orm(obj)
 
 
-class ProjectReadExtendedPublic(ProjectReadPublic):
+class ProjectReadExtendedPublic(ProjectReadPublic, BaseReadPublicExtended):
     """Model to extend the Project public data read from the DB.
 
     Attributes:
@@ -383,3 +384,15 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
         obj.images = obj.public_images() + obj.private_images.all()
         obj.networks = obj.public_networks() + obj.private_networks.all()
         return super().from_orm(obj)
+
+
+class ProjectReadSingle(BaseModel):
+    __root__: ProjectReadExtended | ProjectRead | ProjectReadExtendedPublic | ProjectReadPublic = Field(
+        ..., discriminator="schema_type"
+    )
+
+
+class ProjectReadMulti(BaseModel):
+    __root__: List[ProjectReadExtended] | List[ProjectRead] | List[
+        ProjectReadExtendedPublic
+    ] | List[ProjectReadPublic] = Field(..., discriminator="schema_type")

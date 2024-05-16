@@ -1,12 +1,13 @@
 """Pydantic extended models of the SLA between a Project and a User Group."""
 from typing import List
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fed_reg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
+from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.project.constants import DOC_EXT_PROV
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
@@ -76,7 +77,7 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
     identity_provider: IdentityProviderReadPublic = Field(description=DOC_EXT_IDP)
 
 
-class SLAReadExtended(SLARead):
+class SLAReadExtended(SLARead, BaseReadPrivateExtended):
     """Model to extend the SLA data read from the DB.
 
     Attributes:
@@ -94,7 +95,7 @@ class SLAReadExtended(SLARead):
     user_group: UserGroupReadExtended = Field(description=DOC_EXT_GROUP)
 
 
-class SLAReadExtendedPublic(SLAReadPublic):
+class SLAReadExtendedPublic(SLAReadPublic, BaseReadPublicExtended):
     """Model to extend the SLA public data read from the DB.
 
     Attributes:
@@ -108,3 +109,15 @@ class SLAReadExtendedPublic(SLAReadPublic):
 
     projects: List[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
+
+
+class SLAReadSingle(BaseModel):
+    __root__: SLAReadExtended | SLARead | SLAReadExtendedPublic | SLAReadPublic = Field(
+        ..., discriminator="schema_type"
+    )
+
+
+class SLAReadMulti(BaseModel):
+    __root__: List[SLAReadExtended] | List[SLARead] | List[
+        SLAReadExtendedPublic
+    ] | List[SLAReadPublic] = Field(..., discriminator="schema_type")

@@ -17,7 +17,7 @@ from fed_reg.image.constants import (
     DOC_UUID,
 )
 from fed_reg.image.enum import ImageOS
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
 from fed_reg.query import create_query_model
 
 
@@ -116,7 +116,7 @@ class ImageUpdate(BaseNodeCreate, ImageBase):
     uuid: Optional[str] = Field(default=None, description=DOC_UUID)
 
 
-class ImageReadPublic(BaseReadPublic, ImageBasePublic):
+class ImageReadPublic(BaseNodeRead, BaseReadPublic, ImageBasePublic):
     """Model, for non-authenticated users, to read Image data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -133,7 +133,7 @@ class ImageReadPublic(BaseReadPublic, ImageBasePublic):
     """
 
 
-class ImageRead(BaseReadPrivate, ImageBase):
+class ImageRead(BaseNodeRead, BaseReadPrivate, ImageBase):
     """Model, for authenticated users, to read Image data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

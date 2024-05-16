@@ -1,5 +1,5 @@
 """Services endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -69,12 +69,20 @@ from fed_reg.service.schemas import (
 from fed_reg.service.schemas_extended import (
     BlockStorageServiceReadExtended,
     BlockStorageServiceReadExtendedPublic,
+    BlockStorageServiceReadMulti,
+    BlockStorageServiceReadSingle,
     ComputeServiceReadExtended,
     ComputeServiceReadExtendedPublic,
+    ComputeServiceReadMulti,
+    ComputeServiceReadSingle,
     IdentityServiceReadExtended,
     IdentityServiceReadExtendedPublic,
+    IdentityServiceReadMulti,
+    IdentityServiceReadSingle,
     NetworkServiceReadExtended,
     NetworkServiceReadExtendedPublic,
+    NetworkServiceReadMulti,
+    NetworkServiceReadSingle,
 )
 
 bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_services"])
@@ -82,12 +90,7 @@ bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_ser
 
 @bs_router.get(
     "/",
-    response_model=Union[
-        List[BlockStorageServiceReadExtended],
-        List[BlockStorageServiceRead],
-        List[BlockStorageServiceReadExtendedPublic],
-        List[BlockStorageServiceReadPublic],
-    ],
+    response_model=BlockStorageServiceReadMulti,
     summary="Read all BlockStorage services",
     description="Retrieve all services stored in the database. \
         It is possible to filter on services attributes and other \
@@ -132,12 +135,7 @@ def get_block_storage_services(
 
 @bs_router.get(
     "/{service_uid}",
-    response_model=Union[
-        BlockStorageServiceReadExtended,
-        BlockStorageServiceRead,
-        BlockStorageServiceReadExtendedPublic,
-        BlockStorageServiceReadPublic,
-    ],
+    response_model=BlockStorageServiceReadSingle,
     summary="Read a specific BlockStorage service",
     description="Retrieve a specific service using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -251,12 +249,7 @@ c_router = APIRouter(prefix="/compute_services", tags=["compute_services"])
 
 @c_router.get(
     "/",
-    response_model=Union[
-        List[ComputeServiceReadExtended],
-        List[ComputeServiceRead],
-        List[ComputeServiceReadExtendedPublic],
-        List[ComputeServiceReadPublic],
-    ],
+    response_model=ComputeServiceReadMulti,
     summary="Read all Compute services",
     description="Retrieve all services stored in the database. \
         It is possible to filter on services attributes and other \
@@ -299,12 +292,7 @@ def get_compute_services(
 
 @c_router.get(
     "/{service_uid}",
-    response_model=Union[
-        ComputeServiceReadExtended,
-        ComputeServiceRead,
-        ComputeServiceReadExtendedPublic,
-        ComputeServiceReadPublic,
-    ],
+    response_model=ComputeServiceReadSingle,
     summary="Read a specific Compute service",
     description="Retrieve a specific service using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -418,12 +406,7 @@ i_router = APIRouter(prefix="/identity_services", tags=["identity_services"])
 
 @i_router.get(
     "/",
-    response_model=Union[
-        List[IdentityServiceReadExtended],
-        List[IdentityServiceRead],
-        List[IdentityServiceReadExtendedPublic],
-        List[IdentityServiceReadPublic],
-    ],
+    response_model=IdentityServiceReadMulti,
     summary="Read all Identity services",
     description="Retrieve all services stored in the database. \
         It is possible to filter on services attributes and other \
@@ -466,12 +449,7 @@ def get_identity_services(
 
 @i_router.get(
     "/{service_uid}",
-    response_model=Union[
-        IdentityServiceReadExtended,
-        IdentityServiceRead,
-        IdentityServiceReadExtendedPublic,
-        IdentityServiceReadPublic,
-    ],
+    response_model=IdentityServiceReadSingle,
     summary="Read a specific Identity service",
     description="Retrieve a specific service using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -585,12 +563,7 @@ n_router = APIRouter(prefix="/network_services", tags=["network_services"])
 
 @n_router.get(
     "/",
-    response_model=Union[
-        List[NetworkServiceReadExtended],
-        List[NetworkServiceRead],
-        List[NetworkServiceReadExtendedPublic],
-        List[NetworkServiceReadPublic],
-    ],
+    response_model=NetworkServiceReadMulti,
     summary="Read all Network services",
     description="Retrieve all services stored in the database. \
         It is possible to filter on services attributes and other \
@@ -633,12 +606,7 @@ def get_network_services(
 
 @n_router.get(
     "/{service_uid}",
-    response_model=Union[
-        NetworkServiceReadExtended,
-        NetworkServiceRead,
-        NetworkServiceReadExtendedPublic,
-        NetworkServiceReadPublic,
-    ],
+    response_model=NetworkServiceReadSingle,
     summary="Read a specific Network service",
     description="Retrieve a specific service using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

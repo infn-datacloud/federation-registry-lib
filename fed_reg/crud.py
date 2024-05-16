@@ -3,16 +3,16 @@ from typing import Generic, List, Literal, Optional, Type, TypeVar, Union
 
 from neomodel import StructuredNode
 
-from fed_reg.models import BaseNodeCreate, BaseReadPrivate, BaseReadPublic
+from fed_reg.models import BaseNodeCreate, BaseNodeRead, BaseReadPrivate, BaseReadPublic
 
 ModelType = TypeVar("ModelType", bound=StructuredNode)
 CreateSchemaType = TypeVar("CreateSchemaType", bound=BaseNodeCreate)
 UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseNodeCreate)
 ReadSchemaType = TypeVar("ReadSchemaType", bound=BaseReadPrivate)
 ReadPublicSchemaType = TypeVar("ReadPublicSchemaType", bound=BaseReadPublic)
-ReadExtendedSchemaType = TypeVar("ReadExtendedSchemaType", BaseReadPrivate, None)
+ReadExtendedSchemaType = TypeVar("ReadExtendedSchemaType", BaseNodeRead, BaseReadPrivate, None)
 ReadExtendedPublicSchemaType = TypeVar(
-    "ReadExtendedPublicSchemaType", BaseReadPublic, None
+    "ReadExtendedPublicSchemaType", BaseNodeRead, BaseReadPublic, None
 )
 
 

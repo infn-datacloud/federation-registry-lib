@@ -1,5 +1,5 @@
 """Provider endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 # from app.service.api.dependencies import valid_service_endpoint
 # from app.service.crud import (
@@ -63,6 +63,8 @@ from fed_reg.provider.schemas_extended import (
     ProviderCreateExtended,
     ProviderReadExtended,
     ProviderReadExtendedPublic,
+    ProviderReadMulti,
+    ProviderReadSingle,
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 
@@ -71,12 +73,7 @@ router = APIRouter(prefix="/providers", tags=["providers"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[ProviderReadExtended],
-        List[ProviderRead],
-        List[ProviderReadExtendedPublic],
-        List[ProviderReadPublic],
-    ],
+    response_model=ProviderReadMulti,
     summary="Read all providers",
     description="Retrieve all providers stored in the database. \
         It is possible to filter on providers attributes and other \
@@ -149,12 +146,7 @@ def post_provider(
 
 @router.get(
     "/{provider_uid}",
-    response_model=Union[
-        ProviderReadExtended,
-        ProviderRead,
-        ProviderReadExtendedPublic,
-        ProviderReadPublic,
-    ],
+    response_model=ProviderReadSingle,
     summary="Read a specific provider",
     description="Retrieve a specific provider using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

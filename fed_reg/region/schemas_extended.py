@@ -1,9 +1,10 @@
 """Pydantic extended models of the Region owned by a Provider."""
 from typing import List, Optional, Union
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fed_reg.location.schemas import LocationRead, LocationReadPublic
+from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.region.constants import DOC_EXT_LOC, DOC_EXT_PROV, DOC_EXT_SERV
 from fed_reg.region.schemas import RegionRead, RegionReadPublic
@@ -19,7 +20,7 @@ from fed_reg.service.schemas import (
 )
 
 
-class RegionReadExtended(RegionRead):
+class RegionReadExtended(RegionRead, BaseReadPrivateExtended):
     """Model to extend the Region data read from the DB.
 
     Attributes:
@@ -45,7 +46,7 @@ class RegionReadExtended(RegionRead):
     ] = Field(description=DOC_EXT_SERV)
 
 
-class RegionReadExtendedPublic(RegionReadPublic):
+class RegionReadExtendedPublic(RegionReadPublic, BaseReadPublicExtended):
     """Model to extend the Region public data read from the DB.
 
     Attributes:
@@ -71,3 +72,15 @@ class RegionReadExtendedPublic(RegionReadPublic):
             NetworkServiceReadPublic,
         ]
     ] = Field(description=DOC_EXT_SERV)
+
+
+class RegionReadSingle(BaseModel):
+    __root__: RegionReadExtended | RegionRead | RegionReadExtendedPublic | RegionReadPublic = Field(
+        ..., discriminator="schema_type"
+    )
+
+
+class RegionReadMulti(BaseModel):
+    __root__: List[RegionReadExtended] | List[RegionRead] | List[
+        RegionReadExtendedPublic
+    ] | List[RegionReadPublic] = Field(..., discriminator="schema_type")

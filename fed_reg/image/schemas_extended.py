@@ -1,10 +1,11 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
 from typing import List
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from fed_reg.image.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from fed_reg.image.schemas import ImageRead, ImageReadPublic
+from fed_reg.models import BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.region.constants import DOC_EXT_PROV
@@ -71,7 +72,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class ImageReadExtended(ImageRead):
+class ImageReadExtended(ImageRead, BaseReadPrivateExtended):
     """Model to extend the Image data read from the DB.
 
     Attributes:
@@ -99,7 +100,7 @@ class ImageReadExtended(ImageRead):
     services: List[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
 
 
-class ImageReadExtendedPublic(ImageReadPublic):
+class ImageReadExtendedPublic(ImageReadPublic, BaseReadPublicExtended):
     """Model to extend the Image public data read from the DB.
 
     Attributes:
@@ -116,3 +117,15 @@ class ImageReadExtendedPublic(ImageReadPublic):
 
     projects: List[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
     services: List[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
+
+
+class ImageReadSingle(BaseModel):
+    __root__: ImageReadExtended | ImageRead | ImageReadExtendedPublic | ImageReadPublic = Field(
+        ..., discriminator="schema_type"
+    )
+
+
+class ImageReadMulti(BaseModel):
+    __root__: List[ImageReadExtended] | List[ImageRead] | List[
+        ImageReadExtendedPublic
+    ] | List[ImageReadPublic] = Field(..., discriminator="schema_type")
