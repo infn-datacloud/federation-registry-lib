@@ -16,6 +16,9 @@ from fed_reg.quota.api.v1.endpoints import (
 )
 from fed_reg.quota.api.v1.endpoints import c_router as compute_quota_router_v1
 from fed_reg.quota.api.v1.endpoints import n_router as network_quota_router_v1
+from fed_reg.quota.api.v1.endpoints import (
+    os_router as object_storage_quota_router_v1,
+)
 from fed_reg.region.api.v1.endpoints import router as region_router_v1
 from fed_reg.service.api.v1.endpoints import (
     bs_router as block_storage_service_router_v1,
@@ -42,8 +45,9 @@ router_v1.include_router(provider_router_v1)
 router_v1.include_router(block_storage_quota_router_v1)
 router_v1.include_router(compute_quota_router_v1)
 router_v1.include_router(network_quota_router_v1)
-router_v1.include_router(block_storage_service_router_v1)
+router_v1.include_router(object_storage_quota_router_v1)
 router_v1.include_router(region_router_v1)
+router_v1.include_router(block_storage_service_router_v1)
 router_v1.include_router(compute_service_router_v1)
 router_v1.include_router(identity_service_router_v1)
 router_v1.include_router(network_service_router_v1)
