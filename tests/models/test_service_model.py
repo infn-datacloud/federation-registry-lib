@@ -30,28 +30,6 @@ from tests.create_dict import (
 )
 
 
-class CaseServiceModel:
-    def case_block_storage_service(
-        self, block_storage_service_model: BlockStorageService
-    ) -> BlockStorageService:
-        return block_storage_service_model
-
-    def case_compute_service(
-        self, compute_service_model: ComputeService
-    ) -> ComputeService:
-        return compute_service_model
-
-    def case_network_service(
-        self, network_service_model: NetworkService
-    ) -> NetworkService:
-        return network_service_model
-
-    def case_object_storage_service(
-        self, object_storage_service_model: ObjectStorageService
-    ) -> ObjectStorageService:
-        return object_storage_service_model
-
-
 def test_block_storage_default_attr() -> None:
     d = service_model_dict()
     item = BlockStorageService(**d)
@@ -114,7 +92,7 @@ def test_object_storage_default_attr() -> None:
     assert isinstance(item.quotas, RelationshipManager)
 
 
-@parametrize_with_cases("service_model", cases=CaseServiceModel)
+@parametrize_with_cases("service_model")
 def test_required_rel(
     service_model: BlockStorageService
     | ComputeService

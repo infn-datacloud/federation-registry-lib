@@ -32,24 +32,6 @@ from tests.create_dict import (
 )
 
 
-class CaseQuotaModel:
-    def case_block_storage_quota(
-        self, block_storage_quota_model: BlockStorageQuota
-    ) -> BlockStorageQuota:
-        return block_storage_quota_model
-
-    def case_compute_quota(self, compute_quota_model: ComputeQuota) -> ComputeQuota:
-        return compute_quota_model
-
-    def case_network_quota(self, network_quota_model: NetworkQuota) -> NetworkQuota:
-        return network_quota_model
-
-    def case_object_storage_quota(
-        self, object_storage_quota_model: ObjectStorageQuota
-    ) -> ObjectStorageQuota:
-        return object_storage_quota_model
-
-
 def test_block_storage_default_attr() -> None:
     d = quota_model_dict()
     item = BlockStorageQuota(**d)
@@ -102,7 +84,7 @@ def test_object_storage_default_attr() -> None:
     assert isinstance(item.service, RelationshipManager)
 
 
-@parametrize_with_cases("quota_model", cases=CaseQuotaModel)
+@parametrize_with_cases("quota_model")
 def test_required_rel(
     quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
 ) -> None:
@@ -116,7 +98,7 @@ def test_required_rel(
         quota_model.project.single()
 
 
-@parametrize_with_cases("quota_model", cases=CaseQuotaModel)
+@parametrize_with_cases("quota_model")
 def test_linked_project(
     quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
     project_model: Project,
@@ -137,7 +119,7 @@ def test_linked_project(
     assert project.uid == project_model.uid
 
 
-@parametrize_with_cases("quota_model", cases=CaseQuotaModel)
+@parametrize_with_cases("quota_model")
 def test_multiple_linked_projects(
     quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
 ) -> None:
