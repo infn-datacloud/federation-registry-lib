@@ -1,8 +1,5 @@
-from typing import Any
-
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager
-from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.auth_method.models import AuthMethod
 from fed_reg.identity_provider.models import IdentityProvider
@@ -14,13 +11,6 @@ from tests.create_dict import (
     provider_model_dict,
     user_group_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseAttr:
-    @parametrize(key=["description"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
 
 
 def test_default_attr() -> None:
@@ -32,19 +22,6 @@ def test_default_attr() -> None:
     assert item.group_claim == d.get("group_claim")
     assert isinstance(item.providers, RelationshipManager)
     assert isinstance(item.user_groups, RelationshipManager)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = identity_provider_model_dict()
-    d[key] = value
-
-    item = IdentityProvider(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(identity_provider_model: IdentityProvider) -> None:

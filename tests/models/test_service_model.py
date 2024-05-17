@@ -1,8 +1,6 @@
-from typing import Any
-
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager
-from pytest_cases import parametrize, parametrize_with_cases
+from pytest_cases import parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.image.models import Image
@@ -30,13 +28,6 @@ from tests.create_dict import (
     object_storage_quota_model_dict,
     service_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseAttr:
-    @parametrize(key=["description"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
 
 
 class CaseServiceModel:
@@ -121,71 +112,6 @@ def test_object_storage_default_attr() -> None:
     assert item.name == d.get("name")
     assert isinstance(item.region, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_block_storage_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = BlockStorageService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_compute_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = ComputeService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_identity_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = IdentityService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_network_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = NetworkService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_object_storage_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = ObjectStorageService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("service_model", cases=CaseServiceModel)

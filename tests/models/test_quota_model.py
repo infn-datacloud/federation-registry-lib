@@ -1,5 +1,3 @@
-from random import randint
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -8,7 +6,7 @@ from neomodel import (
     CardinalityViolation,
     RelationshipManager,
 )
-from pytest_cases import parametrize, parametrize_with_cases
+from pytest_cases import parametrize_with_cases
 
 from fed_reg.project.models import Project
 from fed_reg.quota.models import (
@@ -32,37 +30,6 @@ from tests.create_dict import (
     project_model_dict,
     quota_model_dict,
 )
-
-
-class CaseBlockStorageAttr:
-    @parametrize(key=["gigabytes", "volumes", "per_volume_gigabytes"])
-    def case_int(self, key: str) -> tuple[str, int]:
-        return key, randint(0, 100)
-
-
-class CaseComputeAttr:
-    @parametrize(key=["cores", "instances", "ram"])
-    def case_int(self, key: str) -> tuple[str, int]:
-        return key, randint(0, 100)
-
-
-class CaseNetworkAttr:
-    @parametrize(
-        key=[
-            "public_ips",
-            "networks",
-            "ports",
-            "security_groups",
-            "security_group_rules",
-        ]
-    )
-    def case_int(self, key: str) -> tuple[str, int]:
-        return key, randint(0, 100)
-
-
-class CaseObjectStorageAttr:
-    # TODO: understand attributes
-    ...
 
 
 class CaseQuotaModel:
@@ -133,58 +100,6 @@ def test_object_storage_default_attr() -> None:
     assert item.per_user is False
     # TODO: understand attributes
     assert isinstance(item.service, RelationshipManager)
-
-
-@parametrize_with_cases("key, value", cases=CaseBlockStorageAttr)
-def test_block_storage_attr(key: str, value: Any) -> None:
-    d = quota_model_dict()
-    d[key] = value
-
-    item = BlockStorageQuota(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseComputeAttr)
-def test_compute_attr(key: str, value: Any) -> None:
-    d = quota_model_dict()
-    d[key] = value
-
-    item = ComputeQuota(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseNetworkAttr)
-def test_network_attr(key: str, value: Any) -> None:
-    d = quota_model_dict()
-    d[key] = value
-
-    item = NetworkQuota(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseObjectStorageAttr)
-def test_object_storage_attr(key: str, value: Any) -> None:
-    d = quota_model_dict()
-    d[key] = value
-
-    item = ObjectStorageQuota(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)

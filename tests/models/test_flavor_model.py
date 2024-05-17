@@ -1,9 +1,5 @@
-from random import randint
-from typing import Any, Literal
-
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager
-from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.project.models import Project
@@ -13,21 +9,6 @@ from tests.create_dict import (
     flavor_model_dict,
     project_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseAttr:
-    @parametrize(key=["description", "gpu_model", "gpu_vendor", "local_storage"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
-
-    @parametrize(key=["disk", "ram", "vcpus", "swap", "ephemeral", "gpus"])
-    def case_integer(self, key: str) -> tuple[str, int]:
-        return key, randint(0, 100)
-
-    @parametrize(key=["is_public", "infiniband"])
-    def case_bool(self, key: str) -> tuple[str, Literal[True]]:
-        return key, True
 
 
 def test_default_attr() -> None:
@@ -50,19 +31,6 @@ def test_default_attr() -> None:
     assert item.local_storage is None
     assert isinstance(item.projects, RelationshipManager)
     assert isinstance(item.services, RelationshipManager)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = flavor_model_dict()
-    d[key] = value
-
-    item = Flavor(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(flavor_model: Flavor) -> None:

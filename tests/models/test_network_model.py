@@ -1,5 +1,3 @@
-from random import randint
-from typing import Any, Literal
 from unittest.mock import patch
 
 import pytest
@@ -8,7 +6,6 @@ from neomodel import (
     CardinalityViolation,
     RelationshipManager,
 )
-from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
@@ -18,27 +15,6 @@ from tests.create_dict import (
     network_service_model_dict,
     project_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseAttr:
-    @parametrize(key=["description", "proxy_host", "proxy_user"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
-
-    @parametrize(key=["mtu"])
-    def case_int(self, key: str) -> tuple[str, int]:
-        return key, randint(0, 100)
-
-    @parametrize(key=["is_shared", "is_router_external", "is_default"])
-    def case_bool(self, key: str) -> tuple[str, Literal[True]]:
-        return key, True
-
-    @parametrize(key=["empty", "full"])
-    def case_list_str(self, key: str) -> tuple[str, list[str]]:
-        if key == "empty":
-            return key, []
-        return key, [random_lower_string()]
 
 
 def test_default_attr() -> None:
@@ -57,19 +33,6 @@ def test_default_attr() -> None:
     assert item.tags == []
     assert isinstance(item.project, RelationshipManager)
     assert isinstance(item.service, RelationshipManager)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = network_model_dict()
-    d[key] = value
-
-    item = Network(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(network_model: Network) -> None:

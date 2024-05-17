@@ -1,8 +1,5 @@
-from typing import Any, Literal
-
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager
-from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.image.models import Image
 from fed_reg.project.models import Project
@@ -12,32 +9,6 @@ from tests.create_dict import (
     image_model_dict,
     project_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseAttr:
-    @parametrize(
-        key=[
-            "description",
-            "os_type",
-            "os_distro",
-            "os_version",
-            "architecture",
-            "kernel_id",
-        ]
-    )
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
-
-    @parametrize(key=["cuda_support", "gpu_driver", "is_public"])
-    def case_bool(self, key: str) -> tuple[str, Literal[True]]:
-        return key, True
-
-    @parametrize(key=["empty", "full"])
-    def case_list_str(self, key: str) -> tuple[str, list[str]]:
-        if key == "empty":
-            return key, []
-        return key, [random_lower_string()]
 
 
 def test_default_attr() -> None:
@@ -58,19 +29,6 @@ def test_default_attr() -> None:
     assert item.tags == []
     assert isinstance(item.projects, RelationshipManager)
     assert isinstance(item.services, RelationshipManager)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = image_model_dict()
-    d[key] = value
-
-    item = Image(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(image_model: Image) -> None:

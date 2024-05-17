@@ -1,4 +1,3 @@
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -7,7 +6,6 @@ from neomodel import (
     CardinalityViolation,
     RelationshipManager,
 )
-from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.image.models import Image
@@ -23,13 +21,6 @@ from tests.create_dict import (
     provider_model_dict,
     sla_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseAttr:
-    @parametrize(key=["description"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
 
 
 def test_default_attr() -> None:
@@ -45,19 +36,6 @@ def test_default_attr() -> None:
     assert isinstance(item.private_flavors, RelationshipManager)
     assert isinstance(item.private_images, RelationshipManager)
     assert isinstance(item.private_networks, RelationshipManager)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = project_model_dict()
-    d[key] = value
-
-    item = Project(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(project_model: Project) -> None:

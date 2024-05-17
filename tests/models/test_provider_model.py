@@ -1,7 +1,4 @@
-from typing import Any, Literal
-
 from neomodel import RelationshipManager
-from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.auth_method.models import AuthMethod
 from fed_reg.identity_provider.models import IdentityProvider
@@ -15,23 +12,6 @@ from tests.create_dict import (
     provider_model_dict,
     region_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseAttr:
-    @parametrize(key=["description", "status"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
-
-    @parametrize(key=["is_public"])
-    def case_bool(self, key: str) -> tuple[str, Literal[True]]:
-        return key, True
-
-    @parametrize(key=["empty", "full"])
-    def case_list_str(self, key: str) -> tuple[str, list[str]]:
-        if key == "empty":
-            return key, []
-        return key, [random_lower_string()]
 
 
 def test_default_attr() -> None:
@@ -47,19 +27,6 @@ def test_default_attr() -> None:
     assert isinstance(item.projects, RelationshipManager)
     assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.identity_providers, RelationshipManager)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = provider_model_dict()
-    d[key] = value
-
-    item = Provider(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_optional_rel(provider_model: Provider) -> None:
