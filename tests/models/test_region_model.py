@@ -18,6 +18,7 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
+    ObjectStorageService,
     Service,
 )
 from tests.create_dict import (
@@ -26,6 +27,7 @@ from tests.create_dict import (
     identity_service_model_dict,
     location_model_dict,
     network_service_model_dict,
+    object_storage_service_model_dict,
     provider_model_dict,
     region_model_dict,
 )
@@ -63,6 +65,12 @@ class CaseServiceModel:
     ) -> NetworkService:
         return network_service_model
 
+    @case(tags=["single"])
+    def case_object_storage_service(
+        self, object_storage_service_model: ObjectStorageService
+    ) -> ObjectStorageService:
+        return object_storage_service_model
+
     @case(tags=["multi"])
     def case_block_storage_services(self) -> list[BlockStorageService]:
         return [
@@ -91,6 +99,12 @@ class CaseServiceModel:
             NetworkService(**network_service_model_dict()).save(),
         ]
 
+    @case(tags=["multi"])
+    def case_object_storage_services(self) -> list[ObjectStorageService]:
+        return [
+            ObjectStorageService(**object_storage_service_model_dict()).save(),
+            ObjectStorageService(**object_storage_service_model_dict()).save(),
+        ]
 
 def test_default_attr() -> None:
     d = region_model_dict()
@@ -142,7 +156,8 @@ def test_linked_service(
     service_model: BlockStorageService
     | ComputeService
     | IdentityService
-    | NetworkService,
+    | NetworkService
+    | ObjectStorageService,
 ) -> None:
     assert region_model.services.name
     assert region_model.services.source
@@ -166,7 +181,8 @@ def test_multiple_linked_services(
     service_models: BlockStorageService
     | ComputeService
     | IdentityService
-    | NetworkService,
+    | NetworkService
+    | ObjectStorageService,
 ) -> None:
     region_model.services.connect(service_models[0])
     region_model.services.connect(service_models[1])

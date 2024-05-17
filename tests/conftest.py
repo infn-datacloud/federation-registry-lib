@@ -29,18 +29,26 @@ from fed_reg.provider.schemas_extended import (
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
+    ObjectStorageQuotaCreateExtended,
+    ObjectStorageServiceCreateExtended,
     ProviderCreateExtended,
     RegionCreateExtended,
     SLACreateExtended,
     UserGroupCreateExtended,
 )
-from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.quota.models import (
+    BlockStorageQuota,
+    ComputeQuota,
+    NetworkQuota,
+    ObjectStorageQuota,
+)
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
+    ObjectStorageService,
 )
 from fed_reg.service.schemas import IdentityServiceCreate
 from fed_reg.sla.models import SLA
@@ -68,6 +76,9 @@ from tests.create_dict import (
     network_schema_dict,
     network_service_model_dict,
     network_service_schema_dict,
+    object_storage_quota_model_dict,
+    object_storage_service_model_dict,
+    object_storage_service_schema_dict,
     project_model_dict,
     project_schema_dict,
     provider_model_dict,
@@ -222,6 +233,12 @@ def network_quota_model() -> NetworkQuota:
 
 
 @pytest.fixture
+def object_storage_quota_model() -> ObjectStorageQuota:
+    d = object_storage_quota_model_dict()
+    return ObjectStorageQuota(**d).save()
+
+
+@pytest.fixture
 def region_model() -> Region:
     d = region_model_dict()
     return Region(**d).save()
@@ -249,6 +266,12 @@ def identity_service_model() -> IdentityService:
 def network_service_model() -> NetworkService:
     d = network_service_model_dict()
     return NetworkService(**d).save()
+
+
+@pytest.fixture
+def object_storage_service_model() -> ObjectStorageService:
+    d = object_storage_service_model_dict()
+    return ObjectStorageService(**d).save()
 
 
 @pytest.fixture
@@ -325,6 +348,11 @@ def network_quota_create_ext_schema() -> NetworkQuotaCreateExtended:
 
 
 @pytest.fixture
+def object_storage_quota_create_ext_schema() -> ObjectStorageQuotaCreateExtended:
+    return ObjectStorageQuotaCreateExtended(project=uuid4())
+
+
+@pytest.fixture
 def region_create_ext_schema() -> RegionCreateExtended:
     return RegionCreateExtended(**region_schema_dict())
 
@@ -342,6 +370,11 @@ def compute_service_create_ext_schema() -> ComputeServiceCreateExtended:
 @pytest.fixture
 def network_service_create_ext_schema() -> NetworkServiceCreateExtended:
     return NetworkServiceCreateExtended(**network_service_schema_dict())
+
+
+@pytest.fixture
+def object_storage_service_create_ext_schema() -> ObjectStorageServiceCreateExtended:
+    return ObjectStorageServiceCreateExtended(**object_storage_service_schema_dict())
 
 
 @pytest.fixture

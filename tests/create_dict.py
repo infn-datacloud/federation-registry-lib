@@ -7,6 +7,7 @@ from fed_reg.service.enum import (
     ComputeServiceName,
     IdentityServiceName,
     NetworkServiceName,
+    ObjectStorageServiceName,
     ServiceType,
 )
 from tests.utils import (
@@ -105,6 +106,10 @@ def network_quota_model_dict() -> dict[str, str]:
     return {"type": QuotaType.NETWORK.value}
 
 
+def object_storage_quota_model_dict() -> dict[str, str]:
+    return {"type": QuotaType.OBJECT_STORAGE.value}
+
+
 def region_model_dict() -> dict[str, str]:
     return region_schema_dict()
 
@@ -174,6 +179,18 @@ def network_service_model_dict() -> dict[str, str]:
 def network_service_schema_dict() -> dict[str, str]:
     d = service_schema_dict()
     d["name"] = random_service_name(NetworkServiceName)
+    return d
+
+def object_storage_service_model_dict() -> dict[str, str]:
+    d = object_storage_service_schema_dict()
+    d["name"] = d["name"].value
+    d["type"] = ServiceType.OBJECT_STORAGE.value
+    return d
+
+
+def object_storage_service_schema_dict() -> dict[str, str]:
+    d = service_schema_dict()
+    d["name"] = random_service_name(ObjectStorageServiceName)
     return d
 
 

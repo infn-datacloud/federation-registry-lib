@@ -7,12 +7,18 @@ from pytest_cases import parametrize, parametrize_with_cases
 from fed_reg.flavor.models import Flavor
 from fed_reg.image.models import Image
 from fed_reg.network.models import Network
-from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.quota.models import (
+    BlockStorageQuota,
+    ComputeQuota,
+    NetworkQuota,
+    ObjectStorageQuota,
+)
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
+    ObjectStorageService,
 )
 from tests.create_dict import (
     block_storage_quota_model_dict,
@@ -21,6 +27,7 @@ from tests.create_dict import (
     image_model_dict,
     network_model_dict,
     network_quota_model_dict,
+    object_storage_quota_model_dict,
     service_model_dict,
 )
 from tests.utils import random_lower_string
@@ -53,6 +60,11 @@ class CaseServiceModel:
         self, network_service_model: NetworkService
     ) -> NetworkService:
         return network_service_model
+
+    def case_object_storage_service(
+        self, object_storage_service_model: ObjectStorageService
+    ) -> ObjectStorageService:
+        return object_storage_service_model
 
 
 def test_block_storage_default_attr() -> None:
@@ -105,6 +117,18 @@ def test_network_default_attr() -> None:
     assert isinstance(item.quotas, RelationshipManager)
 
 
+def test_object_storage_default_attr() -> None:
+    d = service_model_dict()
+    item = ObjectStorageService(**d)
+    assert item.uid is not None
+    assert item.description == ""
+    assert item.type == d.get("type")
+    assert item.endpoint == d.get("endpoint")
+    assert item.name == d.get("name")
+    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.quotas, RelationshipManager)
+
+
 @parametrize_with_cases("missing_attr", cases=CaseMissing)
 def test_block_storage_missing_attr(missing_attr: str) -> None:
     d = service_model_dict()
@@ -137,6 +161,15 @@ def test_network_missing_attr(missing_attr: str) -> None:
     d = service_model_dict()
     d[missing_attr] = None
     item = NetworkService(**d)
+    with pytest.raises(RequiredProperty):
+        item.save()
+
+
+@parametrize_with_cases("missing_attr", cases=CaseMissing)
+def test_object_storage_missing_attr(missing_attr: str) -> None:
+    d = service_model_dict()
+    d[missing_attr] = None
+    item = ObjectStorageService(**d)
     with pytest.raises(RequiredProperty):
         item.save()
 
@@ -193,12 +226,25 @@ def test_network_attr(key: str, value: Any) -> None:
     assert saved.__getattribute__(key) == value
 
 
+@parametrize_with_cases("key, value", cases=CaseAttr)
+def test_object_storage_attr(key: str, value: Any) -> None:
+    d = service_model_dict()
+    d[key] = value
+
+    item = ObjectStorageService(**d)
+    saved = item.save()
+
+    assert saved.element_id_property
+    assert saved.uid == item.uid
+    assert saved.__getattribute__(key) == value
+
+
 @parametrize_with_cases("service_model", cases=CaseServiceModel)
 def test_required_rel(
     service_model: BlockStorageService
     | ComputeService
-    | IdentityService
-    | NetworkService,
+    | NetworkService
+    | ObjectStorageService,
 ) -> None:
     with pytest.raises(CardinalityViolation):
         service_model.region.all()
@@ -234,6 +280,13 @@ def test_network_optional_rel(network_service_model: NetworkService) -> None:
     assert network_service_model.quotas.single() is None
     assert len(network_service_model.networks.all()) == 0
     assert network_service_model.networks.single() is None
+
+
+def test_object_storage_optional_rel(
+    object_storage_service_model: ObjectStorageService,
+) -> None:
+    assert len(object_storage_service_model.quotas.all()) == 0
+    assert object_storage_service_model.quotas.single() is None
 
 
 def test_linked_block_storage_quota(
@@ -403,3 +456,39 @@ def test_multiple_linked_networks(network_service_model: NetworkService) -> None
     item = Network(**network_model_dict()).save()
     network_service_model.networks.connect(item)
     assert len(network_service_model.networks.all()) == 2
+
+
+def test_linked_object_storage_quota(
+    object_storage_service_model: ObjectStorageService,
+    object_storage_quota_model: ObjectStorageQuota,
+) -> None:
+    assert object_storage_service_model.quotas.name
+    assert object_storage_service_model.quotas.source
+    assert isinstance(object_storage_service_model.quotas.source, ObjectStorageService)
+    assert (
+        object_storage_service_model.quotas.source.uid
+        == object_storage_service_model.uid
+    )
+    assert object_storage_service_model.quotas.definition
+    assert (
+        object_storage_service_model.quotas.definition["node_class"]
+        == ObjectStorageQuota
+    )
+
+    r = object_storage_service_model.quotas.connect(object_storage_quota_model)
+    assert r is True
+
+    assert len(object_storage_service_model.quotas.all()) == 1
+    quotas = object_storage_service_model.quotas.single()
+    assert isinstance(quotas, ObjectStorageQuota)
+    assert quotas.uid == object_storage_quota_model.uid
+
+
+def test_multiple_linked_object_storage_quotas(
+    object_storage_service_model: ObjectStorageService,
+) -> None:
+    item = ObjectStorageQuota(**object_storage_quota_model_dict()).save()
+    object_storage_service_model.quotas.connect(item)
+    item = ObjectStorageQuota(**object_storage_quota_model_dict()).save()
+    object_storage_service_model.quotas.connect(item)
+    assert len(object_storage_service_model.quotas.all()) == 2
