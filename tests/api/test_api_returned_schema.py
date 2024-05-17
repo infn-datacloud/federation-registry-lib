@@ -517,36 +517,6 @@ class CaseItemEndpointSchemaDir:
         )
 
 
-# @parametrize_with_cases(
-#     "with_conn, single, schema, item, endpoint", cases=CaseItemEndpointSchemaPublic
-# )
-# def test_get_no_authn_verify_class(
-#     client_no_authn: TestClient,
-#     with_conn: bool,
-#     single: bool,
-#     item: Any,
-#     endpoint: str,
-#     schema: str,
-# ):
-#     settings = get_settings()
-#     if single:
-#         url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
-#     else:
-#         url = os.path.join(settings.API_V1_STR, endpoint)
-
-#     resp = client_no_authn.get(url, params={"with_conn": with_conn})
-#     assert resp.status_code == status.HTTP_200_OK
-
-#     data = resp.json()
-#     if single:
-#         assert data is not None
-#     else:
-#         assert len(data) > 0
-#         data = data[0]
-
-#     assert data["schema_type"] == schema
-
-
 @parametrize_with_cases(
     "client, with_conn, single, schema, item, endpoint, dir",
     cases=CaseItemEndpointSchemaDir,
