@@ -551,7 +551,7 @@ class CaseItemEndpointSchemaDir:
     "client, with_conn, single, schema, item, endpoint, dir",
     cases=CaseItemEndpointSchemaDir,
 )
-def test_get_authn_verify_class(
+def test_get_returned_schema(
     user_infos_with_read_email: UserInfos,
     client: TestClient,
     with_conn: bool,
