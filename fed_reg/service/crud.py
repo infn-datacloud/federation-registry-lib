@@ -11,8 +11,6 @@ from fed_reg.provider.schemas_extended import (
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
     ObjectStorageServiceCreateExtended,
-    ObjectStorageServiceReadExtended,
-    ObjectStorageServiceReadExtendedPublic,
 )
 from fed_reg.quota.crud import (
     block_storage_quota_mng,
@@ -58,6 +56,8 @@ from fed_reg.service.schemas_extended import (
     IdentityServiceReadExtendedPublic,
     NetworkServiceReadExtended,
     NetworkServiceReadExtendedPublic,
+    ObjectStorageServiceReadExtended,
+    ObjectStorageServiceReadExtendedPublic,
 )
 
 
