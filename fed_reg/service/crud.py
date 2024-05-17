@@ -479,7 +479,7 @@ class CRUDIdentityService(
             updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
             if updated_data:
                 db_obj = updated_data
-        db_obj.region.connect(region)
+        db_obj.regions.connect(region)
         return db_obj
 
 
