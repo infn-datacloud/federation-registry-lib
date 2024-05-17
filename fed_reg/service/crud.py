@@ -16,6 +16,7 @@ from fed_reg.quota.crud import (
     block_storage_quota_mng,
     compute_quota_mng,
     network_quota_mng,
+    object_storage_quota_mng,
 )
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
@@ -705,7 +706,7 @@ class CRUDObjectStorageService(
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
-                block_storage_quota_mng.create(
+                object_storage_quota_mng.create(
                     obj_in=item, service=db_obj, project=db_projects[0]
                 )
         return db_obj
@@ -716,7 +717,7 @@ class CRUDObjectStorageService(
         At first delete its quotas. Finally delete the service.
         """
         for item in db_obj.quotas:
-            block_storage_quota_mng.remove(db_obj=item)
+            object_storage_quota_mng.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
     def update(
@@ -771,14 +772,14 @@ class CRUDObjectStorageService(
             if item.per_user:
                 db_item = db_items_per_user.pop(item.project, None)
                 if not db_item:
-                    block_storage_quota_mng.create(
+                    object_storage_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = block_storage_quota_mng.update(
+                    updated_data = object_storage_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -789,14 +790,14 @@ class CRUDObjectStorageService(
             else:
                 db_item = db_items_total.pop(item.project, None)
                 if not db_item:
-                    block_storage_quota_mng.create(
+                    object_storage_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = block_storage_quota_mng.update(
+                    updated_data = object_storage_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -806,10 +807,10 @@ class CRUDObjectStorageService(
                         edit = True
 
         for db_item in db_items_per_user.values():
-            block_storage_quota_mng.remove(db_obj=db_item)
+            object_storage_quota_mng.remove(db_obj=db_item)
             edit = True
         for db_item in db_items_total.values():
-            block_storage_quota_mng.remove(db_obj=db_item)
+            object_storage_quota_mng.remove(db_obj=db_item)
             edit = True
 
         return edit

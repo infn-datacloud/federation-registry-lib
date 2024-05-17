@@ -67,6 +67,10 @@ class CRUDRegion(
             network_service_mng.create(
                 obj_in=item, region=db_obj, projects=provider.projects
             )
+        for item in obj_in.object_storage_services:
+            object_storage_service_mng.create(
+                obj_in=item, region=db_obj, projects=provider.projects
+            )
         return db_obj
 
     def remove(self, *, db_obj: Region) -> bool:
