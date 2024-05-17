@@ -6,12 +6,20 @@ from neomodel import (
     CardinalityViolation,
     RelationshipManager,
 )
+from pytest_cases import parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.image.models import Image
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.provider.models import Provider
+from fed_reg.quota.models import (
+    BlockStorageQuota,
+    ComputeQuota,
+    NetworkQuota,
+    ObjectStorageQuota,
+    Quota,
+)
 from fed_reg.sla.models import SLA
 from tests.create_dict import (
     flavor_model_dict,
@@ -191,6 +199,40 @@ def test_multiple_linked_sla(project_model: Project) -> None:
         project_model.sla.connect(item)
         with pytest.raises(CardinalityViolation):
             project_model.sla.all()
+
+
+@parametrize_with_cases("quota_model", has_tag="single")
+def test_linked_quota(
+    project_model: Project,
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
+) -> None:
+    assert project_model.quotas.name
+    assert project_model.quotas.source
+    assert isinstance(project_model.quotas.source, Project)
+    assert project_model.quotas.source.uid == project_model.uid
+    assert project_model.quotas.definition
+    assert project_model.quotas.definition["node_class"] == Quota
+
+    r = project_model.quotas.connect(quota_model)
+    assert r is True
+
+    assert len(project_model.quotas.all()) == 1
+    quota = project_model.quotas.single()
+    assert isinstance(quota, Quota)
+    assert quota.uid == quota_model.uid
+
+
+@parametrize_with_cases("quota_models", has_tag="multi")
+def test_multiple_linked_quotas(
+    project_model: Project,
+    quota_models: list[BlockStorageQuota]
+    | list[ComputeQuota]
+    | list[NetworkQuota]
+    | list[ObjectStorageQuota],
+) -> None:
+    project_model.quotas.connect(quota_models[0])
+    project_model.quotas.connect(quota_models[1])
+    assert len(project_model.quotas.all()) == 2
 
 
 # TODO test public_flavors

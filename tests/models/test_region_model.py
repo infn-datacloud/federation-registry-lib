@@ -6,7 +6,7 @@ from neomodel import (
     CardinalityViolation,
     RelationshipManager,
 )
-from pytest_cases import case, parametrize_with_cases
+from pytest_cases import parametrize_with_cases
 
 from fed_reg.location.models import Location
 from fed_reg.provider.models import Provider
@@ -20,82 +20,10 @@ from fed_reg.service.models import (
     Service,
 )
 from tests.create_dict import (
-    block_storage_service_model_dict,
-    compute_service_model_dict,
-    identity_service_model_dict,
     location_model_dict,
-    network_service_model_dict,
-    object_storage_service_model_dict,
     provider_model_dict,
     region_model_dict,
 )
-
-
-class CaseServiceModel:
-    @case(tags=["single"])
-    def case_block_storage_service(
-        self, block_storage_service_model: BlockStorageService
-    ) -> BlockStorageService:
-        return block_storage_service_model
-
-    @case(tags=["single"])
-    def case_compute_service(
-        self, compute_service_model: ComputeService
-    ) -> ComputeService:
-        return compute_service_model
-
-    @case(tags=["single"])
-    def case_identity_service(
-        self, identity_service_model: IdentityService
-    ) -> IdentityService:
-        return identity_service_model
-
-    @case(tags=["single"])
-    def case_network_service(
-        self, network_service_model: NetworkService
-    ) -> NetworkService:
-        return network_service_model
-
-    @case(tags=["single"])
-    def case_object_storage_service(
-        self, object_storage_service_model: ObjectStorageService
-    ) -> ObjectStorageService:
-        return object_storage_service_model
-
-    @case(tags=["multi"])
-    def case_block_storage_services(self) -> list[BlockStorageService]:
-        return [
-            BlockStorageService(**block_storage_service_model_dict()).save(),
-            BlockStorageService(**block_storage_service_model_dict()).save(),
-        ]
-
-    @case(tags=["multi"])
-    def case_compute_services(self) -> list[ComputeService]:
-        return [
-            ComputeService(**compute_service_model_dict()).save(),
-            ComputeService(**compute_service_model_dict()).save(),
-        ]
-
-    @case(tags=["multi"])
-    def case_identity_services(self) -> list[IdentityService]:
-        return [
-            IdentityService(**identity_service_model_dict()).save(),
-            IdentityService(**identity_service_model_dict()).save(),
-        ]
-
-    @case(tags=["multi"])
-    def case_network_services(self) -> list[NetworkService]:
-        return [
-            NetworkService(**network_service_model_dict()).save(),
-            NetworkService(**network_service_model_dict()).save(),
-        ]
-
-    @case(tags=["multi"])
-    def case_object_storage_services(self) -> list[ObjectStorageService]:
-        return [
-            ObjectStorageService(**object_storage_service_model_dict()).save(),
-            ObjectStorageService(**object_storage_service_model_dict()).save(),
-        ]
 
 
 def test_default_attr() -> None:
@@ -123,7 +51,7 @@ def test_optional_rel(region_model: Region) -> None:
     assert region_model.services.single() is None
 
 
-@parametrize_with_cases("service_model", cases=CaseServiceModel, has_tag="single")
+@parametrize_with_cases("service_model", has_tag="single")
 def test_linked_service(
     region_model: Region,
     service_model: BlockStorageService
@@ -148,14 +76,14 @@ def test_linked_service(
     assert service.uid == service_model.uid
 
 
-@parametrize_with_cases("service_models", cases=CaseServiceModel, has_tag="multi")
+@parametrize_with_cases("service_models", has_tag="multi")
 def test_multiple_linked_services(
     region_model: Region,
-    service_models: BlockStorageService
-    | ComputeService
-    | IdentityService
-    | NetworkService
-    | ObjectStorageService,
+    service_models: list[BlockStorageService]
+    | list[ComputeService]
+    | list[IdentityService]
+    | list[NetworkService]
+    | list[ObjectStorageService],
 ) -> None:
     region_model.services.connect(service_models[0])
     region_model.services.connect(service_models[1])
