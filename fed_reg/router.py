@@ -23,6 +23,9 @@ from fed_reg.service.api.v1.endpoints import (
 from fed_reg.service.api.v1.endpoints import c_router as compute_service_router_v1
 from fed_reg.service.api.v1.endpoints import i_router as identity_service_router_v1
 from fed_reg.service.api.v1.endpoints import n_router as network_service_router_v1
+from fed_reg.service.api.v1.endpoints import (
+    os_router as object_storage_service_router_v1,
+)
 from fed_reg.sla.api.v1.endpoints import router as sla_router_v1
 from fed_reg.user_group.api.v1.endpoints import router as user_group_router_v1
 
@@ -44,5 +47,6 @@ router_v1.include_router(region_router_v1)
 router_v1.include_router(compute_service_router_v1)
 router_v1.include_router(identity_service_router_v1)
 router_v1.include_router(network_service_router_v1)
+router_v1.include_router(object_storage_service_router_v1)
 router_v1.include_router(sla_router_v1)
 router_v1.include_router(user_group_router_v1)
