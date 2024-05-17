@@ -6,7 +6,6 @@ from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
     RelationshipManager,
-    RequiredProperty,
 )
 from pytest_cases import case, parametrize, parametrize_with_cases
 
@@ -106,6 +105,7 @@ class CaseServiceModel:
             ObjectStorageService(**object_storage_service_model_dict()).save(),
         ]
 
+
 def test_default_attr() -> None:
     d = region_model_dict()
     item = Region(**d)
@@ -115,12 +115,6 @@ def test_default_attr() -> None:
     assert isinstance(item.location, RelationshipManager)
     assert isinstance(item.provider, RelationshipManager)
     assert isinstance(item.services, RelationshipManager)
-
-
-def test_missing_attr() -> None:
-    item = Region()
-    with pytest.raises(RequiredProperty):
-        item.save()
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)

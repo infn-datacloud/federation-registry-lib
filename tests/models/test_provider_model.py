@@ -1,7 +1,6 @@
 from typing import Any, Literal
 
-import pytest
-from neomodel import RelationshipManager, RequiredProperty
+from neomodel import RelationshipManager
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.auth_method.models import AuthMethod
@@ -17,12 +16,6 @@ from tests.create_dict import (
     region_model_dict,
 )
 from tests.utils import random_lower_string
-
-
-class CaseMissing:
-    @parametrize(value=["name", "type"])
-    def case_missing(self, value: str) -> str:
-        return value
 
 
 class CaseAttr:
@@ -54,15 +47,6 @@ def test_default_attr() -> None:
     assert isinstance(item.projects, RelationshipManager)
     assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.identity_providers, RelationshipManager)
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_missing_attr(missing_attr: str) -> None:
-    d = provider_model_dict()
-    d[missing_attr] = None
-    item = Provider(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)

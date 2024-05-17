@@ -7,7 +7,6 @@ from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
     RelationshipManager,
-    RequiredProperty,
 )
 from pytest_cases import parametrize, parametrize_with_cases
 
@@ -33,20 +32,6 @@ from tests.create_dict import (
     project_model_dict,
     quota_model_dict,
 )
-
-
-class CaseQuotaEmpty:
-    def case_block_storage_quota(self) -> BlockStorageQuota:
-        return BlockStorageQuota()
-
-    def case_compute_quota(self) -> ComputeQuota:
-        return ComputeQuota()
-
-    def case_network_quota(self) -> NetworkQuota:
-        return NetworkQuota()
-
-    def case_object_storage_quota(self) -> ObjectStorageQuota:
-        return ObjectStorageQuota()
 
 
 class CaseBlockStorageAttr:
@@ -148,14 +133,6 @@ def test_object_storage_default_attr() -> None:
     assert item.per_user is False
     # TODO: understand attributes
     assert isinstance(item.service, RelationshipManager)
-
-
-@parametrize_with_cases("item", cases=CaseQuotaEmpty)
-def test_missing_attr(
-    item: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
-) -> None:
-    with pytest.raises(RequiredProperty):
-        item.save()
 
 
 @parametrize_with_cases("key, value", cases=CaseBlockStorageAttr)

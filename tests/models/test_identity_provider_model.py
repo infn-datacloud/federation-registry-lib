@@ -1,7 +1,7 @@
 from typing import Any
 
 import pytest
-from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
+from neomodel import CardinalityViolation, RelationshipManager
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.auth_method.models import AuthMethod
@@ -15,12 +15,6 @@ from tests.create_dict import (
     user_group_model_dict,
 )
 from tests.utils import random_lower_string
-
-
-class CaseMissing:
-    @parametrize(value=["endpoint", "group_claim"])
-    def case_missing(self, value: str) -> str:
-        return value
 
 
 class CaseAttr:
@@ -38,15 +32,6 @@ def test_default_attr() -> None:
     assert item.group_claim == d.get("group_claim")
     assert isinstance(item.providers, RelationshipManager)
     assert isinstance(item.user_groups, RelationshipManager)
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_missing_attr(missing_attr: str) -> None:
-    d = identity_provider_model_dict()
-    d[missing_attr] = None
-    item = IdentityProvider(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)

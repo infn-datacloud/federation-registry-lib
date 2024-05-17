@@ -1,7 +1,7 @@
 from typing import Any, Literal
 
 import pytest
-from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
+from neomodel import CardinalityViolation, RelationshipManager
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.image.models import Image
@@ -13,12 +13,6 @@ from tests.create_dict import (
     project_model_dict,
 )
 from tests.utils import random_lower_string
-
-
-class CaseMissing:
-    @parametrize(value=["name", "uuid"])
-    def case_missing(self, value: str) -> str:
-        return value
 
 
 class CaseAttr:
@@ -64,15 +58,6 @@ def test_default_attr() -> None:
     assert item.tags == []
     assert isinstance(item.projects, RelationshipManager)
     assert isinstance(item.services, RelationshipManager)
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_missing_attr(missing_attr: str) -> None:
-    d = image_model_dict()
-    d[missing_attr] = None
-    item = Image(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)

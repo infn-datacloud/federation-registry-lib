@@ -181,6 +181,7 @@ def network_service_schema_dict() -> dict[str, str]:
     d["name"] = random_service_name(NetworkServiceName)
     return d
 
+
 def object_storage_service_model_dict() -> dict[str, str]:
     d = object_storage_service_schema_dict()
     d["name"] = d["name"].value

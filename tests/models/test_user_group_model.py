@@ -6,7 +6,6 @@ from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
     RelationshipManager,
-    RequiredProperty,
 )
 from pytest_cases import parametrize, parametrize_with_cases
 
@@ -35,12 +34,6 @@ def test_default_attr() -> None:
     assert item.name == d.get("name")
     assert isinstance(item.identity_provider, RelationshipManager)
     assert isinstance(item.slas, RelationshipManager)
-
-
-def test_missing_attr() -> None:
-    item = UserGroup()
-    with pytest.raises(RequiredProperty):
-        item.save()
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)

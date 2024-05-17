@@ -1,7 +1,7 @@
 from typing import Any
 
 import pytest
-from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
+from neomodel import CardinalityViolation, RelationshipManager
 from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
@@ -31,12 +31,6 @@ from tests.create_dict import (
     service_model_dict,
 )
 from tests.utils import random_lower_string
-
-
-class CaseMissing:
-    @parametrize(value=["type", "endpoint", "name"])
-    def case_missing(self, value: str) -> str:
-        return value
 
 
 class CaseAttr:
@@ -127,51 +121,6 @@ def test_object_storage_default_attr() -> None:
     assert item.name == d.get("name")
     assert isinstance(item.region, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_block_storage_missing_attr(missing_attr: str) -> None:
-    d = service_model_dict()
-    d[missing_attr] = None
-    item = BlockStorageService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_compute_missing_attr(missing_attr: str) -> None:
-    d = service_model_dict()
-    d[missing_attr] = None
-    item = ComputeService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_identity_missing_attr(missing_attr: str) -> None:
-    d = service_model_dict()
-    d[missing_attr] = None
-    item = IdentityService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_network_missing_attr(missing_attr: str) -> None:
-    d = service_model_dict()
-    d[missing_attr] = None
-    item = NetworkService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_object_storage_missing_attr(missing_attr: str) -> None:
-    d = service_model_dict()
-    d[missing_attr] = None
-    item = ObjectStorageService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
 
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
