@@ -182,7 +182,7 @@ class CaseDBInstance:
         tot: int,
     ) -> Region:
         region_model.provider.connect(provider_model)
-        block_storage_service_model.region.connect(region_model)
+        block_storage_service_model.regions.connect(region_model)
         for _ in range(tot):
             item = BlockStorageQuota(**block_storage_quota_model_dict()).save()
             block_storage_service_model.quotas.connect(item)
@@ -198,7 +198,7 @@ class CaseDBInstance:
         tot: int,
     ) -> Region:
         region_model.provider.connect(provider_model)
-        compute_service_model.region.connect(region_model)
+        compute_service_model.regions.connect(region_model)
         for _ in range(tot):
             item = Flavor(**flavor_model_dict()).save()
             compute_service_model.flavors.connect(item)
@@ -214,7 +214,7 @@ class CaseDBInstance:
         tot: int,
     ) -> Region:
         region_model.provider.connect(provider_model)
-        compute_service_model.region.connect(region_model)
+        compute_service_model.regions.connect(region_model)
         for _ in range(tot):
             item = Image(**image_model_dict()).save()
             compute_service_model.images.connect(item)
@@ -230,7 +230,7 @@ class CaseDBInstance:
         tot: int,
     ) -> Region:
         region_model.provider.connect(provider_model)
-        compute_service_model.region.connect(region_model)
+        compute_service_model.regions.connect(region_model)
         for _ in range(tot):
             item = ComputeQuota(**compute_quota_model_dict()).save()
             compute_service_model.quotas.connect(item)
@@ -246,7 +246,7 @@ class CaseDBInstance:
         tot: int,
     ) -> Region:
         region_model.provider.connect(provider_model)
-        network_service_model.region.connect(region_model)
+        network_service_model.regions.connect(region_model)
         for _ in range(tot):
             item = NetworkQuota(**network_quota_model_dict()).save()
             network_service_model.quotas.connect(item)
@@ -262,7 +262,7 @@ class CaseDBInstance:
         tot: int,
     ) -> Region:
         region_model.provider.connect(provider_model)
-        network_service_model.region.connect(region_model)
+        network_service_model.regions.connect(region_model)
         for _ in range(tot):
             item = Network(**network_model_dict()).save()
             network_service_model.networks.connect(item)
@@ -293,7 +293,7 @@ class CaseDBInstance:
             item = Flavor(**flavor_model_dict()).save()
             compute_service_model.flavors.connect(item)
         compute_service_model.quotas.connect(compute_quota_model)
-        compute_service_model.region.connect(region_model)
+        compute_service_model.regions.connect(region_model)
         project_model.quotas.connect(compute_quota_model)
         for _ in range(tot - pub):
             item = Flavor(**flavor_model_dict(), is_public=False).save()
@@ -317,7 +317,7 @@ class CaseDBInstance:
             item = Image(**image_model_dict()).save()
             compute_service_model.images.connect(item)
         compute_service_model.quotas.connect(compute_quota_model)
-        compute_service_model.region.connect(region_model)
+        compute_service_model.regions.connect(region_model)
         project_model.quotas.connect(compute_quota_model)
         for _ in range(tot - pub):
             item = Image(**image_model_dict(), is_public=False).save()
@@ -341,7 +341,7 @@ class CaseDBInstance:
             item = Network(**network_model_dict()).save()
             network_service_model.networks.connect(item)
         network_service_model.quotas.connect(network_quota_model)
-        network_service_model.region.connect(region_model)
+        network_service_model.regions.connect(region_model)
         project_model.quotas.connect(network_quota_model)
         for _ in range(tot - pub):
             item = Network(**network_model_dict(), is_shared=False).save()

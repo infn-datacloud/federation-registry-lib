@@ -1,6 +1,7 @@
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
+    IdentityService,
     NetworkService,
     ObjectStorageService,
 )
@@ -16,6 +17,11 @@ class CaseServiceModel:
         self, compute_service_model: ComputeService
     ) -> ComputeService:
         return compute_service_model
+
+    def case_identity_service(
+        self, identity_service_model: IdentityService
+    ) -> IdentityService:
+        return identity_service_model
 
     def case_network_service(
         self, network_service_model: NetworkService

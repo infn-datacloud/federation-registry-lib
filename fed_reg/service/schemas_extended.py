@@ -228,7 +228,7 @@ class BlockStorageServiceReadExtended(
         quotas (list of BlockStorageQuotaReadExtended): Quotas pointing to this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
     quotas: list[BlockStorageQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
 
 
@@ -247,7 +247,7 @@ class BlockStorageServiceReadExtendedPublic(
             service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
     quotas: list[BlockStorageQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
 
 
@@ -269,7 +269,7 @@ class ComputeServiceReadExtended(
         quotas (list of ComputeQuotaReadExtended): Quotas pointing to this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
     quotas: list[ComputeQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
     flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
     images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
@@ -292,7 +292,7 @@ class ComputeServiceReadExtendedPublic(
             service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
     quotas: list[ComputeQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
     flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
     images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
@@ -349,7 +349,7 @@ class NetworkServiceReadExtended(
         quotas (list of NetworkQuotaReadExtended): Quotas pointing to this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
     quotas: list[NetworkQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
     networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
 
@@ -370,7 +370,7 @@ class NetworkServiceReadExtendedPublic(
             service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
     quotas: list[NetworkQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
     networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
 
@@ -392,7 +392,7 @@ class ObjectStorageServiceReadExtended(
             service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
     quotas: list[ObjectStorageQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
 
 
@@ -411,7 +411,7 @@ class ObjectStorageServiceReadExtendedPublic(
             service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
     quotas: list[ObjectStorageQuotaReadExtendedPublic] = Field(
         description=DOC_EXT_QUOTA
     )

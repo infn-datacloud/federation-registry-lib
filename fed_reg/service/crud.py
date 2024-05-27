@@ -103,7 +103,7 @@ class CRUDBlockStorageService(
         if projects is None:
             projects = []
         db_obj = super().create(obj_in=obj_in)
-        db_obj.region.connect(region)
+        db_obj.regions.connect(region)
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
@@ -246,7 +246,7 @@ class CRUDComputeService(
         if projects is None:
             projects = []
         db_obj = super().create(obj_in=obj_in)
-        db_obj.region.connect(region)
+        db_obj.regions.connect(region)
         for item in obj_in.flavors:
             db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
             flavor_mng.create(obj_in=item, service=db_obj, projects=db_projects)
@@ -512,7 +512,7 @@ class CRUDNetworkService(
         if projects is None:
             projects = []
         db_obj = super().create(obj_in=obj_in)
-        db_obj.region.connect(region)
+        db_obj.regions.connect(region)
         for item in obj_in.networks:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             db_project = None
@@ -702,7 +702,7 @@ class CRUDObjectStorageService(
         if projects is None:
             projects = []
         db_obj = super().create(obj_in=obj_in)
-        db_obj.region.connect(region)
+        db_obj.regions.connect(region)
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:

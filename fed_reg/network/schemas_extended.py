@@ -60,7 +60,7 @@ class NetworkServiceReadExtended(NetworkServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
@@ -74,7 +74,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
 class NetworkReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkBase):

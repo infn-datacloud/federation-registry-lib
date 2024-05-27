@@ -1,6 +1,5 @@
 """Neomodel models of the Service supplied by a Provider on a specific Region."""
 from neomodel import (
-    One,
     OneOrMore,
     RelationshipFrom,
     RelationshipTo,
@@ -34,6 +33,10 @@ class Service(StructuredNode):
     type = StringProperty(required=True)
     name = StringProperty(required=True)
 
+    regions = RelationshipFrom(
+        "fed_reg.region.models.Region", "SUPPLY", cardinality=OneOrMore
+    )
+
 
 class BlockStorageService(Service):
     """Service managing Block Storage resources.
@@ -53,7 +56,6 @@ class BlockStorageService(Service):
     quotas = RelationshipFrom(
         "fed_reg.quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
-    region = RelationshipFrom("fed_reg.region.models.Region", "SUPPLY", cardinality=One)
 
 
 class ComputeService(Service):
@@ -84,7 +86,6 @@ class ComputeService(Service):
     quotas = RelationshipFrom(
         "fed_reg.quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
-    region = RelationshipFrom("fed_reg.region.models.Region", "SUPPLY", cardinality=One)
 
 
 class IdentityService(Service):
@@ -98,10 +99,6 @@ class IdentityService(Service):
         type (str): Service type.
         name (str): Service name.
     """
-
-    regions = RelationshipFrom(
-        "fed_reg.region.models.Region", "SUPPLY", cardinality=OneOrMore
-    )
 
 
 class NetworkService(Service):
@@ -126,7 +123,6 @@ class NetworkService(Service):
     quotas = RelationshipFrom(
         "fed_reg.quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
-    region = RelationshipFrom("fed_reg.region.models.Region", "SUPPLY", cardinality=One)
 
 
 class ObjectStorageService(Service):
@@ -147,4 +143,3 @@ class ObjectStorageService(Service):
     quotas = RelationshipFrom(
         "fed_reg.quota.models.ObjectStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
-    region = RelationshipFrom("fed_reg.region.models.Region", "SUPPLY", cardinality=One)

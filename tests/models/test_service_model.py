@@ -38,7 +38,7 @@ def test_block_storage_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.endpoint == d.get("endpoint")
     assert item.name == d.get("name")
-    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
 
 
@@ -50,7 +50,7 @@ def test_compute_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.endpoint == d.get("endpoint")
     assert item.name == d.get("name")
-    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.flavors, RelationshipManager)
     assert isinstance(item.images, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
@@ -75,7 +75,7 @@ def test_network_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.endpoint == d.get("endpoint")
     assert item.name == d.get("name")
-    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.networks, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
 
@@ -88,7 +88,7 @@ def test_object_storage_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.endpoint == d.get("endpoint")
     assert item.name == d.get("name")
-    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
 
 
@@ -96,20 +96,14 @@ def test_object_storage_default_attr() -> None:
 def test_required_rel(
     service_model: BlockStorageService
     | ComputeService
+    | IdentityService
     | NetworkService
     | ObjectStorageService,
 ) -> None:
     with pytest.raises(CardinalityViolation):
-        service_model.region.all()
+        service_model.regions.all()
     with pytest.raises(CardinalityViolation):
-        service_model.region.single()
-
-
-def test_identity_service_required_rel(identity_service_model: IdentityService) -> None:
-    with pytest.raises(CardinalityViolation):
-        identity_service_model.regions.all()
-    with pytest.raises(CardinalityViolation):
-        identity_service_model.regions.single()
+        service_model.regions.single()
 
 
 def test_block_storage_optional_rel(
