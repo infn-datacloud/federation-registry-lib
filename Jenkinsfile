@@ -44,12 +44,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: "${BRANCH_NAME}", credentialsId: 'github-app-infn-datacloud', url: 'https://github.com/infn-datacloud/federation-registry.git'
-            }
-        }
-        
         stage('Build docker image') {
             steps {
                 script {
