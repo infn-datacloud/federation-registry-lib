@@ -53,35 +53,23 @@ class CaseAttr:
     def case_email_list(
         self, len: int
     ) -> tuple[Literal["support_emails"], Optional[list[EmailStr]]]:
-        attr = "support_emails"
-        if len == 0:
-            return attr, []
-        else:
-            return attr, [random_email() for _ in range(len)]
+        return "support_emails", [random_email() for _ in range(len)]
 
     @case(tags=["create_extended"])
     @parametrize(len=(0, 1, 2))
     def case_projects(
         self, len: int
     ) -> tuple[Literal["projects"], list[ProjectCreate]]:
-        attr = "projects"
-        if len == 0:
-            return attr, []
-        else:
-            return attr, [ProjectCreate(**project_schema_dict()) for _ in range(len)]
+        return "projects", [ProjectCreate(**project_schema_dict()) for _ in range(len)]
 
     @case(tags=["create_extended"])
     @parametrize(len=(0, 1, 2))
     def case_regions(
         self, len: int
     ) -> tuple[Literal["regions"], list[RegionCreateExtended]]:
-        attr = "regions"
-        if len == 0:
-            return attr, []
-        else:
-            return attr, [
-                RegionCreateExtended(**region_schema_dict()) for _ in range(len)
-            ]
+        return "regions", [
+            RegionCreateExtended(**region_schema_dict()) for _ in range(len)
+        ]
 
     @case(tags=["create_extended"])
     @parametrize(len=(0, 1, 2))
