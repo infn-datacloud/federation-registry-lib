@@ -1,4 +1,5 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
+
 from typing import Any, Dict, Optional, Set
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -424,9 +425,12 @@ class ProviderReadSingle(BaseModel):
 
 
 class ProviderReadMulti(BaseModel):
-    __root__: list[ProviderReadExtended] | list[ProviderRead] | list[
-        ProviderReadExtendedPublic
-    ] | list[ProviderReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[ProviderReadExtended]
+        | list[ProviderRead]
+        | list[ProviderReadExtendedPublic]
+        | list[ProviderReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 # CREATE CLASSES
@@ -948,6 +952,7 @@ class RegionCreateExtended(RegionCreate):
         "compute_services",
         "identity_services",
         "network_services",
+        "object_storage_services",
     )
     @classmethod
     def validate_services(
