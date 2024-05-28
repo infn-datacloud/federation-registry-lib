@@ -84,6 +84,16 @@ def test_read(provider_model: Provider, key: str, value: Any) -> None:
     assert item.support_emails == provider_model.support_emails
 
 
+@parametrize_with_cases("key, value", has_tag="update")
+def test_update(key: str, value: Any) -> None:
+    d = provider_schema_dict()
+    if key:
+        d[key] = value
+    item = ProviderUpdate(**d)
+    assert item.name == d.get("name")
+    assert item.type == (d.get("type").value if d.get("type") else None)
+
+
 @parametrize_with_cases("attr, values", has_tag="create_extended")
 def test_create_extended(
     attr: str,
@@ -106,16 +116,6 @@ def test_create_extended(
         ]
     item = ProviderCreateExtended(**d)
     assert item.__getattribute__(attr) == values
-
-
-@parametrize_with_cases("key, value", has_tag="update")
-def test_update(key: str, value: Any) -> None:
-    d = provider_schema_dict()
-    if key:
-        d[key] = value
-    item = ProviderUpdate(**d)
-    assert item.name == d.get("name")
-    assert item.type == (d.get("type").value if d.get("type") else None)
 
 
 # @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="provider")

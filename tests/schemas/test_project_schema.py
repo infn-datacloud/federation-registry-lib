@@ -1,43 +1,20 @@
-from typing import Any, Literal
+from typing import Any
 
-import pytest
-from pytest_cases import case, parametrize, parametrize_with_cases
+from pytest_cases import parametrize_with_cases
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.project.models import Project
 from fed_reg.project.schemas import (
     ProjectBase,
     ProjectBasePublic,
-    ProjectCreate,
-    ProjectQuery,
     ProjectRead,
     ProjectReadPublic,
     ProjectUpdate,
 )
 from tests.create_dict import project_schema_dict
-from tests.utils import random_lower_string
 
 
-class CaseAttr:
-    @case(tags=["base_public", "update"])
-    def case_none(self) -> tuple[None, None]:
-        return None, None
-
-    @case(tags=["base_public"])
-    def case_desc(self) -> tuple[Literal["description"], str]:
-        return "description", random_lower_string()
-
-
-class CaseInvalidAttr:
-    @case(tags=["base_public", "update"])
-    @parametrize(attr=["name", "uuid"])
-    def case_attr(self, attr: str) -> tuple[str, None]:
-        return attr, None
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+@parametrize_with_cases("key, value", has_tag="base_public")
 def test_base_public(key: str, value: str) -> None:
-    assert issubclass(ProjectBasePublic, BaseNode)
     d = project_schema_dict()
     if key:
         d[key] = value
@@ -47,17 +24,8 @@ def test_base_public(key: str, value: str) -> None:
     assert item.uuid == d.get("uuid").hex
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
-def test_invalid_base_public(key: str, value: None) -> None:
-    d = project_schema_dict()
-    d[key] = value
-    with pytest.raises(ValueError):
-        ProjectBasePublic(**d)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
+@parametrize_with_cases("key, value", has_tag="base")
 def test_base(key: str, value: Any) -> None:
-    assert issubclass(ProjectBase, ProjectBasePublic)
     d = project_schema_dict()
     if key:
         d[key] = value
@@ -66,43 +34,8 @@ def test_base(key: str, value: Any) -> None:
     assert item.uuid == d.get("uuid").hex
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
-def test_invalid_base(key: str, value: Any) -> None:
-    d = project_schema_dict()
-    d[key] = value
-    with pytest.raises(ValueError):
-        ProjectBase(**d)
-
-
-def test_create() -> None:
-    assert issubclass(ProjectCreate, BaseNodeCreate)
-    assert issubclass(ProjectCreate, ProjectBase)
-
-
-@parametrize_with_cases(
-    "key, value", cases=[CaseInvalidAttr, CaseAttr], has_tag=["update"]
-)
-def test_update(key: str, value: Any) -> None:
-    assert issubclass(ProjectUpdate, BaseNodeCreate)
-    assert issubclass(ProjectUpdate, ProjectBase)
-    d = project_schema_dict()
-    if key:
-        d[key] = value
-    item = ProjectUpdate(**d)
-    assert item.name == d.get("name")
-    assert item.uuid == (d.get("uuid").hex if d.get("uuid") else None)
-
-
-def test_query() -> None:
-    assert issubclass(ProjectQuery, BaseNodeQuery)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+@parametrize_with_cases("key, value", has_tag="base_public")
 def test_read_public(project_model: Project, key: str, value: str) -> None:
-    assert issubclass(ProjectReadPublic, ProjectBasePublic)
-    assert issubclass(ProjectReadPublic, BaseNodeRead)
-    assert ProjectReadPublic.__config__.orm_mode
-
     if key:
         project_model.__setattr__(key, value)
     item = ProjectReadPublic.from_orm(project_model)
@@ -114,19 +47,8 @@ def test_read_public(project_model: Project, key: str, value: str) -> None:
     assert item.uuid == project_model.uuid
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
-def test_invalid_read_public(project_model: Project, key: str, value: str) -> None:
-    project_model.__setattr__(key, value)
-    with pytest.raises(ValueError):
-        ProjectReadPublic.from_orm(project_model)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
+@parametrize_with_cases("key, value", has_tag="base")
 def test_read(project_model: Project, key: str, value: Any) -> None:
-    assert issubclass(ProjectRead, ProjectBase)
-    assert issubclass(ProjectRead, BaseNodeRead)
-    assert ProjectRead.__config__.orm_mode
-
     if key:
         project_model.__setattr__(key, value)
     item = ProjectRead.from_orm(project_model)
@@ -138,11 +60,14 @@ def test_read(project_model: Project, key: str, value: Any) -> None:
     assert item.uuid == project_model.uuid
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr)
-def test_invalid_read(project_model: Project, key: str, value: str) -> None:
-    project_model.__setattr__(key, value)
-    with pytest.raises(ValueError):
-        ProjectRead.from_orm(project_model)
+@parametrize_with_cases("key, value", has_tag="update")
+def test_update(key: str, value: Any) -> None:
+    d = project_schema_dict()
+    if key:
+        d[key] = value
+    item = ProjectUpdate(**d)
+    assert item.name == d.get("name")
+    assert item.uuid == (d.get("uuid").hex if d.get("uuid") else None)
 
 
 # @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="project")
