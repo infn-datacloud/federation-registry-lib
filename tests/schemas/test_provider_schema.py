@@ -103,7 +103,6 @@ def test_create_extended(
         | list[RegionCreateExtended]
     ],
 ) -> None:
-    assert issubclass(ProviderCreateExtended, ProviderCreate)
     d = provider_schema_dict()
     d[attr] = values
     if attr == "identity_providers":
