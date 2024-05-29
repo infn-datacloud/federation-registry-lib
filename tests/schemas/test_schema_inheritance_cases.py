@@ -161,7 +161,7 @@ from fed_reg.user_group.schemas import (
 )
 
 
-class CaseBasePublic:
+class CaseClassInheritance:
     @case(tags=["base_public"])
     def case_flavor_base_public(self):
         return FlavorBasePublic

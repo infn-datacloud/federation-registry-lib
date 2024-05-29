@@ -1,7 +1,14 @@
 from pytest_cases import filters as ft
 from pytest_cases import parametrize_with_cases
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeQuery,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 
 
 @parametrize_with_cases("cls", has_tag="base_public")
@@ -27,10 +34,17 @@ def test_query(cls) -> None:
     assert issubclass(cls, BaseNodeQuery)
 
 
-@parametrize_with_cases(
-    "child, parent", filter=ft.has_tag("read") | ft.has_tag("read_public")
-)
+@parametrize_with_cases("child, parent", has_tag="read")
+def test_read(child, parent) -> None:
+    assert issubclass(child, BaseNodeRead)
+    assert issubclass(child, BaseReadPrivate)
+    assert issubclass(child, parent)
+    assert child.__config__.orm_mode
+
+
+@parametrize_with_cases("child, parent", has_tag="read_public")
 def test_read_public(child, parent) -> None:
     assert issubclass(child, BaseNodeRead)
+    assert issubclass(child, BaseReadPublic)
     assert issubclass(child, parent)
     assert child.__config__.orm_mode
