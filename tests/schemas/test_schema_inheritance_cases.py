@@ -92,6 +92,7 @@ from fed_reg.quota.schemas import (
     ObjectStorageQuotaRead,
     ObjectStorageQuotaReadPublic,
     ObjectStorageQuotaUpdate,
+    QuotaBase,
 )
 from fed_reg.region.schemas import (
     RegionBase,
@@ -189,20 +190,8 @@ class CaseBasePublic:
         return ProviderBasePublic
 
     @case(tags=["base_public"])
-    def case_block_storage_quota_base_public(self):
-        return BlockStorageQuotaBasePublic
-
-    @case(tags=["base_public"])
-    def case_compute_quota_base_public(self):
-        return ComputeQuotaBasePublic
-
-    @case(tags=["base_public"])
-    def case_network_quota_base_public(self):
-        return NetworkQuotaBasePublic
-
-    @case(tags=["base_public"])
-    def case_object_storage_quota_base_public(self):
-        return ObjectStorageQuotaBasePublic
+    def case_quota_base_public(self):
+        return QuotaBase
 
     @case(tags=["base_public"])
     def case_region_base_public(self):
@@ -263,6 +252,22 @@ class CaseBasePublic:
     @case(tags=["base"])
     def case_provider_base(self):
         return ProviderBase, ProviderBasePublic
+
+    @case(tags=["base"])
+    def case_block_storage_quota_base_public(self):
+        return BlockStorageQuotaBasePublic, QuotaBase
+
+    @case(tags=["base"])
+    def case_compute_quota_base_public(self):
+        return ComputeQuotaBasePublic, QuotaBase
+
+    @case(tags=["base"])
+    def case_network_quota_base_public(self):
+        return NetworkQuotaBasePublic, QuotaBase
+
+    @case(tags=["base"])
+    def case_object_storage_quota_base_public(self):
+        return ObjectStorageQuotaBasePublic, QuotaBase
 
     @case(tags=["base"])
     def case_block_storage_quota_base(self):
