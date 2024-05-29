@@ -139,6 +139,7 @@ from fed_reg.service.schemas import (
     ObjectStorageServiceRead,
     ObjectStorageServiceReadPublic,
     ObjectStorageServiceUpdate,
+    ServiceBase,
 )
 from fed_reg.sla.schemas import (
     SLABase,
@@ -198,24 +199,8 @@ class CaseBasePublic:
         return RegionBasePublic
 
     @case(tags=["base_public"])
-    def case_block_storage_service_base_public(self):
-        return BlockStorageServiceBasePublic
-
-    @case(tags=["base_public"])
-    def case_compute_service_base_public(self):
-        return ComputeServiceBasePublic
-
-    @case(tags=["base_public"])
-    def case_identity_service_base_public(self):
-        return IdentityServiceBasePublic
-
-    @case(tags=["base_public"])
-    def case_network_service_base_public(self):
-        return NetworkServiceBasePublic
-
-    @case(tags=["base_public"])
-    def case_object_storage_service_base_public(self):
-        return ObjectStorageServiceBasePublic
+    def case_service_base_public(self):
+        return ServiceBase
 
     @case(tags=["base_public"])
     def case_sla_base_public(self):
@@ -288,6 +273,26 @@ class CaseBasePublic:
     @case(tags=["base"])
     def case_region_base(self):
         return RegionBase, RegionBasePublic
+
+    @case(tags=["base"])
+    def case_block_storage_service_base_public(self):
+        return BlockStorageServiceBasePublic, ServiceBase
+
+    @case(tags=["base"])
+    def case_compute_service_base_public(self):
+        return ComputeServiceBasePublic, ServiceBase
+
+    @case(tags=["base"])
+    def case_identity_service_base_public(self):
+        return IdentityServiceBasePublic, ServiceBase
+
+    @case(tags=["base"])
+    def case_network_service_base_public(self):
+        return NetworkServiceBasePublic, ServiceBase
+
+    @case(tags=["base"])
+    def case_object_storage_service_base_public(self):
+        return ObjectStorageServiceBasePublic, ServiceBase
 
     @case(tags=["base"])
     def case_block_storage_service_base(self):
