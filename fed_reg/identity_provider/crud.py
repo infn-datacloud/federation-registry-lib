@@ -129,7 +129,7 @@ class CRUDIdentityProvider(
         """Update identity provider linked user groups.
 
         Connect new user group not already connect, leave untouched already linked ones
-        and delete old ones no more connected to the identity provider.
+        and delete the ones not involved in this provider and with no more SLAs.
         """
         edit = False
         db_items = {db_item.name: db_item for db_item in db_obj.user_groups}
@@ -146,9 +146,11 @@ class CRUDIdentityProvider(
                 )
                 if not edit and updated_data is not None:
                     edit = True
+        # User groups in the DB not involved in the current provider
         for db_item in db_items.values():
-            user_group_mng.remove(db_obj=db_item)
-            edit = True
+            if len(db_item.slas) == 0:
+                user_group_mng.remove(db_obj=db_item)
+                edit = True
         return edit
 
 
