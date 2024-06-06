@@ -19,6 +19,8 @@ from fed_reg.quota.schemas import (
     ComputeQuotaReadPublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
+    ObjectStorageQuotaRead,
+    ObjectStorageQuotaReadPublic,
 )
 from fed_reg.service.schemas import (
     BlockStorageServiceRead,
@@ -27,6 +29,8 @@ from fed_reg.service.schemas import (
     ComputeServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
+    ObjectStorageServiceRead,
+    ObjectStorageServiceReadPublic,
 )
 from fed_reg.sla.constants import DOC_EXT_PROJ
 from fed_reg.sla.schemas import SLARead, SLAReadPublic
@@ -141,6 +145,36 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
 
     service: NetworkServiceReadPublic = Field(description=DOC_EXT_SERV)
 
+class ObjectStorageQuotaReadExtended(ObjectStorageQuotaRead):
+    """Model to extend the Object Storage Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        TODO: understand attributes
+        service (ObjectStorageServiceReadExtended): Target service. Same type of quota.
+    """
+
+    service: ObjectStorageServiceRead = Field(description=DOC_EXT_SERV)
+
+
+class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
+    """Model to extend the Object Storage Quota public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+        service (ObjectStorageServiceReadExtendedPublic): Target service. Same type of
+            quota.
+    """
+
+    service: ObjectStorageServiceReadPublic = Field(description=DOC_EXT_SERV)
+
 
 class ProjectReadExtended(ProjectRead):
     """Model to extend the Project data read from the DB.
@@ -159,6 +193,7 @@ class ProjectReadExtended(ProjectRead):
         ComputeQuotaReadExtended
         | BlockStorageQuotaReadExtended
         | NetworkQuotaReadExtended
+        | ObjectStorageQuotaReadExtended
     ] = Field(description=DOC_EXT_QUOTA)
 
 
@@ -179,6 +214,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
         ComputeQuotaReadExtendedPublic
         | BlockStorageQuotaReadExtendedPublic
         | NetworkQuotaReadExtendedPublic
+        | ObjectStorageQuotaReadExtendedPublic
     ] = Field(description=DOC_EXT_QUOTA)
 
 
