@@ -8,9 +8,26 @@ from fed_reg.identity_provider.schemas import (
     IdentityProviderReadPublic,
 )
 from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
-from fed_reg.project.constants import DOC_EXT_PROV
+from fed_reg.project.constants import DOC_EXT_PROV, DOC_EXT_QUOTA
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
+from fed_reg.quota.constants import DOC_EXT_SERV
+from fed_reg.quota.schemas import (
+    BlockStorageQuotaRead,
+    BlockStorageQuotaReadPublic,
+    ComputeQuotaRead,
+    ComputeQuotaReadPublic,
+    NetworkQuotaRead,
+    NetworkQuotaReadPublic,
+)
+from fed_reg.service.schemas import (
+    BlockStorageServiceRead,
+    BlockStorageServiceReadPublic,
+    ComputeServiceRead,
+    ComputeServiceReadPublic,
+    NetworkServiceRead,
+    NetworkServiceReadPublic,
+)
 from fed_reg.sla.constants import DOC_EXT_PROJ
 from fed_reg.sla.schemas import SLARead, SLAReadPublic
 from fed_reg.user_group.constants import DOC_EXT_IDP, DOC_EXT_SLA
@@ -20,6 +37,109 @@ from fed_reg.user_group.schemas import (
     UserGroupRead,
     UserGroupReadPublic,
 )
+
+
+class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
+    """Model to extend the Block Storage Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+        service (BlockStorageServiceReadExtended): Target service. Same type of quota.
+    """
+
+    service: BlockStorageServiceRead = Field(description=DOC_EXT_SERV)
+
+
+class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
+    """Model to extend the Block Storage Quota public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+        service (BlockStorageServiceReadExtendedPublic): Target service. Same type of
+            quota.
+    """
+
+    service: BlockStorageServiceReadPublic = Field(description=DOC_EXT_SERV)
+
+
+class ComputeQuotaReadExtended(ComputeQuotaRead):
+    """Model to extend the Compute Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        cores (int | None): Number of max usable cores.
+        instance (int | None): Number of max VM instances.
+        ram (int | None): Number of max usable RAM (MiB).
+        service (ComputeServiceReadExtended): Target service. Same type of quota.
+    """
+
+    service: ComputeServiceRead = Field(description=DOC_EXT_SERV)
+
+
+class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
+    """Model to extend the Compute Quota public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+        service (ComputeServiceReadExtendedPublic): Target service. Same type of quota.
+    """
+
+    service: ComputeServiceReadPublic = Field(description=DOC_EXT_SERV)
+
+
+class NetworkQuotaReadExtended(NetworkQuotaRead):
+    """Model to extend the Network Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        public_ips (int | None): The number of floating IP addresses allowed for each
+            project.
+        networks (int | None): The number of networks allowed for each project.
+        port (int | None): The number of ports allowed for each project.
+        security_groups (int | None): The number of security groups allowed for each
+            project.
+        security_group_rules (int | None): The number of security group rules allowed
+            for each project.
+        service (NetworkServiceReadExtended): Target service. Same type of quota.
+    """
+
+    service: NetworkServiceRead = Field(description=DOC_EXT_SERV)
+
+
+class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
+    """Model to extend the Network Quota public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+        service (NetworkServiceReadExtendedPublic): Target service. Same type of quota.
+    """
+
+    service: NetworkServiceReadPublic = Field(description=DOC_EXT_SERV)
 
 
 class ProjectReadExtended(ProjectRead):
@@ -35,6 +155,11 @@ class ProjectReadExtended(ProjectRead):
     """
 
     provider: ProviderRead = Field(description=DOC_EXT_PROV)
+    quotas: list[
+        ComputeQuotaReadExtended
+        | BlockStorageQuotaReadExtended
+        | NetworkQuotaReadExtended
+    ] = Field(description=DOC_EXT_QUOTA)
 
 
 class ProjectReadExtendedPublic(ProjectReadPublic):
@@ -50,6 +175,11 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
     """
 
     provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
+    quotas: list[
+        ComputeQuotaReadExtendedPublic
+        | BlockStorageQuotaReadExtendedPublic
+        | NetworkQuotaReadExtendedPublic
+    ] = Field(description=DOC_EXT_QUOTA)
 
 
 class SLAReadExtended(SLARead):
