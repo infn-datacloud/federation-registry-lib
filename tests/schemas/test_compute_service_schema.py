@@ -1,4 +1,4 @@
-from typing import Any, Literal, Union
+from typing import Any, Literal
 from uuid import uuid4
 
 import pytest
@@ -129,7 +129,7 @@ class CaseInvalidAttr:
         image_create_ext_schema: ImageCreateExtended,
         attr: str,
         res: str,
-    ) -> tuple[str, Union[list[FlavorCreateExtended], list[ImageCreateExtended]], str]:
+    ) -> tuple[str, list[FlavorCreateExtended] | list[ImageCreateExtended], str]:
         item = flavor_create_ext_schema if res == "flavors" else image_create_ext_schema
         item2 = item.copy()
         if attr == "name":
@@ -190,11 +190,9 @@ def test_query() -> None:
 @parametrize_with_cases("attr, values", cases=CaseAttr, has_tag=["create_extended"])
 def test_create_extended(
     attr: str,
-    values: Union[
-        list[ComputeQuotaCreateExtended],
-        list[FlavorCreateExtended],
-        list[ImageCreateExtended],
-    ],
+    values: list[ComputeQuotaCreateExtended]
+    | list[FlavorCreateExtended]
+    | list[ImageCreateExtended],
 ) -> None:
     assert issubclass(ComputeServiceCreateExtended, ComputeServiceCreate)
     d = compute_service_schema_dict()

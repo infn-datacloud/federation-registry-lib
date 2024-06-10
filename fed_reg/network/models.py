@@ -37,14 +37,14 @@ class Network(StructuredNode):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
+        tags (list of str): list of tags associated to this Network.
     """
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
-    is_shared = BooleanProperty(default=False)
+    is_shared = BooleanProperty(default=True)
     is_router_external = BooleanProperty(default=False)
     is_default = BooleanProperty(default=False)
     mtu = IntegerProperty()

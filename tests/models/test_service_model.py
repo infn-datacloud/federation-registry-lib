@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 
 import pytest
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
@@ -49,11 +49,6 @@ class CaseServiceModel:
     ) -> ComputeService:
         return compute_service_model
 
-    def case_identity_service(
-        self, identity_service_model: IdentityService
-    ) -> IdentityService:
-        return identity_service_model
-
     def case_network_service(
         self, network_service_model: NetworkService
     ) -> NetworkService:
@@ -94,7 +89,7 @@ def test_identity_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.endpoint == d.get("endpoint")
     assert item.name == d.get("name")
-    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.regions, RelationshipManager)
 
 
 def test_network_default_attr() -> None:
@@ -200,14 +195,22 @@ def test_network_attr(key: str, value: Any) -> None:
 
 @parametrize_with_cases("service_model", cases=CaseServiceModel)
 def test_required_rel(
-    service_model: Union[
-        BlockStorageService, ComputeService, IdentityService, NetworkService
-    ],
+    service_model: BlockStorageService
+    | ComputeService
+    | IdentityService
+    | NetworkService,
 ) -> None:
     with pytest.raises(CardinalityViolation):
         service_model.region.all()
     with pytest.raises(CardinalityViolation):
         service_model.region.single()
+
+
+def test_identity_service_required_rel(identity_service_model: IdentityService) -> None:
+    with pytest.raises(CardinalityViolation):
+        identity_service_model.regions.all()
+    with pytest.raises(CardinalityViolation):
+        identity_service_model.regions.single()
 
 
 def test_block_storage_optional_rel(

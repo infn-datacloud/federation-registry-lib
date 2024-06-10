@@ -1,5 +1,5 @@
 """Neomodel model of the User Group owned by an Identity Provider."""
-# from typing import List
+#
 
 from neomodel import (
     One,
@@ -52,7 +52,7 @@ class UserGroup(StructuredNode):
     #     MATCH (g)-[:AGREE]-(s)-[:REFER_TO]->(p)
     #     """
 
-    # def flavors(self) -> List[Flavor]:
+    # def flavors(self) -> list[Flavor]:
     #     results, _ = self.cypher(
     #         f"""
     #             {self.query_prefix}
@@ -62,7 +62,7 @@ class UserGroup(StructuredNode):
     #     )
     #     return [Flavor.inflate(row[0]) for row in results]
 
-    # def images(self) -> List[Image]:
+    # def images(self) -> list[Image]:
     #     results, _ = self.cypher(
     #         f"""
     #             {self.query_prefix}
@@ -72,7 +72,7 @@ class UserGroup(StructuredNode):
     #     )
     #     return [Image.inflate(row[0]) for row in results]
 
-    # def providers(self) -> List[Provider]:
+    # def providers(self) -> list[Provider]:
     #     results, _ = self.cypher(
     #         f"""
     #             {self.query_prefix}
@@ -82,7 +82,7 @@ class UserGroup(StructuredNode):
     #     )
     #     return [Provider.inflate(row[0]) for row in results]
 
-    # def services(self, **kwargs) -> List[Service]:
+    # def services(self, **kwargs) -> list[Service]:
     #     if not kwargs:
     #         filters = ""
     #     else:

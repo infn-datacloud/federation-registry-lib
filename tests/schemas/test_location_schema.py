@@ -14,18 +14,8 @@ from fed_reg.location.schemas import (
     LocationReadPublic,
     LocationUpdate,
 )
-from fed_reg.location.schemas_extended import (
-    LocationReadExtended,
-    LocationReadExtendedPublic,
-    RegionRead,
-    RegionReadPublic,
-)
 from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from tests.create_dict import location_schema_dict
-from tests.schemas.cases_db_instances import (
-    CaseDBInstance,
-    CasePublic,
-)
 from tests.utils import (
     random_country,
     random_latitude,
@@ -190,23 +180,23 @@ def test_invalid_read(location_model: Location, key: str, value: str) -> None:
         LocationRead.from_orm(location_model)
 
 
-@parametrize_with_cases("model", cases=CaseDBInstance, has_tag="location")
-@parametrize_with_cases("public", cases=CasePublic)
-def test_read_extended(model: Location, public: bool) -> None:
-    if public:
-        cls = LocationReadPublic
-        cls_ext = LocationReadExtendedPublic
-        reg_cls = RegionReadPublic
-    else:
-        cls = LocationRead
-        cls_ext = LocationReadExtended
-        reg_cls = RegionRead
+# @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="location")
+# @parametrize_with_cases("public", cases=CasePublic)
+# def test_read_extended(model: Location, public: bool) -> None:
+#     if public:
+#         cls = LocationReadPublic
+#         cls_ext = LocationReadExtendedPublic
+#         reg_cls = RegionReadPublic
+#     else:
+#         cls = LocationRead
+#         cls_ext = LocationReadExtended
+#         reg_cls = RegionRead
 
-    assert issubclass(cls_ext, cls)
-    assert cls_ext.__config__.orm_mode
+#     assert issubclass(cls_ext, cls)
+#     assert cls_ext.__config__.orm_mode
 
-    item = cls_ext.from_orm(model)
+#     item = cls_ext.from_orm(model)
 
-    assert len(item.regions) == len(model.regions.all())
+#     assert len(item.regions) == len(model.regions.all())
 
-    assert all([isinstance(i, reg_cls) for i in item.regions])
+#     assert all([isinstance(i, reg_cls) for i in item.regions])

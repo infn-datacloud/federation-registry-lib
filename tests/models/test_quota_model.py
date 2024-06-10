@@ -1,5 +1,5 @@
 from random import randint
-from typing import Any, Union
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -116,7 +116,7 @@ def test_network_default_attr() -> None:
 
 @parametrize_with_cases("item", cases=CaseQuotaEmpty)
 def test_missing_attr(
-    item: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
+    item: BlockStorageQuota | ComputeQuota | NetworkQuota,
 ) -> None:
     with pytest.raises(RequiredProperty):
         item.save()
@@ -163,7 +163,7 @@ def test_network_attr(key: str, value: Any) -> None:
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_required_rel(
-    quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota,
 ) -> None:
     with pytest.raises(CardinalityViolation):
         quota_model.service.all()
@@ -177,7 +177,7 @@ def test_required_rel(
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_linked_project(
-    quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota,
     project_model: Project,
 ) -> None:
     assert quota_model.project.name
@@ -198,7 +198,7 @@ def test_linked_project(
 
 @parametrize_with_cases("quota_model", cases=CaseQuotaModel)
 def test_multiple_linked_projects(
-    quota_model: Union[BlockStorageQuota, ComputeQuota, NetworkQuota],
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota,
 ) -> None:
     item = Project(**project_model_dict()).save()
     quota_model.project.connect(item)
@@ -206,7 +206,7 @@ def test_multiple_linked_projects(
     with pytest.raises(AttemptedCardinalityViolation):
         quota_model.project.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         quota_model.project.connect(item)
         with pytest.raises(CardinalityViolation):
             quota_model.project.all()
@@ -282,7 +282,7 @@ def test_multiple_linked_block_storage_services(
     with pytest.raises(AttemptedCardinalityViolation):
         block_storage_quota_model.service.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         block_storage_quota_model.service.connect(item)
         with pytest.raises(CardinalityViolation):
             block_storage_quota_model.service.all()
@@ -295,7 +295,7 @@ def test_multiple_linked_compute_services(compute_quota_model: ComputeQuota) -> 
     with pytest.raises(AttemptedCardinalityViolation):
         compute_quota_model.service.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         compute_quota_model.service.connect(item)
         with pytest.raises(CardinalityViolation):
             compute_quota_model.service.all()
@@ -308,7 +308,7 @@ def test_multiple_linked_network_services(network_quota_model: NetworkQuota) -> 
     with pytest.raises(AttemptedCardinalityViolation):
         network_quota_model.service.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         network_quota_model.service.connect(item)
         with pytest.raises(CardinalityViolation):
             network_quota_model.service.all()

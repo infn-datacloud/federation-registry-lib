@@ -1,10 +1,16 @@
 """Pydantic extended models of the Virtual Machine Network owned by a Provider."""
 from typing import Optional
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.constants import DOC_EXT_PROJ, DOC_EXT_SERV
-from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
+from fed_reg.network.schemas import (
+    NetworkBase,
+    NetworkBasePublic,
+    NetworkRead,
+    NetworkReadPublic,
+)
 from fed_reg.project.schemas import ProjectRead
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.region.constants import DOC_EXT_PROV
@@ -71,7 +77,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class NetworkReadExtended(NetworkRead):
+class NetworkReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkBase):
     """Model to extend the Network data read from the DB.
 
     uid (int): Network unique ID.
@@ -84,7 +90,7 @@ class NetworkReadExtended(NetworkRead):
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
-        tags (list of str): List of tags associated to this Network.
+        tags (list of str): list of tags associated to this Network.
         project (ProjectRead | None): Project having access to this network if the
             network is not shared.
         service (NetworkServiceReadExtended): Network Service supplying this network.
@@ -94,7 +100,9 @@ class NetworkReadExtended(NetworkRead):
     service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class NetworkReadExtendedPublic(NetworkReadPublic):
+class NetworkReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, NetworkBasePublic
+):
     """Model to extend the Network public data read from the DB.
 
     uid (int): Network unique ID.
@@ -109,3 +117,18 @@ class NetworkReadExtendedPublic(NetworkReadPublic):
 
     project: Optional[ProjectRead] = Field(default=None, description=DOC_EXT_PROJ)
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+
+
+class NetworkReadSingle(BaseModel):
+    __root__: (
+        NetworkReadExtended
+        | NetworkRead
+        | NetworkReadExtendedPublic
+        | NetworkReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class NetworkReadMulti(BaseModel):
+    __root__: list[NetworkReadExtended] | list[NetworkRead] | list[
+        NetworkReadExtendedPublic
+    ] | list[NetworkReadPublic] = Field(..., discriminator="schema_type")

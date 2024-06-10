@@ -1,5 +1,5 @@
 """Provider endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 # from app.service.api.dependencies import valid_service_endpoint
 # from app.service.crud import (
@@ -56,13 +56,13 @@ from fed_reg.provider.models import Provider
 from fed_reg.provider.schemas import (
     ProviderQuery,
     ProviderRead,
-    ProviderReadPublic,
     ProviderUpdate,
 )
 from fed_reg.provider.schemas_extended import (
     ProviderCreateExtended,
     ProviderReadExtended,
-    ProviderReadExtendedPublic,
+    ProviderReadMulti,
+    ProviderReadSingle,
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 
@@ -71,12 +71,7 @@ router = APIRouter(prefix="/providers", tags=["providers"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[ProviderReadExtended],
-        List[ProviderRead],
-        List[ProviderReadExtendedPublic],
-        List[ProviderReadPublic],
-    ],
+    response_model=ProviderReadMulti,
     summary="Read all providers",
     description="Retrieve all providers stored in the database. \
         It is possible to filter on providers attributes and other \
@@ -149,12 +144,7 @@ def post_provider(
 
 @router.get(
     "/{provider_uid}",
-    response_model=Union[
-        ProviderReadExtended,
-        ProviderRead,
-        ProviderReadExtendedPublic,
-        ProviderReadPublic,
-    ],
+    response_model=ProviderReadSingle,
     summary="Read a specific provider",
     description="Retrieve a specific provider using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -458,11 +448,9 @@ def delete_providers(
 # @db.write_transaction
 # @router.post(
 #     "/{provider_uid}/services/",
-#     response_model=Union[
-#         BlockStorageServiceReadExtended,
-#         IdentityServiceReadExtended,
+#     response_model=         BlockStorageServiceReadExtended|
+#         IdentityServiceReadExtended|
 #         ComputeServiceReadExtended,
-#     ],
 #     status_code=status.HTTP_201_CREATED,
 #       # , Depends(valid_service_endpoint)],
 #     summary="Add new service to provider",
@@ -474,12 +462,10 @@ def delete_providers(
 #         no other items with the given *name* or *uuid*.",
 # )
 # def add_service_to_provider(
-#     item: Union[
-#         BlockStorageServiceCreate,
-#         IdentityServiceCreate,
-#         ComputeServiceCreate,
+#     item: BlockStorageServiceCreate|
+#         IdentityServiceCreate|
+#         ComputeServiceCreate|
 #         NetworkServiceCreate,
-#     ],
 #     provider: Provider = Depends(valid_provider_id),
 # ):
 #     if isinstance(item, BlockStorageServiceCreate):

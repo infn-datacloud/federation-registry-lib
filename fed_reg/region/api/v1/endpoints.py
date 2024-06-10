@@ -1,5 +1,5 @@
 """Region endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -25,12 +25,11 @@ from fed_reg.region.models import Region
 from fed_reg.region.schemas import (
     RegionQuery,
     RegionRead,
-    RegionReadPublic,
     RegionUpdate,
 )
 from fed_reg.region.schemas_extended import (
-    RegionReadExtended,
-    RegionReadExtendedPublic,
+    RegionReadMulti,
+    RegionReadSingle,
 )
 
 router = APIRouter(prefix="/regions", tags=["regions"])
@@ -38,12 +37,7 @@ router = APIRouter(prefix="/regions", tags=["regions"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[RegionReadExtended],
-        List[RegionRead],
-        List[RegionReadExtendedPublic],
-        List[RegionReadPublic],
-    ],
+    response_model=RegionReadMulti,
     summary="Read all regions",
     description="Retrieve all regions stored in the database. \
         It is possible to filter on regions attributes and other \
@@ -86,12 +80,7 @@ def get_regions(
 
 @router.get(
     "/{region_uid}",
-    response_model=Union[
-        RegionReadExtended,
-        RegionRead,
-        RegionReadExtendedPublic,
-        RegionReadPublic,
-    ],
+    response_model=RegionReadSingle,
     summary="Read a specific region",
     description="Retrieve a specific region using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -172,7 +161,6 @@ def put_region(
 @router.delete(
     "/{region_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
-    dependencies=[Depends(not_last_region)],
     summary="Delete a specific region",
     description="Delete a specific region using its *uid*. \
         Returns `no content`. \
@@ -185,7 +173,7 @@ def put_region(
 @db.write_transaction
 def delete_regions(
     request: Request,
-    item: Region = Depends(valid_region_id),
+    item: Region = Depends(not_last_region),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
     """DELETE operation to remove the region matching a specific uid.

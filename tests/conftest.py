@@ -1,16 +1,19 @@
 """File to set tests configuration parameters and common fixtures."""
 import os
 from typing import Any, Generator
-from unittest.mock import MagicMock, PropertyMock, patch
 from uuid import uuid4
 
 import pytest
+from fastapi.testclient import TestClient
+from flaat.user_infos import UserInfos
+from neomodel import config, db
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.image.models import Image
 from fed_reg.location.models import Location
 from fed_reg.location.schemas import LocationCreate
+from fed_reg.main import app
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.project.schemas import ProjectCreate
@@ -26,6 +29,7 @@ from fed_reg.provider.schemas_extended import (
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
+    ProviderCreateExtended,
     RegionCreateExtended,
     SLACreateExtended,
     UserGroupCreateExtended,
@@ -67,6 +71,7 @@ from tests.create_dict import (
     project_model_dict,
     project_schema_dict,
     provider_model_dict,
+    provider_schema_dict,
     region_model_dict,
     region_schema_dict,
     sla_model_dict,
@@ -74,55 +79,86 @@ from tests.create_dict import (
     user_group_model_dict,
     user_group_schema_dict,
 )
-from tests.db import MockDatabase
+from tests.utils import MOCK_READ_EMAIL, MOCK_WRITE_EMAIL
+
+
+def pytest_addoption(parser):
+    """
+    Adds the command line option --resetdb.
+
+    :param parser: The parser object. Please see <https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_addoption>`_
+    :type Parser object: For more information please see <https://docs.pytest.org/en/latest/reference.html#_pytest.config.Parser>`_
+    """
+    parser.addoption(
+        "--resetdb",
+        action="store_true",
+        help="Ensures that the database is clear prior to running tests for neomodel",
+        default=False,
+    )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_neo4j_session(request):
+    """
+    Provides initial connection to the database and sets up the rest of the test suite
+
+    :param request: The request object. Please see <https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_sessionstart>`_
+    :type Request object: For more information please see <https://docs.pytest.org/en/latest/reference.html#request>`_
+    """
+    config.DATABASE_URL = os.environ.get(
+        "NEO4J_TEST_URL", "bolt://neo4j:password@localhost:7687"
+    )
+
+    # Clear the database if required
+    database_is_populated, _ = db.cypher_query(
+        "MATCH (a) return count(a)>0 as database_is_populated"
+    )
+    if database_is_populated[0][0] and not request.config.getoption("resetdb"):
+        raise SystemError(
+            "Please note: The database seems to be populated.\n"
+            + "\tEither delete all nodesand edges manually, or set the "
+            + "--resetdb parameter when calling pytest\n\n"
+            + "\tpytest --resetdb."
+        )
+
+    # db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
+
+    # db.install_all_labels()
+
+    db.cypher_query(
+        "CREATE OR REPLACE USER test SET PASSWORD 'foobarbaz' CHANGE NOT REQUIRED"
+    )
+    if db.database_edition == "enterprise":
+        db.cypher_query("GRANT ROLE publisher TO test")
+        db.cypher_query("GRANT IMPERSONATE (test) ON DBMS TO admin")
+
+
+@pytest.fixture(scope="session", autouse=True)
+def close() -> Generator[None, Any, None]:
+    """Close connection with the DB at the end of the test.
+
+    Yields:
+        Generator[None, Any, None]: Nothing
+    """
+    yield
+    db.close_connection()
+
+
+@pytest.fixture(autouse=True)
+def cleanup() -> Generator[None, Any, None]:
+    """Clear DB after every test
+
+    Yields:
+        Generator[None, Any, None]: Nothing
+    """
+    yield
+    db.clear_neo4j_database()
 
 
 @pytest.fixture(autouse=True)
 def clear_os_environment() -> None:
     """Clear the OS environment."""
     os.environ.clear()
-
-
-@pytest.fixture()
-def db() -> MockDatabase:
-    return MockDatabase()
-
-
-@pytest.fixture()
-def db_core(db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.core.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
-        mock_db.cypher_query.side_effect = db.query_call
-        yield
-
-
-@pytest.fixture()
-def db_match(db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.match.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
-        mock_db.cypher_query.side_effect = db.query_call
-        yield
-
-
-@pytest.fixture()
-def db_rel_mgr(db: MockDatabase) -> Generator[None, Any, None]:
-    with patch("neomodel.relationship_manager.db") as mock_db:
-        type(mock_db).database_version = PropertyMock(return_value=str(db.db_version))
-
-        d = {}
-        cls_registry = MagicMock()
-        cls_registry.__getitem__.side_effect = d.__getitem__
-        cls_registry.__setitem__.side_effect = d.__setitem__
-        mock_db._NODE_CLASS_REGISTRY = cls_registry
-
-        yield
-
-
-@pytest.fixture(autouse=True)
-def mock_db(
-    db_core: None, db_match: None, db_rel_mgr: None
-) -> Generator[None, Any, None]:
-    yield
 
 
 @pytest.fixture
@@ -248,11 +284,6 @@ def flavor_create_ext_schema() -> FlavorCreateExtended:
 
 
 @pytest.fixture
-def image_create_ext_schema() -> ImageCreateExtended:
-    return ImageCreateExtended(**image_schema_dict())
-
-
-@pytest.fixture
 def identity_provider_create_ext_schema(
     user_group_create_ext_schema: UserGroupCreateExtended,
 ) -> IdentityProviderCreateExtended:
@@ -264,8 +295,18 @@ def identity_provider_create_ext_schema(
 
 
 @pytest.fixture
+def image_create_ext_schema() -> ImageCreateExtended:
+    return ImageCreateExtended(**image_schema_dict())
+
+
+@pytest.fixture
 def network_create_ext_schema() -> NetworkCreateExtended:
     return NetworkCreateExtended(**network_schema_dict())
+
+
+@pytest.fixture
+def provider_create_ext_schema() -> ProviderCreateExtended:
+    return ProviderCreateExtended(**provider_schema_dict())
 
 
 @pytest.fixture
@@ -315,3 +356,39 @@ def user_group_create_ext_schema(
     return UserGroupCreateExtended(
         **user_group_schema_dict(), sla=sla_create_ext_schema
     )
+
+
+@pytest.fixture
+def client_no_authn():
+    return TestClient(app)
+
+
+@pytest.fixture
+def client_with_token():
+    return TestClient(app, headers={"Authorization": "Bearer fake"})
+
+
+@pytest.fixture
+def user_infos_with_write_email() -> UserInfos:
+    """Fake user with email. It has write access rights."""
+    return UserInfos(
+        access_token_info=None,
+        user_info={"email": MOCK_WRITE_EMAIL},
+        introspection_info=None,
+    )
+
+
+@pytest.fixture
+def user_infos_with_read_email() -> UserInfos:
+    """Fake user with email. It has only read access rights."""
+    return UserInfos(
+        access_token_info=None,
+        user_info={"email": MOCK_READ_EMAIL},
+        introspection_info=None,
+    )
+
+
+@pytest.fixture
+def user_infos_without_email() -> UserInfos:
+    """Fake user without email."""
+    return UserInfos(access_token_info=None, user_info={}, introspection_info=None)

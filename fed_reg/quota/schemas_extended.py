@@ -1,14 +1,22 @@
 """Pydantic extended models of the Resource limitations for Projects on Services."""
-from pydantic import Field
 
+from pydantic import BaseModel, Field
+
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.quota.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from fed_reg.quota.schemas import (
+    BlockStorageQuotaBase,
+    BlockStorageQuotaBasePublic,
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
+    ComputeQuotaBase,
+    ComputeQuotaBasePublic,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
+    NetworkQuotaBase,
+    NetworkQuotaBasePublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
 )
@@ -143,7 +151,9 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
+class BlockStorageQuotaReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, BlockStorageQuotaBase
+):
     """Model to extend the Block Storage Quota data read from the DB.
 
     Attributes:
@@ -164,7 +174,9 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
     service: BlockStorageServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
+class BlockStorageQuotaReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, BlockStorageQuotaBasePublic
+):
     """Model to extend the Block Storage Quota public data read from the DB.
 
     Attributes:
@@ -180,7 +192,7 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
     service: BlockStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
-class ComputeQuotaReadExtended(ComputeQuotaRead):
+class ComputeQuotaReadExtended(BaseNodeRead, BaseReadPrivateExtended, ComputeQuotaBase):
     """Model to extend the Compute Quota data read from the DB.
 
     Attributes:
@@ -200,7 +212,9 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
     service: ComputeServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
+class ComputeQuotaReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, ComputeQuotaBasePublic
+):
     """Model to extend the Compute Quota public data read from the DB.
 
     Attributes:
@@ -216,7 +230,7 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
     service: ComputeServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
-class NetworkQuotaReadExtended(NetworkQuotaRead):
+class NetworkQuotaReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkQuotaBase):
     """Model to extend the Network Quota data read from the DB.
 
     Attributes:
@@ -241,7 +255,9 @@ class NetworkQuotaReadExtended(NetworkQuotaRead):
     service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
+class NetworkQuotaReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, NetworkQuotaBasePublic
+):
     """Model to extend the Network Quota public data read from the DB.
 
     Attributes:
@@ -255,3 +271,48 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
 
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+
+
+class BlockStorageQuotaReadSingle(BaseModel):
+    __root__: (
+        BlockStorageQuotaReadExtended
+        | BlockStorageQuotaRead
+        | BlockStorageQuotaReadExtendedPublic
+        | BlockStorageQuotaReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class BlockStorageQuotaReadMulti(BaseModel):
+    __root__: list[BlockStorageQuotaReadExtended] | list[BlockStorageQuotaRead] | list[
+        BlockStorageQuotaReadExtendedPublic
+    ] | list[BlockStorageQuotaReadPublic] = Field(..., discriminator="schema_type")
+
+
+class ComputeQuotaReadSingle(BaseModel):
+    __root__: (
+        ComputeQuotaReadExtended
+        | ComputeQuotaRead
+        | ComputeQuotaReadExtendedPublic
+        | ComputeQuotaReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class ComputeQuotaReadMulti(BaseModel):
+    __root__: list[ComputeQuotaReadExtended] | list[ComputeQuotaRead] | list[
+        ComputeQuotaReadExtendedPublic
+    ] | list[ComputeQuotaReadPublic] = Field(..., discriminator="schema_type")
+
+
+class NetworkQuotaReadSingle(BaseModel):
+    __root__: (
+        NetworkQuotaReadExtended
+        | NetworkQuotaRead
+        | NetworkQuotaReadExtendedPublic
+        | NetworkQuotaReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class NetworkQuotaReadMulti(BaseModel):
+    __root__: list[NetworkQuotaReadExtended] | list[NetworkQuotaRead] | list[
+        NetworkQuotaReadExtendedPublic
+    ] | list[NetworkQuotaReadPublic] = Field(..., discriminator="schema_type")

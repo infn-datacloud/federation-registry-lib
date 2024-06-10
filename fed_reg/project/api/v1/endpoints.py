@@ -1,5 +1,5 @@
 """Project endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -35,12 +35,11 @@ from fed_reg.project.models import Project
 from fed_reg.project.schemas import (
     ProjectQuery,
     ProjectRead,
-    ProjectReadPublic,
     ProjectUpdate,
 )
 from fed_reg.project.schemas_extended import (
-    ProjectReadExtended,
-    ProjectReadExtendedPublic,
+    ProjectReadMulti,
+    ProjectReadSingle,
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 from fed_reg.region.schemas import RegionQuery
@@ -50,12 +49,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[ProjectReadExtended],
-        List[ProjectRead],
-        List[ProjectReadExtendedPublic],
-        List[ProjectReadPublic],
-    ],
+    response_model=ProjectReadMulti,
     summary="Read all projects",
     description="Retrieve all projects stored in the database. \
         It is possible to filter on projects attributes and other \
@@ -101,12 +95,7 @@ def get_projects(
 
 @router.get(
     "/{project_uid}",
-    response_model=Union[
-        ProjectReadExtended,
-        ProjectRead,
-        ProjectReadExtendedPublic,
-        ProjectReadPublic,
-    ],
+    response_model=ProjectReadSingle,
     summary="Read a specific project",
     description="Retrieve a specific project using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -222,13 +211,12 @@ def delete_project(
 # @db.read_transaction
 # @router.get(
 #     "/{project_uid}/flavors",
-#     response_model=Union[
-#         List[FlavorReadExtended],
-#         List[FlavorRead],
-#         List[FlavorReadShort],
-#         List[FlavorReadExtendedPublic],
-#         List[FlavorReadPublic],
-#     ],
+#     response_model=
+#         list[FlavorReadExtended]|
+#         list[FlavorRead]|
+#         list[FlavorReadShort]|
+#         list[FlavorReadExtendedPublic]|
+#         list[FlavorReadPublic],
 #     summary="Read user group accessible flavors",
 #     description="Retrieve all the flavors the user group \
 #         has access to thanks to its SLA. \
@@ -249,7 +237,7 @@ def delete_project(
 # @db.write_transaction
 # @router.put(
 #     "/{project_uid}/flavors/{flavor_uid}",
-#     response_model=Optional[List[FlavorRead]],
+#     response_model=Optional[list[FlavorRead]],
 #
 #     summary="Connect project to flavor",
 #     description="Connect a project to a specific flavor \
@@ -272,7 +260,7 @@ def delete_project(
 # @db.write_transaction
 # @router.delete(
 #     "/{project_uid}/flavors/{flavor_uid}",
-#     response_model=Optional[List[FlavorRead]],
+#     response_model=Optional[list[FlavorRead]],
 #
 #     summary="Disconnect project from flavor",
 #     description="Disconnect a project from a specific flavor \
@@ -295,13 +283,11 @@ def delete_project(
 # @db.read_transaction
 # @router.get(
 #     "/{project_uid}/images",
-#     response_model=Union[
-#         List[ImageReadExtended],
-#         List[ImageRead],
-#         List[ImageReadShort],
-#         List[ImageReadExtendedPublic],
-#         List[ImageReadPublic],
-#     ],
+#     response_model=list[ImageReadExtended]|
+#         list[ImageRead]|
+#         list[ImageReadShort]|
+#         list[ImageReadExtendedPublic]|
+#         list[ImageReadPublic],
 #     summary="Read user group accessible images",
 #     description="Retrieve all the images the user group \
 #         has access to thanks to its SLA. \
@@ -322,7 +308,7 @@ def delete_project(
 # @db.write_transaction
 # @router.put(
 #     "/{project_uid}/images/{image_uid}",
-#     response_model=Optional[List[ImageRead]],
+#     response_model=Optional[list[ImageRead]],
 #
 #     summary="Connect project to image",
 #     description="Connect a project to a specific image \
@@ -345,7 +331,7 @@ def delete_project(
 # @db.write_transaction
 # @router.delete(
 #     "/{project_uid}/images/{image_uid}",
-#     response_model=Optional[List[ImageRead]],
+#     response_model=Optional[list[ImageRead]],
 #
 #     summary="Disconnect project from image",
 #     description="Disconnect a project from a specific image \

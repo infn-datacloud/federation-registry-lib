@@ -55,7 +55,7 @@ def test_default_attr() -> None:
     assert item.description == ""
     assert item.name == d.get("name")
     assert item.uuid == d.get("uuid")
-    assert item.is_shared is False
+    assert item.is_shared is True
     assert item.is_router_external is False
     assert item.is_default is False
     assert item.mtu is None
@@ -124,7 +124,7 @@ def test_multiple_linked_projects(network_model: Network) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         network_model.project.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         network_model.project.connect(item)
         with pytest.raises(CardinalityViolation):
             network_model.project.all()
@@ -156,7 +156,7 @@ def test_multiple_linked_services(network_model: Network) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         network_model.service.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         network_model.service.connect(item)
         with pytest.raises(CardinalityViolation):
             network_model.service.all()

@@ -1,10 +1,11 @@
 """Pydantic extended models of the Service supplied by Providers on specific Regions."""
-from typing import List
 
-from pydantic import Field
+
+from pydantic import BaseModel, Field
 
 from fed_reg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fed_reg.image.schemas import ImageRead, ImageReadPublic
+from fed_reg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fed_reg.network.schemas import NetworkRead, NetworkReadPublic
 from fed_reg.project.schemas import ProjectRead, ProjectReadPublic
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
@@ -27,12 +28,20 @@ from fed_reg.service.constants import (
     DOC_EXT_REG,
 )
 from fed_reg.service.schemas import (
+    BlockStorageServiceBase,
+    BlockStorageServiceBasePublic,
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
+    ComputeServiceBase,
+    ComputeServiceBasePublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
+    IdentityServiceBase,
+    IdentityServiceBasePublic,
     IdentityServiceRead,
     IdentityServiceReadPublic,
+    NetworkServiceBase,
+    NetworkServiceBasePublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
 )
@@ -168,7 +177,9 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
 
 
-class BlockStorageServiceReadExtended(BlockStorageServiceRead):
+class BlockStorageServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, BlockStorageServiceBase
+):
     """Model to extend the Block Storage Quota data read from the DB.
 
     Attributes:
@@ -183,10 +194,12 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
     """
 
     region: RegionReadExtended = Field(description=DOC_EXT_REG)
-    quotas: List[BlockStorageQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
+    quotas: list[BlockStorageQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
 
 
-class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
+class BlockStorageServiceReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, BlockStorageServiceBasePublic
+):
     """Model to extend the Block Storage Service public data read from the DB.
 
     Attributes:
@@ -200,10 +213,12 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
     """
 
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
-    quotas: List[BlockStorageQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
+    quotas: list[BlockStorageQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
 
 
-class ComputeServiceReadExtended(ComputeServiceRead):
+class ComputeServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, ComputeServiceBase
+):
     """Model to extend the Compute Service data read from the DB.
 
     Attributes:
@@ -220,12 +235,14 @@ class ComputeServiceReadExtended(ComputeServiceRead):
     """
 
     region: RegionReadExtended = Field(description=DOC_EXT_REG)
-    quotas: List[ComputeQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
-    flavors: List[FlavorRead] = Field(description=DOC_EXT_FLAV)
-    images: List[ImageRead] = Field(description=DOC_EXT_IMAG)
+    quotas: list[ComputeQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
+    flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
+    images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
 
 
-class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
+class ComputeServiceReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, ComputeServiceBasePublic
+):
     """Model to extend the Compute Service public data read from the DB.
 
     Attributes:
@@ -241,12 +258,14 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     """
 
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
-    quotas: List[ComputeQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
-    flavors: List[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
-    images: List[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
+    quotas: list[ComputeQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
+    flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
+    images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
 
 
-class IdentityServiceReadExtended(IdentityServiceRead):
+class IdentityServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, IdentityServiceBase
+):
     """Model to extend the Identity Service data read from the DB.
 
     Attributes:
@@ -259,10 +278,12 @@ class IdentityServiceReadExtended(IdentityServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
-class IdentityServiceReadExtendedPublic(IdentityServiceReadPublic):
+class IdentityServiceReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, IdentityServiceBasePublic
+):
     """Model to extend the Identity Service public data read from the DB.
 
     Attributes:
@@ -273,10 +294,12 @@ class IdentityServiceReadExtendedPublic(IdentityServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
-class NetworkServiceReadExtended(NetworkServiceRead):
+class NetworkServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, NetworkServiceBase
+):
     """Model to extend the Network Service data read from the DB.
 
     Attributes:
@@ -292,11 +315,13 @@ class NetworkServiceReadExtended(NetworkServiceRead):
     """
 
     region: RegionReadExtended = Field(description=DOC_EXT_REG)
-    quotas: List[NetworkQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
-    networks: List[NetworkRead] = Field(description=DOC_EXT_NETW)
+    quotas: list[NetworkQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
+    networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
 
 
-class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
+class NetworkServiceReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, NetworkServiceBasePublic
+):
     """Model to extend the Network Service public data read from the DB.
 
     Attributes:
@@ -311,5 +336,67 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     """
 
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
-    quotas: List[NetworkQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
-    networks: List[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
+    quotas: list[NetworkQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
+    networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
+
+
+class BlockStorageServiceReadSingle(BaseModel):
+    __root__: (
+        BlockStorageServiceReadExtended
+        | BlockStorageServiceRead
+        | BlockStorageServiceReadExtendedPublic
+        | BlockStorageServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class BlockStorageServiceReadMulti(BaseModel):
+    __root__: list[BlockStorageServiceReadExtended] | list[
+        BlockStorageServiceRead
+    ] | list[BlockStorageServiceReadExtendedPublic] | list[
+        BlockStorageServiceReadPublic
+    ] = Field(..., discriminator="schema_type")
+
+
+class ComputeServiceReadSingle(BaseModel):
+    __root__: (
+        ComputeServiceReadExtended
+        | ComputeServiceRead
+        | ComputeServiceReadExtendedPublic
+        | ComputeServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class ComputeServiceReadMulti(BaseModel):
+    __root__: list[ComputeServiceReadExtended] | list[ComputeServiceRead] | list[
+        ComputeServiceReadExtendedPublic
+    ] | list[ComputeServiceReadPublic] = Field(..., discriminator="schema_type")
+
+
+class IdentityServiceReadSingle(BaseModel):
+    __root__: (
+        IdentityServiceReadExtended
+        | IdentityServiceRead
+        | IdentityServiceReadExtendedPublic
+        | IdentityServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class IdentityServiceReadMulti(BaseModel):
+    __root__: list[IdentityServiceReadExtended] | list[IdentityServiceRead] | list[
+        IdentityServiceReadExtendedPublic
+    ] | list[IdentityServiceReadPublic] = Field(..., discriminator="schema_type")
+
+
+class NetworkServiceReadSingle(BaseModel):
+    __root__: (
+        NetworkServiceReadExtended
+        | NetworkServiceRead
+        | NetworkServiceReadExtendedPublic
+        | NetworkServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class NetworkServiceReadMulti(BaseModel):
+    __root__: list[NetworkServiceReadExtended] | list[NetworkServiceRead] | list[
+        NetworkServiceReadExtendedPublic
+    ] | list[NetworkServiceReadPublic] = Field(..., discriminator="schema_type")

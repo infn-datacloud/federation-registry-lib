@@ -1,9 +1,15 @@
 """Pydantic models of the Service supplied by a Provider on a specific Region."""
 from typing import Literal, Optional
 
-from pydantic import AnyHttpUrl, Field, validator
+from pydantic import AnyHttpUrl, Field
 
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeRead
+from fed_reg.models import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fed_reg.query import create_query_model
 from fed_reg.service.constants import DOC_ENDP, DOC_NAME
 from fed_reg.service.enum import (
@@ -29,7 +35,7 @@ class ServiceBase(BaseNode):
     endpoint: AnyHttpUrl = Field(description=DOC_ENDP)
 
 
-class BlockStorageServiceBase(ServiceBase):
+class BlockStorageServiceBasePublic(ServiceBase):
     """Model with the Block Storage Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
@@ -42,20 +48,25 @@ class BlockStorageServiceBase(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(
+    type: Literal[ServiceType.BLOCK_STORAGE] = Field(
         default=ServiceType.BLOCK_STORAGE, description="Block Storage service type."
     )
-    name: BlockStorageServiceName = Field(description=DOC_NAME)
 
-    @validator("type")
-    @classmethod
-    def check_type(
-        cls, v: Literal[ServiceType.BLOCK_STORAGE]
-    ) -> Literal[ServiceType.BLOCK_STORAGE]:
-        """Verify that the type value is exactly ServiceType.BLOCK_STORAGE."""
-        if v != ServiceType.BLOCK_STORAGE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
+
+class BlockStorageServiceBase(BlockStorageServiceBasePublic):
+    """Model with the Block Storage Service public and restricted attributes.
+
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+    """
+
+    name: BlockStorageServiceName = Field(description=DOC_NAME)
 
 
 class BlockStorageServiceCreate(BaseNodeCreate, BlockStorageServiceBase):
@@ -93,7 +104,9 @@ class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
     name: Optional[BlockStorageServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class BlockStorageServiceReadPublic(BaseNodeRead, ServiceBase):
+class BlockStorageServiceReadPublic(
+    BaseNodeRead, BaseReadPublic, BlockStorageServiceBasePublic
+):
     """Model, for non-authenticated users, to read Block Storage data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -109,7 +122,7 @@ class BlockStorageServiceReadPublic(BaseNodeRead, ServiceBase):
     """
 
 
-class BlockStorageServiceRead(BaseNodeRead, BlockStorageServiceBase):
+class BlockStorageServiceRead(BaseNodeRead, BaseReadPrivate, BlockStorageServiceBase):
     """Model, for authenticated users, to read Block Storage data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -132,7 +145,7 @@ BlockStorageServiceQuery = create_query_model(
 )
 
 
-class ComputeServiceBase(ServiceBase):
+class ComputeServiceBasePublic(ServiceBase):
     """Model with the Compute Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
@@ -145,18 +158,25 @@ class ComputeServiceBase(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(
+    type: Literal[ServiceType.COMPUTE] = Field(
         default=ServiceType.COMPUTE, description="Compute service type."
     )
-    name: ComputeServiceName = Field(description=DOC_NAME)
 
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[ServiceType.COMPUTE]:
-        """Verify that the type value is exactly ServiceType.COMPUTE."""
-        if v != ServiceType.COMPUTE:
-            raise ValueError(f"Not valid type: {v}")
-        return v
+
+class ComputeServiceBase(ComputeServiceBasePublic):
+    """Model with the Compute Service public and restricted attributes.
+
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+    """
+
+    name: ComputeServiceName = Field(description=DOC_NAME)
 
 
 class ComputeServiceCreate(BaseNodeCreate, ComputeServiceBase):
@@ -194,7 +214,7 @@ class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
     name: Optional[ComputeServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class ComputeServiceReadPublic(BaseNodeRead, ServiceBase):
+class ComputeServiceReadPublic(BaseNodeRead, BaseReadPublic, ComputeServiceBasePublic):
     """Model, for non-authenticated users, to read Compute data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -210,7 +230,7 @@ class ComputeServiceReadPublic(BaseNodeRead, ServiceBase):
     """
 
 
-class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
+class ComputeServiceRead(BaseNodeRead, BaseReadPrivate, ComputeServiceBase):
     """Model, for authenticated users, to read Compute data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -231,7 +251,7 @@ class ComputeServiceRead(BaseNodeRead, ComputeServiceBase):
 ComputeServiceQuery = create_query_model("ComputeServiceQuery", ComputeServiceBase)
 
 
-class IdentityServiceBase(ServiceBase):
+class IdentityServiceBasePublic(ServiceBase):
     """Model with the Identity Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
@@ -244,18 +264,25 @@ class IdentityServiceBase(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(
+    type: Literal[ServiceType.IDENTITY] = Field(
         default=ServiceType.IDENTITY, description="Identity service type."
     )
-    name: IdentityServiceName = Field(description=DOC_NAME)
 
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[ServiceType.IDENTITY]:
-        """Verify that the type value is exactly ServiceType.IDENTITY."""
-        if v != ServiceType.IDENTITY:
-            raise ValueError(f"Not valid type: {v}")
-        return v
+
+class IdentityServiceBase(IdentityServiceBasePublic):
+    """Model with the Identity Service public and restricted attributes.
+
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+    """
+
+    name: IdentityServiceName = Field(description=DOC_NAME)
 
 
 class IdentityServiceCreate(BaseNodeCreate, IdentityServiceBase):
@@ -293,7 +320,9 @@ class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
     name: Optional[IdentityServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class IdentityServiceReadPublic(BaseNodeRead, ServiceBase):
+class IdentityServiceReadPublic(
+    BaseNodeRead, BaseReadPublic, IdentityServiceBasePublic
+):
     """Model, for non-authenticated users, to read Identity data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -309,7 +338,7 @@ class IdentityServiceReadPublic(BaseNodeRead, ServiceBase):
     """
 
 
-class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
+class IdentityServiceRead(BaseNodeRead, BaseReadPrivate, IdentityServiceBase):
     """Model, for authenticated users, to read Identity data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -329,7 +358,7 @@ class IdentityServiceRead(BaseNodeRead, IdentityServiceBase):
 IdentityServiceQuery = create_query_model("IdentityServiceQuery", IdentityServiceBase)
 
 
-class NetworkServiceBase(ServiceBase):
+class NetworkServiceBasePublic(ServiceBase):
     """Model with the Network Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
@@ -342,18 +371,25 @@ class NetworkServiceBase(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: ServiceType = Field(
+    type: Literal[ServiceType.NETWORK] = Field(
         default=ServiceType.NETWORK, description="Network service type."
     )
-    name: NetworkServiceName = Field(description=DOC_NAME)
 
-    @validator("type")
-    @classmethod
-    def check_type(cls, v) -> Literal[ServiceType.NETWORK]:
-        """Verify that the type value is exactly ServiceType.NETWORK."""
-        if v != ServiceType.NETWORK:
-            raise ValueError(f"Not valid type: {v}")
-        return v
+
+class NetworkServiceBase(NetworkServiceBasePublic):
+    """Model with the Network Service public and restricted attributes.
+
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+    """
+
+    name: NetworkServiceName = Field(description=DOC_NAME)
 
 
 class NetworkServiceCreate(BaseNodeCreate, NetworkServiceBase):
@@ -391,7 +427,7 @@ class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
     name: Optional[NetworkServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class NetworkServiceReadPublic(BaseNodeRead, ServiceBase):
+class NetworkServiceReadPublic(BaseNodeRead, BaseReadPublic, NetworkServiceBasePublic):
     """Model, for non-authenticated users, to read Network data from DB.
 
     Class to read non-sensible data written in the DB. Expected as output when
@@ -407,7 +443,7 @@ class NetworkServiceReadPublic(BaseNodeRead, ServiceBase):
     """
 
 
-class NetworkServiceRead(BaseNodeRead, NetworkServiceBase):
+class NetworkServiceRead(BaseNodeRead, BaseReadPrivate, NetworkServiceBase):
     """Model, for authenticated users, to read Network data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a

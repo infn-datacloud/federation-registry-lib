@@ -2,7 +2,7 @@
 from enum import Enum
 
 
-class ProviderStatus(Enum):
+class ProviderStatus(str, Enum):
     """Provider current status."""
 
     ACTIVE: str = "active"
@@ -10,7 +10,7 @@ class ProviderStatus(Enum):
     REMOVED: str = "removed"
 
 
-class ProviderType(Enum):
+class ProviderType(str, Enum):
     """IaaS type."""
 
     OS: str = "openstack"

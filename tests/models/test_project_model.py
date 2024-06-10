@@ -195,7 +195,7 @@ def test_multiple_linked_provider(project_model: Project) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         project_model.provider.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         project_model.provider.connect(item)
         with pytest.raises(CardinalityViolation):
             project_model.provider.all()
@@ -225,7 +225,7 @@ def test_multiple_linked_sla(project_model: Project) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         project_model.sla.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         project_model.sla.connect(item)
         with pytest.raises(CardinalityViolation):
             project_model.sla.all()

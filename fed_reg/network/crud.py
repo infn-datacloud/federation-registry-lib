@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for a Network."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.network.models import Network
@@ -52,8 +52,8 @@ class CRUDNetwork(
         self,
         *,
         db_obj: Network,
-        obj_in: Union[NetworkUpdate, NetworkCreateExtended],
-        projects: Optional[List[Project]] = None,
+        obj_in: NetworkUpdate | NetworkCreateExtended,
+        projects: Optional[list[Project]] = None,
         force: bool = False,
     ) -> Optional[Network]:
         """Update Network attributes.

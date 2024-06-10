@@ -1,5 +1,5 @@
 """Location endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -23,12 +23,11 @@ from fed_reg.location.models import Location
 from fed_reg.location.schemas import (
     LocationQuery,
     LocationRead,
-    LocationReadPublic,
     LocationUpdate,
 )
 from fed_reg.location.schemas_extended import (
-    LocationReadExtended,
-    LocationReadExtendedPublic,
+    LocationReadMulti,
+    LocationReadSingle,
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 
@@ -40,12 +39,7 @@ router = APIRouter(prefix="/locations", tags=["locations"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[LocationReadExtended],
-        List[LocationRead],
-        List[LocationReadExtendedPublic],
-        List[LocationReadPublic],
-    ],
+    response_model=LocationReadMulti,
     summary="Read all locations",
     description="Retrieve all locations stored in the database. \
         It is possible to filter on locations attributes and other \
@@ -88,12 +82,7 @@ def get_locations(
 
 @router.get(
     "/{location_uid}",
-    response_model=Union[
-        LocationReadExtended,
-        LocationRead,
-        LocationReadExtendedPublic,
-        LocationReadPublic,
-    ],
+    response_model=LocationReadSingle,
     summary="Read a specific location",
     description="Retrieve a specific location using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

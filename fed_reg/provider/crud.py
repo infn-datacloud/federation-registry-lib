@@ -1,5 +1,5 @@
 """Module with Create, Read, Update and Delete operations for a Provider."""
-from typing import Optional, Union
+from typing import Optional
 
 from fed_reg.crud import CRUDBase
 from fed_reg.identity_provider.crud import identity_provider_mng
@@ -67,7 +67,7 @@ class CRUDProvider(
         self,
         *,
         db_obj: Provider,
-        obj_in: Union[ProviderUpdate, ProviderCreateExtended],
+        obj_in: ProviderUpdate | ProviderCreateExtended,
         force: bool = False,
     ) -> Optional[Provider]:
         """Update Provider attributes.

@@ -1,5 +1,5 @@
 """Image endpoints to execute POST, GET, PUT, PATCH, DELETE operations."""
-from typing import List, Optional, Union
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -23,12 +23,11 @@ from fed_reg.image.models import Image
 from fed_reg.image.schemas import (
     ImageQuery,
     ImageRead,
-    ImageReadPublic,
     ImageUpdate,
 )
 from fed_reg.image.schemas_extended import (
-    ImageReadExtended,
-    ImageReadExtendedPublic,
+    ImageReadMulti,
+    ImageReadSingle,
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 
@@ -37,12 +36,7 @@ router = APIRouter(prefix="/images", tags=["images"])
 
 @router.get(
     "/",
-    response_model=Union[
-        List[ImageReadExtended],
-        List[ImageRead],
-        List[ImageReadExtendedPublic],
-        List[ImageReadPublic],
-    ],
+    response_model=ImageReadMulti,
     summary="Read all images",
     description="Retrieve all images stored in the database. \
         It is possible to filter on images attributes and other \
@@ -85,12 +79,7 @@ def get_images(
 
 @router.get(
     "/{image_uid}",
-    response_model=Union[
-        ImageReadExtended,
-        ImageRead,
-        ImageReadExtendedPublic,
-        ImageReadPublic,
-    ],
+    response_model=ImageReadSingle,
     summary="Read a specific image",
     description="Retrieve a specific image using its *uid*. \
         If no entity matches the given *uid*, the endpoint \

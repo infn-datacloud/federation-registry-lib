@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -139,9 +139,10 @@ def test_optional_rel(region_model: Region) -> None:
 @parametrize_with_cases("service_model", cases=CaseServiceModel, has_tag="single")
 def test_linked_service(
     region_model: Region,
-    service_model: Union[
-        BlockStorageService, ComputeService, IdentityService, NetworkService
-    ],
+    service_model: BlockStorageService
+    | ComputeService
+    | IdentityService
+    | NetworkService,
 ) -> None:
     assert region_model.services.name
     assert region_model.services.source
@@ -162,9 +163,10 @@ def test_linked_service(
 @parametrize_with_cases("service_models", cases=CaseServiceModel, has_tag="multi")
 def test_multiple_linked_services(
     region_model: Region,
-    service_models: Union[
-        BlockStorageService, ComputeService, IdentityService, NetworkService
-    ],
+    service_models: BlockStorageService
+    | ComputeService
+    | IdentityService
+    | NetworkService,
 ) -> None:
     region_model.services.connect(service_models[0])
     region_model.services.connect(service_models[1])
@@ -195,7 +197,7 @@ def test_multiple_linked_location(region_model: Region) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         region_model.location.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         region_model.location.connect(item)
         with pytest.raises(CardinalityViolation):
             region_model.location.all()
@@ -225,7 +227,7 @@ def test_multiple_linked_provider(region_model: Region) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         region_model.provider.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         region_model.provider.connect(item)
         with pytest.raises(CardinalityViolation):
             region_model.provider.all()

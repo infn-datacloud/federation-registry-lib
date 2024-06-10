@@ -98,7 +98,7 @@ def test_multiple_linked_user_group(sla_model: SLA) -> None:
     with pytest.raises(AttemptedCardinalityViolation):
         sla_model.user_group.connect(item)
 
-    with patch("neomodel.match.QueryBuilder._count", return_value=0):
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
         sla_model.user_group.connect(item)
         with pytest.raises(CardinalityViolation):
             sla_model.user_group.all()

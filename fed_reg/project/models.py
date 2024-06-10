@@ -1,6 +1,4 @@
 """Neomodel model of the Project owned by a Provider."""
-from typing import List
-
 from neomodel import (
     One,
     RelationshipFrom,
@@ -79,8 +77,8 @@ class Project(StructuredNode):
         MATCH (p)-[:`USE_SERVICE_WITH`]-(q)
         """
 
-    def public_flavors(self) -> List[Flavor]:
-        """List public flavors this project can access.
+    def public_flavors(self) -> list[Flavor]:
+        """list public flavors this project can access.
 
         Make a cypher query to retrieve all public flavors this project can access.
         """
@@ -96,8 +94,8 @@ class Project(StructuredNode):
         )
         return [Flavor.inflate(row[0]) for row in results]
 
-    def public_images(self) -> List[Image]:
-        """List public images this project can access.
+    def public_images(self) -> list[Image]:
+        """list public images this project can access.
 
         Make a cypher query to retrieve all public images this project can access.
         """
@@ -113,8 +111,8 @@ class Project(StructuredNode):
         )
         return [Image.inflate(row[0]) for row in results]
 
-    def public_networks(self) -> List[Network]:
-        """List public networks this project can access.
+    def public_networks(self) -> list[Network]:
+        """list public networks this project can access.
 
         Make a cypher query to retrieve all public networks this project can access.
         """
