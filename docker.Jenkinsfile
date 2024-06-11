@@ -47,7 +47,8 @@ pipeline {
         stage('Build docker image') {
             steps {
                 script {
-                    docker.build("${PROJECT_NAME}")
+                    docker.build("${PROJECT_NAME}", "./dockerfiles/tiangolo.dockerfile")
+                    docker.build("${PROJECT_NAME}-k8s", "./dockerfiles/k8s.dockerfile")
                 }
             }
         }
@@ -59,11 +60,13 @@ pipeline {
                         stage("Tag") {
                             steps {
                                 tagImage("${HARBOR_ORGANIZATION}/${PROJECT_NAME}")
+                                tagImage("${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s")
                             }
                         }
                         stage('Push') {
                             steps {
                                 pushImage("${HARBOR_ORGANIZATION}/${PROJECT_NAME}", "${HARBOR_URL}", "${HARBOR_CREDENTIALS}")
+                                pushImage("${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s", "${HARBOR_URL}", "${HARBOR_CREDENTIALS}")
                             }
                         }
                     }
@@ -73,11 +76,13 @@ pipeline {
                         stage("Tag") {
                             steps {
                                 tagImage("${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}")
+                                tagImage("${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s")
                             }
                         }
                         stage('Push') {
                             steps {
                                 pushImage("${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}", "${DOCKER_HUB_URL}", "${DOCKER_HUB_CREDENTIALS}")
+                                pushImage("${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s", "${DOCKER_HUB_URL}", "${DOCKER_HUB_CREDENTIALS}")
                             }
                         }
                     }
