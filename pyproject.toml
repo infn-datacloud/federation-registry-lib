@@ -8,10 +8,10 @@ packages = [{ include = "fed_reg"}]
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0.0"
 flaat = "^1.1.15"
-fastapi = "^0.109"
+fastapi = "^0.111"
 uvicorn = "^0.22.0"
 neomodel = "^5.3.0"
-pydantic = {extras = ["email"], version = "^1.10.9"}
+pydantic = {extras = ["email"], version = ">=1.10.9,<2.0.0"}
 pycountry = "^22.3.5"
 
 [tool.poetry.group.dev.dependencies]
