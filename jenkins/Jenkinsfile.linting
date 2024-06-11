@@ -4,6 +4,7 @@ def lintCode(String pythonVersion) {
             .inside('-e POETRY_VIRTUALENVS_IN_PROJECT=true -u root:root') {
                 sh 'poetry install'
                 sh 'ruff check ./fed_reg'
+                sh 'ruff format --check .'
         }
     }
 }
@@ -20,7 +21,7 @@ pipeline {
                 }
                 stage('Python 3.11') {
                     steps {
-                        runTests('3.11')
+                        lintCode('3.11')
                     }
                 }
             }
