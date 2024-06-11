@@ -45,10 +45,20 @@ pipeline {
 
     stages {
         stage('Build docker image') {
-            steps {
-                script {
-                    docker.build("${PROJECT_NAME}", "./dockerfiles/tiangolo.dockerfile")
-                    docker.build("${PROJECT_NAME}-k8s", "./dockerfiles/k8s.dockerfile")
+            parallel {
+                stage("Tiangolo based Image") {
+                    steps {
+                        script {
+                            docker.build("${PROJECT_NAME}", "./dockerfiles/tiangolo.dockerfile")
+                        }
+                    }
+                }
+                stage("Kubernetes Image") {
+                    steps {
+                        script {
+                            docker.build("${PROJECT_NAME}-k8s", "./dockerfiles/k8s.dockerfile")
+                        }
+                    }
                 }
             }
         }
