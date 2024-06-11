@@ -1,13 +1,13 @@
 def pushImage(image_name, registry_url, registry_credentials) {
     // Login to target registry, retrieve docker image and push it to the registry
-    script {
+    script {    
         sh("docker tag ${PROJECT_NAME} ${image_name}")
         docker.withRegistry("${registry_url}", "${registry_credentials}") {
             if ("${BRANCH_NAME}" == "main") {           
                 docker.image("${image_name}").push()
             }
-            docker.image("${image_name}").push("${BRANCH_NAME}")
-            docker.image("${image_name}").push("${COMMIT_SHA}")
+            docker.image("${image_name}").push(${BRANCH_NAME})
+            docker.image("${image_name}").push(${COMMIT_SHA})
         }
     }
 }
@@ -37,57 +37,47 @@ pipeline {
         stage("Build and push docker images") {
             parallel {
                 stage("Image for single instance deployment") {
-                    stages {
-                        stage("Build") {
-                            steps {
-                                script {
-                                    dockerImage = docker.build("${PROJECT_NAME}", "-f ./dockerfiles/Dockerfile.prod")
-                                }
-                            }
-                        }
-                        stage("Push to registries") {
-                            parallel {
-                                stage("Harbor") {
-                                    steps {
-                                        pushImage("${HARBOR_ORGANIZATION}/${PROJECT_NAME}", "${HARBOR_URL}", "${HARBOR_CREDENTIALS}")
-                                    }
-                                }
-                                stage("DockerHub") {
-                                    steps {
-                                        pushImage("${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}", "${DOCKER_HUB_URL}", "${DOCKER_HUB_CREDENTIALS}")
-                                    }
-                                }
-                            }
+                    steps {
+                        script {
+                            docker.build("${PROJECT_NAME}", "-f ./dockerfiles/Dockerfile.prod .")
                         }
                     }
                 }
-                stage("Image for single instance deployment") {
-                    stages {
-                        stage("Build") {
-                            steps {
-                                script {
-                                    docker.build("${PROJECT_NAME}-k8s", "-f ./dockerfiles/Dockerfile.k8s")
-                                }
-                            }
-                        }
-                        stage("Push to registries") {
-                            parallel {
-                                stage("Harbor") {
-                                    steps {
-                                        pushImage("${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s", "${HARBOR_URL}", "${HARBOR_CREDENTIALS}")
-                                    }
-                                }
-                                stage("DockerHub") {
-                                    steps {
-                                        pushImage("${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s", "${DOCKER_HUB_URL}", "${DOCKER_HUB_CREDENTIALS}")
-                                    }
-                                }
-                            }
+                stage("Image for kubernetes deployment") {
+                    steps {
+                        script {
+                            docker.build("${PROJECT_NAME}-k8s", "-f ./dockerfiles/Dockerfile.k8s .")
                         }
                     }
                 }
             }
         }
+        
+        stage("Push to registries") {
+            parallel {
+                stage("Harbor - single instance version") {
+                    steps {
+                        pushImage("${HARBOR_ORGANIZATION}/${PROJECT_NAME}", "${HARBOR_URL}", "${HARBOR_CREDENTIALS}")
+                    }
+                }
+                stage("Harbor - k8s version") {
+                    steps {
+                        pushImage("${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s", "${HARBOR_URL}", "${HARBOR_CREDENTIALS}")
+                    }
+                }
+                stage("DockerHub - single instance version") {
+                    steps {
+                        pushImage("${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}", "${DOCKER_HUB_URL}", "${DOCKER_HUB_CREDENTIALS}")
+                    }
+                }
+                stage("DockerHub - k8s version") {
+                    steps {
+                        pushImage("${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s", "${DOCKER_HUB_URL}", "${DOCKER_HUB_CREDENTIALS}")
+                    }
+                }
+            }
+        }
+
         stage("Remove docker image") {
             steps{
                 script {
