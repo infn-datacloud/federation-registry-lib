@@ -63,7 +63,9 @@ def get_projects(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ProjectQuery = Depends(),
+    provider_uid: Optional[str] = None,
     region_name: Optional[str] = None,
+    user_group_uid: Optional[str] = None,
     client_credentials: HTTPBasicCredentials = Security(lazy_security),
 ):
     """GET operation to retrieve all projects.
@@ -85,6 +87,13 @@ def get_projects(
     items = project_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
+    if provider_uid:
+        items = filter(lambda x: x.provider.single().uid == provider_uid, items)
+    if user_group_uid:
+        items = filter(
+            lambda x: x.sla.single().user_group.single().uid == user_group_uid, items
+        )
+
     items = project_mng.paginate(items=items, page=page.page, size=page.size)
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=items, region_query=region_query)
