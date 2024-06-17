@@ -6,14 +6,15 @@ from uuid import uuid4
 import pytest
 from fastapi.testclient import TestClient
 from flaat.user_infos import UserInfos
-from neomodel import config, db
+from neomodel import db
 
+from fed_reg.config import Settings
 from fed_reg.flavor.models import Flavor
 from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.image.models import Image
 from fed_reg.location.models import Location
 from fed_reg.location.schemas import LocationCreate
-from fed_reg.main import app
+from fed_reg.main import app, settings
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.project.schemas import ProjectCreate
@@ -105,7 +106,7 @@ def setup_neo4j_session(request):
     :param request: The request object. Please see <https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_sessionstart>`_
     :type Request object: For more information please see <https://docs.pytest.org/en/latest/reference.html#request>`_
     """
-    config.DATABASE_URL = os.environ.get(
+    settings.NEO4J_DB_URL = os.environ.get(
         "NEO4J_TEST_URL", "bolt://neo4j:password@localhost:7687"
     )
 
@@ -113,17 +114,17 @@ def setup_neo4j_session(request):
     database_is_populated, _ = db.cypher_query(
         "MATCH (a) return count(a)>0 as database_is_populated"
     )
-    if database_is_populated[0][0] and not request.config.getoption("resetdb"):
-        raise SystemError(
-            "Please note: The database seems to be populated.\n"
-            + "\tEither delete all nodesand edges manually, or set the "
-            + "--resetdb parameter when calling pytest\n\n"
-            + "\tpytest --resetdb."
-        )
+    if database_is_populated[0][0]:
+        if not request.config.getoption("resetdb"):
+            raise SystemError(
+                "Please note: The database seems to be populated.\n"
+                + "\tEither delete all nodesand edges manually, or set the "
+                + "--resetdb parameter when calling pytest\n\n"
+                + "\tpytest --resetdb."
+            )
 
-    # db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
-
-    # db.install_all_labels()
+        db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
+        db.install_all_labels()
 
     db.cypher_query(
         "CREATE OR REPLACE USER test SET PASSWORD 'foobarbaz' CHANGE NOT REQUIRED"
@@ -133,15 +134,15 @@ def setup_neo4j_session(request):
         db.cypher_query("GRANT IMPERSONATE (test) ON DBMS TO admin")
 
 
-@pytest.fixture(scope="session", autouse=True)
-def close() -> Generator[None, Any, None]:
-    """Close connection with the DB at the end of the test.
-
-    Yields:
-        Generator[None, Any, None]: Nothing
-    """
-    yield
-    db.close_connection()
+@pytest.fixture(autouse=True)
+def clear_os_environment(monkeypatch) -> None:
+    """Clear the OS environment."""
+    for k in Settings.__fields__.keys():
+        monkeypatch.delenv(k, None)
+    if "test_settings_default" not in os.environ.get("PYTEST_CURRENT_TEST", None):
+        settings.NEO4J_DB_URL = os.environ.get(
+            "NEO4J_TEST_URL", "bolt://neo4j:password@localhost:7687"
+        )
 
 
 @pytest.fixture(autouse=True)
@@ -155,10 +156,15 @@ def cleanup() -> Generator[None, Any, None]:
     db.clear_neo4j_database()
 
 
-@pytest.fixture(autouse=True)
-def clear_os_environment() -> None:
-    """Clear the OS environment."""
-    os.environ.clear()
+# @pytest.fixture(scope="session", autouse=False)
+# def close_db_conn() -> Generator[None, Any, None]:
+#     """Close connection with the DB at the end of the test.
+
+#     Yields:
+#         Generator[None, Any, None]: Nothing
+#     """
+#     yield
+#     db.close_connection()
 
 
 @pytest.fixture
