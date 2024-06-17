@@ -97,9 +97,16 @@ def get_projects(
     items = project_mng.paginate(items=items, page=page.page, size=page.size)
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=items, region_query=region_query)
-    return project_mng.choose_out_schema(
+    items = project_mng.choose_out_schema(
         items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
+    if provider_uid and size.with_conn:
+        for item in items:
+            item.sla.user_group.identity_provider.providers = filter(
+                lambda x: x.uid == item.provider.uid,
+                item.sla.user_group.identity_provider.providers,
+            )
+    return items
 
 
 @router.get(
