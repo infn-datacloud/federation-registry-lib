@@ -396,17 +396,6 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
         obj.networks = obj.public_networks() + obj.private_networks.all()
         return super().from_orm(obj)
 
-    @classmethod
-    @root_validator
-    def filter_providers(cls, values: dict[str, Any]) -> dict[str, Any]:
-        """Show in the IDP supported providers only the provider."""
-        idp = values.get("sla").get("user_group").get("identity_provider")
-        provider = values.get("provider")
-        values["sla"]["user_group"]["identity_provider"]["provider"] = list(
-            filter(lambda x: x.get("uid") == provider.get("uid"), idp.get("providers"))
-        )
-        return values
-
 
 class ProjectReadExtendedPublic(
     BaseNodeRead, BaseReadPublicExtended, ProjectBasePublic
@@ -449,17 +438,6 @@ class ProjectReadExtendedPublic(
         obj.images = obj.public_images() + obj.private_images.all()
         obj.networks = obj.public_networks() + obj.private_networks.all()
         return super().from_orm(obj)
-
-    @classmethod
-    @root_validator
-    def filter_providers(cls, values: dict[str, Any]) -> dict[str, Any]:
-        """Show in the IDP supported providers only the provider."""
-        idp = values.get("sla").get("user_group").get("identity_provider")
-        provider = values.get("provider")
-        values["sla"]["user_group"]["identity_provider"]["providers"] = list(
-            filter(lambda x: x.get("uid") == provider.get("uid"), idp.get("providers"))
-        )
-        return values
 
 
 class ProjectReadSingle(BaseModel):
