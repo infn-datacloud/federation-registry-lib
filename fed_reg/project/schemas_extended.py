@@ -1,7 +1,7 @@
 """Pydantic extended models of the Project owned by a Provider."""
-from typing import Any, Optional
+from typing import Optional
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field
 
 from fed_reg.auth_method.schemas import AuthMethodRead
 from fed_reg.flavor.schemas import FlavorRead, FlavorReadPublic
