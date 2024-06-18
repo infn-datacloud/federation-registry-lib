@@ -94,6 +94,7 @@ class Settings(BaseSettings):
         """Sub class to set attribute as case sensitive."""
 
         case_sensitive = True
+        validate_assignment = True
 
 
 @lru_cache
