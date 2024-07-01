@@ -11,9 +11,10 @@ from fastapi import (
     status,
 )
 from fastapi.security import HTTPBasicCredentials
+from flaat.user_infos import UserInfos
 from neomodel import db
 
-from fed_reg.auth import custom, flaat, lazy_security, security
+from fed_reg.auth import custom, flaat, get_user_infos, security
 from fed_reg.network.api.dependencies import (
     valid_network_id,
     validate_new_network_values,
@@ -45,12 +46,11 @@ router = APIRouter(prefix="/networks", tags=["networks"])
 @custom.decorate_view_func
 @db.read_transaction
 def get_networks(
-    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve all networks.
 
@@ -64,10 +64,6 @@ def get_networks(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     items = network_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -88,10 +84,9 @@ def get_networks(
 @custom.decorate_view_func
 @db.read_transaction
 def get_network(
-    request: Request,
     size: SchemaSize = Depends(),
     item: Network = Depends(valid_network_id),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve the network matching a specific uid.
 
@@ -104,10 +99,6 @@ def get_network(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     return network_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

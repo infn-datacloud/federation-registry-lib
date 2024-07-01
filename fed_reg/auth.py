@@ -40,7 +40,5 @@ def get_user_infos(
         try:
             return flaat.get_user_infos_from_request(request)
         except FlaatUnauthenticated as e:
-            raise HTTPException(
-                status.HTTP_401_UNAUTHORIZED, detail=e.render()
-            ) from e
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail=e.render()) from e
     return None
