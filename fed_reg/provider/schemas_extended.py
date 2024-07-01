@@ -416,8 +416,7 @@ def multiple_quotas_same_project(quotas: list[Any]) -> None:
     for quota in quotas:
         if quota.project is not None:
             msg = f"Multiple quotas on same project {quota.project}"
-            q = d.get(quota.project)
-            if not q:
+            if not d.get(quota.project, None):
                 d[quota.project] = [0, 0, 0]
             if quota.usage:
                 d[quota.project][2] += 1
@@ -425,7 +424,11 @@ def multiple_quotas_same_project(quotas: list[Any]) -> None:
                 d[quota.project][1] += 1
             else:
                 d[quota.project][0] += 1
-            assert q[0] <= 2 and q[1] <= 2 and q[2] <= 2, msg
+            assert (
+                d[quota.project][0] <= 2
+                and d[quota.project][1] <= 2
+                and d[quota.project][2] <= 2
+            ), msg
 
 
 def find_duplicate_projects(project: str, seen: Set[str]) -> None:
