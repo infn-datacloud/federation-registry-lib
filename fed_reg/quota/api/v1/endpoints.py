@@ -11,9 +11,10 @@ from fastapi import (
     status,
 )
 from fastapi.security import HTTPBasicCredentials
+from flaat.user_infos import UserInfos
 from neomodel import db
 
-from fed_reg.auth import custom, flaat, lazy_security, security
+from fed_reg.auth import custom, flaat, get_user_infos, security
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 from fed_reg.quota.api.dependencies import (
     valid_block_storage_quota_id,
@@ -63,12 +64,11 @@ bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quota
 @custom.decorate_view_func
 @db.read_transaction
 def get_block_storage_quotas(
-    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: BlockStorageQuotaQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve all block storage quotas.
 
@@ -82,10 +82,6 @@ def get_block_storage_quotas(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     items = block_storage_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -145,10 +141,9 @@ def get_block_storage_quotas(
 @custom.decorate_view_func
 @db.read_transaction
 def get_block_storage_quota(
-    request: Request,
     size: SchemaSize = Depends(),
     item: BlockStorageQuota = Depends(valid_block_storage_quota_id),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve the block storage quota matching a specific uid.
 
@@ -161,10 +156,6 @@ def get_block_storage_quota(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     return block_storage_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -256,12 +247,11 @@ c_router = APIRouter(prefix="/compute_quotas", tags=["compute_quotas"])
 @custom.decorate_view_func
 @db.read_transaction
 def get_compute_quotas(
-    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ComputeQuotaQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve all compute quotas.
 
@@ -275,10 +265,6 @@ def get_compute_quotas(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     items = compute_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -336,10 +322,9 @@ def get_compute_quotas(
 @custom.decorate_view_func
 @db.read_transaction
 def get_compute_quota(
-    request: Request,
     size: SchemaSize = Depends(),
     item: ComputeQuota = Depends(valid_compute_quota_id),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve the compute quota matching a specific uid.
 
@@ -352,10 +337,6 @@ def get_compute_quota(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     return compute_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
@@ -447,12 +428,11 @@ n_router = APIRouter(prefix="/network_quotas", tags=["network_quotas"])
 @custom.decorate_view_func
 @db.read_transaction
 def get_network_quotas(
-    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: NetworkQuotaQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve all network quotas.
 
@@ -466,10 +446,6 @@ def get_network_quotas(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     items = network_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -490,10 +466,9 @@ def get_network_quotas(
 @custom.decorate_view_func
 @db.read_transaction
 def get_network_quota(
-    request: Request,
     size: SchemaSize = Depends(),
     item: NetworkQuota = Depends(valid_network_quota_id),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve the network quota matching a specific uid.
 
@@ -506,10 +481,6 @@ def get_network_quota(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     return network_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
