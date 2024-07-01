@@ -1,7 +1,9 @@
 """Authentication and authorization rules."""
-from fastapi.security import HTTPBearer
+from fastapi import HTTPException, Request, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from flaat import AuthWorkflow
 from flaat.config import AccessLevel
+from flaat.exceptions import FlaatUnauthenticated
 from flaat.fastapi import Flaat
 from flaat.requirements import AllOf, HasSubIss, IsTrue
 from flaat.user_infos import UserInfos
@@ -27,3 +29,18 @@ flaat.set_request_timeout(30)
 
 
 custom = AuthWorkflow(flaat=flaat, ignore_no_authn=True)
+
+
+def get_user_infos(
+    request: Request,
+    client_credentials: HTTPAuthorizationCredentials = Security(lazy_security),
+) -> UserInfos | None:
+    """Return user infos credentials."""
+    if client_credentials:
+        try:
+            return flaat.get_user_infos_from_request(request)
+        except FlaatUnauthenticated as e:
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED, detail=e.render()
+            ) from e
+    return None
