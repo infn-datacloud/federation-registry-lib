@@ -11,9 +11,10 @@ from fastapi import (
     status,
 )
 from fastapi.security import HTTPBasicCredentials
+from flaat.user_infos import UserInfos
 from neomodel import db
 
-from fed_reg.auth import custom, flaat, lazy_security, security
+from fed_reg.auth import custom, flaat, get_user_infos, security
 
 # from app.flavor.api.dependencies import is_private_flavor, valid_flavor_id
 # from app.flavor.crud import flavor
@@ -58,13 +59,14 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 @custom.decorate_view_func
 @db.read_transaction
 def get_projects(
-    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ProjectQuery = Depends(),
+    provider_uid: Optional[str] = None,
     region_name: Optional[str] = None,
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_group_uid: Optional[str] = None,
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve all projects.
 
@@ -78,19 +80,29 @@ def get_projects(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     items = project_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
+    if provider_uid:
+        items = filter(lambda x: x.provider.single().uid == provider_uid, items)
+    if user_group_uid:
+        items = filter(
+            lambda x: x.sla.single().user_group.single().uid == user_group_uid, items
+        )
+
     items = project_mng.paginate(items=items, page=page.page, size=page.size)
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=items, region_query=region_query)
-    return project_mng.choose_out_schema(
+    items = project_mng.choose_out_schema(
         items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
+    if provider_uid and size.with_conn:
+        for item in items:
+            item.sla.user_group.identity_provider.providers = filter(
+                lambda x: x.uid == item.provider.uid,
+                item.sla.user_group.identity_provider.providers,
+            )
+    return items
 
 
 @router.get(
@@ -104,11 +116,10 @@ def get_projects(
 @custom.decorate_view_func
 @db.read_transaction
 def get_project(
-    request: Request,
     size: SchemaSize = Depends(),
     item: Project = Depends(valid_project_id),
     region_name: Optional[str] = None,
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve the project matching a specific uid.
 
@@ -121,10 +132,6 @@ def get_project(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=[item], region_query=region_query)
     items = project_mng.choose_out_schema(

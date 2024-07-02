@@ -11,9 +11,10 @@ from fastapi import (
     status,
 )
 from fastapi.security import HTTPBasicCredentials
+from flaat.user_infos import UserInfos
 from neomodel import db
 
-from fed_reg.auth import custom, flaat, lazy_security, security
+from fed_reg.auth import custom, flaat, get_user_infos, security
 from fed_reg.provider.enum import ProviderStatus, ProviderType
 from fed_reg.provider.schemas import ProviderQuery
 
@@ -82,7 +83,6 @@ router = APIRouter(prefix="/user_groups", tags=["user_groups"])
 @custom.decorate_view_func
 @db.read_transaction
 def get_user_groups(
-    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
@@ -92,7 +92,7 @@ def get_user_groups(
     provider_type: Optional[ProviderType] = None,
     provider_status: Optional[ProviderStatus] = None,
     region_name: Optional[str] = None,
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve all user groups.
 
@@ -106,10 +106,6 @@ def get_user_groups(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     items = user_group_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -147,10 +143,9 @@ def get_user_groups(
 @custom.decorate_view_func
 @db.read_transaction
 def get_user_group(
-    request: Request,
     size: SchemaSize = Depends(),
     item: UserGroup = Depends(valid_user_group_id),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve the user group matching a specific uid.
 
@@ -163,10 +158,6 @@ def get_user_group(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     return user_group_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

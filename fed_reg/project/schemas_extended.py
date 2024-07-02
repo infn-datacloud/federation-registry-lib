@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from fed_reg.auth_method.schemas import AuthMethodRead
 from fed_reg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fed_reg.identity_provider.schemas import (
     IdentityProviderRead,
@@ -26,6 +27,7 @@ from fed_reg.project.schemas import (
     ProjectRead,
     ProjectReadPublic,
 )
+from fed_reg.provider.constants import DOC_EXT_AUTH_METH
 from fed_reg.provider.schemas import ProviderRead, ProviderReadPublic
 from fed_reg.quota.constants import DOC_EXT_SERV
 from fed_reg.quota.schemas import (
@@ -309,6 +311,53 @@ class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
     service: ObjectStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
+class ProviderReadExtendedPublic(ProviderReadPublic):
+    """Model to extend the Provider public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        relationship (AuthMethodRead): Authentication method used by the target
+            provider to connect.
+    """
+
+    relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
+
+
+class IdentityProviderReadExtended(IdentityProviderRead):
+    """Model to extend the Identity Provider data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Identity Provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        group_claim (str): value of the key from which retrieve
+            the user group name from an authentication token.
+        providers (list of ProviderReadExtendedPublic): Supported providers. Since we
+            already show the complete data of the provider in another point we are ok
+            to show just a shrunk version here.
+    """
+
+    providers: list[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
+
+
+class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
+    """Model to extend the Identity Provider public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Identity Provider unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the Identity Provider.
+        providers (list of ProviderReadPublic): Supported providers.
+    """
+
+    providers: list[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
+
+
 class UserGroupReadExtended(UserGroupRead):
     """Model to extend the User Group data read from the DB.
 
@@ -317,11 +366,11 @@ class UserGroupReadExtended(UserGroupRead):
         uid (int): User Group unique ID.
         description (str): Brief description.
         name (str): User Group name.
-        identity_provider (IdentityProviderRead): Identity provider owning this user
-            group.
+        identity_provider (IdentityProviderReadExtended): Identity provider owning this
+            user group.
     """
 
-    identity_provider: IdentityProviderRead = Field(description=DOC_EXT_IDP)
+    identity_provider: IdentityProviderReadExtended = Field(description=DOC_EXT_IDP)
 
 
 class UserGroupReadExtendedPublic(UserGroupReadPublic):
@@ -332,11 +381,13 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
         uid (int): User Group unique ID.
         description (str): Brief description.
         name (str): User Group name.
-        identity_provider (IdentityProviderReadPublic): Identity provider owning this
-            user group.
+        identity_provider (IdentityProviderReadExtendedPublic): Identity provider
+            owning this user group.
     """
 
-    identity_provider: IdentityProviderReadPublic = Field(description=DOC_EXT_IDP)
+    identity_provider: IdentityProviderReadExtendedPublic = Field(
+        description=DOC_EXT_IDP
+    )
 
 
 class SLAReadExtended(SLARead):
