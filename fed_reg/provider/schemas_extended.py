@@ -474,9 +474,9 @@ def multiple_quotas_same_project(quotas: list[Any]) -> None:
             else:
                 d[quota.project][0] += 1
             assert (
-                d[quota.project][0] <= 2
-                and d[quota.project][1] <= 2
-                and d[quota.project][2] <= 2
+                d[quota.project][0] < 2
+                and d[quota.project][1] < 2
+                and d[quota.project][2] < 2
             ), msg
 
 
