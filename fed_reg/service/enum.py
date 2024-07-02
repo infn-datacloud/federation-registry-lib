@@ -30,6 +30,7 @@ class ObjectStorageServiceName(str, Enum):
     """Possible IaaS object storage services names."""
 
     OPENSTACK_SWIFT: str = "org.openstack.swift"
+    OPENSTACK_SWIFT_S3: str = "org.openstack.swift-s3"
 
 
 class ServiceType(str, Enum):
