@@ -187,6 +187,7 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         gigabytes (int | None): Number of max usable gigabytes (GiB).
         per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
             (GiB).
@@ -205,6 +206,7 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         service (BlockStorageServiceReadExtendedPublic): Target service. Same type of
             quota.
     """
@@ -221,6 +223,7 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         cores (int | None): Number of max usable cores.
         instance (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
@@ -238,6 +241,7 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         service (ComputeServiceReadExtendedPublic): Target service. Same type of quota.
     """
 
@@ -253,6 +257,7 @@ class NetworkQuotaReadExtended(NetworkQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
@@ -275,6 +280,7 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         service (NetworkServiceReadExtendedPublic): Target service. Same type of quota.
     """
 
@@ -290,6 +296,7 @@ class ObjectStorageQuotaReadExtended(ObjectStorageQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         service (ObjectStorageServiceReadExtended): Target service. Same type of quota.
     """
 
@@ -304,6 +311,7 @@ class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         service (ObjectStorageServiceReadExtendedPublic): Target service. Same type of
             quota.
     """
