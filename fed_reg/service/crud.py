@@ -245,7 +245,9 @@ class CRUDComputeService(
         """
         if projects is None:
             projects = []
-        db_obj = super().create(obj_in=obj_in)
+        db_obj = self.get(endpoint=obj_in.endpoint)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in)
         db_obj.regions.connect(region)
         for item in obj_in.flavors:
             db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
@@ -511,7 +513,9 @@ class CRUDNetworkService(
         """
         if projects is None:
             projects = []
-        db_obj = super().create(obj_in=obj_in)
+        db_obj = self.get(endpoint=obj_in.endpoint)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in)
         db_obj.regions.connect(region)
         for item in obj_in.networks:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
@@ -701,7 +705,9 @@ class CRUDObjectStorageService(
         """
         if projects is None:
             projects = []
-        db_obj = super().create(obj_in=obj_in)
+        db_obj = self.get(endpoint=obj_in.endpoint)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in)
         db_obj.regions.connect(region)
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
