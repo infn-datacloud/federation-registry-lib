@@ -11,6 +11,6 @@ class CaseInvalidAttr:
     # def case_integer(self, attr: str) -> tuple[str, int]:
     #    return attr, randint(-100, -2)
 
-    @parametrize(value=(i for i in QuotaType if i != QuotaType.OBJECT_STORAGE))
+    @parametrize(value=(i for i in QuotaType if i != QuotaType.OBJECT_STORE))
     def case_type(self, value: QuotaType) -> tuple[Literal["type"], QuotaType]:
         return "type", value

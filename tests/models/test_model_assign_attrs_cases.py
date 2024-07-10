@@ -15,14 +15,14 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
@@ -38,8 +38,8 @@ from tests.create_dict import (
     network_model_dict,
     network_quota_model_dict,
     network_service_model_dict,
-    object_storage_quota_model_dict,
-    object_storage_service_model_dict,
+    object_store_quota_model_dict,
+    object_store_service_model_dict,
     project_model_dict,
     provider_model_dict,
     region_model_dict,
@@ -231,14 +231,14 @@ class CaseNetworkQuota:
         return network_quota_model_dict(), NetworkQuota, attr, randint(0, 100)
 
 
-class CaseObjectStorageQuota:
+class CaseObjectStoreQuota:
     @parametrize(attr=["description", "type"])
-    def case_object_storage_quota_str(
+    def case_object_store_quota_str(
         self, attr: str
-    ) -> tuple[dict, type[ObjectStorageQuota], str, str]:
+    ) -> tuple[dict, type[ObjectStoreQuota], str, str]:
         return (
-            object_storage_quota_model_dict(),
-            ObjectStorageQuota,
+            object_store_quota_model_dict(),
+            ObjectStoreQuota,
             attr,
             random_lower_string(),
         )
@@ -281,14 +281,14 @@ class CaseNetworkService:
         return network_service_model_dict(), NetworkService, attr, random_lower_string()
 
 
-class CaseObjectStorageService:
+class CaseObjectStoreService:
     @parametrize(attr=["description", "type", "name", "endpoint"])
-    def case_object_storage_service_str(
+    def case_object_store_service_str(
         self, attr: str
-    ) -> tuple[dict, type[ObjectStorageService], str, str]:
+    ) -> tuple[dict, type[ObjectStoreService], str, str]:
         return (
-            object_storage_service_model_dict(),
-            ObjectStorageService,
+            object_store_service_model_dict(),
+            ObjectStoreService,
             attr,
             random_lower_string(),
         )

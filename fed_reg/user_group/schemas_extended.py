@@ -19,8 +19,8 @@ from fed_reg.quota.schemas import (
     ComputeQuotaReadPublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    ObjectStorageQuotaRead,
-    ObjectStorageQuotaReadPublic,
+    ObjectStoreQuotaRead,
+    ObjectStoreQuotaReadPublic,
 )
 from fed_reg.service.schemas import (
     BlockStorageServiceRead,
@@ -29,8 +29,8 @@ from fed_reg.service.schemas import (
     ComputeServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    ObjectStorageServiceRead,
-    ObjectStorageServiceReadPublic,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceReadPublic,
 )
 from fed_reg.sla.constants import DOC_EXT_PROJ
 from fed_reg.sla.schemas import SLARead, SLAReadPublic
@@ -151,7 +151,7 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
 
     service: NetworkServiceReadPublic = Field(description=DOC_EXT_SERV)
 
-class ObjectStorageQuotaReadExtended(ObjectStorageQuotaRead):
+class ObjectStoreQuotaReadExtended(ObjectStoreQuotaRead):
     """Model to extend the Object Storage Quota data read from the DB.
 
     Attributes:
@@ -162,13 +162,13 @@ class ObjectStorageQuotaReadExtended(ObjectStorageQuotaRead):
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
         TODO: understand attributes
-        service (ObjectStorageServiceReadExtended): Target service. Same type of quota.
+        service (ObjectStoreServiceReadExtended): Target service. Same type of quota.
     """
 
-    service: ObjectStorageServiceRead = Field(description=DOC_EXT_SERV)
+    service: ObjectStoreServiceRead = Field(description=DOC_EXT_SERV)
 
 
-class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
+class ObjectStoreQuotaReadExtendedPublic(ObjectStoreQuotaReadPublic):
     """Model to extend the Object Storage Quota public data read from the DB.
 
     Attributes:
@@ -177,11 +177,11 @@ class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
-        service (ObjectStorageServiceReadExtendedPublic): Target service. Same type of
+        service (ObjectStoreServiceReadExtendedPublic): Target service. Same type of
             quota.
     """
 
-    service: ObjectStorageServiceReadPublic = Field(description=DOC_EXT_SERV)
+    service: ObjectStoreServiceReadPublic = Field(description=DOC_EXT_SERV)
 
 
 class ProjectReadExtended(ProjectRead):
@@ -201,7 +201,7 @@ class ProjectReadExtended(ProjectRead):
         ComputeQuotaReadExtended
         | BlockStorageQuotaReadExtended
         | NetworkQuotaReadExtended
-        | ObjectStorageQuotaReadExtended
+        | ObjectStoreQuotaReadExtended
     ] = Field(description=DOC_EXT_QUOTA)
 
 
@@ -222,7 +222,7 @@ class ProjectReadExtendedPublic(ProjectReadPublic):
         ComputeQuotaReadExtendedPublic
         | BlockStorageQuotaReadExtendedPublic
         | NetworkQuotaReadExtendedPublic
-        | ObjectStorageQuotaReadExtendedPublic
+        | ObjectStoreQuotaReadExtendedPublic
     ] = Field(description=DOC_EXT_QUOTA)
 
 

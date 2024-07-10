@@ -8,4 +8,4 @@ class QuotaType(str, Enum):
     BLOCK_STORAGE: str = "block-storage"
     COMPUTE: str = "compute"
     NETWORK: str = "network"
-    OBJECT_STORAGE: str = "object-storage"
+    OBJECT_STORE: str = "object-store"

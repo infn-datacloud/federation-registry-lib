@@ -7,7 +7,7 @@ from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
-    ObjectStorageServiceCreateExtended,
+    ObjectStoreServiceCreateExtended,
 )
 from fed_reg.service.schemas import IdentityServiceCreate
 from tests.utils import random_lower_string, random_url
@@ -33,7 +33,7 @@ class CaseAttr:
             "compute_services",
             "identity_services",
             "network_services",
-            "object_storage_services",
+            "object_store_services",
         ]
     )
     @parametrize(len=(0, 1, 2))
@@ -43,7 +43,7 @@ class CaseAttr:
         compute_service_create_ext_schema: ComputeServiceCreateExtended,
         identity_service_create_schema: IdentityServiceCreate,
         network_service_create_ext_schema: NetworkServiceCreateExtended,
-        object_storage_service_create_ext_schema: ObjectStorageServiceCreateExtended,
+        object_store_service_create_ext_schema: ObjectStoreServiceCreateExtended,
         type: str,
         len: int,
     ) -> tuple[
@@ -52,7 +52,7 @@ class CaseAttr:
         | list[ComputeServiceCreateExtended]
         | list[IdentityServiceCreate]
         | list[NetworkServiceCreateExtended]
-        | list[ObjectStorageServiceCreateExtended],
+        | list[ObjectStoreServiceCreateExtended],
     ]:
         if len > 0:
             if type == "block_storage_services":
@@ -63,8 +63,8 @@ class CaseAttr:
                 service = identity_service_create_schema
             elif type == "network_services":
                 service = network_service_create_ext_schema
-            elif type == "object_storage_services":
-                service = object_storage_service_create_ext_schema
+            elif type == "object_store_services":
+                service = object_store_service_create_ext_schema
 
             if len == 1:
                 return type, [service]

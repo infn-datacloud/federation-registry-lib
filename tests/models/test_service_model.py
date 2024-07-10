@@ -9,14 +9,14 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from tests.create_dict import (
     block_storage_quota_model_dict,
@@ -25,7 +25,7 @@ from tests.create_dict import (
     image_model_dict,
     network_model_dict,
     network_quota_model_dict,
-    object_storage_quota_model_dict,
+    object_store_quota_model_dict,
     service_model_dict,
 )
 
@@ -80,9 +80,9 @@ def test_network_default_attr() -> None:
     assert isinstance(item.quotas, RelationshipManager)
 
 
-def test_object_storage_default_attr() -> None:
+def test_object_store_default_attr() -> None:
     d = service_model_dict()
-    item = ObjectStorageService(**d)
+    item = ObjectStoreService(**d)
     assert item.uid is not None
     assert item.description == ""
     assert item.type == d.get("type")
@@ -98,7 +98,7 @@ def test_required_rel(
     | ComputeService
     | IdentityService
     | NetworkService
-    | ObjectStorageService,
+    | ObjectStoreService,
 ) -> None:
     with pytest.raises(CardinalityViolation):
         service_model.regions.all()
@@ -129,11 +129,11 @@ def test_network_optional_rel(network_service_model: NetworkService) -> None:
     assert network_service_model.networks.single() is None
 
 
-def test_object_storage_optional_rel(
-    object_storage_service_model: ObjectStorageService,
+def test_object_store_optional_rel(
+    object_store_service_model: ObjectStoreService,
 ) -> None:
-    assert len(object_storage_service_model.quotas.all()) == 0
-    assert object_storage_service_model.quotas.single() is None
+    assert len(object_store_service_model.quotas.all()) == 0
+    assert object_store_service_model.quotas.single() is None
 
 
 def test_linked_block_storage_quota(
@@ -305,37 +305,37 @@ def test_multiple_linked_networks(network_service_model: NetworkService) -> None
     assert len(network_service_model.networks.all()) == 2
 
 
-def test_linked_object_storage_quota(
-    object_storage_service_model: ObjectStorageService,
-    object_storage_quota_model: ObjectStorageQuota,
+def test_linked_object_store_quota(
+    object_store_service_model: ObjectStoreService,
+    object_store_quota_model: ObjectStoreQuota,
 ) -> None:
-    assert object_storage_service_model.quotas.name
-    assert object_storage_service_model.quotas.source
-    assert isinstance(object_storage_service_model.quotas.source, ObjectStorageService)
+    assert object_store_service_model.quotas.name
+    assert object_store_service_model.quotas.source
+    assert isinstance(object_store_service_model.quotas.source, ObjectStoreService)
     assert (
-        object_storage_service_model.quotas.source.uid
-        == object_storage_service_model.uid
+        object_store_service_model.quotas.source.uid
+        == object_store_service_model.uid
     )
-    assert object_storage_service_model.quotas.definition
+    assert object_store_service_model.quotas.definition
     assert (
-        object_storage_service_model.quotas.definition["node_class"]
-        == ObjectStorageQuota
+        object_store_service_model.quotas.definition["node_class"]
+        == ObjectStoreQuota
     )
 
-    r = object_storage_service_model.quotas.connect(object_storage_quota_model)
+    r = object_store_service_model.quotas.connect(object_store_quota_model)
     assert r is True
 
-    assert len(object_storage_service_model.quotas.all()) == 1
-    quotas = object_storage_service_model.quotas.single()
-    assert isinstance(quotas, ObjectStorageQuota)
-    assert quotas.uid == object_storage_quota_model.uid
+    assert len(object_store_service_model.quotas.all()) == 1
+    quotas = object_store_service_model.quotas.single()
+    assert isinstance(quotas, ObjectStoreQuota)
+    assert quotas.uid == object_store_quota_model.uid
 
 
-def test_multiple_linked_object_storage_quotas(
-    object_storage_service_model: ObjectStorageService,
+def test_multiple_linked_object_store_quotas(
+    object_store_service_model: ObjectStoreService,
 ) -> None:
-    item = ObjectStorageQuota(**object_storage_quota_model_dict()).save()
-    object_storage_service_model.quotas.connect(item)
-    item = ObjectStorageQuota(**object_storage_quota_model_dict()).save()
-    object_storage_service_model.quotas.connect(item)
-    assert len(object_storage_service_model.quotas.all()) == 2
+    item = ObjectStoreQuota(**object_store_quota_model_dict()).save()
+    object_store_service_model.quotas.connect(item)
+    item = ObjectStoreQuota(**object_store_quota_model_dict()).save()
+    object_store_service_model.quotas.connect(item)
+    assert len(object_store_service_model.quotas.all()) == 2

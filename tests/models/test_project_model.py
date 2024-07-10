@@ -17,7 +17,7 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
     Quota,
 )
 from fed_reg.sla.models import SLA
@@ -204,7 +204,7 @@ def test_multiple_linked_sla(project_model: Project) -> None:
 @parametrize_with_cases("quota_model", has_tag="single")
 def test_linked_quota(
     project_model: Project,
-    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStoreQuota,
 ) -> None:
     assert project_model.quotas.name
     assert project_model.quotas.source
@@ -228,7 +228,7 @@ def test_multiple_linked_quotas(
     quota_models: list[BlockStorageQuota]
     | list[ComputeQuota]
     | list[NetworkQuota]
-    | list[ObjectStorageQuota],
+    | list[ObjectStoreQuota],
 ) -> None:
     project_model.quotas.connect(quota_models[0])
     project_model.quotas.connect(quota_models[1])

@@ -62,8 +62,8 @@ from fed_reg.provider.schemas_extended import (
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
-    ObjectStorageQuotaCreateExtended,
-    ObjectStorageServiceCreateExtended,
+    ObjectStoreQuotaCreateExtended,
+    ObjectStoreServiceCreateExtended,
     ProviderCreateExtended,
     ProviderReadExtended,
     ProviderReadExtendedPublic,
@@ -81,9 +81,9 @@ from fed_reg.quota.schemas import (
     NetworkQuotaBase,
     NetworkQuotaBasePublic,
     NetworkQuotaCreate,
-    ObjectStorageQuotaBase,
-    ObjectStorageQuotaBasePublic,
-    ObjectStorageQuotaCreate,
+    ObjectStoreQuotaBase,
+    ObjectStoreQuotaBasePublic,
+    ObjectStoreQuotaCreate,
 )
 from fed_reg.quota.schemas_extended import (
     BlockStorageQuotaReadExtended,
@@ -92,8 +92,8 @@ from fed_reg.quota.schemas_extended import (
     ComputeQuotaReadExtendedPublic,
     NetworkQuotaReadExtended,
     NetworkQuotaReadExtendedPublic,
-    ObjectStorageQuotaReadExtended,
-    ObjectStorageQuotaReadExtendedPublic,
+    ObjectStoreQuotaReadExtended,
+    ObjectStoreQuotaReadExtendedPublic,
 )
 from fed_reg.region.schemas import (
     RegionBase,
@@ -113,9 +113,9 @@ from fed_reg.service.schemas import (
     NetworkServiceBase,
     NetworkServiceBasePublic,
     NetworkServiceCreate,
-    ObjectStorageServiceBase,
-    ObjectStorageServiceBasePublic,
-    ObjectStorageServiceCreate,
+    ObjectStoreServiceBase,
+    ObjectStoreServiceBasePublic,
+    ObjectStoreServiceCreate,
 )
 from fed_reg.service.schemas_extended import (
     BlockStorageServiceReadExtended,
@@ -126,8 +126,8 @@ from fed_reg.service.schemas_extended import (
     IdentityServiceReadExtendedPublic,
     NetworkServiceReadExtended,
     NetworkServiceReadExtendedPublic,
-    ObjectStorageServiceReadExtended,
-    ObjectStorageServiceReadExtendedPublic,
+    ObjectStoreServiceReadExtended,
+    ObjectStoreServiceReadExtendedPublic,
 )
 from fed_reg.sla.schemas import (
     SLABase,
@@ -180,8 +180,8 @@ class CaseClassInheritance:
         return NetworkQuotaCreateExtended, NetworkQuotaCreate
 
     @case(tags=["create"])
-    def case_object_storage_quota_create(self):
-        return ObjectStorageQuotaCreateExtended, ObjectStorageQuotaCreate
+    def case_object_store_quota_create(self):
+        return ObjectStoreQuotaCreateExtended, ObjectStoreQuotaCreate
 
     @case(tags=["create"])
     def case_region_create(self):
@@ -200,8 +200,8 @@ class CaseClassInheritance:
         return NetworkServiceCreateExtended, NetworkServiceCreate
 
     @case(tags=["create"])
-    def case_object_storage_service_create(self):
-        return ObjectStorageServiceCreateExtended, ObjectStorageServiceCreate
+    def case_object_store_service_create(self):
+        return ObjectStoreServiceCreateExtended, ObjectStoreServiceCreate
 
     @case(tags=["create"])
     def case_sla_create(self):
@@ -252,8 +252,8 @@ class CaseClassInheritance:
         return NetworkQuotaReadExtended, NetworkQuotaBase
 
     @case(tags=["read"])
-    def case_object_storage_quota_read(self):
-        return ObjectStorageQuotaReadExtended, ObjectStorageQuotaBase
+    def case_object_store_quota_read(self):
+        return ObjectStoreQuotaReadExtended, ObjectStoreQuotaBase
 
     @case(tags=["read"])
     def case_region_read(self):
@@ -276,8 +276,8 @@ class CaseClassInheritance:
         return NetworkServiceReadExtended, NetworkServiceBase
 
     @case(tags=["read"])
-    def case_object_storage_service_read(self):
-        return ObjectStorageServiceReadExtended, ObjectStorageServiceBase
+    def case_object_store_service_read(self):
+        return ObjectStoreServiceReadExtended, ObjectStoreServiceBase
 
     @case(tags=["read"])
     def case_sla_read(self):
@@ -328,8 +328,8 @@ class CaseClassInheritance:
         return NetworkQuotaReadExtendedPublic, NetworkQuotaBasePublic
 
     @case(tags=["read_public"])
-    def case_object_storage_quota_read_public(self):
-        return ObjectStorageQuotaReadExtendedPublic, ObjectStorageQuotaBasePublic
+    def case_object_store_quota_read_public(self):
+        return ObjectStoreQuotaReadExtendedPublic, ObjectStoreQuotaBasePublic
 
     @case(tags=["read_public"])
     def case_region_read_public(self):
@@ -352,8 +352,8 @@ class CaseClassInheritance:
         return NetworkServiceReadExtendedPublic, NetworkServiceBasePublic
 
     @case(tags=["read_public"])
-    def case_object_storage_service_read_public(self):
-        return ObjectStorageServiceReadExtendedPublic, ObjectStorageServiceBasePublic
+    def case_object_store_service_read_public(self):
+        return ObjectStoreServiceReadExtendedPublic, ObjectStoreServiceBasePublic
 
     @case(tags=["read_public"])
     def case_sla_read_public(self):

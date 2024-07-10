@@ -10,13 +10,13 @@ from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
-    ObjectStorageServiceCreateExtended,
+    ObjectStoreServiceCreateExtended,
 )
 from fed_reg.quota.crud import (
     block_storage_quota_mng,
     compute_quota_mng,
     network_quota_mng,
-    object_storage_quota_mng,
+    object_store_quota_mng,
 )
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
@@ -24,7 +24,7 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from fed_reg.service.schemas import (
     BlockStorageServiceCreate,
@@ -43,10 +43,10 @@ from fed_reg.service.schemas import (
     NetworkServiceRead,
     NetworkServiceReadPublic,
     NetworkServiceUpdate,
-    ObjectStorageServiceCreate,
-    ObjectStorageServiceRead,
-    ObjectStorageServiceReadPublic,
-    ObjectStorageServiceUpdate,
+    ObjectStoreServiceCreate,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceReadPublic,
+    ObjectStoreServiceUpdate,
 )
 from fed_reg.service.schemas_extended import (
     BlockStorageServiceReadExtended,
@@ -57,8 +57,8 @@ from fed_reg.service.schemas_extended import (
     IdentityServiceReadExtendedPublic,
     NetworkServiceReadExtended,
     NetworkServiceReadExtendedPublic,
-    ObjectStorageServiceReadExtended,
-    ObjectStorageServiceReadExtendedPublic,
+    ObjectStoreServiceReadExtended,
+    ObjectStoreServiceReadExtendedPublic,
 )
 
 
@@ -678,15 +678,15 @@ class CRUDNetworkService(
         return edit
 
 
-class CRUDObjectStorageService(
+class CRUDObjectStoreService(
     CRUDBase[
-        ObjectStorageService,
-        ObjectStorageServiceCreate,
-        ObjectStorageServiceUpdate,
-        ObjectStorageServiceRead,
-        ObjectStorageServiceReadPublic,
-        ObjectStorageServiceReadExtended,
-        ObjectStorageServiceReadExtendedPublic,
+        ObjectStoreService,
+        ObjectStoreServiceCreate,
+        ObjectStoreServiceUpdate,
+        ObjectStoreServiceRead,
+        ObjectStoreServiceReadPublic,
+        ObjectStoreServiceReadExtended,
+        ObjectStoreServiceReadExtendedPublic,
     ]
 ):
     """Object Storage Service Create, Read, Update and Delete operations."""
@@ -694,10 +694,10 @@ class CRUDObjectStorageService(
     def create(
         self,
         *,
-        obj_in: ObjectStorageServiceCreateExtended,
+        obj_in: ObjectStoreServiceCreateExtended,
         region: Region,
         projects: Optional[list[Project]] = None,
-    ) -> ObjectStorageService:
+    ) -> ObjectStoreService:
         """Create a new Object Storage Service.
 
         Connect the service to the given region and create all relative quotas. Filter
@@ -712,28 +712,28 @@ class CRUDObjectStorageService(
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
-                object_storage_quota_mng.create(
+                object_store_quota_mng.create(
                     obj_in=item, service=db_obj, project=db_projects[0]
                 )
         return db_obj
 
-    def remove(self, *, db_obj: ObjectStorageService) -> bool:
+    def remove(self, *, db_obj: ObjectStoreService) -> bool:
         """Delete an existing service and all its relationships.
 
         At first delete its quotas. Finally delete the service.
         """
         for item in db_obj.quotas:
-            object_storage_quota_mng.remove(db_obj=item)
+            object_store_quota_mng.remove(db_obj=item)
         return super().remove(db_obj=db_obj)
 
     def update(
         self,
         *,
-        db_obj: ObjectStorageService,
-        obj_in: ObjectStorageServiceCreateExtended | ObjectStorageServiceUpdate,
+        db_obj: ObjectStoreService,
+        obj_in: ObjectStoreServiceCreateExtended | ObjectStoreServiceUpdate,
         projects: Optional[list[Project]] = None,
         force: bool = False,
-    ) -> Optional[ObjectStorageService]:
+    ) -> Optional[ObjectStoreService]:
         """Update Object Storage Service attributes.
 
         By default do not update relationships or default values. If force is True,
@@ -747,8 +747,8 @@ class CRUDObjectStorageService(
                 db_obj=db_obj, obj_in=obj_in, provider_projects=projects
             )
 
-        if isinstance(obj_in, ObjectStorageServiceCreateExtended):
-            obj_in = ObjectStorageServiceUpdate.parse_obj(obj_in)
+        if isinstance(obj_in, ObjectStoreServiceCreateExtended):
+            obj_in = ObjectStoreServiceUpdate.parse_obj(obj_in)
 
         update_data = super().update(db_obj=db_obj, obj_in=obj_in, force=force)
         return db_obj if edit else update_data
@@ -756,8 +756,8 @@ class CRUDObjectStorageService(
     def __update_quotas(
         self,
         *,
-        db_obj: ObjectStorageService,
-        obj_in: ObjectStorageServiceCreateExtended,
+        db_obj: ObjectStoreService,
+        obj_in: ObjectStoreServiceCreateExtended,
         provider_projects: list[Project],
     ) -> bool:
         """Update service linked quotas.
@@ -778,14 +778,14 @@ class CRUDObjectStorageService(
             if item.per_user:
                 db_item = db_items_per_user.pop(item.project, None)
                 if not db_item:
-                    object_storage_quota_mng.create(
+                    object_store_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = object_storage_quota_mng.update(
+                    updated_data = object_store_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -796,14 +796,14 @@ class CRUDObjectStorageService(
             else:
                 db_item = db_items_total.pop(item.project, None)
                 if not db_item:
-                    object_storage_quota_mng.create(
+                    object_store_quota_mng.create(
                         obj_in=item,
                         service=db_obj,
                         project=db_projects.get(item.project),
                     )
                     edit = True
                 else:
-                    updated_data = object_storage_quota_mng.update(
+                    updated_data = object_store_quota_mng.update(
                         db_obj=db_item,
                         obj_in=item,
                         projects=provider_projects,
@@ -813,10 +813,10 @@ class CRUDObjectStorageService(
                         edit = True
 
         for db_item in db_items_per_user.values():
-            object_storage_quota_mng.remove(db_obj=db_item)
+            object_store_quota_mng.remove(db_obj=db_item)
             edit = True
         for db_item in db_items_total.values():
-            object_storage_quota_mng.remove(db_obj=db_item)
+            object_store_quota_mng.remove(db_obj=db_item)
             edit = True
 
         return edit
@@ -854,11 +854,11 @@ network_service_mng = CRUDNetworkService(
     read_extended_schema=NetworkServiceReadExtended,
     read_extended_public_schema=NetworkServiceReadExtendedPublic,
 )
-object_storage_service_mng = CRUDObjectStorageService(
-    model=ObjectStorageService,
-    create_schema=ObjectStorageServiceCreate,
-    read_schema=ObjectStorageServiceRead,
-    read_public_schema=ObjectStorageServiceReadPublic,
-    read_extended_schema=ObjectStorageServiceReadExtended,
-    read_extended_public_schema=ObjectStorageServiceReadExtendedPublic,
+object_store_service_mng = CRUDObjectStoreService(
+    model=ObjectStoreService,
+    create_schema=ObjectStoreServiceCreate,
+    read_schema=ObjectStoreServiceRead,
+    read_public_schema=ObjectStoreServiceReadPublic,
+    read_extended_schema=ObjectStoreServiceReadExtended,
+    read_extended_public_schema=ObjectStoreServiceReadExtendedPublic,
 )

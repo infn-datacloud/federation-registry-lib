@@ -20,23 +20,23 @@ from fed_reg.quota.api.dependencies import (
     valid_block_storage_quota_id,
     valid_compute_quota_id,
     valid_network_quota_id,
-    valid_object_storage_quota_id,
+    valid_object_store_quota_id,
     validate_new_block_storage_quota_values,
     validate_new_compute_quota_values,
     validate_new_network_quota_values,
-    validate_new_object_storage_quota_values,
+    validate_new_object_store_quota_values,
 )
 from fed_reg.quota.crud import (
     block_storage_quota_mng,
     compute_quota_mng,
     network_quota_mng,
-    object_storage_quota_mng,
+    object_store_quota_mng,
 )
 from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 from fed_reg.quota.schemas import (
     BlockStorageQuotaQuery,
@@ -48,9 +48,9 @@ from fed_reg.quota.schemas import (
     NetworkQuotaQuery,
     NetworkQuotaRead,
     NetworkQuotaUpdate,
-    ObjectStorageQuotaQuery,
-    ObjectStorageQuotaRead,
-    ObjectStorageQuotaUpdate,
+    ObjectStoreQuotaQuery,
+    ObjectStoreQuotaRead,
+    ObjectStoreQuotaUpdate,
 )
 from fed_reg.quota.schemas_extended import (
     BlockStorageQuotaReadMulti,
@@ -59,8 +59,8 @@ from fed_reg.quota.schemas_extended import (
     ComputeQuotaReadSingle,
     NetworkQuotaReadMulti,
     NetworkQuotaReadSingle,
-    ObjectStorageQuotaReadMulti,
-    ObjectStorageQuotaReadSingle,
+    ObjectStoreQuotaReadMulti,
+    ObjectStoreQuotaReadSingle,
 )
 
 bs_router = APIRouter(prefix="/block_storage_quotas", tags=["block_storage_quotas"])
@@ -571,12 +571,12 @@ def delete_network_quotas(
         )
 
 
-os_router = APIRouter(prefix="/object_storage_quotas", tags=["object_storage_quotas"])
+os_router = APIRouter(prefix="/object_store_quotas", tags=["object_store_quotas"])
 
 
 @os_router.get(
     "/",
-    response_model=ObjectStorageQuotaReadMulti,
+    response_model=ObjectStoreQuotaReadMulti,
     summary="Read all quotas",
     description="Retrieve all quotas stored in the database. \
         It is possible to filter on quotas attributes and other \
@@ -584,11 +584,11 @@ os_router = APIRouter(prefix="/object_storage_quotas", tags=["object_storage_quo
 )
 @custom.decorate_view_func
 @db.read_transaction
-def get_object_storage_quotas(
+def get_object_store_quotas(
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
-    item: ObjectStorageQuotaQuery = Depends(),
+    item: ObjectStoreQuotaQuery = Depends(),
     user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve all object storage quotas.
@@ -603,13 +603,13 @@ def get_object_storage_quotas(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    items = object_storage_quota_mng.get_multi(
+    items = object_store_quota_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
-    items = object_storage_quota_mng.paginate(
+    items = object_store_quota_mng.paginate(
         items=items, page=page.page, size=page.size
     )
-    return object_storage_quota_mng.choose_out_schema(
+    return object_store_quota_mng.choose_out_schema(
         items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
 
@@ -618,7 +618,7 @@ def get_object_storage_quotas(
 # @os_router.post(
 #     "/",
 #     status_code=status.HTTP_201_CREATED,
-#     response_model=ObjectStorageQuotaReadExtended,
+#     response_model=ObjectStoreQuotaReadExtended,
 #
 #     summary="Create quota",
 #     description="Create a quota and connect it to its related entities: \
@@ -627,10 +627,10 @@ def get_object_storage_quotas(
 #         Then verify project does not already have an equal quota type and \
 #         check service and project belong to the same provider.",
 # )
-# def post_object_storage_quota(
+# def post_object_store_quota(
 #     project: Project = Depends(valid_project_id),
 #     service: Service = Depends(valid_service_id),
-#     item: ObjectStorageQuotaCreate = Body(),
+#     item: ObjectStoreQuotaCreate = Body(),
 # ):
 #     # Check project does not have duplicated quota types
 #     # for q in project.quotas.all():
@@ -646,14 +646,14 @@ def get_object_storage_quotas(
 #         msg += f"'{serv_prov.name}' do not match."
 #         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
-#     return object_storage_quota.create(
+#     return object_store_quota.create(
 #         obj_in=item, project=project, service=service, force=True
 #     )
 
 
 @os_router.get(
     "/{quota_uid}",
-    response_model=ObjectStorageQuotaReadSingle,
+    response_model=ObjectStoreQuotaReadSingle,
     summary="Read a specific quota",
     description="Retrieve a specific quota using its *uid*. \
         If no entity matches the given *uid*, the endpoint \
@@ -661,9 +661,9 @@ def get_object_storage_quotas(
 )
 @custom.decorate_view_func
 @db.read_transaction
-def get_object_storage_quota(
+def get_object_store_quota(
     size: SchemaSize = Depends(),
-    item: ObjectStorageQuota = Depends(valid_object_storage_quota_id),
+    item: ObjectStoreQuota = Depends(valid_object_store_quota_id),
     user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve the object storage quota matching a specific uid.
@@ -677,7 +677,7 @@ def get_object_storage_quota(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    return object_storage_quota_mng.choose_out_schema(
+    return object_store_quota_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]
 
@@ -685,9 +685,9 @@ def get_object_storage_quota(
 @os_router.patch(
     "/{quota_uid}",
     status_code=status.HTTP_200_OK,
-    response_model=Optional[ObjectStorageQuotaRead],
+    response_model=Optional[ObjectStoreQuotaRead],
     dependencies=[
-        Depends(validate_new_object_storage_quota_values),
+        Depends(validate_new_object_store_quota_values),
     ],
     summary="Edit a specific quota",
     description="Update attribute values of a specific quota. \
@@ -699,11 +699,11 @@ def get_object_storage_quota(
 )
 @flaat.access_level("write")
 @db.write_transaction
-def put_object_storage_quota(
+def put_object_store_quota(
     request: Request,
-    update_data: ObjectStorageQuotaUpdate,
+    update_data: ObjectStoreQuotaUpdate,
     response: Response,
-    item: ObjectStorageQuota = Depends(valid_object_storage_quota_id),
+    item: ObjectStoreQuota = Depends(valid_object_store_quota_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
     """PATCH operation to update the object storage quota matching a specific uid.
@@ -717,7 +717,7 @@ def put_object_storage_quota(
 
     Only authenticated users can view this function.
     """
-    db_item = object_storage_quota_mng.update(db_obj=item, obj_in=update_data)
+    db_item = object_store_quota_mng.update(db_obj=item, obj_in=update_data)
     if not db_item:
         response.status_code = status.HTTP_304_NOT_MODIFIED
     return db_item
@@ -736,9 +736,9 @@ def put_object_storage_quota(
 )
 @flaat.access_level("write")
 @db.write_transaction
-def delete_object_storage_quotas(
+def delete_object_store_quotas(
     request: Request,
-    item: ObjectStorageQuota = Depends(valid_object_storage_quota_id),
+    item: ObjectStoreQuota = Depends(valid_object_store_quota_id),
     client_credentials: HTTPBasicCredentials = Security(security),
 ):
     """DELETE operation to remove the object storage quota matching a specific uid.
@@ -747,7 +747,7 @@ def delete_object_storage_quotas(
 
     Only authenticated users can view this function.
     """
-    if not object_storage_quota_mng.remove(db_obj=item):
+    if not object_store_quota_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

@@ -123,7 +123,7 @@ class NetworkQuota(Quota):
     )
 
 
-class ObjectStorageQuota(Quota):
+class ObjectStoreQuota(Quota):
     """Resource limitations for Projects on Object Storage Services.
 
     Object Storage quota limitations apply on a Object Storage Service.
@@ -139,5 +139,5 @@ class ObjectStorageQuota(Quota):
 
     # TODO: understand which fields must contain.
     service = RelationshipTo(
-        "fed_reg.service.models.ObjectStorageService", "APPLY_TO", cardinality=One
+        "fed_reg.service.models.ObjectStoreService", "APPLY_TO", cardinality=One
     )

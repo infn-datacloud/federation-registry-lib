@@ -19,7 +19,7 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
@@ -27,7 +27,7 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
@@ -286,25 +286,25 @@ class CaseItemEndpointSchemaDir:
             "quota",
         )
 
-    def case_object_storage_quota(
+    def case_object_store_quota(
         self,
         with_conn: bool,
         single: bool,
         is_public: bool,
         client_no_authn: TestClient,
         client_with_token: TestClient,
-        object_storage_quota_model: ObjectStorageQuota,
-        object_storage_service_model: ObjectStorageService,
+        object_store_quota_model: ObjectStoreQuota,
+        object_store_service_model: ObjectStoreService,
         project_model: Project,
         provider_model: Provider,
         region_model: Region,
     ) -> tuple[TestClient, bool, bool, str, BlockStorageQuota, str, str]:
         if with_conn:
             provider_model.regions.connect(region_model)
-            region_model.services.connect(object_storage_service_model)
-            object_storage_service_model.quotas.connect(object_storage_quota_model)
+            region_model.services.connect(object_store_service_model)
+            object_store_service_model.quotas.connect(object_store_quota_model)
             provider_model.projects.connect(project_model)
-            project_model.quotas.connect(object_storage_quota_model)
+            project_model.quotas.connect(object_store_quota_model)
         client = client_no_authn if is_public else client_with_token
         schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
         return (
@@ -312,8 +312,8 @@ class CaseItemEndpointSchemaDir:
             with_conn,
             single,
             schema,
-            object_storage_quota_model,
-            "object_storage_quotas",
+            object_store_quota_model,
+            "object_store_quotas",
             "quota",
         )
 
@@ -437,20 +437,20 @@ class CaseItemEndpointSchemaDir:
             "service",
         )
 
-    def case_object_storage_service(
+    def case_object_store_service(
         self,
         with_conn: bool,
         single: bool,
         is_public: bool,
         client_no_authn: TestClient,
         client_with_token: TestClient,
-        object_storage_service_model: ObjectStorageService,
+        object_store_service_model: ObjectStoreService,
         provider_model: Provider,
         region_model: Region,
-    ) -> tuple[TestClient, bool, bool, str, ObjectStorageService, str, str]:
+    ) -> tuple[TestClient, bool, bool, str, ObjectStoreService, str, str]:
         if with_conn:
             provider_model.regions.connect(region_model)
-            region_model.services.connect(object_storage_service_model)
+            region_model.services.connect(object_store_service_model)
         client = client_no_authn if is_public else client_with_token
         schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
         return (
@@ -458,8 +458,8 @@ class CaseItemEndpointSchemaDir:
             with_conn,
             single,
             schema,
-            object_storage_service_model,
-            "object_storage_services",
+            object_store_service_model,
+            "object_store_services",
             "service",
         )
 

@@ -17,7 +17,7 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
@@ -25,7 +25,7 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
@@ -79,10 +79,10 @@ class CaseItemEndpoint:
     ) -> tuple[NetworkQuota, str]:
         return network_quota_model, "network_quotas"
 
-    def case_object_storage_quota(
-        self, object_storage_quota_model: ObjectStorageQuota
-    ) -> tuple[ObjectStorageQuota, str]:
-        return object_storage_quota_model, "object_storage_quotas"
+    def case_object_store_quota(
+        self, object_store_quota_model: ObjectStoreQuota
+    ) -> tuple[ObjectStoreQuota, str]:
+        return object_store_quota_model, "object_store_quotas"
 
     def case_region(self, region_model: Region) -> tuple[Region, str]:
         return region_model, "regions"
@@ -107,10 +107,10 @@ class CaseItemEndpoint:
     ) -> tuple[NetworkService, str]:
         return network_service_model, "network_services"
 
-    def case_object_storage_service(
-        self, object_storage_service_model: ObjectStorageService
-    ) -> tuple[ObjectStorageService, str]:
-        return object_storage_service_model, "object_storage_services"
+    def case_object_store_service(
+        self, object_store_service_model: ObjectStoreService
+    ) -> tuple[ObjectStoreService, str]:
+        return object_store_service_model, "object_store_services"
 
     def case_sla(self, sla_model: SLA) -> tuple[SLA, str]:
         return sla_model, "slas"

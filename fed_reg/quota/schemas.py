@@ -453,7 +453,7 @@ class NetworkQuotaRead(BaseNodeRead, BaseReadPrivate, NetworkQuotaBase):
 NetworkQuotaQuery = create_query_model("NetworkQuotaQuery", NetworkQuotaBase)
 
 
-class ObjectStorageQuotaBasePublic(QuotaBase):
+class ObjectStoreQuotaBasePublic(QuotaBase):
     """Model with the Object Storage Quota public and restricted attributes.
 
     Model derived from QuotaBase to inherit attributes common to all quotas.
@@ -466,12 +466,12 @@ class ObjectStorageQuotaBasePublic(QuotaBase):
         usage (str): This quota defines the current resource usage.
     """
 
-    type: Literal[QuotaType.OBJECT_STORAGE] = Field(
-        default=QuotaType.OBJECT_STORAGE, description="Object storage type"
+    type: Literal[QuotaType.OBJECT_STORE] = Field(
+        default=QuotaType.OBJECT_STORE, description="Object storage type"
     )
 
 
-class ObjectStorageQuotaBase(ObjectStorageQuotaBasePublic):
+class ObjectStoreQuotaBase(ObjectStoreQuotaBasePublic):
     """Model with the Object Storage Quota public and restricted attributes.
 
     Model derived from QuotaBase to inherit attributes common to all quotas.
@@ -487,7 +487,7 @@ class ObjectStorageQuotaBase(ObjectStorageQuotaBasePublic):
     # TODO: understand which fields must contain.
 
 
-class ObjectStorageQuotaCreate(BaseNodeCreate, ObjectStorageQuotaBase):
+class ObjectStoreQuotaCreate(BaseNodeCreate, ObjectStoreQuotaBase):
     """Model to create a Object Storage Quota.
 
     Class without id (which is populated by the database). Expected as input when
@@ -502,7 +502,7 @@ class ObjectStorageQuotaCreate(BaseNodeCreate, ObjectStorageQuotaBase):
     """
 
 
-class ObjectStorageQuotaUpdate(BaseNodeCreate, ObjectStorageQuotaBase):
+class ObjectStoreQuotaUpdate(BaseNodeCreate, ObjectStoreQuotaBase):
     """Model to update a Object Storage Quota.
 
     Class without id (which is populated by the database). Expected as input when
@@ -519,8 +519,8 @@ class ObjectStorageQuotaUpdate(BaseNodeCreate, ObjectStorageQuotaBase):
     """
 
 
-class ObjectStorageQuotaReadPublic(
-    BaseNodeRead, BaseReadPublic, ObjectStorageQuotaBasePublic
+class ObjectStoreQuotaReadPublic(
+    BaseNodeRead, BaseReadPublic, ObjectStoreQuotaBasePublic
 ):
     """Model, for non-authenticated users, to read Object Storage data from DB.
 
@@ -539,7 +539,7 @@ class ObjectStorageQuotaReadPublic(
     """
 
 
-class ObjectStorageQuotaRead(BaseNodeRead, BaseReadPrivate, ObjectStorageQuotaBase):
+class ObjectStoreQuotaRead(BaseNodeRead, BaseReadPrivate, ObjectStoreQuotaBase):
     """Model, for authenticated users, to read Object Storage data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -557,6 +557,6 @@ class ObjectStorageQuotaRead(BaseNodeRead, BaseReadPrivate, ObjectStorageQuotaBa
     """
 
 
-ObjectStorageQuotaQuery = create_query_model(
-    "ObjectStorageQuotaQuery", ObjectStorageQuotaBase
+ObjectStoreQuotaQuery = create_query_model(
+    "ObjectStoreQuotaQuery", ObjectStoreQuotaBase
 )

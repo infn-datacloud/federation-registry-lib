@@ -11,7 +11,7 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
@@ -19,7 +19,7 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
@@ -36,8 +36,8 @@ from tests.create_dict import (
     network_model_dict,
     network_quota_model_dict,
     network_service_model_dict,
-    object_storage_quota_model_dict,
-    object_storage_service_model_dict,
+    object_store_quota_model_dict,
+    object_store_service_model_dict,
     project_model_dict,
     provider_model_dict,
     region_model_dict,
@@ -92,10 +92,10 @@ class CaseMissing:
         return network_quota_model_dict(), NetworkQuota, attr
 
     @parametrize(attr=["type"])
-    def case_object_storage_quota(
+    def case_object_store_quota(
         self, attr: str
-    ) -> tuple[dict, type[ObjectStorageQuota], str]:
-        return object_storage_quota_model_dict(), ObjectStorageQuota, attr
+    ) -> tuple[dict, type[ObjectStoreQuota], str]:
+        return object_store_quota_model_dict(), ObjectStoreQuota, attr
 
     @parametrize(attr=["name"])
     def case_region(self, attr: str) -> tuple[dict, type[Region], str]:
@@ -122,10 +122,10 @@ class CaseMissing:
         return network_service_model_dict(), NetworkService, attr
 
     @parametrize(attr=["name", "type", "endpoint"])
-    def case_object_storage_service(
+    def case_object_store_service(
         self, attr: str
-    ) -> tuple[dict, type[ObjectStorageService], str]:
-        return object_storage_service_model_dict(), ObjectStorageService, attr
+    ) -> tuple[dict, type[ObjectStoreService], str]:
+        return object_store_service_model_dict(), ObjectStoreService, attr
 
     @parametrize(attr=["doc_uuid", "start_date", "end_date"])
     def case_sla(self, attr: str) -> tuple[dict, type[SLA], str]:

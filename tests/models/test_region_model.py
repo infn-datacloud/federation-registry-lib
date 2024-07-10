@@ -16,7 +16,7 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
     Service,
 )
 from tests.create_dict import (
@@ -58,7 +58,7 @@ def test_linked_service(
     | ComputeService
     | IdentityService
     | NetworkService
-    | ObjectStorageService,
+    | ObjectStoreService,
 ) -> None:
     assert region_model.services.name
     assert region_model.services.source
@@ -83,7 +83,7 @@ def test_multiple_linked_services(
     | list[ComputeService]
     | list[IdentityService]
     | list[NetworkService]
-    | list[ObjectStorageService],
+    | list[ObjectStoreService],
 ) -> None:
     region_model.services.connect(service_models[0])
     region_model.services.connect(service_models[1])

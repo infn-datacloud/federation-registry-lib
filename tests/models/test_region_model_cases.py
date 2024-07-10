@@ -5,14 +5,14 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from tests.create_dict import (
     block_storage_service_model_dict,
     compute_service_model_dict,
     identity_service_model_dict,
     network_service_model_dict,
-    object_storage_service_model_dict,
+    object_store_service_model_dict,
 )
 
 
@@ -42,10 +42,10 @@ class CaseServices:
         return network_service_model
 
     @case(tags=["single"])
-    def case_object_storage_service(
-        self, object_storage_service_model: ObjectStorageService
-    ) -> ObjectStorageService:
-        return object_storage_service_model
+    def case_object_store_service(
+        self, object_store_service_model: ObjectStoreService
+    ) -> ObjectStoreService:
+        return object_store_service_model
 
     @case(tags=["multi"])
     def case_block_storage_services(self) -> list[BlockStorageService]:
@@ -76,8 +76,8 @@ class CaseServices:
         ]
 
     @case(tags=["multi"])
-    def case_object_storage_services(self) -> list[ObjectStorageService]:
+    def case_object_store_services(self) -> list[ObjectStoreService]:
         return [
-            ObjectStorageService(**object_storage_service_model_dict()).save(),
-            ObjectStorageService(**object_storage_service_model_dict()).save(),
+            ObjectStoreService(**object_store_service_model_dict()).save(),
+            ObjectStoreService(**object_store_service_model_dict()).save(),
         ]

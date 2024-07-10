@@ -37,8 +37,8 @@ from fed_reg.quota.schemas import (
     ComputeQuotaReadPublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    ObjectStorageQuotaRead,
-    ObjectStorageQuotaReadPublic,
+    ObjectStoreQuotaRead,
+    ObjectStoreQuotaReadPublic,
 )
 from fed_reg.region.schemas import RegionRead, RegionReadPublic
 from fed_reg.service.constants import DOC_EXT_REG
@@ -49,8 +49,8 @@ from fed_reg.service.schemas import (
     ComputeServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    ObjectStorageServiceRead,
-    ObjectStorageServiceReadPublic,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceReadPublic,
 )
 from fed_reg.sla.constants import DOC_EXT_GROUP
 from fed_reg.sla.schemas import SLARead, SLAReadPublic
@@ -148,7 +148,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     regions: list[RegionReadPublic] = Field(description=DOC_EXT_REG)
 
 
-class ObjectStorageServiceReadExtended(ObjectStorageServiceRead):
+class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
     """Model to extend the Object Storage Service data read from the DB.
 
     Attributes:
@@ -164,7 +164,7 @@ class ObjectStorageServiceReadExtended(ObjectStorageServiceRead):
     regions: list[RegionRead] = Field(description=DOC_EXT_REG)
 
 
-class ObjectStorageServiceReadExtendedPublic(ObjectStorageServiceReadPublic):
+class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
     """Model to extend the Object Storage Service public data read from the DB.
 
     Attributes:
@@ -287,7 +287,7 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
-class ObjectStorageQuotaReadExtended(ObjectStorageQuotaRead):
+class ObjectStoreQuotaReadExtended(ObjectStoreQuotaRead):
     """Model to extend the Object Storage Quota data read from the DB.
 
     Attributes:
@@ -297,13 +297,13 @@ class ObjectStorageQuotaReadExtended(ObjectStorageQuotaRead):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
-        service (ObjectStorageServiceReadExtended): Target service. Same type of quota.
+        service (ObjectStoreServiceReadExtended): Target service. Same type of quota.
     """
 
-    service: ObjectStorageServiceReadExtended = Field(description=DOC_EXT_SERV)
+    service: ObjectStoreServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
+class ObjectStoreQuotaReadExtendedPublic(ObjectStoreQuotaReadPublic):
     """Model to extend the Object Storage Quota public data read from the DB.
 
     Attributes:
@@ -312,11 +312,11 @@ class ObjectStorageQuotaReadExtendedPublic(ObjectStorageQuotaReadPublic):
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
-        service (ObjectStorageServiceReadExtendedPublic): Target service. Same type of
+        service (ObjectStoreServiceReadExtendedPublic): Target service. Same type of
             quota.
     """
 
-    service: ObjectStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+    service: ObjectStoreServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
@@ -454,7 +454,7 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
         ComputeQuotaReadExtended
         | BlockStorageQuotaReadExtended
         | NetworkQuotaReadExtended
-        | ObjectStorageQuotaReadExtended
+        | ObjectStoreQuotaReadExtended
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtended] = Field(default=None, description=DOC_EXT_SLA)
 
@@ -498,7 +498,7 @@ class ProjectReadExtendedPublic(
         ComputeQuotaReadExtendedPublic
         | BlockStorageQuotaReadExtendedPublic
         | NetworkQuotaReadExtendedPublic
-        | ObjectStorageQuotaReadExtendedPublic
+        | ObjectStoreQuotaReadExtendedPublic
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtendedPublic] = Field(default=None, description=DOC_EXT_SLA)
 

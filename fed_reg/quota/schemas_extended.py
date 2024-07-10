@@ -19,10 +19,10 @@ from fed_reg.quota.schemas import (
     NetworkQuotaBasePublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    ObjectStorageQuotaBase,
-    ObjectStorageQuotaBasePublic,
-    ObjectStorageQuotaRead,
-    ObjectStorageQuotaReadPublic,
+    ObjectStoreQuotaBase,
+    ObjectStoreQuotaBasePublic,
+    ObjectStoreQuotaRead,
+    ObjectStoreQuotaReadPublic,
 )
 from fed_reg.region.constants import DOC_EXT_PROV
 from fed_reg.region.schemas import RegionRead, RegionReadPublic
@@ -34,8 +34,8 @@ from fed_reg.service.schemas import (
     ComputeServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    ObjectStorageServiceRead,
-    ObjectStorageServiceReadPublic,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceReadPublic,
 )
 
 
@@ -157,7 +157,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
-class ObjectStorageServiceReadExtended(ObjectStorageServiceRead):
+class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
     """Model to extend the Object Storage Service data read from the DB.
 
     Attributes:
@@ -173,7 +173,7 @@ class ObjectStorageServiceReadExtended(ObjectStorageServiceRead):
     regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
-class ObjectStorageServiceReadExtendedPublic(ObjectStorageServiceReadPublic):
+class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
     """Model to extend the Object Storage Service public data read from the DB.
 
     Attributes:
@@ -315,8 +315,8 @@ class NetworkQuotaReadExtendedPublic(
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
-class ObjectStorageQuotaReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, ObjectStorageQuotaBase
+class ObjectStoreQuotaReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, ObjectStoreQuotaBase
 ):
     """Model to extend the Object Storage Quota data read from the DB.
 
@@ -328,15 +328,15 @@ class ObjectStorageQuotaReadExtended(
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
         project (ProjectRead): Target project.
-        service (ObjectStorageServiceReadExtended): Target block storage service.
+        service (ObjectStoreServiceReadExtended): Target block storage service.
     """
 
     project: ProjectRead = Field(description=DOC_EXT_PROJ)
-    service: ObjectStorageServiceReadExtended = Field(description=DOC_EXT_SERV)
+    service: ObjectStoreServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class ObjectStorageQuotaReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, ObjectStorageQuotaBasePublic
+class ObjectStoreQuotaReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, ObjectStoreQuotaBasePublic
 ):
     """Model to extend the Object Storage Quota public data read from the DB.
 
@@ -347,11 +347,11 @@ class ObjectStorageQuotaReadExtendedPublic(
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
         project (ProjectReadPublic): Target project.
-        service (ObjectStorageServiceReadExtendedPublic): Target block storage service.
+        service (ObjectStoreServiceReadExtendedPublic): Target block storage service.
     """
 
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
-    service: ObjectStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+    service: ObjectStoreServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class BlockStorageQuotaReadSingle(BaseModel):
@@ -399,18 +399,18 @@ class NetworkQuotaReadMulti(BaseModel):
     ] | list[NetworkQuotaReadPublic] = Field(..., discriminator="schema_type")
 
 
-class ObjectStorageQuotaReadSingle(BaseModel):
+class ObjectStoreQuotaReadSingle(BaseModel):
     __root__: (
-        ObjectStorageQuotaReadExtended
-        | ObjectStorageQuotaRead
-        | ObjectStorageQuotaReadExtendedPublic
-        | ObjectStorageQuotaReadPublic
+        ObjectStoreQuotaReadExtended
+        | ObjectStoreQuotaRead
+        | ObjectStoreQuotaReadExtendedPublic
+        | ObjectStoreQuotaReadPublic
     ) = Field(..., discriminator="schema_type")
 
 
-class ObjectStorageQuotaReadMulti(BaseModel):
-    __root__: list[ObjectStorageQuotaReadExtended] | list[
-        ObjectStorageQuotaRead
-    ] | list[ObjectStorageQuotaReadExtendedPublic] | list[
-        ObjectStorageQuotaReadPublic
+class ObjectStoreQuotaReadMulti(BaseModel):
+    __root__: list[ObjectStoreQuotaReadExtended] | list[
+        ObjectStoreQuotaRead
+    ] | list[ObjectStoreQuotaReadExtendedPublic] | list[
+        ObjectStoreQuotaReadPublic
     ] = Field(..., discriminator="schema_type")

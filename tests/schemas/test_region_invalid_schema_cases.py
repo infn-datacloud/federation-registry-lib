@@ -6,7 +6,7 @@ from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
-    ObjectStorageServiceCreateExtended,
+    ObjectStoreServiceCreateExtended,
 )
 from fed_reg.service.schemas import IdentityServiceCreate
 
@@ -23,7 +23,7 @@ class CaseInvalidAttr:
             "compute_services",
             "identity_services",
             "network_services",
-            "object_storage_services",
+            "object_store_services",
         )
     )
     def case_dup_services(
@@ -32,7 +32,7 @@ class CaseInvalidAttr:
         compute_service_create_ext_schema: ComputeServiceCreateExtended,
         identity_service_create_schema: IdentityServiceCreate,
         network_service_create_ext_schema: NetworkServiceCreateExtended,
-        object_storage_service_create_ext_schema: ObjectStorageServiceCreateExtended,
+        object_store_service_create_ext_schema: ObjectStoreServiceCreateExtended,
         type: str,
     ) -> tuple[
         str,
@@ -40,7 +40,7 @@ class CaseInvalidAttr:
         | list[ComputeServiceCreateExtended]
         | list[IdentityServiceCreate]
         | list[NetworkServiceCreateExtended]
-        | list[ObjectStorageServiceCreateExtended],
+        | list[ObjectStoreServiceCreateExtended],
         str,
     ]:
         if type == "block_storage_services":
@@ -51,8 +51,8 @@ class CaseInvalidAttr:
             service = identity_service_create_schema
         elif type == "network_services":
             service = network_service_create_ext_schema
-        elif type == "object_storage_services":
-            service = object_storage_service_create_ext_schema
+        elif type == "object_store_services":
+            service = object_store_service_create_ext_schema
 
         return (
             type,

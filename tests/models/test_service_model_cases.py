@@ -3,7 +3,7 @@ from fed_reg.service.models import (
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 
 
@@ -28,7 +28,7 @@ class CaseServiceModel:
     ) -> NetworkService:
         return network_service_model
 
-    def case_object_storage_service(
-        self, object_storage_service_model: ObjectStorageService
-    ) -> ObjectStorageService:
-        return object_storage_service_model
+    def case_object_store_service(
+        self, object_store_service_model: ObjectStoreService
+    ) -> ObjectStoreService:
+        return object_store_service_model

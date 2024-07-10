@@ -2,7 +2,7 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 
 
@@ -18,7 +18,7 @@ class CaseQuotaModel:
     def case_network_quota(self, network_quota_model: NetworkQuota) -> NetworkQuota:
         return network_quota_model
 
-    def case_object_storage_quota(
-        self, object_storage_quota_model: ObjectStorageQuota
-    ) -> ObjectStorageQuota:
-        return object_storage_quota_model
+    def case_object_store_quota(
+        self, object_store_quota_model: ObjectStoreQuota
+    ) -> ObjectStoreQuota:
+        return object_store_quota_model

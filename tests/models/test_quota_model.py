@@ -13,20 +13,20 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
     Quota,
 )
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from tests.create_dict import (
     block_storage_service_model_dict,
     compute_service_model_dict,
     network_service_model_dict,
-    object_storage_service_model_dict,
+    object_store_service_model_dict,
     project_model_dict,
     quota_model_dict,
 )
@@ -73,9 +73,9 @@ def test_network_default_attr() -> None:
     assert isinstance(item.service, RelationshipManager)
 
 
-def test_object_storage_default_attr() -> None:
+def test_object_store_default_attr() -> None:
     d = quota_model_dict()
-    item = ObjectStorageQuota(**d)
+    item = ObjectStoreQuota(**d)
     assert item.uid is not None
     assert item.description == ""
     assert item.type == d.get("type")
@@ -86,7 +86,7 @@ def test_object_storage_default_attr() -> None:
 
 @parametrize_with_cases("quota_model")
 def test_required_rel(
-    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStoreQuota,
 ) -> None:
     with pytest.raises(CardinalityViolation):
         quota_model.service.all()
@@ -100,7 +100,7 @@ def test_required_rel(
 
 @parametrize_with_cases("quota_model")
 def test_linked_project(
-    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStoreQuota,
     project_model: Project,
 ) -> None:
     assert quota_model.project.name
@@ -121,7 +121,7 @@ def test_linked_project(
 
 @parametrize_with_cases("quota_model")
 def test_multiple_linked_projects(
-    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStorageQuota,
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStoreQuota,
 ) -> None:
     item = Project(**project_model_dict()).save()
     quota_model.project.connect(item)
@@ -196,29 +196,29 @@ def test_linked_network_service(
     assert service.uid == network_service_model.uid
 
 
-def test_linked_object_storage_service(
-    object_storage_quota_model: ObjectStorageQuota,
-    object_storage_service_model: ObjectStorageService,
+def test_linked_object_store_service(
+    object_store_quota_model: ObjectStoreQuota,
+    object_store_service_model: ObjectStoreService,
 ) -> None:
-    assert object_storage_quota_model.service.name
-    assert object_storage_quota_model.service.source
-    assert isinstance(object_storage_quota_model.service.source, Quota)
+    assert object_store_quota_model.service.name
+    assert object_store_quota_model.service.source
+    assert isinstance(object_store_quota_model.service.source, Quota)
     assert (
-        object_storage_quota_model.service.source.uid == object_storage_quota_model.uid
+        object_store_quota_model.service.source.uid == object_store_quota_model.uid
     )
-    assert object_storage_quota_model.service.definition
+    assert object_store_quota_model.service.definition
     assert (
-        object_storage_quota_model.service.definition["node_class"]
-        == ObjectStorageService
+        object_store_quota_model.service.definition["node_class"]
+        == ObjectStoreService
     )
 
-    r = object_storage_quota_model.service.connect(object_storage_service_model)
+    r = object_store_quota_model.service.connect(object_store_service_model)
     assert r is True
 
-    assert len(object_storage_quota_model.service.all()) == 1
-    service = object_storage_quota_model.service.single()
-    assert isinstance(service, ObjectStorageService)
-    assert service.uid == object_storage_service_model.uid
+    assert len(object_store_quota_model.service.all()) == 1
+    service = object_store_quota_model.service.single()
+    assert isinstance(service, ObjectStoreService)
+    assert service.uid == object_store_service_model.uid
 
 
 def test_multiple_linked_block_storage_services(
@@ -262,16 +262,16 @@ def test_multiple_linked_network_services(network_quota_model: NetworkQuota) -> 
             network_quota_model.service.all()
 
 
-def test_multiple_linked_object_storage_services(
-    object_storage_quota_model: ObjectStorageQuota,
+def test_multiple_linked_object_store_services(
+    object_store_quota_model: ObjectStoreQuota,
 ) -> None:
-    item = ObjectStorageService(**object_storage_service_model_dict()).save()
-    object_storage_quota_model.service.connect(item)
-    item = ObjectStorageService(**object_storage_service_model_dict()).save()
+    item = ObjectStoreService(**object_store_service_model_dict()).save()
+    object_store_quota_model.service.connect(item)
+    item = ObjectStoreService(**object_store_service_model_dict()).save()
     with pytest.raises(AttemptedCardinalityViolation):
-        object_storage_quota_model.service.connect(item)
+        object_store_quota_model.service.connect(item)
 
     with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
-        object_storage_quota_model.service.connect(item)
+        object_store_quota_model.service.connect(item)
         with pytest.raises(CardinalityViolation):
-            object_storage_quota_model.service.all()
+            object_store_quota_model.service.all()

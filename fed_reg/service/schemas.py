@@ -17,7 +17,7 @@ from fed_reg.service.enum import (
     ComputeServiceName,
     IdentityServiceName,
     NetworkServiceName,
-    ObjectStorageServiceName,
+    ObjectStoreServiceName,
     ServiceType,
 )
 
@@ -465,7 +465,7 @@ class NetworkServiceRead(BaseNodeRead, BaseReadPrivate, NetworkServiceBase):
 NetworkServiceQuery = create_query_model("NetworkServiceQuery", NetworkServiceBase)
 
 
-class ObjectStorageServiceBasePublic(ServiceBase):
+class ObjectStoreServiceBasePublic(ServiceBase):
     """Model with the Object Storage Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
@@ -478,12 +478,12 @@ class ObjectStorageServiceBasePublic(ServiceBase):
         name (str): Service name. Depends on type.
     """
 
-    type: Literal[ServiceType.OBJECT_STORAGE] = Field(
-        default=ServiceType.OBJECT_STORAGE, description="Object Storage service type."
+    type: Literal[ServiceType.OBJECT_STORE] = Field(
+        default=ServiceType.OBJECT_STORE, description="Object Storage service type."
     )
 
 
-class ObjectStorageServiceBase(ObjectStorageServiceBasePublic):
+class ObjectStoreServiceBase(ObjectStoreServiceBasePublic):
     """Model with the Object Storage Service public and restricted attributes.
 
     Model derived from ServiceBase to inherit attributes common to all services.
@@ -496,10 +496,10 @@ class ObjectStorageServiceBase(ObjectStorageServiceBasePublic):
         name (str): Service name. Depends on type.
     """
 
-    name: ObjectStorageServiceName = Field(description=DOC_NAME)
+    name: ObjectStoreServiceName = Field(description=DOC_NAME)
 
 
-class ObjectStorageServiceCreate(BaseNodeCreate, ObjectStorageServiceBase):
+class ObjectStoreServiceCreate(BaseNodeCreate, ObjectStoreServiceBase):
     """Model to create a Object Storage Service.
 
     Class without id (which is populated by the database). Expected as input when
@@ -514,7 +514,7 @@ class ObjectStorageServiceCreate(BaseNodeCreate, ObjectStorageServiceBase):
     """
 
 
-class ObjectStorageServiceUpdate(BaseNodeCreate, ObjectStorageServiceBase):
+class ObjectStoreServiceUpdate(BaseNodeCreate, ObjectStoreServiceBase):
     """Model to update a Object Storage service.
 
     Class without id (which is populated by the database). Expected as input when
@@ -531,11 +531,11 @@ class ObjectStorageServiceUpdate(BaseNodeCreate, ObjectStorageServiceBase):
     """
 
     endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
-    name: Optional[ObjectStorageServiceName] = Field(default=None, description=DOC_NAME)
+    name: Optional[ObjectStoreServiceName] = Field(default=None, description=DOC_NAME)
 
 
-class ObjectStorageServiceReadPublic(
-    BaseNodeRead, BaseReadPublic, ObjectStorageServiceBasePublic
+class ObjectStoreServiceReadPublic(
+    BaseNodeRead, BaseReadPublic, ObjectStoreServiceBasePublic
 ):
     """Model, for non-authenticated users, to read Object Storage data from DB.
 
@@ -552,7 +552,7 @@ class ObjectStorageServiceReadPublic(
     """
 
 
-class ObjectStorageServiceRead(BaseNodeRead, BaseReadPrivate, ObjectStorageServiceBase):
+class ObjectStoreServiceRead(BaseNodeRead, BaseReadPrivate, ObjectStoreServiceBase):
     """Model, for authenticated users, to read Object Storage data from DB.
 
     Class to read all data written in the DB. Expected as output when performing a
@@ -570,6 +570,6 @@ class ObjectStorageServiceRead(BaseNodeRead, BaseReadPrivate, ObjectStorageServi
     """
 
 
-ObjectStorageServiceQuery = create_query_model(
-    "ObjectStorageServiceQuery", ObjectStorageServiceBase
+ObjectStoreServiceQuery = create_query_model(
+    "ObjectStoreServiceQuery", ObjectStoreServiceBase
 )

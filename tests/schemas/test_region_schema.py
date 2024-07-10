@@ -7,7 +7,7 @@ from fed_reg.provider.schemas_extended import (
     BlockStorageServiceCreateExtended,
     ComputeServiceCreateExtended,
     NetworkServiceCreateExtended,
-    ObjectStorageServiceCreateExtended,
+    ObjectStoreServiceCreateExtended,
     RegionCreateExtended,
 )
 from fed_reg.region.models import Region
@@ -83,7 +83,7 @@ def test_create_extended(
         | list[ComputeServiceCreateExtended]
         | list[IdentityServiceCreate]
         | list[NetworkServiceCreateExtended]
-        | list[ObjectStorageServiceCreateExtended]
+        | list[ObjectStoreServiceCreateExtended]
     ],
 ) -> None:
     d = region_schema_dict()

@@ -7,14 +7,14 @@ from fed_reg.service.crud import (
     compute_service_mng,
     identity_service_mng,
     network_service_mng,
-    object_storage_service_mng,
+    object_store_service_mng,
 )
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
-    ObjectStorageService,
+    ObjectStoreService,
 )
 from fed_reg.service.schemas import (
     BlockStorageServiceCreate,
@@ -25,8 +25,8 @@ from fed_reg.service.schemas import (
     IdentityServiceUpdate,
     NetworkServiceCreate,
     NetworkServiceUpdate,
-    ObjectStorageServiceCreate,
-    ObjectStorageServiceUpdate,
+    ObjectStoreServiceCreate,
+    ObjectStoreServiceUpdate,
 )
 
 
@@ -332,9 +332,9 @@ def validate_new_network_service_values(
         valid_network_service_endpoint(update_data)
 
 
-def valid_object_storage_service_id(
+def valid_object_store_service_id(
     service_uid: str,
-) -> ObjectStorageService:
+) -> ObjectStoreService:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
@@ -349,7 +349,7 @@ def valid_object_storage_service_id(
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = object_storage_service_mng.get(uid=service_uid.replace("-", ""))
+    item = object_store_service_mng.get(uid=service_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -358,8 +358,8 @@ def valid_object_storage_service_id(
     return item
 
 
-def valid_object_storage_service_endpoint(
-    item: ObjectStorageServiceCreate | ObjectStorageServiceUpdate,
+def valid_object_store_service_endpoint(
+    item: ObjectStoreServiceCreate | ObjectStoreServiceUpdate,
 ) -> None:
     """Check there are no other services with the same endpoint.
 
@@ -375,7 +375,7 @@ def valid_object_storage_service_endpoint(
     ------
         BadRequestError: DB entity with given endpoint already exists.
     """
-    db_item = object_storage_service_mng.get(endpoint=item.endpoint)
+    db_item = object_store_service_mng.get(endpoint=item.endpoint)
     if db_item is not None:
         msg = (
             "Object Storage Service with endpoint "
@@ -384,9 +384,9 @@ def valid_object_storage_service_endpoint(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
-def validate_new_object_storage_service_values(
-    update_data: ObjectStorageServiceUpdate,
-    item: ObjectStorageService = Depends(valid_object_storage_service_id),
+def validate_new_object_store_service_values(
+    update_data: ObjectStoreServiceUpdate,
+    item: ObjectStoreService = Depends(valid_object_store_service_id),
 ) -> None:
     """Check given data are valid ones.
 
@@ -407,4 +407,4 @@ def validate_new_object_storage_service_values(
         BadRequestError: DB entity with given endpoint already exists.
     """
     if str(update_data.endpoint) != item.endpoint:
-        valid_object_storage_service_endpoint(update_data)
+        valid_object_store_service_endpoint(update_data)

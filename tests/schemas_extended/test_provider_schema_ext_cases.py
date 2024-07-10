@@ -15,8 +15,8 @@ from fed_reg.provider.schemas_extended import (
     NetworkCreateExtended,
     NetworkQuotaCreateExtended,
     NetworkServiceCreateExtended,
-    ObjectStorageQuotaCreateExtended,
-    ObjectStorageServiceCreateExtended,
+    ObjectStoreQuotaCreateExtended,
+    ObjectStoreServiceCreateExtended,
     RegionCreateExtended,
     SLACreateExtended,
 )
@@ -220,20 +220,20 @@ class CaseAttr:
         return ("regions", [region_create_ext_schema], "not in this provider")
 
     @case(tags=["missing"])
-    def case_missing_object_storage_projects(
+    def case_missing_object_store_projects(
         self,
         region_create_ext_schema: RegionCreateExtended,
-        object_storage_service_create_ext_schema: ObjectStorageServiceCreateExtended,
-        object_storage_quota_create_ext_schema: ObjectStorageQuotaCreateExtended,
+        object_store_service_create_ext_schema: ObjectStoreServiceCreateExtended,
+        object_store_quota_create_ext_schema: ObjectStoreQuotaCreateExtended,
     ) -> tuple[
         str,
         list[IdentityProviderCreateExtended] | list[RegionCreateExtended],
         Literal["not in this provider"],
     ]:
-        object_storage_service_create_ext_schema.quotas = [
-            object_storage_quota_create_ext_schema
+        object_store_service_create_ext_schema.quotas = [
+            object_store_quota_create_ext_schema
         ]
-        region_create_ext_schema.object_storage_services = [
-            object_storage_service_create_ext_schema
+        region_create_ext_schema.object_store_services = [
+            object_store_service_create_ext_schema
         ]
         return ("regions", [region_create_ext_schema], "not in this provider")

@@ -125,7 +125,7 @@ class NetworkService(Service):
     )
 
 
-class ObjectStorageService(Service):
+class ObjectStoreService(Service):
     """Service managing Object Storage resources.
 
     An Object Storage Service, for each project, support a set of quotas managing the
@@ -141,5 +141,5 @@ class ObjectStorageService(Service):
     """
 
     quotas = RelationshipFrom(
-        "fed_reg.quota.models.ObjectStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "fed_reg.quota.models.ObjectStoreQuota", "APPLY_TO", cardinality=ZeroOrMore
     )

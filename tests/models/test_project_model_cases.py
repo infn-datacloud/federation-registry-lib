@@ -4,13 +4,13 @@ from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 from tests.create_dict import (
     block_storage_quota_model_dict,
     compute_quota_model_dict,
     network_quota_model_dict,
-    object_storage_quota_model_dict,
+    object_store_quota_model_dict,
 )
 
 
@@ -30,10 +30,10 @@ class CaseQuotas:
         return network_quota_model
 
     @case(tags=["single"])
-    def case_object_storage_quota(
-        self, object_storage_quota_model: ObjectStorageQuota
-    ) -> ObjectStorageQuota:
-        return object_storage_quota_model
+    def case_object_store_quota(
+        self, object_store_quota_model: ObjectStoreQuota
+    ) -> ObjectStoreQuota:
+        return object_store_quota_model
 
     @case(tags=["multi"])
     def case_block_storage_quotas(self) -> list[BlockStorageQuota]:
@@ -57,8 +57,8 @@ class CaseQuotas:
         ]
 
     @case(tags=["multi"])
-    def case_object_storage_quotas(self) -> list[ObjectStorageQuota]:
+    def case_object_store_quotas(self) -> list[ObjectStoreQuota]:
         return [
-            ObjectStorageQuota(**object_storage_quota_model_dict()).save(),
-            ObjectStorageQuota(**object_storage_quota_model_dict()).save(),
+            ObjectStoreQuota(**object_store_quota_model_dict()).save(),
+            ObjectStoreQuota(**object_store_quota_model_dict()).save(),
         ]

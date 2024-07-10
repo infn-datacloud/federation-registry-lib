@@ -5,19 +5,19 @@ from fed_reg.quota.crud import (
     block_storage_quota_mng,
     compute_quota_mng,
     network_quota_mng,
-    object_storage_quota_mng,
+    object_store_quota_mng,
 )
 from fed_reg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
-    ObjectStorageQuota,
+    ObjectStoreQuota,
 )
 from fed_reg.quota.schemas import (
     BlockStorageQuotaUpdate,
     ComputeQuotaUpdate,
     NetworkQuotaUpdate,
-    ObjectStorageQuotaUpdate,
+    ObjectStoreQuotaUpdate,
 )
 
 
@@ -207,7 +207,7 @@ def validate_new_network_quota_values(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=msg)
 
 
-def valid_object_storage_quota_id(quota_uid: str) -> ObjectStorageQuota:
+def valid_object_store_quota_id(quota_uid: str) -> ObjectStoreQuota:
     """Check given uid corresponds to an entity in the DB.
 
     Args:
@@ -222,7 +222,7 @@ def valid_object_storage_quota_id(quota_uid: str) -> ObjectStorageQuota:
     ------
         NotFoundError: DB entity with given uid not found.
     """
-    item = object_storage_quota_mng.get(uid=quota_uid.replace("-", ""))
+    item = object_store_quota_mng.get(uid=quota_uid.replace("-", ""))
     if not item:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -231,9 +231,9 @@ def valid_object_storage_quota_id(quota_uid: str) -> ObjectStorageQuota:
     return item
 
 
-def validate_new_object_storage_quota_values(
-    update_data: ObjectStorageQuotaUpdate,
-    item: ObjectStorageQuota = Depends(valid_object_storage_quota_id),
+def validate_new_object_store_quota_values(
+    update_data: ObjectStoreQuotaUpdate,
+    item: ObjectStoreQuota = Depends(valid_object_store_quota_id),
 ) -> None:
     """Check given data are valid ones.
 
@@ -242,8 +242,8 @@ def validate_new_object_storage_quota_values(
 
     Args:
     ----
-        update_data (ObjectStorageQuotaUpdate): new data.
-        item (ObjectStorageQuota): DB entity to update.
+        update_data (ObjectStoreQuotaUpdate): new data.
+        item (ObjectStoreQuota): DB entity to update.
 
     Returns:
     -------

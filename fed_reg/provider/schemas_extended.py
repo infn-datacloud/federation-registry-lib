@@ -51,9 +51,9 @@ from fed_reg.quota.schemas import (
     NetworkQuotaCreate,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    ObjectStorageQuotaCreate,
-    ObjectStorageQuotaRead,
-    ObjectStorageQuotaReadPublic,
+    ObjectStoreQuotaCreate,
+    ObjectStoreQuotaRead,
+    ObjectStoreQuotaReadPublic,
 )
 from fed_reg.region.constants import DOC_EXT_LOC, DOC_EXT_SERV
 from fed_reg.region.schemas import RegionCreate, RegionRead, RegionReadPublic
@@ -76,9 +76,9 @@ from fed_reg.service.schemas import (
     NetworkServiceCreate,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    ObjectStorageServiceCreate,
-    ObjectStorageServiceRead,
-    ObjectStorageServiceReadPublic,
+    ObjectStoreServiceCreate,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceReadPublic,
 )
 from fed_reg.sla.schemas import SLACreate, SLARead, SLAReadPublic
 from fed_reg.user_group.constants import DOC_EXT_SLA
@@ -282,7 +282,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     )
 
 
-class ObjectStorageServiceReadExtended(ObjectStorageServiceRead):
+class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
     """Model to extend the Object Storage Service data read from the DB.
 
     Attributes:
@@ -292,16 +292,16 @@ class ObjectStorageServiceReadExtended(ObjectStorageServiceRead):
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
         name (str): Service name.
-        quotas (list of ObjectStorageQuotaReadExtended): Quotas pointing to this
+        quotas (list of ObjectStoreQuotaReadExtended): Quotas pointing to this
             service.
     """
 
-    quotas: list[ObjectStorageQuotaRead] = Field(
+    quotas: list[ObjectStoreQuotaRead] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
 
-class ObjectStorageServiceReadExtendedPublic(ObjectStorageServiceReadPublic):
+class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
     """Model to extend the Object Storage Service data read from the DB.
 
     Attributes:
@@ -310,11 +310,11 @@ class ObjectStorageServiceReadExtendedPublic(ObjectStorageServiceReadPublic):
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         region (RegionReadExtendedPublic): Region hosting this service.
-        quotas (list of ObjectStorageQuotaReadExtendedPublic): Quotas pointing to this
+        quotas (list of ObjectStoreQuotaReadExtendedPublic): Quotas pointing to this
             service.
     """
 
-    quotas: list[ObjectStorageQuotaReadPublic] = Field(
+    quotas: list[ObjectStoreQuotaReadPublic] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
@@ -338,7 +338,7 @@ class RegionReadExtended(RegionRead):
         | ComputeServiceReadExtended
         | IdentityServiceRead
         | NetworkServiceReadExtended
-        | ObjectStorageServiceReadExtended
+        | ObjectStoreServiceReadExtended
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
@@ -363,7 +363,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
         | ComputeServiceReadExtendedPublic
         | IdentityServiceReadPublic
         | NetworkServiceReadExtendedPublic
-        | ObjectStorageServiceReadExtendedPublic
+        | ObjectStoreServiceReadExtendedPublic
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
@@ -627,7 +627,7 @@ class NetworkQuotaCreateExtended(NetworkQuotaCreate):
     project: str = Field(description=DOC_NEW_PROJ_UUID)
 
 
-class ObjectStorageQuotaCreateExtended(ObjectStorageQuotaCreate):
+class ObjectStoreQuotaCreateExtended(ObjectStoreQuotaCreate):
     """Model to extend the Object Storage Quota data to add to the DB.
 
     Attributes:
@@ -892,7 +892,7 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
         return v
 
 
-class ObjectStorageServiceCreateExtended(ObjectStorageServiceCreate):
+class ObjectStoreServiceCreateExtended(ObjectStoreServiceCreate):
     """Model to extend the Object Storage Service data to add to the DB.
 
     Attributes:
@@ -901,19 +901,19 @@ class ObjectStorageServiceCreateExtended(ObjectStorageServiceCreate):
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
         name (str): Service name. Depends on type.
-        quotas (list of ObjectStorageQuotaCreateExtended): Quotas pointing to this
+        quotas (list of ObjectStoreQuotaCreateExtended): Quotas pointing to this
             service.
     """
 
-    quotas: list[ObjectStorageQuotaCreateExtended] = Field(
+    quotas: list[ObjectStoreQuotaCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
 
     @validator("quotas")
     @classmethod
     def max_two_quotas_on_same_project(
-        cls, v: list[ObjectStorageQuotaCreateExtended]
-    ) -> list[ObjectStorageQuotaCreateExtended]:
+        cls, v: list[ObjectStoreQuotaCreateExtended]
+    ) -> list[ObjectStoreQuotaCreateExtended]:
         """Verify maximum number of quotas on same project."""
         multiple_quotas_same_project(v)
         return v
@@ -937,7 +937,7 @@ class RegionCreateExtended(RegionCreate):
             services.
         network_services (list of NetworkServiceCreateExtended): Supplied network
             services.
-        object_storage_services (list of ObjectStorageServiceCreateExtended): Supplied
+        object_store_services (list of ObjectStoreServiceCreateExtended): Supplied
             object storage services.
     """
 
@@ -954,7 +954,7 @@ class RegionCreateExtended(RegionCreate):
     network_services: list[NetworkServiceCreateExtended] = Field(
         default_factory=list, description=DOC_NEW_SERV_NET
     )
-    object_storage_services: list[ObjectStorageServiceCreateExtended] = Field(
+    object_store_services: list[ObjectStoreServiceCreateExtended] = Field(
         default_factory=list, description=DOC_NEW_SERV_BLO_STO
     )
 
@@ -963,7 +963,7 @@ class RegionCreateExtended(RegionCreate):
         "compute_services",
         "identity_services",
         "network_services",
-        "object_storage_services",
+        "object_store_services",
     )
     @classmethod
     def validate_services(
@@ -972,13 +972,13 @@ class RegionCreateExtended(RegionCreate):
         | list[ComputeServiceCreateExtended]
         | list[IdentityServiceCreate]
         | list[NetworkServiceCreateExtended]
-        | list[ObjectStorageServiceCreateExtended],
+        | list[ObjectStoreServiceCreateExtended],
     ) -> (
         list[BlockStorageServiceCreateExtended]
         | list[ComputeServiceCreateExtended]
         | list[IdentityServiceCreate]
         | list[NetworkServiceCreateExtended]
-        | list[ObjectStorageServiceCreateExtended]
+        | list[ObjectStoreServiceCreateExtended]
     ):
         """Verify there are no duplicated endpoints in the service lists."""
         find_duplicates(v, "endpoint")
@@ -1066,8 +1066,8 @@ class ProviderCreateExtended(ProviderCreate):
             )
             cls.__check_compute_service_projects(region.compute_services, projects)
             cls.__check_network_service_projects(region.network_services, projects)
-            cls.__check_object_storage_service_projects(
-                region.object_storage_services, projects
+            cls.__check_object_store_service_projects(
+                region.object_store_services, projects
             )
         return v
 
@@ -1118,8 +1118,8 @@ class ProviderCreateExtended(ProviderCreate):
                 proj_in_provider(quota.project, projects, parent="Network quota")
 
     @classmethod
-    def __check_object_storage_service_projects(
-        cls, services: list[ObjectStorageServiceCreateExtended], projects: list[str]
+    def __check_object_store_service_projects(
+        cls, services: list[ObjectStoreServiceCreateExtended], projects: list[str]
     ) -> None:
         """Check Object Storage service's projects.
 
