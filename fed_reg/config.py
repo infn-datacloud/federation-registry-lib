@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Federation-Registry"
     DOMAIN: str = "localhost:8000"
     API_V1_STR: str = "/api/v1"
+    ROOT_PATH: str | None = None
 
     @validator("API_V1_STR")
     @classmethod
@@ -81,7 +82,11 @@ class Settings(BaseSettings):
         if v:
             return v
         protocol = "http"
-        link = os.path.join(values.get("DOMAIN"), values.get("API_V1_STR")[1:], "docs")
+        root_path = values.get("ROOT_PATH", "/")
+        root_path = root_path[1:] if root_path is not None else ""
+        link = os.path.join(
+            values.get("DOMAIN"), root_path, values.get("API_V1_STR")[1:], "docs"
+        )
         return f"{protocol}://{link}"
 
     # BACKEND_CORS_ORIGINS is a JSON-formatted list of origins
