@@ -314,7 +314,7 @@ class NetworkQuotaBasePublic(QuotaBase):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -340,7 +340,7 @@ class NetworkQuotaBase(NetworkQuotaBasePublic):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -371,7 +371,7 @@ class NetworkQuotaCreate(BaseNodeCreate, NetworkQuotaBase):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -396,7 +396,7 @@ class NetworkQuotaUpdate(BaseNodeCreate, NetworkQuotaBase):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -442,7 +442,7 @@ class NetworkQuotaRead(BaseNodeRead, BaseReadPrivate, NetworkQuotaBase):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
