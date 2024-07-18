@@ -12,12 +12,15 @@ from fed_reg.models import (
 )
 from fed_reg.query import create_query_model
 from fed_reg.quota.constants import (
+    DOC_BYTES,
+    DOC_CONTAINERS,
     DOC_CORES,
     DOC_GB,
     DOC_GROUP_RULES,
     DOC_GROUPS,
     DOC_INST,
     DOC_NETS,
+    DOC_OBJECTS,
     DOC_PER_USER,
     DOC_PORT,
     DOC_PUB_IPS,
@@ -484,7 +487,9 @@ class ObjectStoreQuotaBase(ObjectStoreQuotaBasePublic):
         usage (str): This quota defines the current resource usage.
     """
 
-    # TODO: understand which fields must contain.
+    bytes: int = Field(default=-1, description=DOC_BYTES)
+    containers: int = Field(default=1000, description=DOC_CONTAINERS)
+    objects: int = Field(default=-1, description=DOC_OBJECTS)
 
 
 class ObjectStoreQuotaCreate(BaseNodeCreate, ObjectStoreQuotaBase):
