@@ -636,10 +636,9 @@ class ObjectStoreQuotaCreateExtended(ObjectStoreQuotaCreate):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
-        gigabytes (int | None): Number of max usable gigabytes (GiB).
-        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
-            (GiB).
-        volumes (int | None): Number of max volumes a user group can create.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects.
         project (str): Target project's UUID in the Provider.
     """
 

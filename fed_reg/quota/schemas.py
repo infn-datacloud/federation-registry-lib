@@ -485,6 +485,9 @@ class ObjectStoreQuotaBase(ObjectStoreQuotaBasePublic):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects.
     """
 
     bytes: int = Field(default=-1, description=DOC_BYTES)
@@ -504,6 +507,9 @@ class ObjectStoreQuotaCreate(BaseNodeCreate, ObjectStoreQuotaBase):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects
     """
 
 
@@ -521,7 +527,10 @@ class ObjectStoreQuotaUpdate(BaseNodeCreate, ObjectStoreQuotaBase):
         type (str | None): Quota type.
         per_user (str | None): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
-    """
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects
+"""
 
 
 class ObjectStoreQuotaReadPublic(
@@ -541,6 +550,9 @@ class ObjectStoreQuotaReadPublic(
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects
     """
 
 
@@ -559,6 +571,9 @@ class ObjectStoreQuotaRead(BaseNodeRead, BaseReadPrivate, ObjectStoreQuotaBase):
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects
     """
 
 

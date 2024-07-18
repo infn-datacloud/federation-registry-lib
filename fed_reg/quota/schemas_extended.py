@@ -327,6 +327,9 @@ class ObjectStoreQuotaReadExtended(
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects.
         project (ProjectRead): Target project.
         service (ObjectStoreServiceReadExtended): Target block storage service.
     """
