@@ -15,13 +15,19 @@ from fed_reg.location.models import Location
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.provider.models import Provider
-from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.quota.models import (
+    BlockStorageQuota,
+    ComputeQuota,
+    NetworkQuota,
+    ObjectStoreQuota,
+)
 from fed_reg.region.models import Region
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
+    ObjectStoreService,
 )
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
@@ -280,6 +286,37 @@ class CaseItemEndpointSchemaDir:
             "quota",
         )
 
+    def case_object_store_quota(
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        object_store_quota_model: ObjectStoreQuota,
+        object_store_service_model: ObjectStoreService,
+        project_model: Project,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, BlockStorageQuota, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(object_store_service_model)
+            object_store_service_model.quotas.connect(object_store_quota_model)
+            provider_model.projects.connect(project_model)
+            project_model.quotas.connect(object_store_quota_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return (
+            client,
+            with_conn,
+            single,
+            schema,
+            object_store_quota_model,
+            "object_store_quotas",
+            "quota",
+        )
+
     def case_region(
         self,
         with_conn: bool,
@@ -400,6 +437,32 @@ class CaseItemEndpointSchemaDir:
             "service",
         )
 
+    def case_object_store_service(
+        self,
+        with_conn: bool,
+        single: bool,
+        is_public: bool,
+        client_no_authn: TestClient,
+        client_with_token: TestClient,
+        object_store_service_model: ObjectStoreService,
+        provider_model: Provider,
+        region_model: Region,
+    ) -> tuple[TestClient, bool, bool, str, ObjectStoreService, str, str]:
+        if with_conn:
+            provider_model.regions.connect(region_model)
+            region_model.services.connect(object_store_service_model)
+        client = client_no_authn if is_public else client_with_token
+        schema = self._determine_schema(with_conn=with_conn, is_public=is_public)
+        return (
+            client,
+            with_conn,
+            single,
+            schema,
+            object_store_service_model,
+            "object_store_services",
+            "service",
+        )
+
     def case_sla(
         self,
         with_conn: bool,
@@ -454,41 +517,11 @@ class CaseItemEndpointSchemaDir:
         )
 
 
-# @parametrize_with_cases(
-#     "with_conn, single, schema, item, endpoint", cases=CaseItemEndpointSchemaPublic
-# )
-# def test_get_no_authn_verify_class(
-#     client_no_authn: TestClient,
-#     with_conn: bool,
-#     single: bool,
-#     item: Any,
-#     endpoint: str,
-#     schema: str,
-# ):
-#     settings = get_settings()
-#     if single:
-#         url = os.path.join(settings.API_V1_STR, endpoint, item.uid)
-#     else:
-#         url = os.path.join(settings.API_V1_STR, endpoint)
-
-#     resp = client_no_authn.get(url, params={"with_conn": with_conn})
-#     assert resp.status_code == status.HTTP_200_OK
-
-#     data = resp.json()
-#     if single:
-#         assert data is not None
-#     else:
-#         assert len(data) > 0
-#         data = data[0]
-
-#     assert data["schema_type"] == schema
-
-
 @parametrize_with_cases(
     "client, with_conn, single, schema, item, endpoint, dir",
     cases=CaseItemEndpointSchemaDir,
 )
-def test_get_authn_verify_class(
+def test_get_returned_schema(
     user_infos_with_read_email: UserInfos,
     client: TestClient,
     with_conn: bool,

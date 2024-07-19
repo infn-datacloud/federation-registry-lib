@@ -12,12 +12,15 @@ from fed_reg.models import (
 )
 from fed_reg.query import create_query_model
 from fed_reg.quota.constants import (
+    DOC_BYTES,
+    DOC_CONTAINERS,
     DOC_CORES,
     DOC_GB,
     DOC_GROUP_RULES,
     DOC_GROUPS,
     DOC_INST,
     DOC_NETS,
+    DOC_OBJECTS,
     DOC_PER_USER,
     DOC_PORT,
     DOC_PUB_IPS,
@@ -314,7 +317,7 @@ class NetworkQuotaBasePublic(QuotaBase):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -340,7 +343,7 @@ class NetworkQuotaBase(NetworkQuotaBasePublic):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -371,7 +374,7 @@ class NetworkQuotaCreate(BaseNodeCreate, NetworkQuotaBase):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -396,7 +399,7 @@ class NetworkQuotaUpdate(BaseNodeCreate, NetworkQuotaBase):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -442,7 +445,7 @@ class NetworkQuotaRead(BaseNodeRead, BaseReadPrivate, NetworkQuotaBase):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -451,3 +454,129 @@ class NetworkQuotaRead(BaseNodeRead, BaseReadPrivate, NetworkQuotaBase):
 
 
 NetworkQuotaQuery = create_query_model("NetworkQuotaQuery", NetworkQuotaBase)
+
+
+class ObjectStoreQuotaBasePublic(QuotaBase):
+    """Model with the Object Storage Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+    """
+
+    type: Literal[QuotaType.OBJECT_STORE] = Field(
+        default=QuotaType.OBJECT_STORE, description="Object storage type"
+    )
+
+
+class ObjectStoreQuotaBase(ObjectStoreQuotaBasePublic):
+    """Model with the Object Storage Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects.
+    """
+
+    bytes: int = Field(default=-1, description=DOC_BYTES)
+    containers: int = Field(default=1000, description=DOC_CONTAINERS)
+    objects: int = Field(default=-1, description=DOC_OBJECTS)
+
+
+class ObjectStoreQuotaCreate(BaseNodeCreate, ObjectStoreQuotaBase):
+    """Model to create a Object Storage Quota.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects
+    """
+
+
+class ObjectStoreQuotaUpdate(BaseNodeCreate, ObjectStoreQuotaBase):
+    """Model to update a Object Storage Quota.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
+
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        type (str | None): Quota type.
+        per_user (str | None): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects
+"""
+
+
+class ObjectStoreQuotaReadPublic(
+    BaseNodeRead, BaseReadPublic, ObjectStoreQuotaBasePublic
+):
+    """Model, for non-authenticated users, to read Object Storage data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects
+    """
+
+
+class ObjectStoreQuotaRead(BaseNodeRead, BaseReadPrivate, ObjectStoreQuotaBase):
+    """Model, for authenticated users, to read Object Storage data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects
+    """
+
+
+ObjectStoreQuotaQuery = create_query_model(
+    "ObjectStoreQuotaQuery", ObjectStoreQuotaBase
+)

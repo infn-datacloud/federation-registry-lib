@@ -105,7 +105,7 @@ class NetworkQuota(Quota):
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -120,4 +120,27 @@ class NetworkQuota(Quota):
 
     service = RelationshipTo(
         "fed_reg.service.models.NetworkService", "APPLY_TO", cardinality=One
+    )
+
+
+class ObjectStoreQuota(Quota):
+    """Resource limitations for Projects on Object Storage Services.
+
+    Object Storage quota limitations apply on a Object Storage Service.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+    """
+
+    bytes: int = IntegerProperty()
+    containers: int = IntegerProperty()
+    objects: int = IntegerProperty()
+
+    service = RelationshipTo(
+        "fed_reg.service.models.ObjectStoreService", "APPLY_TO", cardinality=One
     )

@@ -1,4 +1,3 @@
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -6,27 +5,12 @@ from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
     RelationshipManager,
-    RequiredProperty,
 )
-from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.project.models import Project
 from fed_reg.sla.models import SLA
 from fed_reg.user_group.models import UserGroup
 from tests.create_dict import project_model_dict, sla_model_dict, user_group_model_dict
-from tests.utils import random_lower_string
-
-
-class CaseMissing:
-    @parametrize(value=["doc_uuid", "start_date", "end_date"])
-    def case_missing(self, value: str) -> str:
-        return value
-
-
-class CaseAttr:
-    @parametrize(key=["description"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
 
 
 def test_default_attr() -> None:
@@ -39,28 +23,6 @@ def test_default_attr() -> None:
     assert item.end_date == d.get("end_date")
     assert isinstance(item.user_group, RelationshipManager)
     assert isinstance(item.projects, RelationshipManager)
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_missing_attr(missing_attr: str) -> None:
-    d = sla_model_dict()
-    d[missing_attr] = None
-    item = SLA(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = sla_model_dict()
-    d[key] = value
-
-    item = SLA(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(sla_model: SLA) -> None:

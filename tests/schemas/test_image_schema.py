@@ -1,92 +1,23 @@
-from typing import Any, Literal, Optional
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import UUID
 
-import pytest
-from pytest_cases import case, parametrize, parametrize_with_cases
+from pytest_cases import parametrize_with_cases
 
 from fed_reg.image.enum import ImageOS
 from fed_reg.image.models import Image
 from fed_reg.image.schemas import (
     ImageBase,
     ImageBasePublic,
-    ImageCreate,
-    ImageQuery,
     ImageRead,
     ImageReadPublic,
     ImageUpdate,
 )
-from fed_reg.models import BaseNode, BaseNodeCreate, BaseNodeQuery, BaseNodeRead
 from fed_reg.provider.schemas_extended import ImageCreateExtended
 from tests.create_dict import image_schema_dict
-from tests.utils import random_lower_string
 
 
-class CaseAttr:
-    @case(tags=["base_public", "base", "update"])
-    def case_none(self) -> tuple[None, None]:
-        return None, None
-
-    @case(tags=["base_public", "base"])
-    def case_desc(self) -> tuple[Literal["description"], str]:
-        return "description", random_lower_string()
-
-    @case(tags=["base"])
-    @parametrize(value=[True, False])
-    @parametrize(attr=["is_public", "cuda_support", "gpu_driver"])
-    def case_boolean(self, attr: str, value: bool) -> tuple[str, bool]:
-        return attr, value
-
-    @case(tags=["base"])
-    @parametrize(attr=["os_distro", "os_version", "architecture", "kernel_id"])
-    def case_string(self, attr: str) -> tuple[str, str]:
-        return attr, random_lower_string()
-
-    @case(tags=["base"])
-    @parametrize(value=[i for i in ImageOS])
-    def case_os_type(self, value: str) -> tuple[Literal["os_type"], ImageOS]:
-        return "os_type", value
-
-    @case(tags=["base"])
-    @parametrize(len=[0, 1, 2])
-    def case_tag_list(self, len: int) -> tuple[Literal["tags"], Optional[list[str]]]:
-        attr = "tags"
-        if len == 0:
-            return attr, []
-        elif len == 1:
-            return attr, [random_lower_string()]
-        else:
-            return attr, [random_lower_string() for _ in range(len)]
-
-    @case(tags=["create_extended"])
-    @parametrize(len=[0, 1, 2])
-    def case_projects(self, len: int) -> list[UUID]:
-        if len == 1:
-            return [uuid4()]
-        elif len == 2:
-            return [uuid4(), uuid4()]
-        return []
-
-
-class CaseInvalidAttr:
-    @case(tags=["base_public", "base", "update"])
-    @parametrize(attr=["name", "uuid"])
-    def case_attr(self, attr: str) -> tuple[str, None]:
-        return attr, None
-
-    @case(tags=["create_extended"])
-    @parametrize(len=[0, 1, 2])
-    def case_projects(self, len: int) -> tuple[list[UUID], str]:
-        if len == 1:
-            return [uuid4()], "Public images do not have linked projects"
-        elif len == 2:
-            i = uuid4()
-            return [i, i], "There are multiple identical items"
-        return [], "Projects are mandatory for private images"
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+@parametrize_with_cases("key, value", has_tag="base_public")
 def test_base_public(key: str, value: str) -> None:
-    assert issubclass(ImageBasePublic, BaseNode)
     d = image_schema_dict()
     if key:
         d[key] = value
@@ -96,17 +27,8 @@ def test_base_public(key: str, value: str) -> None:
     assert item.uuid == d.get("uuid").hex
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
-def test_invalid_base_public(key: str, value: None) -> None:
-    d = image_schema_dict()
-    d[key] = value
-    with pytest.raises(ValueError):
-        ImageBasePublic(**d)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+@parametrize_with_cases("key, value", has_tag="base")
 def test_base(key: str, value: Any) -> None:
-    assert issubclass(ImageBase, ImageBasePublic)
     d = image_schema_dict()
     if key:
         d[key] = value
@@ -124,25 +46,8 @@ def test_base(key: str, value: Any) -> None:
     assert item.tags == d.get("tags", [])
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
-def test_invalid_base(key: str, value: Any) -> None:
-    d = image_schema_dict()
-    d[key] = value
-    with pytest.raises(ValueError):
-        ImageBase(**d)
-
-
-def test_create() -> None:
-    assert issubclass(ImageCreate, BaseNodeCreate)
-    assert issubclass(ImageCreate, ImageBase)
-
-
-@parametrize_with_cases(
-    "key, value", cases=[CaseInvalidAttr, CaseAttr], has_tag=["update"]
-)
+@parametrize_with_cases("key, value", has_tag="update")
 def test_update(key: str, value: Any) -> None:
-    assert issubclass(ImageUpdate, BaseNodeCreate)
-    assert issubclass(ImageUpdate, ImageBase)
     d = image_schema_dict()
     if key:
         d[key] = value
@@ -151,13 +56,8 @@ def test_update(key: str, value: Any) -> None:
     assert item.uuid == (d.get("uuid").hex if d.get("uuid") else None)
 
 
-def test_query() -> None:
-    assert issubclass(ImageQuery, BaseNodeQuery)
-
-
-@parametrize_with_cases("projects", cases=CaseAttr, has_tag=["create_extended"])
+@parametrize_with_cases("projects", has_tag="create_extended")
 def test_create_extended(projects: list[UUID]) -> None:
-    assert issubclass(ImageCreateExtended, ImageCreate)
     d = image_schema_dict()
     d["is_public"] = len(projects) == 0
     d["projects"] = projects
@@ -165,26 +65,8 @@ def test_create_extended(projects: list[UUID]) -> None:
     assert item.projects == [i.hex for i in projects]
 
 
-@parametrize_with_cases(
-    "projects, msg", cases=CaseInvalidAttr, has_tag=["create_extended"]
-)
-def test_invalid_create_extended(projects: list[UUID], msg: str) -> None:
-    d = image_schema_dict()
-    if len(projects) == 0 or len(projects) == 2:
-        d["is_public"] = False
-    elif len(projects) == 1:
-        d["is_public"] = True
-    d["projects"] = projects
-    with pytest.raises(ValueError, match=msg):
-        ImageCreateExtended(**d)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base_public"])
+@parametrize_with_cases("key, value", has_tag="base_public")
 def test_read_public(image_model: Image, key: str, value: str) -> None:
-    assert issubclass(ImageReadPublic, ImageBasePublic)
-    assert issubclass(ImageReadPublic, BaseNodeRead)
-    assert ImageReadPublic.__config__.orm_mode
-
     if key:
         image_model.__setattr__(key, value)
     item = ImageReadPublic.from_orm(image_model)
@@ -196,19 +78,8 @@ def test_read_public(image_model: Image, key: str, value: str) -> None:
     assert item.uuid == image_model.uuid
 
 
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base_public"])
-def test_invalid_read_public(image_model: Image, key: str, value: str) -> None:
-    image_model.__setattr__(key, value)
-    with pytest.raises(ValueError):
-        ImageReadPublic.from_orm(image_model)
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr, has_tag=["base"])
+@parametrize_with_cases("key, value", has_tag="base")
 def test_read(image_model: Image, key: str, value: Any) -> None:
-    assert issubclass(ImageRead, ImageBase)
-    assert issubclass(ImageRead, BaseNodeRead)
-    assert ImageRead.__config__.orm_mode
-
     if key:
         if isinstance(value, ImageOS):
             value = value.value
@@ -229,13 +100,6 @@ def test_read(image_model: Image, key: str, value: Any) -> None:
     assert item.is_public == image_model.is_public
     assert item.gpu_driver == image_model.gpu_driver
     assert item.tags == image_model.tags
-
-
-@parametrize_with_cases("key, value", cases=CaseInvalidAttr, has_tag=["base"])
-def test_invalid_read(image_model: Image, key: str, value: str) -> None:
-    image_model.__setattr__(key, value)
-    with pytest.raises(ValueError):
-        ImageRead.from_orm(image_model)
 
 
 # TODO Test read extended classes

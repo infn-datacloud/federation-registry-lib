@@ -40,7 +40,7 @@ def filter_on_region_attr(
             for project in sla.projects:
                 for quota in project.quotas:
                     service = quota.service.single()
-                    if not service.region.get_or_none(**attrs):
+                    if not service.regions.get_or_none(**attrs):
                         project.quotas = project.quotas.exclude(uid=quota.uid)
                 if len(project.quotas) == 0:
                     sla.projects = sla.projects.exclude(uid=project.uid)

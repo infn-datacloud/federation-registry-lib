@@ -17,6 +17,8 @@ from fed_reg.quota.schemas import (
     ComputeQuotaReadPublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
+    ObjectStoreQuotaRead,
+    ObjectStoreQuotaReadPublic,
 )
 from fed_reg.region.constants import DOC_EXT_PROV
 from fed_reg.region.schemas import RegionRead, RegionReadPublic
@@ -44,6 +46,10 @@ from fed_reg.service.schemas import (
     NetworkServiceBasePublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
+    ObjectStoreServiceBase,
+    ObjectStoreServiceBasePublic,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceReadPublic,
 )
 
 
@@ -84,6 +90,7 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         gigabytes (int | None): Number of max usable gigabytes (GiB).
         per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
             (GiB).
@@ -102,6 +109,7 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         project (ProjectReadPublic): Target project.
     """
 
@@ -117,6 +125,7 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         cores (int | None): Number of max usable cores.
         instance (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
@@ -134,6 +143,7 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         project (ProjectReadPublic): Target project.
     """
 
@@ -149,10 +159,11 @@ class NetworkQuotaReadExtended(NetworkQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -171,6 +182,41 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        project (ProjectReadPublic): Target project.
+    """
+
+    project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
+
+
+class ObjectStoreQuotaReadExtended(ObjectStoreQuotaRead):
+    """Model to extend the ObjectStore Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects.
+        project (ProjectRead): Target project.
+    """
+
+    project: ProjectRead = Field(description=DOC_EXT_PROJ)
+
+
+class ObjectStoreQuotaReadExtendedPublic(ObjectStoreQuotaReadPublic):
+    """Model to extend the ObjectStore Quota public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         project (ProjectReadPublic): Target project.
     """
 
@@ -193,7 +239,7 @@ class BlockStorageServiceReadExtended(
         quotas (list of BlockStorageQuotaReadExtended): Quotas pointing to this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
     quotas: list[BlockStorageQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
 
 
@@ -212,7 +258,7 @@ class BlockStorageServiceReadExtendedPublic(
             service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
     quotas: list[BlockStorageQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
 
 
@@ -234,7 +280,7 @@ class ComputeServiceReadExtended(
         quotas (list of ComputeQuotaReadExtended): Quotas pointing to this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
     quotas: list[ComputeQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
     flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
     images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
@@ -257,7 +303,7 @@ class ComputeServiceReadExtendedPublic(
             service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
     quotas: list[ComputeQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
     flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
     images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
@@ -314,7 +360,7 @@ class NetworkServiceReadExtended(
         quotas (list of NetworkQuotaReadExtended): Quotas pointing to this service.
     """
 
-    region: RegionReadExtended = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
     quotas: list[NetworkQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
     networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
 
@@ -335,9 +381,51 @@ class NetworkServiceReadExtendedPublic(
             service.
     """
 
-    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
     quotas: list[NetworkQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
     networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
+
+
+class ObjectStoreServiceReadExtended(
+    BaseNodeRead, BaseReadPrivateExtended, ObjectStoreServiceBase
+):
+    """Model to extend the Object Storage Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtended): Region hosting this service.
+        quotas (list of ObjectStoreQuotaReadExtended): Quotas pointing to this
+            service.
+    """
+
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
+    quotas: list[ObjectStoreQuotaReadExtended] = Field(description=DOC_EXT_QUOTA)
+
+
+class ObjectStoreServiceReadExtendedPublic(
+    BaseNodeRead, BaseReadPublicExtended, ObjectStoreServiceBasePublic
+):
+    """Model to extend the Object Storage Service public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        region (RegionReadExtendedPublic): Region hosting this service.
+        quotas (list of ObjectStoreQuotaReadExtendedPublic): Quotas pointing to this
+            service.
+    """
+
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+    quotas: list[ObjectStoreQuotaReadExtendedPublic] = Field(
+        description=DOC_EXT_QUOTA
+    )
 
 
 class BlockStorageServiceReadSingle(BaseModel):
@@ -400,3 +488,20 @@ class NetworkServiceReadMulti(BaseModel):
     __root__: list[NetworkServiceReadExtended] | list[NetworkServiceRead] | list[
         NetworkServiceReadExtendedPublic
     ] | list[NetworkServiceReadPublic] = Field(..., discriminator="schema_type")
+
+
+class ObjectStoreServiceReadSingle(BaseModel):
+    __root__: (
+        ObjectStoreServiceReadExtended
+        | ObjectStoreServiceRead
+        | ObjectStoreServiceReadExtendedPublic
+        | ObjectStoreServiceReadPublic
+    ) = Field(..., discriminator="schema_type")
+
+
+class ObjectStoreServiceReadMulti(BaseModel):
+    __root__: list[ObjectStoreServiceReadExtended] | list[
+        ObjectStoreServiceRead
+    ] | list[ObjectStoreServiceReadExtendedPublic] | list[
+        ObjectStoreServiceReadPublic
+    ] = Field(..., discriminator="schema_type")

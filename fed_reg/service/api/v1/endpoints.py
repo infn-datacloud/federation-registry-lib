@@ -32,22 +32,26 @@ from fed_reg.service.api.dependencies import (
     valid_compute_service_id,
     valid_identity_service_id,
     valid_network_service_id,
+    valid_object_store_service_id,
     validate_new_block_storage_service_values,
     validate_new_compute_service_values,
     validate_new_identity_service_values,
     validate_new_network_service_values,
+    validate_new_object_store_service_values,
 )
 from fed_reg.service.crud import (
     block_storage_service_mng,
     compute_service_mng,
     identity_service_mng,
     network_service_mng,
+    object_store_service_mng,
 )
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
+    ObjectStoreService,
 )
 from fed_reg.service.schemas import (
     BlockStorageServiceQuery,
@@ -62,6 +66,9 @@ from fed_reg.service.schemas import (
     NetworkServiceQuery,
     NetworkServiceRead,
     NetworkServiceUpdate,
+    ObjectStoreServiceQuery,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceUpdate,
 )
 from fed_reg.service.schemas_extended import (
     BlockStorageServiceReadMulti,
@@ -72,6 +79,8 @@ from fed_reg.service.schemas_extended import (
     IdentityServiceReadSingle,
     NetworkServiceReadMulti,
     NetworkServiceReadSingle,
+    ObjectStoreServiceReadMulti,
+    ObjectStoreServiceReadSingle,
 )
 
 bs_router = APIRouter(prefix="/block_storage_services", tags=["block_storage_services"])
@@ -658,6 +667,157 @@ def delete_network_services(
     Only authenticated users can view this function.
     """
     if not network_service_mng.remove(db_obj=item):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete item",
+        )
+
+
+os_router = APIRouter(
+    prefix="/object_store_services", tags=["object_store_services"]
+)
+
+
+@os_router.get(
+    "/",
+    response_model=ObjectStoreServiceReadMulti,
+    summary="Read all ObjectStore services",
+    description="Retrieve all services stored in the database. \
+        It is possible to filter on services attributes and other \
+        common query parameters.",
+)
+@custom.decorate_view_func
+@db.read_transaction
+def get_object_store_services(
+    comm: DbQueryCommonParams = Depends(),
+    page: Pagination = Depends(),
+    size: SchemaSize = Depends(),
+    item: ObjectStoreServiceQuery = Depends(),
+    user_infos: UserInfos | None = Security(get_user_infos),
+):
+    """GET operation to retrieve all object storage services.
+
+    It can receive the following group op parameters:
+    - comm: parameters common to all DB queries to limit, skip or sort results.
+    - page: parameters to limit and select the number of results to return to the user.
+    - size: parameters to define the number of information contained in each result.
+    - item: parameters specific for this item typology. Used to apply filters.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
+    items = object_store_service_mng.get_multi(
+        **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
+    )
+    items = object_store_service_mng.paginate(
+        items=items, page=page.page, size=page.size
+    )
+    return object_store_service_mng.choose_out_schema(
+        items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
+    )
+
+
+@os_router.get(
+    "/{service_uid}",
+    response_model=ObjectStoreServiceReadSingle,
+    summary="Read a specific ObjectStore service",
+    description="Retrieve a specific service using its *uid*. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error.",
+)
+@custom.decorate_view_func
+@db.read_transaction
+def get_object_store_service(
+    size: SchemaSize = Depends(),
+    item: ObjectStoreService = Depends(valid_object_store_service_id),
+    user_infos: UserInfos | None = Security(get_user_infos),
+):
+    """GET operation to retrieve the object storage service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    It can receive the following group op parameters:
+    - size: parameters to define the number of information contained in each result.
+
+    Non-authenticated users can view this function. If the user is authenticated the
+    user_infos object is not None and it is used to determine the data to return to the
+    user.
+    """
+    return object_store_service_mng.choose_out_schema(
+        items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
+    )[0]
+
+
+@os_router.patch(
+    "/{service_uid}",
+    status_code=status.HTTP_200_OK,
+    response_model=Optional[ObjectStoreServiceRead],
+    dependencies=[
+        Depends(validate_new_object_store_service_values),
+    ],
+    summary="Edit a specific ObjectStore service",
+    description="Update attribute values of a specific service. \
+        The target service is identified using its uid. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. If new values equal \
+        current ones, the database entity is left unchanged \
+        and the endpoint returns the `not modified` message. \
+        At first validate new service values checking there are \
+        no other items with the given *endpoint*.",
+)
+@flaat.access_level("write")
+@db.write_transaction
+def put_object_store_service(
+    request: Request,
+    update_data: ObjectStoreServiceUpdate,
+    response: Response,
+    item: ObjectStoreService = Depends(valid_object_store_service_id),
+    client_credentials: HTTPBasicCredentials = Security(security),
+):
+    """PATCH operation to update the object storage service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence. It also
+    expects the new data to write in the database. It updates only the item attributes,
+    not its relationships.
+
+    If the new data equals the current data, no update is performed and the function
+    returns a response with an empty body and the 304 status code.
+
+    Only authenticated users can view this function.
+    """
+    db_item = object_store_service_mng.update(db_obj=item, obj_in=update_data)
+    if not db_item:
+        response.status_code = status.HTTP_304_NOT_MODIFIED
+    return db_item
+
+
+@os_router.delete(
+    "/{service_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete a specific ObjectStore service",
+    description="Delete a specific service using its *uid*. \
+        Returns `no content`. \
+        If no entity matches the given *uid*, the endpoint \
+        raises a `not found` error. \
+        On cascade, delete related quotas. \
+        If the deletion procedure fails, raises a `internal \
+        server` error",
+)
+@flaat.access_level("write")
+@db.write_transaction
+def delete_object_store_services(
+    request: Request,
+    item: ObjectStoreService = Depends(valid_object_store_service_id),
+    client_credentials: HTTPBasicCredentials = Security(security),
+):
+    """DELETE operation to remove the object storage service matching a specific uid.
+
+    The endpoints expect a uid and uses a dependency to check its existence.
+
+    Only authenticated users can view this function.
+    """
+    if not object_store_service_mng.remove(db_obj=item):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete item",

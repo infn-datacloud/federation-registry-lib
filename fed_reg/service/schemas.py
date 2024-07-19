@@ -17,6 +17,7 @@ from fed_reg.service.enum import (
     ComputeServiceName,
     IdentityServiceName,
     NetworkServiceName,
+    ObjectStoreServiceName,
     ServiceType,
 )
 
@@ -462,3 +463,113 @@ class NetworkServiceRead(BaseNodeRead, BaseReadPrivate, NetworkServiceBase):
 
 
 NetworkServiceQuery = create_query_model("NetworkServiceQuery", NetworkServiceBase)
+
+
+class ObjectStoreServiceBasePublic(ServiceBase):
+    """Model with the Object Storage Service public and restricted attributes.
+
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+    """
+
+    type: Literal[ServiceType.OBJECT_STORE] = Field(
+        default=ServiceType.OBJECT_STORE, description="Object Storage service type."
+    )
+
+
+class ObjectStoreServiceBase(ObjectStoreServiceBasePublic):
+    """Model with the Object Storage Service public and restricted attributes.
+
+    Model derived from ServiceBase to inherit attributes common to all services.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+    """
+
+    name: ObjectStoreServiceName = Field(description=DOC_NAME)
+
+
+class ObjectStoreServiceCreate(BaseNodeCreate, ObjectStoreServiceBase):
+    """Model to create a Object Storage Service.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+    """
+
+
+class ObjectStoreServiceUpdate(BaseNodeCreate, ObjectStoreServiceBase):
+    """Model to update a Object Storage service.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
+
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        endpoint (str | None): URL of the IaaS Service.
+        type (str | None): Service type.
+        name (str | None): Service name. Depends on type.
+    """
+
+    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
+    name: Optional[ObjectStoreServiceName] = Field(default=None, description=DOC_NAME)
+
+
+class ObjectStoreServiceReadPublic(
+    BaseNodeRead, BaseReadPublic, ObjectStoreServiceBasePublic
+):
+    """Model, for non-authenticated users, to read Object Storage data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+    """
+
+
+class ObjectStoreServiceRead(BaseNodeRead, BaseReadPrivate, ObjectStoreServiceBase):
+    """Model, for authenticated users, to read Object Storage data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+    """
+
+
+ObjectStoreServiceQuery = create_query_model(
+    "ObjectStoreServiceQuery", ObjectStoreServiceBase
+)
