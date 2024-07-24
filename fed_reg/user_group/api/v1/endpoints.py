@@ -110,8 +110,10 @@ def get_user_groups(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
     if idp_endpoint:
-        items = filter(
-            lambda x: x.identity_provider.single().endpoint == idp_endpoint, items
+        items = list(
+            filter(
+                lambda x: x.identity_provider.single().endpoint == idp_endpoint, items
+            )
         )
 
     if provider_type:
