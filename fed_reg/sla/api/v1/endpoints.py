@@ -13,9 +13,10 @@ from fastapi import (
     status,
 )
 from fastapi.security import HTTPBasicCredentials
+from flaat.user_infos import UserInfos
 from neomodel import db
 
-from fed_reg.auth import custom, flaat, lazy_security, security
+from fed_reg.auth import custom, flaat, get_user_infos, security
 
 # from app.project.api.dependencies import project_has_no_sla
 # from app.project.models import Project
@@ -50,12 +51,11 @@ router = APIRouter(prefix="/slas", tags=["slas"])
 @custom.decorate_view_func
 @db.read_transaction
 def get_slas(
-    request: Request,
     comm: DbQueryCommonParams = Depends(),
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: SLAQuery = Depends(),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve all SLAs.
 
@@ -69,10 +69,6 @@ def get_slas(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     items = sla_mng.get_multi(
         **comm.dict(exclude_none=True), **item.dict(exclude_none=True)
     )
@@ -134,10 +130,9 @@ def get_slas(
 @custom.decorate_view_func
 @db.read_transaction
 def get_sla(
-    request: Request,
     size: SchemaSize = Depends(),
     item: SLA = Depends(valid_sla_id),
-    client_credentials: HTTPBasicCredentials = Security(lazy_security),
+    user_infos: UserInfos | None = Security(get_user_infos),
 ):
     """GET operation to retrieve the SLA matching a specific uid.
 
@@ -150,10 +145,6 @@ def get_sla(
     user_infos object is not None and it is used to determine the data to return to the
     user.
     """
-    if client_credentials:
-        user_infos = flaat.get_user_infos_from_request(request)
-    else:
-        user_infos = None
     return sla_mng.choose_out_schema(
         items=[item], auth=user_infos, short=size.short, with_conn=size.with_conn
     )[0]

@@ -16,8 +16,14 @@ from fed_reg.quota.crud import (
     block_storage_quota_mng,
     compute_quota_mng,
     network_quota_mng,
+    object_store_quota_mng,
 )
-from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.quota.models import (
+    BlockStorageQuota,
+    ComputeQuota,
+    NetworkQuota,
+    ObjectStoreQuota,
+)
 from fed_reg.sla.crud import sla_mng
 
 
@@ -56,6 +62,8 @@ class CRUDProject(
                 compute_quota_mng.remove(db_obj=item)
             elif isinstance(item, NetworkQuota):
                 network_quota_mng.remove(db_obj=item)
+            elif isinstance(item, ObjectStoreQuota):
+                object_store_quota_mng.remove(db_obj=item)
         item = db_obj.sla.single()
         if item and len(item.projects) == 1:
             sla_mng.remove(db_obj=item)

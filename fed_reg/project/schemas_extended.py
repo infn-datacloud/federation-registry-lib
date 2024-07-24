@@ -37,6 +37,8 @@ from fed_reg.quota.schemas import (
     ComputeQuotaReadPublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
+    ObjectStoreQuotaRead,
+    ObjectStoreQuotaReadPublic,
 )
 from fed_reg.region.schemas import RegionRead, RegionReadPublic
 from fed_reg.service.constants import DOC_EXT_REG
@@ -47,6 +49,8 @@ from fed_reg.service.schemas import (
     ComputeServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceReadPublic,
 )
 from fed_reg.sla.constants import DOC_EXT_GROUP
 from fed_reg.sla.schemas import SLARead, SLAReadPublic
@@ -67,7 +71,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    regions: list[RegionRead] = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
@@ -81,7 +85,7 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
         region (RegionReadPublic): Region hosting this service.
     """
 
-    region: RegionReadPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadPublic] = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
@@ -97,7 +101,7 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    regions: list[RegionRead] = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
@@ -111,7 +115,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         region (RegionReadPublic): Region hosting this service.
     """
 
-    region: RegionReadPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadPublic] = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtended(NetworkServiceRead):
@@ -127,7 +131,7 @@ class NetworkServiceReadExtended(NetworkServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    regions: list[RegionRead] = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
@@ -141,7 +145,37 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         region (RegionReadPublic): Region hosting this service.
     """
 
-    region: RegionReadPublic = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadPublic] = Field(description=DOC_EXT_REG)
+
+
+class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
+    """Model to extend the Object Storage Service data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionRead): Region hosting this service.
+    """
+
+    regions: list[RegionRead] = Field(description=DOC_EXT_REG)
+
+
+class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
+    """Model to extend the Object Storage Service public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        region (RegionReadPublic): Region hosting this service.
+    """
+
+    regions: list[RegionReadPublic] = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
@@ -153,6 +187,7 @@ class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         gigabytes (int | None): Number of max usable gigabytes (GiB).
         per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
             (GiB).
@@ -171,6 +206,7 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         service (BlockStorageServiceReadExtendedPublic): Target service. Same type of
             quota.
     """
@@ -187,6 +223,7 @@ class ComputeQuotaReadExtended(ComputeQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         cores (int | None): Number of max usable cores.
         instance (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
@@ -204,6 +241,7 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         service (ComputeServiceReadExtendedPublic): Target service. Same type of quota.
     """
 
@@ -219,10 +257,11 @@ class NetworkQuotaReadExtended(NetworkQuotaRead):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
@@ -241,10 +280,46 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
         uid (int): Quota unique ID.
         description (str): Brief description.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         service (NetworkServiceReadExtendedPublic): Target service. Same type of quota.
     """
 
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+
+
+class ObjectStoreQuotaReadExtended(ObjectStoreQuotaRead):
+    """Model to extend the Object Storage Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects.
+        service (ObjectStoreServiceReadExtended): Target service. Same type of quota.
+    """
+
+    service: ObjectStoreServiceReadExtended = Field(description=DOC_EXT_SERV)
+
+
+class ObjectStoreQuotaReadExtendedPublic(ObjectStoreQuotaReadPublic):
+    """Model to extend the Object Storage Quota public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        service (ObjectStoreServiceReadExtendedPublic): Target service. Same type of
+            quota.
+    """
+
+    service: ObjectStoreServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
@@ -382,6 +457,7 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
         ComputeQuotaReadExtended
         | BlockStorageQuotaReadExtended
         | NetworkQuotaReadExtended
+        | ObjectStoreQuotaReadExtended
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtended] = Field(default=None, description=DOC_EXT_SLA)
 
@@ -425,6 +501,7 @@ class ProjectReadExtendedPublic(
         ComputeQuotaReadExtendedPublic
         | BlockStorageQuotaReadExtendedPublic
         | NetworkQuotaReadExtendedPublic
+        | ObjectStoreQuotaReadExtendedPublic
     ] = Field(description=DOC_EXT_QUOTA)
     sla: Optional[SLAReadExtendedPublic] = Field(default=None, description=DOC_EXT_SLA)
 

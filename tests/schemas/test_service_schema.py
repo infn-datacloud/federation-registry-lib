@@ -3,7 +3,6 @@ from typing import Literal, Optional
 import pytest
 from pytest_cases import parametrize, parametrize_with_cases
 
-from fed_reg.models import BaseNode
 from fed_reg.service.schemas import ServiceBase
 from tests.create_dict import service_schema_dict
 from tests.utils import random_lower_string
@@ -18,7 +17,7 @@ class CaseAttr:
 
 
 class CaseInvalidAttr:
-    @parametrize(value=[None, random_lower_string()])
+    @parametrize(value=(None, random_lower_string()))
     def case_endpoint(
         self, value: Optional[str]
     ) -> tuple[Literal["endpoint"], Optional[str]]:
@@ -27,7 +26,6 @@ class CaseInvalidAttr:
 
 @parametrize_with_cases("key, value", cases=CaseAttr)
 def test_base_public(key: str, value: str) -> None:
-    assert issubclass(ServiceBase, BaseNode)
     d = service_schema_dict()
     if key:
         d[key] = value

@@ -1,4 +1,5 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
+
 from typing import Any, Dict, Optional, Set
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -50,6 +51,9 @@ from fed_reg.quota.schemas import (
     NetworkQuotaCreate,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
+    ObjectStoreQuotaCreate,
+    ObjectStoreQuotaRead,
+    ObjectStoreQuotaReadPublic,
 )
 from fed_reg.region.constants import DOC_EXT_LOC, DOC_EXT_SERV
 from fed_reg.region.schemas import RegionCreate, RegionRead, RegionReadPublic
@@ -72,6 +76,9 @@ from fed_reg.service.schemas import (
     NetworkServiceCreate,
     NetworkServiceRead,
     NetworkServiceReadPublic,
+    ObjectStoreServiceCreate,
+    ObjectStoreServiceRead,
+    ObjectStoreServiceReadPublic,
 )
 from fed_reg.sla.schemas import SLACreate, SLARead, SLAReadPublic
 from fed_reg.user_group.constants import DOC_EXT_SLA
@@ -275,6 +282,43 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     )
 
 
+class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
+    """Model to extend the Object Storage Service data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        quotas (list of ObjectStoreQuotaReadExtended): Quotas pointing to this
+            service.
+    """
+
+    quotas: list[ObjectStoreQuotaRead] = Field(
+        default_factory=list, description=DOC_EXT_QUOTA
+    )
+
+
+class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
+    """Model to extend the Object Storage Service data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        region (RegionReadExtendedPublic): Region hosting this service.
+        quotas (list of ObjectStoreQuotaReadExtendedPublic): Quotas pointing to this
+            service.
+    """
+
+    quotas: list[ObjectStoreQuotaReadPublic] = Field(
+        default_factory=list, description=DOC_EXT_QUOTA
+    )
+
+
 class RegionReadExtended(RegionRead):
     """Model to extend the Region data read from the DB.
 
@@ -294,6 +338,7 @@ class RegionReadExtended(RegionRead):
         | ComputeServiceReadExtended
         | IdentityServiceRead
         | NetworkServiceReadExtended
+        | ObjectStoreServiceReadExtended
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
@@ -318,6 +363,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
         | ComputeServiceReadExtendedPublic
         | IdentityServiceReadPublic
         | NetworkServiceReadExtendedPublic
+        | ObjectStoreServiceReadExtendedPublic
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
@@ -379,9 +425,12 @@ class ProviderReadSingle(BaseModel):
 
 
 class ProviderReadMulti(BaseModel):
-    __root__: list[ProviderReadExtended] | list[ProviderRead] | list[
-        ProviderReadExtendedPublic
-    ] | list[ProviderReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[ProviderReadExtended]
+        | list[ProviderRead]
+        | list[ProviderReadExtendedPublic]
+        | list[ProviderReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 # CREATE CLASSES
@@ -409,19 +458,26 @@ def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
 def multiple_quotas_same_project(quotas: list[Any]) -> None:
     """Verify maximum number of quotas on same project.
 
-    A project can have at most one `project` quota and one `per-user` quota on a
-    specific service.
+    A project can have at most one `project` quota, one `per-user` quota and one `usage`
+    quota on a specific service.
     """
     d = {}
     for quota in quotas:
         if quota.project is not None:
             msg = f"Multiple quotas on same project {quota.project}"
-            q = d.get(quota.project)
-            if not q:
-                d[quota.project] = [1, quota.per_user]
+            if not d.get(quota.project, None):
+                d[quota.project] = [0, 0, 0]
+            if quota.usage:
+                d[quota.project][2] += 1
+            elif quota.per_user:
+                d[quota.project][1] += 1
             else:
-                q[0] += 1
-                assert q[0] <= 2 and q[1] != quota.per_user, msg
+                d[quota.project][0] += 1
+            assert (
+                d[quota.project][0] < 2
+                and d[quota.project][1] < 2
+                and d[quota.project][2] < 2
+            ), msg
 
 
 def find_duplicate_projects(project: str, seen: Set[str]) -> None:
@@ -519,6 +575,7 @@ class BlockStorageQuotaCreateExtended(BlockStorageQuotaCreate):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         gigabytes (int | None): Number of max usable gigabytes (GiB).
         per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
             (GiB).
@@ -537,6 +594,7 @@ class ComputeQuotaCreateExtended(ComputeQuotaCreate):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         cores (int | None): Number of max usable cores.
         instances (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
@@ -554,14 +612,33 @@ class NetworkQuotaCreateExtended(NetworkQuotaCreate):
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
         public_ips (int | None): The number of floating IP addresses allowed for each
             project.
         networks (int | None): The number of networks allowed for each project.
-        port (int | None): The number of ports allowed for each project.
+        ports (int | None): The number of ports allowed for each project.
         security_groups (int | None): The number of security groups allowed for each
             project.
         security_group_rules (int | None): The number of security group rules allowed
             for each project.
+        project (str): Target project's UUID in the Provider.
+    """
+
+    project: str = Field(description=DOC_NEW_PROJ_UUID)
+
+
+class ObjectStoreQuotaCreateExtended(ObjectStoreQuotaCreate):
+    """Model to extend the Object Storage Quota data to add to the DB.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        bytes (int): Maximum number of allowed bytes.
+        containers (int): Maximum number of allowed containers.
+        objects (int): Maximum number of allowed objects.
         project (str): Target project's UUID in the Provider.
     """
 
@@ -814,6 +891,33 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
         return v
 
 
+class ObjectStoreServiceCreateExtended(ObjectStoreServiceCreate):
+    """Model to extend the Object Storage Service data to add to the DB.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name. Depends on type.
+        quotas (list of ObjectStoreQuotaCreateExtended): Quotas pointing to this
+            service.
+    """
+
+    quotas: list[ObjectStoreQuotaCreateExtended] = Field(
+        default_factory=list, description=DOC_EXT_QUOTA
+    )
+
+    @validator("quotas")
+    @classmethod
+    def max_two_quotas_on_same_project(
+        cls, v: list[ObjectStoreQuotaCreateExtended]
+    ) -> list[ObjectStoreQuotaCreateExtended]:
+        """Verify maximum number of quotas on same project."""
+        multiple_quotas_same_project(v)
+        return v
+
+
 class RegionCreateExtended(RegionCreate):
     """Model to extend the Region data to add to the DB.
 
@@ -832,6 +936,8 @@ class RegionCreateExtended(RegionCreate):
             services.
         network_services (list of NetworkServiceCreateExtended): Supplied network
             services.
+        object_store_services (list of ObjectStoreServiceCreateExtended): Supplied
+            object storage services.
     """
 
     location: Optional[LocationCreate] = Field(default=None, description=DOC_EXT_LOC)
@@ -847,12 +953,16 @@ class RegionCreateExtended(RegionCreate):
     network_services: list[NetworkServiceCreateExtended] = Field(
         default_factory=list, description=DOC_NEW_SERV_NET
     )
+    object_store_services: list[ObjectStoreServiceCreateExtended] = Field(
+        default_factory=list, description=DOC_NEW_SERV_BLO_STO
+    )
 
     @validator(
         "block_storage_services",
         "compute_services",
         "identity_services",
         "network_services",
+        "object_store_services",
     )
     @classmethod
     def validate_services(
@@ -860,12 +970,14 @@ class RegionCreateExtended(RegionCreate):
         v: list[BlockStorageServiceCreateExtended]
         | list[ComputeServiceCreateExtended]
         | list[IdentityServiceCreate]
-        | list[NetworkServiceCreateExtended],
+        | list[NetworkServiceCreateExtended]
+        | list[ObjectStoreServiceCreateExtended],
     ) -> (
         list[BlockStorageServiceCreateExtended]
         | list[ComputeServiceCreateExtended]
         | list[IdentityServiceCreate]
         | list[NetworkServiceCreateExtended]
+        | list[ObjectStoreServiceCreateExtended]
     ):
         """Verify there are no duplicated endpoints in the service lists."""
         find_duplicates(v, "endpoint")
@@ -953,6 +1065,9 @@ class ProviderCreateExtended(ProviderCreate):
             )
             cls.__check_compute_service_projects(region.compute_services, projects)
             cls.__check_network_service_projects(region.network_services, projects)
+            cls.__check_object_store_service_projects(
+                region.object_store_services, projects
+            )
         return v
 
     @classmethod
@@ -1000,3 +1115,15 @@ class ProviderCreateExtended(ProviderCreate):
                 )
             for quota in service.quotas:
                 proj_in_provider(quota.project, projects, parent="Network quota")
+
+    @classmethod
+    def __check_object_store_service_projects(
+        cls, services: list[ObjectStoreServiceCreateExtended], projects: list[str]
+    ) -> None:
+        """Check Object Storage service's projects.
+
+        Check quotas' projects belong to the provider.
+        """
+        for service in services:
+            for quota in service.quotas:
+                proj_in_provider(quota.project, projects, parent="Object Storage quota")

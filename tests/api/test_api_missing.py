@@ -18,11 +18,13 @@ class CaseItemNameEndpoint:
                 ("Block Storage Quota", "block_storage_quotas"),
                 ("Compute Quota", "compute_quotas"),
                 ("Network Quota", "network_quotas"),
+                ("Object Storage Quota", "object_store_quotas"),
                 ("Region", "regions"),
                 ("Block Storage Service", "block_storage_services"),
                 ("Compute Service", "compute_services"),
                 ("Identity Service", "identity_services"),
                 ("Network Service", "network_services"),
+                ("Object Storage Service", "object_store_services"),
                 ("SLA", "slas"),
                 ("User Group", "user_groups"),
             ]

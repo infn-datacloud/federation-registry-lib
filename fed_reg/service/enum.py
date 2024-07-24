@@ -26,6 +26,13 @@ class NetworkServiceName(str, Enum):
     OPENSTACK_NEUTRON: str = "org.openstack.neutron"
 
 
+class ObjectStoreServiceName(str, Enum):
+    """Possible IaaS object storage services names."""
+
+    OPENSTACK_SWIFT: str = "org.openstack.swift"
+    OPENSTACK_SWIFT_S3: str = "org.openstack.swift-s3"
+
+
 class ServiceType(str, Enum):
     """Possible IaaS services types."""
 
@@ -33,3 +40,4 @@ class ServiceType(str, Enum):
     COMPUTE: str = "compute"
     IDENTITY: str = "identity"
     NETWORK: str = "network"
+    OBJECT_STORE: str = "object-store"

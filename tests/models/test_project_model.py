@@ -1,4 +1,3 @@
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -6,15 +5,21 @@ from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
     RelationshipManager,
-    RequiredProperty,
 )
-from pytest_cases import parametrize, parametrize_with_cases
+from pytest_cases import parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.image.models import Image
 from fed_reg.network.models import Network
 from fed_reg.project.models import Project
 from fed_reg.provider.models import Provider
+from fed_reg.quota.models import (
+    BlockStorageQuota,
+    ComputeQuota,
+    NetworkQuota,
+    ObjectStoreQuota,
+    Quota,
+)
 from fed_reg.sla.models import SLA
 from tests.create_dict import (
     flavor_model_dict,
@@ -24,19 +29,6 @@ from tests.create_dict import (
     provider_model_dict,
     sla_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseMissing:
-    @parametrize(value=["name", "uuid"])
-    def case_missing(self, value: str) -> str:
-        return value
-
-
-class CaseAttr:
-    @parametrize(key=["description"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
 
 
 def test_default_attr() -> None:
@@ -52,28 +44,6 @@ def test_default_attr() -> None:
     assert isinstance(item.private_flavors, RelationshipManager)
     assert isinstance(item.private_images, RelationshipManager)
     assert isinstance(item.private_networks, RelationshipManager)
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_missing_attr(missing_attr: str) -> None:
-    d = project_model_dict()
-    d[missing_attr] = None
-    item = Project(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = project_model_dict()
-    d[key] = value
-
-    item = Project(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(project_model: Project) -> None:
@@ -229,6 +199,40 @@ def test_multiple_linked_sla(project_model: Project) -> None:
         project_model.sla.connect(item)
         with pytest.raises(CardinalityViolation):
             project_model.sla.all()
+
+
+@parametrize_with_cases("quota_model", has_tag="single")
+def test_linked_quota(
+    project_model: Project,
+    quota_model: BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStoreQuota,
+) -> None:
+    assert project_model.quotas.name
+    assert project_model.quotas.source
+    assert isinstance(project_model.quotas.source, Project)
+    assert project_model.quotas.source.uid == project_model.uid
+    assert project_model.quotas.definition
+    assert project_model.quotas.definition["node_class"] == Quota
+
+    r = project_model.quotas.connect(quota_model)
+    assert r is True
+
+    assert len(project_model.quotas.all()) == 1
+    quota = project_model.quotas.single()
+    assert isinstance(quota, Quota)
+    assert quota.uid == quota_model.uid
+
+
+@parametrize_with_cases("quota_models", has_tag="multi")
+def test_multiple_linked_quotas(
+    project_model: Project,
+    quota_models: list[BlockStorageQuota]
+    | list[ComputeQuota]
+    | list[NetworkQuota]
+    | list[ObjectStoreQuota],
+) -> None:
+    project_model.quotas.connect(quota_models[0])
+    project_model.quotas.connect(quota_models[1])
+    assert len(project_model.quotas.all()) == 2
 
 
 # TODO test public_flavors

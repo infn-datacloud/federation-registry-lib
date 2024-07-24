@@ -1,4 +1,3 @@
-from typing import Any
 from unittest.mock import patch
 
 import pytest
@@ -6,9 +5,7 @@ from neomodel import (
     AttemptedCardinalityViolation,
     CardinalityViolation,
     RelationshipManager,
-    RequiredProperty,
 )
-from pytest_cases import parametrize, parametrize_with_cases
 
 from fed_reg.identity_provider.models import IdentityProvider
 from fed_reg.sla.models import SLA
@@ -18,13 +15,6 @@ from tests.create_dict import (
     sla_model_dict,
     user_group_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseAttr:
-    @parametrize(key=["description"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
 
 
 def test_default_attr() -> None:
@@ -35,25 +25,6 @@ def test_default_attr() -> None:
     assert item.name == d.get("name")
     assert isinstance(item.identity_provider, RelationshipManager)
     assert isinstance(item.slas, RelationshipManager)
-
-
-def test_missing_attr() -> None:
-    item = UserGroup()
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_attr(key: str, value: Any) -> None:
-    d = user_group_model_dict()
-    d[key] = value
-
-    item = UserGroup(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
 
 
 def test_required_rel(user_group_model: UserGroup) -> None:

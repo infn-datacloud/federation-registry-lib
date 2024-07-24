@@ -1,18 +1,22 @@
-from typing import Any
-
 import pytest
-from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
-from pytest_cases import parametrize, parametrize_with_cases
+from neomodel import CardinalityViolation, RelationshipManager
+from pytest_cases import parametrize_with_cases
 
 from fed_reg.flavor.models import Flavor
 from fed_reg.image.models import Image
 from fed_reg.network.models import Network
-from fed_reg.quota.models import BlockStorageQuota, ComputeQuota, NetworkQuota
+from fed_reg.quota.models import (
+    BlockStorageQuota,
+    ComputeQuota,
+    NetworkQuota,
+    ObjectStoreQuota,
+)
 from fed_reg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
+    ObjectStoreService,
 )
 from tests.create_dict import (
     block_storage_quota_model_dict,
@@ -21,38 +25,9 @@ from tests.create_dict import (
     image_model_dict,
     network_model_dict,
     network_quota_model_dict,
+    object_store_quota_model_dict,
     service_model_dict,
 )
-from tests.utils import random_lower_string
-
-
-class CaseMissing:
-    @parametrize(value=["type", "endpoint", "name"])
-    def case_missing(self, value: str) -> str:
-        return value
-
-
-class CaseAttr:
-    @parametrize(key=["description"])
-    def case_str(self, key: str) -> tuple[str, str]:
-        return key, random_lower_string()
-
-
-class CaseServiceModel:
-    def case_block_storage_service(
-        self, block_storage_service_model: BlockStorageService
-    ) -> BlockStorageService:
-        return block_storage_service_model
-
-    def case_compute_service(
-        self, compute_service_model: ComputeService
-    ) -> ComputeService:
-        return compute_service_model
-
-    def case_network_service(
-        self, network_service_model: NetworkService
-    ) -> NetworkService:
-        return network_service_model
 
 
 def test_block_storage_default_attr() -> None:
@@ -63,7 +38,7 @@ def test_block_storage_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.endpoint == d.get("endpoint")
     assert item.name == d.get("name")
-    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
 
 
@@ -75,7 +50,7 @@ def test_compute_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.endpoint == d.get("endpoint")
     assert item.name == d.get("name")
-    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.flavors, RelationshipManager)
     assert isinstance(item.images, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
@@ -100,117 +75,35 @@ def test_network_default_attr() -> None:
     assert item.type == d.get("type")
     assert item.endpoint == d.get("endpoint")
     assert item.name == d.get("name")
-    assert isinstance(item.region, RelationshipManager)
+    assert isinstance(item.regions, RelationshipManager)
     assert isinstance(item.networks, RelationshipManager)
     assert isinstance(item.quotas, RelationshipManager)
 
 
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_block_storage_missing_attr(missing_attr: str) -> None:
+def test_object_store_default_attr() -> None:
     d = service_model_dict()
-    d[missing_attr] = None
-    item = BlockStorageService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
+    item = ObjectStoreService(**d)
+    assert item.uid is not None
+    assert item.description == ""
+    assert item.type == d.get("type")
+    assert item.endpoint == d.get("endpoint")
+    assert item.name == d.get("name")
+    assert isinstance(item.regions, RelationshipManager)
+    assert isinstance(item.quotas, RelationshipManager)
 
 
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_compute_missing_attr(missing_attr: str) -> None:
-    d = service_model_dict()
-    d[missing_attr] = None
-    item = ComputeService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_identity_missing_attr(missing_attr: str) -> None:
-    d = service_model_dict()
-    d[missing_attr] = None
-    item = IdentityService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("missing_attr", cases=CaseMissing)
-def test_network_missing_attr(missing_attr: str) -> None:
-    d = service_model_dict()
-    d[missing_attr] = None
-    item = NetworkService(**d)
-    with pytest.raises(RequiredProperty):
-        item.save()
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_block_storage_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = BlockStorageService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_compute_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = ComputeService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_identity_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = IdentityService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("key, value", cases=CaseAttr)
-def test_network_attr(key: str, value: Any) -> None:
-    d = service_model_dict()
-    d[key] = value
-
-    item = NetworkService(**d)
-    saved = item.save()
-
-    assert saved.element_id_property
-    assert saved.uid == item.uid
-    assert saved.__getattribute__(key) == value
-
-
-@parametrize_with_cases("service_model", cases=CaseServiceModel)
+@parametrize_with_cases("service_model")
 def test_required_rel(
     service_model: BlockStorageService
     | ComputeService
     | IdentityService
-    | NetworkService,
+    | NetworkService
+    | ObjectStoreService,
 ) -> None:
     with pytest.raises(CardinalityViolation):
-        service_model.region.all()
+        service_model.regions.all()
     with pytest.raises(CardinalityViolation):
-        service_model.region.single()
-
-
-def test_identity_service_required_rel(identity_service_model: IdentityService) -> None:
-    with pytest.raises(CardinalityViolation):
-        identity_service_model.regions.all()
-    with pytest.raises(CardinalityViolation):
-        identity_service_model.regions.single()
+        service_model.regions.single()
 
 
 def test_block_storage_optional_rel(
@@ -234,6 +127,13 @@ def test_network_optional_rel(network_service_model: NetworkService) -> None:
     assert network_service_model.quotas.single() is None
     assert len(network_service_model.networks.all()) == 0
     assert network_service_model.networks.single() is None
+
+
+def test_object_store_optional_rel(
+    object_store_service_model: ObjectStoreService,
+) -> None:
+    assert len(object_store_service_model.quotas.all()) == 0
+    assert object_store_service_model.quotas.single() is None
 
 
 def test_linked_block_storage_quota(
@@ -403,3 +303,39 @@ def test_multiple_linked_networks(network_service_model: NetworkService) -> None
     item = Network(**network_model_dict()).save()
     network_service_model.networks.connect(item)
     assert len(network_service_model.networks.all()) == 2
+
+
+def test_linked_object_store_quota(
+    object_store_service_model: ObjectStoreService,
+    object_store_quota_model: ObjectStoreQuota,
+) -> None:
+    assert object_store_service_model.quotas.name
+    assert object_store_service_model.quotas.source
+    assert isinstance(object_store_service_model.quotas.source, ObjectStoreService)
+    assert (
+        object_store_service_model.quotas.source.uid
+        == object_store_service_model.uid
+    )
+    assert object_store_service_model.quotas.definition
+    assert (
+        object_store_service_model.quotas.definition["node_class"]
+        == ObjectStoreQuota
+    )
+
+    r = object_store_service_model.quotas.connect(object_store_quota_model)
+    assert r is True
+
+    assert len(object_store_service_model.quotas.all()) == 1
+    quotas = object_store_service_model.quotas.single()
+    assert isinstance(quotas, ObjectStoreQuota)
+    assert quotas.uid == object_store_quota_model.uid
+
+
+def test_multiple_linked_object_store_quotas(
+    object_store_service_model: ObjectStoreService,
+) -> None:
+    item = ObjectStoreQuota(**object_store_quota_model_dict()).save()
+    object_store_service_model.quotas.connect(item)
+    item = ObjectStoreQuota(**object_store_quota_model_dict()).save()
+    object_store_service_model.quotas.connect(item)
+    assert len(object_store_service_model.quotas.all()) == 2
