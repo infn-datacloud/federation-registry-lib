@@ -4,6 +4,9 @@ services:
   db:
     image: neo4j:5.15
     container_name: fed-reg-devc-db
+    ports:
+      - 7687:7687
+      - 7474:7474
     volumes:
       - fed-reg-devc-db-data:/data
       - fed-reg-devc-db-logs:/logs
@@ -23,7 +26,7 @@ services:
       - fed-reg-devc-oidc-agent
 
   base:
-    image: mcr.microsoft.com/devcontainers/typescript-node:18
+    image: mcr.microsoft.com/devcontainers/base:ubuntu-22.04
     container_name: fed-reg-devc-base
     depends_on:
       - db
