@@ -102,8 +102,10 @@ class CRUDBlockStorageService(
         """
         if projects is None:
             projects = []
-        db_obj = super().create(obj_in=obj_in)
-        db_obj.regions.connect(region)
+        db_obj = region.services.filter(endpoint=obj_in.endpoint, type=obj_in.type)
+        if not db_obj:
+            db_obj = super().create(obj_in=obj_in)
+            db_obj.region.connect(region)
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:
@@ -245,10 +247,10 @@ class CRUDComputeService(
         """
         if projects is None:
             projects = []
-        db_obj = self.get(endpoint=obj_in.endpoint)
+        db_obj = region.services.filter(endpoint=obj_in.endpoint, type=obj_in.type)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
-        db_obj.regions.connect(region)
+            db_obj.region.connect(region)
         for item in obj_in.flavors:
             db_projects = list(filter(lambda x: x.uuid in item.projects, projects))
             flavor_mng.create(obj_in=item, service=db_obj, projects=db_projects)
@@ -475,14 +477,14 @@ class CRUDIdentityService(
 
         Connect the service to the given region.
         """
-        db_obj = self.get(endpoint=obj_in.endpoint)
+        db_obj = region.services.filter(endpoint=obj_in.endpoint, type=obj_in.type)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
+            db_obj.region.connect(region)
         else:
             updated_data = self.update(db_obj=db_obj, obj_in=obj_in)
             if updated_data:
                 db_obj = updated_data
-        db_obj.regions.connect(region)
         return db_obj
 
 
@@ -513,10 +515,10 @@ class CRUDNetworkService(
         """
         if projects is None:
             projects = []
-        db_obj = self.get(endpoint=obj_in.endpoint)
+        db_obj = region.services.filter(endpoint=obj_in.endpoint, type=obj_in.type)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
-        db_obj.regions.connect(region)
+            db_obj.region.connect(region)
         for item in obj_in.networks:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             db_project = None
@@ -705,10 +707,10 @@ class CRUDObjectStoreService(
         """
         if projects is None:
             projects = []
-        db_obj = self.get(endpoint=obj_in.endpoint)
+        db_obj = region.services.filter(endpoint=obj_in.endpoint, type=obj_in.type)
         if not db_obj:
             db_obj = super().create(obj_in=obj_in)
-        db_obj.regions.connect(region)
+            db_obj.region.connect(region)
         for item in obj_in.quotas:
             db_projects = list(filter(lambda x: x.uuid == item.project, projects))
             if len(db_projects) == 1:

@@ -80,7 +80,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
@@ -94,7 +94,7 @@ class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
@@ -110,7 +110,7 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
@@ -124,7 +124,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtended(NetworkServiceRead):
@@ -140,7 +140,7 @@ class NetworkServiceReadExtended(NetworkServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
@@ -154,7 +154,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
@@ -170,7 +170,7 @@ class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
@@ -184,7 +184,7 @@ class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageQuotaReadExtended(
