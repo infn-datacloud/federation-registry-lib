@@ -40,13 +40,17 @@ from fed_reg.quota.schemas import (
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
 )
+from fed_reg.region.models import Region
 from fed_reg.region.schemas import RegionRead, RegionReadPublic
 from fed_reg.service.constants import DOC_EXT_REG
+from fed_reg.service.enum import ServiceType
 from fed_reg.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
+    IdentityServiceRead,
+    IdentityServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
     ObjectStoreServiceRead,
@@ -431,6 +435,93 @@ class SLAReadExtendedPublic(SLAReadPublic):
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
+class RegionReadExtended(RegionRead):
+    """Model to extend the Region public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        identity_services (list of IdentityServiceRead): Available identity services.
+    """
+
+    identity_services: list[IdentityServiceRead] = Field(
+        description="Available identity services list"
+    )
+
+    @classmethod
+    def from_orm(cls, obj: Region) -> "RegionReadExtended":
+        """Method to merge public and private flavors, images and networks.
+
+        `obj` is the orm model instance.
+        """
+        obj.identity_services = obj.services.filter(type=ServiceType.IDENTITY.value)
+        return super().from_orm(obj)
+
+
+class RegionReadExtendedPublic(RegionReadPublic):
+    """Model to extend the Region public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        identity_services (list of IdentityServiceReadPublic): Available identity
+            services.
+    """
+
+    identity_services: list[IdentityServiceReadPublic] = Field(
+        description="Available identity services list"
+    )
+
+    @classmethod
+    def from_orm(cls, obj: Region) -> "RegionReadExtendedPublic":
+        """Method to merge public and private flavors, images and networks.
+
+        `obj` is the orm model instance.
+        """
+        obj.identity_services = obj.services.filter(type=ServiceType.IDENTITY.value)
+        return super().from_orm(obj)
+
+
+class ProviderReadExtended(ProviderRead):
+    """Model to extend the Provider data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): list of maintainers emails.
+        regions (list of RegionReadExtended): Supplied regions.
+    """
+
+    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
+
+
+class ProviderReadExtendedPublic(ProviderReadPublic):
+    """Model to extend the Provider public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): list of maintainers emails.
+        regions (list of RegionReadExtended): Supplied regions.
+    """
+
+    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+
+
 class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
     """Model to extend the Project data read from the DB.
 
@@ -452,7 +543,7 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
     flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
     images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
     networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
-    provider: ProviderRead = Field(description=DOC_EXT_PROV)
+    provider: ProviderReadExtended = Field(description=DOC_EXT_PROV)
     quotas: list[
         ComputeQuotaReadExtended
         | BlockStorageQuotaReadExtended
@@ -496,7 +587,7 @@ class ProjectReadExtendedPublic(
     flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
     images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
     networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
-    provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
+    provider: ProviderReadExtendedPublic = Field(description=DOC_EXT_PROV)
     quotas: list[
         ComputeQuotaReadExtendedPublic
         | BlockStorageQuotaReadExtendedPublic
