@@ -51,9 +51,9 @@ class CRUDFlavor(
         else:
             # It's indifferent which service, we want to reach the provider
             db_service = db_obj.services.single()
-            db_region = db_service.regions.single()
+            db_region = db_service.region.single()
             db_provider1 = db_region.provider.single()
-            db_region = service.regions.single()
+            db_region = service.region.single()
             db_provider2 = db_region.provider.single()
             if db_provider1 != db_provider2:
                 db_obj = super().create(obj_in=obj_in)

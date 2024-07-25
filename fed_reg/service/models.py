@@ -1,6 +1,6 @@
 """Neomodel models of the Service supplied by a Provider on a specific Region."""
 from neomodel import (
-    OneOrMore,
+    One,
     RelationshipFrom,
     RelationshipTo,
     StringProperty,
@@ -29,12 +29,12 @@ class Service(StructuredNode):
 
     uid = UniqueIdProperty()
     description = StringProperty(default="")
-    endpoint = StringProperty(unique_index=True, required=True)
+    endpoint = StringProperty(required=True)
     type = StringProperty(required=True)
     name = StringProperty(required=True)
 
-    regions = RelationshipFrom(
-        "fed_reg.region.models.Region", "SUPPLY", cardinality=OneOrMore
+    region = RelationshipFrom(
+        "fed_reg.region.models.Region", "SUPPLY", cardinality=One
     )
 
 

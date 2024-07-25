@@ -58,7 +58,7 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         region (RegionReadExtended): Region hosting this service.
     """
 
-    regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtended = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
@@ -72,7 +72,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
         region (RegionReadExtendedPublic): Region hosting this service.
     """
 
-    regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
+    region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
 class FlavorReadExtended(BaseNodeRead, BaseReadPrivateExtended, FlavorBase):
