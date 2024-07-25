@@ -1,11 +1,9 @@
-def lintCode(String pythonVersion) {
-    script {
-        docker.image("ghcr.io/withlogicco/poetry:1.8.3-python-$pythonVersion-slim")
-            .inside('-e POETRY_VIRTUALENVS_IN_PROJECT=true -u root:root') {
-                sh 'poetry install'
-                sh 'ruff check ./fed_reg'
-                sh 'ruff format --check .'
-        }
+void lintCode(String pythonVersion) {
+    docker.image("ghcr.io/withlogicco/poetry:1.8.3-python-$pythonVersion-slim")
+        .inside('-e POETRY_VIRTUALENVS_IN_PROJECT=true -u root:root') {
+            sh 'poetry install'
+            sh 'ruff check ./fed_reg'
+            sh 'ruff format --check .'
     }
 }
 
