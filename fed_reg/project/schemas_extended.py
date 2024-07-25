@@ -40,13 +40,16 @@ from fed_reg.quota.schemas import (
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
 )
+from fed_reg.region.models import Region
 from fed_reg.region.schemas import RegionRead, RegionReadPublic
 from fed_reg.service.constants import DOC_EXT_REG
+from fed_reg.service.enum import ServiceType
 from fed_reg.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
+    IdentityServiceReadPublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
     ObjectStoreServiceRead,
@@ -322,7 +325,7 @@ class ObjectStoreQuotaReadExtendedPublic(ObjectStoreQuotaReadPublic):
     service: ObjectStoreServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
-class ProviderReadExtendedPublic(ProviderReadPublic):
+class ProviderReadWithAuthMethod(ProviderReadPublic):
     """Model to extend the Provider public data read from the DB.
 
     Attributes:
@@ -347,12 +350,12 @@ class IdentityProviderReadExtended(IdentityProviderRead):
         endpoint (str): URL of the Identity Provider.
         group_claim (str): value of the key from which retrieve
             the user group name from an authentication token.
-        providers (list of ProviderReadExtendedPublic): Supported providers. Since we
+        providers (list of ProviderReadWithAuthMethod): Supported providers. Since we
             already show the complete data of the provider in another point we are ok
             to show just a shrunk version here.
     """
 
-    providers: list[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
+    providers: list[ProviderReadWithAuthMethod] = Field(description=DOC_EXT_PROV)
 
 
 class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
@@ -363,10 +366,10 @@ class IdentityProviderReadExtendedPublic(IdentityProviderReadPublic):
         uid (int): Identity Provider unique ID.
         description (str): Brief description.
         endpoint (str): URL of the Identity Provider.
-        providers (list of ProviderReadPublic): Supported providers.
+        providers (list of ProviderReadWithAuthMethod): Supported providers.
     """
 
-    providers: list[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
+    providers: list[ProviderReadWithAuthMethod] = Field(description=DOC_EXT_PROV)
 
 
 class UserGroupReadExtended(UserGroupRead):
@@ -431,6 +434,68 @@ class SLAReadExtendedPublic(SLAReadPublic):
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
+class RegionReadWithIdentityService(RegionReadPublic):
+    """Model to extend the Region public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        identity_services (list of IdentityServiceReadPublic): Available identity
+            services.
+    """
+
+    identity_services: list[IdentityServiceReadPublic] = Field(
+        description="Available identity services list"
+    )
+
+    @classmethod
+    def from_orm(cls, obj: Region) -> "RegionReadWithIdentityService":
+        """Method to merge public and private flavors, images and networks.
+
+        `obj` is the orm model instance.
+        """
+        obj.identity_services = obj.services.filter(type=ServiceType.IDENTITY.value)
+        return super().from_orm(obj)
+
+
+class ProviderReadExtended(ProviderRead):
+    """Model to extend the Provider data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): list of maintainers emails.
+        regions (list of RegionReadWithIdentityService): Supplied regions.
+    """
+
+    regions: list[RegionReadWithIdentityService] = Field(description=DOC_EXT_REG)
+
+
+class ProviderReadExtendedPublic(ProviderReadPublic):
+    """Model to extend the Provider public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Provider unique ID.
+        description (str): Brief description.
+        name (str): Provider name.
+        type (str): Provider type.
+        status (str | None): Provider status.
+        is_public (bool): Public or private Provider.
+        support_email (list of str): list of maintainers emails.
+        regions (list of RegionReadWithIdentityService): Supplied regions.
+    """
+
+    regions: list[RegionReadWithIdentityService] = Field(description=DOC_EXT_REG)
+
+
 class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
     """Model to extend the Project data read from the DB.
 
@@ -452,7 +517,7 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
     flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
     images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
     networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
-    provider: ProviderRead = Field(description=DOC_EXT_PROV)
+    provider: ProviderReadExtended = Field(description=DOC_EXT_PROV)
     quotas: list[
         ComputeQuotaReadExtended
         | BlockStorageQuotaReadExtended
@@ -496,7 +561,7 @@ class ProjectReadExtendedPublic(
     flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
     images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
     networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
-    provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
+    provider: ProviderReadExtendedPublic = Field(description=DOC_EXT_PROV)
     quotas: list[
         ComputeQuotaReadExtendedPublic
         | BlockStorageQuotaReadExtendedPublic
