@@ -63,17 +63,17 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: "${COVERAGE_DIR}/**/*", fingerprint: true
-            sh """docker run --rm \
+            sh '''docker run --rm \
                 -e SONAR_HOST_URL=${SONAR_HOST} \
                 -e SONAR_TOKEN=${SONAR_TOKEN} \
-                -v '\$(pwd):/usr/src' \
+                -v ${WORKSPACE}:/usr/src \
                 sonarsource/sonar-scanner-cli \
                 -D sonar.projectKey=${SONAR_ORGANIZATION}_${SONAR_PROJECT} \
                 -D sonar.organization=${SONAR_ORGANIZATION} \
                 -D sonar.sources=fed_reg \
                 -D sonar.tests=tests \
                 -D sonar.python.version='3.10, 3.11'
-                """
+                '''
         }
     }
 }
