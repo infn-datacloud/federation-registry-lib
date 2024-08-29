@@ -313,13 +313,11 @@ def test_linked_object_store_quota(
     assert object_store_service_model.quotas.source
     assert isinstance(object_store_service_model.quotas.source, ObjectStoreService)
     assert (
-        object_store_service_model.quotas.source.uid
-        == object_store_service_model.uid
+        object_store_service_model.quotas.source.uid == object_store_service_model.uid
     )
     assert object_store_service_model.quotas.definition
     assert (
-        object_store_service_model.quotas.definition["node_class"]
-        == ObjectStoreQuota
+        object_store_service_model.quotas.definition["node_class"] == ObjectStoreQuota
     )
 
     r = object_store_service_model.quotas.connect(object_store_quota_model)
