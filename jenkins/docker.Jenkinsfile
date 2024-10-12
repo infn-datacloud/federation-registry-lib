@@ -1,15 +1,4 @@
-void pushImage(String srcImage, String targetImageName, String registryUrl, String registryCredentials) {
-    // Login to target registry, retrieve docker image and push it to the registry
-    sh "docker tag ${srcImage} ${targetImageName}"
-    docker.withRegistry("${registryUrl}", "${registryCredentials}") {
-        if ("${BRANCH_NAME}" == 'main') {
-            docker.image("${targetImageName}").push('main')
-            docker.image("${targetImageName}").push('latest')
-        }
-        docker.image("${targetImageName}").push("${BRANCH_NAME}")
-        docker.image("${targetImageName}").push("${COMMIT_SHA}")
-    }
-}
+@Library('jenkins-libraries')
 
 void updateReadMe(String provider, String imageName, String registryUser, String registryPassword, String registryHost) {
     // Login to target registry, retrieve docker image and push it to the registry
