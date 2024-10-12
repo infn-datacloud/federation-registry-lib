@@ -1,3 +1,4 @@
+#!groovy
 @Library('jenkins-libraries')
 
 pipeline {
