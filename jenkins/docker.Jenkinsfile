@@ -18,9 +18,6 @@ pipeline {
         HARBOR_CREDENTIALS = credentials("${HARBOR_CREDENTIALS_NAME}")
         HARBOR_ORGANIZATION = 'datacloud-middleware'
         HARBOR_URL = 'https://harbor.cloud.infn.it'
-
-        BRANCH_NAME = "${env.BRANCH_NAME != null ? env.BRANCH_NAME : 'main'}"
-        COMMIT_SHA = sh(returnStdout: true, script: 'git rev-parse --short=10 HEAD').trim()
     }
 
     stages {
