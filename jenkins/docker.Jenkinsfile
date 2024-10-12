@@ -123,12 +123,5 @@ pipeline {
                 }
             }
         }
-
-        stage('Remove docker images') {
-            steps {
-                sh "docker rmi ${PROJECT_NAME}"
-                sh "docker rmi ${PROJECT_NAME}-k8s"
-            }
-        }
     }
 }
