@@ -1,19 +1,5 @@
 @Library('jenkins-libraries')
 
-void updateReadMe(String provider, String imageName, String registryUser, String registryPassword, String registryHost) {
-    // Login to target registry, retrieve docker image and push it to the registry
-    sh """docker run --rm \
-        -v ${WORKSPACE}:/myvol \
-        -e DOCKER_USER=${registryUser} \
-        -e DOCKER_PASS=${registryPassword} \
-        chko/docker-pushrm:1 \
-        --provider ${provider} \
-        --file /myvol/README.md \
-        --debug \
-        ${registryHost}/${imageName}
-        """
-}
-
 pipeline {
     agent {
         node { label 'jenkinsworker00' }
@@ -61,13 +47,13 @@ pipeline {
                 stage('Harbor - single instance version') {
                     steps {
                         script {
-                            pushImage(
+                            dockerRepository.pushImage(
                                 "${PROJECT_NAME}",
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}",
                                 "${HARBOR_URL}",
                                 "${HARBOR_CREDENTIALS_NAME}",
                             )
-                            updateReadMe(
+                            dockerRepository.updateReadMe(
                                 'harbor2',
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}",
                                 '${HARBOR_CREDENTIALS_USR}',
@@ -80,13 +66,13 @@ pipeline {
                 stage('Harbor - k8s version') {
                     steps {
                         script {
-                            pushImage(
+                            dockerRepository.pushImage(
                                 "${PROJECT_NAME}-k8s",
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 "${HARBOR_URL}",
                                 "${HARBOR_CREDENTIALS_NAME}",
                             )
-                            updateReadMe(
+                            dockerRepository.updateReadMe(
                                 'harbor2',
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 '${HARBOR_CREDENTIALS_USR}',
@@ -99,13 +85,13 @@ pipeline {
                 stage('DockerHub - single instance version') {
                     steps {
                         script {
-                            pushImage(
+                            dockerRepository.pushImage(
                                 "${PROJECT_NAME}",
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}",
                                 "${DOCKER_HUB_URL}",
                                 "${DOCKER_HUB_CREDENTIALS_NAME}",
                             )
-                            updateReadMe(
+                            dockerRepository.updateReadMe(
                                 'dockerhub',
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}",
                                 '${DOCKER_HUB_CREDENTIALS_USR}',
@@ -118,13 +104,13 @@ pipeline {
                 stage('DockerHub - k8s version') {
                     steps {
                         script {
-                            pushImage(
+                            dockerRepository.pushImage(
                                 "${PROJECT_NAME}-k8s",
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 "${DOCKER_HUB_URL}",
                                 "${DOCKER_HUB_CREDENTIALS_NAME}",
                             )
-                            updateReadMe(
+                            dockerRepository.updateReadMe(
                                 'dockerhub',
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 '${DOCKER_HUB_CREDENTIALS_USR}',
