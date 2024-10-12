@@ -1,5 +1,5 @@
 #!groovy
-@Library('jenkins-libraries')
+@Library('jenkins-libraries') _
 
 pipeline {
     agent {
