@@ -52,11 +52,11 @@ pipeline {
                                 "${HARBOR_CREDENTIALS_NAME}",
                             )
                             dockerRepository.updateReadMe(
-                                'harbor2',
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}",
                                 '${HARBOR_CREDENTIALS_USR}',
                                 '${HARBOR_CREDENTIALS_PSW}',
                                 'harbor.cloud.infn.it',
+                                'harbor2',
                             )
                         }
                     }
@@ -71,11 +71,11 @@ pipeline {
                                 "${HARBOR_CREDENTIALS_NAME}",
                             )
                             dockerRepository.updateReadMe(
-                                'harbor2',
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 '${HARBOR_CREDENTIALS_USR}',
                                 '${HARBOR_CREDENTIALS_PSW}',
                                 'harbor.cloud.infn.it',
+                                'harbor2',
                             )
                         }
                     }
@@ -90,11 +90,11 @@ pipeline {
                                 "${DOCKER_HUB_CREDENTIALS_NAME}",
                             )
                             dockerRepository.updateReadMe(
-                                'dockerhub',
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}",
                                 '${DOCKER_HUB_CREDENTIALS_USR}',
                                 '${DOCKER_HUB_CREDENTIALS_PSW}',
                                 'docker.io',
+                                'dockerhub',
                             )
                         }
                     }
@@ -109,11 +109,11 @@ pipeline {
                                 "${DOCKER_HUB_CREDENTIALS_NAME}",
                             )
                             dockerRepository.updateReadMe(
-                                'dockerhub',
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 '${DOCKER_HUB_CREDENTIALS_USR}',
                                 '${DOCKER_HUB_CREDENTIALS_PSW}',
                                 'docker.io',
+                                'dockerhub',
                             )
                         }
                     }
