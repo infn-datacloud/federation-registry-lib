@@ -16,7 +16,9 @@ void runTests(String pythonVersion) {
             }
             pythonProject.testCode(
                 "${pythonVersion}",
-                "-e NEO4J_TEST_URL=bolt://neo4j:password@db:7687 --link ${c.id}:db"
+                "-e NEO4J_TEST_URL=bolt://neo4j:password@db:7687 --link ${c.id}:db",
+                '.coveragerc',
+                "${COVERAGE_DIR}"
                 )
         }
     }
@@ -52,18 +54,18 @@ pipeline {
     }
     post {
         always {
-            archiveArtifacts artifacts: "${COVERAGE_DIR}/**/*", fingerprint: true
-            sh '''docker run --rm \
-                -e SONAR_HOST_URL=${SONAR_HOST} \
-                -e SONAR_TOKEN=${SONAR_TOKEN} \
-                -v ${WORKSPACE}:/usr/src \
-                sonarsource/sonar-scanner-cli \
-                -D sonar.projectKey=${SONAR_ORGANIZATION}_${SONAR_PROJECT} \
-                -D sonar.organization=${SONAR_ORGANIZATION} \
-                -D sonar.sources=fed_reg \
-                -D sonar.tests=tests \
-                -D sonar.python.version='3.10, 3.11'
-                '''
+            script {
+                sonar.analysis(
+                    "${SONAR_TOKEN}",
+                    "${SONAR_PROJECT}",
+                    "${SONAR_ORGANIZATION}",
+                    "${SONAR_HOST}",
+                    "${COVERAGE_DIR}",
+                    'fed_reg',
+                    'tests',
+                    '3.10, 3.11'
+                )
+            }
         }
     }
 }
