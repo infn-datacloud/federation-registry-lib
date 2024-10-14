@@ -8,12 +8,12 @@ pipeline {
             parallel {
                 stage('Python 3.10') {
                     steps {
-                        lintCode('3.10', "fed_reg")
+                        pythonProject.formatCode('3.10', "fed_reg")
                     }
                 }
                 stage('Python 3.11') {
                     steps {
-                        lintCode('3.11', "fed_reg")
+                        pythonProject.formatCode('3.11', "fed_reg")
                     }
                 }
             }
