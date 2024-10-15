@@ -30,7 +30,7 @@ pipeline {
                 stage('Image for single instance deployment with python 3.10 published on Harbor') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}",
                                 "${DOCKERFILE1}",
                                 "${HARBOR_URL}",
@@ -47,7 +47,7 @@ pipeline {
                 stage('Image for single instance deployment with python 3.11 published on Harbor') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}",
                                 "${DOCKERFILE1}",
                                 "${HARBOR_URL}",
@@ -64,7 +64,7 @@ pipeline {
                 stage('Image for single instance deployment with python 3.12 published on Harbor') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}",
                                 "${DOCKERFILE1}",
                                 "${HARBOR_URL}",
@@ -81,7 +81,7 @@ pipeline {
                 stage('Image for single instance deployment with python 3.10 published on DockerHub') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}",
                                 "${DOCKERFILE1}",
                                 "${DOCKER_HUB_URL}",
@@ -98,7 +98,7 @@ pipeline {
                 stage('Image for single instance deployment with python 3.11 published on DockerHub') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}",
                                 "${DOCKERFILE1}",
                                 "${DOCKER_HUB_URL}",
@@ -115,7 +115,7 @@ pipeline {
                 stage('Image for single instance deployment with python 3.12 published on DockerHub') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}",
                                 "${DOCKERFILE1}",
                                 "${DOCKER_HUB_URL}",
@@ -132,7 +132,7 @@ pipeline {
                 stage('Image for kubernetes deployment with python 3.10 published on Harbor') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 "${DOCKERFILE2}",
                                 "${HARBOR_URL}",
@@ -149,7 +149,7 @@ pipeline {
                 stage('Image for kubernetes deployment with python 3.11 published on Harbor') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 "${DOCKERFILE2}",
                                 "${HARBOR_URL}",
@@ -166,7 +166,7 @@ pipeline {
                 stage('Image for kubernetes deployment with python 3.12 published on Harbor') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${HARBOR_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 "${DOCKERFILE2}",
                                 "${HARBOR_URL}",
@@ -183,7 +183,7 @@ pipeline {
                 stage('Image for kubernetes deployment with python 3.10 published on DockerHub') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 "${DOCKERFILE2}",
                                 "${DOCKER_HUB_URL}",
@@ -200,7 +200,7 @@ pipeline {
                 stage('Image for kubernetes deployment with python 3.11 published on DockerHub') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 "${DOCKERFILE2}",
                                 "${DOCKER_HUB_URL}",
@@ -217,7 +217,7 @@ pipeline {
                 stage('Image for kubernetes deployment with python 3.12 published on DockerHub') {
                     steps {
                         script {
-                            buildAndPushImage(
+                            dockerRepository.buildAndPushImage(
                                 "${DOCKER_HUB_ORGANIZATION}/${PROJECT_NAME}-k8s",
                                 "${DOCKERFILE2}",
                                 "${DOCKER_HUB_URL}",
