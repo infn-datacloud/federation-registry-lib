@@ -107,7 +107,8 @@ pipeline {
                                 '${HARBOR_CREDENTIALS_PSW}',
                                 "${HARBOR_HOST}",
                                 'harbor2',
-                                '3.10'
+                                '3.10',
+                                ['k8s']
                             )
                         }
                     }
@@ -124,7 +125,8 @@ pipeline {
                                 '${HARBOR_CREDENTIALS_PSW}',
                                 "${HARBOR_HOST}",
                                 'harbor2',
-                                '3.11'
+                                '3.11',
+                                ['k8s']
                             )
                         }
                     }
@@ -141,7 +143,8 @@ pipeline {
                                 '${DOCKER_HUB_CREDENTIALS_PSW}',
                                 "${DOCKER_HUB_HOST}",
                                 'dockerhub',
-                                '3.10'
+                                '3.10',
+                                ['k8s']
                             )
                         }
                     }
@@ -158,7 +161,8 @@ pipeline {
                                 '${DOCKER_HUB_CREDENTIALS_PSW}',
                                 "${DOCKER_HUB_HOST}",
                                 'dockerhub',
-                                '3.11'
+                                '3.11',
+                                ['k8s']
                             )
                         }
                     }
