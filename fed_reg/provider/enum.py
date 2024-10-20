@@ -8,6 +8,7 @@ class ProviderStatus(str, Enum):
     ACTIVE: str = "active"
     MAINTENANCE: str = "maintenance"
     REMOVED: str = "removed"
+    LIMITED: str = "limited"
 
 
 class ProviderType(str, Enum):
