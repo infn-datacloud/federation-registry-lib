@@ -14,3 +14,4 @@ DOC_TAGS = "list of tags associated to this Image."
 DOC_EXT_PROJ = "Projects having access to this image. The list is populated only if \
     the image is a private one."
 DOC_EXT_SERV = "Compute Service owning this image."
+DOC_CREATED_AT = "Creation time"

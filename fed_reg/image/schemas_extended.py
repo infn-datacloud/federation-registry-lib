@@ -87,6 +87,7 @@ class ImageReadExtended(BaseNodeRead, BaseReadPrivateExtended, ImageBase):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
+        created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
         projects (list of ProjectRead): Projects having access to this flavor. The list
             is populated only if the flavor is a private one.
