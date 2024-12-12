@@ -1,10 +1,12 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
+from datetime import datetime
 from typing import Optional
 
 from pydantic import Field
 
 from fed_reg.image.constants import (
     DOC_ARCH,
+    DOC_CREATED_AT,
     DOC_CUDA,
     DOC_GPU_DRIV,
     DOC_KERN,
@@ -57,6 +59,7 @@ class ImageBase(ImageBasePublic):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
+        created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
     """
 
@@ -68,6 +71,7 @@ class ImageBase(ImageBasePublic):
     cuda_support: bool = Field(default=False, description=DOC_CUDA)
     gpu_driver: bool = Field(default=False, description=DOC_GPU_DRIV)
     is_public: bool = Field(default=True, description=DOC_SHARED)
+    created_at: Optional[datetime] = Field(default=None, description=DOC_CREATED_AT)
     tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
@@ -90,6 +94,7 @@ class ImageCreate(BaseNodeCreate, ImageBase):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
+        created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
     """
 
@@ -115,6 +120,7 @@ class ImageUpdate(BaseNodeCreate, ImageBase):
         cuda_support (str | None): Support for cuda enabled.
         gpu_driver (str | None): Support for GPUs drivers.
         is_public (bool | None): Public or private Image.
+        created_at (datetime | None): Creation time.
         tags (list of str | None): list of tags associated to this Image.
     """
 
@@ -161,6 +167,7 @@ class ImageRead(BaseNodeRead, BaseReadPrivate, ImageBase):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
+        created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
     """
 

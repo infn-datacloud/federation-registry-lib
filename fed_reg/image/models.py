@@ -2,6 +2,7 @@
 from neomodel import (
     ArrayProperty,
     BooleanProperty,
+    DateTimeProperty,
     OneOrMore,
     RelationshipFrom,
     StringProperty,
@@ -35,6 +36,7 @@ class Image(StructuredNode):
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers.
         is_public (bool): Public or private Image.
+        created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
     """
 
@@ -52,6 +54,7 @@ class Image(StructuredNode):
     # TODO Understand what does it mean and add to documentation
     gpu_driver = BooleanProperty(default=False)
     is_public = BooleanProperty(default=True)
+    created_at = DateTimeProperty()
     tags = ArrayProperty(StringProperty(), default=[])
 
     services = RelationshipFrom(
