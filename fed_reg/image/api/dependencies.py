@@ -119,8 +119,8 @@ def validate_new_image_values(
         BadRequestError: DB entity with identical name or uuid,
             belonging to the same service, already exists.
     """
-    if update_data.name != item.name:
-        valid_image_name(item=update_data, services=item.services.all())
+    # if update_data.name != item.name:
+    #     valid_image_name(item=update_data, services=item.services.all())
     if update_data.uuid != item.uuid:
         valid_image_uuid(item=update_data, services=item.services.all())
     if update_data.is_public != item.is_public:

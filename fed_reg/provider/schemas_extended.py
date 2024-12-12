@@ -834,12 +834,11 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
 
     @validator("flavors", "images")
     @classmethod
-    def validate_flavors(
+    def no_duplicate_uuid_in_flavors_and_images(
         cls, v: list[FlavorCreateExtended] | list[ImageCreateExtended]
     ) -> list[FlavorCreateExtended] | list[ImageCreateExtended]:
         """Verify there are no duplicated names or UUIDs in the flavor list."""
         find_duplicates(v, "uuid")
-        find_duplicates(v, "name")
         return v
 
     @validator("quotas")
