@@ -54,7 +54,7 @@ class Image(StructuredNode):
     # TODO Understand what does it mean and add to documentation
     gpu_driver = BooleanProperty(default=False)
     is_public = BooleanProperty(default=True)
-    create_at = DateTimeProperty()
+    created_at = DateTimeProperty()
     tags = ArrayProperty(StringProperty(), default=[])
 
     services = RelationshipFrom(
