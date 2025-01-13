@@ -3,6 +3,7 @@
 
 from fed_reg.project.models import Project
 from fed_reg.region.schemas import RegionQuery
+from fed_reg.service.schemas import IdentityServiceQuery
 
 
 def filter_on_region_attr(  # noqa: C901
@@ -31,3 +32,20 @@ def filter_on_region_attr(  # noqa: C901
             if not service.region.get_or_none(**attrs):
                 item.private_networks = item.private_networks.exclude(uid=network.uid)
     return items
+
+
+def filter_on_service_attr(
+    items: list[Project], service_query: IdentityServiceQuery
+) -> list[Project]:
+    """Filter projects based on region access."""
+    attrs = service_query.dict(exclude_none=True)
+    if not attrs:
+        return items
+
+    new_items = []
+    for item in items:
+        for region in item.provider.single().regions:
+            if region.services.get_or_none(**attrs):
+                new_items.append(item)
+                break
+    return new_items

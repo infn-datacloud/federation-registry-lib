@@ -30,7 +30,7 @@ from fed_reg.project.api.dependencies import (
     valid_project_id,
     validate_new_project_values,
 )
-from fed_reg.project.api.utils import filter_on_region_attr
+from fed_reg.project.api.utils import filter_on_region_attr, filter_on_service_attr
 from fed_reg.project.crud import project_mng
 from fed_reg.project.models import Project
 from fed_reg.project.schemas import (
@@ -44,6 +44,7 @@ from fed_reg.project.schemas_extended import (
 )
 from fed_reg.query import DbQueryCommonParams, Pagination, SchemaSize
 from fed_reg.region.schemas import RegionQuery
+from fed_reg.service.schemas import IdentityServiceQuery
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -63,6 +64,7 @@ def get_projects(
     page: Pagination = Depends(),
     size: SchemaSize = Depends(),
     item: ProjectQuery = Depends(),
+    identity_service_endpoint: Optional[str] = None,
     provider_uid: Optional[str] = None,
     region_name: Optional[str] = None,
     user_group_uid: Optional[str] = None,
@@ -93,6 +95,8 @@ def get_projects(
     items = project_mng.paginate(items=items, page=page.page, size=page.size)
     region_query = RegionQuery(name=region_name)
     items = filter_on_region_attr(items=items, region_query=region_query)
+    service_query = IdentityServiceQuery(endpoint=identity_service_endpoint)
+    items = filter_on_service_attr(items=items, service_query=service_query)
     items = project_mng.choose_out_schema(
         items=items, auth=user_infos, short=size.short, with_conn=size.with_conn
     )
