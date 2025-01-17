@@ -2,7 +2,7 @@
 @Library('jenkins-libraries') _
 
 pipeline {
-    agent { label 'jenkinsworker00' }
+    agent { label 'jenkinsworker01' }
     stages {
         stage('Run tests') {
             parallel {
