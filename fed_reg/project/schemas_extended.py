@@ -181,6 +181,44 @@ class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
     region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
+class NetworkReadExtended(NetworkRead):
+    """Model to extend the Network data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int):  unique ID.
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        is_shared (bool): Public or private Network.
+        is_router_external (bool): Network with access to outside networks. External
+            network.
+        is_default (bool): Network to use as default.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_host (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
+        tags (list of str): list of tags associated to this Network.
+        service (NetworkServiceReadExtendedPublic): Target service. Same type of quota.
+    """
+
+    service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
+
+
+class NetworkReadExtendedPublic(NetworkReadPublic):
+    """Model to extend the Network public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int):  unique ID.
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        service (NetworkServiceReadExtendedPublic): Target service. Same type of quota.
+    """
+
+    service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+
+
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
     """Model to extend the Block Storage Quota data read from the DB.
 
@@ -509,14 +547,14 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
         sla (SLAReadExtended | None): SLA pointing to this project.
         flavors (list of FlavorRead): Private and public accessible flavors.
         images (list of ImageRead): Private and public accessible images.
-        networks (list of NetworkRead): Private and public accessible networks.
+        networks (list of NetworkReadExtended): Private and public accessible networks.
         quotas (list of Quota): list of owned quotas pointing to the corresponding
             service (block-storage, compute and network type).
     """
 
     flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
     images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
-    networks: list[NetworkRead] = Field(description=DOC_EXT_NETW)
+    networks: list[NetworkReadExtended] = Field(description=DOC_EXT_NETW)
     provider: ProviderReadExtended = Field(description=DOC_EXT_PROV)
     quotas: list[
         ComputeQuotaReadExtended
@@ -553,14 +591,15 @@ class ProjectReadExtendedPublic(
         sla (SLAReadExtendedPublic | None): SLA pointing to this project.
         flavors (list of FlavorReadPublic): Private and public accessible flavors.
         images (list of ImageReadPublic): Private and public accessible images.
-        networks (list of NetworkReadPublic): Private and public accessible networks.
+        networks (list of NetworkReadExtendedPublic): Private and public accessible
+            networks.
         quotas (list of QuotaPublic): list of owned quotas pointing to the corresponding
             service (block-storage, compute and network type).
     """
 
     flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
     images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
-    networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
+    networks: list[NetworkReadExtendedPublic] = Field(description=DOC_EXT_NETW)
     provider: ProviderReadExtendedPublic = Field(description=DOC_EXT_PROV)
     quotas: list[
         ComputeQuotaReadExtendedPublic
