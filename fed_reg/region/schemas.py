@@ -1,6 +1,4 @@
 """Pydantic models of the Region owned by a Provider."""
-from typing import Optional
-
 from pydantic import Field
 
 from fed_reg.models import (
@@ -11,7 +9,13 @@ from fed_reg.models import (
     BaseReadPublic,
 )
 from fed_reg.query import create_query_model
-from fed_reg.region.constants import DOC_NAME
+from fed_reg.region.constants import (
+    DOC_BAND_IN,
+    DOC_BAND_OUT,
+    DOC_NAME,
+    DOC_OVERBOOKING_CPU,
+    DOC_OVERBOOKING_RAM,
+)
 
 
 class RegionBasePublic(BaseNode):
@@ -33,7 +37,16 @@ class RegionBase(RegionBasePublic):
     ----------
         description (str): Brief description.
         name (str): Region name in the Provider.
+        overbooking_cpu (float): CPU overbooking factor.
+        overbooking_ram (float): RAM overbooking factor.
+        bandwidth_in (float): Bandwidth in.
+        bandwidth_out (float): Bandwidth out.
     """
+
+    overbooking_cpu: float = Field(default=1.0, description=DOC_OVERBOOKING_CPU)
+    overbooking_ram: float = Field(default=1.0, description=DOC_OVERBOOKING_RAM)
+    bandwidth_in: float = Field(default=10.0, description=DOC_BAND_IN)
+    bandwidth_out: float = Field(default=10.0, description=DOC_BAND_OUT)
 
 
 class RegionCreate(BaseNodeCreate, RegionBase):
@@ -46,6 +59,10 @@ class RegionCreate(BaseNodeCreate, RegionBase):
     ----------
         description (str): Brief description.
         name (str): Region name in the Provider.
+        overbooking_cpu (float): CPU overbooking factor.
+        overbooking_ram (float): RAM overbooking factor.
+        bandwidth_in (float): Bandwidth in.
+        bandwidth_out (float): Bandwidth out.
     """
 
 
@@ -61,9 +78,17 @@ class RegionUpdate(BaseNodeCreate, RegionBase):
     ----------
         description (str | None): Brief description.
         name (str | None): Region name in the Provider.
+        overbooking_cpu (float | None): CPU overbooking factor.
+        overbooking_ram (float | None): RAM overbooking factor.
+        bandwidth_in (float | None): Bandwidth in.
+        bandwidth_out (float | None): Bandwidth out.
     """
 
-    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    name: str | None = Field(default=None, description=DOC_NAME)
+    overbooking_cpu: float | None = Field(default=1.0, description=DOC_OVERBOOKING_CPU)
+    overbooking_ram: float | None = Field(default=1.0, description=DOC_OVERBOOKING_RAM)
+    bandwidth_in: float | None = Field(default=10.0, description=DOC_BAND_IN)
+    bandwidth_out: float | None = Field(default=10.0, description=DOC_BAND_OUT)
 
 
 class RegionReadPublic(BaseNodeRead, BaseReadPublic, RegionBasePublic):
@@ -95,6 +120,10 @@ class RegionRead(BaseNodeRead, BaseReadPrivate, RegionBase):
         uid (uuid): AssociatedRegion unique ID.
         description (str): Brief description.
         name (str): Region name in the Provider.
+        overbooking_cpu (float): CPU overbooking factor.
+        overbooking_ram (float): RAM overbooking factor.
+        bandwidth_in (float): Bandwidth in.
+        bandwidth_out (float): Bandwidth out.
     """
 
 
