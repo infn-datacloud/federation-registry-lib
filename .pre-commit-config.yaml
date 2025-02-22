@@ -9,9 +9,3 @@ repos:
         args: [--fix, --exit-non-zero-on-fix ]
       # Run the Ruff formatter.
       - id: ruff-format
-
-  # YAML format
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
-    hooks:
-      - id: check-yaml
