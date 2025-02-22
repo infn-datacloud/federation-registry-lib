@@ -1,32 +1,21 @@
 [tool.poetry]
-name = "federation-registry"
+name = "fed_reg"
 version = "0.1.0"
 description = "Python web application providing public REST API to inspect the configurations of the providers registered into the DataCloud project"
 authors = ["Giovanni Savarese <giovanni.savarese@ba.infn.it>", "Marica Antonacci <marica.antonacci@ba.infn.it>"]
-packages = [{ include = "fed_reg"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0.0"
-flaat = "^1.1.15"
-fastapi = "^0.108"
-uvicorn = "^0.22.0"
 neomodel = "^5.3.0"
 pydantic = {extras = ["email"], version = ">=1.10.9,<2.0.0"}
 pycountry = "^22.3.5"
 
 [tool.poetry.group.dev.dependencies]
-CairoSVG = "^2.7.0"
-httpx = "^0.24.1"
-mkdocs-material = "^9.1.17"
-mkdocs-git-authors-plugin = "^0.7.2"
-mkdocstrings-python = "^1.1.2"
-Pillow = "^10.3.0"
 pytest = "^7.4.4"
 pytest-cases = "^3.8.1"
 pytest-cov = "^4.1.0"
 pre-commit = "^3.3.3"
 ruff = "^0.1.4"
-networkx = "^3.2.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
