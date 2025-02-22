@@ -8,18 +8,18 @@
 # from flaat.user_infos import UserInfos
 # from neomodel import db
 
-# from fed_reg.config import Settings
-# from fed_reg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
-# from fed_reg.identity_provider.models import IdentityProvider
-# from fed_reg.image.models import Image, PrivateImage, SharedImage
-# from fed_reg.location.models import Location
-# from fed_reg.location.schemas import LocationCreate
-# from fed_reg.main import app, settings
-# from fed_reg.network.models import Network, PrivateNetwork, SharedNetwork
-# from fed_reg.project.models import Project
-# from fed_reg.project.schemas import ProjectCreate
-# from fed_reg.provider.models import Provider
-# from fed_reg.provider.schemas_extended import (
+# from fedreg.config import Settings
+# from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+# from fedreg.identity_provider.models import IdentityProvider
+# from fedreg.image.models import Image, PrivateImage, SharedImage
+# from fedreg.location.models import Location
+# from fedreg.location.schemas import LocationCreate
+# from fedreg.main import app, settings
+# from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
+# from fedreg.project.models import Project
+# from fedreg.project.schemas import ProjectCreate
+# from fedreg.provider.models import Provider
+# from fedreg.provider.schemas_extended import (
 #     BlockStorageQuotaCreateExtended,
 #     ComputeQuotaCreateExtended,
 #     IdentityProviderCreateExtended,
@@ -36,15 +36,15 @@
 #     SLACreateExtended,
 #     UserGroupCreateExtended,
 # )
-# from fed_reg.quota.models import (
+# from fedreg.quota.models import (
 #     BlockStorageQuota,
 #     ComputeQuota,
 #     NetworkQuota,
 #     ObjectStoreQuota,
 #     Quota,
 # )
-# from fed_reg.region.models import Region
-# from fed_reg.service.models import (
+# from fedreg.region.models import Region
+# from fedreg.service.models import (
 #     BlockStorageService,
 #     ComputeService,
 #     IdentityService,
@@ -52,8 +52,8 @@
 #     ObjectStoreService,
 #     Service,
 # )
-# from fed_reg.sla.models import SLA
-# from fed_reg.user_group.models import UserGroup
+# from fedreg.sla.models import SLA
+# from fedreg.user_group.models import UserGroup
 # from tests.models.utils import (
 #     flavor_model_dict,
 #     flavor_schema_dict,
