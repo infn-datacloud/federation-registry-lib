@@ -1,4 +1,4 @@
 [run]
 relative_files = True
-source = fed_reg/
+source = fedreg/
 branch = True

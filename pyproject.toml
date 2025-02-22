@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fed_reg"
+name = "fedreg"
 version = "0.1.0"
 description = "Python web application providing public REST API to inspect the configurations of the providers registered into the DataCloud project"
 authors = ["Giovanni Savarese <giovanni.savarese@ba.infn.it>", "Marica Antonacci <marica.antonacci@ba.infn.it>"]
