@@ -10,6 +10,7 @@ from neomodel import (
 )
 
 from fedreg.auth_method.models import AuthMethod
+from fedreg.provider.enum import ProviderStatus
 
 
 class Provider(StructuredNode):
@@ -40,7 +41,7 @@ class Provider(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
     type = StringProperty(required=True)
-    status = StringProperty()
+    status = StringProperty(default=ProviderStatus.ACTIVE.value)
     is_public = BooleanProperty(default=False)
     support_emails = ArrayProperty(StringProperty(), default=[])
 
@@ -58,3 +59,16 @@ class Provider(StructuredNode):
         cardinality=ZeroOrMore,
         model=AuthMethod,
     )
+
+    def pre_delete(self):
+        """Delete related identity providers, projects and regions.
+
+        Remove the identity ptovider only if that idp points only to this provider.
+        """
+        for item in self.projects:
+            item.delete()
+        for item in self.regions:
+            item.delete()
+        for item in self.identity_providers:
+            if len(item.providers) == 1:
+                item.delete()

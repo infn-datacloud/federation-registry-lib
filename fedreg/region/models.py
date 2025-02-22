@@ -47,3 +47,14 @@ class Region(StructuredNode):
     services = RelationshipTo(
         "fedreg.service.models.Service", "SUPPLY", cardinality=ZeroOrMore
     )
+
+    def pre_delete(self):
+        """Remove related services and location.
+
+        Remove the location only if that location points only to this region.
+        """
+        for item in self.services:
+            item.delete()
+        item = self.location.single()
+        if item and len(item.regions) == 1:
+            item.delete()

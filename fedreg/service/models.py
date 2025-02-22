@@ -9,6 +9,8 @@ from neomodel import (
     ZeroOrMore,
 )
 
+from fedreg.service.enum import ServiceType
+
 
 class Service(StructuredNode):
     """Service supplied by a Provider on a specific Region.
@@ -30,7 +32,6 @@ class Service(StructuredNode):
     uid = UniqueIdProperty()
     description = StringProperty(default="")
     endpoint = StringProperty(required=True)
-    type = StringProperty(required=True)
     name = StringProperty(required=True)
 
     region = RelationshipFrom("fedreg.region.models.Region", "SUPPLY", cardinality=One)
@@ -51,9 +52,16 @@ class BlockStorageService(Service):
         name (str): Service name.
     """
 
+    type = StringProperty(default=ServiceType.BLOCK_STORAGE.value)
+
     quotas = RelationshipFrom(
         "fedreg.quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
+
+    def pre_delete(self):
+        """Remove related quotas."""
+        for item in self.quotas:
+            item.delete()
 
 
 class ComputeService(Service):
@@ -71,6 +79,8 @@ class ComputeService(Service):
         name (str): Service name.
     """
 
+    type = StringProperty(default=ServiceType.COMPUTE.value)
+
     flavors = RelationshipTo(
         "fedreg.flavor.models.Flavor",
         "AVAILABLE_VM_FLAVOR",
@@ -85,6 +95,20 @@ class ComputeService(Service):
         "fedreg.quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
 
+    def pre_delete(self):
+        """Remove related quotas, flavors and images.
+
+        Remove Flavors and Images only when this service is the only one using them.
+        """
+        for item in self.quotas:
+            item.delete()
+        for item in self.flavors:
+            if len(item.services) == 1:
+                item.delete()
+        for item in self.images:
+            if len(item.services) == 1:
+                item.delete()
+
 
 class IdentityService(Service):
     """Service managing user access to the Provider.
@@ -97,6 +121,8 @@ class IdentityService(Service):
         type (str): Service type.
         name (str): Service name.
     """
+
+    type = StringProperty(default=ServiceType.IDENTITY.value)
 
 
 class NetworkService(Service):
@@ -113,6 +139,8 @@ class NetworkService(Service):
         name (str): Service name.
     """
 
+    type = StringProperty(default=ServiceType.NETWORK.value)
+
     networks = RelationshipTo(
         "fedreg.network.models.Network",
         "AVAILABLE_NETWORK",
@@ -121,6 +149,13 @@ class NetworkService(Service):
     quotas = RelationshipFrom(
         "fedreg.quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
+
+    def pre_delete(self):
+        """Remove related quotas and networks."""
+        for item in self.quotas:
+            item.delete()
+        for item in self.networks:
+            item.delete()
 
 
 class ObjectStoreService(Service):
@@ -138,6 +173,13 @@ class ObjectStoreService(Service):
         name (str): Service name.
     """
 
+    type = StringProperty(default=ServiceType.OBJECT_STORE.value)
+
     quotas = RelationshipFrom(
         "fedreg.quota.models.ObjectStoreQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
+
+    def pre_delete(self):
+        """Remove related quotas."""
+        for item in self.quotas:
+            item.delete()
