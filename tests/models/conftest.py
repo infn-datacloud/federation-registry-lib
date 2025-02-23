@@ -4,7 +4,7 @@ import pytest
 
 from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
 from fedreg.identity_provider.models import IdentityProvider
-from fedreg.image.models import Image  # , PrivateImage, SharedImage
+from fedreg.image.models import Image, PrivateImage, SharedImage
 from fedreg.location.models import Location
 from fedreg.network.models import Network  # , PrivateNetwork, SharedNetwork
 from fedreg.project.models import Project
@@ -68,14 +68,14 @@ def image_model() -> Image:
     return Image(**image_model_dict()).save()
 
 
-# @pytest.fixture
-# def private_image_model() -> PrivateImage:
-#     return PrivateImage(**image_model_dict()).save()
+@pytest.fixture
+def private_image_model() -> PrivateImage:
+    return PrivateImage(**image_model_dict()).save()
 
 
-# @pytest.fixture
-# def shared_image_model() -> SharedImage:
-#     return SharedImage(**image_model_dict()).save()
+@pytest.fixture
+def shared_image_model() -> SharedImage:
+    return SharedImage(**image_model_dict()).save()
 
 
 @pytest.fixture

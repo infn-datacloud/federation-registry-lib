@@ -4,22 +4,24 @@ import pytest
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize_with_cases
 
-from fedreg.image.models import Image  # , PrivateImage, SharedImage
+from fedreg.image.models import Image, PrivateImage, SharedImage
+from fedreg.project.models import Project
 from fedreg.service.models import ComputeService
-from tests.models.utils import service_model_dict
+from tests.models.utils import project_model_dict, service_model_dict
 
-# @parametrize_with_cases("image_cls", has_tag=("class", "derived"))
-# def test_image_inheritance(
-#     image_cls: type[PrivateImage] | type[SharedImage],
-# ) -> None:
-#     """Test PrivateImage and SharedImage inherits from Image."""
-#     assert issubclass(image_cls, Image)
+
+@parametrize_with_cases("image_cls", has_tag=("class", "derived"))
+def test_image_inheritance(
+    image_cls: type[PrivateImage] | type[SharedImage],
+) -> None:
+    """Test PrivateImage and SharedImage inherits from Image."""
+    assert issubclass(image_cls, Image)
 
 
 @parametrize_with_cases("image_cls", has_tag="class")
 @parametrize_with_cases("data", has_tag=("dict", "valid"))
 def test_image_valid_attr(
-    image_cls: type[Image],  # | type[PrivateImage] | type[SharedImage],
+    image_cls: type[Image] | type[PrivateImage] | type[SharedImage],
     data: dict[str, Any],
 ) -> None:
     """Test Image mandatory and optional attributes.
@@ -38,12 +40,13 @@ def test_image_valid_attr(
     assert item.kernel_id is data.get("kernel_id", None)
     assert item.cuda_support is data.get("cuda_support", False)
     assert item.gpu_driver is data.get("gpu_driver", False)
+    assert item.created_at == data.get("created_at", None)
     assert item.tags == data.get("tags", [])
 
-    # if image_cls == SharedImage:
-    #     assert item.is_shared
-    # if image_cls == PrivateImage:
-    #     assert not item.is_shared
+    if image_cls == SharedImage:
+        assert item.is_shared
+    if image_cls == PrivateImage:
+        assert not item.is_shared
 
     saved = item.save()
     assert saved.element_id_property
@@ -53,7 +56,7 @@ def test_image_valid_attr(
 @parametrize_with_cases("image_cls", has_tag="class")
 @parametrize_with_cases("data, attr", has_tag=("dict", "invalid"))
 def test_image_missing_mandatory_attr(
-    image_cls: type[Image],  # | type[PrivateImage] | type[SharedImage],
+    image_cls: type[Image] | type[PrivateImage] | type[SharedImage],
     data: dict[str, Any],
     attr: str,
 ) -> None:
@@ -68,7 +71,7 @@ def test_image_missing_mandatory_attr(
 
 
 @parametrize_with_cases("image_model", has_tag="model")
-def test_rel_def(image_model: Image) -> None:  # | PrivateImage | SharedImage
+def test_rel_def(image_model: Image | PrivateImage | SharedImage) -> None:
     """Test relationships definition.
 
     Execute this test on Image, PrivateImage and SharedImage.
@@ -81,18 +84,18 @@ def test_rel_def(image_model: Image) -> None:  # | PrivateImage | SharedImage
     assert image_model.services.definition
     assert image_model.services.definition["node_class"] == ComputeService
 
-    # if isinstance(image_model, PrivateImage):
-    #     assert isinstance(image_model.projects, RelationshipManager)
-    #     assert image_model.projects.name
-    #     assert image_model.projects.source
-    #     assert isinstance(image_model.projects.source, PrivateImage)
-    #     assert image_model.projects.source.uid == image_model.uid
-    #     assert image_model.projects.definition
-    #     assert image_model.projects.definition["node_class"] == Project
+    if isinstance(image_model, PrivateImage):
+        assert isinstance(image_model.projects, RelationshipManager)
+        assert image_model.projects.name
+        assert image_model.projects.source
+        assert isinstance(image_model.projects.source, PrivateImage)
+        assert image_model.projects.source.uid == image_model.uid
+        assert image_model.projects.definition
+        assert image_model.projects.definition["node_class"] == Project
 
 
 @parametrize_with_cases("image_model", has_tag="model")
-def test_required_rel(image_model: Image) -> None:  # | PrivateImage | SharedImage
+def test_required_rel(image_model: Image | PrivateImage | SharedImage) -> None:
     """Test Image required relationships.
 
     A model without required relationships can exist but when querying those values, it
@@ -104,16 +107,16 @@ def test_required_rel(image_model: Image) -> None:  # | PrivateImage | SharedIma
     with pytest.raises(CardinalityViolation):
         image_model.services.single()
 
-    # if isinstance(image_model, PrivateImage):
-    #     with pytest.raises(CardinalityViolation):
-    #         image_model.projects.all()
-    #     with pytest.raises(CardinalityViolation):
-    #         image_model.projects.single()
+    if isinstance(image_model, PrivateImage):
+        with pytest.raises(CardinalityViolation):
+            image_model.projects.all()
+        with pytest.raises(CardinalityViolation):
+            image_model.projects.single()
 
 
 @parametrize_with_cases("image_model", has_tag="model")
 def test_single_linked_service(
-    image_model: Image,  # | PrivateImage | SharedImage,
+    image_model: Image | PrivateImage | SharedImage,
     compute_service_model: ComputeService,
 ) -> None:
     """Verify `services` relationship works correctly.
@@ -129,25 +132,24 @@ def test_single_linked_service(
     assert service.uid == compute_service_model.uid
 
 
-# def test_single_linked_project(
-#     private_image_model: PrivateImage, project_model: Project
-# ) -> None:
-#     """Verify `projects` relationship works correctly.
+def test_single_linked_project(
+    private_image_model: PrivateImage, project_model: Project
+) -> None:
+    """Verify `projects` relationship works correctly.
 
-#     Connect a single Project to a PrivateImage.
-#     """
-#     r = private_image_model.projects.connect(project_model)
-#     assert r is True
+    Connect a single Project to a PrivateImage.
+    """
+    private_image_model.projects.connect(project_model)
 
-#     assert len(private_image_model.projects.all()) == 1
-#     project = private_image_model.projects.single()
-#     assert isinstance(project, Project)
-#     assert project.uid == project_model.uid
+    assert len(private_image_model.projects.all()) == 1
+    project = private_image_model.projects.single()
+    assert isinstance(project, Project)
+    assert project.uid == project_model.uid
 
 
 @parametrize_with_cases("image_model", has_tag="model")
 def test_multiple_linked_services(
-    image_model: Image,  # | PrivateImage | SharedImage,
+    image_model: Image | PrivateImage | SharedImage,
 ) -> None:
     """Verify `services` relationship works correctly.
 
@@ -161,13 +163,13 @@ def test_multiple_linked_services(
     assert len(image_model.services.all()) == 2
 
 
-# def test_multiple_linked_projects(private_image_model: PrivateImage) -> None:
-#     """Verify `services` relationship works correctly.
+def test_multiple_linked_projects(private_image_model: PrivateImage) -> None:
+    """Verify `services` relationship works correctly.
 
-#     Connect a multiple Project to a PrivateImage.
-#     """
-#     item = Project(**project_model_dict()).save()
-#     private_image_model.projects.connect(item)
-#     item = Project(**project_model_dict()).save()
-#     private_image_model.projects.connect(item)
-#     assert len(private_image_model.projects.all()) == 2
+    Connect a multiple Project to a PrivateImage.
+    """
+    item = Project(**project_model_dict()).save()
+    private_image_model.projects.connect(item)
+    item = Project(**project_model_dict()).save()
+    private_image_model.projects.connect(item)
+    assert len(private_image_model.projects.all()) == 2
