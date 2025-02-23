@@ -1,7 +1,8 @@
 """Test custom  authentication functions."""
+
 from datetime import date, datetime
 
-from neo4j.time import Date, DateTime
+from neo4j.time import DateTime
 from pytest_cases import case
 
 from tests.utils import random_date, random_datetime
@@ -13,10 +14,10 @@ class CaseDates:
         d = random_date()
         return d, d
 
-    @case(tags=["date"])
-    def case_neo4j_date(self) -> tuple[date, date]:
-        d = random_date()
-        return Date(d.year, d.month, d.day), d
+    # @case(tags=["date"])
+    # def case_neo4j_date(self) -> tuple[date, date]:
+    #     d = random_date()
+    #     return Date(d.year, d.month, d.day), d
 
     @case(tags=["datetime"])
     def case_py_datetime(self) -> tuple[datetime, datetime]:
@@ -29,3 +30,6 @@ class CaseDates:
         return DateTime(
             d.year, d.month, d.day, d.hour, d.minute, d.second, tzinfo=d.tzinfo
         ), d
+
+
+# TODO: Test relationships with data

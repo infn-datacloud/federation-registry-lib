@@ -1,4 +1,5 @@
 """Test custom  authentication functions."""
+
 from enum import Enum
 from uuid import uuid4
 
@@ -17,7 +18,12 @@ class TestEnum(Enum):
 
 class TestModelEnum(BaseNode):
     __test__ = False
-    test_field: TestEnum = Field(..., description="A test field")
+    test_field: TestEnum = Field(description="A test field")
+
+
+class TestModelNoDefault(BaseNode):
+    __test__ = False
+    test_field: str | None = Field(description="A test field")
 
 
 class TestModelUUID(BaseNode):
@@ -29,12 +35,14 @@ class TestModelUUID(BaseNode):
 
 
 def test_default() -> None:
+    """Test the default description."""
     base_node = BaseNode()
     assert base_node.description is not None
     assert base_node.description == ""
 
 
 def test_valid_schema() -> None:
+    """Test a valid description."""
     desc = random_lower_string()
     base_node = BaseNode(description=desc)
     assert base_node.description is not None
@@ -42,12 +50,23 @@ def test_valid_schema() -> None:
 
 
 def test_not_none() -> None:
+    """Verify that if the value None is given, the default value is returned."""
     base_node = BaseNode(description=None)
     assert base_node.description is not None
     assert base_node.description == ""
 
 
+def test_none() -> None:
+    """Return None if there is no default value."""
+    base_node = TestModelNoDefault(test_field=None)
+    assert base_node.test_field is None
+
+    base_node = TestModelNoDefault(test_field=None)
+    assert base_node.test_field is None
+
+
 def test_get_str_from_uuid() -> None:
+    """Test the conversion of UUIDs to str."""
     uuid1 = uuid4()
     uuid2 = uuid4()
     uuid1_str = uuid1.hex
