@@ -6,7 +6,7 @@ from uuid import uuid4
 import pytest
 from pydantic import Field
 
-from fedreg.core import BaseNode
+from fedreg.core import BaseNode, BaseNodeCreate
 from tests.utils import random_lower_string
 
 
@@ -32,6 +32,10 @@ class TestModelUUID(BaseNode):
     uuid_list: list[str] = Field(
         default_factory=list, description="A test field for list of uuids"
     )
+
+
+class TestModelCreate(BaseNodeCreate):
+    __test__ = False
 
 
 def test_default() -> None:
@@ -96,3 +100,9 @@ def test_get_value_from_enums() -> None:
 
     with pytest.raises(ValueError):
         TestModelEnum(test_field="VALUE_2")
+
+
+def test_base_node_create() -> None:
+    """Test the BaseNodeCreate class."""
+    test_model = TestModelCreate()
+    assert test_model.__config__.validate_assignment is True

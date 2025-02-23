@@ -30,6 +30,3 @@ class CaseDates:
         return DateTime(
             d.year, d.month, d.day, d.hour, d.minute, d.second, tzinfo=d.tzinfo
         ), d
-
-
-# TODO: Test relationships with data

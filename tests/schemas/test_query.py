@@ -1,6 +1,5 @@
 from datetime import date, datetime
 from enum import Enum
-from typing import Type
 
 from pytest_cases import case, parametrize_with_cases
 
@@ -51,27 +50,27 @@ class TestModelEnum(BaseNode):
 
 class CaseModel:
     @case(tags=["str"])
-    def case_model_str(self) -> Type[TestModelStr]:
+    def case_model_str(self) -> type[TestModelStr]:
         return TestModelStr
 
     @case(tags=["str"])
-    def case_model_enum(self) -> Type[TestModelEnum]:
+    def case_model_enum(self) -> type[TestModelEnum]:
         return TestModelEnum
 
     @case(tags=["number"])
-    def case_model_int(self) -> Type[TestModelInt]:
+    def case_model_int(self) -> type[TestModelInt]:
         return TestModelInt
 
     @case(tags=["number"])
-    def case_model_float(self) -> Type[TestModelFloat]:
+    def case_model_float(self) -> type[TestModelFloat]:
         return TestModelFloat
 
     @case(tags=["date"])
-    def case_model_date(self) -> Type[TestModelDate]:
+    def case_model_date(self) -> type[TestModelDate]:
         return TestModelDate
 
     @case(tags=["date"])
-    def case_model_datetime(self) -> Type[TestModelDateTime]:
+    def case_model_datetime(self) -> type[TestModelDateTime]:
         return TestModelDateTime
 
 

@@ -1,6 +1,8 @@
 """File to set tests configuration parameters and common fixtures."""
+
 import os
-from typing import Any, Generator
+from collections.abc import Generator
+from typing import Any
 
 import pytest
 from neomodel import config, db
