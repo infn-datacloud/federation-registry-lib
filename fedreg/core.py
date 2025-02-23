@@ -10,6 +10,8 @@ from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
 from pydantic import BaseModel, Field, create_model, fields, validator
 from pydantic.fields import SHAPE_LIST
 
+DOC_SCHEMA_TYPE = "Inner attribute to distinguish between schema types"
+
 
 class BaseNode(BaseModel):
     """Common attributes and validators for a schema of a generic neo4j Node.
@@ -92,18 +94,24 @@ class BaseNodeRead(BaseModel):
         If the relationship has a model, return a dict with the data stored in the
         relationship.
         """
+        if isinstance(v, (One, ZeroOrOne)):
+            if v.definition.get("model") is None:
+                return v.single()
+            node = v.single()
+            if node is not None:
+                item = node.__dict__
+                item["relationship"] = v.relationship(node)
+                return item
+            return node
         if isinstance(v, (OneOrMore, ZeroOrMore)):
             if v.definition.get("model") is None:
                 return v.all()
-            else:
-                items = []
-                for node in v.all():
-                    item = node.__dict__
-                    item["relationship"] = v.relationship(node)
-                    items.append(item)
-                return items
-        if isinstance(v, (One, ZeroOrOne)):
-            return v.single()
+            items = []
+            for node in v.all():
+                item = node.__dict__
+                item["relationship"] = v.relationship(node)
+                items.append(item)
+            return items
         return v
 
     @validator("*", pre=True)
@@ -122,38 +130,34 @@ class BaseNodeRead(BaseModel):
 
 
 class BaseReadPublic(BaseModel):
-    """ """
+    """Add the internal schema_type attribute."""
 
     schema_type: Literal["public"] = Field(
-        default="public",
-        description="Inner attribute to distinguish between schema types",
+        default="public", description=DOC_SCHEMA_TYPE
     )
 
 
 class BaseReadPrivate(BaseModel):
-    """ """
+    """Add the internal schema_type attribute."""
 
     schema_type: Literal["private"] = Field(
-        default="private",
-        description="Inner attribute to distinguish between schema types",
+        default="private", description=DOC_SCHEMA_TYPE
     )
 
 
 class BaseReadPublicExtended(BaseModel):
-    """ """
+    """Add the internal schema_type attribute."""
 
     schema_type: Literal["public_extended"] = Field(
-        default="public_extended",
-        description="Inner attribute to distinguish between schema types",
+        default="public_extended", description=DOC_SCHEMA_TYPE
     )
 
 
 class BaseReadPrivateExtended(BaseModel):
-    """ """
+    """Add the internal schema_type attribute."""
 
     schema_type: Literal["private_extended"] = Field(
-        default="private_extended",
-        description="Inner attribute to distinguish between schema types",
+        default="private_extended", description=DOC_SCHEMA_TYPE
     )
 
 
