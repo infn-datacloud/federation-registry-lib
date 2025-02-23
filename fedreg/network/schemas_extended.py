@@ -83,13 +83,13 @@ class NetworkReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkBase):
         description (str): Brief description.
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
-        is_shared (bool): Public or private Network.
         is_router_external (bool): Network with access to the outside.
         is_default (bool): Network to use as default.
         mtu (int | None): Metric transmission unit (B).
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): list of tags associated to this Network.
+        is_shared (bool): Public or private Network.
         project (ProjectRead | None): Project having access to this network if the
             network is not shared.
         service (NetworkServiceReadExtended): Network Service supplying this network.

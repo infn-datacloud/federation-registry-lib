@@ -70,7 +70,6 @@ class ImageBase(ImageBasePublic):
     kernel_id: str | None = Field(default=None, description=DOC_KERN)
     cuda_support: bool = Field(default=False, description=DOC_CUDA)
     gpu_driver: bool = Field(default=False, description=DOC_GPU_DRIV)
-    is_public: bool = Field(default=True, description=DOC_SHARED)
     created_at: datetime | None = Field(default=None, description=DOC_CREATED_AT)
     tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
 

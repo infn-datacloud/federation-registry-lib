@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, validator
 
 from fedreg.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
@@ -29,7 +29,12 @@ from fedreg.location.schemas import (
     LocationRead,
     LocationReadPublic,
 )
-from fedreg.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
+from fedreg.network.schemas import (
+    NetworkRead,
+    NetworkReadPublic,
+    PrivateNetworkCreate,
+    SharedNetworkCreate,
+)
 from fedreg.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from fedreg.provider.constants import (
     DOC_EXT_AUTH_METH,
@@ -681,7 +686,7 @@ class PrivateFlavorCreateExtended(PrivateFlavorCreate):
         projects (list of str): UUID of the projects having access to this flavor.
     """
 
-    projects: list[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
+    projects: list[str] = Field(description=DOC_NEW_PROJ_UUIDS)
 
     @validator("projects")
     @classmethod
@@ -713,7 +718,7 @@ class PrivateImageCreateExtended(PrivateImageCreate):
         projects (list of str): UUID of the projects having access to this image.
     """
 
-    projects: list[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
+    projects: list[str] = Field(description=DOC_NEW_PROJ_UUIDS)
 
     @validator("projects")
     @classmethod
@@ -724,7 +729,7 @@ class PrivateImageCreateExtended(PrivateImageCreate):
         return v
 
 
-class NetworkCreateExtended(NetworkCreate):
+class PrivateNetworkCreateExtended(PrivateNetworkCreate):
     """Model to extend the Network data to add to the DB.
 
     Attributes:
@@ -732,7 +737,6 @@ class NetworkCreateExtended(NetworkCreate):
         description (str): Brief description.
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
-        is_shared (bool): Public or private Network.
         is_router_external (bool): Network with access to outside networks. Externa
             network.
         is_default (bool): Network to use as default.
@@ -740,27 +744,11 @@ class NetworkCreateExtended(NetworkCreate):
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): list of tags associated to this Network.
-        project (str | None): Target project's UUID in the Provider.
+        is_shared (bool): Public or private Network.
+        project (str): UUID of the project which can use this network.
     """
 
-    project: str | None = Field(default=None, description=DOC_NEW_PROJ_UUID)
-
-    @root_validator
-    @classmethod
-    def project_require_if_private_net(cls, values: dict[str, Any]) -> dict[str, Any]:
-        """Verify target project is defined based on network type.
-
-        If shared verify the project is None, otherwise the project must be defined.
-        """
-        if not values.get("is_shared"):
-            assert values.get("project") is not None, (
-                "Projects is mandatory for private networks"
-            )
-        else:
-            assert not values.get("project"), (
-                "Shared networks do not have a linked project"
-            )
-        return values
+    project: str = Field(description=DOC_NEW_PROJ_UUID)
 
 
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
@@ -851,7 +839,7 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
         networks (list of NetworkRead): Supplied networks.
     """
 
-    networks: list[NetworkCreateExtended] = Field(
+    networks: list[PrivateNetworkCreateExtended | SharedNetworkCreate] = Field(
         default_factory=list, description=DOC_EXT_NETW
     )
     quotas: list[NetworkQuotaCreateExtended] = Field(
@@ -861,8 +849,8 @@ class NetworkServiceCreateExtended(NetworkServiceCreate):
     @validator("networks")
     @classmethod
     def validate_networks(
-        cls, v: list[NetworkCreateExtended]
-    ) -> list[NetworkCreateExtended]:
+        cls, v: list[PrivateNetworkCreateExtended | SharedNetworkCreate]
+    ) -> list[PrivateNetworkCreateExtended | SharedNetworkCreate]:
         """Verify there are no duplicated UUIDs in the network list."""
         find_duplicates(v, "uuid")
         return v

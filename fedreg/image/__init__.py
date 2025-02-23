@@ -1,1 +1,1 @@
-"""Definition of the models, CRUD operations and API for a Image."""
+"""Definition of the models for the Image nodes."""

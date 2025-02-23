@@ -1,5 +1,7 @@
 """Pydantic models of the Virtual Machine Network owned by a Provider."""
 
+from typing import Literal
+
 from pydantic import Field
 
 from fedreg.core import (
@@ -12,9 +14,9 @@ from fedreg.core import (
 )
 from fedreg.network.constants import (
     DOC_DEFAULT,
-    DOC_EXT_ROUT,
     DOC_MTU,
     DOC_NAME,
+    DOC_OUT_ROUTER,
     DOC_PROXY_HOST,
     DOC_PROXY_USER,
     DOC_SHARED,
@@ -45,7 +47,6 @@ class NetworkBase(NetworkBasePublic):
         description (str): Brief description.
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
-        is_shared (bool): Public or private Network.
         is_router_external (bool): Network with access to outside networks. External
             network.
         is_default (bool): Network to use as default.
@@ -55,8 +56,7 @@ class NetworkBase(NetworkBasePublic):
         tags (list of str): list of tags associated to this Network.
     """
 
-    is_shared: bool = Field(default=True, description=DOC_SHARED)
-    is_router_external: bool = Field(default=False, description=DOC_EXT_ROUT)
+    is_router_external: bool = Field(default=False, description=DOC_OUT_ROUTER)
     is_default: bool = Field(default=False, description=DOC_DEFAULT)
     mtu: int | None = Field(default=None, gt=0, description=DOC_MTU)
     proxy_host: str | None = Field(default=None, description=DOC_PROXY_HOST)
@@ -64,7 +64,7 @@ class NetworkBase(NetworkBasePublic):
     tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
-class NetworkCreate(BaseNodeCreate, NetworkBase):
+class PrivateNetworkCreate(BaseNodeCreate, NetworkBase):
     """Model to create a Network.
 
     Class without id (which is populated by the database). Expected as input when
@@ -75,7 +75,6 @@ class NetworkCreate(BaseNodeCreate, NetworkBase):
         description (str): Brief description.
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
-        is_shared (bool): Public or private Network.
         is_router_external (bool): Network with access to outside networks. External
             network.
         is_default (bool): Network to use as default.
@@ -83,7 +82,34 @@ class NetworkCreate(BaseNodeCreate, NetworkBase):
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): list of tags associated to this Network.
+        is_shared (bool): Public or private Network.
     """
+
+    is_shared: Literal[False] = Field(default=False, description=DOC_SHARED)
+
+
+class SharedNetworkCreate(BaseNodeCreate, NetworkBase):
+    """Model to create a Network.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        is_router_external (bool): Network with access to outside networks. External
+            network.
+        is_default (bool): Network to use as default.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_host (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
+        tags (list of str): list of tags associated to this Network.
+        is_shared (bool): Public or private Network.
+    """
+
+    is_shared: Literal[True] = Field(default=True, description=DOC_SHARED)
 
 
 class NetworkUpdate(BaseNodeCreate, NetworkBase):
@@ -99,7 +125,6 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
         description (str | None): Brief description.
         name (str | None): Network name in the Provider.
         uuid (str | None): Network unique ID in the Provider
-        is_shared (bool | None): Public or private Network.
         is_router_external (bool | None): Network with access to outside networks.
             External network.
         is_default (bool | None): Network to use as default.
@@ -144,7 +169,6 @@ class NetworkRead(BaseNodeRead, BaseReadPrivate, NetworkBase):
         description (str): Brief description.
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
-        is_shared (bool): Public or private Network.
         is_router_external (bool): Network with access to outside networks. External
             network.
         is_default (bool): Network to use as default.
@@ -152,7 +176,10 @@ class NetworkRead(BaseNodeRead, BaseReadPrivate, NetworkBase):
         proxy_host (str | None): Proxy IP address.
         proxy_user (str | None): Proxy username.
         tags (list of str): list of tags associated to this Network.
+        is_shared (bool): Public or private Network.
     """
+
+    is_shared: bool | None = Field(default=None, description=DOC_SHARED)
 
 
 NetworkQuery = create_query_model("NetworkQuery", NetworkBase)
