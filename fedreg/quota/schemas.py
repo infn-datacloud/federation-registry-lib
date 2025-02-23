@@ -9,8 +9,8 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
-from fedreg.query import create_query_model
 from fedreg.quota.constants import (
     DOC_BYTES,
     DOC_CONTAINERS,

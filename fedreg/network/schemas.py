@@ -9,6 +9,7 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
 from fedreg.network.constants import (
     DOC_DEFAULT,
@@ -21,7 +22,6 @@ from fedreg.network.constants import (
     DOC_TAGS,
     DOC_UUID,
 )
-from fedreg.query import create_query_model
 
 
 class NetworkBasePublic(BaseNode):

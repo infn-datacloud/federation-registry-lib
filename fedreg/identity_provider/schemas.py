@@ -9,9 +9,9 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
 from fedreg.identity_provider.constants import DOC_CLAIM, DOC_ENDP
-from fedreg.query import create_query_model
 
 
 class IdentityProviderBasePublic(BaseNode):

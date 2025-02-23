@@ -10,6 +10,7 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
 from fedreg.location.constants import (
     DOC_CODE,
@@ -18,7 +19,6 @@ from fedreg.location.constants import (
     DOC_LONG,
     DOC_SITE,
 )
-from fedreg.query import create_query_model
 
 
 class LocationBasePublic(BaseNode):

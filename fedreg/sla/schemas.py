@@ -10,8 +10,8 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
-from fedreg.query import create_query_model
 from fedreg.sla.constants import DOC_END, DOC_START, DOC_UUID
 
 

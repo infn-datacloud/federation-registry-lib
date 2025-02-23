@@ -9,8 +9,8 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
-from fedreg.query import create_query_model
 from fedreg.service.constants import DOC_ENDP, DOC_NAME
 from fedreg.service.enum import (
     BlockStorageServiceName,

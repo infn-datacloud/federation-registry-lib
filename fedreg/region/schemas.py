@@ -7,8 +7,8 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
-from fedreg.query import create_query_model
 from fedreg.region.constants import (
     DOC_BAND_IN,
     DOC_BAND_OUT,

@@ -9,9 +9,9 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
 from fedreg.project.constants import DOC_NAME, DOC_UUID
-from fedreg.query import create_query_model
 
 
 class ProjectBasePublic(BaseNode):

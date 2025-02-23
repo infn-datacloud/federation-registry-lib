@@ -9,6 +9,7 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
 from fedreg.provider.constants import (
     DOC_EMAIL,
@@ -18,7 +19,6 @@ from fedreg.provider.constants import (
     DOC_TYPE,
 )
 from fedreg.provider.enum import ProviderStatus, ProviderType
-from fedreg.query import create_query_model
 
 
 class ProviderBasePublic(BaseNode):

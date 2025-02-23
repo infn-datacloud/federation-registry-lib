@@ -9,6 +9,7 @@ from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
+    create_query_model,
 )
 from fedreg.flavor.constants import (
     DOC_DISK,
@@ -25,7 +26,6 @@ from fedreg.flavor.constants import (
     DOC_UUID,
     DOC_VCPUS,
 )
-from fedreg.query import create_query_model
 
 
 class FlavorBasePublic(BaseNode):

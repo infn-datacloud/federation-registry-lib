@@ -1,11 +1,13 @@
 """Core pydantic models."""
+from datetime import date, datetime
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, Optional, Type, get_origin
 from uuid import UUID
 
 from neo4j.time import Date, DateTime
 from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
-from pydantic import BaseModel, Field, fields, validator
+from pydantic import BaseModel, Field, create_model, fields, validator
+from pydantic.fields import SHAPE_LIST
 
 
 class BaseNode(BaseModel):
@@ -168,3 +170,77 @@ class BaseNodeQuery(BaseModel):
         """Sub class to validate assignments."""
 
         validate_assignment = True
+
+
+def create_query_model(
+    model_name: str, base_model: Type[BaseNode]
+) -> Type[BaseNodeQuery]:
+    """Create a Query Model from Base Model.
+
+    The new model has the given model name.
+    It has the same attributes as the Base model plus attributes used to execute filters
+    and queries on the database.
+    Convert to None the default value for all attributes.
+
+    Args:
+    ----
+        model_name (str): New model name.
+        base_model (Type[BaseNode]): Input base model from which retrieve the
+            attributes.
+
+    Returns:
+    -------
+        Type[BaseNodeQuery].
+    """
+    d = {}
+    for k, v in base_model.__fields__.items():
+        if get_origin(v.type_):
+            continue
+        if v.shape == SHAPE_LIST:
+            continue
+        elif issubclass(v.type_, bool):
+            d[k] = (Optional[v.type_], None)
+        elif issubclass(v.type_, str) or issubclass(v.type_, Enum):
+            t = (Optional[str], None)
+            d[k] = t
+            d[f"{k}__contains"] = t
+            d[f"{k}__icontains"] = t
+            d[f"{k}__startswith"] = t
+            d[f"{k}__istartswith"] = t
+            d[f"{k}__endswith"] = t
+            d[f"{k}__iendswith"] = t
+            d[f"{k}__regex"] = t
+            d[f"{k}__iregex"] = t
+        elif issubclass(v.type_, int):
+            t = (Optional[int], None)
+            d[k] = t
+            d[f"{k}__lt"] = t
+            d[f"{k}__gt"] = t
+            d[f"{k}__lte"] = t
+            d[f"{k}__gte"] = t
+            d[f"{k}__ne"] = t
+        elif issubclass(v.type_, float):
+            t = (Optional[float], None)
+            d[k] = t
+            d[f"{k}__lt"] = t
+            d[f"{k}__gt"] = t
+            d[f"{k}__lte"] = t
+            d[f"{k}__gte"] = t
+            d[f"{k}__ne"] = t
+        elif issubclass(v.type_, datetime):
+            t = (Optional[datetime], None)
+            d[f"{k}__lt"] = t
+            d[f"{k}__gt"] = t
+            d[f"{k}__lte"] = t
+            d[f"{k}__gte"] = t
+            d[f"{k}__ne"] = t
+        elif issubclass(v.type_, date):
+            t = (Optional[date], None)
+            d[f"{k}__lt"] = t
+            d[f"{k}__gt"] = t
+            d[f"{k}__lte"] = t
+            d[f"{k}__gte"] = t
+            d[f"{k}__ne"] = t
+        else:
+            d[k] = (Optional[v.type_], None)
+    return create_model(model_name, __base__=BaseNodeQuery, **d)
