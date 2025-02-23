@@ -86,7 +86,6 @@ class FlavorReadExtended(BaseNodeRead, BaseReadPrivateExtended, FlavorBase):
         name (str): Flavor name in the Resource Provider.
         uuid (str): Flavor unique ID in the Resource Provider.
         disk (int): Reserved disk size (GiB)
-        is_public (bool): Public or private Flavor.
         ram (int): Reserved RAM (MiB)
         vcpus (int): Number of Virtual CPUs.
         swap (int): Swap size (GiB).
@@ -96,6 +95,7 @@ class FlavorReadExtended(BaseNodeRead, BaseReadPrivateExtended, FlavorBase):
         gpu_model (str | None): GPU model name.
         gpu_vendor (str | None): Name of the GPU vendor.
         local_storage (str | None): Local storage presence.
+        is_shared (bool): Public or private Image.
         projects (list of ProjectRead):
             Projects having access to this flavor. Filled only for private flavors.
         services (list of ComputeServiceReadExtended):

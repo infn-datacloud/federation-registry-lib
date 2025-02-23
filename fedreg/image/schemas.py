@@ -1,6 +1,7 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import Field
 
@@ -57,8 +58,7 @@ class ImageBase(ImageBasePublic):
         architecture (str | None): OS architecture.
         kernel_id (str | None): Kernel version.
         cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs drivers.
-        is_public (bool): Public or private Image.
+        gpu_driver (str): Support for GPUs drivers enabled.
         created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
     """
@@ -75,7 +75,7 @@ class ImageBase(ImageBasePublic):
     tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
-class ImageCreate(BaseNodeCreate, ImageBase):
+class PrivateImageCreate(BaseNodeCreate, ImageBase):
     """Model to create an Image.
 
     Class without id (which is populated by the database). Expected as input when
@@ -92,11 +92,39 @@ class ImageCreate(BaseNodeCreate, ImageBase):
         architecture (str | None): OS architecture.
         kernel_id (str | None): Kernel version.
         cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs drivers.
-        is_public (bool): Public or private Image.
+        gpu_driver (str): Support for GPUs drivers enabled.
         created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
+        is_shared (bool): Public or private Image.
     """
+
+    is_shared: Literal[False] = Field(default=False, description=DOC_SHARED)
+
+
+class SharedImageCreate(BaseNodeCreate, ImageBase):
+    """Model to create an Image.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Image name in the Provider.
+        uuid (str): Image unique ID in the Provider
+        os_type (str | None): OS type.
+        os_distro (str | None): OS distribution.
+        os_version (str | None): Distribution version.
+        architecture (str | None): OS architecture.
+        kernel_id (str | None): Kernel version.
+        cuda_support (str): Support for cuda enabled.
+        gpu_driver (str): Support for GPUs drivers enabled.
+        created_at (datetime | None): Creation time.
+        tags (list of str): list of tags associated to this Image.
+        is_shared (bool): Public or private Image.
+    """
+
+    is_shared: Literal[True] = Field(default=True, description=DOC_SHARED)
 
 
 class ImageUpdate(BaseNodeCreate, ImageBase):
@@ -118,8 +146,7 @@ class ImageUpdate(BaseNodeCreate, ImageBase):
         architecture (str | None): OS architecture.
         kernel_id (str | None): Kernel version.
         cuda_support (str | None): Support for cuda enabled.
-        gpu_driver (str | None): Support for GPUs drivers.
-        is_public (bool | None): Public or private Image.
+        gpu_driver (str | None): Support for GPUs drivers enabled.
         created_at (datetime | None): Creation time.
         tags (list of str | None): list of tags associated to this Image.
     """
@@ -165,11 +192,14 @@ class ImageRead(BaseNodeRead, BaseReadPrivate, ImageBase):
         architecture (str | None): OS architecture.
         kernel_id (str | None): Kernel version.
         cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs drivers.
+        gpu_driver (str): Support for GPUs drivers enabled.
         is_public (bool): Public or private Image.
         created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
+        is_shared (bool): Public or private Image.
     """
+
+    is_shared: bool | None = Field(default=None, description=DOC_SHARED)
 
 
 ImageQuery = create_query_model("ImageQuery", ImageBase)

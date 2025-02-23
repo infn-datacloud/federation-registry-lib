@@ -18,7 +18,12 @@ from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from fedreg.image.schemas import ImageCreate, ImageRead, ImageReadPublic
+from fedreg.image.schemas import (
+    ImageRead,
+    ImageReadPublic,
+    PrivateImageCreate,
+    SharedImageCreate,
+)
 from fedreg.location.schemas import (
     LocationCreate,
     LocationRead,
@@ -687,7 +692,7 @@ class PrivateFlavorCreateExtended(PrivateFlavorCreate):
         return v
 
 
-class ImageCreateExtended(ImageCreate):
+class PrivateImageCreateExtended(PrivateImageCreate):
     """Model to extend the Image data to add to the DB.
 
     Attributes:
@@ -701,11 +706,11 @@ class ImageCreateExtended(ImageCreate):
         architecture (str | None): OS architecture.
         kernel_id (str | None): Kernel version.
         cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs drivers.
-        is_public (bool): Public or private Image.
+        gpu_driver (str): Support for GPUs drivers enabled.
+        created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
-        projects (list of str): list of project' UUIDs in the Provider having access to
-            the resource.
+        is_shared (bool): Public or private Image.
+        projects (list of str): UUID of the projects having access to this image.
     """
 
     projects: list[str] = Field(default_factory=list, description=DOC_NEW_PROJ_UUIDS)
@@ -714,25 +719,9 @@ class ImageCreateExtended(ImageCreate):
     @classmethod
     def validate_projects(cls, v: list[str]) -> str:
         """Cast to string possible UUIDs and verify there are no duplicate values."""
+        assert len(v), "Projects are mandatory for private images"
         find_duplicates(v)
         return v
-
-    @root_validator
-    @classmethod
-    def project_require_if_private_image(cls, values: dict[str, Any]) -> dict[str, Any]:
-        """Verify list emptiness based on image type.
-
-        If public verify the projects list is empty, otherwise the list can't be empty.
-        """
-        if not values.get("is_public"):
-            assert len(values.get("projects", [])), (
-                "Projects are mandatory for private images"
-            )
-        else:
-            assert not len(values.get("projects", [])), (
-                "Public images do not have linked projects"
-            )
-        return values
 
 
 class NetworkCreateExtended(NetworkCreate):
@@ -818,7 +807,7 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
     flavors: list[PrivateFlavorCreateExtended | SharedFlavorCreate] = Field(
         default_factory=list, description=DOC_EXT_FLAV
     )
-    images: list[ImageCreateExtended] = Field(
+    images: list[PrivateImageCreateExtended | SharedImageCreate] = Field(
         default_factory=list, description=DOC_EXT_IMAG
     )
     quotas: list[ComputeQuotaCreateExtended] = Field(
@@ -830,10 +819,10 @@ class ComputeServiceCreateExtended(ComputeServiceCreate):
     def no_duplicate_uuid_in_flavors_and_images(
         cls,
         v: list[PrivateFlavorCreateExtended | SharedFlavorCreate]
-        | list[ImageCreateExtended],
+        | list[PrivateImageCreateExtended | SharedImageCreate],
     ) -> (
         list[PrivateFlavorCreateExtended | SharedFlavorCreate]
-        | list[ImageCreateExtended]
+        | list[PrivateImageCreateExtended | SharedImageCreate]
     ):
         """Verify there are no duplicated names or UUIDs in the flavor list."""
         find_duplicates(v, "uuid")

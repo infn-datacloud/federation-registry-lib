@@ -156,7 +156,6 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
         name (str | None): Flavor name in the Resource Provider.
         uuid (str | None): Flavor unique ID in the Resource Provider.
         disk (int | None): Reserved disk size (GiB)
-        is_public (bool | None): Public or private Flavor.
         ram (int | None): Reserved RAM (MiB)
         vcpus (int | None): Number of Virtual CPUs.
         swap (int | None): Swap size (GiB).

@@ -90,6 +90,7 @@ class ImageReadExtended(BaseNodeRead, BaseReadPrivateExtended, ImageBase):
         is_public (bool): Public or private Image.
         created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
+        is_shared (bool): Public or private Image.
         projects (list of ProjectRead): Projects having access to this flavor. The list
             is populated only if the flavor is a private one.
         services (list of ComputeServiceReadExtended): Compute Services exploiting this
