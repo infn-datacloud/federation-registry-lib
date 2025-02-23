@@ -11,9 +11,9 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-# from fedreg.flavor.models import PrivateFlavor, SharedFlavor
-# from fedreg.image.models import PrivateImage, SharedImage
-# from fedreg.network.models import PrivateNetwork, SharedNetwork
+from fedreg.flavor.models import PrivateFlavor, SharedFlavor
+from fedreg.image.models import PrivateImage, SharedImage
+from fedreg.network.models import PrivateNetwork, SharedNetwork
 from fedreg.project.models import Project
 from fedreg.provider.models import Provider
 from fedreg.quota.models import (
@@ -23,8 +23,12 @@ from fedreg.quota.models import (
     ObjectStoreQuota,
     Quota,
 )
+from fedreg.service.models import ComputeService, NetworkService
 from fedreg.sla.models import SLA
 from tests.models.utils import (
+    flavor_model_dict,
+    image_model_dict,
+    network_model_dict,
     project_model_dict,
     provider_model_dict,
     sla_model_dict,
@@ -89,7 +93,7 @@ def test_rel_def(project_model: Project) -> None:
     assert isinstance(project_model.private_flavors.source, Project)
     assert project_model.private_flavors.source.uid == project_model.uid
     assert project_model.private_flavors.definition
-    # assert project_model.private_flavors.definition["node_class"] == PrivateFlavor
+    assert project_model.private_flavors.definition["node_class"] == PrivateFlavor
 
     assert isinstance(project_model.private_images, RelationshipManager)
     assert project_model.private_images.name
@@ -97,7 +101,7 @@ def test_rel_def(project_model: Project) -> None:
     assert isinstance(project_model.private_images.source, Project)
     assert project_model.private_images.source.uid == project_model.uid
     assert project_model.private_images.definition
-    # assert project_model.private_images.definition["node_class"] == PrivateImage
+    assert project_model.private_images.definition["node_class"] == PrivateImage
 
     assert isinstance(project_model.private_networks, RelationshipManager)
     assert project_model.private_networks.name
@@ -105,7 +109,7 @@ def test_rel_def(project_model: Project) -> None:
     assert isinstance(project_model.private_networks.source, Project)
     assert project_model.private_networks.source.uid == project_model.uid
     assert project_model.private_networks.definition
-    # assert project_model.private_networks.definition["node_class"] == PrivateNetwork
+    assert project_model.private_networks.definition["node_class"] == PrivateNetwork
 
 
 def test_required_rel(project_model: Project) -> None:
@@ -236,235 +240,232 @@ def test_multiple_linked_quotas(
     assert len(project_model.quotas.all()) == len(quota_models)
 
 
-# def test_single_linked_private_flavor(
-#     project_model: Project, private_flavor_model: PrivateFlavor
-# ) -> None:
-#     """Verify `private_flavors` relationship works correctly.
+def test_single_linked_private_flavor(
+    project_model: Project, private_flavor_model: PrivateFlavor
+) -> None:
+    """Verify `private_flavors` relationship works correctly.
 
-#     Connect a single PrivateFlavor to a Project.
-#     """
-#     r = project_model.private_flavors.connect(private_flavor_model)
-#     assert r is True
+    Connect a single PrivateFlavor to a Project.
+    """
+    project_model.private_flavors.connect(private_flavor_model)
 
-#     assert len(project_model.private_flavors.all()) == 1
-#     flavor = project_model.private_flavors.single()
-#     assert isinstance(flavor, PrivateFlavor)
-#     assert flavor.uid == private_flavor_model.uid
-#     assert not flavor.is_shared
-
-
-# def test_multiple_linked_private_flavors(project_model: Project) -> None:
-#     """Verify `private_flavors` relationship works correctly.
-
-#     Connect multiple PrivateFlavor to a Project.
-#     """
-#     item = PrivateFlavor(**flavor_model_dict()).save()
-#     project_model.private_flavors.connect(item)
-#     item = PrivateFlavor(**flavor_model_dict()).save()
-#     project_model.private_flavors.connect(item)
-#     assert len(project_model.private_flavors.all()) == 2
+    assert len(project_model.private_flavors.all()) == 1
+    flavor = project_model.private_flavors.single()
+    assert isinstance(flavor, PrivateFlavor)
+    assert flavor.uid == private_flavor_model.uid
+    assert not flavor.is_shared
 
 
-# def test_single_linked_private_image(
-#     project_model: Project, private_image_model: PrivateImage
-# ) -> None:
-#     """Verify `private_images` relationship works correctly.
+def test_multiple_linked_private_flavors(project_model: Project) -> None:
+    """Verify `private_flavors` relationship works correctly.
 
-#     Connect a single PrivateImage to a Project.
-#     """
-#     r = project_model.private_images.connect(private_image_model)
-#     assert r is True
-
-#     assert len(project_model.private_images.all()) == 1
-#     image = project_model.private_images.single()
-#     assert isinstance(image, PrivateImage)
-#     assert image.uid == private_image_model.uid
-#     assert not image.is_shared
+    Connect multiple PrivateFlavor to a Project.
+    """
+    item = PrivateFlavor(**flavor_model_dict()).save()
+    project_model.private_flavors.connect(item)
+    item = PrivateFlavor(**flavor_model_dict()).save()
+    project_model.private_flavors.connect(item)
+    assert len(project_model.private_flavors.all()) == 2
 
 
-# def test_multiple_linked_private_images(project_model: Project) -> None:
-#     """Verify `private_images` relationship works correctly.
+def test_single_linked_private_image(
+    project_model: Project, private_image_model: PrivateImage
+) -> None:
+    """Verify `private_images` relationship works correctly.
 
-#     Connect multiple PrivateImage to a Project.
-#     """
-#     item = PrivateImage(**image_model_dict()).save()
-#     project_model.private_images.connect(item)
-#     item = PrivateImage(**image_model_dict()).save()
-#     project_model.private_images.connect(item)
-#     assert len(project_model.private_images.all()) == 2
+    Connect a single PrivateImage to a Project.
+    """
+    project_model.private_images.connect(private_image_model)
 
-
-# def test_single_linked_private_network(
-#     project_model: Project, private_network_model: PrivateNetwork
-# ) -> None:
-#     """Verify `private_networks` relationship works correctly.
-
-#     Connect a single PrivateNetwork to a Project.
-#     """
-#     r = project_model.private_networks.connect(private_network_model)
-#     assert r is True
-
-#     assert len(project_model.private_networks.all()) == 1
-#     network = project_model.private_networks.single()
-#     assert isinstance(network, PrivateNetwork)
-#     assert network.uid == private_network_model.uid
-#     assert not network.is_shared
+    assert len(project_model.private_images.all()) == 1
+    image = project_model.private_images.single()
+    assert isinstance(image, PrivateImage)
+    assert image.uid == private_image_model.uid
+    assert not image.is_shared
 
 
-# def test_multiple_linked_private_networks(project_model: Project) -> None:
-#     """Verify `private_networks` relationship works correctly.
+def test_multiple_linked_private_images(project_model: Project) -> None:
+    """Verify `private_images` relationship works correctly.
 
-#     Connect multiple PrivateNetwork to a Project.
-#     """
-#     item = PrivateNetwork(**network_model_dict()).save()
-#     project_model.private_networks.connect(item)
-#     item = PrivateNetwork(**network_model_dict()).save()
-#     project_model.private_networks.connect(item)
-#     assert len(project_model.private_networks.all()) == 2
-
-
-# def test_linked_shared_flavors(
-#     project_model: Project,
-#     compute_quota_model: ComputeQuota,
-#     compute_service_model: ComputeService,
-#     shared_flavor_model: SharedFlavor,
-# ) -> None:
-#     """Verify `shared_flavors` function works correctly.
-
-#     We detect shared flavors through services connected by at least one quota to the
-#     target Project.
-#     """
-#     compute_service_model.quotas.connect(compute_quota_model)
-#     project_model.quotas.connect(compute_quota_model)
-#     compute_service_model.flavors.connect(shared_flavor_model)
-
-#     shared_flavors = project_model.shared_flavors()
-#     assert len(shared_flavors) == 1
-#     flavor = shared_flavors[0]
-#     assert isinstance(flavor, SharedFlavor)
-#     assert flavor.uid == shared_flavor_model.uid
-
-#     flavor_model = SharedFlavor(**flavor_model_dict()).save()
-#     compute_service_model.flavors.connect(flavor_model)
-#     shared_flavors = project_model.shared_flavors()
-#     assert len(shared_flavors) == 2
+    Connect multiple PrivateImage to a Project.
+    """
+    item = PrivateImage(**image_model_dict()).save()
+    project_model.private_images.connect(item)
+    item = PrivateImage(**image_model_dict()).save()
+    project_model.private_images.connect(item)
+    assert len(project_model.private_images.all()) == 2
 
 
-# def test_linked_shared_images(
-#     project_model: Project,
-#     compute_quota_model: ComputeQuota,
-#     compute_service_model: ComputeService,
-#     shared_image_model: SharedImage,
-# ) -> None:
-#     """Verify `shared_images` function works correctly.
+def test_single_linked_private_network(
+    project_model: Project, private_network_model: PrivateNetwork
+) -> None:
+    """Verify `private_networks` relationship works correctly.
 
-#     We detect shared images through services connected by at least one quota to the
-#     target Project.
-#     """
-#     compute_service_model.quotas.connect(compute_quota_model)
-#     project_model.quotas.connect(compute_quota_model)
-#     compute_service_model.images.connect(shared_image_model)
+    Connect a single PrivateNetwork to a Project.
+    """
+    project_model.private_networks.connect(private_network_model)
 
-#     shared_images = project_model.shared_images()
-#     assert len(shared_images) == 1
-#     image = shared_images[0]
-#     assert isinstance(image, SharedImage)
-#     assert image.uid == shared_image_model.uid
-
-#     image_model = SharedImage(**image_model_dict()).save()
-#     compute_service_model.images.connect(image_model)
-#     shared_images = project_model.shared_images()
-#     assert len(shared_images) == 2
+    assert len(project_model.private_networks.all()) == 1
+    network = project_model.private_networks.single()
+    assert isinstance(network, PrivateNetwork)
+    assert network.uid == private_network_model.uid
+    assert not network.is_shared
 
 
-# def test_linked_shared_networks(
-#     project_model: Project,
-#     network_quota_model: NetworkQuota,
-#     network_service_model: NetworkService,
-#     shared_network_model: SharedNetwork,
-# ) -> None:
-#     """Verify `shared_networks` function works correctly.
+def test_multiple_linked_private_networks(project_model: Project) -> None:
+    """Verify `private_networks` relationship works correctly.
 
-#     We detect shared networks through services connected by at least one quota to the
-#     target Project.
-#     """
-#     network_service_model.quotas.connect(network_quota_model)
-#     project_model.quotas.connect(network_quota_model)
-#     network_service_model.networks.connect(shared_network_model)
-
-#     shared_networks = project_model.shared_networks()
-#     assert len(shared_networks) == 1
-#     network = shared_networks[0]
-#     assert isinstance(network, SharedNetwork)
-#     assert network.uid == shared_network_model.uid
-
-#     network_model = SharedNetwork(**network_model_dict()).save()
-#     network_service_model.networks.connect(network_model)
-#     shared_networks = project_model.shared_networks()
-#     assert len(shared_networks) == 2
+    Connect multiple PrivateNetwork to a Project.
+    """
+    item = PrivateNetwork(**network_model_dict()).save()
+    project_model.private_networks.connect(item)
+    item = PrivateNetwork(**network_model_dict()).save()
+    project_model.private_networks.connect(item)
+    assert len(project_model.private_networks.all()) == 2
 
 
-# def test_priv_pub_flavors_belong_to_diff_lists(
-#     project_model: Project,
-#     private_flavor_model: PrivateFlavor,
-#     shared_flavor_model: SharedFlavor,
-#     compute_quota_model: ComputeQuota,
-#     compute_service_model: ComputeService,
-# ) -> None:
-#     """Verify `shared_flavors` function works correctly.
+def test_linked_shared_flavors(
+    project_model: Project,
+    compute_quota_model: ComputeQuota,
+    compute_service_model: ComputeService,
+    shared_flavor_model: SharedFlavor,
+) -> None:
+    """Verify `shared_flavors` function works correctly.
 
-#     We detect only SharedFlavor through `shared_flavors`. Private ones are detected
-#     through the dedicated relationship.
-#     """
-#     compute_service_model.quotas.connect(compute_quota_model)
-#     project_model.quotas.connect(compute_quota_model)
-#     compute_service_model.flavors.connect(shared_flavor_model)
-#     compute_service_model.flavors.connect(private_flavor_model)
-#     project_model.private_flavors.connect(private_flavor_model)
-#     assert len(project_model.shared_flavors()) == 1
-#     assert len(project_model.private_flavors.all()) == 1
+    We detect shared flavors through services connected by at least one quota to the
+    target Project.
+    """
+    compute_service_model.quotas.connect(compute_quota_model)
+    project_model.quotas.connect(compute_quota_model)
+    compute_service_model.flavors.connect(shared_flavor_model)
 
+    shared_flavors = project_model.shared_flavors()
+    assert len(shared_flavors) == 1
+    flavor = shared_flavors[0]
+    assert isinstance(flavor, SharedFlavor)
+    assert flavor.uid == shared_flavor_model.uid
 
-# def test_priv_pub_images_belong_to_diff_lists(
-#     project_model: Project,
-#     private_image_model: PrivateImage,
-#     shared_image_model: SharedImage,
-#     compute_quota_model: ComputeQuota,
-#     compute_service_model: ComputeService,
-# ) -> None:
-#     """Verify `shared_images` function works correctly.
-
-#     We detect only SharedImage through `shared_images`. Private ones are detected
-#     through the dedicated relationship.
-#     """
-#     compute_service_model.quotas.connect(compute_quota_model)
-#     project_model.quotas.connect(compute_quota_model)
-#     compute_service_model.images.connect(shared_image_model)
-#     compute_service_model.images.connect(private_image_model)
-#     project_model.private_images.connect(private_image_model)
-#     assert len(project_model.shared_images()) == 1
-#     assert len(project_model.private_images.all()) == 1
+    flavor_model = SharedFlavor(**flavor_model_dict()).save()
+    compute_service_model.flavors.connect(flavor_model)
+    shared_flavors = project_model.shared_flavors()
+    assert len(shared_flavors) == 2
 
 
-# def test_priv_pub_networks_belong_to_diff_lists(
-#     project_model: Project,
-#     private_network_model: PrivateNetwork,
-#     shared_network_model: SharedNetwork,
-#     network_quota_model: NetworkQuota,
-#     network_service_model: NetworkService,
-# ) -> None:
-#     """Verify `shared_networks` function works correctly.
+def test_linked_shared_images(
+    project_model: Project,
+    compute_quota_model: ComputeQuota,
+    compute_service_model: ComputeService,
+    shared_image_model: SharedImage,
+) -> None:
+    """Verify `shared_images` function works correctly.
 
-#     We detect only SharedNetwork through `shared_networks`. Private ones are detected
-#     through the dedicated relationship.
-#     """
-#     network_service_model.quotas.connect(network_quota_model)
-#     project_model.quotas.connect(network_quota_model)
-#     network_service_model.networks.connect(shared_network_model)
-#     network_service_model.networks.connect(private_network_model)
-#     project_model.private_networks.connect(private_network_model)
-#     assert len(project_model.shared_networks()) == 1
-#     assert len(project_model.private_networks.all()) == 1
+    We detect shared images through services connected by at least one quota to the
+    target Project.
+    """
+    compute_service_model.quotas.connect(compute_quota_model)
+    project_model.quotas.connect(compute_quota_model)
+    compute_service_model.images.connect(shared_image_model)
+
+    shared_images = project_model.shared_images()
+    assert len(shared_images) == 1
+    image = shared_images[0]
+    assert isinstance(image, SharedImage)
+    assert image.uid == shared_image_model.uid
+
+    image_model = SharedImage(**image_model_dict()).save()
+    compute_service_model.images.connect(image_model)
+    shared_images = project_model.shared_images()
+    assert len(shared_images) == 2
+
+
+def test_linked_shared_networks(
+    project_model: Project,
+    network_quota_model: NetworkQuota,
+    network_service_model: NetworkService,
+    shared_network_model: SharedNetwork,
+) -> None:
+    """Verify `shared_networks` function works correctly.
+
+    We detect shared networks through services connected by at least one quota to the
+    target Project.
+    """
+    network_service_model.quotas.connect(network_quota_model)
+    project_model.quotas.connect(network_quota_model)
+    network_service_model.networks.connect(shared_network_model)
+
+    shared_networks = project_model.shared_networks()
+    assert len(shared_networks) == 1
+    network = shared_networks[0]
+    assert isinstance(network, SharedNetwork)
+    assert network.uid == shared_network_model.uid
+
+    network_model = SharedNetwork(**network_model_dict()).save()
+    network_service_model.networks.connect(network_model)
+    shared_networks = project_model.shared_networks()
+    assert len(shared_networks) == 2
+
+
+def test_priv_pub_flavors_belong_to_diff_lists(
+    project_model: Project,
+    private_flavor_model: PrivateFlavor,
+    shared_flavor_model: SharedFlavor,
+    compute_quota_model: ComputeQuota,
+    compute_service_model: ComputeService,
+) -> None:
+    """Verify `shared_flavors` function works correctly.
+
+    We detect only SharedFlavor through `shared_flavors`. Private ones are detected
+    through the dedicated relationship.
+    """
+    compute_service_model.quotas.connect(compute_quota_model)
+    project_model.quotas.connect(compute_quota_model)
+    compute_service_model.flavors.connect(shared_flavor_model)
+    compute_service_model.flavors.connect(private_flavor_model)
+    project_model.private_flavors.connect(private_flavor_model)
+    assert len(project_model.shared_flavors()) == 1
+    assert len(project_model.private_flavors.all()) == 1
+
+
+def test_priv_pub_images_belong_to_diff_lists(
+    project_model: Project,
+    private_image_model: PrivateImage,
+    shared_image_model: SharedImage,
+    compute_quota_model: ComputeQuota,
+    compute_service_model: ComputeService,
+) -> None:
+    """Verify `shared_images` function works correctly.
+
+    We detect only SharedImage through `shared_images`. Private ones are detected
+    through the dedicated relationship.
+    """
+    compute_service_model.quotas.connect(compute_quota_model)
+    project_model.quotas.connect(compute_quota_model)
+    compute_service_model.images.connect(shared_image_model)
+    compute_service_model.images.connect(private_image_model)
+    project_model.private_images.connect(private_image_model)
+    assert len(project_model.shared_images()) == 1
+    assert len(project_model.private_images.all()) == 1
+
+
+def test_priv_pub_networks_belong_to_diff_lists(
+    project_model: Project,
+    private_network_model: PrivateNetwork,
+    shared_network_model: SharedNetwork,
+    network_quota_model: NetworkQuota,
+    network_service_model: NetworkService,
+) -> None:
+    """Verify `shared_networks` function works correctly.
+
+    We detect only SharedNetwork through `shared_networks`. Private ones are detected
+    through the dedicated relationship.
+    """
+    network_service_model.quotas.connect(network_quota_model)
+    project_model.quotas.connect(network_quota_model)
+    network_service_model.networks.connect(shared_network_model)
+    network_service_model.networks.connect(private_network_model)
+    project_model.private_networks.connect(private_network_model)
+    assert len(project_model.shared_networks()) == 1
+    assert len(project_model.private_networks.all()) == 1
 
 
 @parametrize_with_cases("quota_models", has_tag=("quota", "multi"))
