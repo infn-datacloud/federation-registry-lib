@@ -207,7 +207,7 @@ def test_invalid_base(
     Apply to FlavorBase, PrivateFlavorCreate and SharedFlavorCreate.
     """
     if attr in ("gpu_model", "gpu_vendor"):
-        attr = "__root__"
+        attr = "gpus"
     err_msg = rf"1 validation error for {flavor_cls.__name__}\s{attr}"
     with pytest.raises(ValueError, match=err_msg):
         flavor_cls(**data)
@@ -217,7 +217,7 @@ def test_invalid_base(
 def test_invalid_update(data: dict[str, Any], attr: str) -> None:
     """Test invalid attributes for FlavorUpdate."""
     if attr in ("gpu_model", "gpu_vendor"):
-        attr = "__root__"
+        attr = "gpus"
     err_msg = rf"1 validation error for FlavorUpdate\s{attr}"
     with pytest.raises(ValueError, match=err_msg):
         FlavorUpdate(**data)
@@ -247,7 +247,7 @@ def test_invalid_read(data: dict[str, Any], attr: str) -> None:
     """Test invalid attributes for FlavorRead."""
     uid = uuid4()
     if attr in ("gpu_model", "gpu_vendor"):
-        attr = "__root__"
+        attr = "gpus"
     err_msg = rf"1 validation error for FlavorRead\s{attr}"
     with pytest.raises(ValueError, match=err_msg):
         FlavorRead(**data, uid=uid)

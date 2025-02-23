@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pydantic import Field, root_validator
+from pydantic import Field, validator
 
 from fedreg.core import (
     BaseNode,
@@ -71,22 +71,23 @@ class FlavorBase(FlavorBasePublic):
     swap: int = Field(default=0, ge=0, description=DOC_SWAP)
     ephemeral: int = Field(default=0, ge=0, description=DOC_EPHEM)
     infiniband: bool = Field(default=False, description=DOC_INFI)
-    gpus: int = Field(default=0, ge=0, description=DOC_GPUS)
     gpu_model: str | None = Field(default=None, description=DOC_GPU_MOD)
     gpu_vendor: str | None = Field(default=None, description=DOC_GPU_VND)
+    gpus: int = Field(default=0, ge=0, description=DOC_GPUS)
     local_storage: str | None = Field(default=None, description=DOC_LOC_STO)
 
-    @root_validator
-    def check_gpu_values(cls, values: dict[str, Any]) -> dict[str, Any]:
+    @validator("gpus")
+    @classmethod
+    def check_gpu_values(cls, v: int, values: dict[str, Any]) -> dict[str, Any]:
         """If *num GPUs* is 0, then *gpu model* and *gpu vendor* must be none."""
-        if values.get("gpus") == 0:
-            assert not values.get("gpu_model"), (
+        if v == 0:
+            assert not values.get("gpu_model", None), (
                 "'GPU model' must be None if 'Num GPUs' is 0"
             )
-            assert not values.get("gpu_vendor"), (
+            assert not values.get("gpu_vendor", None), (
                 "'GPU vendor' must be None if 'Num GPUs' is 0"
             )
-        return values
+        return v
 
 
 class FlavorCreate(BaseNodeCreate, FlavorBase):
