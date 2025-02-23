@@ -1,7 +1,7 @@
-"""Definition of Flavor constants."""
+"""Flavor constants."""
 
-DOC_NAME = "Flavor name in the Provider."
-DOC_UUID = "Flavor unique ID in the Provider."
+DOC_NAME = "Flavor name in the Resource Provider."
+DOC_UUID = "Flavor unique ID in the Resource Provider."
 DOC_DISK = "Reserved disk size (GiB)."
 DOC_SHARED = "Public or private Flavor."
 DOC_RAM = "Reserved RAM (MiB)."
@@ -13,6 +13,6 @@ DOC_GPUS = "Number of GPUs."
 DOC_GPU_MOD = "GPU model name."
 DOC_GPU_VND = "Name of the GPU vendor."
 DOC_LOC_STO = "Local storage presence."
-DOC_EXT_PROJ = "Projects having access to this flavor. The list is populated only if \
-    the flavor is a private one."
-DOC_EXT_SERV = "Compute Service owning this flavor."
+
+DOC_EXT_PROJ = "Projects having access to this flavor. Filled only for private flavors."
+DOC_EXT_SERV = "Compute Service supporting this flavor."

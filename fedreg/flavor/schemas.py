@@ -1,6 +1,6 @@
 """Pydantic models of the Virtual Machine Flavor owned by a Provider."""
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import Field, validator
 
@@ -35,8 +35,8 @@ class FlavorBasePublic(BaseNode):
     Attributes:
     ----------
         description (str): Brief description.
-        name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider.
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
     """
 
     name: str = Field(description=DOC_NAME)
@@ -49,10 +49,9 @@ class FlavorBase(FlavorBasePublic):
     Attributes:
     ----------
         description (str): Brief description.
-        name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider.
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
         disk (int): Reserved disk size (GiB).
-        is_public (bool): Public or private Flavor.
         ram (int): Reserved RAM (MiB).
         vcpus (int): Number of Virtual CPUs.
         swap (int): Swap size (GiB).
@@ -65,7 +64,6 @@ class FlavorBase(FlavorBasePublic):
     """
 
     disk: int = Field(default=0, ge=0, description=DOC_DISK)
-    is_public: bool = Field(default=True, description=DOC_SHARED)
     ram: int = Field(default=0, ge=0, description=DOC_RAM)
     vcpus: int = Field(default=0, ge=0, description=DOC_VCPUS)
     swap: int = Field(default=0, ge=0, description=DOC_SWAP)
@@ -90,7 +88,7 @@ class FlavorBase(FlavorBasePublic):
         return v
 
 
-class FlavorCreate(BaseNodeCreate, FlavorBase):
+class PrivateFlavorCreate(BaseNodeCreate, FlavorBase):
     """Model to create a Flavor.
 
     Class without id (which is populated by the database).
@@ -99,10 +97,10 @@ class FlavorCreate(BaseNodeCreate, FlavorBase):
     Attributes:
     ----------
         description (str): Brief description.
-        name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
         disk (int): Reserved disk size (GiB)
-        is_public (bool): Public or private Flavor.
+        is_shared (bool): Public or private Flavor.
         ram (int): Reserved RAM (MiB)
         vcpus (int): Number of Virtual CPUs.
         swap (int): Swap size (GiB).
@@ -113,6 +111,35 @@ class FlavorCreate(BaseNodeCreate, FlavorBase):
         gpu_vendor (str | None): Name of the GPU vendor.
         local_storage (str | None): Local storage presence.
     """
+
+    is_shared: Literal[False] = Field(default=False, description=DOC_SHARED)
+
+
+class SharedFlavorCreate(BaseNodeCreate, FlavorBase):
+    """Model to create a Flavor.
+
+    Class without id (which is populated by the database).
+    Expected as input when performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
+        disk (int): Reserved disk size (GiB)
+        is_shared (bool): Public or private Flavor.
+        ram (int): Reserved RAM (MiB)
+        vcpus (int): Number of Virtual CPUs.
+        swap (int): Swap size (GiB).
+        ephemeral (int): Ephemeral disk size (GiB).
+        infiniband (bool): MPI - parallel multi-process enabled.
+        gpus (int): Number of GPUs.
+        gpu_model (str | None): GPU model name.
+        gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
+    """
+
+    is_shared: Literal[True] = Field(default=True, description=DOC_SHARED)
 
 
 class FlavorUpdate(BaseNodeCreate, FlavorBase):
@@ -126,8 +153,8 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
     Attributes:
     ----------
         description (str | None): Brief description.
-        name (str | None): Flavor name in the Provider.
-        uuid (str | None): Flavor unique ID in the Provider
+        name (str | None): Flavor name in the Resource Provider.
+        uuid (str | None): Flavor unique ID in the Resource Provider.
         disk (int | None): Reserved disk size (GiB)
         is_public (bool | None): Public or private Flavor.
         ram (int | None): Reserved RAM (MiB)
@@ -157,8 +184,8 @@ class FlavorReadPublic(BaseNodeRead, BaseReadPublic, FlavorBasePublic):
     ----------
         uid (str): Flavor unique ID.
         description (str): Brief description.
-        name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
     """
 
 
@@ -174,10 +201,10 @@ class FlavorRead(BaseNodeRead, BaseReadPrivate, FlavorBase):
     ----------
         uid (str): Flavor unique ID.
         description (str): Brief description.
-        name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
         disk (int): Reserved disk size (GiB)
-        is_public (bool): Public or private Flavor.
+        is_shared (bool): Public or private Flavor.
         ram (int): Reserved RAM (MiB)
         vcpus (int): Number of Virtual CPUs.
         swap (int): Swap size (GiB).
@@ -188,6 +215,8 @@ class FlavorRead(BaseNodeRead, BaseReadPrivate, FlavorBase):
         gpu_vendor (str | None): Name of the GPU vendor.
         local_storage (str | None): Local storage presence.
     """
+
+    is_shared: bool | None = Field(default=None, description=DOC_SHARED)
 
 
 FlavorQuery = create_query_model("FlavorQuery", FlavorBase)

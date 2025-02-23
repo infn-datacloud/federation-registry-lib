@@ -83,8 +83,8 @@ class FlavorReadExtended(BaseNodeRead, BaseReadPrivateExtended, FlavorBase):
     ----------
         uid (str): Flavor unique ID.
         description (str): Brief description.
-        name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
         disk (int): Reserved disk size (GiB)
         is_public (bool): Public or private Flavor.
         ram (int): Reserved RAM (MiB)
@@ -96,10 +96,10 @@ class FlavorReadExtended(BaseNodeRead, BaseReadPrivateExtended, FlavorBase):
         gpu_model (str | None): GPU model name.
         gpu_vendor (str | None): Name of the GPU vendor.
         local_storage (str | None): Local storage presence.
-        projects (list of ProjectRead): Projects having access to this flavor. The list
-            is populated only if the flavor is a private one.
-        services (list of ComputeServiceReadExtended): Compute Services exploiting this
-            flavor.
+        projects (list of ProjectRead):
+            Projects having access to this flavor. Filled only for private flavors.
+        services (list of ComputeServiceReadExtended):
+            Compute Service supporting this flavor.
     """
 
     projects: list[ProjectRead] = Field(description=DOC_EXT_PROJ)
@@ -113,12 +113,12 @@ class FlavorReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, FlavorBaseP
     ----------
         uid (str): Flavor unique ID.
         description (str): Brief description.
-        name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider
-        projects (list of ProjectReadPublic): Projects having access to this flavor. The
-            list is populated only if the flavor is a private one.
-        services (list of ComputeServiceReadExtendedPublic): Compute Services exploiting
-            this flavor.
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
+        projects (list of ProjectRead):
+            Projects having access to this flavor. Filled only for private flavors.
+        services (list of ComputeServiceReadExtended):
+            Compute Service supporting this flavor.
     """
 
     projects: list[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)

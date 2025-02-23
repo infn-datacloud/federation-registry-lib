@@ -1,1 +1,1 @@
-"""Definition of the models, CRUD operations and API for a Flavor."""
+"""Definition of the models for the Flavor nodes."""

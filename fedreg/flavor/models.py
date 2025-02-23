@@ -8,28 +8,26 @@ from neomodel import (
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
-    ZeroOrMore,
 )
 
 
 class Flavor(StructuredNode):
-    """Virtual Machine Flavor owned by a Provider.
+    """Virtual Machine Flavor owned by a Resource Provider.
 
-    A VM Flavor is uniquely identified in the Provider by its uuid.
-    It has a name and a set of parameters such as number of CPUs and GPUs,
-    fixed RAM and disk size and more.
-    A Flavor can be public or private.
-    If it is public it has no relationships, otherwise it is connected to
-    all and only the Projects who have access.
+    A VM Flavor is uniquely identified in the Resource Provider by its uuid. It has a
+    name and a set of parameters such as number of CPUs and GPUs, fixed RAM, disk size
+    and more.
+
+    A Flavor can be public or private. If it is public it has no relationships,
+    otherwise it is connected to all and only the authorized Projects.
 
     Attributes:
     ----------
         uid (str): Flavor unique ID.
         description (str): Brief description.
-        name (str): Flavor name in the Provider.
-        uuid (str): Flavor unique ID in the Provider
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
         disk (int): Reserved disk size (GiB)
-        is_public (bool): Public or private Flavor.
         ram (int): Reserved RAM (MiB)
         vcpus (int): Number of Virtual CPUs.
         swap (int): Swap size (GiB).
@@ -46,7 +44,6 @@ class Flavor(StructuredNode):
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
     disk = IntegerProperty(default=0)
-    is_public = BooleanProperty(default=True)
     ram = IntegerProperty(default=0)
     vcpus = IntegerProperty(default=0)
     swap = IntegerProperty(default=0)
@@ -62,8 +59,64 @@ class Flavor(StructuredNode):
         "AVAILABLE_VM_FLAVOR",
         cardinality=OneOrMore,
     )
+
+
+class PrivateFlavor(Flavor):
+    """Virtual Machine Flavor owned by a Provider.
+
+    A Private Flavor can be used by one or multiple projects. At least one project must
+    point to this item.
+
+    Attributes:
+    ----------
+        uid (str): Flavor unique ID.
+        description (str): Brief description.
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
+        disk (int): Reserved disk size (GiB)
+        is_shared (bool): Public or private Flavor.
+        ram (int): Reserved RAM (MiB)
+        vcpus (int): Number of Virtual CPUs.
+        swap (int): Swap size (GiB).
+        ephemeral (int): Ephemeral disk size (GiB).
+        infiniband (bool): MPI - parallel multi-process enabled.
+        gpus (int): Number of GPUs.
+        gpu_model (str | None): GPU model name.
+        gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
+    """
+
+    is_shared = BooleanProperty(default=False)
+
     projects = RelationshipFrom(
         "fedreg.project.models.Project",
         "CAN_USE_VM_FLAVOR",
-        cardinality=ZeroOrMore,
+        cardinality=OneOrMore,
     )
+
+
+class SharedFlavor(Flavor):
+    """Virtual Machine Flavor owned by a Provider.
+
+    All projects have access to public flavors.
+
+    Attributes:
+    ----------
+        uid (str): Flavor unique ID.
+        description (str): Brief description.
+        name (str): Flavor name in the Resource Provider.
+        uuid (str): Flavor unique ID in the Resource Provider.
+        disk (int): Reserved disk size (GiB)
+        is_shared (bool): Public or private Flavor.
+        ram (int): Reserved RAM (MiB)
+        vcpus (int): Number of Virtual CPUs.
+        swap (int): Swap size (GiB).
+        ephemeral (int): Ephemeral disk size (GiB).
+        infiniband (bool): MPI - parallel multi-process enabled.
+        gpus (int): Number of GPUs.
+        gpu_model (str | None): GPU model name.
+        gpu_vendor (str | None): Name of the GPU vendor.
+        local_storage (str | None): Local storage presence.
+    """
+
+    is_shared = BooleanProperty(default=True)
