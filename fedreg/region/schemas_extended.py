@@ -1,6 +1,4 @@
 """Pydantic extended models of the Region owned by a Provider."""
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
@@ -45,7 +43,7 @@ class RegionReadExtended(BaseNodeRead, BaseReadPrivateExtended, RegionBase):
             identity and network type).
     """
 
-    location: Optional[LocationRead] = Field(default=None, description=DOC_EXT_LOC)
+    location: LocationRead | None = Field(default=None, description=DOC_EXT_LOC)
     provider: ProviderRead = Field(description=DOC_EXT_PROV)
     services: list[
         BlockStorageServiceRead
@@ -70,9 +68,7 @@ class RegionReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, RegionBaseP
             identity and network type).
     """
 
-    location: Optional[LocationReadPublic] = Field(
-        default=None, description=DOC_EXT_LOC
-    )
+    location: LocationReadPublic | None = Field(default=None, description=DOC_EXT_LOC)
     provider: ProviderReadPublic = Field(description=DOC_EXT_PROV)
     services: list[
         BlockStorageServiceReadPublic

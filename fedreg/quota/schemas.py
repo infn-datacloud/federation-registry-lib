@@ -1,5 +1,5 @@
 """Pydantic models of the Resource limitations for Projects on Services."""
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import Field
 
@@ -87,11 +87,11 @@ class BlockStorageQuotaBase(BlockStorageQuotaBasePublic):
         volumes (int | None): Number of max volumes a user group can create.
     """
 
-    gigabytes: Optional[int] = Field(default=None, ge=-1, description=DOC_GB)
-    per_volume_gigabytes: Optional[int] = Field(
+    gigabytes: int | None = Field(default=None, ge=-1, description=DOC_GB)
+    per_volume_gigabytes: int | None = Field(
         default=None, ge=-1, description=DOC_VOL_GB
     )
-    volumes: Optional[int] = Field(default=None, ge=-1, description=DOC_VOLS)
+    volumes: int | None = Field(default=None, ge=-1, description=DOC_VOLS)
 
 
 class BlockStorageQuotaCreate(BaseNodeCreate, BlockStorageQuotaBase):
@@ -218,9 +218,9 @@ class ComputeQuotaBase(ComputeQuotaBasePublic):
         ram (int | None): Number of max usable RAM (MiB).
     """
 
-    cores: Optional[int] = Field(default=None, ge=0, description=DOC_CORES)
-    instances: Optional[int] = Field(default=None, ge=0, description=DOC_INST)
-    ram: Optional[int] = Field(default=None, ge=0, description=DOC_RAM)
+    cores: int | None = Field(default=None, ge=0, description=DOC_CORES)
+    instances: int | None = Field(default=None, ge=0, description=DOC_INST)
+    ram: int | None = Field(default=None, ge=0, description=DOC_RAM)
 
 
 class ComputeQuotaCreate(BaseNodeCreate, ComputeQuotaBase):
@@ -350,11 +350,11 @@ class NetworkQuotaBase(NetworkQuotaBasePublic):
             for each project.
     """
 
-    public_ips: Optional[int] = Field(default=None, ge=-1, description=DOC_PUB_IPS)
-    networks: Optional[int] = Field(default=None, ge=-1, description=DOC_NETS)
-    ports: Optional[int] = Field(default=None, ge=-1, description=DOC_PORT)
-    security_groups: Optional[int] = Field(default=None, ge=-1, description=DOC_GROUPS)
-    security_group_rules: Optional[int] = Field(
+    public_ips: int | None = Field(default=None, ge=-1, description=DOC_PUB_IPS)
+    networks: int | None = Field(default=None, ge=-1, description=DOC_NETS)
+    ports: int | None = Field(default=None, ge=-1, description=DOC_PORT)
+    security_groups: int | None = Field(default=None, ge=-1, description=DOC_GROUPS)
+    security_group_rules: int | None = Field(
         default=None, ge=-1, description=DOC_GROUP_RULES
     )
 

@@ -1,6 +1,6 @@
 """Pydantic models of the Service Level Agreement between a Project and a User Group."""
 from datetime import date
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pydantic import Field, validator
 
@@ -43,7 +43,7 @@ class SLABase(SLABasePublic):
 
     @validator("end_date")
     @classmethod
-    def start_date_before_end_date(cls, v: date, values: Dict[str, Any]) -> date:
+    def start_date_before_end_date(cls, v: date, values: dict[str, Any]) -> date:
         """Verify start date precedes end date."""
         start = values.get("start_date", None)
         if start and v:
@@ -82,9 +82,9 @@ class SLAUpdate(BaseNodeCreate, SLABase):
         end_date (datetime | None): SLA validity end date.
     """
 
-    doc_uuid: Optional[str] = Field(default=None, description=DOC_UUID)
-    start_date: Optional[date] = Field(default=None, description=DOC_START)
-    end_date: Optional[date] = Field(default=None, description=DOC_END)
+    doc_uuid: str | None = Field(default=None, description=DOC_UUID)
+    start_date: date | None = Field(default=None, description=DOC_START)
+    end_date: date | None = Field(default=None, description=DOC_END)
 
 
 class SLAReadPublic(BaseNodeRead, BaseReadPublic, SLABasePublic):

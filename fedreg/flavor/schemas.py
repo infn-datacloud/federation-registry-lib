@@ -1,5 +1,5 @@
 """Pydantic models of the Virtual Machine Flavor owned by a Provider."""
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pydantic import Field, root_validator
 
@@ -71,12 +71,12 @@ class FlavorBase(FlavorBasePublic):
     ephemeral: int = Field(default=0, ge=0, description=DOC_EPHEM)
     infiniband: bool = Field(default=False, description=DOC_INFI)
     gpus: int = Field(default=0, ge=0, description=DOC_GPUS)
-    gpu_model: Optional[str] = Field(default=None, description=DOC_GPU_MOD)
-    gpu_vendor: Optional[str] = Field(default=None, description=DOC_GPU_VND)
-    local_storage: Optional[str] = Field(default=None, description=DOC_LOC_STO)
+    gpu_model: str | None = Field(default=None, description=DOC_GPU_MOD)
+    gpu_vendor: str | None = Field(default=None, description=DOC_GPU_VND)
+    local_storage: str | None = Field(default=None, description=DOC_LOC_STO)
 
     @root_validator
-    def check_gpu_values(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def check_gpu_values(cls, values: dict[str, Any]) -> dict[str, Any]:
         """If *num GPUs* is 0, then *gpu model* and *gpu vendor* must be none."""
         if values.get("gpus") == 0:
             assert not values.get(
@@ -139,8 +139,8 @@ class FlavorUpdate(BaseNodeCreate, FlavorBase):
         local_storage (str | None): Local storage presence.
     """
 
-    name: Optional[str] = Field(default=None, description=DOC_NAME)
-    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
+    name: str | None = Field(default=None, description=DOC_NAME)
+    uuid: str | None = Field(default=None, description=DOC_UUID)
 
 
 class FlavorReadPublic(BaseNodeRead, BaseReadPublic, FlavorBasePublic):

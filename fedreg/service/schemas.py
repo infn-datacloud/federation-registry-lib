@@ -1,5 +1,5 @@
 """Pydantic models of the Service supplied by a Provider on a specific Region."""
-from typing import Literal, Optional
+from typing import Literal
 
 from pydantic import AnyHttpUrl, Field
 
@@ -101,8 +101,8 @@ class BlockStorageServiceUpdate(BaseNodeCreate, BlockStorageServiceBase):
         name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
-    name: Optional[BlockStorageServiceName] = Field(default=None, description=DOC_NAME)
+    endpoint: AnyHttpUrl | None = Field(default=None, description=DOC_ENDP)
+    name: BlockStorageServiceName | None = Field(default=None, description=DOC_NAME)
 
 
 class BlockStorageServiceReadPublic(
@@ -211,8 +211,8 @@ class ComputeServiceUpdate(BaseNodeCreate, ComputeServiceBase):
         name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
-    name: Optional[ComputeServiceName] = Field(default=None, description=DOC_NAME)
+    endpoint: AnyHttpUrl | None = Field(default=None, description=DOC_ENDP)
+    name: ComputeServiceName | None = Field(default=None, description=DOC_NAME)
 
 
 class ComputeServiceReadPublic(BaseNodeRead, BaseReadPublic, ComputeServiceBasePublic):
@@ -317,8 +317,8 @@ class IdentityServiceUpdate(BaseNodeCreate, IdentityServiceBase):
         name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
-    name: Optional[IdentityServiceName] = Field(default=None, description=DOC_NAME)
+    endpoint: AnyHttpUrl | None = Field(default=None, description=DOC_ENDP)
+    name: IdentityServiceName | None = Field(default=None, description=DOC_NAME)
 
 
 class IdentityServiceReadPublic(
@@ -424,8 +424,8 @@ class NetworkServiceUpdate(BaseNodeCreate, NetworkServiceBase):
         name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
-    name: Optional[NetworkServiceName] = Field(default=None, description=DOC_NAME)
+    endpoint: AnyHttpUrl | None = Field(default=None, description=DOC_ENDP)
+    name: NetworkServiceName | None = Field(default=None, description=DOC_NAME)
 
 
 class NetworkServiceReadPublic(BaseNodeRead, BaseReadPublic, NetworkServiceBasePublic):
@@ -530,8 +530,8 @@ class ObjectStoreServiceUpdate(BaseNodeCreate, ObjectStoreServiceBase):
         name (str | None): Service name. Depends on type.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
-    name: Optional[ObjectStoreServiceName] = Field(default=None, description=DOC_NAME)
+    endpoint: AnyHttpUrl | None = Field(default=None, description=DOC_ENDP)
+    name: ObjectStoreServiceName | None = Field(default=None, description=DOC_NAME)
 
 
 class ObjectStoreServiceReadPublic(

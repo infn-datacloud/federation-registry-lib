@@ -1,5 +1,4 @@
 """Pydantic models of the Virtual Machine Network owned by a Provider."""
-from typing import Optional
 
 from pydantic import Field
 
@@ -59,9 +58,9 @@ class NetworkBase(NetworkBasePublic):
     is_shared: bool = Field(default=True, description=DOC_SHARED)
     is_router_external: bool = Field(default=False, description=DOC_EXT_ROUT)
     is_default: bool = Field(default=False, description=DOC_DEFAULT)
-    mtu: Optional[int] = Field(default=None, gt=0, description=DOC_MTU)
-    proxy_host: Optional[str] = Field(default=None, description=DOC_PROXY_HOST)
-    proxy_user: Optional[str] = Field(default=None, description=DOC_PROXY_USER)
+    mtu: int | None = Field(default=None, gt=0, description=DOC_MTU)
+    proxy_host: str | None = Field(default=None, description=DOC_PROXY_HOST)
+    proxy_user: str | None = Field(default=None, description=DOC_PROXY_USER)
     tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
@@ -110,8 +109,8 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
         tags (list of str | None): list of tags associated to this Network.
     """
 
-    name: Optional[str] = Field(default=None, description=DOC_NAME)
-    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
+    name: str | None = Field(default=None, description=DOC_NAME)
+    uuid: str | None = Field(default=None, description=DOC_UUID)
 
 
 class NetworkReadPublic(BaseNodeRead, BaseReadPublic, NetworkBasePublic):

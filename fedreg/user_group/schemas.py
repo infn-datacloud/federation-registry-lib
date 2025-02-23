@@ -1,5 +1,4 @@
 """Pydantic models of the User Group owned by an Identity Provider."""
-from typing import Optional
 
 from pydantic import Field
 
@@ -63,7 +62,7 @@ class UserGroupUpdate(BaseNodeCreate, UserGroupBase):
         name (str | None): User Group name in the Identity Provider.
     """
 
-    name: Optional[str] = Field(default=None, description=DOC_NAME)
+    name: str | None = Field(default=None, description=DOC_NAME)
 
 
 class UserGroupReadPublic(BaseNodeRead, BaseReadPublic, UserGroupBasePublic):

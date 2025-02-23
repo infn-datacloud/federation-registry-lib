@@ -1,6 +1,4 @@
 """Pydantic extended models of the Project owned by a Provider."""
-from typing import Optional
-
 from pydantic import BaseModel, Field
 
 from fedreg.auth_method.schemas import AuthMethodRead
@@ -562,7 +560,7 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
         | NetworkQuotaReadExtended
         | ObjectStoreQuotaReadExtended
     ] = Field(description=DOC_EXT_QUOTA)
-    sla: Optional[SLAReadExtended] = Field(default=None, description=DOC_EXT_SLA)
+    sla: SLAReadExtended | None = Field(default=None, description=DOC_EXT_SLA)
 
     @classmethod
     def from_orm(cls, obj: Project) -> "ProjectReadExtended":
@@ -607,7 +605,7 @@ class ProjectReadExtendedPublic(
         | NetworkQuotaReadExtendedPublic
         | ObjectStoreQuotaReadExtendedPublic
     ] = Field(description=DOC_EXT_QUOTA)
-    sla: Optional[SLAReadExtendedPublic] = Field(default=None, description=DOC_EXT_SLA)
+    sla: SLAReadExtendedPublic | None = Field(default=None, description=DOC_EXT_SLA)
 
     @classmethod
     def from_orm(cls, obj: Project) -> "ProjectReadExtendedPublic":

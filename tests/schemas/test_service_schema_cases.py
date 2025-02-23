@@ -1,4 +1,4 @@
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 from pytest_cases import case, parametrize, parametrize_with_cases
 
@@ -126,7 +126,7 @@ class CaseServiceSchema:
         )
     )
     def case_invalid_name_block_storage(
-        self, service_type: Optional[ServiceType]
+        self, service_type: ServiceType | None
     ) -> tuple[dict[str, Any], Literal["name"]]:
         d = service_schema_dict()
         if service_type:
@@ -176,7 +176,7 @@ class CaseServiceSchema:
         )
     )
     def case_invalid_name_compute(
-        self, service_type: Optional[ServiceType]
+        self, service_type: ServiceType | None
     ) -> tuple[dict[str, Any], Literal["name"]]:
         d = service_schema_dict()
         if service_type:
@@ -226,7 +226,7 @@ class CaseServiceSchema:
         )
     )
     def case_invalid_name_identity(
-        self, service_type: Optional[ServiceType]
+        self, service_type: ServiceType | None
     ) -> tuple[dict[str, Any], Literal["name"]]:
         d = service_schema_dict()
         if service_type:
@@ -276,7 +276,7 @@ class CaseServiceSchema:
         )
     )
     def case_invalid_name_network(
-        self, service_type: Optional[ServiceType]
+        self, service_type: ServiceType | None
     ) -> tuple[dict[str, Any], Literal["name"]]:
         d = service_schema_dict()
         if service_type:
@@ -326,7 +326,7 @@ class CaseServiceSchema:
         )
     )
     def case_invalid_name_object_store(
-        self, service_type: Optional[ServiceType]
+        self, service_type: ServiceType | None
     ) -> tuple[dict[str, Any], Literal["name"]]:
         d = service_schema_dict()
         if service_type:

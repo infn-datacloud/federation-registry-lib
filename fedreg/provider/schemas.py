@@ -1,6 +1,4 @@
 """Pydantic models of the Resource Provider (openstack, kubernetes...)."""
-from typing import Optional
-
 from pydantic import EmailStr, Field
 
 from fedreg.core import (
@@ -88,8 +86,8 @@ class ProviderUpdate(BaseNodeCreate, ProviderBase):
         support_email (list of str | None): list of maintainers emails.
     """
 
-    name: Optional[str] = Field(default=None, description=DOC_NAME)
-    type: Optional[ProviderType] = Field(default=None, description=DOC_TYPE)
+    name: str | None = Field(default=None, description=DOC_NAME)
+    type: ProviderType | None = Field(default=None, description=DOC_TYPE)
 
 
 class ProviderReadPublic(BaseNodeRead, BaseReadPublic, ProviderBasePublic):

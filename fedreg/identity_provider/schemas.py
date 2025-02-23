@@ -1,6 +1,4 @@
 """Pydantic models of the Identity Provider."""
-from typing import Optional
-
 from pydantic import AnyHttpUrl, Field
 
 from fedreg.core import (
@@ -71,8 +69,8 @@ class IdentityProviderUpdate(BaseNodeCreate, IdentityProviderBase):
             an authentication token.
     """
 
-    endpoint: Optional[AnyHttpUrl] = Field(default=None, description=DOC_ENDP)
-    group_claim: Optional[str] = Field(default=None, description=DOC_CLAIM)
+    endpoint: AnyHttpUrl | None = Field(default=None, description=DOC_ENDP)
+    group_claim: str | None = Field(default=None, description=DOC_CLAIM)
 
 
 class IdentityProviderReadPublic(

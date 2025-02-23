@@ -1,5 +1,4 @@
 """Pydantic models of the Project owned by a Provider."""
-from typing import Optional
 
 from pydantic import Field
 
@@ -68,8 +67,8 @@ class ProjectUpdate(BaseNodeCreate, ProjectBase):
         uuid (str | None): Project unique ID in the Provider
     """
 
-    name: Optional[str] = Field(default=None, description=DOC_NAME)
-    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
+    name: str | None = Field(default=None, description=DOC_NAME)
+    uuid: str | None = Field(default=None, description=DOC_UUID)
 
 
 class ProjectReadPublic(BaseNodeRead, BaseReadPublic, ProjectBasePublic):

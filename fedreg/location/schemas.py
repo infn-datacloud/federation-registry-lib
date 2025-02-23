@@ -1,5 +1,5 @@
 """Pydantic models of the site geographical Location."""
-from typing import Any, Dict, Optional
+from typing import Any
 
 from pycountry import countries
 from pydantic import Field, validator
@@ -55,10 +55,8 @@ class LocationBase(LocationBasePublic):
         longitude (float | None): Longitude coordinate.
     """
 
-    latitude: Optional[float] = Field(default=None, ge=-90, le=90, description=DOC_LATI)
-    longitude: Optional[float] = Field(
-        default=None, ge=-180, le=180, description=DOC_LONG
-    )
+    latitude: float | None = Field(default=None, ge=-90, le=90, description=DOC_LATI)
+    longitude: float | None = Field(default=None, ge=-180, le=180, description=DOC_LONG)
 
 
 class LocationCreate(BaseNodeCreate, LocationBase):
@@ -94,8 +92,8 @@ class LocationUpdate(BaseNodeCreate, LocationBase):
         longitude (float | None): Longitude coordinate.
     """
 
-    site: Optional[str] = Field(default=None, description=DOC_SITE)
-    country: Optional[str] = Field(default=None, description=DOC_COUNTRY)
+    site: str | None = Field(default=None, description=DOC_SITE)
+    country: str | None = Field(default=None, description=DOC_COUNTRY)
 
 
 class LocationReadPublic(BaseNodeRead, BaseReadPublic, LocationBasePublic):
@@ -134,11 +132,11 @@ class LocationRead(BaseNodeRead, BaseReadPrivate, LocationBase):
         longitude (float | None): Longitude coordinate.
     """
 
-    country_code: Optional[str] = Field(default=None, description=DOC_CODE)
+    country_code: str | None = Field(default=None, description=DOC_CODE)
 
     @validator("country_code", pre=True, always=True)
     @classmethod
-    def get_country_code(cls, v: Optional[str], values: Dict[str, Any]) -> str:
+    def get_country_code(cls, v: str | None, values: dict[str, Any]) -> str:
         """From country retrieve country code."""
         if not v and values.get("country", None):
             matches = countries.search_fuzzy(values.get("country"))

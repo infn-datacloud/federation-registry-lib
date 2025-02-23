@@ -1,6 +1,5 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
 from datetime import datetime
-from typing import Optional
 
 from pydantic import Field
 
@@ -63,15 +62,15 @@ class ImageBase(ImageBasePublic):
         tags (list of str): list of tags associated to this Image.
     """
 
-    os_type: Optional[ImageOS] = Field(default=None, description=DOC_OS_TYPE)
-    os_distro: Optional[str] = Field(default=None, description=DOC_OS_DISTR)
-    os_version: Optional[str] = Field(default=None, description=DOC_OS_VERS)
-    architecture: Optional[str] = Field(default=None, description=DOC_ARCH)
-    kernel_id: Optional[str] = Field(default=None, description=DOC_KERN)
+    os_type: ImageOS | None = Field(default=None, description=DOC_OS_TYPE)
+    os_distro: str | None = Field(default=None, description=DOC_OS_DISTR)
+    os_version: str | None = Field(default=None, description=DOC_OS_VERS)
+    architecture: str | None = Field(default=None, description=DOC_ARCH)
+    kernel_id: str | None = Field(default=None, description=DOC_KERN)
     cuda_support: bool = Field(default=False, description=DOC_CUDA)
     gpu_driver: bool = Field(default=False, description=DOC_GPU_DRIV)
     is_public: bool = Field(default=True, description=DOC_SHARED)
-    created_at: Optional[datetime] = Field(default=None, description=DOC_CREATED_AT)
+    created_at: datetime | None = Field(default=None, description=DOC_CREATED_AT)
     tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
 
 
@@ -124,8 +123,8 @@ class ImageUpdate(BaseNodeCreate, ImageBase):
         tags (list of str | None): list of tags associated to this Image.
     """
 
-    name: Optional[str] = Field(default=None, description=DOC_NAME)
-    uuid: Optional[str] = Field(default=None, description=DOC_UUID)
+    name: str | None = Field(default=None, description=DOC_NAME)
+    uuid: str | None = Field(default=None, description=DOC_UUID)
 
 
 class ImageReadPublic(BaseNodeRead, BaseReadPublic, ImageBasePublic):

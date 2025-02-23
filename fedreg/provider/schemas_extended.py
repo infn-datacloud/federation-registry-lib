@@ -1,6 +1,5 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
-
-from typing import Any, Dict, Optional, Set
+from typing import Any
 
 from pydantic import BaseModel, Field, root_validator, validator
 
@@ -336,7 +335,7 @@ class RegionReadExtended(RegionRead):
             and network type).
     """
 
-    location: Optional[LocationRead] = Field(default=None, description=DOC_EXT_LOC)
+    location: LocationRead | None = Field(default=None, description=DOC_EXT_LOC)
     services: list[
         BlockStorageServiceReadExtended
         | ComputeServiceReadExtended
@@ -359,9 +358,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
             identity and network type).
     """
 
-    location: Optional[LocationReadPublic] = Field(
-        default=None, description=DOC_EXT_LOC
-    )
+    location: LocationReadPublic | None = Field(default=None, description=DOC_EXT_LOC)
     services: list[
         BlockStorageServiceReadExtendedPublic
         | ComputeServiceReadExtendedPublic
@@ -444,7 +441,7 @@ class ProviderReadMulti(BaseModel):
 # CREATE CLASSES
 
 
-def find_duplicates(items: Any, attr: Optional[str] = None) -> None:
+def find_duplicates(items: Any, attr: str | None = None) -> None:
     """Find duplicate items in a list.
 
     Optionally filter items by attribute
@@ -488,21 +485,19 @@ def multiple_quotas_same_project(quotas: list[Any]) -> None:
             ), msg
 
 
-def find_duplicate_projects(project: str, seen: Set[str]) -> None:
+def find_duplicate_projects(project: str, seen: set[str]) -> None:
     msg = f"Project {project} already used by another SLA"
     assert project not in seen, msg
     seen.add(project)
 
 
-def find_duplicate_slas(doc_uuid: str, seen: Set[str]) -> None:
+def find_duplicate_slas(doc_uuid: str, seen: set[str]) -> None:
     msg = f"SLA {doc_uuid} already used by another user group"
     assert doc_uuid not in seen, msg
     seen.add(doc_uuid)
 
 
-def proj_in_provider(
-    project: Optional[str], projects: list[str], *, parent: str
-) -> None:
+def proj_in_provider(project: str | None, projects: list[str], *, parent: str) -> None:
     """Verify project is in projects list."""
     if project:
         msg = f"{parent}'s project {project} "
@@ -687,8 +682,8 @@ class FlavorCreateExtended(FlavorCreate):
 
     @root_validator
     def project_require_if_private_flavor(
-        cls, values: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        cls, values: dict[str, Any]
+    ) -> dict[str, Any]:
         """Verify list emptiness based on flavor type.
 
         If public verify the projects list is empty, otherwise the list can't be empty.
@@ -735,7 +730,7 @@ class ImageCreateExtended(ImageCreate):
         return v
 
     @root_validator
-    def project_require_if_private_image(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def project_require_if_private_image(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Verify list emptiness based on image type.
 
         If public verify the projects list is empty, otherwise the list can't be empty.
@@ -770,10 +765,10 @@ class NetworkCreateExtended(NetworkCreate):
         project (str | None): Target project's UUID in the Provider.
     """
 
-    project: Optional[str] = Field(default=None, description=DOC_NEW_PROJ_UUID)
+    project: str | None = Field(default=None, description=DOC_NEW_PROJ_UUID)
 
     @root_validator
-    def project_require_if_private_net(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def project_require_if_private_net(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Verify target project is defined based on network type.
 
         If shared verify the project is None, otherwise the project must be defined.
@@ -951,7 +946,7 @@ class RegionCreateExtended(RegionCreate):
             object storage services.
     """
 
-    location: Optional[LocationCreate] = Field(default=None, description=DOC_EXT_LOC)
+    location: LocationCreate | None = Field(default=None, description=DOC_EXT_LOC)
     block_storage_services: list[BlockStorageServiceCreateExtended] = Field(
         default_factory=list, description=DOC_NEW_SERV_BLO_STO
     )
@@ -1025,7 +1020,7 @@ class ProviderCreateExtended(ProviderCreate):
     @validator("identity_providers")
     @classmethod
     def validate_identity_providers(
-        cls, v: list[IdentityProviderCreateExtended], values: Dict[str, Any]
+        cls, v: list[IdentityProviderCreateExtended], values: dict[str, Any]
     ) -> list[IdentityProviderCreateExtended]:
         """Validate list of identity providers.
 
@@ -1061,7 +1056,7 @@ class ProviderCreateExtended(ProviderCreate):
     @validator("regions")
     @classmethod
     def validate_regions(
-        cls, v: list[RegionCreateExtended], values: Dict[str, Any]
+        cls, v: list[RegionCreateExtended], values: dict[str, Any]
     ) -> list[RegionCreateExtended]:
         """Validate list of regions.
 
