@@ -11,7 +11,7 @@ pipeline {
                         script {
                             pythonProject.formatCode(
                                 pythonVersion: '3.10',
-                                srcDir: 'fed_reg'
+                                srcDir: 'fedreg'
                                 )
                         }
                     }
@@ -21,7 +21,7 @@ pipeline {
                         script {
                             pythonProject.formatCode(
                                 pythonVersion: '3.11',
-                                srcDir: 'fed_reg'
+                                srcDir: 'fedreg'
                                 )
                         }
                     }

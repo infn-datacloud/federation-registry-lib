@@ -33,7 +33,7 @@ pipeline {
         COVERAGE_DIR = 'coverage-reports'
         SONAR_HOST = 'https://sonarcloud.io'
         SONAR_ORGANIZATION = 'infn-datacloud'
-        SONAR_PROJECT = 'federation-registry'
+        SONAR_PROJECT = 'federation-registry-lib'
         SONAR_TOKEN = credentials('sonar-token')
     }
 
@@ -62,7 +62,7 @@ pipeline {
                     sonarOrganization: "${SONAR_ORGANIZATION}",
                     sonarHost: "${SONAR_HOST}",
                     coverageDir: "${COVERAGE_DIR}",
-                    srcDir: 'fed_reg',
+                    srcDir: 'fedreg',
                     testsDir: 'tests',
                     pythonVersions: '3.10, 3.11'
                 )
