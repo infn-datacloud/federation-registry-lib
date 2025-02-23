@@ -28,12 +28,6 @@ build-backend = "poetry.core.masonry.api"
 # flake8-bugbear (B), flake8-logging-format (G), flake8-quotes (Q)
 extend-select = ["B", "C90", "E", "F", "G", "I", "N", "Q", "RUF", "UP", "W"]
 
-[tool.ruff.lint.pep8-naming]
-# Ignore pep8-naming errors raised by functions decorated with @validator and @root_validator
-classmethod-decorators = [
-    "pydantic.root_validator",
-]
-
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
