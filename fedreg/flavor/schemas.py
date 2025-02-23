@@ -1,4 +1,5 @@
 """Pydantic models of the Virtual Machine Flavor owned by a Provider."""
+
 from typing import Any
 
 from pydantic import Field, root_validator
@@ -79,12 +80,12 @@ class FlavorBase(FlavorBasePublic):
     def check_gpu_values(cls, values: dict[str, Any]) -> dict[str, Any]:
         """If *num GPUs* is 0, then *gpu model* and *gpu vendor* must be none."""
         if values.get("gpus") == 0:
-            assert not values.get(
-                "gpu_model"
-            ), "'GPU model' must be None if 'Num GPUs' is 0"
-            assert not values.get(
-                "gpu_vendor"
-            ), "'GPU vendor' must be None if 'Num GPUs' is 0"
+            assert not values.get("gpu_model"), (
+                "'GPU model' must be None if 'Num GPUs' is 0"
+            )
+            assert not values.get("gpu_vendor"), (
+                "'GPU vendor' must be None if 'Num GPUs' is 0"
+            )
         return values
 
 

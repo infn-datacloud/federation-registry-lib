@@ -367,9 +367,12 @@ class BlockStorageQuotaReadSingle(BaseModel):
 
 
 class BlockStorageQuotaReadMulti(BaseModel):
-    __root__: list[BlockStorageQuotaReadExtended] | list[BlockStorageQuotaRead] | list[
-        BlockStorageQuotaReadExtendedPublic
-    ] | list[BlockStorageQuotaReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[BlockStorageQuotaReadExtended]
+        | list[BlockStorageQuotaRead]
+        | list[BlockStorageQuotaReadExtendedPublic]
+        | list[BlockStorageQuotaReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 class ComputeQuotaReadSingle(BaseModel):
@@ -382,9 +385,12 @@ class ComputeQuotaReadSingle(BaseModel):
 
 
 class ComputeQuotaReadMulti(BaseModel):
-    __root__: list[ComputeQuotaReadExtended] | list[ComputeQuotaRead] | list[
-        ComputeQuotaReadExtendedPublic
-    ] | list[ComputeQuotaReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[ComputeQuotaReadExtended]
+        | list[ComputeQuotaRead]
+        | list[ComputeQuotaReadExtendedPublic]
+        | list[ComputeQuotaReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 class NetworkQuotaReadSingle(BaseModel):
@@ -397,9 +403,12 @@ class NetworkQuotaReadSingle(BaseModel):
 
 
 class NetworkQuotaReadMulti(BaseModel):
-    __root__: list[NetworkQuotaReadExtended] | list[NetworkQuotaRead] | list[
-        NetworkQuotaReadExtendedPublic
-    ] | list[NetworkQuotaReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[NetworkQuotaReadExtended]
+        | list[NetworkQuotaRead]
+        | list[NetworkQuotaReadExtendedPublic]
+        | list[NetworkQuotaReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 class ObjectStoreQuotaReadSingle(BaseModel):
@@ -412,6 +421,9 @@ class ObjectStoreQuotaReadSingle(BaseModel):
 
 
 class ObjectStoreQuotaReadMulti(BaseModel):
-    __root__: list[ObjectStoreQuotaReadExtended] | list[ObjectStoreQuotaRead] | list[
-        ObjectStoreQuotaReadExtendedPublic
-    ] | list[ObjectStoreQuotaReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[ObjectStoreQuotaReadExtended]
+        | list[ObjectStoreQuotaRead]
+        | list[ObjectStoreQuotaReadExtendedPublic]
+        | list[ObjectStoreQuotaReadPublic]
+    ) = Field(..., discriminator="schema_type")

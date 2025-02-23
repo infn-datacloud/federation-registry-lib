@@ -1,4 +1,5 @@
 """Pydantic extended models of the Region owned by a Provider."""
+
 from pydantic import BaseModel, Field
 
 from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
@@ -86,6 +87,9 @@ class RegionReadSingle(BaseModel):
 
 
 class RegionReadMulti(BaseModel):
-    __root__: list[RegionReadExtended] | list[RegionRead] | list[
-        RegionReadExtendedPublic
-    ] | list[RegionReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[RegionReadExtended]
+        | list[RegionRead]
+        | list[RegionReadExtendedPublic]
+        | list[RegionReadPublic]
+    ) = Field(..., discriminator="schema_type")

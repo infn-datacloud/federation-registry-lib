@@ -1,6 +1,5 @@
 """Pydantic extended models of the User Group owned by an Identity Provider."""
 
-
 from pydantic import BaseModel, Field
 
 from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
@@ -339,6 +338,9 @@ class UserGroupReadSingle(BaseModel):
 
 
 class UserGroupReadMulti(BaseModel):
-    __root__: list[UserGroupReadExtended] | list[UserGroupRead] | list[
-        UserGroupReadExtendedPublic
-    ] | list[UserGroupReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[UserGroupReadExtended]
+        | list[UserGroupRead]
+        | list[UserGroupReadExtendedPublic]
+        | list[UserGroupReadPublic]
+    ) = Field(..., discriminator="schema_type")

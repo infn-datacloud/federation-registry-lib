@@ -1,4 +1,5 @@
 """Neomodel model of the Project owned by a Provider."""
+
 from neomodel import (
     One,
     RelationshipFrom,

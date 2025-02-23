@@ -1,6 +1,5 @@
 """Pydantic extended models of the Service supplied by Providers on specific Regions."""
 
-
 from pydantic import BaseModel, Field
 
 from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
@@ -436,11 +435,12 @@ class BlockStorageServiceReadSingle(BaseModel):
 
 
 class BlockStorageServiceReadMulti(BaseModel):
-    __root__: list[BlockStorageServiceReadExtended] | list[
-        BlockStorageServiceRead
-    ] | list[BlockStorageServiceReadExtendedPublic] | list[
-        BlockStorageServiceReadPublic
-    ] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[BlockStorageServiceReadExtended]
+        | list[BlockStorageServiceRead]
+        | list[BlockStorageServiceReadExtendedPublic]
+        | list[BlockStorageServiceReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 class ComputeServiceReadSingle(BaseModel):
@@ -453,9 +453,12 @@ class ComputeServiceReadSingle(BaseModel):
 
 
 class ComputeServiceReadMulti(BaseModel):
-    __root__: list[ComputeServiceReadExtended] | list[ComputeServiceRead] | list[
-        ComputeServiceReadExtendedPublic
-    ] | list[ComputeServiceReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[ComputeServiceReadExtended]
+        | list[ComputeServiceRead]
+        | list[ComputeServiceReadExtendedPublic]
+        | list[ComputeServiceReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 class IdentityServiceReadSingle(BaseModel):
@@ -468,9 +471,12 @@ class IdentityServiceReadSingle(BaseModel):
 
 
 class IdentityServiceReadMulti(BaseModel):
-    __root__: list[IdentityServiceReadExtended] | list[IdentityServiceRead] | list[
-        IdentityServiceReadExtendedPublic
-    ] | list[IdentityServiceReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[IdentityServiceReadExtended]
+        | list[IdentityServiceRead]
+        | list[IdentityServiceReadExtendedPublic]
+        | list[IdentityServiceReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 class NetworkServiceReadSingle(BaseModel):
@@ -483,9 +489,12 @@ class NetworkServiceReadSingle(BaseModel):
 
 
 class NetworkServiceReadMulti(BaseModel):
-    __root__: list[NetworkServiceReadExtended] | list[NetworkServiceRead] | list[
-        NetworkServiceReadExtendedPublic
-    ] | list[NetworkServiceReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[NetworkServiceReadExtended]
+        | list[NetworkServiceRead]
+        | list[NetworkServiceReadExtendedPublic]
+        | list[NetworkServiceReadPublic]
+    ) = Field(..., discriminator="schema_type")
 
 
 class ObjectStoreServiceReadSingle(BaseModel):
@@ -498,8 +507,9 @@ class ObjectStoreServiceReadSingle(BaseModel):
 
 
 class ObjectStoreServiceReadMulti(BaseModel):
-    __root__: list[ObjectStoreServiceReadExtended] | list[
-        ObjectStoreServiceRead
-    ] | list[ObjectStoreServiceReadExtendedPublic] | list[
-        ObjectStoreServiceReadPublic
-    ] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[ObjectStoreServiceReadExtended]
+        | list[ObjectStoreServiceRead]
+        | list[ObjectStoreServiceReadExtendedPublic]
+        | list[ObjectStoreServiceReadPublic]
+    ) = Field(..., discriminator="schema_type")

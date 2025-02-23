@@ -1,4 +1,5 @@
 """Pydantic extended models of the Virtual Machine Network owned by a Provider."""
+
 from pydantic import BaseModel, Field
 
 from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
@@ -127,6 +128,9 @@ class NetworkReadSingle(BaseModel):
 
 
 class NetworkReadMulti(BaseModel):
-    __root__: list[NetworkReadExtended] | list[NetworkRead] | list[
-        NetworkReadExtendedPublic
-    ] | list[NetworkReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[NetworkReadExtended]
+        | list[NetworkRead]
+        | list[NetworkReadExtendedPublic]
+        | list[NetworkReadPublic]
+    ) = Field(..., discriminator="schema_type")

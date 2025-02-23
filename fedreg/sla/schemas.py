@@ -1,4 +1,5 @@
 """Pydantic models of the Service Level Agreement between a Project and a User Group."""
+
 from datetime import date
 from typing import Any
 

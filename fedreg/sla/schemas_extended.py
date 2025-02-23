@@ -1,6 +1,5 @@
 """Pydantic extended models of the SLA between a Project and a User Group."""
 
-
 from pydantic import BaseModel, Field
 
 from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
@@ -118,6 +117,9 @@ class SLAReadSingle(BaseModel):
 
 
 class SLAReadMulti(BaseModel):
-    __root__: list[SLAReadExtended] | list[SLARead] | list[
-        SLAReadExtendedPublic
-    ] | list[SLAReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[SLAReadExtended]
+        | list[SLARead]
+        | list[SLAReadExtendedPublic]
+        | list[SLAReadPublic]
+    ) = Field(..., discriminator="schema_type")

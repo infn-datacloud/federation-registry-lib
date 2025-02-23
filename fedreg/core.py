@@ -1,4 +1,5 @@
 """Core pydantic models."""
+
 from datetime import date, datetime
 from enum import Enum
 from typing import Any, Literal, get_origin

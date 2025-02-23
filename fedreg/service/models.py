@@ -1,4 +1,5 @@
 """Neomodel models of the Service supplied by a Provider on a specific Region."""
+
 from neomodel import (
     One,
     RelationshipFrom,

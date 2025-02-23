@@ -1,4 +1,5 @@
 """Pydantic models of the Region owned by a Provider."""
+
 from pydantic import Field
 
 from fedreg.core import (

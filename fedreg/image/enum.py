@@ -1,4 +1,5 @@
 """Image specific enumerations."""
+
 from enum import Enum
 
 

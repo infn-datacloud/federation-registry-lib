@@ -1,4 +1,5 @@
 """Pydantic models of the Identity Provider."""
+
 from pydantic import AnyHttpUrl, Field
 
 from fedreg.core import (

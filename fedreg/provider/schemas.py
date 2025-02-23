@@ -1,4 +1,5 @@
 """Pydantic models of the Resource Provider (openstack, kubernetes...)."""
+
 from pydantic import EmailStr, Field
 
 from fedreg.core import (

@@ -1,4 +1,5 @@
 """Neomodel model of the Region owned by a Provider."""
+
 from neomodel import (
     FloatProperty,
     One,

@@ -1,4 +1,5 @@
 """Provider custom enumerations."""
+
 from enum import Enum
 
 

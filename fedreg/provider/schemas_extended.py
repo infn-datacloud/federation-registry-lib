@@ -1,4 +1,5 @@
 """Pydantic extended models of the Resource Provider (openstack, kubernetes...)."""
+
 from typing import Any
 
 from pydantic import BaseModel, Field, root_validator, validator
@@ -453,9 +454,9 @@ def find_duplicates(items: Any, attr: str | None = None) -> None:
     seen = set()
     dupes = [x for x in values if x in seen or seen.add(x)]
     if attr:
-        assert (
-            len(dupes) == 0
-        ), f"There are multiple items with identical {attr}: {','.join(dupes)}"
+        assert len(dupes) == 0, (
+            f"There are multiple items with identical {attr}: {','.join(dupes)}"
+        )
     else:
         assert len(dupes) == 0, f"There are multiple identical items: {','.join(dupes)}"
 
@@ -689,13 +690,13 @@ class FlavorCreateExtended(FlavorCreate):
         If public verify the projects list is empty, otherwise the list can't be empty.
         """
         if not values.get("is_public"):
-            assert len(
-                values.get("projects", [])
-            ), "Projects are mandatory for private flavors"
+            assert len(values.get("projects", [])), (
+                "Projects are mandatory for private flavors"
+            )
         else:
-            assert not len(
-                values.get("projects", [])
-            ), "Public flavors do not have linked projects"
+            assert not len(values.get("projects", [])), (
+                "Public flavors do not have linked projects"
+            )
         return values
 
 
@@ -736,13 +737,13 @@ class ImageCreateExtended(ImageCreate):
         If public verify the projects list is empty, otherwise the list can't be empty.
         """
         if not values.get("is_public"):
-            assert len(
-                values.get("projects", [])
-            ), "Projects are mandatory for private images"
+            assert len(values.get("projects", [])), (
+                "Projects are mandatory for private images"
+            )
         else:
-            assert not len(
-                values.get("projects", [])
-            ), "Public images do not have linked projects"
+            assert not len(values.get("projects", [])), (
+                "Public images do not have linked projects"
+            )
         return values
 
 
@@ -774,13 +775,13 @@ class NetworkCreateExtended(NetworkCreate):
         If shared verify the project is None, otherwise the project must be defined.
         """
         if not values.get("is_shared"):
-            assert (
-                values.get("project") is not None
-            ), "Projects is mandatory for private networks"
+            assert values.get("project") is not None, (
+                "Projects is mandatory for private networks"
+            )
         else:
-            assert not values.get(
-                "project"
-            ), "Shared networks do not have a linked project"
+            assert not values.get("project"), (
+                "Shared networks do not have a linked project"
+            )
         return values
 
 

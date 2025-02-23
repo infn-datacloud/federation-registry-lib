@@ -1,4 +1,5 @@
 """Pydantic models of the Resource limitations for Projects on Services."""
+
 from typing import Literal
 
 from pydantic import Field

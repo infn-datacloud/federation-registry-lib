@@ -1,4 +1,5 @@
 """Pydantic models of the site geographical Location."""
+
 from typing import Any
 
 from pycountry import countries

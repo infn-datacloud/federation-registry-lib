@@ -1,4 +1,5 @@
 """Quota custom enumerations."""
+
 from enum import Enum
 
 

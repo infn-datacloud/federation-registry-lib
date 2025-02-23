@@ -1,4 +1,5 @@
 """Pydantic extended models of the Virtual Machine Flavor owned by a Provider."""
+
 from pydantic import BaseModel, Field
 
 from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
@@ -131,6 +132,9 @@ class FlavorReadSingle(BaseModel):
 
 
 class FlavorReadMulti(BaseModel):
-    __root__: list[FlavorReadExtended] | list[FlavorRead] | list[
-        FlavorReadExtendedPublic
-    ] | list[FlavorReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[FlavorReadExtended]
+        | list[FlavorRead]
+        | list[FlavorReadExtendedPublic]
+        | list[FlavorReadPublic]
+    ) = Field(..., discriminator="schema_type")

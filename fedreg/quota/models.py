@@ -1,4 +1,5 @@
 """Neomodel models of the resource limitations for Projects on Services."""
+
 from neomodel import (
     BooleanProperty,
     IntegerProperty,

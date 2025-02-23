@@ -1,4 +1,5 @@
 """Pydantic extended models of the Project owned by a Provider."""
+
 from pydantic import BaseModel, Field
 
 from fedreg.auth_method.schemas import AuthMethodRead
@@ -629,6 +630,9 @@ class ProjectReadSingle(BaseModel):
 
 
 class ProjectReadMulti(BaseModel):
-    __root__: list[ProjectReadExtended] | list[ProjectRead] | list[
-        ProjectReadExtendedPublic
-    ] | list[ProjectReadPublic] = Field(..., discriminator="schema_type")
+    __root__: (
+        list[ProjectReadExtended]
+        | list[ProjectRead]
+        | list[ProjectReadExtendedPublic]
+        | list[ProjectReadPublic]
+    ) = Field(..., discriminator="schema_type")

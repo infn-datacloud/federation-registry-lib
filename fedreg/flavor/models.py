@@ -1,4 +1,5 @@
 """Neomodel model of the Virtual Machine Flavor owned by a Provider."""
+
 from neomodel import (
     BooleanProperty,
     IntegerProperty,

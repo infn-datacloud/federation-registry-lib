@@ -1,4 +1,5 @@
 """Pydantic models of the Service supplied by a Provider on a specific Region."""
+
 from typing import Literal
 
 from pydantic import AnyHttpUrl, Field
