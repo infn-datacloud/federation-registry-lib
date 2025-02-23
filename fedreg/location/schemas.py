@@ -4,19 +4,19 @@ from typing import Any, Dict, Optional
 from pycountry import countries
 from pydantic import Field, validator
 
+from fedreg.core import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fedreg.location.constants import (
     DOC_CODE,
     DOC_COUNTRY,
     DOC_LATI,
     DOC_LONG,
     DOC_SITE,
-)
-from fedreg.models import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
 )
 from fedreg.query import create_query_model
 

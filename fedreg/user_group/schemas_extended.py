@@ -3,11 +3,11 @@
 
 from pydantic import BaseModel, Field
 
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.project.constants import DOC_EXT_PROV, DOC_EXT_QUOTA
 from fedreg.project.schemas import ProjectRead, ProjectReadPublic
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic

@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional, Set
 from pydantic import BaseModel, Field, root_validator, validator
 
 from fedreg.auth_method.schemas import AuthMethodCreate, AuthMethodRead
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.schemas import FlavorCreate, FlavorRead, FlavorReadPublic
 from fedreg.identity_provider.constants import DOC_EXT_GROUP
 from fedreg.identity_provider.schemas import (
@@ -18,7 +19,6 @@ from fedreg.location.schemas import (
     LocationRead,
     LocationReadPublic,
 )
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.network.schemas import NetworkCreate, NetworkRead, NetworkReadPublic
 from fedreg.project.schemas import ProjectCreate, ProjectRead, ProjectReadPublic
 from fedreg.provider.constants import (

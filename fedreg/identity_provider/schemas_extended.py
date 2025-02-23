@@ -4,6 +4,7 @@
 from pydantic import BaseModel, Field
 
 from fedreg.auth_method.schemas import AuthMethodRead
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.identity_provider.constants import DOC_EXT_GROUP, DOC_EXT_PROV
 from fedreg.identity_provider.schemas import (
     IdentityProviderBase,
@@ -11,7 +12,6 @@ from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.provider.constants import DOC_EXT_AUTH_METH
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.user_group.schemas import UserGroupRead, UserGroupReadPublic

@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.network.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from fedreg.network.schemas import (
     NetworkBase,

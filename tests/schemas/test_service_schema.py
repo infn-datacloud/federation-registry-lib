@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 from pytest_cases import parametrize_with_cases
 
-from fedreg.models import (
+from fedreg.core import (
     BaseNodeCreate,
 )
 from fedreg.service.enum import ServiceType

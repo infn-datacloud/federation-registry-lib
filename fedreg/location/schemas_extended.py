@@ -3,6 +3,7 @@
 
 from pydantic import BaseModel, Field
 
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.location.constants import DOC_EXT_REG
 from fedreg.location.schemas import (
     LocationBase,
@@ -10,7 +11,6 @@ from fedreg.location.schemas import (
     LocationRead,
     LocationReadPublic,
 )
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.region.schemas import RegionRead, RegionReadPublic
 
 

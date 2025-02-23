@@ -4,6 +4,15 @@ from uuid import uuid4
 import pytest
 from pytest_cases import parametrize_with_cases
 
+# PrivateImageCreate,
+# SharedImageCreate,
+from fedreg.core import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fedreg.image.models import Image  # , PrivateImage, SharedImage
 from fedreg.image.schemas import (
     ImageBase,
@@ -11,16 +20,6 @@ from fedreg.image.schemas import (
     ImageRead,
     ImageReadPublic,
     ImageUpdate,
-)
-
-# PrivateImageCreate,
-# SharedImageCreate,
-from fedreg.models import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
 )
 
 

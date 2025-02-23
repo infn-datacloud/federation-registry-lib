@@ -4,6 +4,15 @@ from uuid import uuid4
 import pytest
 from pytest_cases import parametrize_with_cases
 
+# PrivateFlavorCreate,
+# SharedFlavorCreate,
+from fedreg.core import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fedreg.flavor.models import Flavor  # , PrivateFlavor, SharedFlavor
 from fedreg.flavor.schemas import (
     FlavorBase,
@@ -11,16 +20,6 @@ from fedreg.flavor.schemas import (
     FlavorRead,
     FlavorReadPublic,
     FlavorUpdate,
-)
-
-# PrivateFlavorCreate,
-# SharedFlavorCreate,
-from fedreg.models import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
 )
 
 

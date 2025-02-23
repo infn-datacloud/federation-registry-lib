@@ -4,6 +4,13 @@ from typing import Optional
 
 from pydantic import Field
 
+from fedreg.core import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fedreg.image.constants import (
     DOC_ARCH,
     DOC_CREATED_AT,
@@ -19,13 +26,6 @@ from fedreg.image.constants import (
     DOC_UUID,
 )
 from fedreg.image.enum import ImageOS
-from fedreg.models import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
-)
 from fedreg.query import create_query_model
 
 

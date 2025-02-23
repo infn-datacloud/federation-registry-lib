@@ -3,14 +3,14 @@ from typing import Optional
 
 from pydantic import AnyHttpUrl, Field
 
-from fedreg.identity_provider.constants import DOC_CLAIM, DOC_ENDP
-from fedreg.models import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
 )
+from fedreg.identity_provider.constants import DOC_CLAIM, DOC_ENDP
 from fedreg.query import create_query_model
 
 

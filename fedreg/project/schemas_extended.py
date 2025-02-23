@@ -4,13 +4,13 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from fedreg.auth_method.schemas import AuthMethodRead
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
 from fedreg.image.schemas import ImageRead, ImageReadPublic
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.network.schemas import NetworkRead, NetworkReadPublic
 from fedreg.project.constants import (
     DOC_EXT_FLAV,

@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional, Type, get_origin
 from pydantic import BaseModel, Field, create_model, validator
 from pydantic.fields import SHAPE_LIST
 
-from fedreg.models import BaseNode, BaseNodeQuery
+from fedreg.core import BaseNode, BaseNodeQuery
 
 
 class SchemaSize(BaseModel):

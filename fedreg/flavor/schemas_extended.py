@@ -1,6 +1,7 @@
 """Pydantic extended models of the Virtual Machine Flavor owned by a Provider."""
 from pydantic import BaseModel, Field
 
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from fedreg.flavor.schemas import (
     FlavorBase,
@@ -8,7 +9,6 @@ from fedreg.flavor.schemas import (
     FlavorRead,
     FlavorReadPublic,
 )
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.project.schemas import ProjectRead, ProjectReadPublic
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.region.constants import DOC_EXT_PROV

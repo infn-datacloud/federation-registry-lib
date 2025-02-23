@@ -3,8 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.location.schemas import LocationRead, LocationReadPublic
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.region.constants import DOC_EXT_LOC, DOC_EXT_PROV, DOC_EXT_SERV
 from fedreg.region.schemas import (

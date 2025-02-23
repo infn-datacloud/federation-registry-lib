@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 from pydantic import Field, validator
 
-from fedreg.models import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,

@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import EmailStr, Field
 
-from fedreg.models import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,

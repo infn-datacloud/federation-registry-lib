@@ -3,6 +3,13 @@ from typing import Any, Dict, Optional
 
 from pydantic import Field, root_validator
 
+from fedreg.core import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fedreg.flavor.constants import (
     DOC_DISK,
     DOC_EPHEM,
@@ -17,13 +24,6 @@ from fedreg.flavor.constants import (
     DOC_SWAP,
     DOC_UUID,
     DOC_VCPUS,
-)
-from fedreg.models import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
 )
 from fedreg.query import create_query_model
 

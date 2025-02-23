@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import Field
 
-from fedreg.models import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,

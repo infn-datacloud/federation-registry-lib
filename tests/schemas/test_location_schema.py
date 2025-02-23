@@ -4,6 +4,13 @@ from uuid import uuid4
 import pytest
 from pytest_cases import parametrize_with_cases
 
+from fedreg.core import (
+    BaseNode,
+    BaseNodeCreate,
+    BaseNodeRead,
+    BaseReadPrivate,
+    BaseReadPublic,
+)
 from fedreg.location.models import Location
 from fedreg.location.schemas import (
     LocationBase,
@@ -12,13 +19,6 @@ from fedreg.location.schemas import (
     LocationRead,
     LocationReadPublic,
     LocationUpdate,
-)
-from fedreg.models import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
 )
 
 

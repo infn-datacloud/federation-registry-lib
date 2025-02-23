@@ -3,9 +3,9 @@
 
 from pydantic import BaseModel, Field
 
+from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fedreg.image.schemas import ImageRead, ImageReadPublic
-from fedreg.models import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.network.schemas import NetworkRead, NetworkReadPublic
 from fedreg.project.schemas import ProjectRead, ProjectReadPublic
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic

@@ -4,8 +4,8 @@ from uuid import uuid4
 
 from pycountry import countries
 
+from fedreg.core import BaseNodeRead
 from fedreg.image.enum import ImageOS
-from fedreg.models import BaseNodeRead
 from fedreg.provider.enum import ProviderStatus, ProviderType
 from fedreg.service.enum import (
     BlockStorageServiceName,
