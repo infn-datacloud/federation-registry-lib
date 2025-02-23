@@ -1,4 +1,4 @@
-"""Neomodel model of the Provider - Identity Provider relationship."""
+"""Neomodel model of the (Provider - Identity Provider) relationship."""
 
 from neomodel import StringProperty, StructuredRel
 
@@ -8,9 +8,8 @@ class AuthMethod(StructuredRel):
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name saved in the Provider.
-        protocol (str): Protocol to use when authenticating on this
-            identity provider.
+        idp_name (str): Identity Provider name saved in the Resource Provider.
+        protocol (str): Protocol to use when authenticating on this identity provider.
     """
 
     idp_name = StringProperty(required=True)

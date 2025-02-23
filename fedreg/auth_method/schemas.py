@@ -2,59 +2,56 @@
 
 from pydantic import BaseModel, Field
 
+from fedreg.auth_method.constants import DOC_IDP_NAME, DOC_PROTOCOL
+
 
 class AuthMethodBase(BaseModel):
-    """Model with a Provider Authentication Method basic attributes.
+    """Model with the basic attributes used by the AuthMethod relationship.
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name used by the provider to authenticate.
-        protocol (str): Communication protocol used by the provider to authenticate.
+        idp_name (str): Identity Provider name saved in the Resource Provider.
+        protocol (str): Protocol to use when authenticating on this identity provider
     """
 
-    idp_name: str = Field(
-        description="Identity Provider name used by the provider to authenticate."
-    )
-    protocol: str = Field(
-        description="Communication protocol used by the provider to authenticate."
-    )
+    idp_name: str = Field(description=DOC_IDP_NAME)
+    protocol: str = Field(description=DOC_PROTOCOL)
 
     class Config:
-        """Sub class to validate assignments."""
+        """Internal class to define configuration details."""
 
         validate_assignment = True
 
 
 class AuthMethodCreate(AuthMethodBase):
-    """Model to create a Provider Authentication Method.
+    """Model to create an AuthMethod instance.
 
-    Class without id (which is populated by the database). Expected as input when
-    performing a POST request.
+    Class expected as input when performing a POST request.
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name used by the provider to authenticate.
-        protocol (str): Communication protocol used by the provider to authenticate.
+        idp_name (str): Identity Provider name saved in the Resource Provider.
+        protocol (str): Protocol to use when authenticating on this identity provider.
     """
 
 
 class AuthMethodRead(AuthMethodBase):
-    """Model to read Provider Authentication Method data retrieved from DB.
+    """Model to read AuthMethod relationship data retrieved from the DB.
 
     Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request. It contains all the non-sensible data written in the
-    database.
-
-    Use ORM mode to read data from DB models. Always validate assignments.
+    generic REST request.
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name used by the provider to authenticate.
-        protocol (str): Communication protocol used by the provider to authenticate.
+        idp_name (str): Identity Provider name saved in the Resource Provider.
+        protocol (str): Protocol to use when authenticating on this identity provider.
     """
 
     class Config:
-        """Sub class to validate assignments and enable orm mode."""
+        """Sub class to validate assignments and enable orm mode.
+
+        Use ORM mode to read data from DB models.
+        """
 
         validate_assignment = True
         orm_mode = True
