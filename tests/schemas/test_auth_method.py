@@ -6,12 +6,14 @@ from pytest_cases import parametrize_with_cases
 
 from fedreg.auth_method.models import AuthMethod
 from fedreg.auth_method.schemas import AuthMethodBase, AuthMethodCreate, AuthMethodRead
+from fedreg.core import BaseNodeCreate
 
 
 def test_classes_inheritance() -> None:
     """Test pydantic schema inheritance."""
     assert issubclass(AuthMethodBase, BaseModel)
 
+    assert issubclass(AuthMethodCreate, BaseNodeCreate)
     assert issubclass(AuthMethodCreate, AuthMethodBase)
 
     assert issubclass(AuthMethodRead, AuthMethodBase)

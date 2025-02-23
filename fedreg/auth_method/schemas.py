@@ -3,6 +3,7 @@
 from pydantic import BaseModel, Field
 
 from fedreg.auth_method.constants import DOC_IDP_NAME, DOC_PROTOCOL
+from fedreg.core import BaseNodeCreate
 
 
 class AuthMethodBase(BaseModel):
@@ -17,13 +18,8 @@ class AuthMethodBase(BaseModel):
     idp_name: str = Field(description=DOC_IDP_NAME)
     protocol: str = Field(description=DOC_PROTOCOL)
 
-    class Config:
-        """Internal class to define configuration details."""
 
-        validate_assignment = True
-
-
-class AuthMethodCreate(AuthMethodBase):
+class AuthMethodCreate(BaseNodeCreate, AuthMethodBase):
     """Model to create an AuthMethod instance.
 
     Class expected as input when performing a POST request.
