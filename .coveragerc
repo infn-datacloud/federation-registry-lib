@@ -1,5 +1,0 @@
-[run]
-relative_files = True
-source = fedreg/
-branch = True
-omit = tests/**

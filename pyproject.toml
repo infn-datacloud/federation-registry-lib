@@ -50,3 +50,9 @@ convention = "google"
 
 [tool.pytest.ini_options]
 addopts = "--resetdb"
+
+[tool.coverage.run]
+relative_files = true
+source = ["fedreg"]
+branch = true
+omit = ["tests/**"]
