@@ -2,13 +2,12 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.network.models import Network  # , PrivateNetwork, SharedNetwork
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
 from fedreg.network.schemas import (
     NetworkBase,
+    PrivateNetworkCreate,
+    SharedNetworkCreate,
 )
-
-# PrivateNetworkCreate,
-# SharedNetworkCreate,
 from tests.schemas.utils import network_schema_dict
 from tests.utils import random_lower_string, random_positive_int
 
@@ -76,13 +75,13 @@ class CaseNetworkSchema:
     def case_base_class(self) -> type[NetworkBase]:
         return NetworkBase
 
-    # @case(tags="class")
-    # def case_private_class(self) -> type[PrivateNetworkCreate]:
-    #     return PrivateNetworkCreate
+    @case(tags="class")
+    def case_private_class(self) -> type[PrivateNetworkCreate]:
+        return PrivateNetworkCreate
 
-    # @case(tags="class")
-    # def case_shared_class(self) -> type[SharedNetworkCreate]:
-    #     return SharedNetworkCreate
+    @case(tags="class")
+    def case_shared_class(self) -> type[SharedNetworkCreate]:
+        return SharedNetworkCreate
 
 
 class CaseNetworkModel:
@@ -93,16 +92,16 @@ class CaseNetworkModel:
     def case_network_model(self, data: dict[str, Any]) -> Network:
         return Network(**NetworkBase(**data).dict()).save()
 
-    # @case(tags="model")
-    # @parametrize_with_cases(
-    #     "data", cases=CaseNetworkSchema, has_tag=("dict", "valid", "base")
-    # )
-    # def case_private_network_class(self, data: dict[str, Any]) -> PrivateNetwork:
-    #     return PrivateNetwork(**PrivateNetworkCreate(**data).dict()).save()
+    @case(tags="model")
+    @parametrize_with_cases(
+        "data", cases=CaseNetworkSchema, has_tag=("dict", "valid", "base")
+    )
+    def case_private_network_class(self, data: dict[str, Any]) -> PrivateNetwork:
+        return PrivateNetwork(**PrivateNetworkCreate(**data).dict()).save()
 
-    # @case(tags="model")
-    # @parametrize_with_cases(
-    #     "data", cases=CaseNetworkSchema, has_tag=("dict", "valid", "base")
-    # )
-    # def case_shared_network_class(self, data: dict[str, Any]) -> SharedNetwork:
-    #     return SharedNetwork(**SharedNetworkCreate(**data).dict()).save()
+    @case(tags="model")
+    @parametrize_with_cases(
+        "data", cases=CaseNetworkSchema, has_tag=("dict", "valid", "base")
+    )
+    def case_shared_network_class(self, data: dict[str, Any]) -> SharedNetwork:
+        return SharedNetwork(**SharedNetworkCreate(**data).dict()).save()

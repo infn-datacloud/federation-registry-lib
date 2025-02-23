@@ -2,6 +2,7 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
 from fedreg.core import (
@@ -11,17 +12,17 @@ from fedreg.core import (
     BaseReadPrivate,
     BaseReadPublic,
 )
-from fedreg.network.models import Network  # , PrivateNetwork, SharedNetwork
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
 from fedreg.network.schemas import (
     NetworkBase,
     NetworkBasePublic,
     NetworkRead,
     NetworkReadPublic,
     NetworkUpdate,
+    PrivateNetworkCreate,
+    SharedNetworkCreate,
 )
-
-# PrivateNetworkCreate,
-# SharedNetworkCreate,
+from tests.schemas.utils import network_schema_dict
 
 
 def test_classes_inheritance():
@@ -43,11 +44,11 @@ def test_classes_inheritance():
     assert issubclass(NetworkRead, NetworkBase)
     assert NetworkRead.__config__.orm_mode
 
-    # assert issubclass(PrivateNetworkCreate, NetworkBase)
-    # assert issubclass(PrivateNetworkCreate, BaseNodeCreate)
+    assert issubclass(PrivateNetworkCreate, NetworkBase)
+    assert issubclass(PrivateNetworkCreate, BaseNodeCreate)
 
-    # assert issubclass(SharedNetworkCreate, NetworkBase)
-    # assert issubclass(SharedNetworkCreate, BaseNodeCreate)
+    assert issubclass(SharedNetworkCreate, NetworkBase)
+    assert issubclass(SharedNetworkCreate, BaseNodeCreate)
 
 
 @parametrize_with_cases("data", has_tag=("dict", "valid", "base_public"))
@@ -62,9 +63,9 @@ def test_base_public(data: dict[str, Any]) -> None:
 @parametrize_with_cases("network_cls", has_tag="class")
 @parametrize_with_cases("data", has_tag=("dict", "valid", "base"))
 def test_base(
-    network_cls: type[NetworkBase],
-    # | type[PrivateNetworkCreate]
-    # | type[SharedNetworkCreate],
+    network_cls: type[NetworkBase]
+    | type[PrivateNetworkCreate]
+    | type[SharedNetworkCreate],
     data: dict[str, Any],
 ) -> None:
     """Test class' attribute values.
@@ -82,10 +83,10 @@ def test_base(
     assert item.proxy_user == data.get("proxy_user", None)
     assert item.tags == data.get("tags", [])
 
-    # if isinstance(item, PrivateNetworkCreate):
-    #     assert not item.is_shared
-    # if isinstance(item, SharedNetworkCreate):
-    #     assert item.is_shared
+    if isinstance(item, PrivateNetworkCreate):
+        assert not item.is_shared
+    if isinstance(item, SharedNetworkCreate):
+        assert item.is_shared
 
 
 @parametrize_with_cases("data", has_tag=("dict", "valid", "update"))
@@ -138,9 +139,7 @@ def test_read(data: dict[str, Any]) -> None:
 
 
 @parametrize_with_cases("model", has_tag="model")
-def test_read_public_from_orm(
-    model: Network
-) -> None:  # | PrivateNetwork | SharedNetwork
+def test_read_public_from_orm(model: Network | PrivateNetwork | SharedNetwork) -> None:
     """Use the from_orm function of NetworkReadPublic to read data from an ORM."""
     item = NetworkReadPublic.from_orm(model)
     assert item.schema_type == "public"
@@ -151,7 +150,7 @@ def test_read_public_from_orm(
 
 
 @parametrize_with_cases("model", has_tag="model")
-def test_read_from_orm(model: Network) -> None:  # | PrivateNetwork | SharedNetwork
+def test_read_from_orm(model: Network | PrivateNetwork | SharedNetwork) -> None:
     """Use the from_orm function of NetworkRead to read data from an ORM."""
     item = NetworkRead.from_orm(model)
     assert item.schema_type == "private"
@@ -165,10 +164,10 @@ def test_read_from_orm(model: Network) -> None:  # | PrivateNetwork | SharedNetw
     assert item.proxy_host == model.proxy_host
     assert item.proxy_user == model.proxy_user
     assert item.tags == model.tags
-    # if isinstance(model, (PrivateNetwork, SharedNetwork)):
-    #     assert item.is_shared == model.is_shared
-    # else:
-    #     assert item.is_shared is None
+    if isinstance(model, (PrivateNetwork, SharedNetwork)):
+        assert item.is_shared == model.is_shared
+    else:
+        assert item.is_shared is None
 
 
 @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "base_public"))
@@ -182,9 +181,9 @@ def test_invalid_base_public(data: dict[str, Any], attr: str) -> None:
 @parametrize_with_cases("network_cls", has_tag="class")
 @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "base"))
 def test_invalid_base(
-    network_cls: type[NetworkBase],
-    # | type[PrivateNetworkCreate]
-    # | type[SharedNetworkCreate],
+    network_cls: type[NetworkBase]
+    | type[PrivateNetworkCreate]
+    | type[SharedNetworkCreate],
     data: dict[str, Any],
     attr: str,
 ) -> None:
@@ -205,14 +204,14 @@ def test_invalid_update(data: dict[str, Any], attr: str) -> None:
         NetworkUpdate(**data)
 
 
-# def test_invalid_create_visibility() -> None:
-#     """Test invalid attributes for PrivateNetworkCreate and SharedNetworkCreate."""
-#     err_msg = r"1 validation error for PrivateNetworkCreate\sis_shared"
-#     with pytest.raises(ValidationError, match=err_msg):
-#         PrivateNetworkCreate(**network_schema_dict(), is_shared=True)
-#     err_msg = r"1 validation error for SharedNetworkCreate\sis_shared"
-#     with pytest.raises(ValidationError, match=err_msg):
-#         SharedNetworkCreate(**network_schema_dict(), is_shared=False)
+def test_invalid_create_visibility() -> None:
+    """Test invalid attributes for PrivateNetworkCreate and SharedNetworkCreate."""
+    err_msg = r"1 validation error for PrivateNetworkCreate\sis_shared"
+    with pytest.raises(ValidationError, match=err_msg):
+        PrivateNetworkCreate(**network_schema_dict(), is_shared=True)
+    err_msg = r"1 validation error for SharedNetworkCreate\sis_shared"
+    with pytest.raises(ValidationError, match=err_msg):
+        SharedNetworkCreate(**network_schema_dict(), is_shared=False)
 
 
 @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "read_public"))

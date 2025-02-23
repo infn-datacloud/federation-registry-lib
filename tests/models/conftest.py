@@ -6,7 +6,7 @@ from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
 from fedreg.identity_provider.models import IdentityProvider
 from fedreg.image.models import Image, PrivateImage, SharedImage
 from fedreg.location.models import Location
-from fedreg.network.models import Network  # , PrivateNetwork, SharedNetwork
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
 from fedreg.project.models import Project
 from fedreg.provider.models import Provider
 from fedreg.quota.models import (
@@ -88,14 +88,14 @@ def network_model() -> Network:
     return Network(**network_model_dict()).save()
 
 
-# @pytest.fixture
-# def private_network_model() -> PrivateNetwork:
-#     return PrivateNetwork(**network_model_dict()).save()
+@pytest.fixture
+def private_network_model() -> PrivateNetwork:
+    return PrivateNetwork(**network_model_dict()).save()
 
 
-# @pytest.fixture
-# def shared_network_model() -> SharedNetwork:
-#     return SharedNetwork(**network_model_dict()).save()
+@pytest.fixture
+def shared_network_model() -> SharedNetwork:
+    return SharedNetwork(**network_model_dict()).save()
 
 
 @pytest.fixture

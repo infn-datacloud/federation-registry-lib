@@ -10,22 +10,24 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.network.models import Network  # , PrivateNetwork, SharedNetwork
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
+from fedreg.project.models import Project
 from fedreg.service.models import NetworkService
-from tests.models.utils import service_model_dict
+from tests.models.utils import project_model_dict, service_model_dict
 
-# @parametrize_with_cases("network_cls", has_tag=("class", "derived"))
-# def test_network_inheritance(
-#     network_cls: type[PrivateNetwork] | type[SharedNetwork],
-# ) -> None:
-#     """Test PrivateNetwork and SharedNetwork inherits from Network."""
-#     assert issubclass(network_cls, Network)
+
+@parametrize_with_cases("network_cls", has_tag=("class", "derived"))
+def test_network_inheritance(
+    network_cls: type[PrivateNetwork] | type[SharedNetwork],
+) -> None:
+    """Test PrivateNetwork and SharedNetwork inherits from Network."""
+    assert issubclass(network_cls, Network)
 
 
 @parametrize_with_cases("network_cls", has_tag="class")
 @parametrize_with_cases("data", has_tag=("dict", "valid"))
 def test_network_valid_attr(
-    network_cls: type[Network],  # | type[PrivateNetwork] | type[SharedNetwork],
+    network_cls: type[Network] | type[PrivateNetwork] | type[SharedNetwork],
     data: dict[str, Any],
 ) -> None:
     """Test Network mandatory and optional attributes.
@@ -45,10 +47,10 @@ def test_network_valid_attr(
     assert item.proxy_user is data.get("proxy_user", None)
     assert item.tags == data.get("tags", [])
 
-    # if network_cls == SharedNetwork:
-    #     assert item.is_shared
-    # if network_cls == PrivateNetwork:
-    #     assert not item.is_shared
+    if network_cls == SharedNetwork:
+        assert item.is_shared
+    if network_cls == PrivateNetwork:
+        assert not item.is_shared
 
     saved = item.save()
     assert saved.element_id_property
@@ -58,7 +60,7 @@ def test_network_valid_attr(
 @parametrize_with_cases("network_cls", has_tag="class")
 @parametrize_with_cases("data, attr", has_tag=("dict", "invalid"))
 def test_network_missing_mandatory_attr(
-    network_cls: type[Network],  # | type[PrivateNetwork] | type[SharedNetwork],
+    network_cls: type[Network] | type[PrivateNetwork] | type[SharedNetwork],
     data: dict[str, Any],
     attr: str,
 ) -> None:
@@ -73,7 +75,7 @@ def test_network_missing_mandatory_attr(
 
 
 @parametrize_with_cases("network_model", has_tag="model")
-def test_rel_def(network_model: Network) -> None:  # | PrivateNetwork | SharedNetwork
+def test_rel_def(network_model: Network | PrivateNetwork | SharedNetwork) -> None:
     """Test relationships definition.
 
     Execute this test on Network, PrivateNetwork and SharedNetwork.
@@ -86,20 +88,18 @@ def test_rel_def(network_model: Network) -> None:  # | PrivateNetwork | SharedNe
     assert network_model.service.definition
     assert network_model.service.definition["node_class"] == NetworkService
 
-    # if isinstance(network_model, PrivateNetwork):
-    #     assert isinstance(network_model.project, RelationshipManager)
-    #     assert network_model.project.name
-    #     assert network_model.project.source
-    #     assert isinstance(network_model.project.source, PrivateNetwork)
-    #     assert network_model.project.source.uid == network_model.uid
-    #     assert network_model.project.definition
-    #     assert network_model.project.definition["node_class"] == Project
+    if isinstance(network_model, PrivateNetwork):
+        assert isinstance(network_model.project, RelationshipManager)
+        assert network_model.project.name
+        assert network_model.project.source
+        assert isinstance(network_model.project.source, PrivateNetwork)
+        assert network_model.project.source.uid == network_model.uid
+        assert network_model.project.definition
+        assert network_model.project.definition["node_class"] == Project
 
 
 @parametrize_with_cases("network_model", has_tag="model")
-def test_required_rel(
-    network_model: Network
-) -> None:  # | PrivateNetwork | SharedNetwork
+def test_required_rel(network_model: Network | PrivateNetwork | SharedNetwork) -> None:
     """Test Network required relationships.
 
     A model without required relationships can exist but when querying those values, it
@@ -111,16 +111,16 @@ def test_required_rel(
     with pytest.raises(CardinalityViolation):
         network_model.service.single()
 
-    # if isinstance(network_model, PrivateNetwork):
-    #     with pytest.raises(CardinalityViolation):
-    #         network_model.project.all()
-    #     with pytest.raises(CardinalityViolation):
-    #         network_model.project.single()
+    if isinstance(network_model, PrivateNetwork):
+        with pytest.raises(CardinalityViolation):
+            network_model.project.all()
+        with pytest.raises(CardinalityViolation):
+            network_model.project.single()
 
 
 @parametrize_with_cases("network_model", has_tag="model")
 def test_single_linked_service(
-    network_model: Network,  # | PrivateNetwork | SharedNetwork,
+    network_model: Network | PrivateNetwork | SharedNetwork,
     network_service_model: NetworkService,
 ) -> None:
     """Verify `service` relationship works correctly.
@@ -138,7 +138,7 @@ def test_single_linked_service(
 
 @parametrize_with_cases("network_model", has_tag="model")
 def test_multiple_linked_services_error(
-    network_model: Network,  # | PrivateNetwork | SharedNetwork,
+    network_model: Network | PrivateNetwork | SharedNetwork,
 ) -> None:
     """Verify `service` relationship works correctly.
 
@@ -158,35 +158,34 @@ def test_multiple_linked_services_error(
             network_model.service.all()
 
 
-# def test_single_linked_project(
-#     private_network_model: PrivateNetwork, project_model: Project
-# ) -> None:
-#     """Verify `projects` relationship works correctly.
+def test_single_linked_project(
+    private_network_model: PrivateNetwork, project_model: Project
+) -> None:
+    """Verify `projects` relationship works correctly.
 
-#     Connect a single Project to a PrivateNetwork.
-#     """
-#     r = private_network_model.project.connect(project_model)
-#     assert r is True
+    Connect a single Project to a PrivateNetwork.
+    """
+    private_network_model.project.connect(project_model)
 
-#     assert len(private_network_model.project.all()) == 1
-#     project = private_network_model.project.single()
-#     assert isinstance(project, Project)
-#     assert project.uid == project_model.uid
+    assert len(private_network_model.project.all()) == 1
+    project = private_network_model.project.single()
+    assert isinstance(project, Project)
+    assert project.uid == project_model.uid
 
 
-# def test_multiple_linked_projects(private_network_model: PrivateNetwork) -> None:
-#     """Verify `services` relationship works correctly.
+def test_multiple_linked_projects(private_network_model: PrivateNetwork) -> None:
+    """Verify `services` relationship works correctly.
 
-#     Trying to connect multiple Project to a PrivateNetwork raises an
-#     AttemptCardinalityViolation error.
-#     """
-#     item = Project(**project_model_dict()).save()
-#     private_network_model.project.connect(item)
-#     item = Project(**project_model_dict()).save()
-#     with pytest.raises(AttemptedCardinalityViolation):
-#         private_network_model.project.connect(item)
+    Trying to connect multiple Project to a PrivateNetwork raises an
+    AttemptCardinalityViolation error.
+    """
+    item = Project(**project_model_dict()).save()
+    private_network_model.project.connect(item)
+    item = Project(**project_model_dict()).save()
+    with pytest.raises(AttemptedCardinalityViolation):
+        private_network_model.project.connect(item)
 
-#     with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
-#         private_network_model.project.connect(item)
-#         with pytest.raises(CardinalityViolation):
-#             private_network_model.project.all()
+    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
+        private_network_model.project.connect(item)
+        with pytest.raises(CardinalityViolation):
+            private_network_model.project.all()
