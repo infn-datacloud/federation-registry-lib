@@ -2,10 +2,9 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
+from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
-# PrivateFlavorCreate,
-# SharedFlavorCreate,
 from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
@@ -13,14 +12,17 @@ from fedreg.core import (
     BaseReadPrivate,
     BaseReadPublic,
 )
-from fedreg.flavor.models import Flavor  # , PrivateFlavor, SharedFlavor
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
 from fedreg.flavor.schemas import (
     FlavorBase,
     FlavorBasePublic,
     FlavorRead,
     FlavorReadPublic,
     FlavorUpdate,
+    PrivateFlavorCreate,
+    SharedFlavorCreate,
 )
+from tests.schemas.utils import flavor_schema_dict
 
 
 def test_classes_inheritance() -> None:
@@ -42,11 +44,11 @@ def test_classes_inheritance() -> None:
     assert issubclass(FlavorRead, FlavorBase)
     assert FlavorRead.__config__.orm_mode
 
-    # assert issubclass(PrivateFlavorCreate, FlavorBase)
-    # assert issubclass(PrivateFlavorCreate, BaseNodeCreate)
+    assert issubclass(PrivateFlavorCreate, FlavorBase)
+    assert issubclass(PrivateFlavorCreate, BaseNodeCreate)
 
-    # assert issubclass(SharedFlavorCreate, FlavorBase)
-    # assert issubclass(SharedFlavorCreate, BaseNodeCreate)
+    assert issubclass(SharedFlavorCreate, FlavorBase)
+    assert issubclass(SharedFlavorCreate, BaseNodeCreate)
 
 
 @parametrize_with_cases("data", has_tag=("dict", "valid", "base_public"))
@@ -61,9 +63,7 @@ def test_base_public(data: dict[str, Any]) -> None:
 @parametrize_with_cases("flavor_cls", has_tag="class")
 @parametrize_with_cases("data", has_tag=("dict", "valid", "base"))
 def test_base(
-    flavor_cls: type[
-        FlavorBase
-    ],  # | type[PrivateFlavorCreate] | type[SharedFlavorCreate],
+    flavor_cls: type[FlavorBase] | type[PrivateFlavorCreate] | type[SharedFlavorCreate],
     data: dict[str, Any],
 ) -> None:
     """Test Flavor class' mandatory and optional attributes.
@@ -85,10 +85,10 @@ def test_base(
     assert item.gpu_vendor == data.get("gpu_vendor", None)
     assert item.local_storage == data.get("local_storage", None)
 
-    # if isinstance(item, PrivateFlavorCreate):
-    #     assert not item.is_shared
-    # if isinstance(item, SharedFlavorCreate):
-    #     assert item.is_shared
+    if isinstance(item, PrivateFlavorCreate):
+        assert not item.is_shared
+    if isinstance(item, SharedFlavorCreate):
+        assert item.is_shared
 
 
 @parametrize_with_cases("data", has_tag=("dict", "valid", "update"))
@@ -146,11 +146,11 @@ def test_read(data: dict[str, Any]) -> None:
     assert item.gpu_model == data.get("gpu_model", None)
     assert item.gpu_vendor == data.get("gpu_vendor", None)
     assert item.local_storage == data.get("local_storage", None)
-    # assert item.is_shared == data.get("is_shared", None)
+    assert item.is_shared == data.get("is_shared", None)
 
 
 @parametrize_with_cases("model", has_tag="model")
-def test_read_public_from_orm(model: Flavor) -> None:  # | PrivateFlavor | SharedFlavor
+def test_read_public_from_orm(model: Flavor | PrivateFlavor | SharedFlavor) -> None:
     """Use the from_orm function of FlavorReadPublic to read data from an ORM."""
     item = FlavorReadPublic.from_orm(model)
     assert item.schema_type == "public"
@@ -161,7 +161,7 @@ def test_read_public_from_orm(model: Flavor) -> None:  # | PrivateFlavor | Share
 
 
 @parametrize_with_cases("model", has_tag="model")
-def test_read_from_orm(model: Flavor) -> None:  # | PrivateFlavor | SharedFlavor
+def test_read_from_orm(model: Flavor | PrivateFlavor | SharedFlavor) -> None:
     """Use the from_orm function of FlavorRead to read data from an ORM."""
     item = FlavorRead.from_orm(model)
     assert item.schema_type == "private"
@@ -179,10 +179,10 @@ def test_read_from_orm(model: Flavor) -> None:  # | PrivateFlavor | SharedFlavor
     assert item.gpu_model == model.gpu_model
     assert item.gpu_vendor == model.gpu_vendor
     assert item.local_storage == model.local_storage
-    # if isinstance(model, (PrivateFlavor, SharedFlavor)):
-    #     assert item.is_shared == model.is_shared
-    # else:
-    #     assert item.is_shared is None
+    if isinstance(model, (PrivateFlavor, SharedFlavor)):
+        assert item.is_shared == model.is_shared
+    else:
+        assert item.is_shared is None
 
 
 @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "base_public"))
@@ -196,9 +196,7 @@ def test_invalid_base_public(data: dict[str, Any], attr: str) -> None:
 @parametrize_with_cases("flavor_cls", has_tag="class")
 @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "base"))
 def test_invalid_base(
-    flavor_cls: type[
-        FlavorBase
-    ],  # | type[PrivateFlavorCreate] | type[SharedFlavorCreate],
+    flavor_cls: type[FlavorBase] | type[PrivateFlavorCreate] | type[SharedFlavorCreate],
     data: dict[str, Any],
     attr: str,
 ) -> None:
@@ -223,14 +221,14 @@ def test_invalid_update(data: dict[str, Any], attr: str) -> None:
         FlavorUpdate(**data)
 
 
-# def test_invalid_create_visibility() -> None:
-#     """Test invalid attributes for PrivateFlavorCreate and SharedFlavorCreate."""
-#     err_msg = r"1 validation error for PrivateFlavorCreate\sis_shared"
-#     with pytest.raises(ValidationError, match=err_msg):
-#         PrivateFlavorCreate(**flavor_schema_dict(), is_shared=True)
-#     err_msg = r"1 validation error for SharedFlavorCreate\sis_shared"
-#     with pytest.raises(ValidationError, match=err_msg):
-#         SharedFlavorCreate(**flavor_schema_dict(), is_shared=False)
+def test_invalid_create_visibility() -> None:
+    """Test invalid attributes for PrivateFlavorCreate and SharedFlavorCreate."""
+    err_msg = r"1 validation error for PrivateFlavorCreate\sis_shared"
+    with pytest.raises(ValidationError, match=err_msg):
+        PrivateFlavorCreate(**flavor_schema_dict(), is_shared=True)
+    err_msg = r"1 validation error for SharedFlavorCreate\sis_shared"
+    with pytest.raises(ValidationError, match=err_msg):
+        SharedFlavorCreate(**flavor_schema_dict(), is_shared=False)
 
 
 @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "read_public"))

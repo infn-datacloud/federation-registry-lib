@@ -2,12 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.flavor.models import Flavor  # , PrivateFlavor, SharedFlavor
-from fedreg.flavor.schemas import (
-    FlavorBase,
-)
-
-# , PrivateFlavorCreate, SharedFlavorCreate
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.flavor.schemas import FlavorBase, PrivateFlavorCreate, SharedFlavorCreate
 from tests.schemas.utils import flavor_schema_dict
 from tests.utils import random_lower_string, random_positive_int
 
@@ -141,13 +137,13 @@ class CaseFlavorSchema:
     def case_flavor(self) -> type[FlavorBase]:
         return FlavorBase
 
-    # @case(tags="class")
-    # def case_private_flavor(self) -> type[PrivateFlavorCreate]:
-    #     return PrivateFlavorCreate
+    @case(tags="class")
+    def case_private_flavor(self) -> type[PrivateFlavorCreate]:
+        return PrivateFlavorCreate
 
-    # @case(tags="class")
-    # def case_shared_flavor(self) -> type[SharedFlavorCreate]:
-    #     return SharedFlavorCreate
+    @case(tags="class")
+    def case_shared_flavor(self) -> type[SharedFlavorCreate]:
+        return SharedFlavorCreate
 
 
 class CaseFlavorModel:
@@ -158,16 +154,16 @@ class CaseFlavorModel:
     def case_flavor_model(self, data: dict[str, Any]) -> Flavor:
         return Flavor(**FlavorBase(**data).dict()).save()
 
-    # @case(tags="model")
-    # @parametrize_with_cases(
-    #     "data", cases=CaseFlavorSchema, has_tag=("dict", "valid", "base")
-    # )
-    # def case_private_flavor_model(self, data: dict[str, Any]) -> PrivateFlavor:
-    #     return PrivateFlavor(**PrivateFlavorCreate(**data).dict()).save()
+    @case(tags="model")
+    @parametrize_with_cases(
+        "data", cases=CaseFlavorSchema, has_tag=("dict", "valid", "base")
+    )
+    def case_private_flavor_model(self, data: dict[str, Any]) -> PrivateFlavor:
+        return PrivateFlavor(**PrivateFlavorCreate(**data).dict()).save()
 
-    # @case(tags="model")
-    # @parametrize_with_cases(
-    #     "data", cases=CaseFlavorSchema, has_tag=("dict", "valid", "base")
-    # )
-    # def case_shared_flavor_model(self, data: dict[str, Any]) -> SharedFlavor:
-    #     return SharedFlavor(**SharedFlavorCreate(**data).dict()).save()
+    @case(tags="model")
+    @parametrize_with_cases(
+        "data", cases=CaseFlavorSchema, has_tag=("dict", "valid", "base")
+    )
+    def case_shared_flavor_model(self, data: dict[str, Any]) -> SharedFlavor:
+        return SharedFlavor(**SharedFlavorCreate(**data).dict()).save()

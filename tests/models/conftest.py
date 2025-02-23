@@ -1,7 +1,8 @@
 """File to set tests configuration parameters and model fixtures."""
+
 import pytest
 
-from fedreg.flavor.models import Flavor  # , PrivateFlavor, SharedFlavor
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
 from fedreg.identity_provider.models import IdentityProvider
 from fedreg.image.models import Image  # , PrivateImage, SharedImage
 from fedreg.location.models import Location
@@ -47,14 +48,14 @@ def flavor_model() -> Flavor:
     return Flavor(**flavor_model_dict()).save()
 
 
-# @pytest.fixture
-# def private_flavor_model() -> PrivateFlavor:
-#     return PrivateFlavor(**flavor_model_dict()).save()
+@pytest.fixture
+def private_flavor_model() -> PrivateFlavor:
+    return PrivateFlavor(**flavor_model_dict()).save()
 
 
-# @pytest.fixture
-# def shared_flavor_model() -> SharedFlavor:
-#     return SharedFlavor(**flavor_model_dict()).save()
+@pytest.fixture
+def shared_flavor_model() -> SharedFlavor:
+    return SharedFlavor(**flavor_model_dict()).save()
 
 
 @pytest.fixture

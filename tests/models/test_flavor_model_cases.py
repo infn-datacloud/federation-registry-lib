@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from pytest_cases import case
 
-from fedreg.flavor.models import Flavor  # , PrivateFlavor, SharedFlavor
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
 from tests.models.utils import flavor_model_dict
 from tests.utils import random_int, random_lower_string
 
@@ -68,26 +68,26 @@ class CaseFlavorModel:
     def case_flavor(self) -> type[Flavor]:
         return Flavor
 
-    # @case(tags=("class", "derived"))
-    # def case_private_flavor(self) -> type[PrivateFlavor]:
-    #     return PrivateFlavor
+    @case(tags=("class", "derived"))
+    def case_private_flavor(self) -> type[PrivateFlavor]:
+        return PrivateFlavor
 
-    # @case(tags=("class", "derived"))
-    # def case_shared_flavor(self) -> type[SharedFlavor]:
-    #     return SharedFlavor
+    @case(tags=("class", "derived"))
+    def case_shared_flavor(self) -> type[SharedFlavor]:
+        return SharedFlavor
 
     @case(tags="model")
     def case_flavor_model(self, flavor_model: Flavor) -> Flavor:
         return flavor_model
 
-    # @case(tags=("model", "private"))
-    # def case_private_flavor_model(
-    #     self, private_flavor_model: PrivateFlavor
-    # ) -> PrivateFlavor:
-    #     return private_flavor_model
+    @case(tags=("model", "private"))
+    def case_private_flavor_model(
+        self, private_flavor_model: PrivateFlavor
+    ) -> PrivateFlavor:
+        return private_flavor_model
 
-    # @case(tags=("model", "shared"))
-    # def case_shared_flavor_model(
-    #     self, shared_flavor_model: SharedFlavor
-    # ) -> SharedFlavor:
-    #     return shared_flavor_model
+    @case(tags=("model", "shared"))
+    def case_shared_flavor_model(
+        self, shared_flavor_model: SharedFlavor
+    ) -> SharedFlavor:
+        return shared_flavor_model
