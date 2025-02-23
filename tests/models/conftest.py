@@ -1,10 +1,5 @@
 """File to set tests configuration parameters and model fixtures."""
-# import os
-# from uuid import uuid4
-from typing import Any, Generator
-
 import pytest
-from neomodel import db
 
 from fedreg.flavor.models import Flavor  # , PrivateFlavor, SharedFlavor
 from fedreg.identity_provider.models import IdentityProvider
@@ -45,53 +40,6 @@ from tests.models.utils import (
     sla_model_dict,
     user_group_model_dict,
 )
-
-
-@pytest.fixture(scope="session", autouse=True)
-def setup_neo4j_session(request):
-    """
-    Provides initial connection to the database and sets up the rest of the test suite
-
-    :param request: The request object. Please see <https://docs.pytest.org/en/latest/reference.html#_pytest.hookspec.pytest_sessionstart>`_
-    :type Request object: For more information please see <https://docs.pytest.org/en/latest/reference.html#request>`_
-    """
-    # settings.NEO4J_DB_URL = os.environ.get(
-    #     "NEO4J_TEST_URL", "bolt://neo4j:password@localhost:7687"
-    # )
-
-    # Clear the database if required
-    database_is_populated, _ = db.cypher_query(
-        "MATCH (a) return count(a)>0 as database_is_populated"
-    )
-    if database_is_populated[0][0]:
-        if not request.config.getoption("resetdb"):
-            raise SystemError(
-                "Please note: The database seems to be populated.\n"
-                + "\tEither delete all nodesand edges manually, or set the "
-                + "--resetdb parameter when calling pytest\n\n"
-                + "\tpytest --resetdb."
-            )
-
-        db.clear_neo4j_database(clear_constraints=True, clear_indexes=True)
-        db.install_all_labels()
-
-    db.cypher_query(
-        "CREATE OR REPLACE USER test SET PASSWORD 'foobarbaz' CHANGE NOT REQUIRED"
-    )
-    if db.database_edition == "enterprise":
-        db.cypher_query("GRANT ROLE publisher TO test")
-        db.cypher_query("GRANT IMPERSONATE (test) ON DBMS TO admin")
-
-
-@pytest.fixture(autouse=True)
-def cleanup() -> Generator[None, Any, None]:
-    """Clear DB after every test
-
-    Yields:
-        Generator[None, Any, None]: Nothing
-    """
-    yield
-    db.clear_neo4j_database()
 
 
 @pytest.fixture
