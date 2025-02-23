@@ -25,6 +25,15 @@ class BaseNode(BaseModel):
 
     @validator("*", pre=True, always=True)
     @classmethod
+    def not_none(cls, v: Any, field: fields.ModelField) -> Any:
+        """Before any check, return the default value if the field is None."""
+        if all((getattr(field, "default", None) is not None, v is None)):
+            return field.default
+        else:
+            return v
+
+    @validator("*", pre=True, always=True)
+    @classmethod
     def get_str_from_uuid(cls, v: Any, field: fields.ModelField) -> Any:
         """Get hex attribute from UUID values."""
         if field.shape == fields.SHAPE_LIST and not isinstance(
@@ -38,14 +47,6 @@ class BaseNode(BaseModel):
     def get_value_from_enums(cls, v: Any) -> Any:
         """Get value from all the enumeration field values."""
         return v.value if isinstance(v, Enum) else v
-
-    @validator("*", pre=True, always=True)
-    @classmethod
-    def not_none(cls, v: Any, field: fields.ModelField) -> Any:
-        if all((getattr(field, "default", None) is not None, v is None)):
-            return field.default
-        else:
-            return v
 
 
 class BaseNodeCreate(BaseModel):
@@ -82,14 +83,11 @@ class BaseNodeRead(BaseModel):
 
     @validator("*", pre=True)
     @classmethod
-    def get_single_relation(cls, v: Any) -> Any:
-        """From One or ZeroOrOne relationships get that single relationship."""
-        return v.single() if isinstance(v, (One, ZeroOrOne)) else v
+    def get_relationships(cls, v: Any) -> Any:
+        """Cast neomodel relationships to lists.
 
-    @validator("*", pre=True)
-    @classmethod
-    def get_multi_relations(cls, v: Any) -> Any:
-        """From OneOrMore or ZeroOrMore relationships get all relationships.
+        From One or ZeroOrOne relationships get that single relationship.
+        From OneOrMore or ZeroOrMore relationships get all relationships.
 
         If the relationship has a model, return a dict with the data stored in the
         relationship.
@@ -104,19 +102,17 @@ class BaseNodeRead(BaseModel):
                     item["relationship"] = v.relationship(node)
                     items.append(item)
                 return items
+        if isinstance(v, (One, ZeroOrOne)):
+            return v.single()
         return v
 
     @validator("*", pre=True)
     @classmethod
-    def cast_neo4j_datetime(cls, v: Any) -> Any:
-        """Cast neo4j datetime to python datetime."""
-        return v.to_native() if isinstance(v, DateTime) else v
-
-    @validator("*", pre=True)
-    @classmethod
-    def cast_neo4j_date(cls, v: Any) -> Any:
-        """Cast neo4j date to python date."""
-        return v.to_native() if isinstance(v, Date) else v
+    def cast_neo4j_datetime_or_date(cls, v: Any) -> Any:
+        """Cast neo4j datetime to python datetime or date."""
+        if isinstance(v, (Date, DateTime)):
+            return v.to_native()
+        return v
 
     class Config:
         """Sub class to validate assignments and enable orm mode."""
