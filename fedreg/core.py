@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field, create_model, fields, validator
 from pydantic.fields import SHAPE_LIST
 
 DOC_SCHEMA_TYPE = "Inner attribute to distinguish between schema types"
+MAX_DEEP = 1
 
 
 class BaseNode(BaseModel):
@@ -173,6 +174,86 @@ class BaseNodeQuery(BaseModel):
         validate_assignment = True
 
 
+def get_field_basic_type(field_type: Any) -> tuple[Any, None] | None:
+    """Return the new field basic type based on the parent field type."""
+    if issubclass(field_type, bool):
+        return (field_type | None, None)
+    if issubclass(field_type, (str, Enum)):
+        return (str | None, None)
+    if issubclass(field_type, (int, float, date, datetime)):
+        return (field_type | None, None)
+    return None
+
+
+def get_list_derived_attributes(
+    new_field: tuple[Any, None] | None, field_name: str, field_type: Any, deep: int
+) -> dict[str, Any]:
+    """Return fields to perform queries on list fields."""
+    d = {}
+    if new_field is None and deep > 0:
+        for sub_field in field_type.__fields__.values():
+            sub_fields = add_fields(sub_field, prefix=field_name, deep=deep - 1)
+            d.update(sub_fields)
+        return d
+    d[f"{field_name}__contains"] = new_field
+    d[f"{field_name}__icontains"] = new_field
+    return d
+
+
+def add_fields(
+    field: fields.ModelField, prefix: str = "", deep: int = 0
+) -> dict[str, Any]:
+    """Add fields to a dictionary."""
+    d = {}
+    origin = get_origin(field.type_)
+    if origin is None:
+        new_field = get_field_basic_type(field.type_)
+    elif origin is Literal:
+        return d
+    else:
+        # Case of typing currently not supported.
+        # List, Union, Dict and similar should not be used.
+        # Instead use basic types (list, dict...).
+        return d
+
+    field_name = f"{prefix}_{field.name}" if prefix != "" else field.name
+
+    if field.shape == SHAPE_LIST:
+        return get_list_derived_attributes(new_field, field_name, field.type_, deep)
+
+    if new_field is None and deep > 0:
+        for sub_field in field.type_.__fields__.values():
+            sub_fields = add_fields(sub_field, prefix=field_name, deep=deep - 1)
+            d.update(sub_fields)
+        return d
+
+    if issubclass(field.type_, bool):
+        d[field_name] = new_field
+        return d
+    if issubclass(field.type_, (str, Enum)):
+        d[field_name] = new_field
+        d[f"{field_name}__contains"] = new_field
+        d[f"{field_name}__icontains"] = new_field
+        d[f"{field_name}__startswith"] = new_field
+        d[f"{field_name}__istartswith"] = new_field
+        d[f"{field_name}__endswith"] = new_field
+        d[f"{field_name}__iendswith"] = new_field
+        d[f"{field_name}__regex"] = new_field
+        d[f"{field_name}__iregex"] = new_field
+        return d
+    if issubclass(field.type_, (int, float, date, datetime)):
+        d[field_name] = new_field
+        d[f"{field_name}__lt"] = new_field
+        d[f"{field_name}__gt"] = new_field
+        d[f"{field_name}__lte"] = new_field
+        d[f"{field_name}__gte"] = new_field
+        d[f"{field_name}__ne"] = new_field
+        return d
+
+    # Should never reach this point. Not covered cases.
+    return d
+
+
 def create_query_model(
     model_name: str, base_model: type[BaseNode]
 ) -> type[BaseNodeQuery]:
@@ -194,54 +275,7 @@ def create_query_model(
         type[BaseNodeQuery].
     """
     d = {}
-    for k, v in base_model.__fields__.items():
-        if get_origin(v.type_):
-            continue
-        if v.shape == SHAPE_LIST:
-            continue
-        elif issubclass(v.type_, bool):
-            d[k] = (v.type_ | None, None)
-        elif issubclass(v.type_, str) or issubclass(v.type_, Enum):
-            t = (str | None, None)
-            d[k] = t
-            d[f"{k}__contains"] = t
-            d[f"{k}__icontains"] = t
-            d[f"{k}__startswith"] = t
-            d[f"{k}__istartswith"] = t
-            d[f"{k}__endswith"] = t
-            d[f"{k}__iendswith"] = t
-            d[f"{k}__regex"] = t
-            d[f"{k}__iregex"] = t
-        elif issubclass(v.type_, int):
-            t = (int | None, None)
-            d[k] = t
-            d[f"{k}__lt"] = t
-            d[f"{k}__gt"] = t
-            d[f"{k}__lte"] = t
-            d[f"{k}__gte"] = t
-            d[f"{k}__ne"] = t
-        elif issubclass(v.type_, float):
-            t = (float | None, None)
-            d[k] = t
-            d[f"{k}__lt"] = t
-            d[f"{k}__gt"] = t
-            d[f"{k}__lte"] = t
-            d[f"{k}__gte"] = t
-            d[f"{k}__ne"] = t
-        elif issubclass(v.type_, datetime):
-            t = (datetime | None, None)
-            d[f"{k}__lt"] = t
-            d[f"{k}__gt"] = t
-            d[f"{k}__lte"] = t
-            d[f"{k}__gte"] = t
-            d[f"{k}__ne"] = t
-        elif issubclass(v.type_, date):
-            t = (date | None, None)
-            d[f"{k}__lt"] = t
-            d[f"{k}__gt"] = t
-            d[f"{k}__lte"] = t
-            d[f"{k}__gte"] = t
-            d[f"{k}__ne"] = t
-        else:
-            d[k] = (v.type_ | None, None)
+    for field in base_model.__fields__.values():
+        new_fields = add_fields(field, deep=MAX_DEEP)
+        d.update(new_fields)
     return create_model(model_name, __base__=BaseNodeQuery, **d)
