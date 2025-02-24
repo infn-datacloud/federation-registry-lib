@@ -2,18 +2,16 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.location.constants import DOC_EXT_REG
 from fedreg.location.schemas import (
-    LocationBase,
-    LocationBasePublic,
     LocationRead,
     LocationReadPublic,
 )
 from fedreg.region.schemas import RegionRead, RegionReadPublic
 
 
-class LocationReadExtended(BaseNodeRead, BaseReadPrivateExtended, LocationBase):
+class LocationReadExtended(BaseReadPrivateExtended, LocationRead):
     """Model to extend the Location data read from the DB.
 
     Attributes:
@@ -28,12 +26,10 @@ class LocationReadExtended(BaseNodeRead, BaseReadPrivateExtended, LocationBase):
         regions (list of RegionRead): Hosted regions.
     """
 
-    regions: list[RegionRead] = Field(description=DOC_EXT_REG)
+    regions: list[RegionRead] = Field(default_factory=list, description=DOC_EXT_REG)
 
 
-class LocationReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, LocationBasePublic
-):
+class LocationReadExtendedPublic(BaseReadPublicExtended, LocationReadPublic):
     """Model to extend the Location public data read from the DB.
 
     Attributes:
@@ -44,7 +40,9 @@ class LocationReadExtendedPublic(
         regions (list of RegionReadPublic): Hosted regions.
     """
 
-    regions: list[RegionReadPublic] = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadPublic] = Field(
+        default_factory=list, description=DOC_EXT_REG
+    )
 
 
 class LocationReadSingle(BaseModel):
