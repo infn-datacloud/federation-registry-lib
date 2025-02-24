@@ -64,19 +64,22 @@ def test_read_ext_with_user_groups(
     provider_model: Provider,
     user_groups: list[UserGroup],
 ) -> None:
-    identity_provider_model.providers.connect(provider_model, auth_method_model_dict())
+    auth_method = auth_method_model_dict()
+    identity_provider_model.providers.connect(provider_model, auth_method)
     for user_group in user_groups:
         identity_provider_model.user_groups.connect(user_group)
 
     item = IdentityProviderReadExtendedPublic.from_orm(identity_provider_model)
     assert len(item.user_groups) == len(user_groups)
     assert len(item.providers) == 1
-    assert item.providers[0] == ProviderReadPublic.from_orm(provider_model)
+    assert isinstance(item.providers[0], ProviderReadExtendedPublic)
+    assert item.providers[0].relationship == AuthMethodRead(**auth_method)
 
     item = IdentityProviderReadExtended.from_orm(identity_provider_model)
     assert len(item.user_groups) == len(user_groups)
     assert len(item.providers) == 1
-    assert item.providers[0] == ProviderRead.from_orm(provider_model)
+    assert isinstance(item.providers[0], ProviderReadExtended)
+    assert item.providers[0].relationship == AuthMethodRead(**auth_method)
 
 
 def test_provider_read_ext(
