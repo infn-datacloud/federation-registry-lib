@@ -3,11 +3,9 @@
 from pydantic import BaseModel, Field
 
 from fedreg.auth_method.schemas import AuthMethodRead
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.identity_provider.constants import DOC_EXT_GROUP, DOC_EXT_PROV
 from fedreg.identity_provider.schemas import (
-    IdentityProviderBase,
-    IdentityProviderBasePublic,
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
@@ -50,9 +48,7 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
     relationship: AuthMethodRead = Field(description=DOC_EXT_AUTH_METH)
 
 
-class IdentityProviderReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, IdentityProviderBase
-):
+class IdentityProviderReadExtended(BaseReadPrivateExtended, IdentityProviderRead):
     """Model to extend the Identity Provider data read from the DB.
 
     Attributes:
@@ -66,12 +62,16 @@ class IdentityProviderReadExtended(
         user_groups (list of UserGroupRead): Owned user groups.
     """
 
-    providers: list[ProviderReadExtended] = Field(description=DOC_EXT_PROV)
-    user_groups: list[UserGroupRead] = Field(description=DOC_EXT_GROUP)
+    providers: list[ProviderReadExtended] = Field(
+        default_factory=list, description=DOC_EXT_PROV
+    )
+    user_groups: list[UserGroupRead] = Field(
+        default_factory=list, description=DOC_EXT_GROUP
+    )
 
 
 class IdentityProviderReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, IdentityProviderBasePublic
+    BaseReadPublicExtended, IdentityProviderReadPublic
 ):
     """Model to extend the Identity Provider public data read from the DB.
 
@@ -84,8 +84,12 @@ class IdentityProviderReadExtendedPublic(
         user_groups (list of UserGroupReadPublic): Owned user groups.
     """
 
-    providers: list[ProviderReadExtendedPublic] = Field(description=DOC_EXT_PROV)
-    user_groups: list[UserGroupReadPublic] = Field(description=DOC_EXT_GROUP)
+    providers: list[ProviderReadExtendedPublic] = Field(
+        default_factory=list, description=DOC_EXT_PROV
+    )
+    user_groups: list[UserGroupReadPublic] = Field(
+        default_factory=list, description=DOC_EXT_GROUP
+    )
 
 
 class IdentityProviderReadSingle(BaseModel):
