@@ -1,5 +1,6 @@
 from typing import Any
 
+from fedreg.service.enum import ServiceType
 from tests.schemas.utils import (
     auth_method_schema_dict,
     flavor_schema_dict,
@@ -71,10 +72,11 @@ def region_model_dict() -> dict[str, Any]:
     return region_schema_dict()
 
 
-def service_model_dict() -> dict[str, Any]:
-    d = service_schema_dict()
+def service_model_dict(srv_type: ServiceType | None = None) -> dict[str, Any]:
+    d = service_schema_dict(srv_type)
     d["endpoint"] = str(d["endpoint"])
-    d["name"] = random_lower_string()
+    srv_name = d.get("name", None)
+    d["name"] = random_lower_string() if srv_name is None else srv_name.value
     return d
 
 
