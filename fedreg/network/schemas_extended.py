@@ -2,15 +2,10 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.network.constants import DOC_EXT_PROJ, DOC_EXT_SERV
-from fedreg.network.schemas import (
-    NetworkBase,
-    NetworkBasePublic,
-    NetworkRead,
-    NetworkReadPublic,
-)
-from fedreg.project.schemas import ProjectRead
+from fedreg.network.schemas import NetworkRead, NetworkReadPublic
+from fedreg.project.schemas import ProjectRead, ProjectReadPublic
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.region.constants import DOC_EXT_PROV
 from fedreg.region.schemas import RegionRead, RegionReadPublic
@@ -76,7 +71,7 @@ class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class NetworkReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkBase):
+class NetworkReadExtended(BaseReadPrivateExtended, NetworkRead):
     """Model to extend the Network data read from the DB.
 
     uid (int): Network unique ID.
@@ -99,9 +94,7 @@ class NetworkReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkBase):
     service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class NetworkReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, NetworkBasePublic
-):
+class NetworkReadExtendedPublic(BaseReadPublicExtended, NetworkReadPublic):
     """Model to extend the Network public data read from the DB.
 
     uid (int): Network unique ID.
@@ -114,7 +107,7 @@ class NetworkReadExtendedPublic(
             network.
     """
 
-    project: ProjectRead | None = Field(default=None, description=DOC_EXT_PROJ)
+    project: ProjectReadPublic | None = Field(default=None, description=DOC_EXT_PROJ)
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 

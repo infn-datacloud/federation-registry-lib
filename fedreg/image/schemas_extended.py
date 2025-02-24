@@ -2,9 +2,9 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.image.constants import DOC_EXT_PROJ, DOC_EXT_SERV
-from fedreg.image.schemas import ImageBase, ImageBasePublic, ImageRead, ImageReadPublic
+from fedreg.image.schemas import ImageRead, ImageReadPublic
 from fedreg.project.schemas import ProjectRead, ProjectReadPublic
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.region.constants import DOC_EXT_PROV
@@ -71,7 +71,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class ImageReadExtended(BaseNodeRead, BaseReadPrivateExtended, ImageBase):
+class ImageReadExtended(BaseReadPrivateExtended, ImageRead):
     """Model to extend the Image data read from the DB.
 
     Attributes:
@@ -96,11 +96,11 @@ class ImageReadExtended(BaseNodeRead, BaseReadPrivateExtended, ImageBase):
             flavor.
     """
 
-    projects: list[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectRead] = Field(default_factory=list, description=DOC_EXT_PROJ)
     services: list[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
 
 
-class ImageReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, ImageBasePublic):
+class ImageReadExtendedPublic(BaseReadPublicExtended, ImageReadPublic):
     """Model to extend the Image public data read from the DB.
 
     Attributes:
@@ -115,7 +115,9 @@ class ImageReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, ImageBasePub
             this flavor.
     """
 
-    projects: list[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectReadPublic] = Field(
+        default_factory=list, description=DOC_EXT_PROJ
+    )
     services: list[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
 
 

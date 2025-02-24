@@ -2,11 +2,9 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from fedreg.flavor.schemas import (
-    FlavorBase,
-    FlavorBasePublic,
     FlavorRead,
     FlavorReadPublic,
 )
@@ -76,7 +74,7 @@ class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class FlavorReadExtended(BaseNodeRead, BaseReadPrivateExtended, FlavorBase):
+class FlavorReadExtended(BaseReadPrivateExtended, FlavorRead):
     """Model to extend the Flavor data read from the DB.
 
     Attributes:
@@ -102,11 +100,11 @@ class FlavorReadExtended(BaseNodeRead, BaseReadPrivateExtended, FlavorBase):
             Compute Service supporting this flavor.
     """
 
-    projects: list[ProjectRead] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectRead] = Field(default_factory=list, description=DOC_EXT_PROJ)
     services: list[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
 
 
-class FlavorReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, FlavorBasePublic):
+class FlavorReadExtendedPublic(BaseReadPublicExtended, FlavorReadPublic):
     """Model to extend the Flavor public data read from the DB.
 
     Attributes:
@@ -121,7 +119,9 @@ class FlavorReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, FlavorBaseP
             Compute Service supporting this flavor.
     """
 
-    projects: list[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectReadPublic] = Field(
+        default_factory=list, description=DOC_EXT_PROJ
+    )
     services: list[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
 
 
