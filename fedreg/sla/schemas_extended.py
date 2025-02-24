@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
@@ -11,7 +11,7 @@ from fedreg.project.constants import DOC_EXT_PROV
 from fedreg.project.schemas import ProjectRead, ProjectReadPublic
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.sla.constants import DOC_EXT_GROUP, DOC_EXT_PROJ
-from fedreg.sla.schemas import SLABase, SLABasePublic, SLARead, SLAReadPublic
+from fedreg.sla.schemas import SLARead, SLAReadPublic
 from fedreg.user_group.constants import DOC_EXT_IDP
 from fedreg.user_group.schemas import UserGroupRead, UserGroupReadPublic
 
@@ -76,7 +76,7 @@ class UserGroupReadExtendedPublic(UserGroupReadPublic):
     identity_provider: IdentityProviderReadPublic = Field(description=DOC_EXT_IDP)
 
 
-class SLAReadExtended(BaseNodeRead, BaseReadPrivateExtended, SLABase):
+class SLAReadExtended(BaseReadPrivateExtended, SLARead):
     """Model to extend the SLA data read from the DB.
 
     Attributes:
@@ -90,11 +90,13 @@ class SLAReadExtended(BaseNodeRead, BaseReadPrivateExtended, SLABase):
         user_group (UserGroupReadExtended): Target user group.
     """
 
-    projects: list[ProjectReadExtended] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectReadExtended] = Field(
+        default_factory=list, description=DOC_EXT_PROJ
+    )
     user_group: UserGroupReadExtended = Field(description=DOC_EXT_GROUP)
 
 
-class SLAReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, SLABasePublic):
+class SLAReadExtendedPublic(BaseReadPublicExtended, SLAReadPublic):
     """Model to extend the SLA public data read from the DB.
 
     Attributes:
@@ -106,7 +108,9 @@ class SLAReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, SLABasePublic)
         user_group (UserGroupReadExtendedPublic): Target user group.
     """
 
-    projects: list[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
+    projects: list[ProjectReadExtendedPublic] = Field(
+        default_factory=list, description=DOC_EXT_PROJ
+    )
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
