@@ -77,6 +77,8 @@ def service_model_dict(srv_type: ServiceType | None = None) -> dict[str, Any]:
     d["endpoint"] = str(d["endpoint"])
     srv_name = d.get("name", None)
     d["name"] = random_lower_string() if srv_name is None else srv_name.value
+    if srv_name is None:
+        d["type"] = random_lower_string()
     return d
 
 

@@ -75,14 +75,16 @@ def test_service_valid_attr(
 
     if isinstance(data, BlockStorageService):
         assert item.type == ServiceType.BLOCK_STORAGE.value
-    if isinstance(data, ComputeService):
+    elif isinstance(data, ComputeService):
         assert item.type == ServiceType.COMPUTE.value
-    if isinstance(data, IdentityService):
+    elif isinstance(data, IdentityService):
         assert item.type == ServiceType.IDENTITY.value
-    if isinstance(data, NetworkService):
+    elif isinstance(data, NetworkService):
         assert item.type == ServiceType.NETWORK.value
-    if isinstance(data, ObjectStoreService):
+    elif isinstance(data, ObjectStoreService):
         assert item.type == ServiceType.OBJECT_STORE.value
+    else:
+        assert item.type == data.get("type")
 
     saved = item.save()
     assert saved.element_id_property

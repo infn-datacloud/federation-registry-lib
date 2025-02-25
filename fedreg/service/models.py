@@ -34,6 +34,7 @@ class Service(StructuredNode):
     description = StringProperty(default="")
     endpoint = StringProperty(required=True)
     name = StringProperty(required=True)
+    type = StringProperty(required=True)
 
     region = RelationshipFrom("fedreg.region.models.Region", "SUPPLY", cardinality=One)
 
