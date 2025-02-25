@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 
 from fedreg.auth_method.schemas import AuthMethodRead
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
@@ -20,12 +20,7 @@ from fedreg.project.constants import (
     DOC_EXT_SLA,
 )
 from fedreg.project.models import Project
-from fedreg.project.schemas import (
-    ProjectBase,
-    ProjectBasePublic,
-    ProjectRead,
-    ProjectReadPublic,
-)
+from fedreg.project.schemas import ProjectRead, ProjectReadPublic
 from fedreg.provider.constants import DOC_EXT_AUTH_METH
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.quota.constants import DOC_EXT_SERV
@@ -73,7 +68,7 @@ class BlockStorageServiceReadExtended(BlockStorageServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageServiceReadExtendedPublic(BlockStorageServiceReadPublic):
@@ -103,7 +98,7 @@ class ComputeServiceReadExtended(ComputeServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class ComputeServiceReadExtendedPublic(ComputeServiceReadPublic):
@@ -133,7 +128,7 @@ class NetworkServiceReadExtended(NetworkServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class NetworkServiceReadExtendedPublic(NetworkServiceReadPublic):
@@ -163,7 +158,7 @@ class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
         region (RegionRead): Region hosting this service.
     """
 
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
@@ -471,7 +466,33 @@ class SLAReadExtendedPublic(SLAReadPublic):
     user_group: UserGroupReadExtendedPublic = Field(description=DOC_EXT_GROUP)
 
 
-class RegionReadWithIdentityService(RegionReadPublic):
+class RegionReadExtended(RegionRead):
+    """Model to extend the Region data read from the DB.
+
+    Attributes:
+    ----------
+        uid (uuid): AssociatedRegion unique ID.
+        description (str): Brief description.
+        name (str): Name of the Region in the Provider.
+        identity_services (list of IdentityServiceReadPublic): Available identity
+            services.
+    """
+
+    identity_services: list[IdentityServiceReadPublic] = Field(
+        default_factory=list, description="Available identity services list"
+    )
+
+    @classmethod
+    def from_orm(cls, obj: Region) -> "RegionReadExtended":
+        """Method to merge public and private flavors, images and networks.
+
+        `obj` is the orm model instance.
+        """
+        obj.identity_services = obj.services.filter(type=ServiceType.IDENTITY.value)
+        return super().from_orm(obj)
+
+
+class RegionReadExtendedPublic(RegionReadPublic):
     """Model to extend the Region public data read from the DB.
 
     Attributes:
@@ -484,11 +505,11 @@ class RegionReadWithIdentityService(RegionReadPublic):
     """
 
     identity_services: list[IdentityServiceReadPublic] = Field(
-        description="Available identity services list"
+        default_factory=list, description="Available identity services list"
     )
 
     @classmethod
-    def from_orm(cls, obj: Region) -> "RegionReadWithIdentityService":
+    def from_orm(cls, obj: Region) -> "RegionReadExtendedPublic":
         """Method to merge public and private flavors, images and networks.
 
         `obj` is the orm model instance.
@@ -512,7 +533,9 @@ class ProviderReadExtended(ProviderRead):
         regions (list of RegionReadWithIdentityService): Supplied regions.
     """
 
-    regions: list[RegionReadWithIdentityService] = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtended] = Field(
+        default_factory=list, description=DOC_EXT_REG
+    )
 
 
 class ProviderReadExtendedPublic(ProviderReadPublic):
@@ -530,10 +553,12 @@ class ProviderReadExtendedPublic(ProviderReadPublic):
         regions (list of RegionReadWithIdentityService): Supplied regions.
     """
 
-    regions: list[RegionReadWithIdentityService] = Field(description=DOC_EXT_REG)
+    regions: list[RegionReadExtendedPublic] = Field(
+        default_factory=list, description=DOC_EXT_REG
+    )
 
 
-class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
+class ProjectReadExtended(BaseReadPrivateExtended, ProjectRead):
     """Model to extend the Project data read from the DB.
 
     Attributes:
@@ -551,33 +576,33 @@ class ProjectReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProjectBase):
             service (block-storage, compute and network type).
     """
 
-    flavors: list[FlavorRead] = Field(description=DOC_EXT_FLAV)
-    images: list[ImageRead] = Field(description=DOC_EXT_IMAG)
-    networks: list[NetworkReadExtended] = Field(description=DOC_EXT_NETW)
+    flavors: list[FlavorRead] = Field(default_factory=list, description=DOC_EXT_FLAV)
+    images: list[ImageRead] = Field(default_factory=list, description=DOC_EXT_IMAG)
+    networks: list[NetworkReadExtended] = Field(
+        default_factory=list, description=DOC_EXT_NETW
+    )
     provider: ProviderReadExtended = Field(description=DOC_EXT_PROV)
     quotas: list[
-        ComputeQuotaReadExtended
-        | BlockStorageQuotaReadExtended
+        BlockStorageQuotaReadExtended
+        | ComputeQuotaReadExtended
         | NetworkQuotaReadExtended
         | ObjectStoreQuotaReadExtended
-    ] = Field(description=DOC_EXT_QUOTA)
+    ] = Field(default_factory=list, description=DOC_EXT_QUOTA)
     sla: SLAReadExtended | None = Field(default=None, description=DOC_EXT_SLA)
 
     @classmethod
     def from_orm(cls, obj: Project) -> "ProjectReadExtended":
-        """Method to merge public and private flavors, images and networks.
+        """Method to merge shared and private flavors, images and networks.
 
         `obj` is the orm model instance.
         """
-        obj.flavors = obj.public_flavors() + obj.private_flavors.all()
-        obj.images = obj.public_images() + obj.private_images.all()
-        obj.networks = obj.public_networks() + obj.private_networks.all()
+        obj.flavors = obj.shared_flavors() + obj.private_flavors.all()
+        obj.images = obj.shared_images() + obj.private_images.all()
+        obj.networks = obj.shared_networks() + obj.private_networks.all()
         return super().from_orm(obj)
 
 
-class ProjectReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, ProjectBasePublic
-):
+class ProjectReadExtendedPublic(BaseReadPublicExtended, ProjectReadPublic):
     """Model to extend the Project public data read from the DB.
 
     Attributes:
@@ -596,27 +621,33 @@ class ProjectReadExtendedPublic(
             service (block-storage, compute and network type).
     """
 
-    flavors: list[FlavorReadPublic] = Field(description=DOC_EXT_FLAV)
-    images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
-    networks: list[NetworkReadExtendedPublic] = Field(description=DOC_EXT_NETW)
+    flavors: list[FlavorReadPublic] = Field(
+        default_factory=list, description=DOC_EXT_FLAV
+    )
+    images: list[ImageReadPublic] = Field(
+        default_factory=list, description=DOC_EXT_IMAG
+    )
+    networks: list[NetworkReadExtendedPublic] = Field(
+        default_factory=list, description=DOC_EXT_NETW
+    )
     provider: ProviderReadExtendedPublic = Field(description=DOC_EXT_PROV)
     quotas: list[
-        ComputeQuotaReadExtendedPublic
-        | BlockStorageQuotaReadExtendedPublic
+        BlockStorageQuotaReadExtendedPublic
+        | ComputeQuotaReadExtendedPublic
         | NetworkQuotaReadExtendedPublic
         | ObjectStoreQuotaReadExtendedPublic
-    ] = Field(description=DOC_EXT_QUOTA)
+    ] = Field(default_factory=list, description=DOC_EXT_QUOTA)
     sla: SLAReadExtendedPublic | None = Field(default=None, description=DOC_EXT_SLA)
 
     @classmethod
     def from_orm(cls, obj: Project) -> "ProjectReadExtendedPublic":
-        """Method to merge public and private flavors, images and networks.
+        """Method to merge shared and private flavors, images and networks.
 
         `obj` is the orm model instance.
         """
-        obj.flavors = obj.public_flavors() + obj.private_flavors.all()
-        obj.images = obj.public_images() + obj.private_images.all()
-        obj.networks = obj.public_networks() + obj.private_networks.all()
+        obj.flavors = obj.shared_flavors() + obj.private_flavors.all()
+        obj.images = obj.shared_images() + obj.private_images.all()
+        obj.networks = obj.shared_networks() + obj.private_networks.all()
         return super().from_orm(obj)
 
 
