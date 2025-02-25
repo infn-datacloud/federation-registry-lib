@@ -136,10 +136,78 @@ class CaseAttr:
         return private_networks, shared_networks
 
     @case(tags="quotas")
-    @parametrize(block_storage_len=(0, 1, 2))
-    @parametrize(compute_len=(0, 1, 2))
-    @parametrize(network_len=(0, 1, 2))
-    @parametrize(object_store_len=(0, 1, 2))
+    @parametrize(len=(0, 1, 2))
+    def case_block_storage_quotas(
+        self,
+        provider_model: Provider,
+        region_model: Region,
+        block_storage_service_model: BlockStorageService,
+        len: int,
+    ) -> list[BlockStorageQuota]:
+        provider_model.regions.connect(region_model)
+        region_model.services.connect(block_storage_service_model)
+        quotas = []
+        for _ in range(len):
+            quota = BlockStorageQuota(**quota_model_dict()).save()
+            block_storage_service_model.quotas.connect(quota)
+            quotas.append(quota)
+        return quotas
+
+    @case(tags="quotas")
+    @parametrize(len=(0, 1, 2))
+    def case_compute_quotas(
+        self,
+        provider_model: Provider,
+        region_model: Region,
+        compute_service_model: ComputeService,
+        len: int,
+    ) -> list[ComputeQuota]:
+        provider_model.regions.connect(region_model)
+        region_model.services.connect(compute_service_model)
+        quotas = []
+        for _ in range(len):
+            quota = ComputeQuota(**quota_model_dict()).save()
+            compute_service_model.quotas.connect(quota)
+            quotas.append(quota)
+        return quotas
+
+    @case(tags="quotas")
+    @parametrize(len=(0, 1, 2))
+    def case_network_quotas(
+        self,
+        provider_model: Provider,
+        region_model: Region,
+        network_service_model: NetworkService,
+        len: int,
+    ) -> list[NetworkQuota]:
+        provider_model.regions.connect(region_model)
+        region_model.services.connect(network_service_model)
+        quotas = []
+        for _ in range(len):
+            quota = NetworkQuota(**quota_model_dict()).save()
+            network_service_model.quotas.connect(quota)
+            quotas.append(quota)
+        return quotas
+
+    @case(tags="quotas")
+    @parametrize(len=(0, 1, 2))
+    def case_object_store_quotas(
+        self,
+        provider_model: Provider,
+        region_model: Region,
+        object_store_service_model: ObjectStoreService,
+        len: int,
+    ) -> list[ObjectStoreQuota]:
+        provider_model.regions.connect(region_model)
+        region_model.services.connect(object_store_service_model)
+        quotas = []
+        for _ in range(len):
+            quota = ObjectStoreQuota(**quota_model_dict()).save()
+            object_store_service_model.quotas.connect(quota)
+            quotas.append(quota)
+        return quotas
+
+    @case(tags="quotas")
     def case_quotas(
         self,
         provider_model: Provider,
@@ -148,37 +216,26 @@ class CaseAttr:
         compute_service_model: ComputeService,
         network_service_model: NetworkService,
         object_store_service_model: ObjectStoreService,
-        block_storage_len: int,
-        compute_len: int,
-        network_len: int,
-        object_store_len: int,
-    ) -> tuple[list[PrivateNetwork], list[SharedNetwork]]:
-        block_storage_quotas = []
-        compute_quotas = []
-        network_quotas = []
-        object_store_quotas = []
+        block_storage_quota_model: BlockStorageQuota,
+        compute_quota_model: ComputeQuota,
+        network_quota_model: NetworkQuota,
+        object_store_quota_model: ObjectStoreQuota,
+    ) -> list[BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStoreQuota]:
         provider_model.regions.connect(region_model)
-        for _ in range(block_storage_len):
-            quota = BlockStorageQuota(**quota_model_dict()).save()
-            region_model.services.connect(block_storage_service_model)
-            block_storage_service_model.quotas.connect(quota)
-            block_storage_quotas.append(quota)
-        for _ in range(compute_len):
-            quota = ComputeQuota(**quota_model_dict()).save()
-            region_model.services.connect(compute_service_model)
-            compute_service_model.quotas.connect(quota)
-            compute_quotas.append(quota)
-        for _ in range(network_len):
-            quota = NetworkQuota(**quota_model_dict()).save()
-            region_model.services.connect(network_service_model)
-            network_service_model.quotas.connect(quota)
-            network_quotas.append(quota)
-        for _ in range(object_store_len):
-            quota = ObjectStoreQuota(**quota_model_dict()).save()
-            region_model.services.connect(object_store_service_model)
-            object_store_service_model.quotas.connect(quota)
-            object_store_quotas.append(quota)
-        return block_storage_quotas, compute_quotas, network_quotas, object_store_quotas
+        region_model.services.connect(block_storage_service_model)
+        block_storage_service_model.quotas.connect(block_storage_quota_model)
+        region_model.services.connect(compute_service_model)
+        compute_service_model.quotas.connect(compute_quota_model)
+        region_model.services.connect(network_service_model)
+        network_service_model.quotas.connect(network_quota_model)
+        region_model.services.connect(object_store_service_model)
+        object_store_service_model.quotas.connect(object_store_quota_model)
+        return [
+            block_storage_quota_model,
+            compute_quota_model,
+            network_quota_model,
+            object_store_quota_model,
+        ]
 
     @case(tags="providers")
     @parametrize(len=(1, 2))

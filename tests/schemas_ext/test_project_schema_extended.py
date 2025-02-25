@@ -289,22 +289,18 @@ def test_read_networks(
     assert len(item.quotas) == 1
 
 
-@parametrize_with_cases(
-    "block_storage_quotas, compute_quotas, network_quotas, object_store_quotas",
-    has_tag="quotas",
-)
+@parametrize_with_cases("quotas", has_tag="quotas")
 def test_read_quotas(
     project_model: Project,
     provider_model: Provider,
-    block_storage_quotas: list[BlockStorageQuota],
-    compute_quotas: list[ComputeQuota],
-    network_quotas: list[NetworkQuota],
-    object_store_quotas: list[ObjectStoreQuota],
+    quotas: list[BlockStorageQuota]
+    | list[ComputeQuota]
+    | list[NetworkQuota]
+    | list[ObjectStoreQuota]
+    | list[BlockStorageQuota | ComputeQuota | NetworkQuota | ObjectStoreQuota],
 ) -> None:
     project_model.provider.connect(provider_model)
-    for quota in (
-        block_storage_quotas + compute_quotas + network_quotas + object_store_quotas
-    ):
+    for quota in quotas:
         project_model.quotas.connect(quota)
 
     item = ProjectReadExtendedPublic.from_orm(project_model)
@@ -314,9 +310,7 @@ def test_read_quotas(
     assert len(item.flavors) == 0
     assert len(item.images) == 0
     assert len(item.networks) == 0
-    assert len(item.quotas) == len(block_storage_quotas) + len(compute_quotas) + len(
-        network_quotas
-    ) + len(object_store_quotas)
+    assert len(item.quotas) == len(quotas)
 
     item = ProjectReadExtended.from_orm(project_model)
     assert item.provider is not None
@@ -325,9 +319,7 @@ def test_read_quotas(
     assert len(item.flavors) == 0
     assert len(item.images) == 0
     assert len(item.networks) == 0
-    assert len(item.quotas) == len(block_storage_quotas) + len(compute_quotas) + len(
-        network_quotas
-    ) + len(object_store_quotas)
+    assert len(item.quotas) == len(quotas)
 
 
 def test_sla_read_ext(
