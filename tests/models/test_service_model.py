@@ -11,9 +11,9 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.flavor.models import Flavor  # , PrivateFlavor, SharedFlavor
-from fedreg.image.models import Image  # , PrivateImage, SharedImage
-from fedreg.network.models import Network  # , PrivateNetwork, SharedNetwork
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.image.models import Image, PrivateImage, SharedImage
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
 from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
@@ -433,7 +433,7 @@ def test_multiple_linked_object_store_quotas(
 @parametrize_with_cases("flavor_model", has_tag=("flavor", "single"))
 def test_single_linked_flavor(
     compute_service_model: ComputeService,
-    flavor_model: Flavor,  # | PrivateFlavor | SharedFlavor,
+    flavor_model: Flavor | PrivateFlavor | SharedFlavor,
 ) -> None:
     """Verify `flavors` relationship works correctly.
 
@@ -447,24 +447,24 @@ def test_single_linked_flavor(
     assert flavors.uid == flavor_model.uid
 
 
-# @parametrize_with_cases("flavor_models", has_tag=("flavor", "multi"))
-# def test_multiple_linked_flavors(
-#     compute_service_model: ComputeService,
-#     flavor_models: list[PrivateFlavor | SharedFlavor],
-# ) -> None:
-#     """Verify `flavors` relationship works correctly.
+@parametrize_with_cases("flavor_models", has_tag=("flavor", "multi"))
+def test_multiple_linked_flavors(
+    compute_service_model: ComputeService,
+    flavor_models: list[PrivateFlavor | SharedFlavor],
+) -> None:
+    """Verify `flavors` relationship works correctly.
 
-#     Connect multiple Flavor (private and shared) to a ComputeService.
-#     """
-#     for flavor_model in flavor_models:
-#         compute_service_model.flavors.connect(flavor_model)
-#     assert len(compute_service_model.flavors.all()) == len(flavor_models)
+    Connect multiple Flavor (private and shared) to a ComputeService.
+    """
+    for flavor_model in flavor_models:
+        compute_service_model.flavors.connect(flavor_model)
+    assert len(compute_service_model.flavors.all()) == len(flavor_models)
 
 
 @parametrize_with_cases("image_model", has_tag=("image", "single"))
 def test_single_linked_image(
     compute_service_model: ComputeService,
-    image_model: Image,  # | PrivateImage | SharedImage,
+    image_model: Image | PrivateImage | SharedImage,
 ) -> None:
     """Verify `images` relationship works correctly.
 
@@ -478,24 +478,23 @@ def test_single_linked_image(
     assert images.uid == image_model.uid
 
 
-# @parametrize_with_cases("image_models", has_tag=("image", "multi"))
-# def test_multiple_linked_images(
-#     compute_service_model: ComputeService,
-# image_models: list[PrivateImage, SharedImage]
-# ) -> None:
-#     """Verify `images` relationship works correctly.
+@parametrize_with_cases("image_models", has_tag=("image", "multi"))
+def test_multiple_linked_images(
+    compute_service_model: ComputeService, image_models: list[PrivateImage, SharedImage]
+) -> None:
+    """Verify `images` relationship works correctly.
 
-#     Connect multiple Image (private and shared) to a ComputeService.
-#     """
-#     for image_model in image_models:
-#         compute_service_model.images.connect(image_model)
-#     assert len(compute_service_model.images.all()) == len(image_models)
+    Connect multiple Image (private and shared) to a ComputeService.
+    """
+    for image_model in image_models:
+        compute_service_model.images.connect(image_model)
+    assert len(compute_service_model.images.all()) == len(image_models)
 
 
 @parametrize_with_cases("network_model", has_tag=("network", "single"))
 def test_single_linked_network(
     network_service_model: NetworkService,
-    network_model: Network,  # | PrivateNetwork | SharedNetwork,
+    network_model: Network | PrivateNetwork | SharedNetwork,
 ) -> None:
     """Verify `networks` relationship works correctly.
 
@@ -509,18 +508,18 @@ def test_single_linked_network(
     assert networks.uid == network_model.uid
 
 
-# @parametrize_with_cases("network_models", has_tag=("network", "multi"))
-# def test_multiple_linked_networks(
-#     network_service_model: NetworkService,
-#     network_models: list[PrivateNetwork, SharedNetwork],
-# ) -> None:
-#     """Verify `networks` relationship works correctly.
+@parametrize_with_cases("network_models", has_tag=("network", "multi"))
+def test_multiple_linked_networks(
+    network_service_model: NetworkService,
+    network_models: list[PrivateNetwork, SharedNetwork],
+) -> None:
+    """Verify `networks` relationship works correctly.
 
-#     Connect multiple Network (private and shared) to a NetworkService.
-#     """
-#     for network_model in network_models:
-#         network_service_model.networks.connect(network_model)
-#     assert len(network_service_model.networks.all()) == len(network_models)
+    Connect multiple Network (private and shared) to a NetworkService.
+    """
+    for network_model in network_models:
+        network_service_model.networks.connect(network_model)
+    assert len(network_service_model.networks.all()) == len(network_models)
 
 
 def test_block_storage_pre_delete_hook_remove_quotas(
