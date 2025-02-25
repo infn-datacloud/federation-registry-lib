@@ -2,16 +2,11 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.location.schemas import LocationRead, LocationReadPublic
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.region.constants import DOC_EXT_LOC, DOC_EXT_PROV, DOC_EXT_SERV
-from fedreg.region.schemas import (
-    RegionBase,
-    RegionBasePublic,
-    RegionRead,
-    RegionReadPublic,
-)
+from fedreg.region.schemas import RegionRead, RegionReadPublic
 from fedreg.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
@@ -26,7 +21,7 @@ from fedreg.service.schemas import (
 )
 
 
-class RegionReadExtended(BaseNodeRead, BaseReadPrivateExtended, RegionBase):
+class RegionReadExtended(BaseReadPrivateExtended, RegionRead):
     """Model to extend the Region data read from the DB.
 
     Attributes:
@@ -52,10 +47,10 @@ class RegionReadExtended(BaseNodeRead, BaseReadPrivateExtended, RegionBase):
         | IdentityServiceRead
         | NetworkServiceRead
         | ObjectStoreServiceRead
-    ] = Field(description=DOC_EXT_SERV)
+    ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
-class RegionReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, RegionBasePublic):
+class RegionReadExtendedPublic(BaseReadPublicExtended, RegionReadPublic):
     """Model to extend the Region public data read from the DB.
 
     Attributes:
@@ -77,7 +72,7 @@ class RegionReadExtendedPublic(BaseNodeRead, BaseReadPublicExtended, RegionBaseP
         | IdentityServiceReadPublic
         | NetworkServiceReadPublic
         | ObjectStoreServiceReadPublic
-    ] = Field(description=DOC_EXT_SERV)
+    ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
 class RegionReadSingle(BaseModel):
