@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.schemas import FlavorRead, FlavorReadPublic
 from fedreg.image.schemas import ImageRead, ImageReadPublic
 from fedreg.network.schemas import NetworkRead, NetworkReadPublic
@@ -29,24 +29,14 @@ from fedreg.service.constants import (
     DOC_EXT_REG,
 )
 from fedreg.service.schemas import (
-    BlockStorageServiceBase,
-    BlockStorageServiceBasePublic,
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
-    ComputeServiceBase,
-    ComputeServiceBasePublic,
     ComputeServiceRead,
     ComputeServiceReadPublic,
-    IdentityServiceBase,
-    IdentityServiceBasePublic,
     IdentityServiceRead,
     IdentityServiceReadPublic,
-    NetworkServiceBase,
-    NetworkServiceBasePublic,
     NetworkServiceRead,
     NetworkServiceReadPublic,
-    ObjectStoreServiceBase,
-    ObjectStoreServiceBasePublic,
     ObjectStoreServiceRead,
     ObjectStoreServiceReadPublic,
 )
@@ -222,9 +212,7 @@ class ObjectStoreQuotaReadExtendedPublic(ObjectStoreQuotaReadPublic):
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
 
 
-class BlockStorageServiceReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, BlockStorageServiceBase
-):
+class BlockStorageServiceReadExtended(BaseReadPrivateExtended, BlockStorageServiceRead):
     """Model to extend the Block Storage Quota data read from the DB.
 
     Attributes:
@@ -243,7 +231,7 @@ class BlockStorageServiceReadExtended(
 
 
 class BlockStorageServiceReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, BlockStorageServiceBasePublic
+    BaseReadPublicExtended, BlockStorageServiceReadPublic
 ):
     """Model to extend the Block Storage Service public data read from the DB.
 
@@ -261,9 +249,7 @@ class BlockStorageServiceReadExtendedPublic(
     quotas: list[BlockStorageQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
 
 
-class ComputeServiceReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, ComputeServiceBase
-):
+class ComputeServiceReadExtended(BaseReadPrivateExtended, ComputeServiceRead):
     """Model to extend the Compute Service data read from the DB.
 
     Attributes:
@@ -286,7 +272,7 @@ class ComputeServiceReadExtended(
 
 
 class ComputeServiceReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, ComputeServiceBasePublic
+    BaseReadPublicExtended, ComputeServiceReadPublic
 ):
     """Model to extend the Compute Service public data read from the DB.
 
@@ -308,9 +294,7 @@ class ComputeServiceReadExtendedPublic(
     images: list[ImageReadPublic] = Field(description=DOC_EXT_IMAG)
 
 
-class IdentityServiceReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, IdentityServiceBase
-):
+class IdentityServiceReadExtended(BaseReadPrivateExtended, IdentityServiceRead):
     """Model to extend the Identity Service data read from the DB.
 
     Attributes:
@@ -327,7 +311,7 @@ class IdentityServiceReadExtended(
 
 
 class IdentityServiceReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, IdentityServiceBasePublic
+    BaseReadPublicExtended, IdentityServiceReadPublic
 ):
     """Model to extend the Identity Service public data read from the DB.
 
@@ -342,9 +326,7 @@ class IdentityServiceReadExtendedPublic(
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class NetworkServiceReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, NetworkServiceBase
-):
+class NetworkServiceReadExtended(BaseReadPrivateExtended, NetworkServiceRead):
     """Model to extend the Network Service data read from the DB.
 
     Attributes:
@@ -365,7 +347,7 @@ class NetworkServiceReadExtended(
 
 
 class NetworkServiceReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, NetworkServiceBasePublic
+    BaseReadPublicExtended, NetworkServiceReadPublic
 ):
     """Model to extend the Network Service public data read from the DB.
 
@@ -385,9 +367,7 @@ class NetworkServiceReadExtendedPublic(
     networks: list[NetworkReadPublic] = Field(description=DOC_EXT_NETW)
 
 
-class ObjectStoreServiceReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, ObjectStoreServiceBase
-):
+class ObjectStoreServiceReadExtended(BaseReadPrivateExtended, ObjectStoreServiceRead):
     """Model to extend the Object Storage Quota data read from the DB.
 
     Attributes:
@@ -407,7 +387,7 @@ class ObjectStoreServiceReadExtended(
 
 
 class ObjectStoreServiceReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, ObjectStoreServiceBasePublic
+    BaseReadPublicExtended, ObjectStoreServiceReadPublic
 ):
     """Model to extend the Object Storage Service public data read from the DB.
 
