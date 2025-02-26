@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
@@ -21,7 +21,7 @@ from fedreg.quota.schemas import (
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
 )
-from fedreg.region.schemas import RegionRead, RegionReadPublic
+from fedreg.region.schemas import RegionReadPublic
 from fedreg.service.constants import DOC_EXT_REG
 from fedreg.service.schemas import (
     BlockStorageServiceRead,
@@ -36,16 +36,11 @@ from fedreg.service.schemas import (
 from fedreg.sla.constants import DOC_EXT_PROJ
 from fedreg.sla.schemas import SLARead, SLAReadPublic
 from fedreg.user_group.constants import DOC_EXT_IDP, DOC_EXT_SLA
-from fedreg.user_group.schemas import (
-    UserGroupBase,
-    UserGroupBasePublic,
-    UserGroupRead,
-    UserGroupReadPublic,
-)
+from fedreg.user_group.schemas import UserGroupRead, UserGroupReadPublic
 
 
 class BlockStorageServiceReadExtended(BlockStorageServiceRead):
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class BlockStorageQuotaReadExtended(BlockStorageQuotaRead):
@@ -89,7 +84,7 @@ class BlockStorageQuotaReadExtendedPublic(BlockStorageQuotaReadPublic):
 
 
 class ComputeServiceReadExtended(ComputeServiceRead):
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class ComputeQuotaReadExtended(ComputeQuotaRead):
@@ -131,7 +126,7 @@ class ComputeQuotaReadExtendedPublic(ComputeQuotaReadPublic):
 
 
 class NetworkServiceReadExtended(NetworkServiceRead):
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class NetworkQuotaReadExtended(NetworkQuotaRead):
@@ -178,7 +173,7 @@ class NetworkQuotaReadExtendedPublic(NetworkQuotaReadPublic):
 
 
 class ObjectStoreServiceReadExtended(ObjectStoreServiceRead):
-    region: RegionRead = Field(description=DOC_EXT_REG)
+    region: RegionReadPublic = Field(description=DOC_EXT_REG)
 
 
 class ObjectStoreQuotaReadExtended(ObjectStoreQuotaRead):
@@ -292,7 +287,7 @@ class SLAReadExtendedPublic(SLAReadPublic):
     projects: list[ProjectReadExtendedPublic] = Field(description=DOC_EXT_PROJ)
 
 
-class UserGroupReadExtended(BaseNodeRead, BaseReadPrivateExtended, UserGroupBase):
+class UserGroupReadExtended(BaseReadPrivateExtended, UserGroupRead):
     """Model to extend the User Group data read from the DB.
 
     Attributes:
@@ -306,12 +301,10 @@ class UserGroupReadExtended(BaseNodeRead, BaseReadPrivateExtended, UserGroupBase
     """
 
     identity_provider: IdentityProviderRead = Field(description=DOC_EXT_IDP)
-    slas: list[SLAReadExtended] = Field(description=DOC_EXT_SLA)
+    slas: list[SLAReadExtended] = Field(default_factory=list, description=DOC_EXT_SLA)
 
 
-class UserGroupReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, UserGroupBasePublic
-):
+class UserGroupReadExtendedPublic(BaseReadPublicExtended, UserGroupReadPublic):
     """Model to extend the User Group public data read from the DB.
 
     Attributes:
@@ -325,7 +318,9 @@ class UserGroupReadExtendedPublic(
     """
 
     identity_provider: IdentityProviderReadPublic = Field(description=DOC_EXT_IDP)
-    slas: list[SLAReadExtendedPublic] = Field(description=DOC_EXT_SLA)
+    slas: list[SLAReadExtendedPublic] = Field(
+        default_factory=list, description=DOC_EXT_SLA
+    )
 
 
 class UserGroupReadSingle(BaseModel):
