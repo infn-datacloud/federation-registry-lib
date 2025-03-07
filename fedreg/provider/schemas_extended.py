@@ -101,6 +101,11 @@ from fedreg.user_group.schemas import (
     UserGroupReadPublic,
 )
 
+USAGE_IDX = 2
+PER_USER_IDX = 1
+PROJECT_IDX = 0
+MAX_Q = 2
+
 
 class UserGroupReadExtended(UserGroupRead):
     """Model to extend the User Group data read from the DB.
@@ -480,21 +485,20 @@ def multiple_quotas_same_project(quotas: list[Any]) -> None:
     """
     d = {}
     for quota in quotas:
-        if quota.project is not None:
-            msg = f"Multiple quotas on same project {quota.project}"
-            if not d.get(quota.project, None):
-                d[quota.project] = [0, 0, 0]
-            if quota.usage:
-                d[quota.project][2] += 1
-            elif quota.per_user:
-                d[quota.project][1] += 1
-            else:
-                d[quota.project][0] += 1
-            assert (
-                d[quota.project][0] < 2
-                and d[quota.project][1] < 2
-                and d[quota.project][2] < 2
-            ), msg
+        msg = f"Multiple quotas on same project {quota.project}"
+        if not d.get(quota.project, None):
+            d[quota.project] = [0, 0, 0]
+        if quota.usage:
+            d[quota.project][USAGE_IDX] += 1
+        elif quota.per_user:
+            d[quota.project][PER_USER_IDX] += 1
+        else:
+            d[quota.project][PROJECT_IDX] += 1
+        assert (
+            d[quota.project][PROJECT_IDX] < MAX_Q
+            and d[quota.project][PER_USER_IDX] < MAX_Q
+            and d[quota.project][USAGE_IDX] < MAX_Q
+        ), msg
 
 
 def find_duplicate_projects(project: str, seen: set[str]) -> None:
@@ -507,14 +511,6 @@ def find_duplicate_slas(doc_uuid: str, seen: set[str]) -> None:
     msg = f"SLA {doc_uuid} already used by another user group"
     assert doc_uuid not in seen, msg
     seen.add(doc_uuid)
-
-
-def proj_in_provider(project: str | None, projects: list[str], *, parent: str) -> None:
-    """Verify project is in projects list."""
-    if project:
-        msg = f"{parent}'s project {project} "
-        msg += f"not in this provider: {projects}"
-        assert project in projects, msg
 
 
 class SLACreateExtended(SLACreate):
@@ -574,11 +570,6 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         """
         assert len(v), "Identity provider's user group list can't be empty"
         find_duplicates(v, "name")
-        seen_slas = set()
-        seen_projects = set()
-        for user_group in v:
-            find_duplicate_slas(user_group.sla.doc_uuid, seen_slas)
-            find_duplicate_projects(user_group.sla.project, seen_projects)
         return v
 
 
@@ -985,6 +976,14 @@ class ProviderCreateExtended(ProviderCreate):
         default_factory=list, description=DOC_EXT_REG
     )
 
+    @validator("projects")
+    @classmethod
+    def validate_projects(cls, v: list[ProjectCreate]) -> list[ProjectCreate]:
+        """Verify there are no duplicated names and UUIDs in the project list."""
+        find_duplicates(v, "uuid")
+        find_duplicates(v, "name")
+        return v
+
     @validator("identity_providers")
     @classmethod
     def validate_identity_providers(
@@ -999,26 +998,18 @@ class ProviderCreateExtended(ProviderCreate):
         Check that the SLA's projects belong to the target provider.
         """
         find_duplicates(v, "endpoint")
-        projects: list[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        projects = [i.uuid for i in values.get("projects", [])]
         seen_slas = set()
         seen_projects = set()
         for identity_provider in v:
             for user_group in identity_provider.user_groups:
                 find_duplicate_slas(user_group.sla.doc_uuid, seen_slas)
                 find_duplicate_projects(user_group.sla.project, seen_projects)
-                proj_in_provider(
+                cls.__proj_in_provider(
                     user_group.sla.project,
                     projects,
                     parent=f"SLA {user_group.sla.doc_uuid}",
                 )
-        return v
-
-    @validator("projects")
-    @classmethod
-    def validate_projects(cls, v: list[ProjectCreate]) -> list[ProjectCreate]:
-        """Verify there are no duplicated names and UUIDs in the project list."""
-        find_duplicates(v, "uuid")
-        find_duplicates(v, "name")
         return v
 
     @validator("regions")
@@ -1032,7 +1023,7 @@ class ProviderCreateExtended(ProviderCreate):
         Verify region's services projects belong to the target provider.
         """
         find_duplicates(v, "name")
-        projects: list[ProjectCreate] = [i.uuid for i in values.get("projects", [])]
+        projects = [i.uuid for i in values.get("projects", [])]
         for region in v:
             cls.__check_block_storage_service_projects(
                 region.block_storage_services, projects
@@ -1054,7 +1045,9 @@ class ProviderCreateExtended(ProviderCreate):
         """
         for service in services:
             for quota in service.quotas:
-                proj_in_provider(quota.project, projects, parent="Block Storage quota")
+                cls.__proj_in_provider(
+                    quota.project, projects, parent="Block Storage quota"
+                )
 
     @classmethod
     def __check_compute_service_projects(
@@ -1067,12 +1060,16 @@ class ProviderCreateExtended(ProviderCreate):
         for service in services:
             for flavor in service.flavors:
                 for project in flavor.projects:
-                    proj_in_provider(project, projects, parent=f"Flavor {flavor.name}")
+                    cls.__proj_in_provider(
+                        project, projects, parent=f"Flavor {flavor.name}"
+                    )
             for image in service.images:
                 for project in image.projects:
-                    proj_in_provider(project, projects, parent=f"Image {image.name}")
+                    cls.__proj_in_provider(
+                        project, projects, parent=f"Image {image.name}"
+                    )
             for quota in service.quotas:
-                proj_in_provider(quota.project, projects, parent="Compute quota")
+                cls.__proj_in_provider(quota.project, projects, parent="Compute quota")
 
     @classmethod
     def __check_network_service_projects(
@@ -1084,11 +1081,11 @@ class ProviderCreateExtended(ProviderCreate):
         """
         for service in services:
             for network in service.networks:
-                proj_in_provider(
+                cls.__proj_in_provider(
                     network.project, projects, parent=f"Network {network.name}"
                 )
             for quota in service.quotas:
-                proj_in_provider(quota.project, projects, parent="Network quota")
+                cls.__proj_in_provider(quota.project, projects, parent="Network quota")
 
     @classmethod
     def __check_object_store_service_projects(
@@ -1100,4 +1097,14 @@ class ProviderCreateExtended(ProviderCreate):
         """
         for service in services:
             for quota in service.quotas:
-                proj_in_provider(quota.project, projects, parent="Object Storage quota")
+                cls.__proj_in_provider(
+                    quota.project, projects, parent="Object Storage quota"
+                )
+
+    @classmethod
+    def __proj_in_provider(
+        cls, project: str, projects: list[str], *, parent: str
+    ) -> None:
+        """Verify project is in projects list."""
+        msg = f"{parent}'s project {project} not in this provider: {projects}"
+        assert project in projects, msg
