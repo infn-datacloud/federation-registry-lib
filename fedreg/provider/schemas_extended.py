@@ -5,7 +5,7 @@ from typing import Any
 from pydantic import BaseModel, Field, validator
 
 from fedreg.auth_method.schemas import AuthMethodCreate, AuthMethodRead
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.schemas import (
     FlavorRead,
     FlavorReadPublic,
@@ -50,8 +50,6 @@ from fedreg.provider.constants import (
     DOC_NEW_SERV_NET,
 )
 from fedreg.provider.schemas import (
-    ProviderBase,
-    ProviderBasePublic,
     ProviderCreate,
     ProviderRead,
     ProviderReadPublic,
@@ -384,7 +382,7 @@ class RegionReadExtendedPublic(RegionReadPublic):
     ] = Field(default_factory=list, description=DOC_EXT_SERV)
 
 
-class ProviderReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProviderBase):
+class ProviderReadExtended(BaseReadPrivateExtended, ProviderRead):
     """Model to extend the Provider data read from the DB.
 
     Attributes:
@@ -413,9 +411,7 @@ class ProviderReadExtended(BaseNodeRead, BaseReadPrivateExtended, ProviderBase):
     regions: list[RegionReadExtended] = Field(description=DOC_EXT_REG)
 
 
-class ProviderReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, ProviderBasePublic
-):
+class ProviderReadExtendedPublic(BaseReadPublicExtended, ProviderReadPublic):
     """Model to extend the Provider public data read from the DB.
 
     Attributes:
