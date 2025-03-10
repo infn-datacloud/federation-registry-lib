@@ -441,3 +441,113 @@ class CaseAttr:
         s2 = service_schema_dict(ServiceType.OBJECT_STORE)
         s2["endpoint"] = s1["endpoint"]
         return [s1, s2]
+
+    @case(
+        tags=(
+            "service",
+            "block-storage",
+            "compute",
+            "network",
+            "object-store",
+            "quotas",
+        )
+    )
+    @parametrize(len=(1, 2))
+    def case_quotas(self, len: int) -> list[dict]:
+        return [
+            {**quota_schema_dict(), "project": random_lower_string()}
+            for _ in range(len)
+        ]
+
+    @case(tags=("service", "invalid"))
+    def case_dup_quota(self) -> list[dict]:
+        project = random_lower_string()
+        q1 = quota_schema_dict()
+        q2 = quota_schema_dict()
+        q1["project"] = project
+        q2["project"] = project
+        return [q1, q2]
+
+    @case(tags=("service", "invalid"))
+    def case_dup_per_user_quota(self) -> list[dict]:
+        project = random_lower_string()
+        q1 = quota_schema_dict()
+        q2 = quota_schema_dict()
+        q1["per_user"] = True
+        q1["project"] = project
+        q2["per_user"] = True
+        q2["project"] = project
+        return [q1, q2]
+
+    @case(tags=("service", "invalid"))
+    def case_dup_usage_quota(self) -> list[dict]:
+        project = random_lower_string()
+        q1 = quota_schema_dict()
+        q2 = quota_schema_dict()
+        q1["usage"] = True
+        q1["project"] = project
+        q2["usage"] = True
+        q2["project"] = project
+        return [q1, q2]
+
+    @case(tags=("service", "compute", "flavors"))
+    @parametrize(len=(1, 2))
+    def case_private_flavors(self, len: int) -> list[dict]:
+        return [
+            {**flavor_schema_dict(), "projects": [random_lower_string()]}
+            for _ in range(len)
+        ]
+
+    @case(tags=("service", "compute", "flavors"))
+    @parametrize(len=(1, 2))
+    def case_shared_flavors(self, len: int) -> list[dict]:
+        return [flavor_schema_dict() for _ in range(len)]
+
+    @case(tags=("service", "compute", "flavors"))
+    def case_flavors(self) -> list[dict]:
+        private = {**flavor_schema_dict(), "projects": [random_lower_string()]}
+        shared = flavor_schema_dict()
+        return [private, shared]
+
+    @case(tags=("service", "compute", "images"))
+    @parametrize(len=(1, 2))
+    def case_private_images(self, len: int) -> list[dict]:
+        return [
+            {**image_schema_dict(), "projects": [random_lower_string()]}
+            for _ in range(len)
+        ]
+
+    @case(tags=("service", "compute", "images"))
+    @parametrize(len=(1, 2))
+    def case_shared_images(self, len: int) -> list[dict]:
+        return [image_schema_dict() for _ in range(len)]
+
+    @case(tags=("service", "compute", "images"))
+    def case_images(self) -> list[dict]:
+        private = {**image_schema_dict(), "projects": [random_lower_string()]}
+        shared = image_schema_dict()
+        return [private, shared]
+
+    @case(tags=("service", "network", "networks"))
+    @parametrize(len=(1, 2))
+    def case_private_networks(self, len: int) -> list[dict]:
+        return [
+            {**network_schema_dict(), "project": random_lower_string()}
+            for _ in range(len)
+        ]
+
+    @case(tags=("service", "network", "networks"))
+    @parametrize(len=(1, 2))
+    def case_shared_networks(self, len: int) -> list[dict]:
+        return [network_schema_dict() for _ in range(len)]
+
+    @case(tags=("service", "network", "networks"))
+    def case_networks(self) -> list[dict]:
+        private = {**network_schema_dict(), "project": random_lower_string()}
+        shared = network_schema_dict()
+        return [private, shared]
+
+    @case(tags=("flavor", "image", "projects"))
+    @parametrize(len=(1, 2))
+    def case_flavor_projects(self, len: int) -> list[dict]:
+        return [random_lower_string() for _ in range(len)]

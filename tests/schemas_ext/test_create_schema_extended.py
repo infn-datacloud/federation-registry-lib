@@ -2,11 +2,11 @@ import pytest
 from pydantic import BaseModel, Field, ValidationError
 from pytest_cases import parametrize_with_cases
 
-from fedreg.flavor.schemas import PrivateFlavorCreate
+from fedreg.flavor.schemas import PrivateFlavorCreate, SharedFlavorCreate
 from fedreg.identity_provider.schemas import IdentityProviderCreate
-from fedreg.image.schemas import PrivateImageCreate
+from fedreg.image.schemas import PrivateImageCreate, SharedImageCreate
 from fedreg.location.schemas import LocationCreate
-from fedreg.network.schemas import PrivateNetworkCreate
+from fedreg.network.schemas import PrivateNetworkCreate, SharedNetworkCreate
 from fedreg.project.schemas import ProjectCreate
 from fedreg.provider.schemas import ProviderCreate
 from fedreg.provider.schemas_extended import (
@@ -39,6 +39,7 @@ from fedreg.quota.schemas import (
     QuotaBase,
 )
 from fedreg.region.schemas import RegionCreate
+from fedreg.service.enum import ServiceType
 from fedreg.service.schemas import (
     BlockStorageServiceCreate,
     ComputeServiceCreate,
@@ -47,7 +48,15 @@ from fedreg.service.schemas import (
 )
 from fedreg.sla.schemas import SLACreate
 from fedreg.user_group.schemas import UserGroupCreate
-from tests.schemas.utils import provider_schema_dict, region_schema_dict
+from tests.schemas.utils import (
+    flavor_schema_dict,
+    image_schema_dict,
+    network_schema_dict,
+    provider_schema_dict,
+    quota_schema_dict,
+    region_schema_dict,
+    service_schema_dict,
+)
 from tests.utils import random_lower_string
 
 
@@ -497,327 +506,225 @@ def test_region_create_ext_dup_object_store_srv(services: list[dict]) -> None:
         RegionCreateExtended(**region_schema_dict(), object_store_services=services)
 
 
-# from fedreg.provider.schemas_extended import (
-#     IdentityProviderCreateExtended,
-#     ProjectCreate,
-#     ProviderCreateExtended,
-#     RegionCreateExtended,
-# )
-# from tests.schemas.utils import provider_schema_dict
-# from tests.utils import random_lower_string
+def test_block_storage_srv_create_ext() -> None:
+    srv = BlockStorageServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.BLOCK_STORAGE)
+    )
+    assert len(srv.quotas) == 0
 
 
-# # @parametrize_with_cases("projects", has_tag="create_extended")
-# # def test_create_private_extended(projects: list[UUID]) -> None:
-# #     d = flavor_schema_dict()
-# #     d["projects"] = projects
-# #     item = PrivateFlavorCreateExtended(**d)
-# #     assert item.projects == [i.hex for i in projects]
-
-# # @parametrize_with_cases("projects", has_tag="create_extended")
-# # def test_invalid_create_private_extended(projects: list[UUID]) -> None:
-# #     d = flavor_schema_dict()
-# #     with pytest.raises(ValidationError):
-# #         PrivateFlavorCreateExtended(**d)
-# #     with pytest.raises(ValidationError):
-# #         PrivateFlavorCreateExtended(**d, projects=projects, is_shared=True)
+@parametrize_with_cases("quotas", has_tag=("service", "block-storage", "quotas"))
+def test_block_storage_srv_create_ext_with_quotas(quotas: list[dict]) -> None:
+    srv = BlockStorageServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.BLOCK_STORAGE), quotas=quotas
+    )
+    assert len(srv.quotas) == len(quotas)
+    assert isinstance(srv.quotas[0], BlockStorageQuotaCreateExtended)
 
 
-# # def test_create_shared_extended(projects: list[UUID]) -> None:
-# #     d = flavor_schema_dict()
-# #     SharedFlavorCreateExtended(**d)
-# #     # Even if we pass projects they are discarded
-# #     item = SharedFlavorCreateExtended(**d, projects=projects)
-# #     with pytest.raises(AttributeError):
-# #         item.__getattribute__("projects")
+def test_compute_srv_create_ext() -> None:
+    srv = ComputeServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.COMPUTE)
+    )
+    assert len(srv.quotas) == 0
+    assert len(srv.flavors) == 0
+    assert len(srv.images) == 0
 
 
-# # def test_invalid_create_shared_extended() -> None:
-# #     d = flavor_schema_dict()
-# #     with pytest.raises(ValidationError):
-# #         SharedFlavorCreateExtended(**d, is_shared=False)
-
-# @parametrize_with_cases("attr, values", has_tag="valid")
-# def test_create_extended(
-#     attr: str,
-#     values: list[IdentityProviderCreateExtended]
-#     | list[ProjectCreate]
-#     | list[RegionCreateExtended],
-# ) -> None:
-#     d = provider_schema_dict()
-#     d[attr] = values
-#     if attr == "identity_providers":
-#         projects = set()
-#         for idp in values:
-#             for user_group in idp.user_groups:
-#                 projects.add(user_group.sla.sla)
-#         d["projects"] = [
-#             ProjectCreate(name=random_lower_string(), uuid=p) for p in projects
-#         ]
-#     item = ProviderCreateExtended(**d)
-#     assert item.__getattribute__(attr) == values
+@parametrize_with_cases("quotas", has_tag=("service", "compute", "quotas"))
+def test_compute_srv_create_ext_with_quotas(quotas: list[dict]) -> None:
+    srv = ComputeServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.COMPUTE), quotas=quotas
+    )
+    assert len(srv.quotas) == len(quotas)
+    assert isinstance(srv.quotas[0], ComputeQuotaCreateExtended)
+    assert len(srv.flavors) == 0
+    assert len(srv.images) == 0
 
 
-# @parametrize_with_cases("attr, values, msg", has_tag="invalid")
-# def test_invalid_create_extended(
-#     attr: str,
-#     values: list[IdentityProviderCreateExtended]
-#     | list[ProjectCreate]
-#     | list[RegionCreateExtended],
-#     msg: str,
-# ) -> None:
-#     d = provider_schema_dict()
-#     d[attr] = values
-#     if attr == "identity_providers":
-#         projects = set()
-#         for idp in values:
-#             for user_group in idp.user_groups:
-#                 projects.add(user_group.sla.project)
-#         d["projects"] = [
-#             ProjectCreate(name=random_lower_string(), uuid=p) for p in projects
-#         ]
-#     with pytest.raises(ValueError, match=msg):
-#         ProviderCreateExtended(**d)
+@parametrize_with_cases("flavors", has_tag=("service", "compute", "flavors"))
+def test_compute_srv_create_ext_with_flavors(flavors: list[dict]) -> None:
+    srv = ComputeServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.COMPUTE), flavors=flavors
+    )
+    assert len(srv.quotas) == 0
+    assert len(srv.flavors) == len(flavors)
+    if "projects" in flavors[0].keys():
+        assert isinstance(srv.flavors[0], PrivateFlavorCreateExtended)
+    else:
+        assert isinstance(srv.flavors[0], SharedFlavorCreate)
+    assert len(srv.images) == 0
 
 
-# @parametrize_with_cases("identity_providers, msg", has_tag="idps")
-# def test_dup_proj_in_idps_in_create_extended(
-#     identity_providers: list[IdentityProviderCreateExtended]
-#     | list[ProjectCreate]
-#     | list[RegionCreateExtended],
-#     msg: str,
-# ) -> None:
-#     d = provider_schema_dict()
-#     d["identity_providers"] = identity_providers
-#     projects = set()
-#     for idp in identity_providers:
-#         for user_group in idp.user_groups:
-#             projects.add(user_group.sla.project)
-#     d["projects"] = [
-#         ProjectCreate(name=random_lower_string(), uuid=p) for p in projects
-#     ]
-#     with pytest.raises(ValueError, match=msg):
-#         ProviderCreateExtended(**d)
+@parametrize_with_cases("images", has_tag=("service", "compute", "images"))
+def test_compute_srv_create_ext_with_images(images: list[dict]) -> None:
+    srv = ComputeServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.COMPUTE), images=images
+    )
+    assert len(srv.quotas) == 0
+    assert len(srv.flavors) == 0
+    assert len(srv.images) == len(images)
+    if "projects" in images[0].keys():
+        assert isinstance(srv.images[0], PrivateImageCreateExtended)
+    else:
+        assert isinstance(srv.images[0], SharedImageCreate)
 
 
-# @parametrize_with_cases("attr, values, msg", has_tag="missing")
-# def test_miss_proj_in_idps_in_create_extended(
-#     attr: str,
-#     values: list[IdentityProviderCreateExtended] | list[RegionCreateExtended],
-#     msg: str,
-# ) -> None:
-#     d = provider_schema_dict()
-#     d[attr] = values
-#     with pytest.raises(ValueError, match=msg):
-#         ProviderCreateExtended(**d)
+def test_network_srv_create_ext() -> None:
+    srv = NetworkServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.NETWORK)
+    )
+    assert len(srv.quotas) == 0
+    assert len(srv.networks) == 0
 
 
-# # @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="provider")
-# # @parametrize_with_cases("public", cases=CasePublic)
-# # def test_read_extended(model: Provider, public: bool) -> None:
-# #     if public:
-# #         cls = ProviderReadPublic
-# #         cls_ext = ProviderReadExtendedPublic
-# #         idp_cls = IdentityProviderReadExtendedPublic
-# #         reg_cls = RegionReadExtendedPublic
-# #         proj_cls = ProjectReadPublic
-# #     else:
-# #         cls = ProviderRead
-# #         cls_ext = ProviderReadExtended
-# #         idp_cls = IdentityProviderReadExtended
-# #         reg_cls = RegionReadExtended
-# #         proj_cls = ProjectRead
-
-# #     assert issubclass(cls_ext, cls)
-# #     assert cls_ext.__config__.orm_mode
-
-# #     item = cls_ext.from_orm(model)
-
-# #     assert len(item.identity_providers) == len(model.identity_providers.all())
-# #     assert len(item.projects) == len(model.projects.all())
-# #     assert len(item.regions) == len(model.regions.all())
-
-# #     assert all([isinstance(i, idp_cls) for i in item.identity_providers])
-# #     assert all([isinstance(i, proj_cls) for i in item.projects])
-# #     assert all([isinstance(i, reg_cls) for i in item.regions])
+@parametrize_with_cases("quotas", has_tag=("service", "network", "quotas"))
+def test_network_srv_create_ext_with_quotas(quotas: list[dict]) -> None:
+    srv = NetworkServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.NETWORK), quotas=quotas
+    )
+    assert len(srv.quotas) == len(quotas)
+    assert isinstance(srv.quotas[0], NetworkQuotaCreateExtended)
+    assert len(srv.networks) == 0
 
 
-# # @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="region")
-# # @parametrize_with_cases("public", cases=CasePublic)
-# # def test_read_extended_subclass_region(model: Region, public: bool) -> None:
-# #     if public:
-# #         cls = RegionReadPublic
-# #         cls_ext = RegionReadExtendedPublic
-# #         loc_cls = LocationReadPublic
-# #         bsto_srv_cls = BlockStorageServiceReadExtendedPublic
-# #         comp_srv_cls = ComputeServiceReadExtendedPublic
-# #         id_srv_cls = IdentityServiceReadPublic
-# #         net_srv_cls = NetworkServiceReadExtendedPublic
-# #     else:
-# #         cls = RegionRead
-# #         cls_ext = RegionReadExtended
-# #         loc_cls = LocationRead
-# #         bsto_srv_cls = BlockStorageServiceReadExtended
-# #         comp_srv_cls = ComputeServiceReadExtended
-# #         id_srv_cls = IdentityServiceRead
-# #         net_srv_cls = NetworkServiceReadExtended
-
-# #     assert issubclass(cls_ext, cls)
-# #     assert cls_ext.__config__.orm_mode
-
-# #     item = cls_ext.from_orm(model)
-
-# #     if not item.location:
-# #         assert not len(model.location.all())
-# #         assert not model.location.single()
-# #     else:
-# #         assert len(model.location.all()) == 1
-# #         assert model.location.single()
-# #     assert len(item.services) == len(model.services.all())
-
-# #     if item.location:
-# #         assert isinstance(item.location, loc_cls)
-# #     assert all(
-# #         [
-# #             isinstance(i, (bsto_srv_cls, comp_srv_cls, id_srv_cls, net_srv_cls))
-# #             for i in item.services
-# #         ]
-# #     )
+@parametrize_with_cases("networks", has_tag=("service", "network", "networks"))
+def test_network_srv_create_ext_with_networks(networks: list[dict]) -> None:
+    srv = NetworkServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.NETWORK), networks=networks
+    )
+    assert len(srv.quotas) == 0
+    assert len(srv.networks) == len(networks)
+    if "project" in networks[0].keys():
+        assert isinstance(srv.networks[0], PrivateNetworkCreateExtended)
+    else:
+        assert isinstance(srv.networks[0], SharedNetworkCreate)
 
 
-# # @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="identity_provider")
-# # @parametrize_with_cases("public", cases=CasePublic)
-# # def test_read_extended_subclass_identity_provider(
-# #     model: Provider, public: bool
-# # ) -> None:
-# #     if public:
-# #         cls = IdentityProviderReadPublic
-# #         cls_ext = IdentityProviderReadExtendedPublic
-# #         prov_cls = ProviderReadExtendedPublic
-# #         group_cls = UserGroupReadExtendedPublic
-# #     else:
-# #         cls = IdentityProviderRead
-# #         cls_ext = IdentityProviderReadExtended
-# #         prov_cls = ProviderReadExtended
-# #         group_cls = UserGroupReadExtended
-
-# #     assert issubclass(cls_ext, cls)
-# #     assert cls_ext.__config__.orm_mode
-
-# #     item = prov_cls.from_orm(model)
-
-# #     model = model.identity_providers.single()
-# #     item = item.identity_providers[0]
-
-# #     assert item.relationship is not None
-
-# #     assert len(item.user_groups) == len(model.user_groups.all())
-
-# #     assert all([isinstance(i, group_cls) for i in item.user_groups])
+def test_object_store_srv_create_ext() -> None:
+    srv = ObjectStoreServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.OBJECT_STORE)
+    )
+    assert len(srv.quotas) == 0
 
 
-# # @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="user_group")
-# # @parametrize_with_cases("public", cases=CasePublic)
-# # def test_read_extended_subclass_user_groups(model: UserGroup, public: bool) -> None:
-# #     if public:
-# #         cls = UserGroupReadPublic
-# #         cls_ext = UserGroupReadExtendedPublic
-# #         sla_cls = SLAReadPublic
-# #     else:
-# #         cls = UserGroupRead
-# #         cls_ext = UserGroupReadExtended
-# #         sla_cls = SLARead
-
-# #     assert issubclass(cls_ext, cls)
-# #     assert cls_ext.__config__.orm_mode
-
-# #     item = cls_ext.from_orm(model)
-
-# #     assert len(item.slas) == len(model.slas.all())
-
-# #     assert all([isinstance(i, sla_cls) for i in item.slas])
+@parametrize_with_cases("quotas", has_tag=("service", "object-store", "quotas"))
+def test_object_store_srv_create_ext_with_quotas(quotas: list[dict]) -> None:
+    srv = ObjectStoreServiceCreateExtended(
+        **service_schema_dict(srv_type=ServiceType.OBJECT_STORE), quotas=quotas
+    )
+    assert len(srv.quotas) == len(quotas)
+    assert isinstance(srv.quotas[0], ObjectStoreQuotaCreateExtended)
 
 
-# # @parametrize_with_cases("model", cases=CaseDBInstance,
-# #   has_tag="block_storage_service")
-# # @parametrize_with_cases("public", cases=CasePublic)
-# # def test_read_extended_subclass_block_storage_service(
-# #     model: BlockStorageService, public: bool
-# # ) -> None:
-# #     if public:
-# #         cls = BlockStorageServiceReadPublic
-# #         cls_ext = BlockStorageServiceReadExtendedPublic
-# #         quota_cls = BlockStorageQuotaReadPublic
-# #     else:
-# #         cls = BlockStorageServiceRead
-# #         cls_ext = BlockStorageServiceReadExtended
-# #         quota_cls = BlockStorageQuotaRead
+@parametrize_with_cases("quotas", has_tag=("service", "invalid"))
+def test_srv_create_ext_invalid(quotas: list[dict]) -> None:
+    with pytest.raises(ValidationError, match="Multiple quotas on same project"):
+        BlockStorageServiceCreateExtended(
+            **service_schema_dict(srv_type=ServiceType.BLOCK_STORAGE), quotas=quotas
+        )
 
-# #     assert issubclass(cls_ext, cls)
-# #     assert cls_ext.__config__.orm_mode
+    with pytest.raises(ValidationError, match="Multiple quotas on same project"):
+        ComputeServiceCreateExtended(
+            **service_schema_dict(srv_type=ServiceType.COMPUTE), quotas=quotas
+        )
 
-# #     item = cls_ext.from_orm(model)
+    with pytest.raises(ValidationError, match="Multiple quotas on same project"):
+        ComputeServiceCreateExtended(
+            **service_schema_dict(srv_type=ServiceType.NETWORK), quotas=quotas
+        )
 
-# #     assert len(item.quotas) == len(model.quotas.all())
-
-# #     assert all([isinstance(i, quota_cls) for i in item.quotas])
+    with pytest.raises(ValidationError, match="Multiple quotas on same project"):
+        ObjectStoreServiceCreateExtended(
+            **service_schema_dict(srv_type=ServiceType.OBJECT_STORE), quotas=quotas
+        )
 
 
-# # @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="compute_service")
-# # @parametrize_with_cases("public", cases=CasePublic)
-# # def test_read_extended_subclass_compute_service(
-# #     model: ComputeService, public: bool
-# # ) -> None:
-# #     if public:
-# #         cls = ComputeServiceReadPublic
-# #         cls_ext = ComputeServiceReadExtendedPublic
-# #         flavor_cls = FlavorReadPublic
-# #         image_cls = ImageReadPublic
-# #         quota_cls = ComputeQuotaReadPublic
-# #     else:
-# #         cls = ComputeServiceRead
-# #         cls_ext = ComputeServiceReadExtended
-# #         flavor_cls = FlavorRead
-# #         image_cls = ImageRead
-# #         quota_cls = ComputeQuotaRead
-
-# #     assert issubclass(cls_ext, cls)
-# #     assert cls_ext.__config__.orm_mode
-
-# #     item = cls_ext.from_orm(model)
-
-# #     assert len(item.flavors) == len(model.flavors.all())
-# #     assert len(item.images) == len(model.images.all())
-# #     assert len(item.quotas) == len(model.quotas.all())
-
-# #     assert all([isinstance(i, flavor_cls) for i in item.flavors])
-# #     assert all([isinstance(i, image_cls) for i in item.images])
-# #     assert all([isinstance(i, quota_cls) for i in item.quotas])
+def test_block_storage_quota_create_ext() -> None:
+    project = random_lower_string()
+    quota = BlockStorageQuotaCreateExtended(**quota_schema_dict(), project=project)
+    assert quota.project is not None
+    assert quota.project == project
 
 
-# # @parametrize_with_cases("model", cases=CaseDBInstance, has_tag="network_service")
-# # @parametrize_with_cases("public", cases=CasePublic)
-# # def test_read_extended_subclass_network_service(
-# #     model: NetworkService, public: bool
-# # ) -> None:
-# #     if public:
-# #         cls = NetworkServiceReadPublic
-# #         cls_ext = NetworkServiceReadExtendedPublic
-# #         net_cls = NetworkReadPublic
-# #         quota_cls = NetworkQuotaReadPublic
-# #     else:
-# #         cls = NetworkServiceRead
-# #         cls_ext = NetworkServiceReadExtended
-# #         net_cls = NetworkRead
-# #         quota_cls = NetworkQuotaRead
+def test_block_storage_quota_create_ext_invalid() -> None:
+    with pytest.raises(ValidationError):
+        BlockStorageQuotaCreateExtended(**quota_schema_dict())
 
-# #     assert issubclass(cls_ext, cls)
-# #     assert cls_ext.__config__.orm_mode
 
-# #     item = cls_ext.from_orm(model)
+def test_compute_quota_create_ext() -> None:
+    project = random_lower_string()
+    quota = ComputeQuotaCreateExtended(**quota_schema_dict(), project=project)
+    assert quota.project is not None
+    assert quota.project == project
 
-# #     assert len(item.networks) == len(model.networks.all())
-# #     assert len(item.quotas) == len(model.quotas.all())
 
-# #     assert all([isinstance(i, net_cls) for i in item.networks])
-# #     assert all([isinstance(i, quota_cls) for i in item.quotas])
+def test_compute_quota_create_ext_invalid() -> None:
+    with pytest.raises(ValidationError):
+        ComputeQuotaCreateExtended(**quota_schema_dict())
+
+
+def test_network_quota_create_ext() -> None:
+    project = random_lower_string()
+    quota = NetworkQuotaCreateExtended(**quota_schema_dict(), project=project)
+    assert quota.project is not None
+    assert quota.project == project
+
+
+def test_network_quota_create_ext_invalid() -> None:
+    with pytest.raises(ValidationError):
+        NetworkQuotaCreateExtended(**quota_schema_dict())
+
+
+def test_object_store_quota_create_ext() -> None:
+    project = random_lower_string()
+    quota = ObjectStoreQuotaCreateExtended(**quota_schema_dict(), project=project)
+    assert quota.project is not None
+    assert quota.project == project
+
+
+def test_object_store_quota_create_ext_invalid() -> None:
+    with pytest.raises(ValidationError):
+        ObjectStoreQuotaCreateExtended(**quota_schema_dict())
+
+
+@parametrize_with_cases("projects", has_tag=("flavor", "projects"))
+def test_private_flavor_create_ext(projects: list[str]) -> None:
+    flavor = PrivateFlavorCreateExtended(**flavor_schema_dict(), projects=projects)
+    assert len(flavor.projects) > 0
+    assert flavor.projects == projects
+
+
+def test_private_flavor_create_ext_invalid() -> None:
+    with pytest.raises(ValidationError):
+        PrivateFlavorCreateExtended(**flavor_schema_dict())
+
+    with pytest.raises(ValidationError):
+        PrivateFlavorCreateExtended(**flavor_schema_dict(), projects=[])
+
+
+@parametrize_with_cases("projects", has_tag=("image", "projects"))
+def test_private_image_create_ext(projects: list[str]) -> None:
+    image = PrivateImageCreateExtended(**image_schema_dict(), projects=projects)
+    assert len(image.projects) > 0
+    assert image.projects == projects
+
+
+def test_private_image_create_ext_invalid() -> None:
+    with pytest.raises(ValidationError):
+        PrivateImageCreateExtended(**image_schema_dict())
+
+    with pytest.raises(ValidationError):
+        PrivateImageCreateExtended(**image_schema_dict(), projects=[])
+
+
+def test_private_network_create_ext() -> None:
+    project = random_lower_string()
+    network = PrivateNetworkCreateExtended(**network_schema_dict(), project=project)
+    assert network.project is not None
+    assert network.project == project
+
+
+def test_private_network_create_ext_invalid() -> None:
+    with pytest.raises(ValidationError):
+        PrivateNetworkCreateExtended(**network_schema_dict())
