@@ -54,6 +54,7 @@ from fedreg.provider.schemas import (
     ProviderRead,
     ProviderReadPublic,
 )
+from fedreg.provider.utils import find_duplicates, multiple_quotas_same_project
 from fedreg.quota.schemas import (
     BlockStorageQuotaCreate,
     BlockStorageQuotaRead,
@@ -100,11 +101,6 @@ from fedreg.user_group.schemas import (
     UserGroupRead,
     UserGroupReadPublic,
 )
-
-USAGE_IDX = 2
-PER_USER_IDX = 1
-PROJECT_IDX = 0
-MAX_Q = 2
 
 
 class UserGroupReadExtended(UserGroupRead):
@@ -456,61 +452,6 @@ class ProviderReadMulti(BaseModel):
 
 
 # CREATE CLASSES
-
-
-def find_duplicates(items: Any, attr: str | None = None) -> None:
-    """Find duplicate items in a list.
-
-    Optionally filter items by attribute
-    """
-    if attr:
-        values = [j.__getattribute__(attr) for j in items]
-    else:
-        values = items
-    seen = set()
-    dupes = [x for x in values if x in seen or seen.add(x)]
-    if attr:
-        assert len(dupes) == 0, (
-            f"There are multiple items with identical {attr}: {','.join(dupes)}"
-        )
-    else:
-        assert len(dupes) == 0, f"There are multiple identical items: {','.join(dupes)}"
-
-
-def multiple_quotas_same_project(quotas: list[Any]) -> None:
-    """Verify maximum number of quotas on same project.
-
-    A project can have at most one `project` quota, one `per-user` quota and one `usage`
-    quota on a specific service.
-    """
-    d = {}
-    for quota in quotas:
-        msg = f"Multiple quotas on same project {quota.project}"
-        if not d.get(quota.project, None):
-            d[quota.project] = [0, 0, 0]
-        if quota.usage:
-            d[quota.project][USAGE_IDX] += 1
-        elif quota.per_user:
-            d[quota.project][PER_USER_IDX] += 1
-        else:
-            d[quota.project][PROJECT_IDX] += 1
-        assert (
-            d[quota.project][PROJECT_IDX] < MAX_Q
-            and d[quota.project][PER_USER_IDX] < MAX_Q
-            and d[quota.project][USAGE_IDX] < MAX_Q
-        ), msg
-
-
-def find_duplicate_projects(project: str, seen: set[str]) -> None:
-    msg = f"Project {project} already used by another SLA"
-    assert project not in seen, msg
-    seen.add(project)
-
-
-def find_duplicate_slas(doc_uuid: str, seen: set[str]) -> None:
-    msg = f"SLA {doc_uuid} already used by another user group"
-    assert doc_uuid not in seen, msg
-    seen.add(doc_uuid)
 
 
 class SLACreateExtended(SLACreate):
@@ -1003,8 +944,8 @@ class ProviderCreateExtended(ProviderCreate):
         seen_projects = set()
         for identity_provider in v:
             for user_group in identity_provider.user_groups:
-                find_duplicate_slas(user_group.sla.doc_uuid, seen_slas)
-                find_duplicate_projects(user_group.sla.project, seen_projects)
+                cls.__find_duplicate_slas(user_group.sla.doc_uuid, seen_slas)
+                cls.__find_duplicate_projects(user_group.sla.project, seen_projects)
                 cls.__proj_in_provider(
                     user_group.sla.project,
                     projects,
@@ -1108,3 +1049,15 @@ class ProviderCreateExtended(ProviderCreate):
         """Verify project is in projects list."""
         msg = f"{parent}'s project {project} not in this provider: {projects}"
         assert project in projects, msg
+
+    @classmethod
+    def __find_duplicate_projects(cls, project: str, seen: set[str]) -> None:
+        msg = f"Project {project} already used by another SLA"
+        assert project not in seen, msg
+        seen.add(project)
+
+    @classmethod
+    def __find_duplicate_slas(cls, doc_uuid: str, seen: set[str]) -> None:
+        msg = f"SLA {doc_uuid} already used by another user group"
+        assert doc_uuid not in seen, msg
+        seen.add(doc_uuid)
