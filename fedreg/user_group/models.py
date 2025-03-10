@@ -1,5 +1,4 @@
 """Neomodel model of the User Group owned by an Identity Provider."""
-#
 
 from neomodel import (
     One,

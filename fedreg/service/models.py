@@ -19,8 +19,6 @@ class Service(StructuredNode):
     Common attributes to all service types.
     Any service is accessible through an endpoint, which is unique in the DB.
 
-    TODO: function using cypher to retrieve IDPs?
-
     Attributes:
     ----------
         uid (int): Service unique ID.
