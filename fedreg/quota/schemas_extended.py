@@ -2,25 +2,17 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.core import BaseNodeRead, BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.project.schemas import ProjectRead, ProjectReadPublic
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.quota.constants import DOC_EXT_PROJ, DOC_EXT_SERV
 from fedreg.quota.schemas import (
-    BlockStorageQuotaBase,
-    BlockStorageQuotaBasePublic,
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
-    ComputeQuotaBase,
-    ComputeQuotaBasePublic,
     ComputeQuotaRead,
     ComputeQuotaReadPublic,
-    NetworkQuotaBase,
-    NetworkQuotaBasePublic,
     NetworkQuotaRead,
     NetworkQuotaReadPublic,
-    ObjectStoreQuotaBase,
-    ObjectStoreQuotaBasePublic,
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
 )
@@ -187,9 +179,7 @@ class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
-class BlockStorageQuotaReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, BlockStorageQuotaBase
-):
+class BlockStorageQuotaReadExtended(BaseReadPrivateExtended, BlockStorageQuotaRead):
     """Model to extend the Block Storage Quota data read from the DB.
 
     Attributes:
@@ -212,7 +202,7 @@ class BlockStorageQuotaReadExtended(
 
 
 class BlockStorageQuotaReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, BlockStorageQuotaBasePublic
+    BaseReadPublicExtended, BlockStorageQuotaReadPublic
 ):
     """Model to extend the Block Storage Quota public data read from the DB.
 
@@ -230,7 +220,7 @@ class BlockStorageQuotaReadExtendedPublic(
     service: BlockStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
-class ComputeQuotaReadExtended(BaseNodeRead, BaseReadPrivateExtended, ComputeQuotaBase):
+class ComputeQuotaReadExtended(BaseReadPrivateExtended, ComputeQuotaRead):
     """Model to extend the Compute Quota data read from the DB.
 
     Attributes:
@@ -251,9 +241,7 @@ class ComputeQuotaReadExtended(BaseNodeRead, BaseReadPrivateExtended, ComputeQuo
     service: ComputeServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class ComputeQuotaReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, ComputeQuotaBasePublic
-):
+class ComputeQuotaReadExtendedPublic(BaseReadPublicExtended, ComputeQuotaReadPublic):
     """Model to extend the Compute Quota public data read from the DB.
 
     Attributes:
@@ -270,7 +258,7 @@ class ComputeQuotaReadExtendedPublic(
     service: ComputeServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
-class NetworkQuotaReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkQuotaBase):
+class NetworkQuotaReadExtended(BaseReadPrivateExtended, NetworkQuotaRead):
     """Model to extend the Network Quota data read from the DB.
 
     Attributes:
@@ -296,9 +284,7 @@ class NetworkQuotaReadExtended(BaseNodeRead, BaseReadPrivateExtended, NetworkQuo
     service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
-class NetworkQuotaReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, NetworkQuotaBasePublic
-):
+class NetworkQuotaReadExtendedPublic(BaseReadPublicExtended, NetworkQuotaReadPublic):
     """Model to extend the Network Quota public data read from the DB.
 
     Attributes:
@@ -315,9 +301,7 @@ class NetworkQuotaReadExtendedPublic(
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
-class ObjectStoreQuotaReadExtended(
-    BaseNodeRead, BaseReadPrivateExtended, ObjectStoreQuotaBase
-):
+class ObjectStoreQuotaReadExtended(BaseReadPrivateExtended, ObjectStoreQuotaRead):
     """Model to extend the Object Storage Quota data read from the DB.
 
     Attributes:
@@ -339,7 +323,7 @@ class ObjectStoreQuotaReadExtended(
 
 
 class ObjectStoreQuotaReadExtendedPublic(
-    BaseNodeRead, BaseReadPublicExtended, ObjectStoreQuotaBasePublic
+    BaseReadPublicExtended, ObjectStoreQuotaReadPublic
 ):
     """Model to extend the Object Storage Quota public data read from the DB.
 
