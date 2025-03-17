@@ -676,7 +676,15 @@ class PrivateNetworkCreateExtended(PrivateNetworkCreate):
         project (str): UUID of the project which can use this network.
     """
 
-    project: str = Field(description=DOC_NEW_PROJ_UUID)
+    projects: list[str] = Field(description=DOC_NEW_PROJ_UUID)
+
+    @validator("projects")
+    @classmethod
+    def validate_projects(cls, v: list[str]) -> str:
+        """Cast to string possible UUIDs and verify there are no duplicate values."""
+        assert len(v), "Projects are mandatory for private networks"
+        find_duplicates(v)
+        return v
 
 
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
@@ -1022,9 +1030,10 @@ class ProviderCreateExtended(ProviderCreate):
         """
         for service in services:
             for network in service.networks:
-                cls.__proj_in_provider(
-                    network.project, projects, parent=f"Network {network.name}"
-                )
+                for project in network.projects:
+                    cls.__proj_in_provider(
+                        project, projects, parent=f"network {network.name}"
+                    )
             for quota in service.quotas:
                 cls.__proj_in_provider(quota.project, projects, parent="Network quota")
 

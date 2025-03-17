@@ -90,7 +90,7 @@ class NetworkReadExtended(BaseReadPrivateExtended, NetworkRead):
         service (NetworkServiceReadExtended): Network Service supplying this network.
     """
 
-    project: ProjectRead | None = Field(default=None, description=DOC_EXT_PROJ)
+    projects: list[ProjectRead] = Field(default_factory=list, description=DOC_EXT_PROJ)
     service: NetworkServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
@@ -107,7 +107,9 @@ class NetworkReadExtendedPublic(BaseReadPublicExtended, NetworkReadPublic):
             network.
     """
 
-    project: ProjectReadPublic | None = Field(default=None, description=DOC_EXT_PROJ)
+    projects: list[ProjectReadPublic] = Field(
+        default_factory=list, description=DOC_EXT_PROJ
+    )
     service: NetworkServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 

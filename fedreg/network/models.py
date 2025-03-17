@@ -5,6 +5,7 @@ from neomodel import (
     BooleanProperty,
     IntegerProperty,
     One,
+    OneOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -79,10 +80,10 @@ class PrivateNetwork(Network):
 
     is_shared = BooleanProperty(default=False)
 
-    project = RelationshipFrom(
+    projects = RelationshipFrom(
         "fedreg.project.models.Project",
         "CAN_USE_NETWORK",
-        cardinality=One,
+        cardinality=OneOrMore,
     )
 
 
