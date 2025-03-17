@@ -282,7 +282,7 @@ class CaseAttr:
         d["network_services"] = [
             {
                 **service_schema_dict(ServiceType.NETWORK),
-                "networks": [{**network_schema_dict(), "project": p}],
+                "networks": [{**network_schema_dict(), "projects": [p]}],
             }
         ]
         return d, p
@@ -371,7 +371,7 @@ class CaseAttr:
             {
                 **service_schema_dict(ServiceType.NETWORK),
                 "networks": [
-                    {**network_schema_dict(), "project": random_lower_string()}
+                    {**network_schema_dict(), "projects": [random_lower_string()]}
                 ],
             }
         ]
@@ -532,7 +532,7 @@ class CaseAttr:
     @parametrize(len=(1, 2))
     def case_private_networks(self, len: int) -> list[dict]:
         return [
-            {**network_schema_dict(), "project": random_lower_string()}
+            {**network_schema_dict(), "projects": [random_lower_string()]}
             for _ in range(len)
         ]
 
@@ -543,11 +543,11 @@ class CaseAttr:
 
     @case(tags=("service", "network", "networks"))
     def case_networks(self) -> list[dict]:
-        private = {**network_schema_dict(), "project": random_lower_string()}
+        private = {**network_schema_dict(), "projects": [random_lower_string()]}
         shared = network_schema_dict()
         return [private, shared]
 
-    @case(tags=("flavor", "image", "projects"))
+    @case(tags=("flavor", "image", "network", "projects"))
     @parametrize(len=(1, 2))
     def case_flavor_projects(self, len: int) -> list[dict]:
         return [random_lower_string() for _ in range(len)]

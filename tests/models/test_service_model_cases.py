@@ -200,7 +200,7 @@ class CaseNetwork:
     def case_private_network(
         self, private_network_model: PrivateNetwork, project_model: Project
     ) -> PrivateNetwork:
-        private_network_model.project.connect(project_model)
+        private_network_model.projects.connect(project_model)
         return private_network_model
 
     @case(tags=("network", "single"))
@@ -221,7 +221,7 @@ class CaseNetwork:
             PrivateNetwork(**network_model_dict()).save(),
         ]
         for item in items:
-            item.project.connect(project_model)
+            item.projects.connect(project_model)
         return items
 
     @case(tags=("network", "multi"))
@@ -231,5 +231,5 @@ class CaseNetwork:
         shared_network_model: SharedNetwork,
         project_model: Project,
     ) -> list[PrivateNetwork | SharedNetwork]:
-        private_network_model.project.connect(project_model)
+        private_network_model.projects.connect(project_model)
         return [private_network_model, shared_network_model]

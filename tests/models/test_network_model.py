@@ -89,13 +89,13 @@ def test_rel_def(network_model: Network | PrivateNetwork | SharedNetwork) -> Non
     assert network_model.service.definition["node_class"] == NetworkService
 
     if isinstance(network_model, PrivateNetwork):
-        assert isinstance(network_model.project, RelationshipManager)
-        assert network_model.project.name
-        assert network_model.project.source
-        assert isinstance(network_model.project.source, PrivateNetwork)
-        assert network_model.project.source.uid == network_model.uid
-        assert network_model.project.definition
-        assert network_model.project.definition["node_class"] == Project
+        assert isinstance(network_model.projects, RelationshipManager)
+        assert network_model.projects.name
+        assert network_model.projects.source
+        assert isinstance(network_model.projects.source, PrivateNetwork)
+        assert network_model.projects.source.uid == network_model.uid
+        assert network_model.projects.definition
+        assert network_model.projects.definition["node_class"] == Project
 
 
 @parametrize_with_cases("network_model", has_tag="model")
@@ -113,9 +113,9 @@ def test_required_rel(network_model: Network | PrivateNetwork | SharedNetwork) -
 
     if isinstance(network_model, PrivateNetwork):
         with pytest.raises(CardinalityViolation):
-            network_model.project.all()
+            network_model.projects.all()
         with pytest.raises(CardinalityViolation):
-            network_model.project.single()
+            network_model.projects.single()
 
 
 @parametrize_with_cases("network_model", has_tag="model")
@@ -165,10 +165,10 @@ def test_single_linked_project(
 
     Connect a single Project to a PrivateNetwork.
     """
-    private_network_model.project.connect(project_model)
+    private_network_model.projects.connect(project_model)
 
-    assert len(private_network_model.project.all()) == 1
-    project = private_network_model.project.single()
+    assert len(private_network_model.projects.all()) == 1
+    project = private_network_model.projects.single()
     assert isinstance(project, Project)
     assert project.uid == project_model.uid
 
@@ -180,12 +180,7 @@ def test_multiple_linked_projects(private_network_model: PrivateNetwork) -> None
     AttemptCardinalityViolation error.
     """
     item = Project(**project_model_dict()).save()
-    private_network_model.project.connect(item)
+    private_network_model.projects.connect(item)
     item = Project(**project_model_dict()).save()
-    with pytest.raises(AttemptedCardinalityViolation):
-        private_network_model.project.connect(item)
-
-    with patch("neomodel.sync_.match.QueryBuilder._count", return_value=0):
-        private_network_model.project.connect(item)
-        with pytest.raises(CardinalityViolation):
-            private_network_model.project.all()
+    private_network_model.projects.connect(item)
+    assert len(private_network_model.projects.all()) == 2

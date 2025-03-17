@@ -494,7 +494,7 @@ def test_network_srv_create_ext_with_networks(networks: list[dict]) -> None:
     )
     assert len(srv.quotas) == 0
     assert len(srv.networks) == len(networks)
-    if "project" in networks[0].keys():
+    if "projects" in networks[0].keys():
         assert isinstance(srv.networks[0], PrivateNetworkCreateExtended)
     else:
         assert isinstance(srv.networks[0], SharedNetworkCreate)
@@ -617,11 +617,11 @@ def test_private_image_create_ext_invalid() -> None:
         PrivateImageCreateExtended(**image_schema_dict(), projects=[])
 
 
-def test_private_network_create_ext() -> None:
-    project = random_lower_string()
-    network = PrivateNetworkCreateExtended(**network_schema_dict(), project=project)
-    assert network.project is not None
-    assert network.project == project
+@parametrize_with_cases("projects", has_tag=("network", "projects"))
+def test_private_network_create_ext(projects: list[str]) -> None:
+    network = PrivateNetworkCreateExtended(**network_schema_dict(), projects=projects)
+    assert len(network.projects) > 0
+    assert network.projects == projects
 
 
 def test_private_network_create_ext_invalid() -> None:
