@@ -203,6 +203,39 @@ class CaseAttr:
     def case_regions(self, len: int) -> list[dict]:
         return [region_schema_dict() for _ in range(len)]
 
+    @case(tags=("regions", "valid", "base"))
+    def case_regions_flavor(self) -> list[dict]:
+        d = region_schema_dict()
+        d["compute_services"] = [
+            {
+                **service_schema_dict(ServiceType.COMPUTE),
+                "flavors": [{**flavor_schema_dict()}],
+            }
+        ]
+        return [d]
+
+    @case(tags=("regions", "valid", "base"))
+    def case_regions_image(self) -> list[dict]:
+        d = region_schema_dict()
+        d["compute_services"] = [
+            {
+                **service_schema_dict(ServiceType.COMPUTE),
+                "images": [{**image_schema_dict()}],
+            }
+        ]
+        return [d]
+
+    @case(tags=("regions", "valid", "base"))
+    def case_regions_network(self) -> list[dict]:
+        d = region_schema_dict()
+        d["network_services"] = [
+            {
+                **service_schema_dict(ServiceType.NETWORK),
+                "networks": [{**network_schema_dict()}],
+            }
+        ]
+        return [d]
+
     @case(tags=("regions", "valid", "project"))
     def case_regions_block_storage_quota_with_proj(self) -> tuple[dict, str]:
         p = random_lower_string()
