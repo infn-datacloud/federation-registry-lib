@@ -1008,15 +1008,17 @@ class ProviderCreateExtended(ProviderCreate):
         """
         for service in services:
             for flavor in service.flavors:
-                for project in flavor.projects:
-                    cls.__proj_in_provider(
-                        project, projects, parent=f"Flavor {flavor.name}"
-                    )
+                if isinstance(flavor, PrivateFlavorCreateExtended):
+                    for project in flavor.projects:
+                        cls.__proj_in_provider(
+                            project, projects, parent=f"Flavor {flavor.name}"
+                        )
             for image in service.images:
-                for project in image.projects:
-                    cls.__proj_in_provider(
-                        project, projects, parent=f"Image {image.name}"
-                    )
+                if isinstance(image, PrivateImageCreateExtended):
+                    for project in image.projects:
+                        cls.__proj_in_provider(
+                            project, projects, parent=f"Image {image.name}"
+                        )
             for quota in service.quotas:
                 cls.__proj_in_provider(quota.project, projects, parent="Compute quota")
 
@@ -1030,10 +1032,11 @@ class ProviderCreateExtended(ProviderCreate):
         """
         for service in services:
             for network in service.networks:
-                for project in network.projects:
-                    cls.__proj_in_provider(
-                        project, projects, parent=f"network {network.name}"
-                    )
+                if isinstance(network, PrivateNetworkCreateExtended):
+                    for project in network.projects:
+                        cls.__proj_in_provider(
+                            project, projects, parent=f"network {network.name}"
+                        )
             for quota in service.quotas:
                 cls.__proj_in_provider(quota.project, projects, parent="Network quota")
 
