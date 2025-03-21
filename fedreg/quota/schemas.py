@@ -491,9 +491,9 @@ class ObjectStoreQuotaBase(ObjectStoreQuotaBasePublic):
         objects (int): Maximum number of allowed objects.
     """
 
-    bytes: int = Field(default=-1, description=DOC_BYTES)
-    containers: int = Field(default=1000, description=DOC_CONTAINERS)
-    objects: int = Field(default=-1, description=DOC_OBJECTS)
+    bytes: int | None = Field(default=None, ge=-1, description=DOC_BYTES)
+    containers: int | None = Field(default=None, ge=-1, description=DOC_CONTAINERS)
+    objects: int | None = Field(default=None, ge=-1, description=DOC_OBJECTS)
 
 
 class ObjectStoreQuotaCreate(BaseNodeCreate, ObjectStoreQuotaBase):

@@ -121,9 +121,9 @@ def test_object_store_create(data: dict[str, Any]) -> None:
     assert item.per_user == data.get("per_user", False)
     assert item.usage == data.get("usage", False)
     assert item.type == QuotaType.OBJECT_STORE.value
-    assert item.bytes == data.get("bytes", -1)
-    assert item.containers == data.get("containers", 1000)
-    assert item.objects == data.get("objects", -1)
+    assert item.bytes == data.get("bytes", None)
+    assert item.containers == data.get("containers", None)
+    assert item.objects == data.get("objects", None)
 
 
 @parametrize_with_cases("data", has_tag=("dict", "valid", "update", "block-storage"))
@@ -175,9 +175,9 @@ def test_object_store_update(data: dict[str, Any]) -> None:
     assert item.per_user == data.get("per_user", False)
     assert item.usage == data.get("usage", False)
     assert item.type == QuotaType.OBJECT_STORE.value
-    assert item.bytes == data.get("bytes", -1)
-    assert item.containers == data.get("containers", 1000)
-    assert item.objects == data.get("objects", -1)
+    assert item.bytes == data.get("bytes", None)
+    assert item.containers == data.get("containers", None)
+    assert item.objects == data.get("objects", None)
 
 
 # @parametrize_with_cases("data", has_tag=("dict", "valid"))
