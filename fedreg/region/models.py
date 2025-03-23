@@ -56,6 +56,3 @@ class Region(StructuredNode):
         """
         for item in self.services:
             item.delete()
-        item = self.location.single()
-        if item and len(item.regions) == 1:
-            item.delete()

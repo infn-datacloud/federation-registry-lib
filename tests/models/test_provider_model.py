@@ -200,21 +200,6 @@ def test_pre_delete_hook_remove_regions(provider_model: Provider) -> None:
         item2.refresh()
 
 
-def test_pre_delete_hook_remove_idps(provider_model: Provider) -> None:
-    """Delete provider and all related identity providers."""
-    item1 = IdentityProvider(**identity_provider_model_dict()).save()
-    provider_model.identity_providers.connect(item1, auth_method_model_dict())
-    item2 = IdentityProvider(**identity_provider_model_dict()).save()
-    provider_model.identity_providers.connect(item2, auth_method_model_dict())
-
-    assert provider_model.delete()
-    assert provider_model.deleted
-    with pytest.raises(DoesNotExist):
-        item1.refresh()
-    with pytest.raises(DoesNotExist):
-        item2.refresh()
-
-
 def test_pre_delete_hook_dont_remove_idp(
     identity_provider_model: IdentityProvider,
 ) -> None:

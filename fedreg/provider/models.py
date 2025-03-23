@@ -70,6 +70,3 @@ class Provider(StructuredNode):
             item.delete()
         for item in self.regions:
             item.delete()
-        for item in self.identity_providers:
-            if len(item.providers) == 1:
-                item.delete()
