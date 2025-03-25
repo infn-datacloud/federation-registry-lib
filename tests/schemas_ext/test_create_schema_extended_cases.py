@@ -1,7 +1,6 @@
 from pytest_cases import case, parametrize
 
 from fedreg.service.enum import ServiceType
-from tests.models.utils import identity_provider_model_dict
 from tests.schemas.utils import (
     auth_method_schema_dict,
     flavor_schema_dict,
@@ -144,19 +143,6 @@ class CaseAttr:
                 "sla": {**sla_schema_dict(), "project": random_lower_string()},
             }
         ]
-        return d
-
-    @case(tags=("identity_provider", "invalid"))
-    def case_identity_providers_miss_user_group(self) -> dict:
-        d = identity_provider_model_dict()
-        d["relationship"] = auth_method_schema_dict()
-        return d
-
-    @case(tags=("identity_provider", "invalid"))
-    def case_identity_providers_empty_list(self) -> dict:
-        d = identity_provider_schema_dict()
-        d["relationship"] = auth_method_schema_dict()
-        d["user_groups"] = []
         return d
 
     @case(tags=("identity_provider", "invalid"))

@@ -497,7 +497,9 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
     """
 
     relationship: AuthMethodCreate = Field(description=DOC_EXT_AUTH_METH)
-    user_groups: list[UserGroupCreateExtended] = Field(description=DOC_NEW_GROUP)
+    user_groups: list[UserGroupCreateExtended] = Field(
+        default_factory=list, description=DOC_NEW_GROUP
+    )
 
     @validator("user_groups")
     @classmethod
@@ -509,7 +511,6 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         Verify the list is not empty and there are no duplicates.
         Check that an SLA is not used by multiple user groups of the same IDP.
         """
-        assert len(v), "Identity provider's user group list can't be empty"
         find_duplicates(v, "name")
         return v
 
