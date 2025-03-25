@@ -147,7 +147,7 @@ class CaseAttr:
         d["user_groups"] = []
         return d
 
-    @case(tags=("identity_provider", "invalid"))
+    @case(tags=("identity_provider", "valid"))
     def case_identity_providers_miss_rel(self) -> dict:
         d = identity_provider_schema_dict()
         d["user_groups"] = [

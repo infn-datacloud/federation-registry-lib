@@ -498,7 +498,9 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         user_groups (list of UserGroupCreateExtended): Owned user groups.
     """
 
-    relationship: AuthMethodCreate = Field(description=DOC_EXT_AUTH_METH)
+    relationship: AuthMethodCreate | None = Field(
+        default=None, description=DOC_EXT_AUTH_METH
+    )
     user_groups: list[UserGroupCreateExtended] = Field(
         default_factory=list, description=DOC_NEW_GROUP
     )
