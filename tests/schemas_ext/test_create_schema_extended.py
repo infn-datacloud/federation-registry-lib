@@ -201,8 +201,9 @@ def test_provider_create_ext_idp_project_mismatch(identity_provider: dict) -> No
 @parametrize_with_cases("identity_provider", has_tag=("identity_provider", "valid"))
 def test_identity_provider_create_ext(identity_provider: dict) -> None:
     idp = IdentityProviderCreateExtended(**identity_provider)
-    assert len(idp.user_groups) == len(identity_provider["user_groups"])
-    assert isinstance(idp.user_groups[0], UserGroupCreateExtended)
+    assert len(idp.user_groups) == len(identity_provider.get("user_groups", []))
+    if len(idp.user_groups) == 1:
+        assert isinstance(idp.user_groups[0], UserGroupCreateExtended)
 
 
 @parametrize_with_cases("identity_provider", has_tag=("identity_provider", "invalid"))
@@ -216,8 +217,12 @@ def test_identity_provider_create_ext_invalid(identity_provider: dict) -> None:
 @parametrize_with_cases("user_group", has_tag=("user_group", "valid"))
 def test_user_group_create_ext(user_group: dict) -> None:
     item = UserGroupCreateExtended(**user_group)
-    assert item.sla is not None
-    assert isinstance(item.sla, SLACreateExtended)
+    sla = user_group.get("sla", None)
+    if sla is not None:
+        assert item.sla is not None
+        assert isinstance(item.sla, SLACreateExtended)
+    else:
+        assert item.sla is None
 
 
 @parametrize_with_cases("user_group", has_tag=("user_group", "invalid"))

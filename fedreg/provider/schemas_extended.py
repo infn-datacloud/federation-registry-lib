@@ -479,7 +479,9 @@ class UserGroupCreateExtended(UserGroupCreate):
         sla (SLACreateExtended): SLA owned by this project and related to this provider.
     """
 
-    sla: SLACreateExtended = Field(description="SLA related to this provider")
+    sla: SLACreateExtended | None = Field(
+        default=None, description="SLA related to this provider"
+    )
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):

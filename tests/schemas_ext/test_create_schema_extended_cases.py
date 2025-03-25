@@ -134,6 +134,19 @@ class CaseAttr:
             )
         return d
 
+    @case(tags=("identity_provider", "valid"))
+    def case_identity_providers_miss_user_group(self) -> dict:
+        d = identity_provider_schema_dict()
+        d["relationship"] = auth_method_schema_dict()
+        return d
+
+    @case(tags=("identity_provider", "valid"))
+    def case_identity_providers_empty_list(self) -> dict:
+        d = identity_provider_schema_dict()
+        d["relationship"] = auth_method_schema_dict()
+        d["user_groups"] = []
+        return d
+
     @case(tags=("identity_provider", "invalid"))
     def case_identity_providers_miss_rel(self) -> dict:
         d = identity_provider_schema_dict()
@@ -170,7 +183,7 @@ class CaseAttr:
         d["sla"] = {**sla_schema_dict(), "project": random_lower_string()}
         return d
 
-    @case(tags=("user_group", "invalid"))
+    @case(tags=("user_group", "valid"))
     def case_user_group_miss_sla(self) -> dict:
         return user_group_schema_dict()
 
