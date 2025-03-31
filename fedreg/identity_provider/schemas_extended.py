@@ -1,6 +1,6 @@
 """Pydantic extended models of the Identity Provider."""
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from fedreg.auth_method.schemas import AuthMethodRead
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
@@ -90,21 +90,3 @@ class IdentityProviderReadExtendedPublic(
     user_groups: list[UserGroupReadPublic] = Field(
         default_factory=list, description=DOC_EXT_GROUP
     )
-
-
-class IdentityProviderReadSingle(BaseModel):
-    __root__: (
-        IdentityProviderReadExtended
-        | IdentityProviderRead
-        | IdentityProviderReadExtendedPublic
-        | IdentityProviderReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class IdentityProviderReadMulti(BaseModel):
-    __root__: (
-        list[IdentityProviderReadExtended]
-        | list[IdentityProviderRead]
-        | list[IdentityProviderReadExtendedPublic]
-        | list[IdentityProviderReadPublic]
-    ) = Field(..., discriminator="schema_type")

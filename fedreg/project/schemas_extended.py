@@ -1,6 +1,6 @@
 """Pydantic extended models of the Project owned by a Provider."""
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from fedreg.auth_method.schemas import AuthMethodRead
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
@@ -649,21 +649,3 @@ class ProjectReadExtendedPublic(BaseReadPublicExtended, ProjectReadPublic):
         obj.images = obj.shared_images() + obj.private_images.all()
         obj.networks = obj.shared_networks() + obj.private_networks.all()
         return super().from_orm(obj)
-
-
-class ProjectReadSingle(BaseModel):
-    __root__: (
-        ProjectReadExtended
-        | ProjectRead
-        | ProjectReadExtendedPublic
-        | ProjectReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class ProjectReadMulti(BaseModel):
-    __root__: (
-        list[ProjectReadExtended]
-        | list[ProjectRead]
-        | list[ProjectReadExtendedPublic]
-        | list[ProjectReadPublic]
-    ) = Field(..., discriminator="schema_type")

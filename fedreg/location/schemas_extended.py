@@ -1,6 +1,6 @@
 """Pydantic extended models of the site geographical Location."""
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.location.constants import DOC_EXT_REG
@@ -43,21 +43,3 @@ class LocationReadExtendedPublic(BaseReadPublicExtended, LocationReadPublic):
     regions: list[RegionReadPublic] = Field(
         default_factory=list, description=DOC_EXT_REG
     )
-
-
-class LocationReadSingle(BaseModel):
-    __root__: (
-        LocationReadExtended
-        | LocationRead
-        | LocationReadExtendedPublic
-        | LocationReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class LocationReadMulti(BaseModel):
-    __root__: (
-        list[LocationReadExtended]
-        | list[LocationRead]
-        | list[LocationReadExtendedPublic]
-        | list[LocationReadPublic]
-    ) = Field(..., discriminator="schema_type")

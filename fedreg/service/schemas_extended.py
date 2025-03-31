@@ -1,6 +1,6 @@
 """Pydantic extended models of the Service supplied by Providers on specific Regions."""
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.schemas import FlavorRead, FlavorReadPublic
@@ -403,93 +403,3 @@ class ObjectStoreServiceReadExtendedPublic(
 
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
     quotas: list[ObjectStoreQuotaReadExtendedPublic] = Field(description=DOC_EXT_QUOTA)
-
-
-class BlockStorageServiceReadSingle(BaseModel):
-    __root__: (
-        BlockStorageServiceReadExtended
-        | BlockStorageServiceRead
-        | BlockStorageServiceReadExtendedPublic
-        | BlockStorageServiceReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class BlockStorageServiceReadMulti(BaseModel):
-    __root__: (
-        list[BlockStorageServiceReadExtended]
-        | list[BlockStorageServiceRead]
-        | list[BlockStorageServiceReadExtendedPublic]
-        | list[BlockStorageServiceReadPublic]
-    ) = Field(..., discriminator="schema_type")
-
-
-class ComputeServiceReadSingle(BaseModel):
-    __root__: (
-        ComputeServiceReadExtended
-        | ComputeServiceRead
-        | ComputeServiceReadExtendedPublic
-        | ComputeServiceReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class ComputeServiceReadMulti(BaseModel):
-    __root__: (
-        list[ComputeServiceReadExtended]
-        | list[ComputeServiceRead]
-        | list[ComputeServiceReadExtendedPublic]
-        | list[ComputeServiceReadPublic]
-    ) = Field(..., discriminator="schema_type")
-
-
-class IdentityServiceReadSingle(BaseModel):
-    __root__: (
-        IdentityServiceReadExtended
-        | IdentityServiceRead
-        | IdentityServiceReadExtendedPublic
-        | IdentityServiceReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class IdentityServiceReadMulti(BaseModel):
-    __root__: (
-        list[IdentityServiceReadExtended]
-        | list[IdentityServiceRead]
-        | list[IdentityServiceReadExtendedPublic]
-        | list[IdentityServiceReadPublic]
-    ) = Field(..., discriminator="schema_type")
-
-
-class NetworkServiceReadSingle(BaseModel):
-    __root__: (
-        NetworkServiceReadExtended
-        | NetworkServiceRead
-        | NetworkServiceReadExtendedPublic
-        | NetworkServiceReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class NetworkServiceReadMulti(BaseModel):
-    __root__: (
-        list[NetworkServiceReadExtended]
-        | list[NetworkServiceRead]
-        | list[NetworkServiceReadExtendedPublic]
-        | list[NetworkServiceReadPublic]
-    ) = Field(..., discriminator="schema_type")
-
-
-class ObjectStoreServiceReadSingle(BaseModel):
-    __root__: (
-        ObjectStoreServiceReadExtended
-        | ObjectStoreServiceRead
-        | ObjectStoreServiceReadExtendedPublic
-        | ObjectStoreServiceReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class ObjectStoreServiceReadMulti(BaseModel):
-    __root__: (
-        list[ObjectStoreServiceReadExtended]
-        | list[ObjectStoreServiceRead]
-        | list[ObjectStoreServiceReadExtendedPublic]
-        | list[ObjectStoreServiceReadPublic]
-    ) = Field(..., discriminator="schema_type")

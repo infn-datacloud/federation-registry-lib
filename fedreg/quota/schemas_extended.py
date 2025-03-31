@@ -1,6 +1,6 @@
 """Pydantic extended models of the Resource limitations for Projects on Services."""
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.project.schemas import ProjectRead, ProjectReadPublic
@@ -339,75 +339,3 @@ class ObjectStoreQuotaReadExtendedPublic(
 
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
     service: ObjectStoreServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
-
-
-class BlockStorageQuotaReadSingle(BaseModel):
-    __root__: (
-        BlockStorageQuotaReadExtended
-        | BlockStorageQuotaRead
-        | BlockStorageQuotaReadExtendedPublic
-        | BlockStorageQuotaReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class BlockStorageQuotaReadMulti(BaseModel):
-    __root__: (
-        list[BlockStorageQuotaReadExtended]
-        | list[BlockStorageQuotaRead]
-        | list[BlockStorageQuotaReadExtendedPublic]
-        | list[BlockStorageQuotaReadPublic]
-    ) = Field(..., discriminator="schema_type")
-
-
-class ComputeQuotaReadSingle(BaseModel):
-    __root__: (
-        ComputeQuotaReadExtended
-        | ComputeQuotaRead
-        | ComputeQuotaReadExtendedPublic
-        | ComputeQuotaReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class ComputeQuotaReadMulti(BaseModel):
-    __root__: (
-        list[ComputeQuotaReadExtended]
-        | list[ComputeQuotaRead]
-        | list[ComputeQuotaReadExtendedPublic]
-        | list[ComputeQuotaReadPublic]
-    ) = Field(..., discriminator="schema_type")
-
-
-class NetworkQuotaReadSingle(BaseModel):
-    __root__: (
-        NetworkQuotaReadExtended
-        | NetworkQuotaRead
-        | NetworkQuotaReadExtendedPublic
-        | NetworkQuotaReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class NetworkQuotaReadMulti(BaseModel):
-    __root__: (
-        list[NetworkQuotaReadExtended]
-        | list[NetworkQuotaRead]
-        | list[NetworkQuotaReadExtendedPublic]
-        | list[NetworkQuotaReadPublic]
-    ) = Field(..., discriminator="schema_type")
-
-
-class ObjectStoreQuotaReadSingle(BaseModel):
-    __root__: (
-        ObjectStoreQuotaReadExtended
-        | ObjectStoreQuotaRead
-        | ObjectStoreQuotaReadExtendedPublic
-        | ObjectStoreQuotaReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class ObjectStoreQuotaReadMulti(BaseModel):
-    __root__: (
-        list[ObjectStoreQuotaReadExtended]
-        | list[ObjectStoreQuotaRead]
-        | list[ObjectStoreQuotaReadExtendedPublic]
-        | list[ObjectStoreQuotaReadPublic]
-    ) = Field(..., discriminator="schema_type")

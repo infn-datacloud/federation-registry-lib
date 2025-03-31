@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import Field, validator
 
 from fedreg.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
@@ -431,24 +431,6 @@ class ProviderReadExtendedPublic(BaseReadPublicExtended, ProviderReadPublic):
     )
     projects: list[ProjectReadPublic] = Field(description=DOC_EXT_PROJ)
     regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
-
-
-class ProviderReadSingle(BaseModel):
-    __root__: (
-        ProviderReadExtended
-        | ProviderRead
-        | ProviderReadExtendedPublic
-        | ProviderReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class ProviderReadMulti(BaseModel):
-    __root__: (
-        list[ProviderReadExtended]
-        | list[ProviderRead]
-        | list[ProviderReadExtendedPublic]
-        | list[ProviderReadPublic]
-    ) = Field(..., discriminator="schema_type")
 
 
 # CREATE CLASSES
