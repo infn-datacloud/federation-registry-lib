@@ -3,6 +3,7 @@
 from neomodel import (
     BooleanProperty,
     IntegerProperty,
+    One,
     OneOrMore,
     RelationshipFrom,
     StringProperty,
@@ -54,10 +55,10 @@ class Flavor(StructuredNode):
     gpu_vendor = StringProperty()
     local_storage = StringProperty()
 
-    services = RelationshipFrom(
+    service = RelationshipFrom(
         "fedreg.service.models.ComputeService",
         "AVAILABLE_VM_FLAVOR",
-        cardinality=OneOrMore,
+        cardinality=One,
     )
 
 

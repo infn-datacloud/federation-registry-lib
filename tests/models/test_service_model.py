@@ -568,18 +568,6 @@ def test_compute_pre_delete_hook_remove_flavor(
         flavor_model.refresh()
 
 
-def test_compute_pre_delete_hook_dont_remove_flavor(flavor_model: Flavor) -> None:
-    """SLA with multiple projects is not deleted when deleting one project."""
-    item1 = ComputeService(**service_model_dict()).save()
-    flavor_model.services.connect(item1)
-    item2 = ComputeService(**service_model_dict()).save()
-    flavor_model.services.connect(item2)
-
-    assert item1.delete()
-    assert item1.deleted
-    assert flavor_model.services.single() == item2
-
-
 def test_compute_pre_delete_hook_remove_image(
     compute_service_model: ComputeService, image_model: Image
 ) -> None:

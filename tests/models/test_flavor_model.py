@@ -7,7 +7,7 @@ from pytest_cases import parametrize_with_cases
 from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
 from fedreg.project.models import Project
 from fedreg.service.models import ComputeService
-from tests.models.utils import project_model_dict, service_model_dict
+from tests.models.utils import project_model_dict
 
 
 @parametrize_with_cases("flavor_cls", has_tag=("class", "derived"))
@@ -77,13 +77,13 @@ def test_rel_def(flavor_model: Flavor | PrivateFlavor | SharedFlavor) -> None:
 
     Execute this test on Flavor, PrivateFlavor and SharedFlavor.
     """
-    assert isinstance(flavor_model.services, RelationshipManager)
-    assert flavor_model.services.name
-    assert flavor_model.services.source
-    assert isinstance(flavor_model.services.source, type(flavor_model))
-    assert flavor_model.services.source.uid == flavor_model.uid
-    assert flavor_model.services.definition
-    assert flavor_model.services.definition["node_class"] == ComputeService
+    assert isinstance(flavor_model.service, RelationshipManager)
+    assert flavor_model.service.name
+    assert flavor_model.service.source
+    assert isinstance(flavor_model.service.source, type(flavor_model))
+    assert flavor_model.service.source.uid == flavor_model.uid
+    assert flavor_model.service.definition
+    assert flavor_model.service.definition["node_class"] == ComputeService
 
     if isinstance(flavor_model, PrivateFlavor):
         assert isinstance(flavor_model.projects, RelationshipManager)
@@ -104,9 +104,9 @@ def test_required_rel(flavor_model: Flavor | PrivateFlavor | SharedFlavor) -> No
     Execute this test on Flavor, PrivateFlavor and SharedFlavor.
     """
     with pytest.raises(CardinalityViolation):
-        flavor_model.services.all()
+        flavor_model.service.all()
     with pytest.raises(CardinalityViolation):
-        flavor_model.services.single()
+        flavor_model.service.single()
 
     if isinstance(flavor_model, PrivateFlavor):
         with pytest.raises(CardinalityViolation):
@@ -120,15 +120,15 @@ def test_single_linked_service(
     flavor_model: Flavor | PrivateFlavor | SharedFlavor,
     compute_service_model: ComputeService,
 ) -> None:
-    """Verify `services` relationship works correctly.
+    """Verify `service` relationship works correctly.
 
     Connect a single ComputeService to a Flavor.
     Execute this test on Flavor, PrivateFlavor and SharedFlavor.
     """
-    flavor_model.services.connect(compute_service_model)
+    flavor_model.service.connect(compute_service_model)
 
-    assert len(flavor_model.services.all()) == 1
-    service = flavor_model.services.single()
+    assert len(flavor_model.service.all()) == 1
+    service = flavor_model.service.single()
     assert isinstance(service, ComputeService)
     assert service.uid == compute_service_model.uid
 
@@ -146,22 +146,6 @@ def test_single_linked_project(
     project = private_flavor_model.projects.single()
     assert isinstance(project, Project)
     assert project.uid == project_model.uid
-
-
-@parametrize_with_cases("flavor_model", has_tag="model")
-def test_multiple_linked_services(
-    flavor_model: Flavor | PrivateFlavor | SharedFlavor,
-) -> None:
-    """Verify `services` relationship works correctly.
-
-    Connect multiple ComputeService to a Flavor.
-    Execute this test on Flavor, PrivateFlavor and SharedFlavor.
-    """
-    item = ComputeService(**service_model_dict()).save()
-    flavor_model.services.connect(item)
-    item = ComputeService(**service_model_dict()).save()
-    flavor_model.services.connect(item)
-    assert len(flavor_model.services.all()) == 2
 
 
 def test_multiple_linked_projects(private_flavor_model: PrivateFlavor) -> None:

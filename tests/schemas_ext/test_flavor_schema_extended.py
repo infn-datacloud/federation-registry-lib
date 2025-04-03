@@ -42,74 +42,74 @@ def test_class_inheritance():
     assert issubclass(RegionReadExtendedPublic, RegionReadPublic)
 
 
-@parametrize_with_cases("services", has_tag="services")
 def test_read_shared_ext(
     shared_flavor_model: SharedFlavor,
     region_model: Region,
     provider_model: Provider,
-    services: list[ComputeService],
+    compute_service_model: ComputeService,
 ) -> None:
-    for service in services:
-        provider_model.regions.connect(region_model)
-        region_model.services.connect(service)
-        service.flavors.connect(shared_flavor_model)
+    provider_model.regions.connect(region_model)
+    region_model.services.connect(compute_service_model)
+    compute_service_model.flavors.connect(shared_flavor_model)
 
     item = FlavorReadExtendedPublic.from_orm(shared_flavor_model)
     assert len(item.projects) == 0
-    assert len(item.services) == len(services)
+    assert item.service == ComputeServiceReadExtendedPublic.from_orm(
+        compute_service_model
+    )
 
     item = FlavorReadExtended.from_orm(shared_flavor_model)
     assert item.is_shared is True
     assert len(item.projects) == 0
-    assert len(item.services) == len(services)
+    assert item.service == ComputeServiceReadExtended.from_orm(compute_service_model)
 
 
-@parametrize_with_cases("services", has_tag="services")
 @parametrize_with_cases("projects", has_tag="projects")
 def test_read_private_ext(
     private_flavor_model: PrivateFlavor,
     region_model: Region,
     provider_model: Provider,
     projects: list[Project],
-    services: list[ComputeService],
+    compute_service_model: ComputeService,
 ) -> None:
-    for service in services:
-        provider_model.regions.connect(region_model)
-        region_model.services.connect(service)
-        service.flavors.connect(private_flavor_model)
+    provider_model.regions.connect(region_model)
+    region_model.services.connect(compute_service_model)
+    compute_service_model.flavors.connect(private_flavor_model)
     for project in projects:
         private_flavor_model.projects.connect(project)
 
     item = FlavorReadExtendedPublic.from_orm(private_flavor_model)
     assert len(item.projects) == len(projects)
-    assert len(item.services) == len(services)
+    assert item.service == ComputeServiceReadExtendedPublic.from_orm(
+        compute_service_model
+    )
 
     item = FlavorReadExtended.from_orm(private_flavor_model)
     assert item.is_shared is False
     assert len(item.projects) == len(projects)
-    assert len(item.services) == len(services)
+    assert item.service == ComputeServiceReadExtended.from_orm(compute_service_model)
 
 
-@parametrize_with_cases("services", has_tag="services")
 def test_read_ext(
     flavor_model: Flavor,
     region_model: Region,
     provider_model: Provider,
-    services: list[ComputeService],
+    compute_service_model: ComputeService,
 ) -> None:
-    for service in services:
-        provider_model.regions.connect(region_model)
-        region_model.services.connect(service)
-        service.flavors.connect(flavor_model)
+    provider_model.regions.connect(region_model)
+    region_model.services.connect(compute_service_model)
+    compute_service_model.flavors.connect(flavor_model)
 
     item = FlavorReadExtendedPublic.from_orm(flavor_model)
     assert len(item.projects) == 0
-    assert len(item.services) == len(services)
+    assert item.service == ComputeServiceReadExtendedPublic.from_orm(
+        compute_service_model
+    )
 
     item = FlavorReadExtended.from_orm(flavor_model)
     assert item.is_shared is None
     assert len(item.projects) == 0
-    assert len(item.services) == len(services)
+    assert item.service == ComputeServiceReadExtended.from_orm(compute_service_model)
 
 
 def test_region_read_ext(provider_model: Provider, region_model: Region):
