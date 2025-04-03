@@ -414,8 +414,6 @@ def test_identity_provider_read_ext(
     project_model: Project,
     providers: list[Provider],
 ):
-    with pytest.raises(CardinalityViolation):
-        IdentityProviderReadExtended.from_orm(identity_provider_model)
     for provider in providers:
         provider.identity_providers.connect(
             identity_provider_model, auth_method_model_dict()
@@ -439,8 +437,6 @@ def test_identity_provider_read_ext_public(
     project_model: Project,
     providers: list[Provider],
 ):
-    with pytest.raises(CardinalityViolation):
-        IdentityProviderReadExtendedPublic.from_orm(identity_provider_model)
     for provider in providers:
         provider.identity_providers.connect(
             identity_provider_model, auth_method_model_dict()

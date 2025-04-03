@@ -1,7 +1,6 @@
 """Neomodel model Identity Provider."""
 
 from neomodel import (
-    OneOrMore,
     RelationshipFrom,
     StringProperty,
     StructuredNode,
@@ -37,7 +36,7 @@ class IdentityProvider(StructuredNode):
     providers = RelationshipFrom(
         "fedreg.provider.models.Provider",
         "ALLOW_AUTH_THROUGH",
-        cardinality=OneOrMore,
+        cardinality=ZeroOrMore,
         model=AuthMethod,
     )
     user_groups = RelationshipFrom(
