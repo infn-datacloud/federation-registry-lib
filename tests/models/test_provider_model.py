@@ -6,6 +6,7 @@ from pytest_cases import parametrize_with_cases
 
 from fedreg.auth_method.models import AuthMethod
 from fedreg.identity_provider.models import IdentityProvider
+from fedreg.image.models import Image
 from fedreg.project.models import Project
 from fedreg.provider.enum import ProviderStatus
 from fedreg.provider.models import Provider
@@ -212,3 +213,10 @@ def test_pre_delete_hook_dont_remove_idp(
     assert item1.delete()
     assert item1.deleted
     assert identity_provider_model.providers.single() == item2
+
+
+@parametrize_with_cases("provider, tot_images", has_tag="images")
+def test_provider_images(provider: Provider, tot_images: int) -> None:
+    images = provider.images()
+    assert len(images) == tot_images
+    assert isinstance(images[0], Image)

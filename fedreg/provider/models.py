@@ -11,7 +11,9 @@ from neomodel import (
 )
 
 from fedreg.auth_method.models import AuthMethod
+from fedreg.image.models import Image
 from fedreg.provider.enum import ProviderStatus
+from fedreg.service.enum import ServiceType
 
 
 class Provider(StructuredNode):
@@ -60,6 +62,24 @@ class Provider(StructuredNode):
         cardinality=ZeroOrMore,
         model=AuthMethod,
     )
+
+    def images(self) -> list[Image]:
+        """List provider's available images.
+
+        Make a cypher query to retrieve all provider's images.
+        """
+        results, _ = self.cypher(
+            f"""
+                MATCH (p:Provider)
+                WHERE (elementId(p)=$self)
+                MATCH (p)-[:`DIVIDED_INTO`]-(r)
+                MATCH (r)-[:`SUPPLY`]-(s)
+                WHERE s.type = "{ServiceType.COMPUTE.value}"
+                MATCH (s)-[:`AVAILABLE_VM_IMAGE`]->(i:Image)
+                RETURN DISTINCT i
+            """
+        )
+        return [Image.inflate(row[0]) for row in results]
 
     def pre_delete(self):
         """Delete related identity providers, projects and regions.
