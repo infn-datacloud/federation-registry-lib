@@ -103,8 +103,7 @@ class ComputeService(Service):
         for item in self.quotas:
             item.delete()
         for item in self.flavors:
-            if len(item.services) == 1:
-                item.delete()
+            item.delete()
         for item in self.images:
             if len(item.services) == 1:
                 item.delete()

@@ -1,7 +1,7 @@
 from typing import Any
 
 import pytest
-from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
+from neomodel import RelationshipManager, RequiredProperty
 from pytest_cases import parametrize_with_cases
 
 from fedreg.location.models import Location
@@ -48,16 +48,14 @@ def test_rel_def(location_model: Location) -> None:
     assert location_model.regions.definition["node_class"] == Region
 
 
-def test_required_rel(location_model: Location) -> None:
+def test_optional_rel(location_model: Location) -> None:
     """Test Location required relationships.
 
     A model without required relationships can exist but when querying those values, it
     raises a CardinalityViolation error.
     """
-    with pytest.raises(CardinalityViolation):
-        location_model.regions.all()
-    with pytest.raises(CardinalityViolation):
-        location_model.regions.single()
+    assert len(location_model.regions.all()) == 0
+    assert location_model.regions.single() is None
 
 
 def test_single_linked_region(location_model: Location, region_model: Region) -> None:

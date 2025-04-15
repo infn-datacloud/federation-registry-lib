@@ -1,6 +1,6 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.image.constants import DOC_EXT_PROJ, DOC_EXT_SERV
@@ -119,18 +119,3 @@ class ImageReadExtendedPublic(BaseReadPublicExtended, ImageReadPublic):
         default_factory=list, description=DOC_EXT_PROJ
     )
     services: list[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
-
-
-class ImageReadSingle(BaseModel):
-    __root__: (
-        ImageReadExtended | ImageRead | ImageReadExtendedPublic | ImageReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class ImageReadMulti(BaseModel):
-    __root__: (
-        list[ImageReadExtended]
-        | list[ImageRead]
-        | list[ImageReadExtendedPublic]
-        | list[ImageReadPublic]
-    ) = Field(..., discriminator="schema_type")

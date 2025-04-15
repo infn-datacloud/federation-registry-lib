@@ -1,6 +1,6 @@
 """Pydantic extended models of the Virtual Machine Flavor owned by a Provider."""
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.constants import DOC_EXT_PROJ, DOC_EXT_SERV
@@ -101,7 +101,7 @@ class FlavorReadExtended(BaseReadPrivateExtended, FlavorRead):
     """
 
     projects: list[ProjectRead] = Field(default_factory=list, description=DOC_EXT_PROJ)
-    services: list[ComputeServiceReadExtended] = Field(description=DOC_EXT_SERV)
+    service: ComputeServiceReadExtended = Field(description=DOC_EXT_SERV)
 
 
 class FlavorReadExtendedPublic(BaseReadPublicExtended, FlavorReadPublic):
@@ -122,19 +122,4 @@ class FlavorReadExtendedPublic(BaseReadPublicExtended, FlavorReadPublic):
     projects: list[ProjectReadPublic] = Field(
         default_factory=list, description=DOC_EXT_PROJ
     )
-    services: list[ComputeServiceReadExtendedPublic] = Field(description=DOC_EXT_SERV)
-
-
-class FlavorReadSingle(BaseModel):
-    __root__: (
-        FlavorReadExtended | FlavorRead | FlavorReadExtendedPublic | FlavorReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class FlavorReadMulti(BaseModel):
-    __root__: (
-        list[FlavorReadExtended]
-        | list[FlavorRead]
-        | list[FlavorReadExtendedPublic]
-        | list[FlavorReadPublic]
-    ) = Field(..., discriminator="schema_type")
+    service: ComputeServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)

@@ -158,15 +158,15 @@ class CaseQuotaSchema:
 
     @case(tags=("dict", "valid", "update", "object-store"))
     def case_bytes_object_store(self) -> dict[str, Any]:
-        return {**quota_schema_dict(), "bytes": random_int(-100, 100)}
+        return {**quota_schema_dict(), "bytes": random_int(-1, 100)}
 
     @case(tags=("dict", "valid", "update", "object-store"))
     def case_containers_object_store(self) -> dict[str, Any]:
-        return {**quota_schema_dict(), "containers": random_int(-100, 100)}
+        return {**quota_schema_dict(), "containers": random_int(-1, 100)}
 
     @case(tags=("dict", "valid", "update", "object-store"))
     def case_objects_object_store(self) -> dict[str, Any]:
-        return {**quota_schema_dict(), "objects": random_int(-100, 100)}
+        return {**quota_schema_dict(), "objects": random_int(-1, 100)}
 
     @case(tags=("dict", "invalid", "block-storage", "update"))
     @parametrize(value=(QuotaType.COMPUTE, QuotaType.NETWORK, QuotaType.OBJECT_STORE))
@@ -295,6 +295,30 @@ class CaseQuotaSchema:
         d = quota_schema_dict()
         d["type"] = value
         return d, "type"
+
+    @case(tags=("dict", "invalid", "object-store", "update"))
+    def case_invalid_bytes_object_store(
+        self,
+    ) -> tuple[dict[str, Any], Literal["bytes"]]:
+        d = quota_schema_dict()
+        d["bytes"] = random_int(-100, -2)
+        return d, "bytes"
+
+    @case(tags=("dict", "invalid", "object-store", "update"))
+    def case_invalid_containers_object_store(
+        self,
+    ) -> tuple[dict[str, Any], Literal["containers"]]:
+        d = quota_schema_dict()
+        d["containers"] = random_int(-100, -2)
+        return d, "containers"
+
+    @case(tags=("dict", "invalid", "object-store", "update"))
+    def case_invalid_objects_object_store(
+        self,
+    ) -> tuple[dict[str, Any], Literal["objects"]]:
+        d = quota_schema_dict()
+        d["objects"] = random_int(-100, -2)
+        return d, "objects"
 
 
 class CaseQuotaModel:

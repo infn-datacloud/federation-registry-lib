@@ -1,7 +1,6 @@
 from pytest_cases import case, parametrize
 
 from fedreg.service.enum import ServiceType
-from tests.models.utils import identity_provider_model_dict
 from tests.schemas.utils import (
     auth_method_schema_dict,
     flavor_schema_dict,
@@ -135,7 +134,20 @@ class CaseAttr:
             )
         return d
 
-    @case(tags=("identity_provider", "invalid"))
+    @case(tags=("identity_provider", "valid"))
+    def case_identity_providers_miss_user_group(self) -> dict:
+        d = identity_provider_schema_dict()
+        d["relationship"] = auth_method_schema_dict()
+        return d
+
+    @case(tags=("identity_provider", "valid"))
+    def case_identity_providers_empty_list(self) -> dict:
+        d = identity_provider_schema_dict()
+        d["relationship"] = auth_method_schema_dict()
+        d["user_groups"] = []
+        return d
+
+    @case(tags=("identity_provider", "valid"))
     def case_identity_providers_miss_rel(self) -> dict:
         d = identity_provider_schema_dict()
         d["user_groups"] = [
@@ -144,19 +156,6 @@ class CaseAttr:
                 "sla": {**sla_schema_dict(), "project": random_lower_string()},
             }
         ]
-        return d
-
-    @case(tags=("identity_provider", "invalid"))
-    def case_identity_providers_miss_user_group(self) -> dict:
-        d = identity_provider_model_dict()
-        d["relationship"] = auth_method_schema_dict()
-        return d
-
-    @case(tags=("identity_provider", "invalid"))
-    def case_identity_providers_empty_list(self) -> dict:
-        d = identity_provider_schema_dict()
-        d["relationship"] = auth_method_schema_dict()
-        d["user_groups"] = []
         return d
 
     @case(tags=("identity_provider", "invalid"))
@@ -184,7 +183,7 @@ class CaseAttr:
         d["sla"] = {**sla_schema_dict(), "project": random_lower_string()}
         return d
 
-    @case(tags=("user_group", "invalid"))
+    @case(tags=("user_group", "valid"))
     def case_user_group_miss_sla(self) -> dict:
         return user_group_schema_dict()
 
@@ -202,6 +201,39 @@ class CaseAttr:
     @parametrize(len=(1, 2))
     def case_regions(self, len: int) -> list[dict]:
         return [region_schema_dict() for _ in range(len)]
+
+    @case(tags=("regions", "valid", "base"))
+    def case_regions_flavor(self) -> list[dict]:
+        d = region_schema_dict()
+        d["compute_services"] = [
+            {
+                **service_schema_dict(ServiceType.COMPUTE),
+                "flavors": [{**flavor_schema_dict()}],
+            }
+        ]
+        return [d]
+
+    @case(tags=("regions", "valid", "base"))
+    def case_regions_image(self) -> list[dict]:
+        d = region_schema_dict()
+        d["compute_services"] = [
+            {
+                **service_schema_dict(ServiceType.COMPUTE),
+                "images": [{**image_schema_dict()}],
+            }
+        ]
+        return [d]
+
+    @case(tags=("regions", "valid", "base"))
+    def case_regions_network(self) -> list[dict]:
+        d = region_schema_dict()
+        d["network_services"] = [
+            {
+                **service_schema_dict(ServiceType.NETWORK),
+                "networks": [{**network_schema_dict()}],
+            }
+        ]
+        return [d]
 
     @case(tags=("regions", "valid", "project"))
     def case_regions_block_storage_quota_with_proj(self) -> tuple[dict, str]:
@@ -282,7 +314,7 @@ class CaseAttr:
         d["network_services"] = [
             {
                 **service_schema_dict(ServiceType.NETWORK),
-                "networks": [{**network_schema_dict(), "project": p}],
+                "networks": [{**network_schema_dict(), "projects": [p]}],
             }
         ]
         return d, p
@@ -371,7 +403,7 @@ class CaseAttr:
             {
                 **service_schema_dict(ServiceType.NETWORK),
                 "networks": [
-                    {**network_schema_dict(), "project": random_lower_string()}
+                    {**network_schema_dict(), "projects": [random_lower_string()]}
                 ],
             }
         ]
@@ -532,7 +564,7 @@ class CaseAttr:
     @parametrize(len=(1, 2))
     def case_private_networks(self, len: int) -> list[dict]:
         return [
-            {**network_schema_dict(), "project": random_lower_string()}
+            {**network_schema_dict(), "projects": [random_lower_string()]}
             for _ in range(len)
         ]
 
@@ -543,11 +575,11 @@ class CaseAttr:
 
     @case(tags=("service", "network", "networks"))
     def case_networks(self) -> list[dict]:
-        private = {**network_schema_dict(), "project": random_lower_string()}
+        private = {**network_schema_dict(), "projects": [random_lower_string()]}
         shared = network_schema_dict()
         return [private, shared]
 
-    @case(tags=("flavor", "image", "projects"))
+    @case(tags=("flavor", "image", "network", "projects"))
     @parametrize(len=(1, 2))
     def case_flavor_projects(self, len: int) -> list[dict]:
         return [random_lower_string() for _ in range(len)]

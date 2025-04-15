@@ -201,8 +201,9 @@ def test_provider_create_ext_idp_project_mismatch(identity_provider: dict) -> No
 @parametrize_with_cases("identity_provider", has_tag=("identity_provider", "valid"))
 def test_identity_provider_create_ext(identity_provider: dict) -> None:
     idp = IdentityProviderCreateExtended(**identity_provider)
-    assert len(idp.user_groups) == len(identity_provider["user_groups"])
-    assert isinstance(idp.user_groups[0], UserGroupCreateExtended)
+    assert len(idp.user_groups) == len(identity_provider.get("user_groups", []))
+    if len(idp.user_groups) == 1:
+        assert isinstance(idp.user_groups[0], UserGroupCreateExtended)
 
 
 @parametrize_with_cases("identity_provider", has_tag=("identity_provider", "invalid"))
@@ -216,8 +217,12 @@ def test_identity_provider_create_ext_invalid(identity_provider: dict) -> None:
 @parametrize_with_cases("user_group", has_tag=("user_group", "valid"))
 def test_user_group_create_ext(user_group: dict) -> None:
     item = UserGroupCreateExtended(**user_group)
-    assert item.sla is not None
-    assert isinstance(item.sla, SLACreateExtended)
+    sla = user_group.get("sla", None)
+    if sla is not None:
+        assert item.sla is not None
+        assert isinstance(item.sla, SLACreateExtended)
+    else:
+        assert item.sla is None
 
 
 @parametrize_with_cases("user_group", has_tag=("user_group", "invalid"))
@@ -494,7 +499,7 @@ def test_network_srv_create_ext_with_networks(networks: list[dict]) -> None:
     )
     assert len(srv.quotas) == 0
     assert len(srv.networks) == len(networks)
-    if "project" in networks[0].keys():
+    if "projects" in networks[0].keys():
         assert isinstance(srv.networks[0], PrivateNetworkCreateExtended)
     else:
         assert isinstance(srv.networks[0], SharedNetworkCreate)
@@ -617,11 +622,11 @@ def test_private_image_create_ext_invalid() -> None:
         PrivateImageCreateExtended(**image_schema_dict(), projects=[])
 
 
-def test_private_network_create_ext() -> None:
-    project = random_lower_string()
-    network = PrivateNetworkCreateExtended(**network_schema_dict(), project=project)
-    assert network.project is not None
-    assert network.project == project
+@parametrize_with_cases("projects", has_tag=("network", "projects"))
+def test_private_network_create_ext(projects: list[str]) -> None:
+    network = PrivateNetworkCreateExtended(**network_schema_dict(), projects=projects)
+    assert len(network.projects) > 0
+    assert network.projects == projects
 
 
 def test_private_network_create_ext_invalid() -> None:

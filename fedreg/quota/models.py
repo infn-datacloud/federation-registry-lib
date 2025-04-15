@@ -33,6 +33,7 @@ class Quota(StructuredNode):
     description = StringProperty(default="")
     per_user = BooleanProperty(default=False)
     usage = BooleanProperty(default=False)
+    type = StringProperty()
 
     project = RelationshipFrom(
         "fedreg.project.models.Project", "USE_SERVICE_WITH", cardinality=One

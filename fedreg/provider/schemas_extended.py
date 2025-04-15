@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import Field, validator
 
 from fedreg.auth_method.schemas import AuthMethodCreate, AuthMethodRead
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
@@ -433,24 +433,6 @@ class ProviderReadExtendedPublic(BaseReadPublicExtended, ProviderReadPublic):
     regions: list[RegionReadExtendedPublic] = Field(description=DOC_EXT_REG)
 
 
-class ProviderReadSingle(BaseModel):
-    __root__: (
-        ProviderReadExtended
-        | ProviderRead
-        | ProviderReadExtendedPublic
-        | ProviderReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class ProviderReadMulti(BaseModel):
-    __root__: (
-        list[ProviderReadExtended]
-        | list[ProviderRead]
-        | list[ProviderReadExtendedPublic]
-        | list[ProviderReadPublic]
-    ) = Field(..., discriminator="schema_type")
-
-
 # CREATE CLASSES
 
 
@@ -479,7 +461,9 @@ class UserGroupCreateExtended(UserGroupCreate):
         sla (SLACreateExtended): SLA owned by this project and related to this provider.
     """
 
-    sla: SLACreateExtended = Field(description="SLA related to this provider")
+    sla: SLACreateExtended | None = Field(
+        default=None, description="SLA related to this provider"
+    )
 
 
 class IdentityProviderCreateExtended(IdentityProviderCreate):
@@ -496,8 +480,12 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         user_groups (list of UserGroupCreateExtended): Owned user groups.
     """
 
-    relationship: AuthMethodCreate = Field(description=DOC_EXT_AUTH_METH)
-    user_groups: list[UserGroupCreateExtended] = Field(description=DOC_NEW_GROUP)
+    relationship: AuthMethodCreate | None = Field(
+        default=None, description=DOC_EXT_AUTH_METH
+    )
+    user_groups: list[UserGroupCreateExtended] = Field(
+        default_factory=list, description=DOC_NEW_GROUP
+    )
 
     @validator("user_groups")
     @classmethod
@@ -509,7 +497,6 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         Verify the list is not empty and there are no duplicates.
         Check that an SLA is not used by multiple user groups of the same IDP.
         """
-        assert len(v), "Identity provider's user group list can't be empty"
         find_duplicates(v, "name")
         return v
 
@@ -676,7 +663,15 @@ class PrivateNetworkCreateExtended(PrivateNetworkCreate):
         project (str): UUID of the project which can use this network.
     """
 
-    project: str = Field(description=DOC_NEW_PROJ_UUID)
+    projects: list[str] = Field(description=DOC_NEW_PROJ_UUID)
+
+    @validator("projects")
+    @classmethod
+    def validate_projects(cls, v: list[str]) -> str:
+        """Cast to string possible UUIDs and verify there are no duplicate values."""
+        assert len(v), "Projects are mandatory for private networks"
+        find_duplicates(v)
+        return v
 
 
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
@@ -1000,15 +995,17 @@ class ProviderCreateExtended(ProviderCreate):
         """
         for service in services:
             for flavor in service.flavors:
-                for project in flavor.projects:
-                    cls.__proj_in_provider(
-                        project, projects, parent=f"Flavor {flavor.name}"
-                    )
+                if isinstance(flavor, PrivateFlavorCreateExtended):
+                    for project in flavor.projects:
+                        cls.__proj_in_provider(
+                            project, projects, parent=f"Flavor {flavor.name}"
+                        )
             for image in service.images:
-                for project in image.projects:
-                    cls.__proj_in_provider(
-                        project, projects, parent=f"Image {image.name}"
-                    )
+                if isinstance(image, PrivateImageCreateExtended):
+                    for project in image.projects:
+                        cls.__proj_in_provider(
+                            project, projects, parent=f"Image {image.name}"
+                        )
             for quota in service.quotas:
                 cls.__proj_in_provider(quota.project, projects, parent="Compute quota")
 
@@ -1022,9 +1019,11 @@ class ProviderCreateExtended(ProviderCreate):
         """
         for service in services:
             for network in service.networks:
-                cls.__proj_in_provider(
-                    network.project, projects, parent=f"Network {network.name}"
-                )
+                if isinstance(network, PrivateNetworkCreateExtended):
+                    for project in network.projects:
+                        cls.__proj_in_provider(
+                            project, projects, parent=f"network {network.name}"
+                        )
             for quota in service.quotas:
                 cls.__proj_in_provider(quota.project, projects, parent="Network quota")
 

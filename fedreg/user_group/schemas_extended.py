@@ -1,6 +1,6 @@
 """Pydantic extended models of the User Group owned by an Identity Provider."""
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.identity_provider.schemas import (
@@ -321,21 +321,3 @@ class UserGroupReadExtendedPublic(BaseReadPublicExtended, UserGroupReadPublic):
     slas: list[SLAReadExtendedPublic] = Field(
         default_factory=list, description=DOC_EXT_SLA
     )
-
-
-class UserGroupReadSingle(BaseModel):
-    __root__: (
-        UserGroupReadExtended
-        | UserGroupRead
-        | UserGroupReadExtendedPublic
-        | UserGroupReadPublic
-    ) = Field(..., discriminator="schema_type")
-
-
-class UserGroupReadMulti(BaseModel):
-    __root__: (
-        list[UserGroupReadExtended]
-        | list[UserGroupRead]
-        | list[UserGroupReadExtendedPublic]
-        | list[UserGroupReadPublic]
-    ) = Field(..., discriminator="schema_type")

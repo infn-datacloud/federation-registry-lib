@@ -2,7 +2,6 @@ from typing import Any
 
 import pytest
 from neomodel import (
-    CardinalityViolation,
     DoesNotExist,
     RelationshipManager,
     RequiredProperty,
@@ -67,18 +66,6 @@ def test_rel_def(identity_provider_model: IdentityProvider) -> None:
     assert identity_provider_model.user_groups.definition["node_class"] == UserGroup
 
 
-def test_required_rel(identity_provider_model: IdentityProvider) -> None:
-    """Test identityProvider required relationships.
-
-    A model without required relationships can exist but when querying those values, it
-    raises a CardinalityViolation error.
-    """
-    with pytest.raises(CardinalityViolation):
-        identity_provider_model.providers.all()
-    with pytest.raises(CardinalityViolation):
-        identity_provider_model.providers.single()
-
-
 def test_single_linked_provider(
     identity_provider_model: IdentityProvider, provider_model: Provider
 ) -> None:
@@ -112,6 +99,8 @@ def test_multiple_linked_providers(identity_provider_model: IdentityProvider) ->
 
 def test_optional_rel(identity_provider_model: IdentityProvider) -> None:
     """Test identityProvider optional relationships."""
+    assert len(identity_provider_model.providers.all()) == 0
+    assert identity_provider_model.providers.single() is None
     assert len(identity_provider_model.user_groups.all()) == 0
     assert identity_provider_model.user_groups.single() is None
 

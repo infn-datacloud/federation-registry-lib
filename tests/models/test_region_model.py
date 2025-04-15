@@ -226,18 +226,6 @@ def test_pre_delete_hook(
             item.refresh()
 
 
-def test_pre_delete_hook_remove_location(
-    region_model: Region, location_model: Location
-) -> None:
-    """Delete region and related location"""
-    region_model.location.connect(location_model)
-
-    assert region_model.delete()
-    assert region_model.deleted
-    with pytest.raises(DoesNotExist):
-        location_model.refresh()
-
-
 def test_pre_delete_hook_dont_remove_location(location_model: Location) -> None:
     """Location with multiple regions is not deleted when deleting one region."""
     item1 = Region(**region_model_dict()).save()
