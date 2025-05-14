@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field
 
-from fedreg.auth_method.constants import DOC_IDP_NAME, DOC_PROTOCOL
+from fedreg.auth_method.constants import DOC_AUD, DOC_IDP_NAME, DOC_PROTOCOL
 from fedreg.core import BaseNodeCreate
 
 
@@ -11,12 +11,15 @@ class AuthMethodBase(BaseModel):
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name saved in the Resource Provider.
-        protocol (str): Protocol to use when authenticating on this identity provider
+        idp_name (str | None): Identity Provider name saved in the Resource Provider.
+        protocol (str | None): Protocol to use when authenticating on this identity
+            provider.
+        aud (str | None): Audience to use when authenticating on this identity provider.
     """
 
-    idp_name: str = Field(description=DOC_IDP_NAME)
-    protocol: str = Field(description=DOC_PROTOCOL)
+    idp_name: str | None = Field(default=None, description=DOC_IDP_NAME)
+    protocol: str | None = Field(default=None, description=DOC_PROTOCOL)
+    aud: str | None = Field(default=None, description=DOC_AUD)
 
 
 class AuthMethodCreate(BaseNodeCreate, AuthMethodBase):
@@ -26,8 +29,10 @@ class AuthMethodCreate(BaseNodeCreate, AuthMethodBase):
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name saved in the Resource Provider.
-        protocol (str): Protocol to use when authenticating on this identity provider.
+        idp_name (str | None): Identity Provider name saved in the Resource Provider.
+        protocol (str | None): Protocol to use when authenticating on this identity
+            provider.
+        aud (str | None): Audience to use when authenticating on this identity provider.
     """
 
 
@@ -39,8 +44,10 @@ class AuthMethodRead(AuthMethodBase):
 
     Attributes:
     ----------
-        idp_name (str): Identity Provider name saved in the Resource Provider.
-        protocol (str): Protocol to use when authenticating on this identity provider.
+        idp_name (str | None): Identity Provider name saved in the Resource Provider.
+        protocol (str | None): Protocol to use when authenticating on this identity
+            provider.
+        aud (str | None): Audience to use when authenticating on this identity provider.
     """
 
     class Config:
