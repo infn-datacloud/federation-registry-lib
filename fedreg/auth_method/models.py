@@ -10,7 +10,9 @@ class AuthMethod(StructuredRel):
     ----------
         idp_name (str): Identity Provider name saved in the Resource Provider.
         protocol (str): Protocol to use when authenticating on this identity provider.
+        audience (str): Audience to use when authenticating on this identity provider.
     """
 
-    idp_name = StringProperty(required=True)
-    protocol = StringProperty(required=True)
+    idp_name = StringProperty()
+    protocol = StringProperty()
+    audience = StringProperty()

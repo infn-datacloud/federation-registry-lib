@@ -1,9 +1,11 @@
 """Pydantic models of the Provider - Identity Provider relationship."""
 
+from typing import Annotated
+
 from pydantic import BaseModel, Field
 
-from fedreg.auth_method.constants import DOC_IDP_NAME, DOC_PROTOCOL
-from fedreg.core import BaseNodeCreate
+from fedreg.core import BaseNodeRead
+from fedreg.identity_provider.schemas import IdentityProviderBase
 
 
 class AuthMethodBase(BaseModel):
@@ -13,41 +15,52 @@ class AuthMethodBase(BaseModel):
     ----------
         idp_name (str): Identity Provider name saved in the Resource Provider.
         protocol (str): Protocol to use when authenticating on this identity provider
+        audience (str): Audience to use when authenticating on this identity provider.
     """
 
-    idp_name: str = Field(description=DOC_IDP_NAME)
-    protocol: str = Field(description=DOC_PROTOCOL)
+    idp_name: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Identity Provider name saved in the Resource Provider.",
+        ),
+    ]
+    protocol: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Protocol to use when authenticating on target IdP.",
+        ),
+    ]
+    audience: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Audience to use when authenticating on target IdP.",
+        ),
+    ]
 
 
-class AuthMethodCreate(BaseNodeCreate, AuthMethodBase):
-    """Model to create an AuthMethod instance.
+class AuthMethodCreate(AuthMethodBase):
+    """Schema for creating a new authentication method.
 
-    Class expected as input when performing a POST request.
+    Inherits from:
+        AuthMethodBase: Base schema with common authentication method fields.
 
     Attributes:
-    ----------
-        idp_name (str): Identity Provider name saved in the Resource Provider.
-        protocol (str): Protocol to use when authenticating on this identity provider.
+        Inherits all fields from AuthMethodBase.
     """
 
 
-class AuthMethodRead(AuthMethodBase):
-    """Model to read AuthMethod relationship data retrieved from the DB.
+class AuthMethodRead(BaseNodeRead, IdentityProviderBase):
+    """Represents a read-only schema for authentication methods
 
-    Class to read data retrieved from the database. Expected as output when performing a
-    generic REST request.
+    Combines base node read attributes and identity provider base information.
+
+    Inherits from:
+        BaseNodeRead: Provides base attributes for node reading operations.
+        IdentityProviderBase: Supplies identity provider-specific fields.
 
     Attributes:
-    ----------
-        idp_name (str): Identity Provider name saved in the Resource Provider.
-        protocol (str): Protocol to use when authenticating on this identity provider.
+        Inherits all attributes from BaseNodeRead and IdentityProviderBase.
     """
-
-    class Config:
-        """Sub class to validate assignments and enable orm mode.
-
-        Use ORM mode to read data from DB models.
-        """
-
-        validate_assignment = True
-        orm_mode = True
