@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 from enum import Enum
-from typing import Any, Literal, get_origin
+from typing import Annotated, Any, Literal, get_origin
 from uuid import UUID
 
 from neo4j.time import Date, DateTime
@@ -82,7 +82,7 @@ class BaseNodeRead(BaseModel):
         uid (str): Database item's unique identifier.
     """
 
-    uid: str = Field(description="Database item's unique identifier.")
+    id: Annotated[str, Field(description="Database item's unique identifier.")]
 
     @validator("*", pre=True)
     @classmethod
