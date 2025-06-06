@@ -9,7 +9,6 @@ from neomodel import (
     StructuredNode,
     UniqueIdProperty,
     ZeroOrMore,
-    ZeroOrOne,
 )
 
 
@@ -39,20 +38,14 @@ class Region(StructuredNode):
     bandwidth_in = FloatProperty(default=10.0)
     bandwidth_out = FloatProperty(default=10.0)
 
-    location = RelationshipTo(
-        "fedreg.location.models.Location", "LOCATED_AT", cardinality=ZeroOrOne
-    )
     provider = RelationshipFrom(
         "fedreg.provider.models.Provider", "DIVIDED_INTO", cardinality=One
     )
     services = RelationshipTo(
-        "fedreg.service.models.Service", "SUPPLY", cardinality=ZeroOrMore
+        "fedreg.service.models.Service", "SUPPLIES", cardinality=ZeroOrMore
     )
 
     def pre_delete(self):
-        """Remove related services and location.
-
-        Remove the location only if that location points only to this region.
-        """
+        """Remove related services."""
         for item in self.services:
             item.delete()

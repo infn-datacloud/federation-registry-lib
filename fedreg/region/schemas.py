@@ -1,83 +1,86 @@
 """Pydantic models of the Region owned by a Provider."""
 
-from pydantic import Field
+from typing import Annotated
 
-from fedreg.core import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
-    create_query_model,
-)
-from fedreg.region.constants import (
-    DOC_BAND_IN,
-    DOC_BAND_OUT,
-    DOC_NAME,
-    DOC_OVERBOOKING_CPU,
-    DOC_OVERBOOKING_RAM,
-)
+from pydantic import AnyHttpUrl, BaseModel, Field
+
+from fedreg.core import BaseNode, BaseNodeRead
 
 
-class RegionBasePublic(BaseNode):
-    """Model with Region public attributes.
+class RegionBase(BaseNode):
+    """Base schema for a region node in the provider.
 
     Attributes:
-    ----------
-        description (str): Brief description.
         name (str): Region name in the Provider.
+        overbooking_cpu (float): CPU overbooking factor. Default is 1.0.
+        overbooking_ram (float): RAM overbooking factor. Default is 1.0.
+        bandwidth_in (float): Bandwidth in. Default is 10.0.
+        bandwidth_out (float): Bandwidth out. Default is 10.0.
     """
 
-    name: str = Field(description=DOC_NAME)
+    name: Annotated[str, Field(description="Region name in the Provider.")]
+    overbooking_cpu: Annotated[
+        float, Field(default=1.0, description="CPU overbooking factor.")
+    ]
+    overbooking_ram: Annotated[
+        float, Field(default=1.0, description="RAM overbooking factor.")
+    ]
+    bandwidth_in: Annotated[float, Field(default=10.0, description="Bandwidth in.")]
+    bandwidth_out: Annotated[float, Field(default=10.0, description="Bandwidth out.")]
 
 
-class RegionBase(RegionBasePublic):
-    """Model with Region public and restricted attributes.
+class RegionCreate(RegionBase):
+    """Schema for creating a new Region.
 
-    Attributes:
-    ----------
-        description (str): Brief description.
-        name (str): Region name in the Provider.
-        overbooking_cpu (float): CPU overbooking factor.
-        overbooking_ram (float): RAM overbooking factor.
-        bandwidth_in (float): Bandwidth in.
-        bandwidth_out (float): Bandwidth out.
-    """
-
-    overbooking_cpu: float = Field(default=1.0, description=DOC_OVERBOOKING_CPU)
-    overbooking_ram: float = Field(default=1.0, description=DOC_OVERBOOKING_RAM)
-    bandwidth_in: float = Field(default=10.0, description=DOC_BAND_IN)
-    bandwidth_out: float = Field(default=10.0, description=DOC_BAND_OUT)
-
-
-class RegionCreate(BaseNodeCreate, RegionBase):
-    """Model to create a Region.
-
-    Class without id (which is populated by the database). Expected as input when
-    performing a POST request.
+    Inherits from:
+        RegionBase: Base schema containing common region attributes.
 
     Attributes:
-    ----------
-        description (str): Brief description.
-        name (str): Region name in the Provider.
-        overbooking_cpu (float): CPU overbooking factor.
-        overbooking_ram (float): RAM overbooking factor.
-        bandwidth_in (float): Bandwidth in.
-        bandwidth_out (float): Bandwidth out.
+        Inherits all fields from RegionBase.
     """
 
 
-class RegionUpdate(BaseNodeCreate, RegionBase):
-    """Model to update a Region.
-
-    Class without id (which is populated by the database). Expected as input when
-    performing a PUT request.
-
-    Default to None attributes with a different default or required.
+class RegionLinks(BaseModel):
+    """
+    Represents hyperlinks related to a Region.
 
     Attributes:
-    ----------
-        description (str | None): Brief description.
+        services (AnyHttpUrl): Link to the services provided by the Region.
+    """
+
+    services: Annotated[
+        AnyHttpUrl, Field(description="Link to the services provided by the Region.")
+    ]
+
+
+class RegionRead(BaseNodeRead, RegionBase):
+    """Represents a read-only view of a Region, extending BaseNodeRead and RegionBase.
+
+    Attributes:
+        services (list[str]): List of services provided by the Region.
+        links (RegionLinks): Links to the Region resources.
+    """
+
+    services: Annotated[
+        list[str],
+        Field(
+            default_factory=list,
+            description="List of services provided by the Region.",
+        ),
+    ]
+    links: Annotated[
+        RegionLinks,
+        Field(
+            default_factory=RegionLinks,
+            description="Links to the Region resources.",
+        ),
+    ]
+
+
+class RegionQuery(BaseModel):
+    """RegionQuery model for filtering regions based on various attributes.
+
+    Attributes:
         name (str | None): Region name in the Provider.
         overbooking_cpu (float | None): CPU overbooking factor.
         overbooking_ram (float | None): RAM overbooking factor.
@@ -85,47 +88,18 @@ class RegionUpdate(BaseNodeCreate, RegionBase):
         bandwidth_out (float | None): Bandwidth out.
     """
 
-    name: str | None = Field(default=None, description=DOC_NAME)
-    overbooking_cpu: float | None = Field(default=1.0, description=DOC_OVERBOOKING_CPU)
-    overbooking_ram: float | None = Field(default=1.0, description=DOC_OVERBOOKING_RAM)
-    bandwidth_in: float | None = Field(default=10.0, description=DOC_BAND_IN)
-    bandwidth_out: float | None = Field(default=10.0, description=DOC_BAND_OUT)
-
-
-class RegionReadPublic(BaseNodeRead, BaseReadPublic, RegionBasePublic):
-    """Model, for non-authenticated users, to read Region data from DB.
-
-    Class to read non-sensible data written in the DB. Expected as output when
-    performing a generic REST request without authentication.
-
-    Add the *uid* attribute, which is the item unique identifier in the database.
-
-    Attributes:
-    ----------
-        uid (str): Region unique ID.
-        description (str): Brief description.
-        name (str): Region name in the Provider.
-    """
-
-
-class RegionRead(BaseNodeRead, BaseReadPrivate, RegionBase):
-    """Model, for authenticated users, to read Region data from DB.
-
-    Class to read all data written in the DB. Expected as output when performing a
-    generic REST request with an authenticated user.
-
-    Add the *uid* attribute, which is the item unique identifier in the database.
-
-    Attributes:
-    ----------
-        uid (uuid): AssociatedRegion unique ID.
-        description (str): Brief description.
-        name (str): Region name in the Provider.
-        overbooking_cpu (float): CPU overbooking factor.
-        overbooking_ram (float): RAM overbooking factor.
-        bandwidth_in (float): Bandwidth in.
-        bandwidth_out (float): Bandwidth out.
-    """
-
-
-RegionQuery = create_query_model("RegionQuery", RegionBase)
+    name: Annotated[
+        str | None, Field(default=None, description="Region name in the Provider.")
+    ]
+    overbooking_cpu: Annotated[
+        float | None, Field(default=None, description="CPU overbooking factor.")
+    ]
+    overbooking_ram: Annotated[
+        float | None, Field(default=None, description="RAM overbooking factor.")
+    ]
+    bandwidth_in: Annotated[
+        float | None, Field(default=None, description="Bandwidth in.")
+    ]
+    bandwidth_out: Annotated[
+        float | None, Field(default=None, description="Bandwidth out.")
+    ]
