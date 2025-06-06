@@ -1,101 +1,73 @@
 """Pydantic models of the User Group owned by an Identity Provider."""
 
-from pydantic import Field
+from typing import Annotated
 
-from fedreg.core import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
-    create_query_model,
-)
-from fedreg.user_group.constants import DOC_NAME
+from pydantic import AnyHttpUrl, BaseModel, Field
+
+from fedreg.core import BaseNode, BaseNodeRead
 
 
-class UserGroupBasePublic(BaseNode):
-    """Model with User Group public attributes.
+class UserGroupBase(BaseNode):
+    """Base schema for a user group in the Identity Provider.
 
     Attributes:
-    ----------
-        description (str): Brief description.
-        name (str): User Group name in the Identity Provider.
+        name (str): User group name in the Identity Provider.
     """
 
-    name: str = Field(description=DOC_NAME)
+    name: Annotated[str, Field(description="User group name in the Identity Provider.")]
 
 
-class UserGroupBase(UserGroupBasePublic):
-    """Model with User Group public and restricted attributes.
+class UserGroupCreate(UserGroupBase):
+    """Schema for creating a new user group.
 
-    Attributes:
-    ----------
-        description (str): Brief description.
-        name (str): User Group name in the Identity Provider.
+    Inherits all fields from UserGroupBase.
     """
 
 
-class UserGroupCreate(BaseNodeCreate, UserGroupBase):
-    """Model to create a User Group.
-
-    Class without id (which is populated by the database).
-    Expected as input when performing a POST request.
+class UserGroupLinks(BaseModel):
+    """Schema representing hyperlinks related to a user group.
 
     Attributes:
-    ----------
-        description (str): Brief description.
-        name (str): User Group name in the Identity Provider.
+        projects (AnyHttpUrl): Link to the user group's projects endpoint.
     """
 
+    projects: Annotated[
+        AnyHttpUrl, Field(description="Link to the user group's projects endpoint.")
+    ]
 
-class UserGroupUpdate(BaseNodeCreate, UserGroupBase):
-    """Model to update a User Group.
 
-    Class without id (which is populated by the database). Expected as input when
-    performing a PUT request.
+class UserGroupRead(BaseNodeRead, UserGroupBase):
+    """Represents a user group with associated project IDs and related hyperlinks.
 
-    Default to None attributes with a different default or required.
+    Inherits from:
+        BaseNodeRead: Base class for node read operations.
+        UserGroupBase: Base class for user group attributes.
 
     Attributes:
-    ----------
-        description (str | None): Brief description.
-        name (str | None): User Group name in the Identity Provider.
+        projects (list[str]): List of project IDs associated with the user group.
+        links (UserGroupLinks): Hyperlinks related to the user group.
     """
 
-    name: str | None = Field(default=None, description=DOC_NAME)
+    projects: Annotated[
+        list[str],
+        Field(
+            default_factory=list,
+            description="List of project IDs associated with the user group.",
+        ),
+    ]
+    links: Annotated[
+        UserGroupLinks, Field(description="Hyperlinks related to the user group.")
+    ]
 
 
-class UserGroupReadPublic(BaseNodeRead, BaseReadPublic, UserGroupBasePublic):
-    """Model, for non-authenticated users, to read UserGroup data from DB.
+class UserGroupQuery(BaseNode):
+    """Schema for querying user groups.
 
-    Class to read non-sensible data written in the DB. Expected as output when
-    performing a generic REST request without authentication.
-
-    Add the *uid* attribute, which is the item unique identifier in the database.
-
-    Attributes:
-    ----------
-        uid (str): UserGroup unique ID.
-        description (str): Brief description.
-        name (str): UserGroup name in the Provider.
-        uuid (str): UserGroup unique ID in the Provider
+    Inherits from BaseNode to include common node attributes.
+    This schema is used for filtering and retrieving user group data.
     """
 
-
-class UserGroupRead(BaseNodeRead, BaseReadPrivate, UserGroupBase):
-    """Model, for authenticated users, to read UserGroup data from DB.
-
-    Class to read all data written in the DB. Expected as output when performing a
-    generic REST request with an authenticated user.
-
-    Add the *uid* attribute, which is the item unique identifier in the database.
-
-    Attributes:
-    ----------
-        uid (int): User Group unique ID.
-        description (str): Brief description.
-        name (str): User Group name in the Identity Provider.
-    """
-
-
-UserGroupQuery = create_query_model("UserGroupQuery", UserGroupBase)
+    name: Annotated[
+        str | None,
+        Field(default=None, description="User group name in the Identity Provider."),
+    ]

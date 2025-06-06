@@ -9,11 +9,6 @@ from neomodel import (
     ZeroOrMore,
 )
 
-# from app.flavor.models import Flavor
-# from app.image.models import Image
-# from app.provider.models import Provider
-# from app.service.models import Service
-
 
 class UserGroup(StructuredNode):
     """User Group owned by an Identity Provider.
@@ -35,81 +30,11 @@ class UserGroup(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
 
-    slas = RelationshipTo("fedreg.sla.models.SLA", "AGREE", cardinality=ZeroOrMore)
+    projects = RelationshipTo(
+        "fedreg.project.models.Project", "HAS_ACCESS_TO", cardinality=ZeroOrMore
+    )
     identity_provider = RelationshipTo(
         "fedreg.identity_provider.models.IdentityProvider",
-        "BELONG_TO",
+        "BELONGS_TO",
         cardinality=One,
     )
-
-    def pre_delete(self):
-        """Remove related SLAs."""
-        for item in self.slas:
-            item.delete()
-
-    # TODO Evaluate if they are useful depending on the dashboard communication
-    # procedure.
-
-    # query_prefix = """
-    #     MATCH (g:UserGroup)
-    #     WHERE (elementId(g)=$self)
-    #     MATCH (g)-[:AGREE]-(s)-[:REFER_TO]->(p)
-    #     """
-
-    # def flavors(self) -> list[Flavor]:
-    #     results, _ = self.cypher(
-    #         f"""
-    #             {self.query_prefix}
-    #             MATCH (p)-[:CAN_USE_VM_FLAVOR]->(u)
-    #             RETURN u
-    #         """
-    #     )
-    #     return [Flavor.inflate(row[0]) for row in results]
-
-    # def images(self) -> list[Image]:
-    #     results, _ = self.cypher(
-    #         f"""
-    #             {self.query_prefix}
-    #             MATCH (p)-[:CAN_USE_VM_IMAGE]->(u)
-    #             RETURN u
-    #         """
-    #     )
-    #     return [Image.inflate(row[0]) for row in results]
-
-    # def providers(self) -> list[Provider]:
-    #     results, _ = self.cypher(
-    #         f"""
-    #             {self.query_prefix}
-    #             MATCH (p)<-[:BOOK_PROJECT_FOR_SLA]-(u)
-    #             RETURN u
-    #         """
-    #     )
-    #     return [Provider.inflate(row[0]) for row in results]
-
-    # def services(self, **kwargs) -> list[Service]:
-    #     if not kwargs:
-    #         filters = ""
-    #     else:
-    #         filters = []
-    #         for k in kwargs.keys():
-    #             if k.startswith("service_"):
-    #                 start_idx = len("service_")
-    #                 attr = k[start_idx:]
-    #                 filters.append(f"u.{attr} = ${k}")
-    #             elif k.startswith("quota_"):
-    #                 start_idx = len("quota_")
-    #                 attr = k[start_idx:]
-    #                 filters.append(f"q.{attr} = ${k}")
-    #         filters = ", ".join(filters)
-    #         filters = "WHERE " + filters
-
-    #     results, _ = self.cypher(
-    #         f"""
-    #             {self.query_prefix}
-    #             MATCH (p)-[:USE_SERVICE_WITH]->(q)-[:APPLY_TO]->(u)
-    #             {filters}
-    #             RETURN u
-    #         """,
-    #         kwargs,
-    #     )
-    #     return [Service.inflate(row[0]) for row in results]
