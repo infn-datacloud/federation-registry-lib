@@ -1,45 +1,13 @@
 """Pydantic models of the Virtual Machine Network owned by a Provider."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
-from fedreg.core import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
-    create_query_model,
-)
-from fedreg.network.constants import (
-    DOC_DEFAULT,
-    DOC_MTU,
-    DOC_NAME,
-    DOC_OUT_ROUTER,
-    DOC_PROXY_HOST,
-    DOC_PROXY_USER,
-    DOC_SHARED,
-    DOC_TAGS,
-    DOC_UUID,
-)
+from fedreg.core import BaseNode, BaseNodeRead
 
 
-class NetworkBasePublic(BaseNode):
-    """Model with Network public attributes.
-
-    Attributes:
-    ----------
-        description (str): Brief description.
-        name (str): Network name in the Provider.
-        uuid (str): Network unique ID in the Provider
-    """
-
-    name: str = Field(description=DOC_NAME)
-    uuid: str = Field(description=DOC_UUID)
-
-
-class NetworkBase(NetworkBasePublic):
+class NetworkBase(BaseNode):
     """Model with Network public and restricted attributes.
 
     Attributes:
@@ -56,15 +24,26 @@ class NetworkBase(NetworkBasePublic):
         tags (list of str): list of tags associated to this Network.
     """
 
-    is_router_external: bool = Field(default=False, description=DOC_OUT_ROUTER)
-    is_default: bool = Field(default=False, description=DOC_DEFAULT)
-    mtu: int | None = Field(default=None, gt=0, description=DOC_MTU)
-    proxy_host: str | None = Field(default=None, description=DOC_PROXY_HOST)
-    proxy_user: str | None = Field(default=None, description=DOC_PROXY_USER)
-    tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
+    name: Annotated[str, Field(description="Network name in the Resource Provider.")]
+    uuid: Annotated[
+        str, Field(description="Network unique ID in the Resource Provider.")
+    ]
+    mtu: Annotated[
+        int | None,
+        Field(default=None, gt=0, description="Metric transmission unit (B)."),
+    ]
+    tags: Annotated[
+        list[str],
+        Field(
+            default_factory=list, description="List of tags associated to this Network."
+        ),
+    ]
+    is_default: Annotated[
+        bool, Field(default=False, description="Network to use as default.")
+    ]
 
 
-class PrivateNetworkCreate(BaseNodeCreate, NetworkBase):
+class PrivateNetworkCreate(NetworkBase):
     """Model to create a Network.
 
     Class without id (which is populated by the database). Expected as input when
@@ -85,10 +64,26 @@ class PrivateNetworkCreate(BaseNodeCreate, NetworkBase):
         is_shared (bool): Public or private Network.
     """
 
-    is_shared: Literal[False] = Field(default=False, description=DOC_SHARED)
+    is_router_external: Annotated[
+        Literal[False],
+        Field(
+            default=False,
+            description="Network with access to outside networks. External/public net.",
+        ),
+    ]
+    proxy_host: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Proxy IP address or hostname. Accept port number.",
+        ),
+    ]
+    proxy_user: Annotated[
+        str | None, Field(default=None, description="Proxy username.")
+    ]
 
 
-class SharedNetworkCreate(BaseNodeCreate, NetworkBase):
+class PublicNetworkCreate(NetworkBase):
     """Model to create a Network.
 
     Class without id (which is populated by the database). Expected as input when
@@ -109,10 +104,59 @@ class SharedNetworkCreate(BaseNodeCreate, NetworkBase):
         is_shared (bool): Public or private Network.
     """
 
-    is_shared: Literal[True] = Field(default=True, description=DOC_SHARED)
+    is_router_external: Annotated[
+        Literal[True],
+        Field(
+            default=True,
+            description="Network with access to outside networks. External/public net.",
+        ),
+    ]
 
 
-class NetworkUpdate(BaseNodeCreate, NetworkBase):
+class NetworkRead(BaseNodeRead, NetworkBase):
+    """Model, for authenticated users, to read Network data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
+
+    Add the *id* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        id (int): Network unique ID.
+        description (str): Brief description.
+        name (str): Network name in the Provider.
+        uuid (str): Network unique ID in the Provider
+        is_router_external (bool): Network with access to outside networks. External
+            network.
+        is_default (bool): Network to use as default.
+        mtu (int | None): Metric transmission unit (B).
+        proxy_host (str | None): Proxy IP address.
+        proxy_user (str | None): Proxy username.
+        tags (list of str): list of tags associated to this Network.
+        is_shared (bool): Public or private Network.
+    """
+
+    is_router_external: Annotated[
+        bool,
+        Field(
+            default=False,
+            description="Network with access to outside networks. External/public net.",
+        ),
+    ]
+    proxy_host: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Proxy IP address or hostname. Accept port number.",
+        ),
+    ]
+    proxy_user: Annotated[
+        str | None, Field(default=None, description="Proxy username.")
+    ]
+
+
+class NetworkQuery(BaseModel):
     """Model to update a Network.
 
     Class without id (which is populated by the database). Expected as input when
@@ -134,52 +178,39 @@ class NetworkUpdate(BaseNodeCreate, NetworkBase):
         tags (list of str | None): list of tags associated to this Network.
     """
 
-    name: str | None = Field(default=None, description=DOC_NAME)
-    uuid: str | None = Field(default=None, description=DOC_UUID)
-
-
-class NetworkReadPublic(BaseNodeRead, BaseReadPublic, NetworkBasePublic):
-    """Model, for non-authenticated users, to read Network data from DB.
-
-    Class to read non-sensible data written in the DB. Expected as output when
-    performing a generic REST request without authentication.
-
-    Add the *uid* attribute, which is the item unique identifier in the database.
-
-    Attributes:
-    ----------
-        uid (str): Network unique ID.
-        description (str): Brief description.
-        name (str): Network name in the Provider.
-        uuid (str): Network unique ID in the Provider
-    """
-
-
-class NetworkRead(BaseNodeRead, BaseReadPrivate, NetworkBase):
-    """Model, for authenticated users, to read Network data from DB.
-
-    Class to read all data written in the DB. Expected as output when performing a
-    generic REST request with an authenticated user.
-
-    Add the *uid* attribute, which is the item unique identifier in the database.
-
-    Attributes:
-    ----------
-        uid (int): Network unique ID.
-        description (str): Brief description.
-        name (str): Network name in the Provider.
-        uuid (str): Network unique ID in the Provider
-        is_router_external (bool): Network with access to outside networks. External
-            network.
-        is_default (bool): Network to use as default.
-        mtu (int | None): Metric transmission unit (B).
-        proxy_host (str | None): Proxy IP address.
-        proxy_user (str | None): Proxy username.
-        tags (list of str): list of tags associated to this Network.
-        is_shared (bool): Public or private Network.
-    """
-
-    is_shared: bool | None = Field(default=None, description=DOC_SHARED)
-
-
-NetworkQuery = create_query_model("NetworkQuery", NetworkBase)
+    name: Annotated[
+        str | None,
+        Field(default=None, description="Network name in the Resource Provider."),
+    ]
+    uuid: Annotated[
+        str | None,
+        Field(default=None, description="Network unique ID in the Resource Provider."),
+    ]
+    mtu: Annotated[
+        int | None,
+        Field(default=None, gt=0, description="Metric transmission unit (B)."),
+    ]
+    tags: Annotated[
+        list[str] | None,
+        Field(default=None, description="List of tags associated to this Network."),
+    ]
+    is_router_external: Annotated[
+        bool | None,
+        Field(
+            default=None,
+            description="Network with access to outside networks. External/public net.",
+        ),
+    ]
+    proxy_host: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Proxy IP address or hostname. Accept port number.",
+        ),
+    ]
+    proxy_user: Annotated[
+        str | None, Field(default=None, description="Proxy username.")
+    ]
+    is_default: Annotated[
+        bool | None, Field(default=None, description="Network to use as default.")
+    ]

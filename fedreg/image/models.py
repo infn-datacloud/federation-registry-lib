@@ -24,7 +24,7 @@ class Image(StructuredNode):
 
     Attributes:
     ----------
-        uid (int): Image unique ID.
+        id (int): Image unique ID.
         description (str): Brief description.
         name (str): Image name in the Provider.
         uuid (str): Image unique ID in the Provider
@@ -39,7 +39,7 @@ class Image(StructuredNode):
         tags (list of str): list of tags associated to this Image.
     """
 
-    uid = UniqueIdProperty()
+    id = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
@@ -58,62 +58,8 @@ class Image(StructuredNode):
         "AVAILABLE_VM_IMAGE",
         cardinality=OneOrMore,
     )
-
-
-class PrivateImage(Image):
-    """Virtual Machine Image owned by a Provider.
-
-    A Private Image can be used by one or multiple projects. At least one project must
-    point to this item.
-
-    Attributes:
-    ----------
-        uid (int): Image unique ID.
-        description (str): Brief description.
-        name (str): Image name in the Provider.
-        uuid (str): Image unique ID in the Provider
-        os_type (str | None): OS type.
-        os_distro (str | None): OS distribution.
-        os_version (str | None): Distribution version.
-        architecture (str | None): OS architecture.
-        kernel_id (str | None): Kernel version.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs drivers enabled.
-        created_at (datetime | None): Creation time.
-        tags (list of str): list of tags associated to this Image.
-        is_shared (bool): Public or private Image.
-    """
-
-    is_shared = BooleanProperty(default=False)
-
     projects = RelationshipFrom(
         "fedreg.project.models.Project",
         "CAN_USE_VM_IMAGE",
         cardinality=OneOrMore,
     )
-
-
-class SharedImage(Image):
-    """Virtual Machine Image owned by a Provider.
-
-    All projects have access to public images.
-
-    Attributes:
-    ----------
-        uid (int): Image unique ID.
-        description (str): Brief description.
-        name (str): Image name in the Provider.
-        uuid (str): Image unique ID in the Provider
-        os_type (str | None): OS type.
-        os_distro (str | None): OS distribution.
-        os_version (str | None): Distribution version.
-        architecture (str | None): OS architecture.
-        kernel_id (str | None): Kernel version.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs drivers.
-        created_at (datetime | None): Creation time.
-        tags (list of str): list of tags associated to this Image.
-        is_shared (bool): Public or private Image.
-    """
-
-    is_shared = BooleanProperty(default=True)

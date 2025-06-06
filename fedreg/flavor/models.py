@@ -24,7 +24,7 @@ class Flavor(StructuredNode):
 
     Attributes:
     ----------
-        uid (str): Flavor unique ID.
+        id (str): Flavor unique ID.
         description (str): Brief description.
         name (str): Flavor name in the Resource Provider.
         uuid (str): Flavor unique ID in the Resource Provider.
@@ -40,7 +40,7 @@ class Flavor(StructuredNode):
         local_storage (str | None): Local storage presence.
     """
 
-    uid = UniqueIdProperty()
+    id = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
@@ -60,64 +60,8 @@ class Flavor(StructuredNode):
         "AVAILABLE_VM_FLAVOR",
         cardinality=One,
     )
-
-
-class PrivateFlavor(Flavor):
-    """Virtual Machine Flavor owned by a Provider.
-
-    A Private Flavor can be used by one or multiple projects. At least one project must
-    point to this item.
-
-    Attributes:
-    ----------
-        uid (str): Flavor unique ID.
-        description (str): Brief description.
-        name (str): Flavor name in the Resource Provider.
-        uuid (str): Flavor unique ID in the Resource Provider.
-        disk (int): Reserved disk size (GiB)
-        is_shared (bool): Public or private Flavor.
-        ram (int): Reserved RAM (MiB)
-        vcpus (int): Number of Virtual CPUs.
-        swap (int): Swap size (GiB).
-        ephemeral (int): Ephemeral disk size (GiB).
-        infiniband (bool): MPI - parallel multi-process enabled.
-        gpus (int): Number of GPUs.
-        gpu_model (str | None): GPU model name.
-        gpu_vendor (str | None): Name of the GPU vendor.
-        local_storage (str | None): Local storage presence.
-    """
-
-    is_shared = BooleanProperty(default=False)
-
     projects = RelationshipFrom(
         "fedreg.project.models.Project",
         "CAN_USE_VM_FLAVOR",
         cardinality=OneOrMore,
     )
-
-
-class SharedFlavor(Flavor):
-    """Virtual Machine Flavor owned by a Provider.
-
-    All projects have access to public flavors.
-
-    Attributes:
-    ----------
-        uid (str): Flavor unique ID.
-        description (str): Brief description.
-        name (str): Flavor name in the Resource Provider.
-        uuid (str): Flavor unique ID in the Resource Provider.
-        disk (int): Reserved disk size (GiB)
-        is_shared (bool): Public or private Flavor.
-        ram (int): Reserved RAM (MiB)
-        vcpus (int): Number of Virtual CPUs.
-        swap (int): Swap size (GiB).
-        ephemeral (int): Ephemeral disk size (GiB).
-        infiniband (bool): MPI - parallel multi-process enabled.
-        gpus (int): Number of GPUs.
-        gpu_model (str | None): GPU model name.
-        gpu_vendor (str | None): Name of the GPU vendor.
-        local_storage (str | None): Local storage presence.
-    """
-
-    is_shared = BooleanProperty(default=True)

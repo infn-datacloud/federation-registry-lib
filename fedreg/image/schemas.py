@@ -1,50 +1,15 @@
 """Pydantic models of the Virtual Machine Image owned by a Provider."""
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
-from fedreg.core import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
-    create_query_model,
-)
-from fedreg.image.constants import (
-    DOC_ARCH,
-    DOC_CREATED_AT,
-    DOC_CUDA,
-    DOC_GPU_DRIV,
-    DOC_KERN,
-    DOC_NAME,
-    DOC_OS_DISTR,
-    DOC_OS_TYPE,
-    DOC_OS_VERS,
-    DOC_SHARED,
-    DOC_TAGS,
-    DOC_UUID,
-)
+from fedreg.core import BaseNode, BaseNodeRead
 from fedreg.image.enum import ImageOS
 
 
-class ImageBasePublic(BaseNode):
-    """Model with Image public attributes.
-
-    Attributes:
-    ----------
-        description (str): Brief description.
-        name (str): Image name in the Provider.
-        uuid (str): Image unique ID in the Provider
-    """
-
-    name: str = Field(description=DOC_NAME)
-    uuid: str = Field(description=DOC_UUID)
-
-
-class ImageBase(ImageBasePublic):
+class ImageBase(BaseNode):
     """Model with Image public and restricted attributes.
 
     Attributes:
@@ -63,18 +28,37 @@ class ImageBase(ImageBasePublic):
         tags (list of str): list of tags associated to this Image.
     """
 
-    os_type: ImageOS | None = Field(default=None, description=DOC_OS_TYPE)
-    os_distro: str | None = Field(default=None, description=DOC_OS_DISTR)
-    os_version: str | None = Field(default=None, description=DOC_OS_VERS)
-    architecture: str | None = Field(default=None, description=DOC_ARCH)
-    kernel_id: str | None = Field(default=None, description=DOC_KERN)
-    cuda_support: bool = Field(default=False, description=DOC_CUDA)
-    gpu_driver: bool = Field(default=False, description=DOC_GPU_DRIV)
-    created_at: datetime | None = Field(default=None, description=DOC_CREATED_AT)
-    tags: list[str] = Field(default_factory=list, description=DOC_TAGS)
+    name: Annotated[str, Field(description="Image name in the Resource Provider.")]
+    uuid: Annotated[str, Field(description="Image unique ID in the Resource Provider.")]
+    os_type: Annotated[ImageOS | None, Field(default=None, description="OS type.")]
+    os_distro: Annotated[
+        str | None, Field(default=None, description="OS distribution.")
+    ]
+    os_version: Annotated[
+        str | None, Field(default=None, description="Distribution version.")
+    ]
+    architecture: Annotated[
+        str | None, Field(default=None, description="OS architecture.")
+    ]
+    kernel_id: Annotated[str | None, Field(default=None, description="Kernel version.")]
+    cuda_support: Annotated[
+        bool, Field(default=False, description="Support for cuda enabled.")
+    ]
+    gpu_driver: Annotated[
+        bool, Field(default=False, description="Support for GPUs drivers enabled.")
+    ]
+    created_at: Annotated[
+        datetime | None, Field(default=None, description="Creation time")
+    ]
+    tags: Annotated[
+        list[str],
+        Field(
+            default_factory=list, description="List of tags associated to this Image."
+        ),
+    ]
 
 
-class PrivateImageCreate(BaseNodeCreate, ImageBase):
+class ImageCreate(ImageBase):
     """Model to create an Image.
 
     Class without id (which is populated by the database). Expected as input when
@@ -97,17 +81,18 @@ class PrivateImageCreate(BaseNodeCreate, ImageBase):
         is_shared (bool): Public or private Image.
     """
 
-    is_shared: Literal[False] = Field(default=False, description=DOC_SHARED)
 
+class ImageRead(BaseNodeRead, ImageBase):
+    """Model, for authenticated users, to read Image data from DB.
 
-class SharedImageCreate(BaseNodeCreate, ImageBase):
-    """Model to create an Image.
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
 
-    Class without id (which is populated by the database). Expected as input when
-    performing a POST request.
+    Add the *id* attribute, which is the item unique identifier in the database.
 
     Attributes:
     ----------
+        id (int): Image unique ID.
         description (str): Brief description.
         name (str): Image name in the Provider.
         uuid (str): Image unique ID in the Provider
@@ -118,15 +103,14 @@ class SharedImageCreate(BaseNodeCreate, ImageBase):
         kernel_id (str | None): Kernel version.
         cuda_support (str): Support for cuda enabled.
         gpu_driver (str): Support for GPUs drivers enabled.
+        is_public (bool): Public or private Image.
         created_at (datetime | None): Creation time.
         tags (list of str): list of tags associated to this Image.
         is_shared (bool): Public or private Image.
     """
 
-    is_shared: Literal[True] = Field(default=True, description=DOC_SHARED)
 
-
-class ImageUpdate(BaseNodeCreate, ImageBase):
+class ImageQuery(BaseModel):
     """Model to update an Image.
 
     Class without id (which is populated by the database). Expected as input when
@@ -150,55 +134,36 @@ class ImageUpdate(BaseNodeCreate, ImageBase):
         tags (list of str | None): list of tags associated to this Image.
     """
 
-    name: str | None = Field(default=None, description=DOC_NAME)
-    uuid: str | None = Field(default=None, description=DOC_UUID)
-
-
-class ImageReadPublic(BaseNodeRead, BaseReadPublic, ImageBasePublic):
-    """Model, for non-authenticated users, to read Image data from DB.
-
-    Class to read non-sensible data written in the DB. Expected as output when
-    performing a generic REST request without authentication.
-
-    Add the *uid* attribute, which is the item unique identifier in the database.
-
-    Attributes:
-    ----------
-        uid (str): Image unique ID.
-        description (str): Brief description.
-        name (str): Image name in the Provider.
-        uuid (str): Image unique ID in the Provider
-    """
-
-
-class ImageRead(BaseNodeRead, BaseReadPrivate, ImageBase):
-    """Model, for authenticated users, to read Image data from DB.
-
-    Class to read all data written in the DB. Expected as output when performing a
-    generic REST request with an authenticated user.
-
-    Add the *uid* attribute, which is the item unique identifier in the database.
-
-    Attributes:
-    ----------
-        uid (int): Image unique ID.
-        description (str): Brief description.
-        name (str): Image name in the Provider.
-        uuid (str): Image unique ID in the Provider
-        os_type (str | None): OS type.
-        os_distro (str | None): OS distribution.
-        os_version (str | None): Distribution version.
-        architecture (str | None): OS architecture.
-        kernel_id (str | None): Kernel version.
-        cuda_support (str): Support for cuda enabled.
-        gpu_driver (str): Support for GPUs drivers enabled.
-        is_public (bool): Public or private Image.
-        created_at (datetime | None): Creation time.
-        tags (list of str): list of tags associated to this Image.
-        is_shared (bool): Public or private Image.
-    """
-
-    is_shared: bool | None = Field(default=None, description=DOC_SHARED)
-
-
-ImageQuery = create_query_model("ImageQuery", ImageBase)
+    name: Annotated[
+        str | None,
+        Field(default=None, description="Image name in the Resource Provider."),
+    ]
+    uuid: Annotated[
+        str | None,
+        Field(default=None, description="Image unique ID in the Resource Provider."),
+    ]
+    os_type: Annotated[str | None, Field(default=None, description="OS type.")]
+    os_distro: Annotated[
+        str | None, Field(default=None, description="OS distribution.")
+    ]
+    os_version: Annotated[
+        str | None, Field(default=None, description="Distribution version.")
+    ]
+    architecture: Annotated[
+        str | None, Field(default=None, description="OS architecture.")
+    ]
+    kernel_id: Annotated[str | None, Field(default=None, description="Kernel version.")]
+    cuda_support: Annotated[
+        bool | None, Field(default=None, description="Support for cuda enabled.")
+    ]
+    gpu_driver: Annotated[
+        bool | None,
+        Field(default=None, description="Support for GPUs drivers enabled."),
+    ]
+    created_at: Annotated[
+        datetime | None, Field(default=None, description="Creation time")
+    ]
+    tags: Annotated[
+        list[str] | None,
+        Field(default=None, description="List of tags associated to this Image."),
+    ]
