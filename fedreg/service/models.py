@@ -34,7 +34,9 @@ class Service(StructuredNode):
     name = StringProperty(required=True)
     type = StringProperty(required=True)
 
-    region = RelationshipFrom("fedreg.region.models.Region", "SUPPLY", cardinality=One)
+    region = RelationshipFrom(
+        "fedreg.region.models.Region", "SUPPLIES", cardinality=One
+    )
 
 
 class BlockStorageService(Service):
@@ -55,7 +57,7 @@ class BlockStorageService(Service):
     type = StringProperty(default=ServiceType.BLOCK_STORAGE.value)
 
     quotas = RelationshipFrom(
-        "fedreg.quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "fedreg.quota.models.BlockStorageQuota", "APPLIES_TO", cardinality=ZeroOrMore
     )
 
     def pre_delete(self):
@@ -92,7 +94,7 @@ class ComputeService(Service):
         cardinality=ZeroOrMore,
     )
     quotas = RelationshipFrom(
-        "fedreg.quota.models.ComputeQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "fedreg.quota.models.ComputeQuota", "APPLIES_TO", cardinality=ZeroOrMore
     )
 
     def pre_delete(self):
@@ -107,21 +109,6 @@ class ComputeService(Service):
         for item in self.images:
             if len(item.services) == 1:
                 item.delete()
-
-
-class IdentityService(Service):
-    """Service managing user access to the Provider.
-
-    Attributes:
-    ----------
-        uid (int): Service unique ID.
-        description (str): Brief description.
-        endpoint (str): URL of the IaaS Service.
-        type (str): Service type.
-        name (str): Service name.
-    """
-
-    type = StringProperty(default=ServiceType.IDENTITY.value)
 
 
 class NetworkService(Service):
@@ -146,7 +133,7 @@ class NetworkService(Service):
         cardinality=ZeroOrMore,
     )
     quotas = RelationshipFrom(
-        "fedreg.quota.models.NetworkQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "fedreg.quota.models.NetworkQuota", "APPLIES_TO", cardinality=ZeroOrMore
     )
 
     def pre_delete(self):
@@ -175,7 +162,7 @@ class ObjectStoreService(Service):
     type = StringProperty(default=ServiceType.OBJECT_STORE.value)
 
     quotas = RelationshipFrom(
-        "fedreg.quota.models.ObjectStoreQuota", "APPLY_TO", cardinality=ZeroOrMore
+        "fedreg.quota.models.ObjectStoreQuota", "APPLIES_TO", cardinality=ZeroOrMore
     )
 
     def pre_delete(self):
