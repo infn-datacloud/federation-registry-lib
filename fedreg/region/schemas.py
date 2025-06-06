@@ -71,7 +71,6 @@ class RegionRead(BaseNodeRead, RegionBase):
     links: Annotated[
         RegionLinks,
         Field(
-            default_factory=RegionLinks,
             description="Links to the Region resources.",
         ),
     ]

@@ -21,14 +21,14 @@ class IdentityProvider(StructuredNode):
 
     Attributes:
     ----------
-        uid (int): Identity Provider unique ID.
+        id (int): Identity Provider unique ID.
         description (str): Brief description.
         endpoint (str): URL of the Identity Provider.
         group_claim (str): value of the key from which retrieve
             the user group name from an authentication token.
     """
 
-    uid = UniqueIdProperty()
+    id = UniqueIdProperty()
     description = StringProperty(default="")
     endpoint = StringProperty(unique_index=True, required=True)
     group_claim = StringProperty(required=True)

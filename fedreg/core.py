@@ -69,7 +69,7 @@ class BaseNodeRead(BaseModel):
     """Common attributes and validators when reading nodes from the DB.
 
     Use ORM mode to read data from DB models.
-    Add the uid attribute.
+    Add the id attribute.
     Convert Neo4j datetime objects into python
     datetime ones.
     When dealing with relationships retrieve all connected items and show
@@ -79,7 +79,7 @@ class BaseNodeRead(BaseModel):
 
     Attributes:
     ----------
-        uid (str): Database item's unique identifier.
+        id (str): Database item's unique identifier.
     """
 
     id: Annotated[str, Field(description="Database item's unique identifier.")]

@@ -21,14 +21,14 @@ class Service(StructuredNode):
 
     Attributes:
     ----------
-        uid (int): Service unique ID.
+        id (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
         name (str): Service name.
     """
 
-    uid = UniqueIdProperty()
+    id = UniqueIdProperty()
     description = StringProperty(default="")
     endpoint = StringProperty(required=True)
     name = StringProperty(required=True)
@@ -47,7 +47,7 @@ class BlockStorageService(Service):
 
     Attributes:
     ----------
-        uid (int): Service unique ID.
+        id (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
@@ -74,7 +74,7 @@ class ComputeService(Service):
 
     Attributes:
     ----------
-        uid (int): Service unique ID.
+        id (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
@@ -118,14 +118,14 @@ class NetworkService(Service):
 
     Attributes:
     ----------
-        uid (int): Service unique ID.
+        id (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
         name (str): Service name.
     """
 
-    type = StringProperty(default=ServiceType.NETWORK.value)
+    type = StringProperty(default=ServiceType.NETWORKING.value)
 
     networks = RelationshipTo(
         "fedreg.network.models.Network",
@@ -152,7 +152,7 @@ class ObjectStoreService(Service):
 
     Attributes:
     ----------
-        uid (int): Service unique ID.
+        id (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.

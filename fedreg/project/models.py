@@ -48,7 +48,12 @@ class Project(StructuredNode):
     )
     quotas = RelationshipTo(
         "fedreg.quota.models.Quota",
-        "USES_SERVICE_WITH",
+        "HAS_USAGE_LIMITS",
+        cardinality=ZeroOrMore,
+    )
+    usage = RelationshipTo(
+        "fedreg.quota.models.Usage",
+        "CURRENT_USAGE",
         cardinality=ZeroOrMore,
     )
     flavors = RelationshipTo(
@@ -73,4 +78,6 @@ class Project(StructuredNode):
         Remove the SLA only if that SLA points only to this project.
         """
         for item in self.quotas:
+            item.delete()
+        for item in self.usage:
             item.delete()

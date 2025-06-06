@@ -73,8 +73,8 @@ class ComputeQuotaCreate(QuotaBase):
 
 class NetworkQuotaCreate(QuotaBase):
     type: Annotated[
-        Literal[ServiceType.NETWORK],
-        Field(default=ServiceType.NETWORK, description="Network type"),
+        Literal[ServiceType.NETWORKING],
+        Field(default=ServiceType.NETWORKING, description="Network type"),
     ]
     public_ips: Annotated[
         int | None,

@@ -119,7 +119,7 @@ class NetworkingQuota(Quota):
             for each project.
     """
 
-    type = StringProperty(default=ServiceType.NETWORK.value)
+    type = StringProperty(default=ServiceType.NETWORKING.value)
     public_ips = IntegerProperty()
     networks = IntegerProperty()
     ports = IntegerProperty()

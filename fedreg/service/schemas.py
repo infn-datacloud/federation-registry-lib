@@ -89,8 +89,8 @@ class NetworkServiceCreate(ServiceBase):
     """
 
     type: Annotated[
-        Literal[ServiceType.NETWORK],
-        Field(default=ServiceType.NETWORK, description="Network service type."),
+        Literal[ServiceType.NETWORKING],
+        Field(default=ServiceType.NETWORKING, description="Network service type."),
     ]
     name: Annotated[
         NetworkServiceName, Field(description="Service name/sub-kind. Depends on type.")

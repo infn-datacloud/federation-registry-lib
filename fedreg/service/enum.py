@@ -39,5 +39,5 @@ class ServiceType(str, Enum):
 
     BLOCK_STORAGE: str = "block-storage"
     COMPUTE: str = "compute"
-    NETWORK: str = "network"
+    NETWORKING: str = "networking"
     OBJECT_STORE: str = "object-store"
