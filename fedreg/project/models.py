@@ -11,12 +11,6 @@ from neomodel import (
     ZeroOrOne,
 )
 
-from fedreg.flavor.models import SharedFlavor
-from fedreg.image.models import SharedImage
-from fedreg.network.models import SharedNetwork
-from fedreg.service.enum import ServiceType
-from fedreg.sla.models import SLA
-
 
 class Project(StructuredNode):
     """Project owned by a Provider.
@@ -31,101 +25,47 @@ class Project(StructuredNode):
 
     Attributes:
     ----------
-        uid (uuid): AssociatedProject unique ID.
+        id (uuid): AssociatedProject unique ID.
         description (str): Brief description.
         name (str): Name of the project in the Provider.
         uuid (uuid): Project Unique ID in the Provider.
     """
 
-    uid = UniqueIdProperty()
+    id = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
 
-    sla = RelationshipFrom(
-        "fedreg.sla.models.SLA",
-        "REFER_TO",
+    provider = RelationshipFrom(
+        "fedreg.provider.models.Provider",
+        "BOOKS_PROJECT",
+        cardinality=One,
+    )
+    user_group = RelationshipFrom(
+        "fedreg.user_group.models.UserGroup",
+        "HAS_ACCESS_TO",
         cardinality=ZeroOrOne,
     )
     quotas = RelationshipTo(
         "fedreg.quota.models.Quota",
-        "USE_SERVICE_WITH",
+        "USES_SERVICE_WITH",
         cardinality=ZeroOrMore,
     )
-    provider = RelationshipFrom(
-        "fedreg.provider.models.Provider",
-        "BOOK_PROJECT_FOR_SLA",
-        cardinality=One,
-    )
-    private_flavors = RelationshipTo(
-        "fedreg.flavor.models.PrivateFlavor",
+    flavors = RelationshipTo(
+        "fedreg.flavor.models.Flavor",
         "CAN_USE_VM_FLAVOR",
         cardinality=ZeroOrMore,
     )
-    private_images = RelationshipTo(
-        "fedreg.image.models.PrivateImage",
+    images = RelationshipTo(
+        "fedreg.image.models.Image",
         "CAN_USE_VM_IMAGE",
         cardinality=ZeroOrMore,
     )
-    private_networks = RelationshipTo(
-        "fedreg.network.models.PrivateNetwork",
+    networks = RelationshipTo(
+        "fedreg.network.models.Network",
         "CAN_USE_NETWORK",
         cardinality=ZeroOrMore,
     )
-
-    query_prefix = """
-        MATCH (p:Project)
-        WHERE (elementId(p)=$self)
-        MATCH (p)-[:`USE_SERVICE_WITH`]-(q)
-        """
-
-    def shared_flavors(self) -> list[SharedFlavor]:
-        """list shared flavors this project can access.
-
-        Make a cypher query to retrieve all shared flavors this project can access.
-        """
-        results, _ = self.cypher(
-            f"""
-                {self.query_prefix}
-                WHERE q.type = "{ServiceType.COMPUTE.value}"
-                MATCH (q)-[:`APPLY_TO`]-(s)
-                MATCH (s)-[:`AVAILABLE_VM_FLAVOR`]->(u:SharedFlavor)
-                RETURN u
-            """
-        )
-        return [SharedFlavor.inflate(row[0]) for row in results]
-
-    def shared_images(self) -> list[SharedImage]:
-        """list shared images this project can access.
-
-        Make a cypher query to retrieve all shared images this project can access.
-        """
-        results, _ = self.cypher(
-            f"""
-                {self.query_prefix}
-                WHERE q.type = "{ServiceType.COMPUTE.value}"
-                MATCH (q)-[:`APPLY_TO`]-(s)
-                MATCH (s)-[:`AVAILABLE_VM_IMAGE`]->(u:SharedImage)
-                RETURN u
-            """
-        )
-        return [SharedImage.inflate(row[0]) for row in results]
-
-    def shared_networks(self) -> list[SharedNetwork]:
-        """list shared networks this project can access.
-
-        Make a cypher query to retrieve all shared networks this project can access.
-        """
-        results, _ = self.cypher(
-            f"""
-                {self.query_prefix}
-                WHERE q.type = "{ServiceType.NETWORK.value}"
-                MATCH (q)-[:`APPLY_TO`]-(s)
-                MATCH (s)-[:`AVAILABLE_NETWORK`]->(u:SharedNetwork)
-                RETURN u
-            """
-        )
-        return [SharedNetwork.inflate(row[0]) for row in results]
 
     def pre_delete(self):
         """Remove related quotas and SLA.
@@ -133,7 +73,4 @@ class Project(StructuredNode):
         Remove the SLA only if that SLA points only to this project.
         """
         for item in self.quotas:
-            item.delete()
-        item: SLA = self.sla.single()
-        if item and len(item.projects) == 1:
             item.delete()
