@@ -35,13 +35,13 @@ class IdentityProvider(StructuredNode):
 
     providers = RelationshipFrom(
         "fedreg.provider.models.Provider",
-        "ALLOW_AUTH_THROUGH",
+        "ALLOWS_AUTH_THROUGH",
         cardinality=ZeroOrMore,
         model=AuthMethod,
     )
     user_groups = RelationshipFrom(
         "fedreg.user_group.models.UserGroup",
-        "BELONG_TO",
+        "BELONGS_TO",
         cardinality=ZeroOrMore,
     )
 

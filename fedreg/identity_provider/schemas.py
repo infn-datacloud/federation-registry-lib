@@ -1,115 +1,112 @@
 """Pydantic models of the Identity Provider."""
 
-from pydantic import AnyHttpUrl, Field
+from typing import Annotated
 
-from fedreg.core import (
-    BaseNode,
-    BaseNodeCreate,
-    BaseNodeRead,
-    BaseReadPrivate,
-    BaseReadPublic,
-    create_query_model,
-)
-from fedreg.identity_provider.constants import DOC_CLAIM, DOC_ENDP
+from pydantic import AnyHttpUrl, BaseModel, Field
+
+from fedreg.core import BaseNode, BaseNodeRead
 
 
-class IdentityProviderBasePublic(BaseNode):
-    """Model with Identity Provider public attributes.
+class IdentityProviderBase(BaseNode):
+    """Base schema for an Identity Provider node.
 
     Attributes:
-    ----------
-        description (str): Brief description.
-        endpoint (str): URL of the Identity Provider.
+        endpoint (AnyHttpUrl): Issuer URL as defined in the introspection endpoint.
+        group_claim (str): Value of the key from which to retrieve the user group name
+            from an authentication token.
     """
 
-    endpoint: AnyHttpUrl = Field(description=DOC_ENDP)
+    endpoint: Annotated[
+        AnyHttpUrl,
+        Field(description="Issuer URL as defined in the introspection endpoint."),
+    ]
+    group_claim: Annotated[
+        str,
+        Field(
+            description="Value of the key from which retrieve the user group name from "
+            "an authentication token."
+        ),
+    ]
 
 
-class IdentityProviderBase(IdentityProviderBasePublic):
-    """Model with Identity Provider public and restricted attributes.
+class IdentityProviderCreate(IdentityProviderBase):
+    """Schema for creating a new Identity Provider.
 
-    Attributes:
-    ----------
-        description (str): Brief description.
-        endpoint (str): URL of the Identity Provider.
-        group_claim (str): Value of the key from which retrieve the user group name from
-            an authentication token.
-    """
+    Inherits from:
+        IdentityProviderBase: Base schema with common fields for Identity Providers.
 
-    group_claim: str = Field(description=DOC_CLAIM)
-
-
-class IdentityProviderCreate(BaseNodeCreate, IdentityProviderBase):
-    """Model to create an Identity Provider.
-
-    Class without id (which is populated by the database). Expected as input when
-    performing a POST request.
-
-    Attributes:
-    ----------
-        description (str): Brief description.
-        endpoint (str): URL of the Identity Provider.
-        group_claim (str): Value of the key from which retrieve the user group name from
-            an authentication token.
+    Use this schema to validate and serialize data when creating a new Identity Provider
+    instance.
     """
 
 
-class IdentityProviderUpdate(BaseNodeCreate, IdentityProviderBase):
-    """Model to update an Identity Provider.
-
-    Class without id (which is populated by the database). Expected as input when
-    performing a PUT request.
-
-    Default to None attributes with a different default or required.
+class IdentityProviderLinks(BaseModel):
+    """
+    Schema representing the links related to an Identity Provider.
 
     Attributes:
-    ----------
-        description (str | None): Brief description.
-        endpoint (str | None): URL of the Identity Provider.
-        group_claim (str): Value of the key from which retrieve the user group name from
-            an authentication token.
+        user_groups (AnyHttpUrl): Link to the Identity Provider's user groups endpoint.
     """
 
-    endpoint: AnyHttpUrl | None = Field(default=None, description=DOC_ENDP)
-    group_claim: str | None = Field(default=None, description=DOC_CLAIM)
+    user_groups: Annotated[
+        AnyHttpUrl,
+        Field(description="Link to the Identity Provider's user groups endpoint."),
+    ]
 
 
-class IdentityProviderReadPublic(
-    BaseNodeRead, BaseReadPublic, IdentityProviderBasePublic
-):
-    """Model, for non-authenticated users, to read IdentityProvider data from DB.
+class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
+    """Represents a read-only view of an Identity Provider
 
-    Class to read non-sensible data written in the DB. Expected as output when
-    performing a generic REST request without authentication.
+    Includes its associated user groups and relevant links.
 
-    Add the *uid* attribute, which is the item unique identifier in the database.
+    Inherits from:
+        BaseNodeRead: Base class for node read operations.
+        IdentityProviderBase: Base schema for Identity Provider attributes.
 
     Attributes:
-    ----------
-        uid (int): Identity Provider unique ID.
-        description (str): Brief description.
-        endpoint (str): URL of the Identity Provider.
+        user_groups (list[str]): List of user group IDs belonging to the Identity
+            Provider.
+        links (IdentityProviderLinks): Dictionary with links to the IdP's user groups
+            endpoint.
     """
 
+    user_groups: Annotated[
+        list[str],
+        Field(
+            default_factory=list,
+            description="List of user group IDs belonging to the Identity Provider.",
+        ),
+    ]
+    links: Annotated[
+        IdentityProviderLinks,
+        Field(description="Dictionary with links to the IdP's user groups endpoint."),
+    ]
 
-class IdentityProviderRead(BaseNodeRead, BaseReadPrivate, IdentityProviderBase):
-    """Model, for authenticated users, to read IdentityProvider data from DB.
 
-    Class to read all data written in the DB. Expected as output when performing a
-    generic REST request with an authenticated user.
+class IdentityProviderQuery(BaseNode):
+    """Schema for querying identity providers.
 
-    Add the *uid* attribute, which is the item unique identifier in the database.
+    Overrides the endpoint field to be a simple string.
+
+    Inherits from:
+        IdentityProviderBase: Provides common fields for Identity Providers.
 
     Attributes:
-    ----------
-        uid (int): Identity Provider unique ID.
-        description (str): Brief description.
-        endpoint (str): URL of the Identity Provider.
-        group_claim (str): Value of the key from which retrieve the user group name from
-            an authentication token.
+        endpoint (str): Issuer URL as defined in the introspection endpoint.
     """
 
-
-IdentityProviderQuery = create_query_model(
-    "IdentityProviderQuery", IdentityProviderBase
-)
+    endpoint: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Issuer URL as defined in the introspection endpoint.",
+        ),
+    ]
+    group_claim: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Value of the key from which retrieve the user group name from "
+            "an authentication token.",
+        ),
+    ]
