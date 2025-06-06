@@ -2,9 +2,9 @@
 
 from typing import Annotated, Literal
 
-from pydantic import AnyHttpUrl, BaseModel, Field
+from pydantic import AnyHttpUrl, Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 from fedreg.service.enum import (
     BlockStorageServiceName,
     ComputeServiceName,
@@ -146,8 +146,8 @@ class ServiceRead(BaseNodeRead, ServiceBase):
     ]
 
 
-class ServiceQuery(BaseModel):
-    """ServiceQuery model for querying IaaS services.
+class ServiceQuery(PaginationQuery):
+    """Model for querying IaaS services.
 
     Attributes:
         endpoint (str | None): URL of the IaaS Service.

@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 
 
 class ProjectBase(BaseNode):
@@ -87,7 +87,7 @@ class ProjectRead(BaseNodeRead, ProjectBase):
     links: Annotated[ProjectLinks, Field(description="Links to the Project resources.")]
 
 
-class ProjectQuery(BaseModel):
+class ProjectQuery(PaginationQuery):
     """Model to update a Project.
 
     Class without id (which is populated by the database). Expected as input when

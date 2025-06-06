@@ -2,9 +2,9 @@
 
 from typing import Annotated, Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import Field, validator
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 
 
 class FlavorBase(BaseNode):
@@ -119,7 +119,7 @@ class FlavorRead(BaseNodeRead, FlavorBase):
     """
 
 
-class FlavorQuery(BaseModel):
+class FlavorQuery(PaginationQuery):
     """Model to update a Flavor.
 
     Class without id (which is populated by the database). Expected as input when

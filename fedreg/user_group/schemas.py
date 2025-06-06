@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 
 
 class UserGroupBase(BaseNode):
@@ -60,7 +60,7 @@ class UserGroupRead(BaseNodeRead, UserGroupBase):
     ]
 
 
-class UserGroupQuery(BaseNode):
+class UserGroupQuery(PaginationQuery):
     """Schema for querying user groups.
 
     Inherits from BaseNode to include common node attributes.

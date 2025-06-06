@@ -11,6 +11,8 @@ from neomodel import (
     ZeroOrOne,
 )
 
+from fedreg.network.models import IsDefault
+
 
 class Project(StructuredNode):
     """Project owned by a Provider.
@@ -70,6 +72,7 @@ class Project(StructuredNode):
         "fedreg.network.models.Network",
         "CAN_USE_NETWORK",
         cardinality=ZeroOrMore,
+        model=IsDefault,
     )
 
     def pre_delete(self):

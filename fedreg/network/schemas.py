@@ -2,9 +2,9 @@
 
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 
 
 class NetworkBase(BaseNode):
@@ -156,7 +156,7 @@ class NetworkRead(BaseNodeRead, NetworkBase):
     ]
 
 
-class NetworkQuery(BaseModel):
+class NetworkQuery(PaginationQuery):
     """Model to update a Network.
 
     Class without id (which is populated by the database). Expected as input when

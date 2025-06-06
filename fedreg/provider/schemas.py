@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 from fedreg.provider.enum import ProviderType
 
 
@@ -94,7 +94,7 @@ class ProviderRead(BaseNodeRead, ProviderBase):
     ]
 
 
-class ProviderQuery(BaseModel):
+class ProviderQuery(PaginationQuery):
     """
     ProviderQuery model for querying provider entities.
 

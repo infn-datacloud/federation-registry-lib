@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 
 
 class IdentityProviderBase(BaseNode):
@@ -83,7 +83,7 @@ class IdentityProviderRead(BaseNodeRead, IdentityProviderBase):
     ]
 
 
-class IdentityProviderQuery(BaseNode):
+class IdentityProviderQuery(PaginationQuery):
     """Schema for querying identity providers.
 
     Overrides the endpoint field to be a simple string.

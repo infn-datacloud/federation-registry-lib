@@ -2,9 +2,9 @@
 
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 from fedreg.service.enum import ServiceType
 
 
@@ -247,7 +247,7 @@ class QuotaRead(BaseNodeRead, QuotaBase):
     ]
 
 
-class QuotaQuery(BaseModel):
+class QuotaQuery(PaginationQuery):
     type: Annotated[str | None, Field(default=None, description="Block storage type")]
     gigabytes: Annotated[
         int | None,

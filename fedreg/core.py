@@ -1,17 +1,22 @@
 """Core pydantic models."""
 
-from datetime import date, datetime
+import math
 from enum import Enum
-from typing import Annotated, Any, Literal, get_origin
+from typing import Annotated, Any
 from uuid import UUID
 
 from neo4j.time import Date, DateTime
 from neomodel import One, OneOrMore, ZeroOrMore, ZeroOrOne
-from pydantic import BaseModel, Field, create_model, fields, validator
-from pydantic.fields import SHAPE_LIST
-
-DOC_SCHEMA_TYPE = "Inner attribute to distinguish between schema types"
-MAX_DEEP = 1
+from pydantic import (
+    AnyHttpUrl,
+    BaseModel,
+    ConfigDict,
+    Field,
+    computed_field,
+    field_validator,
+    fields,
+)
+from starlette.datastructures import URL
 
 
 class BaseNode(BaseModel):
@@ -24,9 +29,9 @@ class BaseNode(BaseModel):
         description (str): Brief item description
     """
 
-    description: str = Field(default="", description="Brief item description")
+    description: Annotated[str, Field(default="", description="Brief item description")]
 
-    @validator("*", pre=True, always=True)
+    @field_validator("*", mode="before", always=True)
     @classmethod
     def not_none(cls, v: Any, field: fields.ModelField) -> Any:
         """Before any check, return the default value if the field is None."""
@@ -35,7 +40,7 @@ class BaseNode(BaseModel):
         else:
             return v
 
-    @validator("*", pre=True, always=True)
+    @field_validator("*", mode="before", always=True)
     @classmethod
     def get_str_from_uuid(cls, v: Any, field: fields.ModelField) -> Any:
         """Get hex attribute from UUID values."""
@@ -45,24 +50,11 @@ class BaseNode(BaseModel):
             return [i.hex if isinstance(i, UUID) else i for i in v]
         return v.hex if isinstance(v, UUID) else v
 
-    @validator("*", always=True)
+    @field_validator("*", mode="after", always=True)
     @classmethod
     def get_value_from_enums(cls, v: Any) -> Any:
         """Get value from all the enumeration field values."""
         return v.value if isinstance(v, Enum) else v
-
-
-class BaseNodeCreate(BaseModel):
-    """Common validator when updating or creating a node in the DB.
-
-    When dealing with enumerations retrieve the enum value.
-    Always validate assignments.
-    """
-
-    class Config:
-        """Sub class to validate assignments."""
-
-        validate_assignment = True
 
 
 class BaseNodeRead(BaseModel):
@@ -84,7 +76,7 @@ class BaseNodeRead(BaseModel):
 
     id: Annotated[str, Field(description="Database item's unique identifier.")]
 
-    @validator("*", pre=True)
+    @field_validator("*", mode="before")
     @classmethod
     def get_relationships(cls, v: Any) -> Any:
         """Cast neomodel relationships to lists.
@@ -96,186 +88,131 @@ class BaseNodeRead(BaseModel):
         relationship.
         """
         if isinstance(v, (One, ZeroOrOne)):
-            if v.definition.get("model") is None:
-                return v.single()
-            node = v.single()
-            if node is not None:
-                item = node.__dict__
-                item["relationship"] = v.relationship(node)
-                return item
-            return node
+            return v.single().id if v.single() is not None else None
         if isinstance(v, (OneOrMore, ZeroOrMore)):
-            if v.definition.get("model") is None:
-                return v.all()
-            items = []
-            for node in v.all():
-                item = node.__dict__
-                item["relationship"] = v.relationship(node)
-                items.append(item)
-            return items
+            return [item.id for item in v.all()]
         return v
 
-    @validator("*", pre=True)
+    @field_validator("*", mode="before")
     @classmethod
     def cast_neo4j_datetime_or_date(cls, v: Any) -> Any:
         """Cast neo4j datetime to python datetime or date."""
-        if isinstance(v, (Date, DateTime)):
-            return v.to_native()
-        return v
+        return v.to_native() if isinstance(v, (Date, DateTime)) else v
 
-    class Config:
-        """Sub class to validate assignments and enable orm mode."""
-
-        validate_assignment = True
-        orm_mode = True
+    model_config = ConfigDict(orm_mode=True)
 
 
-class BaseReadPublic(BaseModel):
-    """Add the internal schema_type attribute."""
+class PaginationQuery(BaseModel):
+    """Model to filter lists in GET operations with multiple items."""
 
-    schema_type: Literal["public"] = Field(
-        default="public", description=DOC_SCHEMA_TYPE
-    )
-
-
-class BaseReadPrivate(BaseModel):
-    """Add the internal schema_type attribute."""
-
-    schema_type: Literal["private"] = Field(
-        default="private", description=DOC_SCHEMA_TYPE
-    )
-
-
-class BaseReadPublicExtended(BaseModel):
-    """Add the internal schema_type attribute."""
-
-    schema_type: Literal["public_extended"] = Field(
-        default="public_extended", description=DOC_SCHEMA_TYPE
-    )
+    size: Annotated[int, Field(default=5, ge=1, description="Chunk size.")]
+    page: Annotated[
+        int, Field(default=1, ge=1, description="Divide the list in chunks")
+    ]
+    sort: Annotated[
+        str,
+        Field(
+            default="id",
+            description="Name of the key to use to sort values. "
+            "Prefix the '-' char to the chosen key to use reverse order.",
+        ),
+    ]
 
 
-class BaseReadPrivateExtended(BaseModel):
-    """Add the internal schema_type attribute."""
+class Pagination(BaseModel):
+    """With pagination details and total elements count."""
 
-    schema_type: Literal["private_extended"] = Field(
-        default="private_extended", description=DOC_SCHEMA_TYPE
-    )
+    size: Annotated[int, Field(default=5, ge=1, description="Chunk size.")]
+    number: Annotated[
+        int, Field(default=1, ge=1, description="Divide the list in chunks")
+    ]
+    total_elements: Annotated[int, Field(description="Total number of items")]
+
+    @computed_field
+    @property
+    def total_pages(self) -> int:
+        """Return the ceiling value of tot_items/page size.
+
+        If there are no elements, there is still one page but with no items.
+        """
+        val = math.ceil(self.total_elements / self.size)
+        return 1 if val == 0 else val
 
 
-class BaseNodeQuery(BaseModel):
-    """Schema used to retrieve possible query parameters when performing GET operations.
+class PageNavigation(BaseModel):
+    """Model with the navigation links to use to navigate through a paginated list."""
 
-    Always validate assignments.
+    first: Annotated[AnyHttpUrl, Field(description="Link to the first page")]
+    prev: Annotated[
+        AnyHttpUrl | None,
+        Field(default=None, description="Link to the previous page if available"),
+    ]
+    next: Annotated[
+        AnyHttpUrl | None,
+        Field(default=None, description="Link to the next page if available"),
+    ]
+    last: Annotated[AnyHttpUrl, Field(description="Link to the last page")]
+
+
+class PaginatedList(BaseModel):
+    """Model with the pagination details and navigation links.
+
+    Models with lists returned by GET operations MUST inherit from this model.
     """
 
-    class Config:
-        """Sub class to validate assignments."""
+    page_number: Annotated[int, Field(exclude=True, description="Current page number")]
+    page_size: Annotated[int, Field(exclude=True, description="Current page size")]
+    tot_items: Annotated[
+        int,
+        Field(
+            exclude=True, description="Number of total items spread across al the pages"
+        ),
+    ]
+    resource_url: Annotated[
+        AnyHttpUrl,
+        Field(
+            exclude=True,
+            description="Current resource URL. It may contain query parameters.",
+        ),
+    ]
 
-        validate_assignment = True
+    @computed_field
+    @property
+    def page(self) -> Pagination:
+        """Return the pagination details."""
+        return Pagination(
+            number=self.page_number, size=self.page_size, total_elements=self.tot_items
+        )
 
+    @computed_field
+    @property
+    def links(self) -> PageNavigation:
+        """Build navigation links for paginated API responses.
 
-def get_field_basic_type(field_type: Any) -> tuple[Any, None] | None:
-    """Return the new field basic type based on the parent field type."""
-    if issubclass(field_type, bool):
-        return (field_type | None, None)
-    if issubclass(field_type, (str, Enum)):
-        return (str | None, None)
-    if issubclass(field_type, (int, float, date, datetime)):
-        return (field_type | None, None)
-    return None
+        Args:
+            url: The base URL for navigation links.
+            size: The number of items per page.
+            curr_page: The current page number.
+            tot_pages: The total number of pages available.
 
+        Returns:
+            PageNavigation: An object containing first, previous, next, and last page
+                links.
 
-def get_list_derived_attributes(
-    new_field: tuple[Any, None] | None, field_name: str, field_type: Any, deep: int
-) -> dict[str, Any]:
-    """Return fields to perform queries on list fields."""
-    d = {}
-    if new_field is None and deep > 0:
-        for sub_field in field_type.__fields__.values():
-            sub_fields = add_fields(sub_field, prefix=field_name, deep=deep - 1)
-            d.update(sub_fields)
-        return d
-    d[f"{field_name}__contains"] = new_field
-    d[f"{field_name}__icontains"] = new_field
-    return d
+        """
+        url = URL(str(self.resource_url)).remove_query_params("page")
+        first_page = url.include_query_params(page=1)._url
+        if self.page_number > 1:
+            prev_page = url.include_query_params(page=self.page_number - 1)._url
+        else:
+            prev_page = None
 
+        if self.page_number < self.page.total_pages:
+            next_page = url.include_query_params(page=self.page_number + 1)._url
+        else:
+            next_page = None
+        last_page = url.include_query_params(page=self.page.total_pages)._url
 
-def add_fields(
-    field: fields.ModelField, prefix: str = "", deep: int = 0
-) -> dict[str, Any]:
-    """Add fields to a dictionary."""
-    d = {}
-    origin = get_origin(field.type_)
-    if origin is None:
-        new_field = get_field_basic_type(field.type_)
-    elif origin is Literal:
-        return d
-    else:
-        # Case of typing currently not supported.
-        # List, Union, Dict and similar should not be used.
-        # Instead use basic types (list, dict...).
-        return d
-
-    field_name = f"{prefix}_{field.name}" if prefix != "" else field.name
-
-    if field.shape == SHAPE_LIST:
-        return get_list_derived_attributes(new_field, field_name, field.type_, deep)
-
-    if new_field is None and deep > 0:
-        for sub_field in field.type_.__fields__.values():
-            sub_fields = add_fields(sub_field, prefix=field_name, deep=deep - 1)
-            d.update(sub_fields)
-        return d
-
-    if issubclass(field.type_, bool):
-        d[field_name] = new_field
-        return d
-    if issubclass(field.type_, (str, Enum)):
-        d[field_name] = new_field
-        d[f"{field_name}__contains"] = new_field
-        d[f"{field_name}__icontains"] = new_field
-        d[f"{field_name}__startswith"] = new_field
-        d[f"{field_name}__istartswith"] = new_field
-        d[f"{field_name}__endswith"] = new_field
-        d[f"{field_name}__iendswith"] = new_field
-        d[f"{field_name}__regex"] = new_field
-        d[f"{field_name}__iregex"] = new_field
-        return d
-    if issubclass(field.type_, (int, float, date, datetime)):
-        d[field_name] = new_field
-        d[f"{field_name}__lt"] = new_field
-        d[f"{field_name}__gt"] = new_field
-        d[f"{field_name}__lte"] = new_field
-        d[f"{field_name}__gte"] = new_field
-        d[f"{field_name}__ne"] = new_field
-        return d
-
-    # Should never reach this point. Not covered cases.
-    return d
-
-
-def create_query_model(
-    model_name: str, base_model: type[BaseNode]
-) -> type[BaseNodeQuery]:
-    """Create a Query Model from Base Model.
-
-    The new model has the given model name.
-    It has the same attributes as the Base model plus attributes used to execute filters
-    and queries on the database.
-    Convert to None the default value for all attributes.
-
-    Args:
-    ----
-        model_name (str): New model name.
-        base_model (type[BaseNode]): Input base model from which retrieve the
-            attributes.
-
-    Returns:
-    -------
-        type[BaseNodeQuery].
-    """
-    d = {}
-    for field in base_model.__fields__.values():
-        new_fields = add_fields(field, deep=MAX_DEEP)
-        d.update(new_fields)
-    return create_model(model_name, __base__=BaseNodeQuery, **d)
+        return PageNavigation(
+            first=first_page, prev=prev_page, next=next_page, last=last_page
+        )

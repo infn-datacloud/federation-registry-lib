@@ -3,9 +3,9 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 from fedreg.image.enum import ImageOS
 
 
@@ -110,7 +110,7 @@ class ImageRead(BaseNodeRead, ImageBase):
     """
 
 
-class ImageQuery(BaseModel):
+class ImageQuery(PaginationQuery):
     """Model to update an Image.
 
     Class without id (which is populated by the database). Expected as input when

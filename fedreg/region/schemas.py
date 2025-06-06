@@ -4,7 +4,7 @@ from typing import Annotated
 
 from pydantic import AnyHttpUrl, BaseModel, Field
 
-from fedreg.core import BaseNode, BaseNodeRead
+from fedreg.core import BaseNode, BaseNodeRead, PaginationQuery
 
 
 class RegionBase(BaseNode):
@@ -76,8 +76,8 @@ class RegionRead(BaseNodeRead, RegionBase):
     ]
 
 
-class RegionQuery(BaseModel):
-    """RegionQuery model for filtering regions based on various attributes.
+class RegionQuery(PaginationQuery):
+    """Model for filtering regions based on various attributes.
 
     Attributes:
         name (str | None): Region name in the Provider.

@@ -7,8 +7,9 @@ authors = ["Giovanni Savarese <giovanni.savarese@ba.infn.it>"]
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0.0"
 neomodel = "^5.3.0"
-pydantic = {extras = ["email"], version = ">=1.10.9,<2.0.0"}
 pycountry = "^22.3.5"
+starlette = "^0.47.0"
+pydantic = "^2.11.5"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"
