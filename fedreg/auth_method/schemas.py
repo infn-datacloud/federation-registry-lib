@@ -14,12 +14,13 @@ class AuthMethodBase(BaseModel):
         idp_name (str | None): Identity Provider name saved in the Resource Provider.
         protocol (str | None): Protocol to use when authenticating on this identity
             provider.
-        aud (str | None): Audience to use when authenticating on this identity provider.
+        audience (str | None): Audience to use when authenticating on this identity
+            provider.
     """
 
     idp_name: str | None = Field(default=None, description=DOC_IDP_NAME)
     protocol: str | None = Field(default=None, description=DOC_PROTOCOL)
-    aud: str | None = Field(default=None, description=DOC_AUD)
+    audience: str | None = Field(default=None, description=DOC_AUD)
 
 
 class AuthMethodCreate(BaseNodeCreate, AuthMethodBase):
@@ -32,7 +33,8 @@ class AuthMethodCreate(BaseNodeCreate, AuthMethodBase):
         idp_name (str | None): Identity Provider name saved in the Resource Provider.
         protocol (str | None): Protocol to use when authenticating on this identity
             provider.
-        aud (str | None): Audience to use when authenticating on this identity provider.
+        audience (str | None): Audience to use when authenticating on this identity
+            provider.
     """
 
 
@@ -47,7 +49,8 @@ class AuthMethodRead(AuthMethodBase):
         idp_name (str | None): Identity Provider name saved in the Resource Provider.
         protocol (str | None): Protocol to use when authenticating on this identity
             provider.
-        aud (str | None): Audience to use when authenticating on this identity provider.
+        audience (str | None): Audience to use when authenticating on this identity
+            provider.
     """
 
     class Config:
