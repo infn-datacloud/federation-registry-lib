@@ -6,39 +6,35 @@ from fedreg.auth_method.constants import DOC_AUD, DOC_IDP_NAME, DOC_PROTOCOL
 from fedreg.core import BaseNodeCreate
 
 
-class AuthMethodBase(BaseModel):
+class AuthMethodOsCreate(BaseNodeCreate, BaseModel):
     """Model with the basic attributes used by the AuthMethod relationship.
 
     Attributes:
     ----------
-        idp_name (str | None): Identity Provider name saved in the Resource Provider.
-        protocol (str | None): Protocol to use when authenticating on this identity
-            provider.
-        audience (str | None): Audience to use when authenticating on this identity
+        idp_name (str): Identity Provider name saved in the Resource Provider.
+        protocol (str): Protocol to use when authenticating on this identity
             provider.
     """
 
-    idp_name: str | None = Field(default=None, description=DOC_IDP_NAME)
-    protocol: str | None = Field(default=None, description=DOC_PROTOCOL)
-    audience: str | None = Field(default=None, description=DOC_AUD)
+    idp_name: str = Field(description=DOC_IDP_NAME)
+    protocol: str = Field(description=DOC_PROTOCOL)
 
 
-class AuthMethodCreate(BaseNodeCreate, AuthMethodBase):
+class AuthMethodK8sCreate(BaseNodeCreate, BaseModel):
     """Model to create an AuthMethod instance.
 
     Class expected as input when performing a POST request.
 
     Attributes:
     ----------
-        idp_name (str | None): Identity Provider name saved in the Resource Provider.
-        protocol (str | None): Protocol to use when authenticating on this identity
-            provider.
-        audience (str | None): Audience to use when authenticating on this identity
+        audience (str): Audience to use when authenticating on this identity
             provider.
     """
 
+    audience: str = Field(description=DOC_AUD)
 
-class AuthMethodRead(AuthMethodBase):
+
+class AuthMethodRead(BaseModel):
     """Model to read AuthMethod relationship data retrieved from the DB.
 
     Class to read data retrieved from the database. Expected as output when performing a
@@ -52,6 +48,10 @@ class AuthMethodRead(AuthMethodBase):
         audience (str | None): Audience to use when authenticating on this identity
             provider.
     """
+
+    idp_name: str | None = Field(default=None, description=DOC_IDP_NAME)
+    protocol: str | None = Field(default=None, description=DOC_PROTOCOL)
+    audience: str | None = Field(default=None, description=DOC_AUD)
 
     class Config:
         """Sub class to validate assignments and enable orm mode.
