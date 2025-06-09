@@ -27,13 +27,13 @@ class Project(StructuredNode):
 
     Attributes:
     ----------
-        id (uuid): AssociatedProject unique ID.
+        uid (uuid): AssociatedProject unique ID.
         description (str): Brief description.
         name (str): Name of the project in the Provider.
         uuid (uuid): Project Unique ID in the Provider.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
@@ -51,11 +51,6 @@ class Project(StructuredNode):
     quotas = RelationshipTo(
         "fedreg.quota.models.Quota",
         "HAS_USAGE_LIMITS",
-        cardinality=ZeroOrMore,
-    )
-    usage = RelationshipTo(
-        "fedreg.quota.models.Usage",
-        "CURRENT_USAGE",
         cardinality=ZeroOrMore,
     )
     flavors = RelationshipTo(
@@ -81,6 +76,4 @@ class Project(StructuredNode):
         Remove the SLA only if that SLA points only to this project.
         """
         for item in self.quotas:
-            item.delete()
-        for item in self.usage:
             item.delete()

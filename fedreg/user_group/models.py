@@ -21,12 +21,12 @@ class UserGroup(StructuredNode):
 
     Attributes:
     ----------
-        id (int): User Group unique ID.
+        uid (int): User Group unique ID.
         description (str): Brief description.
         name (str): User Group name.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
 

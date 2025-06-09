@@ -21,7 +21,7 @@ class Region(StructuredNode):
 
     Attributes:
     ----------
-        id (uuid): AssociatedRegion unique ID.
+        uid (uuid): AssociatedRegion unique ID.
         description (str): Brief description.
         name (str): Name of the Region in the Provider.
         overbooking_cpu (float): CPU overbooking factor.
@@ -30,7 +30,7 @@ class Region(StructuredNode):
         bandwidth_out (float): Bandwidth out.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     overbooking_cpu = FloatProperty(default=1.0)

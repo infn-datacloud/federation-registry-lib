@@ -22,18 +22,22 @@ class Quota(StructuredNode):
 
     Attributes:
     ----------
-        id (int): Quota unique ID.
+        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
         usage (str): This quota defines the current resource usage.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     type = StringProperty(required=True)
     per_user = BooleanProperty(default=False)
     usage = BooleanProperty(default=False)
+
+    project = RelationshipFrom(
+        "fedreg.project.models.Project", "HAS_USAGE_LIMITS", cardinality=One
+    )
 
 
 class BlockStorageQuota(Quota):
@@ -43,7 +47,7 @@ class BlockStorageQuota(Quota):
 
     Attributes:
     ----------
-        id (int): Quota unique ID.
+        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
@@ -59,9 +63,6 @@ class BlockStorageQuota(Quota):
     per_volume_gigabytes = IntegerProperty()
     volumes = IntegerProperty()
 
-    project = RelationshipFrom(
-        "fedreg.project.models.Project", "HAS_USAGE_LIMITS", cardinality=One
-    )
     service = RelationshipTo(
         "fedreg.service.models.BlockStorageService", "APPLIES_TO", cardinality=One
     )
@@ -74,7 +75,7 @@ class ComputeQuota(Quota):
 
     Attributes:
     ----------
-        id (int): Quota unique ID.
+        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
@@ -89,9 +90,6 @@ class ComputeQuota(Quota):
     instances = IntegerProperty()
     ram = IntegerProperty()
 
-    project = RelationshipFrom(
-        "fedreg.project.models.Project", "HAS_USAGE_LIMITS", cardinality=One
-    )
     service = RelationshipTo(
         "fedreg.service.models.ComputeService", "APPLIES_TO", cardinality=One
     )
@@ -104,7 +102,7 @@ class NetworkingQuota(Quota):
 
     Attributes:
     ----------
-        id (int): Quota unique ID.
+        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
@@ -126,9 +124,6 @@ class NetworkingQuota(Quota):
     security_groups = IntegerProperty()
     security_group_rules = IntegerProperty()
 
-    project = RelationshipFrom(
-        "fedreg.project.models.Project", "HAS_USAGE_LIMITS", cardinality=One
-    )
     service = RelationshipTo(
         "fedreg.service.models.NetworkService", "APPLIES_TO", cardinality=One
     )
@@ -141,7 +136,7 @@ class ObjectStoreQuota(Quota):
 
     Attributes:
     ----------
-        id (int): Quota unique ID.
+        uid (int): Quota unique ID.
         description (str): Brief description.
         type (str): Quota type.
         per_user (str): This limitation should be applied to each user.
@@ -153,9 +148,6 @@ class ObjectStoreQuota(Quota):
     containers = IntegerProperty()
     objects = IntegerProperty()
 
-    project = RelationshipFrom(
-        "fedreg.project.models.Project", "HAS_USAGE_LIMITS", cardinality=One
-    )
     service = RelationshipTo(
         "fedreg.service.models.ObjectStoreService", "APPLIES_TO", cardinality=One
     )

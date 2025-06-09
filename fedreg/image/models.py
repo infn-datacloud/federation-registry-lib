@@ -24,7 +24,7 @@ class Image(StructuredNode):
 
     Attributes:
     ----------
-        id (int): Image unique ID.
+        uid (int): Image unique ID.
         description (str): Brief description.
         name (str): Image name in the Provider.
         uuid (str): Image unique ID in the Provider
@@ -39,7 +39,7 @@ class Image(StructuredNode):
         tags (list of str): list of tags associated to this Image.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)

@@ -24,7 +24,7 @@ class Flavor(StructuredNode):
 
     Attributes:
     ----------
-        id (str): Flavor unique ID.
+        uid (str): Flavor unique ID.
         description (str): Brief description.
         name (str): Flavor name in the Resource Provider.
         uuid (str): Flavor unique ID in the Resource Provider.
@@ -40,7 +40,7 @@ class Flavor(StructuredNode):
         local_storage (str | None): Local storage presence.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)

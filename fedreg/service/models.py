@@ -21,14 +21,14 @@ class Service(StructuredNode):
 
     Attributes:
     ----------
-        id (int): Service unique ID.
+        uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
         name (str): Service name.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     endpoint = StringProperty(required=True)
     name = StringProperty(required=True)
@@ -47,7 +47,7 @@ class BlockStorageService(Service):
 
     Attributes:
     ----------
-        id (int): Service unique ID.
+        uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
@@ -74,7 +74,7 @@ class ComputeService(Service):
 
     Attributes:
     ----------
-        id (int): Service unique ID.
+        uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
@@ -118,7 +118,7 @@ class NetworkService(Service):
 
     Attributes:
     ----------
-        id (int): Service unique ID.
+        uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.
@@ -152,7 +152,7 @@ class ObjectStoreService(Service):
 
     Attributes:
     ----------
-        id (int): Service unique ID.
+        uid (int): Service unique ID.
         description (str): Brief description.
         endpoint (str): URL of the IaaS Service.
         type (str): Service type.

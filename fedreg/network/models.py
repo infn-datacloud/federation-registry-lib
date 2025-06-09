@@ -40,7 +40,7 @@ class Network(StructuredNode):
 
     Attributes:
     ----------
-        id (int): Network unique ID.
+        uid (int): Network unique ID.
         description (str): Brief description.
         name (str): Network name in the Provider.
         uuid (str): Network unique ID in the Provider
@@ -51,7 +51,7 @@ class Network(StructuredNode):
         tags (list of str): list of tags associated to this Network.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)

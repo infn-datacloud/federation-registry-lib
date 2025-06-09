@@ -27,7 +27,7 @@ class Provider(StructuredNode):
 
     Attributes:
     ----------
-        id (int): Provider unique ID.
+        uid (int): Provider unique ID.
         description (str): Brief description.
         name (str): Provider name.
         type (str): Provider type.
@@ -35,7 +35,7 @@ class Provider(StructuredNode):
         connection_url (str): Connection URL of the Provider.
     """
 
-    id = UniqueIdProperty()
+    uid = UniqueIdProperty()
     description = StringProperty(default="")
     name = StringProperty(required=True)
     type = StringProperty(required=True)
