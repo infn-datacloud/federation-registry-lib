@@ -14,8 +14,8 @@ from pydantic import (
     Field,
     computed_field,
     field_validator,
-    fields,
 )
+from pydantic_core import PydanticUseDefault
 from starlette.datastructures import URL
 
 
@@ -31,26 +31,23 @@ class BaseNode(BaseModel):
 
     description: Annotated[str, Field(default="", description="Brief item description")]
 
-    @field_validator("*", mode="before", always=True)
+    @field_validator("*", mode="before")
     @classmethod
-    def not_none(cls, v: Any, field: fields.ModelField) -> Any:
+    def not_none(cls, v: Any) -> Any:
         """Before any check, return the default value if the field is None."""
-        if all((getattr(field, "default", None) is not None, v is None)):
-            return field.default
-        else:
-            return v
+        if v is None:
+            raise PydanticUseDefault()
+        return v
 
-    @field_validator("*", mode="before", always=True)
+    @field_validator("*", mode="before")
     @classmethod
-    def get_str_from_uuid(cls, v: Any, field: fields.ModelField) -> Any:
+    def get_str_from_uuid(cls, v: Any) -> Any:
         """Get hex attribute from UUID values."""
-        if field.shape == fields.SHAPE_LIST and not isinstance(
-            v, (OneOrMore, ZeroOrMore)
-        ):
-            return [i.hex if isinstance(i, UUID) else i for i in v]
-        return v.hex if isinstance(v, UUID) else v
+        if isinstance(v, list):
+            return [str(i) if isinstance(i, UUID) else i for i in v]
+        return str(v) if isinstance(v, UUID) else v
 
-    @field_validator("*", mode="after", always=True)
+    @field_validator("*", mode="after")
     @classmethod
     def get_value_from_enums(cls, v: Any) -> Any:
         """Get value from all the enumeration field values."""
@@ -74,7 +71,9 @@ class BaseNodeRead(BaseModel):
         id (str): Database item's unique identifier.
     """
 
-    id: Annotated[str, Field(description="Database item's unique identifier.")]
+    id: Annotated[
+        str, Field(description="Database item's unique identifier.", alias="uid")
+    ]
 
     @field_validator("*", mode="before")
     @classmethod
@@ -99,7 +98,7 @@ class BaseNodeRead(BaseModel):
         """Cast neo4j datetime to python datetime or date."""
         return v.to_native() if isinstance(v, (Date, DateTime)) else v
 
-    model_config = ConfigDict(orm_mode=True)
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PaginationQuery(BaseModel):
