@@ -8,48 +8,32 @@ from fedreg.v2.core import BaseNodeRead
 from fedreg.v2.identity_provider.schemas import IdentityProviderBase
 
 
-class AuthMethodBase(BaseModel):
-    """Model with the basic attributes used by the AuthMethod relationship.
+class OsAuthMethodCreate(BaseModel):
+    """Schema with the parameters needed by authentication method for openstack.
 
     Attributes:
-    ----------
         idp_name (str): Identity Provider name saved in the Resource Provider.
         protocol (str): Protocol to use when authenticating on this identity provider
-        audience (str): Audience to use when authenticating on this identity provider.
     """
 
     idp_name: Annotated[
-        str | None,
-        Field(
-            default=None,
-            description="Identity Provider name saved in the Resource Provider.",
-        ),
+        str, Field(description="Identity Provider name saved in the Resource Provider.")
     ]
     protocol: Annotated[
-        str | None,
-        Field(
-            default=None,
-            description="Protocol to use when authenticating on target IdP.",
-        ),
-    ]
-    audience: Annotated[
-        str | None,
-        Field(
-            default=None,
-            description="Audience to use when authenticating on target IdP.",
-        ),
+        str, Field(description="Protocol to use when authenticating on target IdP.")
     ]
 
 
-class AuthMethodCreate(AuthMethodBase):
-    """Schema for creating a new authentication method.
-
-    Inherits from:
-        AuthMethodBase: Base schema with common authentication method fields.
+class K8sAuthMethodCreate(BaseModel):
+    """Schema with the parameters needed by authentication method for k8s clustes.
 
     Attributes:
-        Inherits all fields from AuthMethodBase.
+        audience (str): Audience to use when authenticating on this identity provider.
     """
+
+    audience: Annotated[
+        str, Field(description="Audience to use when authenticating on target IdP.")
+    ]
 
 
 class AuthMethodRead(BaseNodeRead, IdentityProviderBase):

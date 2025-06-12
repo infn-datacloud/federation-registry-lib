@@ -6,7 +6,7 @@ from fedreg.v1.auth_method.constants import DOC_AUD, DOC_IDP_NAME, DOC_PROTOCOL
 from fedreg.v1.core import BaseNodeCreate
 
 
-class AuthMethodOsCreate(BaseNodeCreate, BaseModel):
+class OsAuthMethodCreate(BaseNodeCreate, BaseModel):
     """Model with the basic attributes used by the AuthMethod relationship.
 
     Attributes:
@@ -20,7 +20,7 @@ class AuthMethodOsCreate(BaseNodeCreate, BaseModel):
     protocol: str = Field(description=DOC_PROTOCOL)
 
 
-class AuthMethodK8sCreate(BaseNodeCreate, BaseModel):
+class K8sAuthMethodCreate(BaseNodeCreate, BaseModel):
     """Model to create an AuthMethod instance.
 
     Class expected as input when performing a POST request.

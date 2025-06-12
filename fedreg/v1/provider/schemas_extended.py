@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic.v1 import Field, validator
 
-from fedreg.v1.auth_method.schemas import AuthMethodOsCreate, AuthMethodRead
+from fedreg.v1.auth_method.schemas import AuthMethodRead, OsAuthMethodCreate
 from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.v1.flavor.schemas import (
     FlavorRead,
@@ -480,7 +480,7 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         user_groups (list of UserGroupCreateExtended): Owned user groups.
     """
 
-    relationship: AuthMethodOsCreate | None = Field(
+    relationship: OsAuthMethodCreate | None = Field(
         default=None, description=DOC_EXT_AUTH_METH
     )
     user_groups: list[UserGroupCreateExtended] = Field(
