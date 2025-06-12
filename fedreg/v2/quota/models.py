@@ -3,6 +3,7 @@
 from neomodel import (
     BooleanProperty,
     IntegerProperty,
+    JSONProperty,
     One,
     RelationshipFrom,
     RelationshipTo,
@@ -55,16 +56,57 @@ class BlockStorageQuota(Quota):
         gigabytes (int | None): Number of max usable gigabytes (GiB).
         per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
             (GiB).
-        volumes (int | None): Number of max volumes a user group can create.
+        volumes (int | None): Number of max volumes that can be create.
+        pvcs (int | None): Number of max PVCs that can create
+        storage (int | None): Max value for the sum of the "minimum required" gigabytes
+            (GiB) for external storage.
+        requests_ephemeral_storage (int | None): Max value for the sum of the "minimum
+            required" gigabytes (GiB) for ephemeral storage.
+        limits_ephemeral_storage (int | None): Max value for the sum of the "maximum
+            usable" gigabytes (GiB) for ephemeral storage.
     """
 
     type = StringProperty(default=ServiceType.BLOCK_STORAGE.value)
+
+    # Openstack specifics
     gigabytes = IntegerProperty()
     per_volume_gigabytes = IntegerProperty()
     volumes = IntegerProperty()
 
+    # Kubernetes specifics
+    pvcs = IntegerProperty()
+    storage = IntegerProperty()
+    requests_ephemeral_storage = IntegerProperty()
+    limits_ephemeral_storage = IntegerProperty()
+
     service = RelationshipTo(
         "fedreg.v2.service.models.BlockStorageService", "APPLIES_TO", cardinality=One
+    )
+
+
+class StorageClassQuota(Quota):
+    """Resource limitations for Projects on Block Storage Services.
+
+    Block Storage quota limitations apply on a Block Storage Service.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        pvcs (int | None): Number of max PVCs a user group can create for a specific
+            storageclass
+        storage (int | None): Max value for the sum of the "minimum required" gigabytes
+            (GiB) for a specific storageclass.
+    """
+
+    pvcs = IntegerProperty()
+    storage = IntegerProperty()
+
+    storageclass = RelationshipTo(
+        "fedreg.v2.storageclass.models.StorageClass", "APPLIES_TO", cardinality=One
     )
 
 
@@ -83,12 +125,32 @@ class ComputeQuota(Quota):
         cores (int | None): Number of max usable cores.
         instance (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
+        limits_cpu (int | None): Max value for the sum of the maximum usable cpus
+            for a pod.
+        requests_cpu (int | None): Max value for the sum of the "minimum required" cpus
+            for a pod.
+        limits_memory (int | None): Max value for the sum of the maximum usable memory
+            for a pod.
+        requests_memory (int | None): Max value for the sum of the "minimum required"
+            memory for a pod.
+        pods (int | None): Max number of pods that can be created.
+        gpus (dict[str, int] | None): For each type of GPU, define the maximum quota.
     """
 
     type = StringProperty(default=ServiceType.COMPUTE.value)
+
+    # Openstack specifics
     cores = IntegerProperty()
     instances = IntegerProperty()
     ram = IntegerProperty()
+
+    # Kubernetes specifics
+    limits_cpu = IntegerProperty()
+    requests_cpu = IntegerProperty()
+    limits_memory = IntegerProperty()
+    requests_memory = IntegerProperty()
+    pods = IntegerProperty()
+    gpus = JSONProperty()
 
     service = RelationshipTo(
         "fedreg.v2.service.models.ComputeService", "APPLIES_TO", cardinality=One

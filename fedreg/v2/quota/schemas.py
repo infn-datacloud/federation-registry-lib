@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 from pydantic import Field
 
 from fedreg.v2.core import BaseNode, BaseNodeRead, PaginationQuery
-from fedreg.v2.service.enum import ServiceType
+from fedreg.v2.quota.enum import QuotaType
 
 
 class QuotaBase(BaseNode):
@@ -27,10 +27,10 @@ class QuotaBase(BaseNode):
     service: Annotated[str, Field(description="Target service ID. Same type of quota.")]
 
 
-class BlockStorageQuotaCreate(QuotaBase):
+class OsBlockStorageQuotaCreate(QuotaBase):
     type: Annotated[
-        Literal[ServiceType.BLOCK_STORAGE],
-        Field(default=ServiceType.BLOCK_STORAGE, description="Block storage type"),
+        Literal[QuotaType.BLOCK_STORAGE],
+        Field(default=QuotaType.BLOCK_STORAGE, description="Block storage type"),
     ]
     gigabytes: Annotated[
         int | None,
@@ -49,15 +49,82 @@ class BlockStorageQuotaCreate(QuotaBase):
         Field(
             default=None,
             ge=-1,
-            description="Number of max volumes a user group can create.",
+            description="Number of max volumes that can create.",
         ),
     ]
 
 
-class ComputeQuotaCreate(QuotaBase):
+class K8sBlockStorageQuotaCreate(QuotaBase):
     type: Annotated[
-        Literal[ServiceType.COMPUTE],
-        Field(default=ServiceType.COMPUTE, description="Compute type"),
+        Literal[QuotaType.BLOCK_STORAGE],
+        Field(default=QuotaType.BLOCK_STORAGE, description="Block storage type"),
+    ]
+    pvcs: Annotated[
+        int | None,
+        Field(
+            default=None, ge=0, description="Total number of PVCs that can be created."
+        ),
+    ]
+    storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Max value for the sum of the 'minimum required' gigabytes "
+            "(GiB) for external storage.",
+        ),
+    ]
+    requests_ephemeral_storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Resources can define the minimum required ephemeral storage. "
+            "This is the maximum of the sum of all the resources' ephemeral storage "
+            "requests.",
+        ),
+    ]
+    limits_ephemeral_storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Resources can define the maximum allowed ephemeral storage. "
+            "This is the maximum of the sum of all the resources' ephemeral storage "
+            "limits.",
+        ),
+    ]
+
+
+class K8sStorageClassQuotaCreate(QuotaBase):
+    type: Annotated[
+        Literal[QuotaType.STORAGECLASS],
+        Field(default=QuotaType.STORAGECLASS, description="Block storage type"),
+    ]
+    pvcs: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Total number of PVCs that can be created for this kind of "
+            "storageclass.",
+        ),
+    ]
+    storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Max value for the sum of the 'minimum required' gigabytes "
+            "(GiB) for this kind of storageclass.",
+        ),
+    ]
+
+
+class OsComputeQuotaCreate(QuotaBase):
+    type: Annotated[
+        Literal[QuotaType.COMPUTE],
+        Field(default=QuotaType.COMPUTE, description="Compute type"),
     ]
     cores: Annotated[
         int | None, Field(default=None, ge=0, description="Number of max usable cores.")
@@ -71,10 +138,61 @@ class ComputeQuotaCreate(QuotaBase):
     ]
 
 
-class NetworkQuotaCreate(QuotaBase):
+class K8sComputeQuotaCreate(QuotaBase):
     type: Annotated[
-        Literal[ServiceType.NETWORKING],
-        Field(default=ServiceType.NETWORKING, description="Network type"),
+        Literal[QuotaType.COMPUTE],
+        Field(default=QuotaType.COMPUTE, description="Compute type"),
+    ]
+    limits_cpu: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Max value for the sum of the maximum usable cpus for a pod.",
+        ),
+    ]
+    requests_cpu: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Max value for the sum of the minimum required cpus for a pod.",
+        ),
+    ]
+    limits_memory: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Max value for the sum of the maximum usable memory for a pod.",
+        ),
+    ]
+    requests_memory: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Max value for the sum of the min required memory for a pod.",
+        ),
+    ]
+    pods: Annotated[
+        int | None,
+        Field(
+            default=None, ge=0, description="Max number of pods that can be created."
+        ),
+    ]
+    gpus: Annotated[
+        dict[str, int] | None,
+        Field(
+            default=None, description="For each type of GPU, define the maximum quota."
+        ),
+    ]
+
+
+class OsNetworkQuotaCreate(QuotaBase):
+    type: Annotated[
+        Literal[QuotaType.NETWORKING],
+        Field(default=QuotaType.NETWORKING, description="Network type"),
     ]
     public_ips: Annotated[
         int | None,
@@ -120,8 +238,8 @@ class NetworkQuotaCreate(QuotaBase):
 
 class ObjectStoreQuotaCreate(QuotaBase):
     type: Annotated[
-        Literal[ServiceType.OBJECT_STORE],
-        Field(default=ServiceType.OBJECT_STORE, description="Object storage type"),
+        Literal[QuotaType.OBJECT_STORE],
+        Field(default=QuotaType.OBJECT_STORE, description="Object storage type"),
     ]
     bytes: Annotated[
         int | None,
@@ -150,7 +268,7 @@ class ObjectStoreQuotaCreate(QuotaBase):
 
 
 class QuotaRead(BaseNodeRead, QuotaBase):
-    type: Annotated[ServiceType, Field(description="Block storage type")]
+    type: Annotated[QuotaType, Field(description="Quota type")]
     gigabytes: Annotated[
         int | None,
         Field(default=None, ge=-1, description="Number of max usable gigabytes (GiB)."),
@@ -243,6 +361,49 @@ class QuotaRead(BaseNodeRead, QuotaBase):
             default=None,
             ge=-1,
             description="The number of objects allowed for each project.",
+        ),
+    ]
+    pvcs: Annotated[
+        int | None,
+        Field(
+            default=None, ge=0, description="Total number of PVCs that can be created."
+        ),
+    ]
+    storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Max value for the sum of the 'minimum required' gigabytes "
+            "(GiB) for external storage.",
+        ),
+    ]
+    requests_ephemeral_storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Resources can define the minimum required ephemeral storage. "
+            "This is the maximum of the sum of all the resources' ephemeral storage "
+            "requests.",
+        ),
+    ]
+    limits_ephemeral_storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Resources can define the maximum allowed ephemeral storage. "
+            "This is the maximum of the sum of all the resources' ephemeral storage "
+            "limits.",
+        ),
+    ]
+    storageclass: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="When the quota points to a specific storageclass, this field "
+            "points to the unique ID of the storage class",
         ),
     ]
 
@@ -341,5 +502,40 @@ class QuotaQuery(PaginationQuery):
             default=None,
             ge=-1,
             description="The number of objects allowed for each project.",
+        ),
+    ]
+    pvcs: Annotated[
+        int | None,
+        Field(
+            default=None, ge=0, description="Total number of PVCs that can be created."
+        ),
+    ]
+    storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Max value for the sum of the 'minimum required' gigabytes "
+            "(GiB) for external storage.",
+        ),
+    ]
+    requests_ephemeral_storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Resources can define the minimum required ephemeral storage. "
+            "This is the maximum of the sum of all the resources' ephemeral storage "
+            "requests.",
+        ),
+    ]
+    limits_ephemeral_storage: Annotated[
+        int | None,
+        Field(
+            default=None,
+            ge=0,
+            description="Resources can define the maximum allowed ephemeral storage. "
+            "This is the maximum of the sum of all the resources' ephemeral storage "
+            "limits.",
         ),
     ]

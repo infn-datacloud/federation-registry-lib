@@ -1,12 +1,9 @@
 """Quota custom enumerations."""
 
-from enum import Enum
+from fedreg.v1.service.enum import ServiceType
 
 
-class QuotaType(str, Enum):
+class QuotaType(ServiceType):
     """Possible Quota types."""
 
-    BLOCK_STORAGE: str = "block-storage"
-    COMPUTE: str = "compute"
-    NETWORK: str = "network"
-    OBJECT_STORE: str = "object-store"
+    STORAGECLASS = "storageclass"

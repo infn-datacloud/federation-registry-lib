@@ -15,6 +15,8 @@ from fedreg.v1.quota.schemas import (
     NetworkQuotaReadPublic,
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
+    StorageClassQuotaRead,
+    StorageClassQuotaReadPublic,
 )
 from fedreg.v1.region.constants import DOC_EXT_PROV
 from fedreg.v1.region.schemas import RegionRead, RegionReadPublic
@@ -29,6 +31,7 @@ from fedreg.v1.service.schemas import (
     ObjectStoreServiceRead,
     ObjectStoreServiceReadPublic,
 )
+from fedreg.v1.storageclass.schemas import StorageClassRead, StorageClassReadPublic
 
 
 class RegionReadExtended(RegionRead):
@@ -179,6 +182,36 @@ class ObjectStoreServiceReadExtendedPublic(ObjectStoreServiceReadPublic):
     region: RegionReadExtendedPublic = Field(description=DOC_EXT_REG)
 
 
+class StorageClassReadExtended(StorageClassRead):
+    """Model to extend the Network Service data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        type (str): Service type.
+        name (str): Service name.
+        region (RegionReadExtended): Region hosting this service.
+    """
+
+    service: BlockStorageServiceReadExtended = Field(description=DOC_EXT_REG)
+
+
+class StorageClassReadExtendedPublic(StorageClassReadPublic):
+    """Model to extend the Network Service public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Service unique ID.
+        description (str): Brief description.
+        endpoint (str): URL of the IaaS Service.
+        region (RegionReadExtendedPublic): Region hosting this service.
+    """
+
+    service: BlockStorageServiceReadExtendedPublic = Field(description=DOC_EXT_REG)
+
+
 class BlockStorageQuotaReadExtended(BaseReadPrivateExtended, BlockStorageQuotaRead):
     """Model to extend the Block Storage Quota data read from the DB.
 
@@ -218,6 +251,47 @@ class BlockStorageQuotaReadExtendedPublic(
 
     project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
     service: BlockStorageServiceReadExtendedPublic = Field(description=DOC_EXT_SERV)
+
+
+class StorageClassQuotaReadExtended(BaseReadPrivateExtended, StorageClassQuotaRead):
+    """Model to extend the Block Storage Quota data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+        project (ProjectRead): Target project.
+        service (StorageClassServiceReadExtended): Target block storage service.
+    """
+
+    project: ProjectRead = Field(description=DOC_EXT_PROJ)
+    service: StorageClassReadExtended = Field(description=DOC_EXT_SERV)
+
+
+class StorageClassQuotaReadExtendedPublic(
+    BaseReadPublicExtended, StorageClassQuotaReadPublic
+):
+    """Model to extend the Block Storage Quota public data read from the DB.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        project (ProjectReadPublic): Target project.
+        service (StorageClassServiceReadExtendedPublic): Target block storage service.
+    """
+
+    project: ProjectReadPublic = Field(description=DOC_EXT_PROJ)
+    service: StorageClassReadExtendedPublic = Field(description=DOC_EXT_SERV)
 
 
 class ComputeQuotaReadExtended(BaseReadPrivateExtended, ComputeQuotaRead):
