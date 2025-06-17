@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from pydantic.v1 import Field
+from pydantic import Field
 
 from fedreg.v1.core import BaseNode, BaseNodeRead
 from fedreg.v2.core import PaginationQuery

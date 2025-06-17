@@ -24,7 +24,11 @@ from tests.v1.utils import (
 
 
 def auth_method_schema_dict() -> dict[str, Any]:
-    return {"idp_name": random_lower_string(), "protocol": random_lower_string()}
+    return {
+        "idp_name": random_lower_string(),
+        "protocol": random_lower_string(),
+        "audience": random_lower_string(),
+    }
 
 
 def flavor_schema_dict() -> dict[str, Any]:
