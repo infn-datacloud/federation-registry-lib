@@ -100,6 +100,7 @@ from fedreg.v1.service.schemas import (
     ObjectStoreServiceReadPublic,
 )
 from fedreg.v1.sla.schemas import SLACreate, SLARead, SLAReadPublic
+from fedreg.v1.storageclass.schemas import StorageClassCreate
 from fedreg.v1.user_group.constants import DOC_EXT_SLA
 from fedreg.v1.user_group.schemas import (
     UserGroupCreate,
@@ -696,6 +697,21 @@ class PrivateNetworkCreateExtended(PrivateNetworkCreate):
         return v
 
 
+class StorageClassCreateExtended(StorageClassCreate):
+    quotas: list[StorageClassQuotaCreateExtended] = Field(
+        default_factory=list, description="List of quotas applied to this storage class"
+    )
+
+    @validator("quotas")
+    @classmethod
+    def max_two_quotas_on_same_project(
+        cls, v: list[BlockStorageQuotaCreateExtended]
+    ) -> list[BlockStorageQuotaCreateExtended]:
+        """Verify maximum number of quotas on same project."""
+        multiple_quotas_same_project(v)
+        return v
+
+
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
     """Model to extend the Block Storage Service data to add to the DB.
 
@@ -709,6 +725,9 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
             service.
     """
 
+    storage_classes = list[StorageClassCreateExtended] = Field(
+        default_factory=list, description="List of available storage classes"
+    )
     quotas: list[BlockStorageQuotaCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )
