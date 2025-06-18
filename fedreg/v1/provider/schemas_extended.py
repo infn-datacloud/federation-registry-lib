@@ -72,6 +72,7 @@ from fedreg.v1.quota.schemas import (
     ObjectStoreQuotaCreate,
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
+    StorageClassQuotaCreate,
 )
 from fedreg.v1.region.constants import DOC_EXT_LOC, DOC_EXT_SERV
 from fedreg.v1.region.schemas import RegionCreate, RegionRead, RegionReadPublic
@@ -577,6 +578,23 @@ class ObjectStoreQuotaCreateExtended(ObjectStoreQuotaCreate):
         bytes (int): Maximum number of allowed bytes.
         containers (int): Maximum number of allowed containers.
         objects (int): Maximum number of allowed objects.
+        project (str): Target project's UUID in the Provider.
+    """
+
+    project: str = Field(description=DOC_NEW_PROJ_UUID)
+
+
+class StorageClassQuotaCreateExtended(StorageClassQuotaCreate):
+    """Model to extend the Object Storage Quota data to add to the DB.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        storage (int): Maximum number of GiB.
+        pvcs (int): Maximum number of allowed persistent volume claims.
         project (str): Target project's UUID in the Provider.
     """
 
