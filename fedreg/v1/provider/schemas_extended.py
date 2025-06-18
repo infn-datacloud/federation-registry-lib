@@ -725,7 +725,7 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
             service.
     """
 
-    storage_classes = list[StorageClassCreateExtended] = Field(
+    storage_classes: list[StorageClassCreateExtended] = Field(
         default_factory=list, description="List of available storage classes"
     )
     quotas: list[BlockStorageQuotaCreateExtended] = Field(
