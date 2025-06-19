@@ -7,6 +7,7 @@ from neomodel import (
     StringProperty,
     StructuredNode,
     UniqueIdProperty,
+    ZeroOrMore,
 )
 
 
@@ -34,3 +35,11 @@ class StorageClass(StructuredNode):
         "AVAILABLE_STORAGECLASS",
         cardinality=One,
     )
+    quotas = RelationshipFrom(
+        "fedreg.quota.models.StorageClassQuota", "APPLIES_TO", cardinality=ZeroOrMore
+    )
+
+    def pre_delete(self):
+        """Remove related quotas."""
+        for item in self.quotas:
+            item.delete()

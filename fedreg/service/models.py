@@ -57,10 +57,17 @@ class BlockStorageService(Service):
     quotas = RelationshipFrom(
         "fedreg.quota.models.BlockStorageQuota", "APPLY_TO", cardinality=ZeroOrMore
     )
+    storage_classes = RelationshipTo(
+        "fedreg.storageclass.models.StorageClass",
+        "AVAILABLE_STORAGECLASS",
+        cardinality=ZeroOrMore,
+    )
 
     def pre_delete(self):
         """Remove related quotas."""
         for item in self.quotas:
+            item.delete()
+        for item in self.storage_classes:
             item.delete()
 
 

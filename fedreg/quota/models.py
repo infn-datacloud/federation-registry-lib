@@ -105,8 +105,8 @@ class StorageClassQuota(Quota):
     pvcs = IntegerProperty()
     storage = IntegerProperty()
 
-    storageclass = RelationshipTo(
-        "fedreg.v2.storageclass.models.StorageClass", "APPLIES_TO", cardinality=One
+    storage_class = RelationshipTo(
+        "fedreg.storageclass.models.StorageClass", "APPLIES_TO", cardinality=One
     )
 
 
