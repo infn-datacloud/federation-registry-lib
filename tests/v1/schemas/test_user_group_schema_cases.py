@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.user_group.models import UserGroup
-from fedreg.v1.user_group.schemas import UserGroupBase, UserGroupCreate
+from fedreg.user_group.models import UserGroup
+from fedreg.user_group.schemas import UserGroupBase, UserGroupCreate
 from tests.v1.schemas.utils import user_group_schema_dict
 from tests.v1.utils import random_lower_string
 

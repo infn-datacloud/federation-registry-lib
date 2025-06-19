@@ -3,11 +3,11 @@ from typing import Any
 import pytest
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNodeCreate,
 )
-from fedreg.v1.service.enum import ServiceType
-from fedreg.v1.service.schemas import (
+from fedreg.service.enum import ServiceType
+from fedreg.service.schemas import (
     BlockStorageServiceCreate,
     BlockStorageServiceUpdate,
     ComputeServiceCreate,

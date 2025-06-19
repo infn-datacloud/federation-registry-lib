@@ -4,9 +4,9 @@ import pytest
 from neomodel import CardinalityViolation, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.flavor.models import Flavor, PrivateFlavor, SharedFlavor
-from fedreg.v1.project.models import Project
-from fedreg.v1.service.models import ComputeService
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.project.models import Project
+from fedreg.service.models import ComputeService
 from tests.v1.models.utils import project_model_dict
 
 

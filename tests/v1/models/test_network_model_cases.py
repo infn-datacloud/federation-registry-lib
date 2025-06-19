@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from pytest_cases import case
 
-from fedreg.v1.network.models import Network, PrivateNetwork, SharedNetwork
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
 from tests.v1.models.utils import network_model_dict
 from tests.v1.utils import random_int, random_lower_string
 

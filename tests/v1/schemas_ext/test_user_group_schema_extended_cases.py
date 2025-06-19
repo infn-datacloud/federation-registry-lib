@@ -1,21 +1,21 @@
 from pytest_cases import case, parametrize
 
-from fedreg.v1.project.models import Project
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.quota.models import (
+from fedreg.project.models import Project
+from fedreg.provider.models import Provider
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
     ObjectStoreQuota,
 )
-from fedreg.v1.region.models import Region
-from fedreg.v1.service.models import (
+from fedreg.region.models import Region
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     NetworkService,
     ObjectStoreService,
 )
-from fedreg.v1.sla.models import SLA
+from fedreg.sla.models import SLA
 from tests.v1.models.utils import (
     project_model_dict,
     provider_model_dict,

@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from pytest_cases import case
 
-from fedreg.v1.image.models import Image, PrivateImage, SharedImage
+from fedreg.image.models import Image, PrivateImage, SharedImage
 from tests.v1.models.utils import image_model_dict
 from tests.v1.utils import random_datetime, random_lower_string
 

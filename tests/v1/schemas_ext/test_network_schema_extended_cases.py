@@ -1,6 +1,6 @@
 from pytest_cases import case, parametrize
 
-from fedreg.v1.project.models import Project
+from fedreg.project.models import Project
 from tests.v1.models.utils import project_model_dict
 
 

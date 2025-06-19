@@ -1,8 +1,8 @@
 from pytest_cases import case, parametrize
 
-from fedreg.v1.location.models import Location
-from fedreg.v1.service.enum import ServiceType
-from fedreg.v1.service.models import (
+from fedreg.location.models import Location
+from fedreg.service.enum import ServiceType
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,

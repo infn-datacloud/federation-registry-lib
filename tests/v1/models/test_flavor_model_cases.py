@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from pytest_cases import case
 
-from fedreg.v1.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
 from tests.v1.models.utils import flavor_model_dict
 from tests.v1.utils import random_int, random_lower_string
 

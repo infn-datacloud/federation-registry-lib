@@ -4,13 +4,13 @@ import pytest
 from neomodel import DoesNotExist, RelationshipManager, RequiredProperty
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.auth_method.models import AuthMethod
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.image.models import Image
-from fedreg.v1.project.models import Project
-from fedreg.v1.provider.enum import ProviderStatus
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.region.models import Region
+from fedreg.auth_method.models import AuthMethod
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.image.models import Image
+from fedreg.project.models import Project
+from fedreg.provider.enum import ProviderStatus
+from fedreg.provider.models import Provider
+from fedreg.region.models import Region
 from tests.v1.models.utils import (
     auth_method_model_dict,
     identity_provider_model_dict,

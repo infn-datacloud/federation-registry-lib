@@ -11,10 +11,10 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.location.models import Location
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.region.models import Region
-from fedreg.v1.service.models import (
+from fedreg.location.models import Location
+from fedreg.provider.models import Provider
+from fedreg.region.models import Region
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,

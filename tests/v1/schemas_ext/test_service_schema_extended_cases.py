@@ -1,6 +1,6 @@
 from pytest_cases import case, parametrize
 
-from fedreg.v1.quota.models import (
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,

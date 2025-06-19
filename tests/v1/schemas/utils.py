@@ -4,10 +4,10 @@ from uuid import uuid4
 
 from pycountry import countries
 
-from fedreg.v1.core import BaseNodeRead
-from fedreg.v1.image.enum import ImageOS
-from fedreg.v1.provider.enum import ProviderStatus, ProviderType
-from fedreg.v1.service.enum import (
+from fedreg.core import BaseNodeRead
+from fedreg.image.enum import ImageOS
+from fedreg.provider.enum import ProviderStatus, ProviderType
+from fedreg.service.enum import (
     BlockStorageServiceName,
     ComputeServiceName,
     IdentityServiceName,

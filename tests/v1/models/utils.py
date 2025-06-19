@@ -1,6 +1,6 @@
 from typing import Any
 
-from fedreg.v1.service.enum import ServiceType
+from fedreg.service.enum import ServiceType
 from tests.v1.schemas.utils import (
     auth_method_schema_dict,
     flavor_schema_dict,

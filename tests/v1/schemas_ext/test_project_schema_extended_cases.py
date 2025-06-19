@@ -1,27 +1,27 @@
 from pytest_cases import case, parametrize
 
-from fedreg.v1.flavor.models import PrivateFlavor, SharedFlavor
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.image.models import PrivateImage, SharedImage
-from fedreg.v1.network.models import PrivateNetwork, SharedNetwork
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.quota.models import (
+from fedreg.flavor.models import PrivateFlavor, SharedFlavor
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.image.models import PrivateImage, SharedImage
+from fedreg.network.models import PrivateNetwork, SharedNetwork
+from fedreg.provider.models import Provider
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
     ObjectStoreQuota,
 )
-from fedreg.v1.region.models import Region
-from fedreg.v1.service.enum import ServiceType
-from fedreg.v1.service.models import (
+from fedreg.region.models import Region
+from fedreg.service.enum import ServiceType
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
     ObjectStoreService,
 )
-from fedreg.v1.sla.models import SLA
-from fedreg.v1.user_group.models import UserGroup
+from fedreg.sla.models import SLA
+from fedreg.user_group.models import UserGroup
 from tests.v1.models.utils import (
     auth_method_model_dict,
     flavor_model_dict,

@@ -4,8 +4,8 @@ import pytest
 from neomodel import RelationshipManager, RequiredProperty
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.location.models import Location
-from fedreg.v1.region.models import Region
+from fedreg.location.models import Location
+from fedreg.region.models import Region
 from tests.v1.models.utils import region_model_dict
 
 

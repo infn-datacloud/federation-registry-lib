@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.project.models import Project
-from fedreg.v1.project.schemas import ProjectBase, ProjectCreate
+from fedreg.project.models import Project
+from fedreg.project.schemas import ProjectBase, ProjectCreate
 from tests.v1.schemas.utils import project_schema_dict
 from tests.v1.utils import random_lower_string
 

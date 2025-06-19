@@ -4,7 +4,7 @@ from typing import Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNode,
     create_query_model,
     get_field_basic_type,

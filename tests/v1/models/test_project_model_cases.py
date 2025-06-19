@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from pytest_cases import case
 
-from fedreg.v1.quota.models import (
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,

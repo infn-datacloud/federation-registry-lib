@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.identity_provider.schemas import (
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.identity_provider.schemas import (
     IdentityProviderBase,
     IdentityProviderCreate,
 )

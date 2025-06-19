@@ -2,7 +2,7 @@ from typing import Any, Literal
 
 from pytest_cases import case
 
-from fedreg.v1.service.models import (
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,

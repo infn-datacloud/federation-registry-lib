@@ -11,9 +11,9 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.sla.models import SLA
-from fedreg.v1.user_group.models import UserGroup
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.sla.models import SLA
+from fedreg.user_group.models import UserGroup
 from tests.v1.models.utils import identity_provider_model_dict, sla_model_dict
 
 

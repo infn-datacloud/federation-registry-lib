@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import ProviderBase, ProviderCreate
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import ProviderBase, ProviderCreate
 from tests.v1.schemas.utils import provider_schema_dict, random_provider_status
 from tests.v1.utils import random_email, random_lower_string
 

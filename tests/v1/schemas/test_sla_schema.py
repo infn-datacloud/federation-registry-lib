@@ -4,15 +4,15 @@ from uuid import uuid4
 import pytest
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
 )
-from fedreg.v1.sla.models import SLA
-from fedreg.v1.sla.schemas import (
+from fedreg.sla.models import SLA
+from fedreg.sla.schemas import (
     SLABase,
     SLABasePublic,
     SLACreate,

@@ -10,9 +10,9 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.network.models import Network, PrivateNetwork, SharedNetwork
-from fedreg.v1.project.models import Project
-from fedreg.v1.service.models import NetworkService
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
+from fedreg.project.models import Project
+from fedreg.service.models import NetworkService
 from tests.v1.models.utils import project_model_dict, service_model_dict
 
 

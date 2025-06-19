@@ -2,15 +2,15 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fedreg.v1.quota.enum import QuotaType
-from fedreg.v1.quota.models import (
+from fedreg.quota.enum import QuotaType
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
     ObjectStoreQuota,
     Quota,
 )
-from fedreg.v1.quota.schemas import (
+from fedreg.quota.schemas import (
     BlockStorageQuotaCreate,
     ComputeQuotaCreate,
     NetworkQuotaCreate,

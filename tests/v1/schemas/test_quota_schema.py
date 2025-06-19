@@ -3,9 +3,9 @@ from typing import Any
 import pytest
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import BaseNodeCreate
-from fedreg.v1.quota.enum import QuotaType
-from fedreg.v1.quota.schemas import (
+from fedreg.core import BaseNodeCreate
+from fedreg.quota.enum import QuotaType
+from fedreg.quota.schemas import (
     BlockStorageQuotaCreate,
     BlockStorageQuotaUpdate,
     ComputeQuotaCreate,

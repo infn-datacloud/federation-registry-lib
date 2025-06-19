@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.network.models import Network, PrivateNetwork, SharedNetwork
-from fedreg.v1.network.schemas import (
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
+from fedreg.network.schemas import (
     NetworkBase,
     PrivateNetworkCreate,
     SharedNetworkCreate,

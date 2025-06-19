@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.region.models import Region
-from fedreg.v1.region.schemas import RegionBase, RegionCreate
+from fedreg.region.models import Region
+from fedreg.region.schemas import RegionBase, RegionCreate
 from tests.v1.schemas.utils import region_schema_dict
 from tests.v1.utils import random_lower_string
 

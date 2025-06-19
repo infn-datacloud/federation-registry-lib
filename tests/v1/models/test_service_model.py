@@ -11,18 +11,18 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.flavor.models import Flavor, PrivateFlavor, SharedFlavor
-from fedreg.v1.image.models import Image, PrivateImage, SharedImage
-from fedreg.v1.network.models import Network, PrivateNetwork, SharedNetwork
-from fedreg.v1.quota.models import (
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.image.models import Image, PrivateImage, SharedImage
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
     ObjectStoreQuota,
 )
-from fedreg.v1.region.models import Region
-from fedreg.v1.service.enum import ServiceType
-from fedreg.v1.service.models import (
+from fedreg.region.models import Region
+from fedreg.service.enum import ServiceType
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,

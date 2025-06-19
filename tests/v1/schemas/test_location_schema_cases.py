@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.location.models import Location
-from fedreg.v1.location.schemas import LocationBase, LocationCreate
+from fedreg.location.models import Location
+from fedreg.location.schemas import LocationBase, LocationCreate
 from tests.v1.schemas.utils import (
     location_schema_dict,
     random_latitude,

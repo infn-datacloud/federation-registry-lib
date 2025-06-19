@@ -3,20 +3,20 @@ from neomodel.exceptions import CardinalityViolation
 from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.auth_method.schemas import AuthMethodRead
-from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
-from fedreg.v1.flavor.models import PrivateFlavor, SharedFlavor
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.identity_provider.schemas import (
+from fedreg.auth_method.schemas import AuthMethodRead
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.flavor.models import PrivateFlavor, SharedFlavor
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from fedreg.v1.image.models import PrivateImage, SharedImage
-from fedreg.v1.network.models import PrivateNetwork, SharedNetwork
-from fedreg.v1.network.schemas import NetworkRead, NetworkReadPublic
-from fedreg.v1.project.models import Project
-from fedreg.v1.project.schemas import ProjectRead, ProjectReadPublic
-from fedreg.v1.project.schemas_extended import (
+from fedreg.image.models import PrivateImage, SharedImage
+from fedreg.network.models import PrivateNetwork, SharedNetwork
+from fedreg.network.schemas import NetworkRead, NetworkReadPublic
+from fedreg.project.models import Project
+from fedreg.project.schemas import ProjectRead, ProjectReadPublic
+from fedreg.project.schemas_extended import (
     BlockStorageQuotaReadExtended,
     BlockStorageQuotaReadExtendedPublic,
     BlockStorageServiceReadExtended,
@@ -49,15 +49,15 @@ from fedreg.v1.project.schemas_extended import (
     UserGroupReadExtended,
     UserGroupReadExtendedPublic,
 )
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import ProviderRead, ProviderReadPublic
-from fedreg.v1.quota.models import (
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
     ObjectStoreQuota,
 )
-from fedreg.v1.quota.schemas import (
+from fedreg.quota.schemas import (
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
     ComputeQuotaRead,
@@ -67,16 +67,16 @@ from fedreg.v1.quota.schemas import (
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
 )
-from fedreg.v1.region.models import Region
-from fedreg.v1.region.schemas import RegionRead, RegionReadPublic
-from fedreg.v1.service.models import (
+from fedreg.region.models import Region
+from fedreg.region.schemas import RegionRead, RegionReadPublic
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
     ObjectStoreService,
 )
-from fedreg.v1.service.schemas import (
+from fedreg.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
@@ -87,10 +87,10 @@ from fedreg.v1.service.schemas import (
     ObjectStoreServiceRead,
     ObjectStoreServiceReadPublic,
 )
-from fedreg.v1.sla.models import SLA
-from fedreg.v1.sla.schemas import SLARead, SLAReadPublic
-from fedreg.v1.user_group.models import UserGroup
-from fedreg.v1.user_group.schemas import UserGroupRead, UserGroupReadPublic
+from fedreg.sla.models import SLA
+from fedreg.sla.schemas import SLARead, SLAReadPublic
+from fedreg.user_group.models import UserGroup
+from fedreg.user_group.schemas import UserGroupRead, UserGroupReadPublic
 from tests.v1.models.utils import auth_method_model_dict
 
 

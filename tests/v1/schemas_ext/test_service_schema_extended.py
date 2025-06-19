@@ -2,18 +2,18 @@ import pytest
 from neomodel.exceptions import CardinalityViolation
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
-from fedreg.v1.project.models import Project
-from fedreg.v1.project.schemas import ProjectRead, ProjectReadPublic
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import ProviderRead, ProviderReadPublic
-from fedreg.v1.quota.models import (
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.project.models import Project
+from fedreg.project.schemas import ProjectRead, ProjectReadPublic
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
     ObjectStoreQuota,
 )
-from fedreg.v1.quota.schemas import (
+from fedreg.quota.schemas import (
     BlockStorageQuotaRead,
     BlockStorageQuotaReadPublic,
     ComputeQuotaRead,
@@ -23,16 +23,16 @@ from fedreg.v1.quota.schemas import (
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
 )
-from fedreg.v1.region.models import Region
-from fedreg.v1.region.schemas import RegionRead, RegionReadPublic
-from fedreg.v1.service.models import (
+from fedreg.region.models import Region
+from fedreg.region.schemas import RegionRead, RegionReadPublic
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
     ObjectStoreService,
 )
-from fedreg.v1.service.schemas import (
+from fedreg.service.schemas import (
     BlockStorageServiceRead,
     BlockStorageServiceReadPublic,
     ComputeServiceRead,
@@ -44,7 +44,7 @@ from fedreg.v1.service.schemas import (
     ObjectStoreServiceRead,
     ObjectStoreServiceReadPublic,
 )
-from fedreg.v1.service.schemas_extended import (
+from fedreg.service.schemas_extended import (
     BlockStorageQuotaReadExtended,
     BlockStorageQuotaReadExtendedPublic,
     BlockStorageServiceReadExtended,

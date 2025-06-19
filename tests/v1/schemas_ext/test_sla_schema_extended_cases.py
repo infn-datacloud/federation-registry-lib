@@ -1,7 +1,7 @@
 from pytest_cases import case, parametrize
 
-from fedreg.v1.project.models import Project
-from fedreg.v1.provider.models import Provider
+from fedreg.project.models import Project
+from fedreg.provider.models import Provider
 from tests.v1.models.utils import project_model_dict, provider_model_dict
 
 

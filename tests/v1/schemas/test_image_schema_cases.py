@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.image.models import Image  # , PrivateImage, SharedImage
-from fedreg.v1.image.schemas import ImageBase  # , PrivateImageCreate, SharedImageCreate
+from fedreg.image.models import Image  # , PrivateImage, SharedImage
+from fedreg.image.schemas import ImageBase  # , PrivateImageCreate, SharedImageCreate
 from tests.v1.schemas.utils import image_schema_dict, random_image_os_type
 from tests.v1.utils import random_lower_string
 

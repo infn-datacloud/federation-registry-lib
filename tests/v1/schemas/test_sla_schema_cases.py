@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.sla.models import SLA
-from fedreg.v1.sla.schemas import SLABase, SLACreate
+from fedreg.sla.models import SLA
+from fedreg.sla.schemas import SLABase, SLACreate
 from tests.v1.schemas.utils import sla_schema_dict
 from tests.v1.utils import random_lower_string
 

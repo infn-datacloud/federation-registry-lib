@@ -21,7 +21,7 @@ from neomodel.exceptions import AttemptedCardinalityViolation, CardinalityViolat
 from pydantic import BaseModel, Field
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPrivateExtended,

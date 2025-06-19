@@ -2,14 +2,14 @@ import pytest
 from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.flavor.schemas import PrivateFlavorCreate, SharedFlavorCreate
-from fedreg.v1.identity_provider.schemas import IdentityProviderCreate
-from fedreg.v1.image.schemas import PrivateImageCreate, SharedImageCreate
-from fedreg.v1.location.schemas import LocationCreate
-from fedreg.v1.network.schemas import PrivateNetworkCreate, SharedNetworkCreate
-from fedreg.v1.project.schemas import ProjectCreate
-from fedreg.v1.provider.schemas import ProviderCreate
-from fedreg.v1.provider.schemas_extended import (
+from fedreg.flavor.schemas import PrivateFlavorCreate, SharedFlavorCreate
+from fedreg.identity_provider.schemas import IdentityProviderCreate
+from fedreg.image.schemas import PrivateImageCreate, SharedImageCreate
+from fedreg.location.schemas import LocationCreate
+from fedreg.network.schemas import PrivateNetworkCreate, SharedNetworkCreate
+from fedreg.project.schemas import ProjectCreate
+from fedreg.provider.schemas import ProviderCreate
+from fedreg.provider.schemas_extended import (
     BlockStorageQuotaCreateExtended,
     BlockStorageServiceCreateExtended,
     ComputeQuotaCreateExtended,
@@ -27,22 +27,22 @@ from fedreg.v1.provider.schemas_extended import (
     SLACreateExtended,
     UserGroupCreateExtended,
 )
-from fedreg.v1.quota.schemas import (
+from fedreg.quota.schemas import (
     BlockStorageQuotaCreate,
     ComputeQuotaCreate,
     NetworkQuotaCreate,
     ObjectStoreQuotaCreate,
 )
-from fedreg.v1.region.schemas import RegionCreate
-from fedreg.v1.service.enum import ServiceType
-from fedreg.v1.service.schemas import (
+from fedreg.region.schemas import RegionCreate
+from fedreg.service.enum import ServiceType
+from fedreg.service.schemas import (
     BlockStorageServiceCreate,
     ComputeServiceCreate,
     NetworkServiceCreate,
     ObjectStoreServiceCreate,
 )
-from fedreg.v1.sla.schemas import SLACreate
-from fedreg.v1.user_group.schemas import UserGroupCreate
+from fedreg.sla.schemas import SLACreate
+from fedreg.user_group.schemas import UserGroupCreate
 from tests.v1.schemas.utils import (
     flavor_schema_dict,
     image_schema_dict,

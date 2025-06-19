@@ -6,7 +6,7 @@ from uuid import uuid4
 import pytest
 from pydantic import Field
 
-from fedreg.v1.core import BaseNode, BaseNodeCreate
+from fedreg.core import BaseNode, BaseNodeCreate
 from tests.v1.utils import random_lower_string
 
 

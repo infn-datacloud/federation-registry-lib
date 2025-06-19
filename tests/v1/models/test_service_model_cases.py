@@ -2,11 +2,11 @@ from typing import Any, Literal
 
 from pytest_cases import case
 
-from fedreg.v1.flavor.models import Flavor, PrivateFlavor, SharedFlavor
-from fedreg.v1.image.models import Image, PrivateImage, SharedImage
-from fedreg.v1.network.models import Network, PrivateNetwork, SharedNetwork
-from fedreg.v1.project.models import Project
-from fedreg.v1.service.models import (
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.image.models import Image, PrivateImage, SharedImage
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
+from fedreg.project.models import Project
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,

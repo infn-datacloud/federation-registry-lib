@@ -2,10 +2,10 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize, parametrize_with_cases
 
-from fedreg.v1.service.enum import (
+from fedreg.service.enum import (
     ServiceType,
 )
-from fedreg.v1.service.models import (
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
@@ -13,7 +13,7 @@ from fedreg.v1.service.models import (
     ObjectStoreService,
     Service,
 )
-from fedreg.v1.service.schemas import (
+from fedreg.service.schemas import (
     BlockStorageServiceCreate,
     ComputeServiceCreate,
     IdentityServiceCreate,

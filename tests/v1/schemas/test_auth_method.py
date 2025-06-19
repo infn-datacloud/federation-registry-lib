@@ -4,9 +4,9 @@ import pytest
 from pydantic import BaseModel
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.auth_method.models import AuthMethod
-from fedreg.v1.auth_method.schemas import AuthMethodRead, OsAuthMethodCreate
-from fedreg.v1.core import BaseNodeCreate
+from fedreg.auth_method.models import AuthMethod
+from fedreg.auth_method.schemas import AuthMethodRead, OsAuthMethodCreate
+from fedreg.core import BaseNodeCreate
 
 
 def test_classes_inheritance() -> None:

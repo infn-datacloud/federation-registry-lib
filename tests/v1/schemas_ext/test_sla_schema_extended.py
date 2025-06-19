@@ -2,19 +2,19 @@ import pytest
 from neomodel.exceptions import CardinalityViolation
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.identity_provider.schemas import (
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from fedreg.v1.project.models import Project
-from fedreg.v1.project.schemas import ProjectRead, ProjectReadPublic
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import ProviderRead, ProviderReadPublic
-from fedreg.v1.sla.models import SLA
-from fedreg.v1.sla.schemas import SLARead, SLAReadPublic
-from fedreg.v1.sla.schemas_extended import (
+from fedreg.project.models import Project
+from fedreg.project.schemas import ProjectRead, ProjectReadPublic
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
+from fedreg.sla.models import SLA
+from fedreg.sla.schemas import SLARead, SLAReadPublic
+from fedreg.sla.schemas_extended import (
     ProjectReadExtended,
     ProjectReadExtendedPublic,
     SLAReadExtended,
@@ -22,8 +22,8 @@ from fedreg.v1.sla.schemas_extended import (
     UserGroupReadExtended,
     UserGroupReadExtendedPublic,
 )
-from fedreg.v1.user_group.models import UserGroup
-from fedreg.v1.user_group.schemas import UserGroupRead, UserGroupReadPublic
+from fedreg.user_group.models import UserGroup
+from fedreg.user_group.schemas import UserGroupRead, UserGroupReadPublic
 
 
 def test_class_inheritance():

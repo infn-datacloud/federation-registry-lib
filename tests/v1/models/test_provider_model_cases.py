@@ -2,11 +2,11 @@ from typing import Any, Literal
 
 from pytest_cases import case
 
-from fedreg.v1.image.models import SharedImage
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.region.models import Region
-from fedreg.v1.service.enum import ServiceType
-from fedreg.v1.service.models import ComputeService
+from fedreg.image.models import SharedImage
+from fedreg.provider.models import Provider
+from fedreg.region.models import Region
+from fedreg.service.enum import ServiceType
+from fedreg.service.models import ComputeService
 from tests.v1.models.utils import (
     image_model_dict,
     provider_model_dict,

@@ -9,16 +9,16 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.project.models import Project
-from fedreg.v1.quota.enum import QuotaType
-from fedreg.v1.quota.models import (
+from fedreg.project.models import Project
+from fedreg.quota.enum import QuotaType
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
     ObjectStoreQuota,
     Quota,
 )
-from fedreg.v1.service.models import (
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     NetworkService,

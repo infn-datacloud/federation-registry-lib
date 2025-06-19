@@ -4,16 +4,16 @@ from uuid import uuid4
 import pytest
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
 )
-from fedreg.v1.provider.enum import ProviderStatus
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import (
+from fedreg.provider.enum import ProviderStatus
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import (
     ProviderBase,
     ProviderBasePublic,
     ProviderCreate,

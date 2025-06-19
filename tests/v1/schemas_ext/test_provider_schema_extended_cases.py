@@ -1,25 +1,25 @@
 from pytest_cases import case, parametrize
 
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.location.models import Location
-from fedreg.v1.project.models import Project
-from fedreg.v1.quota.models import (
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.location.models import Location
+from fedreg.project.models import Project
+from fedreg.quota.models import (
     BlockStorageQuota,
     ComputeQuota,
     NetworkQuota,
     ObjectStoreQuota,
 )
-from fedreg.v1.region.models import Region
-from fedreg.v1.service.enum import ServiceType
-from fedreg.v1.service.models import (
+from fedreg.region.models import Region
+from fedreg.service.enum import ServiceType
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,
     NetworkService,
     ObjectStoreService,
 )
-from fedreg.v1.sla.models import SLA
-from fedreg.v1.user_group.models import UserGroup
+from fedreg.sla.models import SLA
+from fedreg.user_group.models import UserGroup
 from tests.v1.models.utils import (
     identity_provider_model_dict,
     location_model_dict,

@@ -2,10 +2,10 @@ import pytest
 from neomodel import CardinalityViolation
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
-from fedreg.v1.network.models import Network, PrivateNetwork, SharedNetwork
-from fedreg.v1.network.schemas import NetworkRead, NetworkReadPublic
-from fedreg.v1.network.schemas_extended import (
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.network.models import Network, PrivateNetwork, SharedNetwork
+from fedreg.network.schemas import NetworkRead, NetworkReadPublic
+from fedreg.network.schemas_extended import (
     NetworkReadExtended,
     NetworkReadExtendedPublic,
     NetworkServiceReadExtended,
@@ -13,13 +13,13 @@ from fedreg.v1.network.schemas_extended import (
     RegionReadExtended,
     RegionReadExtendedPublic,
 )
-from fedreg.v1.project.models import Project
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import ProviderRead, ProviderReadPublic
-from fedreg.v1.region.models import Region
-from fedreg.v1.region.schemas import RegionRead, RegionReadPublic
-from fedreg.v1.service.models import NetworkService
-from fedreg.v1.service.schemas import NetworkServiceRead, NetworkServiceReadPublic
+from fedreg.project.models import Project
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
+from fedreg.region.models import Region
+from fedreg.region.schemas import RegionRead, RegionReadPublic
+from fedreg.service.models import NetworkService
+from fedreg.service.schemas import NetworkServiceRead, NetworkServiceReadPublic
 
 
 def test_class_inheritance():

@@ -2,22 +2,22 @@ import pytest
 from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.auth_method.schemas import AuthMethodRead
-from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.identity_provider.schemas import (
+from fedreg.auth_method.schemas import AuthMethodRead
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.identity_provider.schemas import (
     IdentityProviderRead,
     IdentityProviderReadPublic,
 )
-from fedreg.v1.identity_provider.schemas_extended import (
+from fedreg.identity_provider.schemas_extended import (
     IdentityProviderReadExtended,
     IdentityProviderReadExtendedPublic,
     ProviderReadExtended,
     ProviderReadExtendedPublic,
 )
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import ProviderRead, ProviderReadPublic
-from fedreg.v1.user_group.models import UserGroup
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
+from fedreg.user_group.models import UserGroup
 from tests.v1.models.utils import auth_method_model_dict
 
 

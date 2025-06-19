@@ -10,9 +10,9 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.project.models import Project
-from fedreg.v1.sla.models import SLA
-from fedreg.v1.user_group.models import UserGroup
+from fedreg.project.models import Project
+from fedreg.sla.models import SLA
+from fedreg.user_group.models import UserGroup
 from tests.v1.models.utils import project_model_dict, user_group_model_dict
 
 

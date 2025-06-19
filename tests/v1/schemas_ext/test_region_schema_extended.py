@@ -1,17 +1,17 @@
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
-from fedreg.v1.location.models import Location
-from fedreg.v1.location.schemas import LocationRead, LocationReadPublic
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import ProviderRead, ProviderReadPublic
-from fedreg.v1.region.models import Region
-from fedreg.v1.region.schemas import RegionRead, RegionReadPublic
-from fedreg.v1.region.schemas_extended import (
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.location.models import Location
+from fedreg.location.schemas import LocationRead, LocationReadPublic
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
+from fedreg.region.models import Region
+from fedreg.region.schemas import RegionRead, RegionReadPublic
+from fedreg.region.schemas_extended import (
     RegionReadExtended,
     RegionReadExtendedPublic,
 )
-from fedreg.v1.service.models import (
+from fedreg.service.models import (
     BlockStorageService,
     ComputeService,
     IdentityService,

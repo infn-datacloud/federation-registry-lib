@@ -1,13 +1,13 @@
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
-from fedreg.v1.location.models import Location
-from fedreg.v1.location.schemas import LocationRead, LocationReadPublic
-from fedreg.v1.location.schemas_extended import (
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.location.models import Location
+from fedreg.location.schemas import LocationRead, LocationReadPublic
+from fedreg.location.schemas_extended import (
     LocationReadExtended,
     LocationReadExtendedPublic,
 )
-from fedreg.v1.region.models import Region
+from fedreg.region.models import Region
 
 
 def test_class_inheritance():

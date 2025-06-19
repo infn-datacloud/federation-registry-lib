@@ -2,10 +2,10 @@ import pytest
 from neomodel import CardinalityViolation
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import BaseReadPrivateExtended, BaseReadPublicExtended
-from fedreg.v1.flavor.models import Flavor, PrivateFlavor, SharedFlavor
-from fedreg.v1.flavor.schemas import FlavorRead, FlavorReadPublic
-from fedreg.v1.flavor.schemas_extended import (
+from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.flavor.schemas import FlavorRead, FlavorReadPublic
+from fedreg.flavor.schemas_extended import (
     ComputeServiceReadExtended,
     ComputeServiceReadExtendedPublic,
     FlavorReadExtended,
@@ -13,13 +13,13 @@ from fedreg.v1.flavor.schemas_extended import (
     RegionReadExtended,
     RegionReadExtendedPublic,
 )
-from fedreg.v1.project.models import Project
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.provider.schemas import ProviderRead, ProviderReadPublic
-from fedreg.v1.region.models import Region
-from fedreg.v1.region.schemas import RegionRead, RegionReadPublic
-from fedreg.v1.service.models import ComputeService
-from fedreg.v1.service.schemas import ComputeServiceRead, ComputeServiceReadPublic
+from fedreg.project.models import Project
+from fedreg.provider.models import Provider
+from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
+from fedreg.region.models import Region
+from fedreg.region.schemas import RegionRead, RegionReadPublic
+from fedreg.service.models import ComputeService
+from fedreg.service.schemas import ComputeServiceRead, ComputeServiceReadPublic
 
 
 def test_class_inheritance():

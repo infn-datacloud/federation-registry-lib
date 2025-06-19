@@ -2,8 +2,8 @@ from typing import Any, Literal
 
 from pytest_cases import case, parametrize_with_cases
 
-from fedreg.v1.flavor.models import Flavor, PrivateFlavor, SharedFlavor
-from fedreg.v1.flavor.schemas import FlavorBase, PrivateFlavorCreate, SharedFlavorCreate
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.flavor.schemas import FlavorBase, PrivateFlavorCreate, SharedFlavorCreate
 from tests.v1.schemas.utils import flavor_schema_dict
 from tests.v1.utils import random_lower_string, random_positive_int
 

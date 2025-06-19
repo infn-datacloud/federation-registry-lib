@@ -1,6 +1,6 @@
 from pytest_cases import case, parametrize
 
-from fedreg.v1.region.models import Region
+from fedreg.region.models import Region
 from tests.v1.models.utils import region_model_dict
 
 

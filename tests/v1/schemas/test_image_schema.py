@@ -6,15 +6,15 @@ from pytest_cases import parametrize_with_cases
 
 # PrivateImageCreate,
 # SharedImageCreate,
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
 )
-from fedreg.v1.image.models import Image  # , PrivateImage, SharedImage
-from fedreg.v1.image.schemas import (
+from fedreg.image.models import Image  # , PrivateImage, SharedImage
+from fedreg.image.schemas import (
     ImageBase,
     ImageBasePublic,
     ImageRead,

@@ -4,15 +4,15 @@ from uuid import uuid4
 import pytest
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
 )
-from fedreg.v1.user_group.models import UserGroup
-from fedreg.v1.user_group.schemas import (
+from fedreg.user_group.models import UserGroup
+from fedreg.user_group.schemas import (
     UserGroupBase,
     UserGroupBasePublic,
     UserGroupCreate,

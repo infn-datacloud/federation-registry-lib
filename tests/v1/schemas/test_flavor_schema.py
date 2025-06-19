@@ -5,15 +5,15 @@ import pytest
 from pydantic import ValidationError
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
 )
-from fedreg.v1.flavor.models import Flavor, PrivateFlavor, SharedFlavor
-from fedreg.v1.flavor.schemas import (
+from fedreg.flavor.models import Flavor, PrivateFlavor, SharedFlavor
+from fedreg.flavor.schemas import (
     FlavorBase,
     FlavorBasePublic,
     FlavorRead,

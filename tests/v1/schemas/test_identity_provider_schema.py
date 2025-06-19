@@ -4,15 +4,15 @@ from uuid import uuid4
 import pytest
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.core import (
+from fedreg.core import (
     BaseNode,
     BaseNodeCreate,
     BaseNodeRead,
     BaseReadPrivate,
     BaseReadPublic,
 )
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.identity_provider.schemas import (
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.identity_provider.schemas import (
     IdentityProviderBase,
     IdentityProviderBasePublic,
     IdentityProviderCreate,

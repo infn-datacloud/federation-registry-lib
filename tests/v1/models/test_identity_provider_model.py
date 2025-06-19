@@ -8,10 +8,10 @@ from neomodel import (
 )
 from pytest_cases import parametrize_with_cases
 
-from fedreg.v1.auth_method.models import AuthMethod
-from fedreg.v1.identity_provider.models import IdentityProvider
-from fedreg.v1.provider.models import Provider
-from fedreg.v1.user_group.models import UserGroup
+from fedreg.auth_method.models import AuthMethod
+from fedreg.identity_provider.models import IdentityProvider
+from fedreg.provider.models import Provider
+from fedreg.user_group.models import UserGroup
 from tests.v1.models.utils import (
     auth_method_model_dict,
     provider_model_dict,
