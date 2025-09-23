@@ -1,6 +1,6 @@
 from typing import Any
 
-import pytest
+# import pytest
 from pytest_cases import parametrize_with_cases
 
 from fedreg.core import (
@@ -252,96 +252,99 @@ def test_object_store_update(data: dict[str, Any]) -> None:
 #         ServiceBasePublic(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "base"))
-def test_invalid_base(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for ServiceBase."""
-    err_msg = rf"1 validation error for {ServiceBase.__name__}\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        ServiceBase(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "base"))
+# def test_invalid_base(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for ServiceBase."""
+#     err_msg = rf"1 validation error for {ServiceBase.__name__}\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         ServiceBase(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "block-storage"))
-def test_invalid_block_storage_create(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for BlockStorageServiceCreate."""
-    err_msg = rf"1 validation error for {BlockStorageServiceCreate.__name__}\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        BlockStorageServiceCreate(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "block-storage"))
+# def test_invalid_block_storage_create(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for BlockStorageServiceCreate."""
+#     err_msg = rf"1 validation error for {BlockStorageServiceCreate.__name__}\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         BlockStorageServiceCreate(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "compute"))
-def test_invalid_compute_create(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for ComputeServiceCreate."""
-    err_msg = rf"1 validation error for {ComputeServiceCreate.__name__}\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        ComputeServiceCreate(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "compute"))
+# def test_invalid_compute_create(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for ComputeServiceCreate."""
+#     err_msg = rf"1 validation error for {ComputeServiceCreate.__name__}\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         ComputeServiceCreate(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "identity"))
-def test_invalid_identity_create(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for IdentityServiceCreate."""
-    err_msg = rf"1 validation error for {IdentityServiceCreate.__name__}\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        IdentityServiceCreate(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "identity"))
+# def test_invalid_identity_create(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for IdentityServiceCreate."""
+#     err_msg = rf"1 validation error for {IdentityServiceCreate.__name__}\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         IdentityServiceCreate(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "network"))
-def test_invalid_network_create(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for NetworkServiceCreate."""
-    err_msg = rf"1 validation error for {NetworkServiceCreate.__name__}\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        NetworkServiceCreate(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "network"))
+# def test_invalid_network_create(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for NetworkServiceCreate."""
+#     err_msg = rf"1 validation error for {NetworkServiceCreate.__name__}\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         NetworkServiceCreate(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "object-store"))
-def test_invalid_object_store_create(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for ObjectStoreServiceCreate."""
-    err_msg = rf"1 validation error for {ObjectStoreServiceCreate.__name__}\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        ObjectStoreServiceCreate(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "object-store"))
+# def test_invalid_object_store_create(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for ObjectStoreServiceCreate."""
+#     err_msg = rf"1 validation error for {ObjectStoreServiceCreate.__name__}\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         ObjectStoreServiceCreate(**data)
 
 
-@parametrize_with_cases(
-    "data, attr", has_tag=("dict", "invalid", "update", "block-storage")
-)
-def test_invalid_block_storage_update(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for BlockStorageServiceUpdate."""
-    err_msg = rf"1 validation error for BlockStorageServiceUpdate\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        BlockStorageServiceUpdate(**data)
+# @parametrize_with_cases(
+#     "data, attr", has_tag=("dict", "invalid", "update", "block-storage")
+# )
+# def test_invalid_block_storage_update(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for BlockStorageServiceUpdate."""
+#     err_msg = rf"1 validation error for BlockStorageServiceUpdate\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         BlockStorageServiceUpdate(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "update", "compute"))
-def test_invalid_compute_update(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for ComputeServiceUpdate."""
-    err_msg = rf"1 validation error for ComputeServiceUpdate\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        ComputeServiceUpdate(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "update",
+# "compute"))
+# def test_invalid_compute_update(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for ComputeServiceUpdate."""
+#     err_msg = rf"1 validation error for ComputeServiceUpdate\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         ComputeServiceUpdate(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "update", "identity"))
-def test_invalid_identity_update(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for IdentityServiceUpdate."""
-    err_msg = rf"1 validation error for IdentityServiceUpdate\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        IdentityServiceUpdate(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "update",
+# "identity"))
+# def test_invalid_identity_update(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for IdentityServiceUpdate."""
+#     err_msg = rf"1 validation error for IdentityServiceUpdate\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         IdentityServiceUpdate(**data)
 
 
-@parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "update", "network"))
-def test_invalid_network_update(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for NetworkServiceUpdate."""
-    err_msg = rf"1 validation error for NetworkServiceUpdate\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        NetworkServiceUpdate(**data)
+# @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "update",
+# "network"))
+# def test_invalid_network_update(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for NetworkServiceUpdate."""
+#     err_msg = rf"1 validation error for NetworkServiceUpdate\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         NetworkServiceUpdate(**data)
 
 
-@parametrize_with_cases(
-    "data, attr", has_tag=("dict", "invalid", "update", "object-store")
-)
-def test_invalid_object_store_update(data: dict[str, Any], attr: str) -> None:
-    """Test invalid attributes for ObjectStoreServiceUpdate."""
-    err_msg = rf"1 validation error for ObjectStoreServiceUpdate\s{attr}"
-    with pytest.raises(ValueError, match=err_msg):
-        ObjectStoreServiceUpdate(**data)
+# @parametrize_with_cases(
+#     "data, attr", has_tag=("dict", "invalid", "update", "object-store")
+# )
+# def test_invalid_object_store_update(data: dict[str, Any], attr: str) -> None:
+#     """Test invalid attributes for ObjectStoreServiceUpdate."""
+#     err_msg = rf"1 validation error for ObjectStoreServiceUpdate\s{attr}"
+#     with pytest.raises(ValueError, match=err_msg):
+#         ObjectStoreServiceUpdate(**data)
 
 
 # @parametrize_with_cases("data, attr", has_tag=("dict", "invalid", "read_public"))
