@@ -47,8 +47,8 @@ def test_read_shared_ext(
     provider_model: Provider,
     services: list[ComputeService],
 ) -> None:
+    provider_model.regions.connect(region_model)
     for service in services:
-        provider_model.regions.connect(region_model)
         region_model.services.connect(service)
         service.images.connect(shared_image_model)
 
@@ -71,8 +71,8 @@ def test_read_private_ext(
     projects: list[Project],
     services: list[ComputeService],
 ) -> None:
+    provider_model.regions.connect(region_model)
     for service in services:
-        provider_model.regions.connect(region_model)
         region_model.services.connect(service)
         service.images.connect(private_image_model)
     for project in projects:
@@ -95,8 +95,8 @@ def test_read_ext(
     provider_model: Provider,
     services: list[ComputeService],
 ) -> None:
+    provider_model.regions.connect(region_model)
     for service in services:
-        provider_model.regions.connect(region_model)
         region_model.services.connect(service)
         service.images.connect(image_model)
 

@@ -4,7 +4,11 @@ from typing import Any
 
 from pydantic import Field, validator
 
-from fedreg.auth_method.schemas import AuthMethodCreate, AuthMethodRead
+from fedreg.auth_method.schemas import (
+    AuthMethodRead,
+    K8sAuthMethodCreate,
+    OsAuthMethodCreate,
+)
 from fedreg.core import BaseReadPrivateExtended, BaseReadPublicExtended
 from fedreg.flavor.schemas import (
     FlavorRead,
@@ -68,6 +72,7 @@ from fedreg.quota.schemas import (
     ObjectStoreQuotaCreate,
     ObjectStoreQuotaRead,
     ObjectStoreQuotaReadPublic,
+    StorageClassQuotaCreate,
 )
 from fedreg.region.constants import DOC_EXT_LOC, DOC_EXT_SERV
 from fedreg.region.schemas import RegionCreate, RegionRead, RegionReadPublic
@@ -95,6 +100,7 @@ from fedreg.service.schemas import (
     ObjectStoreServiceReadPublic,
 )
 from fedreg.sla.schemas import SLACreate, SLARead, SLAReadPublic
+from fedreg.storageclass.schemas import StorageClassCreate
 from fedreg.user_group.constants import DOC_EXT_SLA
 from fedreg.user_group.schemas import (
     UserGroupCreate,
@@ -480,7 +486,7 @@ class IdentityProviderCreateExtended(IdentityProviderCreate):
         user_groups (list of UserGroupCreateExtended): Owned user groups.
     """
 
-    relationship: AuthMethodCreate | None = Field(
+    relationship: OsAuthMethodCreate | K8sAuthMethodCreate | None = Field(
         default=None, description=DOC_EXT_AUTH_METH
     )
     user_groups: list[UserGroupCreateExtended] = Field(
@@ -573,6 +579,23 @@ class ObjectStoreQuotaCreateExtended(ObjectStoreQuotaCreate):
         bytes (int): Maximum number of allowed bytes.
         containers (int): Maximum number of allowed containers.
         objects (int): Maximum number of allowed objects.
+        project (str): Target project's UUID in the Provider.
+    """
+
+    project: str = Field(description=DOC_NEW_PROJ_UUID)
+
+
+class StorageClassQuotaCreateExtended(StorageClassQuotaCreate):
+    """Model to extend the Object Storage Quota data to add to the DB.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        storage (int): Maximum number of GiB.
+        pvcs (int): Maximum number of allowed persistent volume claims.
         project (str): Target project's UUID in the Provider.
     """
 
@@ -674,6 +697,21 @@ class PrivateNetworkCreateExtended(PrivateNetworkCreate):
         return v
 
 
+class StorageClassCreateExtended(StorageClassCreate):
+    quotas: list[StorageClassQuotaCreateExtended] = Field(
+        default_factory=list, description="List of quotas applied to this storage class"
+    )
+
+    @validator("quotas")
+    @classmethod
+    def max_two_quotas_on_same_project(
+        cls, v: list[BlockStorageQuotaCreateExtended]
+    ) -> list[BlockStorageQuotaCreateExtended]:
+        """Verify maximum number of quotas on same project."""
+        multiple_quotas_same_project(v)
+        return v
+
+
 class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
     """Model to extend the Block Storage Service data to add to the DB.
 
@@ -687,6 +725,9 @@ class BlockStorageServiceCreateExtended(BlockStorageServiceCreate):
             service.
     """
 
+    storage_classes: list[StorageClassCreateExtended] = Field(
+        default_factory=list, description="List of available storage classes"
+    )
     quotas: list[BlockStorageQuotaCreateExtended] = Field(
         default_factory=list, description=DOC_EXT_QUOTA
     )

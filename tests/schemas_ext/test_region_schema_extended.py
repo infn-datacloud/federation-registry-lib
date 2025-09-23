@@ -7,7 +7,10 @@ from fedreg.provider.models import Provider
 from fedreg.provider.schemas import ProviderRead, ProviderReadPublic
 from fedreg.region.models import Region
 from fedreg.region.schemas import RegionRead, RegionReadPublic
-from fedreg.region.schemas_extended import RegionReadExtended, RegionReadExtendedPublic
+from fedreg.region.schemas_extended import (
+    RegionReadExtended,
+    RegionReadExtendedPublic,
+)
 from fedreg.service.models import (
     BlockStorageService,
     ComputeService,

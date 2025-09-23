@@ -4,7 +4,11 @@ from pytest_cases import case, parametrize_with_cases
 
 from fedreg.location.models import Location
 from fedreg.location.schemas import LocationBase, LocationCreate
-from tests.schemas.utils import location_schema_dict, random_latitude, random_longitude
+from tests.schemas.utils import (
+    location_schema_dict,
+    random_latitude,
+    random_longitude,
+)
 from tests.utils import random_lower_string
 
 

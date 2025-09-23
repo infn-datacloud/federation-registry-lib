@@ -93,6 +93,27 @@ class BlockStorageQuotaBase(BlockStorageQuotaBasePublic):
         default=None, ge=-1, description=DOC_VOL_GB
     )
     volumes: int | None = Field(default=None, ge=-1, description=DOC_VOLS)
+    pvcs: int | None = Field(
+        default=None, ge=0, description="Total number of PVCs that can be created."
+    )
+    storage: int | None = Field(
+        default=None,
+        ge=0,
+        description="Resources can define the minimum required storage. This is the "
+        "maximum of the sum of all the resources' storage requests.",
+    )
+    requests_ephemeral_storage: int | None = Field(
+        default=None,
+        ge=0,
+        description="Resources can define the minimum required ephemeral storage. This "
+        "is the maximum of the sum of all the resources' ephemeral storage requests.",
+    )
+    limits_ephemeral_storage: int | None = Field(
+        default=None,
+        ge=0,
+        description="Resources can define the maximum allowed ephemeral storage. This "
+        "is the maximum of the sum of all the resources' ephemeral storage limits.",
+    )
 
 
 class BlockStorageQuotaCreate(BaseNodeCreate, BlockStorageQuotaBase):
@@ -182,6 +203,146 @@ BlockStorageQuotaQuery = create_query_model(
 )
 
 
+class StorageClassQuotaBasePublic(QuotaBase):
+    """Model with the Block Storage Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+    """
+
+    type: Literal[QuotaType.STORAGECLASS] = Field(
+        default=QuotaType.STORAGECLASS, description="Storageclass type"
+    )
+
+
+class StorageClassQuotaBase(StorageClassQuotaBasePublic):
+    """Model with the Block Storage Quota public and restricted attributes.
+
+    Model derived from QuotaBase to inherit attributes common to all quotas.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+    """
+
+    pvcs: int | None = Field(
+        default=None,
+        ge=0,
+        description="Total number of PVCs that can be created for this kind of "
+        "storageclass.",
+    )
+    storage: int | None = Field(
+        default=None,
+        ge=0,
+        description="Resources can define the minimum required storage. This is the "
+        "maximum of the sum of all the resources' storage requests.",
+    )
+
+
+class StorageClassQuotaCreate(BaseNodeCreate, StorageClassQuotaBase):
+    """Model to create a Block Storage Quota.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a POST request.
+
+    Attributes:
+    ----------
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+    """
+
+
+class StorageClassQuotaUpdate(BaseNodeCreate, StorageClassQuotaBase):
+    """Model to update a Block Storage Quota.
+
+    Class without id (which is populated by the database). Expected as input when
+    performing a PUT request.
+
+    Default to None attributes with a different default or required.
+
+    Attributes:
+    ----------
+        description (str | None): Brief description.
+        type (str | None): Quota type.
+        per_user (str | None): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+    """
+
+
+class StorageClassQuotaReadPublic(
+    BaseNodeRead, BaseReadPublic, StorageClassQuotaBasePublic
+):
+    """Model, for non-authenticated users, to read Block Storage data from DB.
+
+    Class to read non-sensible data written in the DB. Expected as output when
+    performing a generic REST request without authentication.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (str): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+    """
+
+
+class StorageClassQuotaRead(BaseNodeRead, BaseReadPrivate, StorageClassQuotaBase):
+    """Model, for authenticated users, to read Block Storage data from DB.
+
+    Class to read all data written in the DB. Expected as output when performing a
+    generic REST request with an authenticated user.
+
+    Add the *uid* attribute, which is the item unique identifier in the database.
+
+    Attributes:
+    ----------
+        uid (int): Quota unique ID.
+        description (str): Brief description.
+        type (str): Quota type.
+        per_user (str): This limitation should be applied to each user.
+        usage (str): This quota defines the current resource usage.
+        gigabytes (int | None): Number of max usable gigabytes (GiB).
+        per_volume_gigabytes (int | None): Number of max usable gigabytes per volume
+            (GiB).
+        volumes (int | None): Number of max volumes a user group can create.
+    """
+
+
+StorageClassQuotaQuery = create_query_model(
+    "StorageClassQuotaQuery", StorageClassQuotaBase
+)
+
+
 class ComputeQuotaBasePublic(QuotaBase):
     """Model with the Compute Quota public and restricted attributes.
 
@@ -217,11 +378,47 @@ class ComputeQuotaBase(ComputeQuotaBasePublic):
         cores (int | None): Number of max usable cores.
         instances (int | None): Number of max VM instances.
         ram (int | None): Number of max usable RAM (MiB).
+        limits_cpu (int | None): Max value for the sum of the maximum usable cpus
+            for a pod.
+        requests_cpu (int | None): Max value for the sum of the "minimum required" cpus
+            for a pod.
+        limits_memory (int | None): Max value for the sum of the maximum usable memory
+            for a pod.
+        requests_memory (int | None): Max value for the sum of the "minimum required"
+            memory for a pod.
+        pods (int | None): Max number of pods that can be created.
+        gpus (dict[str, int] | None): For each type of GPU, define the maximum quota.
     """
 
     cores: int | None = Field(default=None, ge=0, description=DOC_CORES)
     instances: int | None = Field(default=None, ge=0, description=DOC_INST)
     ram: int | None = Field(default=None, ge=0, description=DOC_RAM)
+    limits_cpu: int | None = Field(
+        default=None,
+        ge=0,
+        description="Max value for the sum of the maximum usable cpus for a pod.",
+    )
+    requests_cpu: int | None = Field(
+        default=None,
+        ge=0,
+        description="Max value for the sum of the minimum required cpus for a pod.",
+    )
+    limits_memory: int | None = Field(
+        default=None,
+        ge=0,
+        description="Max value for the sum of the maximum usable memory for a pod.",
+    )
+    requests_memory: int | None = Field(
+        default=None,
+        ge=0,
+        description="Max value for the sum of the min required memory for a pod.",
+    )
+    pods: int | None = Field(
+        default=None, ge=0, description="Max number of pods that can be created."
+    )
+    gpus: dict[str, int] | None = Field(
+        default=None, description="For each type of GPU, define the maximum quota."
+    )
 
 
 class ComputeQuotaCreate(BaseNodeCreate, ComputeQuotaBase):
