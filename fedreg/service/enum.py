@@ -14,20 +14,21 @@ class ComputeServiceName(str, Enum):
     """Possible IaaS compute services names."""
 
     OPENSTACK_NOVA = "org.openstack.nova"
-    KUBERNETES = "v1"
+    KUBERNETES = "compute.k8s.io/v1"
 
 
 class IdentityServiceName(str, Enum):
     """Possible IaaS identity services names."""
 
     OPENSTACK_KEYSTONE = "org.openstack.keystone"
-    KUBERNETES = "v1"
+    KUBERNETES = "identity.k8s.io/v1"
 
 
 class NetworkServiceName(str, Enum):
     """Possible IaaS network services names."""
 
     OPENSTACK_NEUTRON = "org.openstack.neutron"
+    KUBERNETES = "networking.k8s.io/v1"
 
 
 class ObjectStoreServiceName(str, Enum):
