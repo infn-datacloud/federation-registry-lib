@@ -1,6 +1,7 @@
 """Neomodel model of the Project owned by a Provider."""
 
 from neomodel import (
+    IntegerProperty,
     One,
     RelationshipFrom,
     RelationshipTo,
@@ -41,6 +42,7 @@ class Project(StructuredNode):
     description = StringProperty(default="")
     name = StringProperty(required=True)
     uuid = StringProperty(required=True)
+    freshness = IntegerProperty(default=24)
 
     sla = RelationshipFrom(
         "fedreg.sla.models.SLA",

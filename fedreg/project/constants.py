@@ -2,6 +2,7 @@
 
 DOC_NAME = "Project name in the Provider."
 DOC_UUID = "Project unique ID in the Provider."
+DOC_FRESH = "Project freshness in hours (countdown)."
 DOC_EXT_FLAV = "Private and public accessible flavors."
 DOC_EXT_IMAG = "Private and public accessible images."
 DOC_EXT_NETW = "Private and public accessible networks."

@@ -10,7 +10,7 @@ from fedreg.core import (
     BaseReadPublic,
     create_query_model,
 )
-from fedreg.project.constants import DOC_NAME, DOC_UUID
+from fedreg.project.constants import DOC_FRESH, DOC_NAME, DOC_UUID
 
 
 class ProjectBasePublic(BaseNode):
@@ -35,7 +35,10 @@ class ProjectBase(ProjectBasePublic):
         description (str): Brief description.
         name (str): Project name in the Provider.
         uuid (str): Project unique ID in the Provider
+        freshness (int): Project freshness.
     """
+
+    freshness: int = Field(default=24, description=DOC_FRESH)
 
 
 class ProjectCreate(BaseNodeCreate, ProjectBase):
@@ -49,6 +52,7 @@ class ProjectCreate(BaseNodeCreate, ProjectBase):
         description (str): Brief description.
         name (str): Project name in the Provider.
         uuid (str): Project unique ID in the Provider
+        freshness (int): Project freshness.
     """
 
 
@@ -65,10 +69,12 @@ class ProjectUpdate(BaseNodeCreate, ProjectBase):
         description (str | None): Brief description.
         name (str | None): Project name in the Provider.
         uuid (str | None): Project unique ID in the Provider
+        freshness (int | None): Project freshness.
     """
 
     name: str | None = Field(default=None, description=DOC_NAME)
     uuid: str | None = Field(default=None, description=DOC_UUID)
+    freshness: int | None = Field(default=None, description=DOC_FRESH)
 
 
 class ProjectReadPublic(BaseNodeRead, BaseReadPublic, ProjectBasePublic):
@@ -102,6 +108,7 @@ class ProjectRead(BaseNodeRead, BaseReadPrivate, ProjectBase):
         description (str): Brief description.
         name (str): Project name in the Provider.
         uuid (str): Project unique ID in the Provider
+        freshness (int): Project freshness.
     """
 
 
